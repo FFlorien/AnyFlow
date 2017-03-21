@@ -51,7 +51,7 @@ class AmpacheConnection {
     }
 
     fun getSong(): Observable<SongList> {
-        return ampacheApi.getSong(authToken)
+        return ampacheApi.getSong(auth = authToken)
     }
 
     internal fun binToHex(data: ByteArray): String {

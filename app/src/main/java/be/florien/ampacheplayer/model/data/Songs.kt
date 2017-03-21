@@ -1,21 +1,19 @@
 package be.florien.ampacheplayer.model.data
 
-import org.simpleframework.xml.Attribute
-import org.simpleframework.xml.Element
-import org.simpleframework.xml.Root
-import org.simpleframework.xml.Text
+import org.simpleframework.xml.*
 
 /**
  * Created by florien on 16/03/17.
  */
-@Root(name = "root")
+@Root(name = "root", strict = false)
 class SongList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:Element(name = "song", required = false) var songs: Song = Song()
+    @field:ElementList(inline = true, required = false) var songs: List<Song> = mutableListOf()
     @field:Element(name = "error", required = false) var error: Error = Error()
 
 }
 
+@Root(name = "song")
 class Song {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "song", required = false) var song: String = ""

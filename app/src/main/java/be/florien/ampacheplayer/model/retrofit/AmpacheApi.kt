@@ -21,14 +21,14 @@ interface AmpacheApi {
 
     @GET("server/xml.server.php")
     fun getSongs(
-            @Query("action") action :String= "songs",
-            @Query("auth") auth :String)
-    :Observable<SongList>
+            @Query("action") action: String = "songs",
+            @Query("auth") auth: String)
+            : Observable<SongList>
 
     @GET("server/xml.server.php")
     fun getSong(
-            @Query("auth") auth :String,
-            @Query("action") action :String= "song",
-            @Query("filter") uid : Long = 0)
-    :Observable<SongList>
+            @Query("action") action: String = "song",
+            @Query("filter") uid: Long = 0,
+            @Query("auth") auth: String)
+            : Observable<SongList>
 }

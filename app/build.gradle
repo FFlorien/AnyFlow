@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 25
@@ -21,13 +22,18 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
     //base
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile "com.android.support:appcompat-v7:$support_version"
+    compile "com.android.support:design:$support_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    kapt "com.android.databinding:compiler:$gradle_version"
 
     //tests
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -36,14 +42,14 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     //debug
-    compile 'com.facebook.stetho:stetho:1.4.2'
-    compile 'com.facebook.stetho:stetho-okhttp3:1.4.2'
+    compile "com.facebook.stetho:stetho:$stetho_version"
+    compile "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
     //internet
     compile "io.reactivex.rxjava2:rxjava:2.0.7"
-    compile "com.squareup.retrofit2:retrofit:2.2.0"
-    compile "com.squareup.retrofit2:adapter-rxjava2:2.2.0"
-    compile("com.squareup.retrofit2:converter-simplexml:2.2.0") {
+    compile "com.squareup.retrofit2:retrofit:$retrofit_version"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+    compile("com.squareup.retrofit2:converter-simplexml:$retrofit_version") {
         exclude module: 'stax'
         exclude module: 'stax-api'
         exclude module: 'xpp3'
