@@ -1,7 +1,6 @@
 package be.florien.ampacheplayer.model.retrofit
 
-import be.florien.ampacheplayer.model.data.Authentication
-import be.florien.ampacheplayer.model.data.SongList
+import be.florien.ampacheplayer.model.data.*
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -26,9 +25,33 @@ interface AmpacheApi {
             : Observable<SongList>
 
     @GET("server/xml.server.php")
+    fun getArtists(
+            @Query("action") action: String = "artists",
+            @Query("auth") auth: String)
+            : Observable<ArtistList>
+
+    @GET("server/xml.server.php")
+    fun getAlbums(
+            @Query("action") action: String = "albums",
+            @Query("auth") auth: String)
+            : Observable<AlbumList>
+
+    @GET("server/xml.server.php")
+    fun getTags(
+            @Query("action") action: String = "tags",
+            @Query("auth") auth: String)
+            : Observable<TagList>
+
+    @GET("server/xml.server.php")
+    fun getPlaylists(
+            @Query("action") action: String = "playlists",
+            @Query("auth") auth: String)
+            : Observable<PlaylistList>
+
+    @GET("server/xml.server.php")
     fun getSong(
             @Query("action") action: String = "song",
-            @Query("filter") uid: Long = 0,
+            @Query("filter") uid: Long,
             @Query("auth") auth: String)
             : Observable<SongList>
 }

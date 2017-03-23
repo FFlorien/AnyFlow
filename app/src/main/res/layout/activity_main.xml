@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         tools:context="be.florien.ampacheplayer.view.MainActivity">
 
         <android.support.design.widget.TextInputLayout
@@ -38,15 +39,62 @@
                 android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="password" />
+                android:hint="password"
+                android:inputType="textPassword" />
 
         </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"/>
 
         <Button
             android:id="@+id/connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.connectAndRetrieve()}"
-            android:text="Connect and retrieve songs" />
+            android:onClick="@{(view) ->vm.connect()}"
+            android:text="Connect" />
+
+        <Button
+            android:id="@+id/getAndPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(view) ->vm.getSongAndPlay()}"
+            android:text="Get and play"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/getArtist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(view) ->vm.getArtistAndInfo()}"
+            android:text="Get artist"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/getAlbum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(view) ->vm.getAlbumAndInfo()}"
+            android:text="Get album"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/getTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(view) ->vm.getTagAndInfo()}"
+            android:text="Get Tag"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/getPlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(view) ->vm.getPlaylistAndInfo()}"
+            android:text="Get Playlist"
+            android:enabled="false"/>
     </LinearLayout>
 </layout>
