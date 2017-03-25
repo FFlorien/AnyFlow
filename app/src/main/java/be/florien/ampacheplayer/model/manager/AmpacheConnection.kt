@@ -1,6 +1,7 @@
-package be.florien.ampacheplayer.model.retrofit
+package be.florien.ampacheplayer.model.manager
 
 import be.florien.ampacheplayer.model.data.*
+import be.florien.ampacheplayer.model.retrofit.AmpacheApi
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import io.reactivex.Observable
 import okhttp3.OkHttpClient

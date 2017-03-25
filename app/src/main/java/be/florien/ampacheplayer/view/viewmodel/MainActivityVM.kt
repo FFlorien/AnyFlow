@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.view.viewmodel
 import android.media.AudioManager
 import android.media.MediaPlayer
 import be.florien.ampacheplayer.databinding.ActivityMainBinding
-import be.florien.ampacheplayer.model.retrofit.AmpacheConnection
+import be.florien.ampacheplayer.model.manager.AmpacheConnection
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 

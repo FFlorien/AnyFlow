@@ -1,12 +1,14 @@
 package be.florien.ampacheplayer.model.data
 
+import io.realm.RealmList
+import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
  * Created by florien on 16/03/17.
  */
 @Root(name = "root", strict = false)
-class SongList {
+class SongList : RealmObject() {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
     @field:ElementList(inline = true, required = false) var songs: List<Song> = mutableListOf()
     @field:Element(name = "error", required = false) var error: Error = Error()
@@ -16,7 +18,7 @@ class SongList {
 @Root(name = "root", strict = false)
 class ArtistList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var artists: List<Artist> = mutableListOf()
+    @field:ElementList(inline = true, required = false) var artists: RealmList<Artist> = RealmList()
     @field:Element(name = "error", required = false) var error: Error = Error()
 
 }
@@ -86,7 +88,7 @@ class Song {
 }
 
 @Root(name = "artist", strict = false)
-class Artist {
+class Artist : RealmObject(){
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "albums", required = false) var albums: String = ""
