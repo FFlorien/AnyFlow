@@ -2,22 +2,33 @@ package be.florien.ampacheplayer.view.viewmodel
 
 import android.media.AudioManager
 import android.media.MediaPlayer
+import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityMainBinding
 import be.florien.ampacheplayer.model.manager.AmpacheConnection
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 /**
- * Created by florien on 21/03/17.
+ * ViewModel for the main activity
  */
 class MainActivityVM constructor(val binding: ActivityMainBinding) {
+    /**
+     * Fields
+     */
+    @Inject lateinit var ampacheConnection: AmpacheConnection
 
+    /**
+     * Constructor
+     */
     init {
         binding.vm = this
+        App.ampacheComponent.inject(this)
     }
 
-    private val ampacheConnection: AmpacheConnection = AmpacheConnection()
-
+    /**
+     * Buttons calls
+     */
     fun connect() {
         ampacheConnection
                 .authenticate(binding.inputUsername.text.toString(), binding.inputPassword.text.toString())

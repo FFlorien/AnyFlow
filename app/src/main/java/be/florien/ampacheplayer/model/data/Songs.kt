@@ -1,50 +1,15 @@
 package be.florien.ampacheplayer.model.data
 
-import io.realm.RealmList
-import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
- * Created by florien on 16/03/17.
+ * Data structures that relates to songs
  */
 @Root(name = "root", strict = false)
-class SongList : RealmObject() {
+class SongList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
     @field:ElementList(inline = true, required = false) var songs: List<Song> = mutableListOf()
     @field:Element(name = "error", required = false) var error: Error = Error()
-
-}
-
-@Root(name = "root", strict = false)
-class ArtistList {
-    @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var artists: RealmList<Artist> = RealmList()
-    @field:Element(name = "error", required = false) var error: Error = Error()
-
-}
-
-@Root(name = "root", strict = false)
-class AlbumList {
-    @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var albums: List<Album> = mutableListOf()
-    @field:Element(name = "error", required = false) var error: Error = Error()
-
-}
-
-@Root(name = "root", strict = false)
-class TagList {
-    @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var tags: List<Tag> = mutableListOf()
-    @field:Element(name = "error", required = false) var error: Error = Error()
-
-}
-
-@Root(name = "root", strict = false)
-class PlaylistList {
-    @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var playlists: List<Playlist> = mutableListOf()
-    @field:Element(name = "error", required = false) var error: Error = Error()
-
 }
 
 @Root(name = "song", strict = false)
@@ -85,72 +50,4 @@ class Song {
     @field:Element(name = "replaygain_track_gain", required = false) var replaygain_track_gain: Double = 0.0
     @field:Element(name = "replaygain_track_peak", required = false) var replaygain_track_peak: Double = 0.0
     @field:Element(name = "genre", required = false) var genre: String = ""
-}
-
-@Root(name = "artist", strict = false)
-class Artist : RealmObject(){
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "albums", required = false) var albums: String = ""
-    @field:Element(name = "songs", required = false) var songs: String = ""
-    @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<TagName> = mutableListOf()
-    @field:Element(name = "preciserating", required = false) var preciserating: Int = 0
-    @field:Element(name = "rating", required = false) var rating: Double = 0.0
-
-}
-
-@Root(name = "album", strict = false)
-class Album {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "artist ", required = false) var artist: ArtistName = ArtistName()
-    @field:Element(name = "year", required = false) var year: Int = 0
-    @field:Element(name = "tracks", required = false) var tracks: Int = 0
-    @field:Element(name = "disk", required = false) var disk: Int = 0
-    @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<TagName> = mutableListOf()
-    @field:Element(name = "art", required = false) var art: String = ""
-    @field:Element(name = "preciserating", required = false) var preciserating: Int = 0
-    @field:Element(name = "rating", required = false) var rating: Double = 0.0
-}
-
-@Root(name = "tag", strict = false)
-class Tag {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "albums", required = false) var albums: Int = 0
-    @field:Element(name = "artists", required = false) var artists: Int = 0
-    @field:Element(name = "songs", required = false) var songs: Int = 0
-    @field:Element(name = "video", required = false) var video: Int = 0
-    @field:Element(name = "playlist", required = false) var playlist: Int = 0
-    @field:Element(name = "stream", required = false) var stream: Int = 0
-}
-
-@Root(name = "playlist", strict = false)
-class Playlist {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "owner", required = false) var owner: String = ""
-    @field:Element(name = "items", required = false) var items: Int = 0
-    @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<TagName> = mutableListOf()
-}
-
-class ArtistName {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Text() var name: String = ""
-}
-
-class AlbumName {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Text() var name: String = ""
-}
-
-class AlbumArtist {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Text() var name: String = ""
-}
-
-class TagName {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Text() var value: String = ""
-    @field:Attribute(name = "count", required = false) var count: Int = 0
 }

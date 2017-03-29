@@ -6,7 +6,7 @@ import org.simpleframework.xml.Root
 import org.simpleframework.xml.Text
 
 /**
- * Created by florien on 10/03/17.
+ * Data structures that relate to authentication
  */
 @Root(name = "root")
 class Authentication {

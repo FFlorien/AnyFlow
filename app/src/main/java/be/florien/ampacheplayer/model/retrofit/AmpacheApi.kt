@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 /**
- * Created by florien on 10/03/17.
+ * Retrofit interface for Ampache
  */
 interface AmpacheApi {
     @GET("server/xml.server.php")
@@ -21,6 +21,7 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getSongs(
             @Query("action") action: String = "songs",
+            @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
             : Observable<SongList>
 

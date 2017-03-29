@@ -7,8 +7,10 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityMainBinding
 import be.florien.ampacheplayer.view.viewmodel.MainActivityVM
 
+/**
+ * Simple activity for testing purpose
+ */
 class MainActivity : AppCompatActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
