@@ -1,20 +1,25 @@
 package be.florien.ampacheplayer.model.data
 
+import io.realm.RealmList
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 import org.simpleframework.xml.*
 
 /**
  * Data structures that relates to songs
  */
 @Root(name = "root", strict = false)
-class SongList {
+class SongList{
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
     @field:ElementList(inline = true, required = false) var songs: List<Song> = mutableListOf()
     @field:Element(name = "error", required = false) var error: Error = Error()
 }
 
 @Root(name = "song", strict = false)
-class Song {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
+class Song : RealmObject() {
+    @field:Attribute(name = "id", required = false)
+    @field:PrimaryKey
+    var id: Long = 0
     @field:Element(name = "song", required = false) var song: String = ""
     @field:Element(name = "title", required = false) var title: String = ""
     @field:Element(name = "name", required = false) var name: String = ""

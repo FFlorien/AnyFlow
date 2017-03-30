@@ -3,7 +3,7 @@ package be.florien.ampacheplayer
 import android.app.Application
 import be.florien.ampacheplayer.di.AmpacheComponent
 import be.florien.ampacheplayer.di.DaggerAmpacheComponent
-import be.florien.ampacheplayer.di.NetworkDataModule
+import be.florien.ampacheplayer.di.NetworkModule
 import com.facebook.stetho.Stetho
 
 
@@ -19,6 +19,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         Stetho.initializeWithDefaults(this)
-        ampacheComponent = DaggerAmpacheComponent.builder().dataModule(NetworkDataModule()).build()
+        ampacheComponent = DaggerAmpacheComponent.builder().dataModule(NetworkModule()).build()
     }
 }

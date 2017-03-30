@@ -1,12 +1,14 @@
 package be.florien.ampacheplayer.model.data
 
+import io.realm.RealmList
+import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
  * Data structures that relates to artists
  */
 @Root(name = "artist", strict = false)
-class Artist {
+class Artist : RealmObject(){
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "albums", required = false) var albums: String = ""

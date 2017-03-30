@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.model.data
 
+import io.realm.RealmObject
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -18,7 +19,7 @@ class PlaylistList {
 }
 
 @Root(name = "playlist", strict = false)
-class Playlist {
+class Playlist : RealmObject() {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "owner", required = false) var owner: String = ""

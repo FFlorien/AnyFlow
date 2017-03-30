@@ -1,12 +1,13 @@
 package be.florien.ampacheplayer.model.data
 
+import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
  * Data structures that relates to tags
  */
 @Root(name = "tag", strict = false)
-class Tag {
+class Tag : RealmObject(){
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "albums", required = false) var albums: Int = 0

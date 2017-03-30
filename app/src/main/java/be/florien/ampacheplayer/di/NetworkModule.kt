@@ -14,7 +14,7 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
  * Module for all things ampache server / net related
  */
 @Module
-class NetworkDataModule {
+class NetworkModule {
 
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
