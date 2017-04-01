@@ -1,13 +1,12 @@
-package be.florien.ampacheplayer.model.data
+package be.florien.ampacheplayer.model.server
 
-import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
  * Data structures that relates to tags
  */
 @Root(name = "tag", strict = false)
-class Tag : RealmObject(){
+class TagServer {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "albums", required = false) var albums: Int = 0
@@ -21,7 +20,7 @@ class Tag : RealmObject(){
 @Root(name = "root", strict = false)
 class TagList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var tags: List<Tag> = mutableListOf()
+    @field:ElementList(inline = true, required = false) var tags: List<TagServer> = mutableListOf()
     @field:Element(name = "error", required = false) var error: Error = Error()
 }
 

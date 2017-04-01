@@ -1,7 +1,7 @@
 package be.florien.ampacheplayer.model.manager
 
 import be.florien.ampacheplayer.App
-import be.florien.ampacheplayer.model.data.*
+import be.florien.ampacheplayer.model.server.*
 import be.florien.ampacheplayer.model.retrofit.AmpacheApi
 import io.reactivex.Observable
 import java.math.BigInteger
@@ -23,7 +23,7 @@ class AmpacheConnection {
     /**
      * Fields
      */
-    var authToken: String = ""
+    var authSession: String = ""
     @Inject lateinit var ampacheApi: AmpacheApi
 
     /**
@@ -43,31 +43,36 @@ class AmpacheConnection {
         val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).toLowerCase()
         encoder.reset()
         val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase()
-        return ampacheApi.authenticate(limit = user, auth = auth, time = time)
+        return ampacheApi
+                .authenticate(limit = user, auth = auth, time = time)
+                .doOnNext {
+                    result ->
+                    authSession = result.auth
+                }
     }
 
-    fun getSongs(): Observable<SongList> {
-        return ampacheApi.getSongs(auth = authToken)
+    fun getSongs(from: String): Observable<SongList> {
+        return ampacheApi.getSongs(auth = authSession, update = from)
     }
 
     fun getArtists(): Observable<ArtistList> {
-        return ampacheApi.getArtists(auth = authToken)
+        return ampacheApi.getArtists(auth = authSession)
     }
 
     fun getAlbums(): Observable<AlbumList> {
-        return ampacheApi.getAlbums(auth = authToken)
+        return ampacheApi.getAlbums(auth = authSession)
     }
 
     fun getTags(): Observable<TagList> {
-        return ampacheApi.getTags(auth = authToken)
+        return ampacheApi.getTags(auth = authSession)
     }
 
     fun getPlaylists(): Observable<PlaylistList> {
-        return ampacheApi.getPlaylists(auth = authToken)
+        return ampacheApi.getPlaylists(auth = authSession)
     }
 
     fun getSong(uid: Long): Observable<SongList> {
-        return ampacheApi.getSong(auth = authToken, uid = uid)
+        return ampacheApi.getSong(auth = authSession, uid = uid)
     }
 
     private fun binToHex(data: ByteArray): String {

@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.model.retrofit
 
-import be.florien.ampacheplayer.model.data.*
+import be.florien.ampacheplayer.model.server.*
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query

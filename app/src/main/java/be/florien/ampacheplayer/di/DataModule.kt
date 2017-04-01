@@ -1,6 +1,8 @@
 package be.florien.ampacheplayer.di
 
 import be.florien.ampacheplayer.model.manager.AmpacheConnection
+import be.florien.ampacheplayer.model.manager.AmpacheDatabase
+import be.florien.ampacheplayer.model.manager.DataManager
 import be.florien.ampacheplayer.model.retrofit.AmpacheApi
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
@@ -9,12 +11,13 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import javax.inject.Singleton
 
 /**
- * Module for all things ampache server / net related
+ * Module for all things ampache data related
  */
 @Module
-class NetworkModule {
+class DataModule {
 
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
@@ -35,8 +38,19 @@ class NetworkModule {
         return retrofit.create(AmpacheApi::class.java)
     }
 
+    @Singleton
     @Provides
     fun provideAmpacheConnection(): AmpacheConnection {
         return AmpacheConnection()
+    }
+
+    @Provides
+    fun provideAmpacheDatabase(): AmpacheDatabase {
+        return AmpacheDatabase()
+    }
+
+    @Provides
+    fun provideDataManager(): DataManager {
+        return DataManager()
     }
 }

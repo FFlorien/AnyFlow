@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.data
+package be.florien.ampacheplayer.model.server
 
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element

@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityMainBinding
 import be.florien.ampacheplayer.model.manager.AmpacheConnection
+import be.florien.ampacheplayer.model.manager.DataManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -17,6 +18,7 @@ class MainActivityVM constructor(val binding: ActivityMainBinding) {
      * Fields
      */
     @Inject lateinit var ampacheConnection: AmpacheConnection
+    @Inject lateinit var dataManager: DataManager
 
     /**
      * Constructor
@@ -35,7 +37,7 @@ class MainActivityVM constructor(val binding: ActivityMainBinding) {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { authenticate ->
-                    ampacheConnection.authToken = authenticate.auth
+                    ampacheConnection.authSession = authenticate.auth
                     binding.connect.isEnabled = false
                     binding.getAndPlay.isEnabled = true
                     binding.getArtist.isEnabled = true
@@ -46,13 +48,13 @@ class MainActivityVM constructor(val binding: ActivityMainBinding) {
     }
 
     fun getSongAndPlay() {
-        ampacheConnection
+        dataManager
                 .getSongs()
                 .subscribeOn(Schedulers.io())
-                .subscribe { root ->
+                .subscribe {
                     val mediaPlayer = MediaPlayer()
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                    mediaPlayer.setDataSource(root.songs[0].url)
+                    mediaPlayer.setDataSource(it[0].url)
                     mediaPlayer.prepare()
                     mediaPlayer.start()
                 }

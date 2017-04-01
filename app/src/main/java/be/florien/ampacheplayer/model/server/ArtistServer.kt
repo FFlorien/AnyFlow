@@ -1,14 +1,12 @@
-package be.florien.ampacheplayer.model.data
+package be.florien.ampacheplayer.model.server
 
-import io.realm.RealmList
-import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
  * Data structures that relates to artists
  */
 @Root(name = "artist", strict = false)
-class Artist : RealmObject(){
+class ArtistServer {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "albums", required = false) var albums: String = ""
@@ -22,11 +20,11 @@ class Artist : RealmObject(){
 @Root(name = "root", strict = false)
 class ArtistList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var artists: List<Artist> = mutableListOf()
+    @field:ElementList(inline = true, required = false) var artists: List<ArtistServer> = mutableListOf()
     @field:Element(name = "error", required = false) var error: Error = Error()
 }
 
-class AlbumArtist {
+class AlbumArtist{
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Text() var name: String = ""
 }
