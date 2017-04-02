@@ -1,25 +1,18 @@
 package be.florien.ampacheplayer.model.manager
 
 import be.florien.ampacheplayer.App
-import be.florien.ampacheplayer.model.server.*
 import be.florien.ampacheplayer.model.retrofit.AmpacheApi
+import be.florien.ampacheplayer.model.server.*
 import io.reactivex.Observable
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 /**
- * Manager for the ampache API server-side //todo update description when needed
+ * Manager for the ampache API server-side
  */
 class AmpacheConnection {
-    /**
-     * Constants
-     */
-    private val LAST_UPDATE_KEY = "LAST_UPDATE"
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
     /**
      * Fields
      */
@@ -55,20 +48,20 @@ class AmpacheConnection {
         return ampacheApi.getSongs(auth = authSession, update = from)
     }
 
-    fun getArtists(): Observable<ArtistList> {
-        return ampacheApi.getArtists(auth = authSession)
+    fun getArtists(from: String): Observable<ArtistList> {
+        return ampacheApi.getArtists(auth = authSession, update = from)
     }
 
-    fun getAlbums(): Observable<AlbumList> {
-        return ampacheApi.getAlbums(auth = authSession)
+    fun getAlbums(from: String): Observable<AlbumList> {
+        return ampacheApi.getAlbums(auth = authSession, update = from)
     }
 
-    fun getTags(): Observable<TagList> {
-        return ampacheApi.getTags(auth = authSession)
+    fun getTags(from: String): Observable<TagList> {
+        return ampacheApi.getTags(auth = authSession, update = from)
     }
 
-    fun getPlaylists(): Observable<PlaylistList> {
-        return ampacheApi.getPlaylists(auth = authSession)
+    fun getPlaylists(from : String): Observable<PlaylistList> {
+        return ampacheApi.getPlaylists(auth = authSession, update = from)
     }
 
     fun getSong(uid: Long): Observable<SongList> {

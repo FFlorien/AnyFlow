@@ -28,24 +28,28 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getArtists(
             @Query("action") action: String = "artists",
+            @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
             : Observable<ArtistList>
 
     @GET("server/xml.server.php")
     fun getAlbums(
             @Query("action") action: String = "albums",
+            @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
             : Observable<AlbumList>
 
     @GET("server/xml.server.php")
     fun getTags(
             @Query("action") action: String = "tags",
+            @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
             : Observable<TagList>
 
     @GET("server/xml.server.php")
     fun getPlaylists(
             @Query("action") action: String = "playlists",
+            @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
             : Observable<PlaylistList>
 

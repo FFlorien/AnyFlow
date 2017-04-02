@@ -1,17 +1,15 @@
 package be.florien.ampacheplayer.model.server
 
-import io.realm.RealmList
-import io.realm.RealmObject
 import org.simpleframework.xml.*
 
 /**
- * Data structures that relates to album
+ * Server-side data structures that relates to album
  */
 @Root(name = "album", strict = false)
 class AlbumServer {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "artist ", required = false) var artist: ArtistName = ArtistName()
+    @field:Element(name = "artistName ", required = false) var artist: ArtistName = ArtistName()
     @field:Element(name = "year", required = false) var year: Int = 0
     @field:Element(name = "tracks", required = false) var tracks: Int = 0
     @field:Element(name = "disk", required = false) var disk: Int = 0

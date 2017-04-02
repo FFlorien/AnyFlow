@@ -6,7 +6,7 @@ import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
 
 /**
- * Data structures that relates to songs
+ * Server-side data structures that relates to songs
  */
 
 @Root(name = "song", strict = false)
@@ -15,7 +15,7 @@ class SongServer {
     @field:Element(name = "song", required = false) var song: String = ""
     @field:Element(name = "title", required = false) var title: String = ""
     @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "artist", required = false) var artist: ArtistName = ArtistName()
+    @field:Element(name = "artistName", required = false) var artist: ArtistName = ArtistName()
     @field:Element(name = "album", required = false) var album: AlbumName = AlbumName()
     @field:Element(name = "albumartist", required = false) var albumartist: AlbumArtist = AlbumArtist()
     @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<TagName> = mutableListOf()

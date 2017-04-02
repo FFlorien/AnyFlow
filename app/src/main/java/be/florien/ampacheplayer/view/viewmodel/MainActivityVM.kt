@@ -1,11 +1,14 @@
 package be.florien.ampacheplayer.view.viewmodel
 
+import android.databinding.BaseObservable
+import android.databinding.Bindable
 import android.media.AudioManager
 import android.media.MediaPlayer
 import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityMainBinding
 import be.florien.ampacheplayer.model.manager.AmpacheConnection
 import be.florien.ampacheplayer.model.manager.DataManager
+import com.android.databinding.library.baseAdapters.BR
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -13,7 +16,8 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-class MainActivityVM constructor(val binding: ActivityMainBinding) {
+class MainActivityVM(val binding: ActivityMainBinding) : BaseObservable() {
+
     /**
      * Fields
      */
@@ -36,14 +40,9 @@ class MainActivityVM constructor(val binding: ActivityMainBinding) {
                 .authenticate(binding.inputUsername.text.toString(), binding.inputPassword.text.toString())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { authenticate ->
-                    ampacheConnection.authSession = authenticate.auth
-                    binding.connect.isEnabled = false
-                    binding.getAndPlay.isEnabled = true
-                    binding.getArtist.isEnabled = true
-                    binding.getAlbum.isEnabled = true
-                    binding.getTag.isEnabled = true
-                    binding.getPlaylist.isEnabled = true
+                .subscribe{
+                    notifyPropertyChanged(BR.functionEnabled)
+                    notifyPropertyChanged(BR.authenticationEnabled)
                 }
     }
 
@@ -61,42 +60,54 @@ class MainActivityVM constructor(val binding: ActivityMainBinding) {
     }
 
     fun getArtistAndInfo() {
-        ampacheConnection
+        dataManager
                 .getArtists()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { root ->
-                    binding.info.text = root.total_count.toString()
+                    binding.info.text = root.size.toString()
                 }
     }
 
     fun getAlbumAndInfo() {
-        ampacheConnection
+        dataManager
                 .getAlbums()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { root ->
-                    binding.info.text = root.total_count.toString()
+                    binding.info.text = root.size.toString()
                 }
     }
 
     fun getTagAndInfo() {
-        ampacheConnection
+        dataManager
                 .getTags()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { root ->
-                    binding.info.text = root.total_count.toString()
+                    binding.info.text = root.size.toString()
                 }
     }
 
     fun getPlaylistAndInfo() {
-        ampacheConnection
+        dataManager
                 .getPlaylists()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { root ->
-                    binding.info.text = root.total_count.toString()
+                    binding.info.text = root.size.toString()
                 }
+    }
+    /**
+     * Buttons states
+     */
+    @Bindable
+    fun getAuthenticationEnabled() : Boolean {
+        return ampacheConnection.authSession.isEmpty()
+    }
+
+    @Bindable
+    fun getFunctionEnabled() : Boolean {
+        return ampacheConnection.authSession.isNotEmpty()
     }
 }

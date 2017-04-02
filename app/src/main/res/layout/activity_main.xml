@@ -55,7 +55,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.connect()}"
-            android:text="Connect" />
+            android:text="Connect"
+            android:enabled="@{vm.authenticationEnabled}"/>
 
         <Button
             android:id="@+id/getAndPlay"
@@ -63,7 +64,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.getSongAndPlay()}"
             android:text="Get and play"
-            android:enabled="false"/>
+            android:enabled="@{vm.functionEnabled}"/>
 
         <Button
             android:id="@+id/getArtist"
@@ -71,7 +72,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.getArtistAndInfo()}"
             android:text="Get artist"
-            android:enabled="false"/>
+            android:enabled="@{vm.functionEnabled}"/>
 
         <Button
             android:id="@+id/getAlbum"
@@ -79,7 +80,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.getAlbumAndInfo()}"
             android:text="Get album"
-            android:enabled="false"/>
+            android:enabled="@{vm.functionEnabled}"/>
 
         <Button
             android:id="@+id/getTag"
@@ -87,7 +88,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.getTagAndInfo()}"
             android:text="Get Tag"
-            android:enabled="false"/>
+            android:enabled="@{vm.functionEnabled}"/>
 
         <Button
             android:id="@+id/getPlaylist"
@@ -95,6 +96,6 @@
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.getPlaylistAndInfo()}"
             android:text="Get Playlist"
-            android:enabled="false"/>
+            android:enabled="@{vm.functionEnabled}"/>
     </LinearLayout>
 </layout>

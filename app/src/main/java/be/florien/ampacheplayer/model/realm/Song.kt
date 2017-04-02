@@ -6,7 +6,7 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
 /**
- * Data structures that relates to songs
+ * Database structure that represents to songs
  */
 open class Song : RealmObject {
     @field:PrimaryKey
@@ -14,9 +14,12 @@ open class Song : RealmObject {
     var song: String = ""
     var title: String = ""
     var name: String = ""
-    var artist: Artist = Artist()
-    var album: Album = Album()
-    var albumartist: Artist = Artist()
+    var artistName: String = ""
+    var artistId: Long = -1
+    var albumName: String = ""
+    var albumId: Long = -1
+    var albumArtistName: String = ""
+    var albumArtistId: Long = -1
     var tag: RealmList<Tag> = RealmList()
     var filename: String = ""
     var track: Int = 0
@@ -42,9 +45,12 @@ open class Song : RealmObject {
         song = fromServer.song
         title = fromServer.title
         name = fromServer.name
-        artist = Artist(fromServer.artist)
-        album = Album(fromServer.album)
-        albumartist = Artist(fromServer.albumartist)
+        artistName = fromServer.artist.name
+        artistId = fromServer.artist.id
+        albumName = fromServer.album.name
+        albumId = fromServer.album.id
+        albumArtistName = fromServer.albumartist.name
+        albumArtistId = fromServer.albumartist.id
         tag.addAll(fromServer.tag.map(::Tag))
         filename = fromServer.filename
         track = fromServer.track

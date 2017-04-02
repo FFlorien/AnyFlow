@@ -10,7 +10,7 @@ import io.realm.Realm
 
 
 /**
- * Application used for initialization of many libraries
+ * Application class used for initialization of many libraries
  */
 class App : Application() {
 

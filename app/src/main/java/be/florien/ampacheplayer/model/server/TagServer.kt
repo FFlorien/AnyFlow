@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.model.server
 import org.simpleframework.xml.*
 
 /**
- * Data structures that relates to tags
+ * Server-side data structures that relates to tags
  */
 @Root(name = "tag", strict = false)
 class TagServer {

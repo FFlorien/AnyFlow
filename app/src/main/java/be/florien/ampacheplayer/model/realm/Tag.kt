@@ -5,7 +5,7 @@ import be.florien.ampacheplayer.model.server.TagServer
 import io.realm.RealmObject
 
 /**
- * Data structures that relates to tags
+ * Database structure that represents to tags
  */
 open class Tag : RealmObject {
     var id: Long = 0

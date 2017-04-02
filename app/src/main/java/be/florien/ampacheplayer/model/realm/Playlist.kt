@@ -6,7 +6,7 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
 /**
- * Data structures that relates to playlist
+ * Database structure that represents to playlist
  */
 
 open class Playlist : RealmObject {

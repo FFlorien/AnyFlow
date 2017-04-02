@@ -3,11 +3,9 @@ package be.florien.ampacheplayer.model.manager
 import be.florien.ampacheplayer.model.realm.*
 import io.reactivex.Observable
 import io.realm.Realm
-import io.realm.RealmResults
-import java.math.BigInteger
 
 /**
- * Manager for the ampache API database-side //todo update description when needed
+ * Manager for the ampache data database-side
  */
 class AmpacheDatabase {
     /**
@@ -31,11 +29,10 @@ class AmpacheDatabase {
     }
 
     fun getArtists(): Observable<List<Artist>> {
+        val realm = Realm.getDefaultInstance()
         return Observable
                 .fromCallable {
-                    val realm = Realm.getDefaultInstance()
                     val realmResults = realm.where(Artist::class.java).findAllSorted("id")
-                    realm.close()
                     realmResults
                 }
                 .flatMap {
@@ -43,14 +40,16 @@ class AmpacheDatabase {
                     Observable.fromIterable(realmResult)
                 }
                 .buffer(50)
+                .doOnComplete {
+                    realm.close()
+                }
     }
 
     fun getAlbums(): Observable<List<Album>> {
+        val realm = Realm.getDefaultInstance()
         return Observable
                 .fromCallable {
-                    val realm = Realm.getDefaultInstance()
                     val realmResults = realm.where(Album::class.java).findAllSorted("id")
-                    realm.close()
                     realmResults
                 }
                 .flatMap {
@@ -58,14 +57,16 @@ class AmpacheDatabase {
                     Observable.fromIterable(realmResult)
                 }
                 .buffer(50)
+                .doOnComplete {
+                    realm.close()
+                }
     }
 
     fun getTags(): Observable<List<Tag>> {
+        val realm = Realm.getDefaultInstance()
         return Observable
                 .fromCallable {
-                    val realm = Realm.getDefaultInstance()
                     val realmResults = realm.where(Tag::class.java).findAllSorted("id")
-                    realm.close()
                     realmResults
                 }
                 .flatMap {
@@ -73,14 +74,16 @@ class AmpacheDatabase {
                     Observable.fromIterable(realmResult)
                 }
                 .buffer(50)
+                .doOnComplete {
+                    realm.close()
+                }
     }
 
     fun getPlaylists(): Observable<List<Playlist>> {
+        val realm = Realm.getDefaultInstance()
         return Observable
                 .fromCallable {
-                    val realm = Realm.getDefaultInstance()
                     val realmResults = realm.where(Playlist::class.java).findAllSorted("id")
-                    realm.close()
                     realmResults
                 }
                 .flatMap {
@@ -88,85 +91,85 @@ class AmpacheDatabase {
                     Observable.fromIterable(realmResult)
                 }
                 .buffer(50)
+                .doOnComplete {
+                    realm.close()
+
+                }
     }
 
     fun getSong(uid: Long): Observable<Song> {
+        val realm = Realm.getDefaultInstance()
         return Observable
                 .fromCallable {
-                    val realm = Realm.getDefaultInstance()
                     val realmResults = realm.where(Song::class.java).equalTo("id", uid).findFirst()
-                    realm.close()
                     realmResults
+                }
+                .doOnComplete {
+                    realm.close()
                 }
     }
 
     /**
      * Database setters
      */
-    fun addSongs(song: List<Song>): Observable<Unit> {
+
+    fun addSongs(songs: List<Song>): Observable<Unit> {
         return Observable
                 .fromCallable {
                     val realm = Realm.getDefaultInstance()
                     realm.executeTransaction {
                         realm ->
-                        realm.insertOrUpdate(song)
+                        realm.copyToRealmOrUpdate(songs)
                     }
                     realm.close()
                 }
     }
 
-    fun addArtist(artist: Artist): Observable<Unit>? {
+    fun addArtists(artists: List<Artist>): Observable<Unit> {
         return Observable
                 .fromCallable {
                     val realm = Realm.getDefaultInstance()
                     realm.executeTransaction {
                         realm ->
-                        realm.insertOrUpdate(artist)
+                        realm.copyToRealmOrUpdate(artists)
                     }
                     realm.close()
                 }
     }
 
-    fun addAlbum(album: Album): Observable<Unit>? {
+    fun addAlbums(albums: List<Album>): Observable<Unit> {
         return Observable
                 .fromCallable {
                     val realm = Realm.getDefaultInstance()
                     realm.executeTransaction {
                         realm ->
-                        realm.insertOrUpdate(album)
+                        realm.copyToRealmOrUpdate(albums)
                     }
                     realm.close()
                 }
     }
 
-    fun addTag(tag: Tag): Observable<Unit>? {
+    fun addTags(tags: List<Tag>): Observable<Unit>? {
         return Observable
                 .fromCallable {
                     val realm = Realm.getDefaultInstance()
                     realm.executeTransaction {
                         realm ->
-                        realm.insertOrUpdate(tag)
+                        realm.copyToRealmOrUpdate(tags)
                     }
                     realm.close()
                 }
     }
 
-    fun addPlaylist(playlist: Playlist): Observable<Unit>? {
+    fun addPlaylists(playlist: List<Playlist>): Observable<Unit>? {
         return Observable
                 .fromCallable {
                     val realm = Realm.getDefaultInstance()
                     realm.executeTransaction {
                         realm ->
-                        realm.insertOrUpdate(playlist)
+                        realm.copyToRealmOrUpdate(playlist)
                     }
                     realm.close()
                 }
-    }
-
-    /**
-     * Private Methods
-     */
-    private fun binToHex(data: ByteArray): String {
-        return String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
     }
 }

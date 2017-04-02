@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.model.server
 import org.simpleframework.xml.*
 
 /**
- * Data structures that relates to artists
+ * Server-side data structures that relates to artists
  */
 @Root(name = "artist", strict = false)
 class ArtistServer {
@@ -24,7 +24,7 @@ class ArtistList {
     @field:Element(name = "error", required = false) var error: Error = Error()
 }
 
-class AlbumArtist{
+class AlbumArtist {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Text() var name: String = ""
 }

@@ -6,7 +6,7 @@ import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
 
 /**
- * Data structures that relates to playlist
+ * Server-side data structures that relates to playlist
  */
 
 @Root(name = "playlist", strict = false)

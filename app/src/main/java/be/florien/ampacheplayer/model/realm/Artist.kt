@@ -1,14 +1,12 @@
 package be.florien.ampacheplayer.model.realm
 
-import be.florien.ampacheplayer.model.server.AlbumArtist
 import be.florien.ampacheplayer.model.server.ArtistServer
-import be.florien.ampacheplayer.model.server.ArtistName
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
 /**
- * Data structures that relates to artists
+ * Database structure that represents to artists
  */
 open class Artist : RealmObject{
     @PrimaryKey
@@ -26,15 +24,5 @@ open class Artist : RealmObject{
         tag.addAll(fromServer.tag.map(::Tag))
         preciserating = fromServer.preciserating
         rating = fromServer.rating
-    }
-
-    constructor(fromServer: ArtistName) : super() {
-        id = fromServer.id
-        name = fromServer.name
-    }
-
-    constructor(fromServer: AlbumArtist) : super() {
-        id = fromServer.id
-        name = fromServer.name
     }
 }
