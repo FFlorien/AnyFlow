@@ -1,7 +1,6 @@
-package be.florien.ampacheplayer.model.manager
+package be.florien.ampacheplayer.manager
 
 import be.florien.ampacheplayer.App
-import be.florien.ampacheplayer.model.retrofit.AmpacheApi
 import be.florien.ampacheplayer.model.server.*
 import io.reactivex.Observable
 import java.math.BigInteger
@@ -44,6 +43,15 @@ class AmpacheConnection {
                 }
     }
 
+    fun ping(authToken: String = authSession): Observable<Ping> {
+        return ampacheApi
+                .ping(auth = authToken)
+                .doOnNext {
+                    result ->
+                    authSession = authToken //todo renew session length
+                }
+    }
+
     fun getSongs(from: String): Observable<SongList> {
         return ampacheApi.getSongs(auth = authSession, update = from)
     }
@@ -60,7 +68,7 @@ class AmpacheConnection {
         return ampacheApi.getTags(auth = authSession, update = from)
     }
 
-    fun getPlaylists(from : String): Observable<PlaylistList> {
+    fun getPlaylists(from: String): Observable<PlaylistList> {
         return ampacheApi.getPlaylists(auth = authSession, update = from)
     }
 

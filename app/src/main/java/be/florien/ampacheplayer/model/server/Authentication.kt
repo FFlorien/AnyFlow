@@ -24,7 +24,16 @@ class Authentication {
     @field:Element(name = "auth", required = false) var auth: String = ""
     @field:Element(name = "api", required = false) var api: String = ""
     @field:Element(name = "version", required = false) var version: String = ""
-    @field:Element(name = "error", required = false) var error: Error? = null
+    @field:Element(name = "error", required = false) var error: Error = Error()
+}
+
+@Root(name = "root")
+class Ping {
+    @field:Element(name = "session_expire", required = false) var sessionExpire: String = ""
+    @field:Element(name = "server", required = false) var server: String = ""
+    @field:Element(name = "version", required = false) var version: String = ""
+    @field:Element(name = "compatible", required = false) var compatible: String = ""
+    @field:Element(name = "error", required = false) var error: Error = Error()
 }
 
 @Root(name = "error")

@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.retrofit
+package be.florien.ampacheplayer.manager
 
 import be.florien.ampacheplayer.model.server.*
 import io.reactivex.Observable
@@ -17,6 +17,12 @@ interface AmpacheApi {
             @Query("auth") auth: String,
             @Query("user") limit: String)
             : Observable<Authentication>
+
+    @GET("server/xml.server.php")
+    fun ping(
+            @Query("action") action: String = "ping",
+            @Query("auth") auth: String)
+            : Observable<Ping>
 
     @GET("server/xml.server.php")
     fun getSongs(

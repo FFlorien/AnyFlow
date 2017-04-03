@@ -6,8 +6,9 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityMainBinding
-import be.florien.ampacheplayer.model.manager.AmpacheConnection
-import be.florien.ampacheplayer.model.manager.DataManager
+import be.florien.ampacheplayer.manager.AmpacheConnection
+import be.florien.ampacheplayer.manager.AuthenticationManager
+import be.florien.ampacheplayer.manager.DataManager
 import com.android.databinding.library.baseAdapters.BR
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -21,6 +22,7 @@ class MainActivityVM(val binding: ActivityMainBinding) : BaseObservable() {
     /**
      * Fields
      */
+    @Inject lateinit var authenticationManager: AuthenticationManager
     @Inject lateinit var ampacheConnection: AmpacheConnection
     @Inject lateinit var dataManager: DataManager
 
@@ -36,14 +38,24 @@ class MainActivityVM(val binding: ActivityMainBinding) : BaseObservable() {
      * Buttons calls
      */
     fun connect() {
-        ampacheConnection
-                .authenticate(binding.inputUsername.text.toString(), binding.inputPassword.text.toString())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe{
-                    notifyPropertyChanged(BR.functionEnabled)
-                    notifyPropertyChanged(BR.authenticationEnabled)
-                }
+        if (binding.inputUsername.text.isBlank() && authenticationManager.isConnected()) {
+            authenticationManager.extendsSession()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        notifyPropertyChanged(BR.functionEnabled)
+                        notifyPropertyChanged(BR.authenticationEnabled)
+                    }
+        } else {
+            authenticationManager
+                    .authenticate(binding.inputUsername.text.toString(), binding.inputPassword.text.toString())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        notifyPropertyChanged(BR.functionEnabled)
+                        notifyPropertyChanged(BR.authenticationEnabled)
+                    }
+        }
     }
 
     fun getSongAndPlay() {

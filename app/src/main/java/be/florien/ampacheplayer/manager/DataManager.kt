@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.manager
+package be.florien.ampacheplayer.manager
 
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.App

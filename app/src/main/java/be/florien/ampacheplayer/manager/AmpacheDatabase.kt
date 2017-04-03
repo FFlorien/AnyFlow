@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.manager
+package be.florien.ampacheplayer.manager
 
 import be.florien.ampacheplayer.model.realm.*
 import io.reactivex.Observable

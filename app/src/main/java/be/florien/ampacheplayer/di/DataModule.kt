@@ -1,9 +1,6 @@
 package be.florien.ampacheplayer.di
 
-import be.florien.ampacheplayer.model.manager.AmpacheConnection
-import be.florien.ampacheplayer.model.manager.AmpacheDatabase
-import be.florien.ampacheplayer.model.manager.DataManager
-import be.florien.ampacheplayer.model.retrofit.AmpacheApi
+import be.florien.ampacheplayer.manager.*
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
@@ -52,5 +49,10 @@ class DataModule {
     @Provides
     fun provideDataManager(): DataManager {
         return DataManager()
+    }
+
+    @Provides
+    fun provideAuthenticationManager(): AuthenticationManager {
+        return AuthenticationManager()
     }
 }

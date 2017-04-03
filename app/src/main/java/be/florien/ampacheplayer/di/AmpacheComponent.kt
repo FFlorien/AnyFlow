@@ -1,8 +1,9 @@
 package be.florien.ampacheplayer.di
 
-import be.florien.ampacheplayer.model.manager.AmpacheConnection
-import be.florien.ampacheplayer.model.manager.AmpacheDatabase
-import be.florien.ampacheplayer.model.manager.DataManager
+import be.florien.ampacheplayer.manager.AmpacheConnection
+import be.florien.ampacheplayer.manager.AmpacheDatabase
+import be.florien.ampacheplayer.manager.AuthenticationManager
+import be.florien.ampacheplayer.manager.DataManager
 import be.florien.ampacheplayer.view.viewmodel.MainActivityVM
 import dagger.Component
 import javax.inject.Singleton
@@ -21,4 +22,5 @@ interface AmpacheComponent {
     fun inject(mainActivityVm: MainActivityVM)
     fun inject(connection: AmpacheConnection)
     fun inject(dataManager: DataManager)
+    fun inject(authenticationManager: AuthenticationManager)
 }
