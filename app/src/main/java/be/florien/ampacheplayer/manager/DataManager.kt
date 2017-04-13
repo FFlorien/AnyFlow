@@ -124,4 +124,8 @@ class DataManager {
                     database.getTags()
                 }
     }
+
+    fun getSong(id: Long) : Observable<Song>{
+        return database.getSong(id)
+    }
 }

@@ -4,7 +4,8 @@ import be.florien.ampacheplayer.manager.AmpacheConnection
 import be.florien.ampacheplayer.manager.AmpacheDatabase
 import be.florien.ampacheplayer.manager.AuthenticationManager
 import be.florien.ampacheplayer.manager.DataManager
-import be.florien.ampacheplayer.view.viewmodel.MainActivityVM
+import be.florien.ampacheplayer.view.viewmodel.ConnectActivityVM
+import be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM
 import dagger.Component
 import javax.inject.Singleton
 
@@ -19,8 +20,9 @@ import javax.inject.Singleton
         )
 )
 interface AmpacheComponent {
-    fun inject(mainActivityVm: MainActivityVM)
+    fun inject(mainActivityVm: ConnectActivityVM)
     fun inject(connection: AmpacheConnection)
     fun inject(dataManager: DataManager)
     fun inject(authenticationManager: AuthenticationManager)
+    fun inject(playerActivityVM: PlayerActivityVM)
 }

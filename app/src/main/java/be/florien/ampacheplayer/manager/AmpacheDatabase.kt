@@ -23,9 +23,6 @@ class AmpacheDatabase {
                     Observable.fromIterable(realmResult)
                 }
                 .buffer(50)
-                .doOnComplete {
-                    realm.close()
-                }
     }
 
     fun getArtists(): Observable<List<Artist>> {

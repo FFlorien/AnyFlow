@@ -6,7 +6,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.viewmodel.MainActivityVM" />
+            type="be.florien.ampacheplayer.view.viewmodel.ConnectActivityVM" />
     </data>
 
     <LinearLayout
@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        tools:context="be.florien.ampacheplayer.view.MainActivity">
+        tools:context="be.florien.ampacheplayer.view.ConnectActivity">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_username"
@@ -55,47 +55,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.connect()}"
-            android:text="Connect"
-            android:enabled="@{vm.authenticationEnabled}"/>
-
-        <Button
-            android:id="@+id/getAndPlay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.getSongAndPlay()}"
-            android:text="Get and play"
-            android:enabled="@{vm.functionEnabled}"/>
-
-        <Button
-            android:id="@+id/getArtist"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.getArtistAndInfo()}"
-            android:text="Get artist"
-            android:enabled="@{vm.functionEnabled}"/>
-
-        <Button
-            android:id="@+id/getAlbum"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.getAlbumAndInfo()}"
-            android:text="Get album"
-            android:enabled="@{vm.functionEnabled}"/>
-
-        <Button
-            android:id="@+id/getTag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.getTagAndInfo()}"
-            android:text="Get Tag"
-            android:enabled="@{vm.functionEnabled}"/>
-
-        <Button
-            android:id="@+id/getPlaylist"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.getPlaylistAndInfo()}"
-            android:text="Get Playlist"
-            android:enabled="@{vm.functionEnabled}"/>
+            android:text="Connect"/>
     </LinearLayout>
 </layout>
