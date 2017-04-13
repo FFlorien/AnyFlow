@@ -1,13 +1,16 @@
-package be.florien.ampacheplayer.model.realm
+package be.florien.ampacheplayer.business.realm
 
-import be.florien.ampacheplayer.model.server.SongServer
+import be.florien.ampacheplayer.business.ampache.AmpacheSong
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
+import io.realm.annotations.RealmClass
 
 /**
  * Database structure that represents to songs
  */
+@RealmClass
 open class Song : RealmObject {
     @field:PrimaryKey
     var id: Long = 0
@@ -15,10 +18,13 @@ open class Song : RealmObject {
     var title: String = ""
     var name: String = ""
     var artistName: String = ""
+    @field:Index
     var artistId: Long = -1
     var albumName: String = ""
+    @field:Index
     var albumId: Long = -1
     var albumArtistName: String = ""
+    @field:Index
     var albumArtistId: Long = -1
     var tag: RealmList<Tag> = RealmList()
     var filename: String = ""
@@ -36,11 +42,12 @@ open class Song : RealmObject {
     var comment: String = ""
     var publisher: String = ""
     var language: String = ""
+    @field:Index
     var genre: String = ""
 
     constructor() : super()
 
-    constructor(fromServer: SongServer) : super() {
+    constructor(fromServer: AmpacheSong) : super() {
         id = fromServer.id
         song = fromServer.song
         title = fromServer.title

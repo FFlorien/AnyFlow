@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.server
+package be.florien.ampacheplayer.business.ampache
 
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
@@ -10,15 +10,15 @@ import org.simpleframework.xml.Root
  */
 
 @Root(name = "song", strict = false)
-class SongServer {
+class AmpacheSong {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "song", required = false) var song: String = ""
     @field:Element(name = "title", required = false) var title: String = ""
     @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "artistName", required = false) var artist: ArtistName = ArtistName()
-    @field:Element(name = "album", required = false) var album: AlbumName = AlbumName()
-    @field:Element(name = "albumartist", required = false) var albumartist: AlbumArtist = AlbumArtist()
-    @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<TagName> = mutableListOf()
+    @field:Element(name = "artistName", required = false) var artist: AmpacheArtistName = AmpacheArtistName()
+    @field:Element(name = "album", required = false) var album: AmpacheAlbumName = AmpacheAlbumName()
+    @field:Element(name = "albumartist", required = false) var albumartist: AmpacheAlbumArtist = AmpacheAlbumArtist()
+    @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<AmpacheTagName> = mutableListOf()
     @field:Element(name = "filename", required = false) var filename: String = ""
     @field:Element(name = "track", required = false) var track: Int = 0
     @field:Element(name = "time", required = false) var time: Int = 0
@@ -49,8 +49,8 @@ class SongServer {
     @field:Element(name = "genre", required = false) var genre: String = ""
 }
 @Root(name = "root", strict = false)
-class SongList{
+class AmpacheSongList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var songs: List<SongServer> = mutableListOf()
-    @field:Element(name = "error", required = false) var error: Error = Error()
+    @field:ElementList(inline = true, required = false) var songs: List<AmpacheSong> = mutableListOf()
+    @field:Element(name = "error", required = false) var error: AmpacheError = AmpacheError()
 }

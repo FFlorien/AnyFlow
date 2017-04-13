@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.server
+package be.florien.ampacheplayer.business.ampache
 
 import org.simpleframework.xml.*
 
@@ -6,7 +6,7 @@ import org.simpleframework.xml.*
  * Server-side data structures that relates to tags
  */
 @Root(name = "tag", strict = false)
-class TagServer {
+class AmpacheTag {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
     @field:Element(name = "albums", required = false) var albums: Int = 0
@@ -18,13 +18,13 @@ class TagServer {
 }
 
 @Root(name = "root", strict = false)
-class TagList {
+class AmpacheTagList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var tags: List<TagServer> = mutableListOf()
-    @field:Element(name = "error", required = false) var error: Error = Error()
+    @field:ElementList(inline = true, required = false) var tags: List<AmpacheTag> = mutableListOf()
+    @field:Element(name = "error", required = false) var error: AmpacheError = AmpacheError()
 }
 
-class TagName {
+class AmpacheTagName {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Text() var value: String = ""
     @field:Attribute(name = "count", required = false) var count: Int = 0

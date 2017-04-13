@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.manager
 
-import be.florien.ampacheplayer.model.server.*
+import be.florien.ampacheplayer.business.ampache.*
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -15,54 +15,54 @@ interface AmpacheApi {
             @Query("timestamp") time: String,
             @Query("version") version: String = "380001",
             @Query("auth") auth: String,
-            @Query("user") limit: String)
-            : Observable<Authentication>
+            @Query("user") user: String)
+            : Observable<AmpacheAuthentication>
 
     @GET("server/xml.server.php")
     fun ping(
             @Query("action") action: String = "ping",
             @Query("auth") auth: String)
-            : Observable<Ping>
+            : Observable<AmpachePing>
 
     @GET("server/xml.server.php")
     fun getSongs(
             @Query("action") action: String = "songs",
             @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
-            : Observable<SongList>
+            : Observable<AmpacheSongList>
 
     @GET("server/xml.server.php")
     fun getArtists(
             @Query("action") action: String = "artists",
             @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
-            : Observable<ArtistList>
+            : Observable<AmpacheArtistList>
 
     @GET("server/xml.server.php")
     fun getAlbums(
             @Query("action") action: String = "albums",
             @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
-            : Observable<AlbumList>
+            : Observable<AmpacheAlbumList>
 
     @GET("server/xml.server.php")
     fun getTags(
             @Query("action") action: String = "tags",
             @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
-            : Observable<TagList>
+            : Observable<AmpacheTagList>
 
     @GET("server/xml.server.php")
     fun getPlaylists(
             @Query("action") action: String = "playlists",
             @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
-            : Observable<PlaylistList>
+            : Observable<AmpachePlayListList>
 
     @GET("server/xml.server.php")
     fun getSong(
             @Query("action") action: String = "song",
             @Query("filter") uid: Long,
             @Query("auth") auth: String)
-            : Observable<SongList>
+            : Observable<AmpacheSongList>
 }

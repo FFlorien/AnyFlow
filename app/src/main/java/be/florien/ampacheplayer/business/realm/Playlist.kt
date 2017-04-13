@@ -1,6 +1,6 @@
-package be.florien.ampacheplayer.model.realm
+package be.florien.ampacheplayer.business.realm
 
-import be.florien.ampacheplayer.model.server.PlaylistServer
+import be.florien.ampacheplayer.business.ampache.AmpachePlayList
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -18,7 +18,7 @@ open class Playlist : RealmObject {
 
     constructor() : super()
 
-    constructor(fromServer: PlaylistServer) : super(){
+    constructor(fromServer: AmpachePlayList) : super(){
         id = fromServer.id
         name = fromServer.name
         owner = fromServer.owner

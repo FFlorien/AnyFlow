@@ -1,8 +1,9 @@
-package be.florien.ampacheplayer.model.realm
+package be.florien.ampacheplayer.business.realm
 
-import be.florien.ampacheplayer.model.server.AlbumServer
+import be.florien.ampacheplayer.business.ampache.AmpacheAlbum
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 
 /**
@@ -13,6 +14,7 @@ open class Album : RealmObject {
     var id: Long = 0
     var name: String = ""
     var artistName: String = ""
+    @field:Index
     var artistId: Long = -1
     var year: Int = 0
     var tracks: Int = 0
@@ -24,7 +26,7 @@ open class Album : RealmObject {
 
     constructor() : super()
 
-    constructor(fromServer: AlbumServer) : super() {
+    constructor(fromServer: AmpacheAlbum) : super() {
         id = fromServer.id
         name = fromServer.name
         artistName = fromServer.artist.name

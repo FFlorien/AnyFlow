@@ -1,6 +1,6 @@
-package be.florien.ampacheplayer.model.realm
+package be.florien.ampacheplayer.business.realm
 
-import be.florien.ampacheplayer.model.server.ArtistServer
+import be.florien.ampacheplayer.business.ampache.AmpacheArtist
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -18,7 +18,7 @@ open class Artist : RealmObject{
 
     constructor() : super()
 
-    constructor(fromServer: ArtistServer) : super() {
+    constructor(fromServer: AmpacheArtist) : super() {
         id = fromServer.id
         name = fromServer.name
         tag.addAll(fromServer.tag.map(::Tag))
