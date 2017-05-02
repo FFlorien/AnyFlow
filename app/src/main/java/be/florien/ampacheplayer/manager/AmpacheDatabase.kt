@@ -12,161 +12,91 @@ class AmpacheDatabase {
      * Database getters
      */
     fun getSongs(): Observable<List<Song>> {
-        val realm = Realm.getDefaultInstance()
         return Observable
-                .fromCallable {
-                    val realmResults = realm.where(Song::class.java).findAllSorted("id")
-                    realmResults
-                }
-                .flatMap {
-                    realmResult ->
-                    Observable.fromIterable(realmResult)
-                }
+                .fromCallable { Realm.getDefaultInstance().where(Song::class.java).findAllSorted("id") }
+                .flatMap { realmResult -> Observable.fromIterable(realmResult) }
                 .buffer(50)
     }
 
-    fun getArtists(): Observable<List<Artist>> {
-        val realm = Realm.getDefaultInstance()
-        return Observable
-                .fromCallable {
-                    val realmResults = realm.where(Artist::class.java).findAllSorted("id")
-                    realmResults
-                }
-                .flatMap {
-                    realmResult ->
-                    Observable.fromIterable(realmResult)
-                }
+    fun getArtists(): Observable<List<Artist>> = Realm.getDefaultInstance().let {
+        Observable
+                .fromCallable { it.where(Artist::class.java).findAllSorted("id") }
+                .flatMap { realmResult -> Observable.fromIterable(realmResult) }
                 .buffer(50)
-                .doOnComplete {
-                    realm.close()
-                }
+                .doOnComplete { it.close() }
     }
 
-    fun getAlbums(): Observable<List<Album>> {
-        val realm = Realm.getDefaultInstance()
-        return Observable
-                .fromCallable {
-                    val realmResults = realm.where(Album::class.java).findAllSorted("id")
-                    realmResults
-                }
-                .flatMap {
-                    realmResult ->
-                    Observable.fromIterable(realmResult)
-                }
+    fun getAlbums(): Observable<List<Album>> = Realm.getDefaultInstance().let {
+        Observable
+                .fromCallable { it.where(Album::class.java).findAllSorted("id") }
+                .flatMap { realmResult -> Observable.fromIterable(realmResult) }
                 .buffer(50)
-                .doOnComplete {
-                    realm.close()
-                }
+                .doOnComplete { it.close() }
     }
 
-    fun getTags(): Observable<List<Tag>> {
-        val realm = Realm.getDefaultInstance()
-        return Observable
-                .fromCallable {
-                    val realmResults = realm.where(Tag::class.java).findAllSorted("id")
-                    realmResults
-                }
-                .flatMap {
-                    realmResult ->
-                    Observable.fromIterable(realmResult)
-                }
+    fun getTags(): Observable<List<Tag>> = Realm.getDefaultInstance().let {
+        Observable
+                .fromCallable { it.where(Tag::class.java).findAllSorted("id") }
+                .flatMap { realmResult -> Observable.fromIterable(realmResult) }
                 .buffer(50)
-                .doOnComplete {
-                    realm.close()
-                }
+                .doOnComplete { it.close() }
     }
 
-    fun getPlaylists(): Observable<List<Playlist>> {
-        val realm = Realm.getDefaultInstance()
-        return Observable
-                .fromCallable {
-                    val realmResults = realm.where(Playlist::class.java).findAllSorted("id")
-                    realmResults
-                }
-                .flatMap {
-                    realmResult ->
-                    Observable.fromIterable(realmResult)
-                }
+    fun getPlaylists(): Observable<List<Playlist>> = Realm.getDefaultInstance().let {
+        Observable
+                .fromCallable { it.where(Playlist::class.java).findAllSorted("id") }
+                .flatMap { realmResult -> Observable.fromIterable(realmResult) }
                 .buffer(50)
-                .doOnComplete {
-                    realm.close()
-
-                }
+                .doOnComplete { it.close() }
     }
 
-    fun getSong(uid: Long): Observable<Song> {
-        val realm = Realm.getDefaultInstance()
-        return Observable
-                .fromCallable {
-                    val realmResults = realm.where(Song::class.java).equalTo("id", uid).findFirst()
-                    realmResults
-                }
-                .doOnComplete {
-                    realm.close()
-                }
+    fun getSong(uid: Long): Observable<Song> = Realm.getDefaultInstance().let {
+        Observable
+                .fromCallable { it.where(Song::class.java).equalTo("id", uid).findFirst() }
+                .doOnComplete { it.close() }
     }
 
     /**
      * Database setters
      */
 
-    fun addSongs(songs: List<Song>): Observable<Unit> {
-        return Observable
-                .fromCallable {
-                    val realm = Realm.getDefaultInstance()
-                    realm.executeTransaction {
-                        realm ->
-                        realm.copyToRealmOrUpdate(songs)
-                    }
-                    realm.close()
+    fun addSongs(songs: List<Song>): Observable<Unit> = Observable
+            .fromCallable {
+                Realm.getDefaultInstance().let {
+                    it.executeTransaction { realm -> realm.copyToRealmOrUpdate(songs) }
+                    it.close()
                 }
-    }
+            }
 
-    fun addArtists(artists: List<Artist>): Observable<Unit> {
-        return Observable
-                .fromCallable {
-                    val realm = Realm.getDefaultInstance()
-                    realm.executeTransaction {
-                        realm ->
-                        realm.copyToRealmOrUpdate(artists)
-                    }
-                    realm.close()
+    fun addArtists(artists: List<Artist>): Observable<Unit> = Observable
+            .fromCallable {
+                Realm.getDefaultInstance().let {
+                    it.executeTransaction { realm -> realm.copyToRealmOrUpdate(artists) }
+                    it.close()
                 }
-    }
+            }
 
-    fun addAlbums(albums: List<Album>): Observable<Unit> {
-        return Observable
-                .fromCallable {
-                    val realm = Realm.getDefaultInstance()
-                    realm.executeTransaction {
-                        realm ->
-                        realm.copyToRealmOrUpdate(albums)
-                    }
-                    realm.close()
+    fun addAlbums(albums: List<Album>): Observable<Unit> = Observable
+            .fromCallable {
+                Realm.getDefaultInstance().let {
+                    it.executeTransaction { realm -> realm.copyToRealmOrUpdate(albums) }
+                    it.close()
                 }
-    }
+            }
 
-    fun addTags(tags: List<Tag>): Observable<Unit>? {
-        return Observable
-                .fromCallable {
-                    val realm = Realm.getDefaultInstance()
-                    realm.executeTransaction {
-                        realm ->
-                        realm.copyToRealmOrUpdate(tags)
-                    }
-                    realm.close()
+    fun addTags(tags: List<Tag>): Observable<Unit>? = Observable
+            .fromCallable {
+                Realm.getDefaultInstance().let {
+                    it.executeTransaction { realm -> realm.copyToRealmOrUpdate(tags) }
+                    it.close()
                 }
-    }
+            }
 
-    fun addPlaylists(playlist: List<Playlist>): Observable<Unit>? {
-        return Observable
-                .fromCallable {
-                    val realm = Realm.getDefaultInstance()
-                    realm.executeTransaction {
-                        realm ->
-                        realm.copyToRealmOrUpdate(playlist)
-                    }
-                    realm.close()
+    fun addPlaylists(playlist: List<Playlist>): Observable<Unit>? = Observable
+            .fromCallable {
+                Realm.getDefaultInstance().let {
+                    it.executeTransaction { realm -> realm.copyToRealmOrUpdate(playlist) }
+                    it.close()
                 }
-    }
+            }
 }

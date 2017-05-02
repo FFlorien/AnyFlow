@@ -41,11 +41,12 @@ class PlayerActivityVM(val context: Context, val binding: ActivityPlayerBinding)
     fun getSongAndPlay() {
         dataManager
                 .getSongs()
+                .flatMap {
+                    it[0].load()
+                    dataManager.getSong(it[0].id)}
                 .subscribeOn(Schedulers.io())
                 .subscribe {
-                    val song = it[0]
-                    song.load()
-                    player?.play(song)
+                    player?.play(it)
                 }
     }
 

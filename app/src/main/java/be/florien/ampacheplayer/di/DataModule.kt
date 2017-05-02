@@ -17,11 +17,9 @@ import javax.inject.Singleton
 class DataModule {
 
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-                .addNetworkInterceptor(StethoInterceptor())
-                .build()
-    }
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(StethoInterceptor())
+            .build()
 
     @Provides
     fun provideAmpacheApi(okHttpClient: OkHttpClient): AmpacheApi {
@@ -37,22 +35,14 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(): AmpacheConnection {
-        return AmpacheConnection()
-    }
+    fun provideAmpacheConnection(): AmpacheConnection = AmpacheConnection()
 
     @Provides
-    fun provideAmpacheDatabase(): AmpacheDatabase {
-        return AmpacheDatabase()
-    }
+    fun provideAmpacheDatabase(): AmpacheDatabase = AmpacheDatabase()
 
     @Provides
-    fun provideDataManager(): DataManager {
-        return DataManager()
-    }
+    fun provideDataManager(): DataManager = DataManager()
 
     @Provides
-    fun provideAuthenticationManager(): AuthenticationManager {
-        return AuthenticationManager()
-    }
+    fun provideAuthenticationManager(): AuthenticationManager = AuthenticationManager()
 }

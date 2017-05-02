@@ -47,7 +47,7 @@ class DataManager {
         lastSongUpdate = prefs.getString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
         lastArtistUpdate = prefs.getString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate)
         lastAlbumUpdate = prefs.getString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate)
-        lastPlaylistUpdate= prefs.getString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate)
+        lastPlaylistUpdate = prefs.getString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate)
         lastTagUpdate = prefs.getString(LAST_TAG_UPDATE_NAME, lastTagUpdate)
     }
 
@@ -55,77 +55,55 @@ class DataManager {
      * Getter
      */
 
-    fun getSongs(): Observable<List<Song>> {
-        return connection
-                .getSongs(lastSongUpdate)
-                .flatMap {
-                    songs ->
-                    lastSongUpdate = DATE_FORMATTER.format(Date())
-                    prefs.edit().putString(LAST_SONG_UPDATE_NAME, lastSongUpdate).apply()
-                    database.addSongs(songs.songs.map(::Song))
-                }
-                .flatMap {
-                    database.getSongs()
-                }
-    }
+    fun getSongs(): Observable<List<Song>> = connection
+            .getSongs(lastSongUpdate)
+            .flatMap {
+                songs ->
+                lastSongUpdate = DATE_FORMATTER.format(Date())
+                prefs.edit().putString(LAST_SONG_UPDATE_NAME, lastSongUpdate).apply()
+                database.addSongs(songs.songs.map(::Song))
+            }
+            .flatMap { database.getSongs() }
 
-    fun getArtists(): Observable<List<Artist>> {
-        return connection
-                .getArtists(lastArtistUpdate)
-                .flatMap {
-                    artists ->
-                    lastArtistUpdate = DATE_FORMATTER.format(Date())
-                    prefs.edit().putString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate).apply()
-                    database.addArtists(artists.artists.map(::Artist))
-                }
-                .flatMap {
-                    database.getArtists()
-                }
-    }
+    fun getArtists(): Observable<List<Artist>> = connection
+            .getArtists(lastArtistUpdate)
+            .flatMap {
+                artists ->
+                lastArtistUpdate = DATE_FORMATTER.format(Date())
+                prefs.edit().putString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate).apply()
+                database.addArtists(artists.artists.map(::Artist))
+            }
+            .flatMap { database.getArtists() }
 
-    fun getAlbums(): Observable<List<Album>> {
-        return connection
-                .getAlbums(lastAlbumUpdate)
-                .flatMap {
-                    albums ->
-                    lastAlbumUpdate = DATE_FORMATTER.format(Date())
-                    prefs.edit().putString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate).apply()
-                    database.addAlbums(albums.albums.map(::Album))
-                }
-                .flatMap {
-                    database.getAlbums()
-                }
-    }
+    fun getAlbums(): Observable<List<Album>> = connection
+            .getAlbums(lastAlbumUpdate)
+            .flatMap {
+                albums ->
+                lastAlbumUpdate = DATE_FORMATTER.format(Date())
+                prefs.edit().putString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate).apply()
+                database.addAlbums(albums.albums.map(::Album))
+            }
+            .flatMap { database.getAlbums() }
 
-    fun getPlaylists(): Observable<List<Playlist>> {
-        return connection
-                .getPlaylists(lastPlaylistUpdate)
-                .flatMap {
-                    playlist ->
-                    lastPlaylistUpdate = DATE_FORMATTER.format(Date())
-                    prefs.edit().putString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate).apply()
-                    database.addPlaylists(playlist.playlists.map(::Playlist))
-                }
-                .flatMap {
-                    database.getPlaylists()
-                }
-    }
+    fun getPlaylists(): Observable<List<Playlist>> = connection
+            .getPlaylists(lastPlaylistUpdate)
+            .flatMap {
+                playlist ->
+                lastPlaylistUpdate = DATE_FORMATTER.format(Date())
+                prefs.edit().putString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate).apply()
+                database.addPlaylists(playlist.playlists.map(::Playlist))
+            }
+            .flatMap { database.getPlaylists() }
 
-    fun getTags(): Observable<List<Tag>> {
-        return connection
-                .getTags(lastTagUpdate )
-                .flatMap {
-                    tag ->
-                    lastTagUpdate = DATE_FORMATTER.format(Date())
-                    prefs.edit().putString(LAST_TAG_UPDATE_NAME, lastTagUpdate).apply()
-                    database.addTags(tag.tags.map(::Tag))
-                }
-                .flatMap {
-                    database.getTags()
-                }
-    }
+    fun getTags(): Observable<List<Tag>> = connection
+            .getTags(lastTagUpdate)
+            .flatMap {
+                tag ->
+                lastTagUpdate = DATE_FORMATTER.format(Date())
+                prefs.edit().putString(LAST_TAG_UPDATE_NAME, lastTagUpdate).apply()
+                database.addTags(tag.tags.map(::Tag))
+            }
+            .flatMap { database.getTags() }
 
-    fun getSong(id: Long) : Observable<Song>{
-        return database.getSong(id)
-    }
+    fun getSong(id: Long): Observable<Song> = connection.getSong(id).flatMap { Observable.just(Song(it.songs[0])) }
 }

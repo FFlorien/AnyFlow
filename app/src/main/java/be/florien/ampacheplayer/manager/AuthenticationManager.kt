@@ -5,13 +5,11 @@ import android.security.KeyPairGeneratorSpec
 import android.util.Base64
 import be.florien.ampacheplayer.App
 import io.reactivex.Observable
-import okio.ByteString
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.math.BigInteger
-import java.nio.charset.Charset
 import java.security.*
 import java.util.*
 import javax.crypto.Cipher
@@ -50,24 +48,22 @@ class AuthenticationManager {
     lateinit var context: Context
 
     val dataDirectoryPath: String
-    val keyStore: KeyStore
+    val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME).apply {
+        load(null)
+    }
 
     /**
      * Constructor
      */
     init {
         App.ampacheComponent.inject(this)
-        keyStore = KeyStore.getInstance(KEYSTORE_NAME)
-        keyStore.load(null)
         dataDirectoryPath = context.filesDir.absolutePath + File.separator
     }
 
     /**
      * Public methods
      */
-    fun isConnected(): Boolean {
-        return keyStore.containsAlias(AUTH_ALIAS) || keyStore.containsAlias(USER_ALIAS)
-    }
+    fun isConnected() = keyStore.containsAlias(AUTH_ALIAS) || keyStore.containsAlias(USER_ALIAS)
 
 
     fun authenticate(user: String, password: String): Observable<Boolean> {
@@ -99,20 +95,14 @@ class AuthenticationManager {
                 }
     }
 
-    fun extendsSession(): Observable<Boolean> {
-        if (!isConnected()) {
-            return Observable.just(false)
-        } else if (keyStore.containsAlias(AUTH_ALIAS)) {
-            return connection
-                    .ping(decryptSecret(AUTH_ALIAS, AUTH_FILENAME))
-                    .flatMap {
-                        authentication ->
-                        //todo extends session
-                        Observable.just(authentication.error.code == 0)
-                    }
-        } else {
-            return authenticate(decryptSecret(USER_ALIAS, USER_FILENAME), decryptSecret(USER_ALIAS, PASSWORD_FILENAME))
-        }
+    fun extendsSession(): Observable<Boolean> = if (!isConnected()) {
+        Observable.just(false)
+    } else if (keyStore.containsAlias(AUTH_ALIAS)) {
+        connection
+                .ping(decryptSecret(AUTH_ALIAS, AUTH_FILENAME))
+                .flatMap { authentication -> Observable.just(authentication.error.code == 0) } //todo extends session
+    } else {
+        authenticate(decryptSecret(USER_ALIAS, USER_FILENAME), decryptSecret(USER_ALIAS, PASSWORD_FILENAME))
     }
 
     /**
@@ -134,9 +124,7 @@ class AuthenticationManager {
         keyPairGenerator.generateKeyPair()
     }
 
-    private fun getRsaKey(alias: String): KeyStore.PrivateKeyEntry {
-        return keyStore.getEntry(alias, null) as KeyStore.PrivateKeyEntry
-    }
+    private fun getRsaKey(alias: String): KeyStore.PrivateKeyEntry = keyStore.getEntry(alias, null) as KeyStore.PrivateKeyEntry
 
     @Throws(KeyStoreException::class, UnrecoverableEntryException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, NoSuchPaddingException::class, InvalidKeyException::class, IOException::class)
     private fun encryptSecret(secret: String, alias: String, filename: String) {

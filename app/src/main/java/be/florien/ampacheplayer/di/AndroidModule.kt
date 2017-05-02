@@ -13,12 +13,8 @@ class AndroidModule (var context: Context){
     private val PREFERENCE_NAME = "ampache_preferences"
 
     @Provides
-    fun provideContext() : Context {
-        return context
-    }
+    fun provideContext() : Context = context
 
     @Provides
-    fun providePreferences() : SharedPreferences {
-        return context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-    }
+    fun providePreferences() : SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 }
