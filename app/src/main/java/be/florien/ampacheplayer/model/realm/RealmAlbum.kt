@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.model.realm
 
-import be.florien.ampacheplayer.model.server.AlbumServer
+import be.florien.ampacheplayer.model.ampache.AmpacheAlbum
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -8,7 +8,7 @@ import io.realm.annotations.PrimaryKey
 /**
  * Database structure that represents to album
  */
-open class Album : RealmObject {
+open class RealmAlbum : RealmObject {
     @field:PrimaryKey
     var id: Long = 0
     var name: String = ""
@@ -17,14 +17,14 @@ open class Album : RealmObject {
     var year: Int = 0
     var tracks: Int = 0
     var disk: Int = 0
-    var tag: RealmList<Tag> = RealmList()
+    var tag: RealmList<RealmTag> = RealmList()
     var art: String = ""
     var preciserating: Int = 0
     var rating: Double = 0.0
 
     constructor() : super()
 
-    constructor(fromServer: AlbumServer) : super() {
+    constructor(fromServer: AmpacheAlbum) : super() {
         id = fromServer.id
         name = fromServer.name
         artistName = fromServer.artist.name
@@ -32,7 +32,7 @@ open class Album : RealmObject {
         year = fromServer.year
         tracks = fromServer.tracks
         disk = fromServer.disk
-        tag.addAll(fromServer.tag.map(::Tag))
+        tag.addAll(fromServer.tag.map(::RealmTag))
         art = fromServer.art
         preciserating = fromServer.preciserating
         rating = fromServer.rating

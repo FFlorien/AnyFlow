@@ -8,7 +8,7 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Binder
 import android.os.IBinder
-import be.florien.ampacheplayer.model.realm.Song
+import be.florien.ampacheplayer.model.local.Song
 
 
 /**
@@ -45,6 +45,8 @@ class PlayerService : Service(),
     /**
      * Player methods
      */
+
+    fun isPlaying() = mediaPlayer.isPlaying
 
     fun play(song: Song) {
         songUrl = song.url
@@ -110,6 +112,8 @@ class PlayerService : Service(),
     inner class Background : AsyncTask<Void, Void, Boolean>() {
         override fun doInBackground(vararg params: Void?): Boolean {
             mediaPlayer.apply {
+                stop()
+                reset()
                 setDataSource(this@PlayerService, Uri.parse(songUrl))
                 prepare()
                 start()

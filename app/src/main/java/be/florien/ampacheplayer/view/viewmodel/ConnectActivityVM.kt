@@ -5,6 +5,7 @@ import android.content.Intent
 import android.databinding.BaseObservable
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.support.design.widget.Snackbar
 import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.manager.AuthenticationManager
@@ -36,13 +37,15 @@ class ConnectActivityVM(val context: Context, val binding: ActivityConnectBindin
      * Buttons calls
      */
     fun connect() {
-        if (binding.inputUsername.text.isBlank() && authenticationManager.isConnected()) {
+        if (binding.inputUsername.text.isBlank()) {
             authenticationManager.extendsSession()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
                         if (it) {
                             context.startActivity(Intent(context, PlayerActivity::class.java))
+                        } else {
+                            Snackbar.make(binding.activityMain, "Impossible de prolonger la session", Snackbar.LENGTH_SHORT).show()
                         }
                     }
         } else {
@@ -53,6 +56,8 @@ class ConnectActivityVM(val context: Context, val binding: ActivityConnectBindin
                     .subscribe {
                         if (it) {
                             context.startActivity(Intent(context, PlayerActivity::class.java))
+                        } else {
+                            Snackbar.make(binding.activityMain, "Impossible de se connecter avec les informations données", Snackbar.LENGTH_SHORT).show()
                         }
                     }
         }

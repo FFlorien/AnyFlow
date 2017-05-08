@@ -18,10 +18,11 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = DataBindingUtil.setContentView<ActivityPlayerBinding>(this, R.layout.activity_player)
         vm = PlayerActivityVM(this, binding)
+        vm.getSongs()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        vm?.destroy()
+        vm.destroy()
     }
 }

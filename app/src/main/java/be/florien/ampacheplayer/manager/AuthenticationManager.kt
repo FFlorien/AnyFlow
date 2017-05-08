@@ -1,9 +1,11 @@
 package be.florien.ampacheplayer.manager
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.security.KeyPairGeneratorSpec
 import android.util.Base64
 import be.florien.ampacheplayer.App
+import be.florien.ampacheplayer.extension.applyPutLong
 import io.reactivex.Observable
 import java.io.File
 import java.io.FileInputStream
@@ -11,6 +13,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.math.BigInteger
 import java.security.*
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -21,7 +24,7 @@ import javax.security.auth.x500.X500Principal
 
 
 /**
- * Created by florien on 2/04/17.
+ * Manager for all things authentication related
  */
 class AuthenticationManager {
     /**
@@ -36,12 +39,13 @@ class AuthenticationManager {
     private val USER_ALIAS = USER_FILENAME
     private val AUTH_ALIAS = "authData"
     private val RSA_CIPHER = "RSA/ECB/NoPadding"
-    private val SSL_PROVIDER = "AndroidOpenSSL"
-    //private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
 
     /**
      * Fields
      */
+    @Inject
+    lateinit var preference: SharedPreferences
     @Inject
     lateinit var connection: AmpacheConnection
     @Inject
@@ -63,7 +67,7 @@ class AuthenticationManager {
     /**
      * Public methods
      */
-    fun isConnected() = keyStore.containsAlias(AUTH_ALIAS) || keyStore.containsAlias(USER_ALIAS)
+    fun isConnected() = (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) || (keyStore.containsAlias(USER_ALIAS) && isDataValid(USER_ALIAS))
 
 
     fun authenticate(user: String, password: String): Observable<Boolean> {
@@ -74,20 +78,9 @@ class AuthenticationManager {
                     if (authentication.error.code == 0) {
                         val oneYearDate = Calendar.getInstance()
                         oneYearDate.add(Calendar.YEAR, 1)
-
-                        keyStore.deleteEntry(AUTH_ALIAS)
-                        keyStore.deleteEntry(USER_ALIAS)//todo remove when ok
-
-                        if (!keyStore.containsAlias(AUTH_ALIAS)) {//todo if it exist, update the end / problem with date from server
-                            createRsaKey(AUTH_ALIAS, oneYearDate.time)//DATE_FORMATTER.parse(authentication.sessionExpire))
-                        }
-                        encryptSecret(authentication.auth, AUTH_ALIAS, AUTH_FILENAME)
-
-                        if (!keyStore.containsAlias(USER_ALIAS)) {//todo if it exist, update the end ?
-                            createRsaKey(USER_ALIAS, oneYearDate.time)
-                        }
-                        encryptSecret(user, USER_ALIAS, USER_FILENAME)
-                        encryptSecret(password, USER_ALIAS, PASSWORD_FILENAME)
+                        encryptSecret(authentication.auth, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(authentication.sessionExpire))
+                        encryptSecret(user, USER_ALIAS, USER_FILENAME, oneYearDate.time)
+                        encryptSecret(password, USER_ALIAS, PASSWORD_FILENAME, oneYearDate.time)
                         Observable.just(true)
                     } else {
                         Observable.just(false)
@@ -95,39 +88,36 @@ class AuthenticationManager {
                 }
     }
 
-    fun extendsSession(): Observable<Boolean> = if (!isConnected()) {
-        Observable.just(false)
-    } else if (keyStore.containsAlias(AUTH_ALIAS)) {
-        connection
-                .ping(decryptSecret(AUTH_ALIAS, AUTH_FILENAME))
-                .flatMap { authentication -> Observable.just(authentication.error.code == 0) } //todo extends session
-    } else {
-        authenticate(decryptSecret(USER_ALIAS, USER_FILENAME), decryptSecret(USER_ALIAS, PASSWORD_FILENAME))
-    }
+    fun extendsSession(): Observable<Boolean> =
+            if (!isConnected()) {
+                Observable.just(false)
+            } else if (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) {
+                val authToken = decryptSecret(AUTH_ALIAS, AUTH_FILENAME)
+                connection
+                        .ping(authToken)
+                        .flatMap { ping ->
+                            if (ping.error.code == 0) {
+                                encryptSecret(authToken, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(ping.sessionExpire))//todo if empty string ?
+                            }
+
+                            Observable.just(ping.error.code == 0)
+                        }
+            } else {
+                authenticate(decryptSecret(USER_ALIAS, USER_FILENAME), decryptSecret(USER_ALIAS, PASSWORD_FILENAME))
+            }
 
     /**
      * Private methods
      */
-    private fun createRsaKey(alias: String, expiration: Date) {
-        val nowDate = Date()
-
-        val keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM_NAME, KEYSTORE_NAME)
-
-        val keySpec = KeyPairGeneratorSpec.Builder(context)
-                .setAlias(alias)
-                .setStartDate(nowDate)
-                .setEndDate(expiration)
-                .setSubject(X500Principal("C=BE, CN=ampachePlayer"))
-                .setSerialNumber(BigInteger.valueOf(1337))
-                .build()
-        keyPairGenerator.initialize(keySpec)
-        keyPairGenerator.generateKeyPair()
-    }
 
     private fun getRsaKey(alias: String): KeyStore.PrivateKeyEntry = keyStore.getEntry(alias, null) as KeyStore.PrivateKeyEntry
 
+
+    private fun isDataValid(alias: String) = Date(preference.getLong(alias, 0L)).after(Date())
+
     @Throws(KeyStoreException::class, UnrecoverableEntryException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, NoSuchPaddingException::class, InvalidKeyException::class, IOException::class)
-    private fun encryptSecret(secret: String, alias: String, filename: String) {
+    private fun encryptSecret(secret: String, alias: String, filename: String, expiration: Date) {
+        renewRsaKey(alias, expiration)
         val privateKeyEntry = getRsaKey(alias)
         val cipher = Cipher.getInstance(RSA_CIPHER)
         cipher.init(Cipher.ENCRYPT_MODE, privateKeyEntry.certificate.publicKey)
@@ -159,6 +149,26 @@ class AuthenticationManager {
 
         val decoded = Base64.decode(bytes, Base64.DEFAULT)
         return String(decoded, Charsets.UTF_8)
+    }
+
+    private fun renewRsaKey(alias: String, expiration: Date) {
+        if (keyStore.containsAlias(alias)) {
+            keyStore.deleteEntry(alias)
+        }
+        val nowDate = Date()
+
+        val keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM_NAME, KEYSTORE_NAME)
+
+        val keySpec = KeyPairGeneratorSpec.Builder(context)
+                .setAlias(alias)
+                .setStartDate(nowDate)
+                .setEndDate(expiration)
+                .setSubject(X500Principal("C=BE, CN=ampachePlayer"))
+                .setSerialNumber(BigInteger.valueOf(1337))
+                .build()
+        keyPairGenerator.initialize(keySpec)
+        keyPairGenerator.generateKeyPair()
+        preference.applyPutLong(alias, expiration.time)
     }
 
 }

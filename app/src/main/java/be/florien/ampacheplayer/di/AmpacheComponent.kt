@@ -20,9 +20,9 @@ import javax.inject.Singleton
         )
 )
 interface AmpacheComponent {
-    fun inject(mainActivityVm: ConnectActivityVM)
-    fun inject(connection: AmpacheConnection)
-    fun inject(dataManager: DataManager)
     fun inject(authenticationManager: AuthenticationManager)
+    fun inject(dataManager: DataManager)
+    fun inject(connection: AmpacheConnection)
+    fun inject(connectActivityVM: ConnectActivityVM)
     fun inject(playerActivityVM: PlayerActivityVM)
 }

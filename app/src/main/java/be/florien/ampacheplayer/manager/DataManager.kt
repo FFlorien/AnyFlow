@@ -2,6 +2,8 @@ package be.florien.ampacheplayer.manager
 
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.App
+import be.florien.ampacheplayer.extension.applyPutString
+import be.florien.ampacheplayer.model.local.*
 import be.florien.ampacheplayer.model.realm.*
 import io.reactivex.Observable
 import java.text.SimpleDateFormat
@@ -60,10 +62,11 @@ class DataManager {
             .flatMap {
                 songs ->
                 lastSongUpdate = DATE_FORMATTER.format(Date())
-                prefs.edit().putString(LAST_SONG_UPDATE_NAME, lastSongUpdate).apply()
-                database.addSongs(songs.songs.map(::Song))
+                prefs.applyPutString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
+                database.addSongs(songs.songs.map(::RealmSong))
             }
             .flatMap { database.getSongs() }
+            .flatMap { songs -> Observable.just(songs.map(::Song)) }
 
     fun getArtists(): Observable<List<Artist>> = connection
             .getArtists(lastArtistUpdate)
@@ -71,9 +74,10 @@ class DataManager {
                 artists ->
                 lastArtistUpdate = DATE_FORMATTER.format(Date())
                 prefs.edit().putString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate).apply()
-                database.addArtists(artists.artists.map(::Artist))
+                database.addArtists(artists.artists.map(::RealmArtist))
             }
             .flatMap { database.getArtists() }
+            .flatMap { artists -> Observable.just(artists.map(::Artist)) }
 
     fun getAlbums(): Observable<List<Album>> = connection
             .getAlbums(lastAlbumUpdate)
@@ -81,19 +85,21 @@ class DataManager {
                 albums ->
                 lastAlbumUpdate = DATE_FORMATTER.format(Date())
                 prefs.edit().putString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate).apply()
-                database.addAlbums(albums.albums.map(::Album))
+                database.addAlbums(albums.albums.map(::RealmAlbum))
             }
             .flatMap { database.getAlbums() }
+            .flatMap { albums -> Observable.just(albums.map(::Album)) }
 
-    fun getPlaylists(): Observable<List<Playlist>> = connection
+    fun getPlayLists(): Observable<List<Playlist>> = connection
             .getPlaylists(lastPlaylistUpdate)
             .flatMap {
                 playlist ->
                 lastPlaylistUpdate = DATE_FORMATTER.format(Date())
                 prefs.edit().putString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate).apply()
-                database.addPlaylists(playlist.playlists.map(::Playlist))
+                database.addPlayLists(playlist.playlists.map(::RealmPlaylist))
             }
-            .flatMap { database.getPlaylists() }
+            .flatMap { database.getPlayLists() }
+            .flatMap { playlists -> Observable.just(playlists.map(::Playlist)) }
 
     fun getTags(): Observable<List<Tag>> = connection
             .getTags(lastTagUpdate)
@@ -101,9 +107,10 @@ class DataManager {
                 tag ->
                 lastTagUpdate = DATE_FORMATTER.format(Date())
                 prefs.edit().putString(LAST_TAG_UPDATE_NAME, lastTagUpdate).apply()
-                database.addTags(tag.tags.map(::Tag))
+                database.addTags(tag.tags.map(::RealmTag))
             }
             .flatMap { database.getTags() }
+            .flatMap { tags -> Observable.just(tags.map(::Tag)) }
 
     fun getSong(id: Long): Observable<Song> = connection.getSong(id).flatMap { Observable.just(Song(it.songs[0])) }
 }

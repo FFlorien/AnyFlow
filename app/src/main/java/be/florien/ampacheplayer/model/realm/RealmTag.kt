@@ -1,24 +1,24 @@
 package be.florien.ampacheplayer.model.realm
 
-import be.florien.ampacheplayer.model.server.TagName
-import be.florien.ampacheplayer.model.server.TagServer
+import be.florien.ampacheplayer.model.ampache.AmpacheTagName
+import be.florien.ampacheplayer.model.ampache.AmpacheTag
 import io.realm.RealmObject
 
 /**
  * Database structure that represents to tags
  */
-open class Tag : RealmObject {
+open class RealmTag : RealmObject {
     var id: Long = 0
     var name: String = ""
 
     constructor() : super()
 
-    constructor(fromServer: TagServer) : super() {
+    constructor(fromServer: AmpacheTag) : super() {
         id = fromServer.id
         name = fromServer.name
     }
 
-    constructor(fromServer: TagName) : super() {
+    constructor(fromServer: AmpacheTagName) : super() {
         id = fromServer.id
         name = fromServer.value
     }
