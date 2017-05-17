@@ -15,7 +15,7 @@ interface AmpacheApi {
             @Query("timestamp") time: String,
             @Query("version") version: String = "380001",
             @Query("auth") auth: String,
-            @Query("user") limit: String)
+            @Query("user") user: String)
             : Observable<AmpacheAuthentication>
 
     @GET("server/xml.server.php")

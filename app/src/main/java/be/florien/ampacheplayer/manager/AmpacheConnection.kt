@@ -1,7 +1,11 @@
 package be.florien.ampacheplayer.manager
 
+import android.app.Activity
 import be.florien.ampacheplayer.App
+import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.model.ampache.*
+import be.florien.ampacheplayer.view.BaseActivity
+import be.florien.ampacheplayer.view.ConnectActivity
 import io.reactivex.Observable
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -17,12 +21,14 @@ class AmpacheConnection {
      */
     var authSession: String = ""
     @Inject lateinit var ampacheApi: AmpacheApi
+    @Inject lateinit var activity: Activity
 
     /**
      * Constructors
      */
     init {
-        App.ampacheComponent.inject(this)
+        App.applicationComponent.inject(this)
+        BaseActivity.activityComponent.inject(this)
     }
 
     /**
@@ -36,7 +42,7 @@ class AmpacheConnection {
         encoder.reset()
         val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase()
         return ampacheApi
-                .authenticate(limit = user, auth = auth, time = time)
+                .authenticate(user = user, auth = auth, time = time)
                 .doOnNext { result -> authSession = result.auth }
     }
 
@@ -45,6 +51,11 @@ class AmpacheConnection {
             .doOnNext { _ -> authSession = authToken }
 
     fun getSongs(from: String): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authSession, update = from)
+            .doOnNext {
+                if (it.error.code == 401) {
+                    activity.startActivity(ConnectActivity::class)
+                }
+            }
 
     fun getArtists(from: String): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authSession, update = from)
 

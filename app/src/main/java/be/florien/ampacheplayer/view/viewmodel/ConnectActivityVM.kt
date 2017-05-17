@@ -3,13 +3,10 @@ package be.florien.ampacheplayer.view.viewmodel
 import android.content.Context
 import android.content.Intent
 import android.databinding.BaseObservable
-import android.media.AudioManager
-import android.media.MediaPlayer
 import android.support.design.widget.Snackbar
 import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.manager.AuthenticationManager
-import be.florien.ampacheplayer.manager.DataManager
 import be.florien.ampacheplayer.view.PlayerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -30,7 +27,7 @@ class ConnectActivityVM(val context: Context, val binding: ActivityConnectBindin
      */
     init {
         binding.vm = this
-        App.ampacheComponent.inject(this)
+        App.applicationComponent.inject(this)
     }
 
     /**

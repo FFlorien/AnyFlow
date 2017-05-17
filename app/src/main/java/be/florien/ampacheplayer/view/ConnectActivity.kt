@@ -10,7 +10,7 @@ import be.florien.ampacheplayer.view.viewmodel.ConnectActivityVM
 /**
  * Simple activity for connection
  */
-class ConnectActivity : AppCompatActivity() {
+class ConnectActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

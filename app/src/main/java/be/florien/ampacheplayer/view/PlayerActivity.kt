@@ -10,7 +10,7 @@ import be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM
 /**
  * Created by florien on 3/04/17.
  */
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : BaseActivity() {
 
     lateinit var vm :PlayerActivityVM
 

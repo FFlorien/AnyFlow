@@ -1,9 +1,7 @@
 package be.florien.ampacheplayer.di
 
-import be.florien.ampacheplayer.manager.AmpacheConnection
-import be.florien.ampacheplayer.manager.AmpacheDatabase
-import be.florien.ampacheplayer.manager.AuthenticationManager
-import be.florien.ampacheplayer.manager.DataManager
+import android.app.Activity
+import be.florien.ampacheplayer.manager.*
 import be.florien.ampacheplayer.view.viewmodel.ConnectActivityVM
 import be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM
 import dagger.Component
@@ -19,10 +17,12 @@ import javax.inject.Singleton
                 AndroidModule::class
         )
 )
-interface AmpacheComponent {
+interface ApplicationComponent {
     fun inject(authenticationManager: AuthenticationManager)
     fun inject(dataManager: DataManager)
     fun inject(connection: AmpacheConnection)
     fun inject(connectActivityVM: ConnectActivityVM)
     fun inject(playerActivityVM: PlayerActivityVM)
+
+    fun getAmpacheApi(): AmpacheApi
 }

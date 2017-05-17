@@ -45,7 +45,7 @@ class DataManager {
      * Constructor
      */
     init {
-        App.ampacheComponent.inject(this)
+        App.applicationComponent.inject(this)
         lastSongUpdate = prefs.getString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
         lastArtistUpdate = prefs.getString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate)
         lastAlbumUpdate = prefs.getString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate)

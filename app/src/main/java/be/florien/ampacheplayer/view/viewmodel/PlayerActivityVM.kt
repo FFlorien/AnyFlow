@@ -37,7 +37,7 @@ class PlayerActivityVM(val context: Context, val binding: ActivityPlayerBinding)
      * Constructor
      */
     init {
-        App.ampacheComponent.inject(this)
+        App.applicationComponent.inject(this)
         connection = PlayerConnection()
         bindToService()
         binding.vm = this

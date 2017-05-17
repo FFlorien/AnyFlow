@@ -60,7 +60,7 @@ class AuthenticationManager {
      * Constructor
      */
     init {
-        App.ampacheComponent.inject(this)
+        App.applicationComponent.inject(this)
         dataDirectoryPath = context.filesDir.absolutePath + File.separator
     }
 
@@ -75,15 +75,18 @@ class AuthenticationManager {
                 .authenticate(user, password)
                 .flatMap {
                     authentication ->
-                    if (authentication.error.code == 0) {
-                        val oneYearDate = Calendar.getInstance()
-                        oneYearDate.add(Calendar.YEAR, 1)
-                        encryptSecret(authentication.auth, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(authentication.sessionExpire))
-                        encryptSecret(user, USER_ALIAS, USER_FILENAME, oneYearDate.time)
-                        encryptSecret(password, USER_ALIAS, PASSWORD_FILENAME, oneYearDate.time)
-                        Observable.just(true)
-                    } else {
-                        Observable.just(false)
+                    when (authentication.error.code) {
+                        0 -> {
+                            val oneYearDate = Calendar.getInstance()
+                            oneYearDate.add(Calendar.YEAR, 1)
+                            encryptSecret(authentication.auth, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(authentication.sessionExpire))
+                            encryptSecret(user, USER_ALIAS, USER_FILENAME, oneYearDate.time)
+                            encryptSecret(password, USER_ALIAS, PASSWORD_FILENAME, oneYearDate.time)
+                            Observable.just(true)
+                        }
+                        else -> {
+                            Observable.just(false)
+                        }
                     }
                 }
     }
