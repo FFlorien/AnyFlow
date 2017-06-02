@@ -1,5 +1,7 @@
 package be.florien.ampacheplayer.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import be.florien.ampacheplayer.manager.*
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
@@ -16,11 +18,13 @@ import javax.inject.Singleton
 @Module
 class DataModule {
 
+    @Singleton
     @Provides
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(StethoInterceptor())
             .build()
 
+    @Singleton
     @Provides
     fun provideAmpacheApi(okHttpClient: OkHttpClient): AmpacheApi {
         val retrofit = Retrofit.Builder()
@@ -35,14 +39,13 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(): AmpacheConnection = AmpacheConnection()
-
-    @Provides
     fun provideAmpacheDatabase(): AmpacheDatabase = AmpacheDatabase()
 
+    @Singleton
     @Provides
-    fun provideDataManager(): DataManager = DataManager()
+    fun provideDataManager(database: AmpacheDatabase, connection: AmpacheConnection, prefs: SharedPreferences): DataManager = DataManager(database, connection, prefs)
 
+    @Singleton
     @Provides
-    fun provideAuthenticationManager(): AuthenticationManager = AuthenticationManager()
+    fun provideAuthenticationManager(connection: AmpacheConnection, context: Context, prefs: SharedPreferences): AuthenticationManager = AuthenticationManager(prefs, connection, context)
 }

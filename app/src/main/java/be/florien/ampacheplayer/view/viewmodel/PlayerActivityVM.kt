@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.view.viewmodel
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -11,12 +12,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
+import be.florien.ampacheplayer.extension.getAmpacheApp
+import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.manager.DataManager
 import be.florien.ampacheplayer.model.local.Song
 import be.florien.ampacheplayer.player.PlayerService
+import be.florien.ampacheplayer.view.ConnectActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -24,7 +27,7 @@ import javax.inject.Inject
 /**
  * Created by florien on 3/04/17.
  */
-class PlayerActivityVM(val context: Context, val binding: ActivityPlayerBinding) : BaseObservable() {
+class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBinding) : BaseObservable() {
     /**
      * Fields
      */
@@ -37,7 +40,7 @@ class PlayerActivityVM(val context: Context, val binding: ActivityPlayerBinding)
      * Constructor
      */
     init {
-        App.applicationComponent.inject(this)
+        activity.getAmpacheApp().activityComponent?.inject(this)
         connection = PlayerConnection()
         bindToService()
         binding.vm = this
@@ -53,7 +56,7 @@ class PlayerActivityVM(val context: Context, val binding: ActivityPlayerBinding)
 
     fun getSongs() {
         dataManager
-                .getSongs()
+                .getSongs(this::onAmpacheError)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -124,11 +127,18 @@ class PlayerActivityVM(val context: Context, val binding: ActivityPlayerBinding)
      */
 
     private fun bindToService() {
-        context.bindService(Intent(context, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
+        activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
     fun destroy() {
-        context.unbindService(connection)
+        activity.unbindService(connection)
+    }
+
+    fun onAmpacheError(returnCode : Int) {
+        if (returnCode == 401) {
+            activity.startActivity(ConnectActivity::class)
+            activity.finish()
+        }
     }
 
     /**

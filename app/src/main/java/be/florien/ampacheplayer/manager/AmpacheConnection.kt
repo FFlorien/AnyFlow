@@ -1,11 +1,7 @@
 package be.florien.ampacheplayer.manager
 
-import android.app.Activity
-import be.florien.ampacheplayer.App
-import be.florien.ampacheplayer.extension.startActivity
+import android.content.Context
 import be.florien.ampacheplayer.model.ampache.*
-import be.florien.ampacheplayer.view.BaseActivity
-import be.florien.ampacheplayer.view.ConnectActivity
 import io.reactivex.Observable
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -15,21 +11,14 @@ import javax.inject.Inject
 /**
  * Manager for the ampache API server-side
  */
-class AmpacheConnection {
+class AmpacheConnection
+@Inject constructor(
+        var ampacheApi: AmpacheApi,
+        var context: Context) {
     /**
      * Fields
      */
     var authSession: String = ""
-    @Inject lateinit var ampacheApi: AmpacheApi
-    @Inject lateinit var activity: Activity
-
-    /**
-     * Constructors
-     */
-    init {
-        App.applicationComponent.inject(this)
-        BaseActivity.activityComponent.inject(this)
-    }
 
     /**
      * API calls
@@ -50,10 +39,10 @@ class AmpacheConnection {
             .ping(auth = authToken)
             .doOnNext { _ -> authSession = authToken }
 
-    fun getSongs(from: String): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authSession, update = from)
+    fun getSongs(from: String, onError: (returnCode:Int) -> Unit): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authSession, update = from)
             .doOnNext {
-                if (it.error.code == 401) {
-                    activity.startActivity(ConnectActivity::class)
+                if (it.error.code != 200) {
+                    onError(it.error.code)
                 }
             }
 

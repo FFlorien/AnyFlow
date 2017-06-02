@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.security.KeyPairGeneratorSpec
 import android.util.Base64
-import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.extension.applyPutLong
 import io.reactivex.Observable
 import java.io.File
@@ -13,6 +12,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.math.BigInteger
 import java.security.*
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.crypto.Cipher
@@ -26,7 +26,12 @@ import javax.security.auth.x500.X500Principal
 /**
  * Manager for all things authentication related
  */
-class AuthenticationManager {
+class AuthenticationManager
+@Inject constructor(
+        var preference: SharedPreferences,
+        var connection: AmpacheConnection,
+        var context: Context) {
+
     /**
      * Constants
      */
@@ -35,6 +40,7 @@ class AuthenticationManager {
     private val USER_FILENAME = "user"
     private val PASSWORD_FILENAME = "password"
     private val AUTH_FILENAME = "auth"
+    private val THIRTY_MINUTES = 1000 * 60 * 30
 
     private val USER_ALIAS = USER_FILENAME
     private val AUTH_ALIAS = "authData"
@@ -44,24 +50,10 @@ class AuthenticationManager {
     /**
      * Fields
      */
-    @Inject
-    lateinit var preference: SharedPreferences
-    @Inject
-    lateinit var connection: AmpacheConnection
-    @Inject
-    lateinit var context: Context
 
-    val dataDirectoryPath: String
+    val dataDirectoryPath: String = context.filesDir.absolutePath + File.separator
     val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME).apply {
         load(null)
-    }
-
-    /**
-     * Constructor
-     */
-    init {
-        App.applicationComponent.inject(this)
-        dataDirectoryPath = context.filesDir.absolutePath + File.separator
     }
 
     /**
@@ -100,7 +92,16 @@ class AuthenticationManager {
                         .ping(authToken)
                         .flatMap { ping ->
                             if (ping.error.code == 0) {
-                                encryptSecret(authToken, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(ping.sessionExpire))//todo if empty string ?
+                                encryptSecret(authToken, AUTH_ALIAS, AUTH_FILENAME,
+                                        try {
+                                            DATE_FORMATTER.parse(ping.sessionExpire)
+
+                                        } catch (exception: ParseException) {
+                                            val date = Date()
+                                            date.time += THIRTY_MINUTES
+                                            date
+                                        }
+                                )//todo if empty string ?
                             }
 
                             Observable.just(ping.error.code == 0)

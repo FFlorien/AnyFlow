@@ -1,7 +1,6 @@
 package be.florien.ampacheplayer.manager
 
 import android.content.SharedPreferences
-import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.extension.applyPutString
 import be.florien.ampacheplayer.model.local.*
 import be.florien.ampacheplayer.model.realm.*
@@ -13,7 +12,12 @@ import javax.inject.Inject
 /**
  * Class managing all request for data, handling caching and updating the database in the process.
  */
-class DataManager {
+class DataManager
+@Inject constructor(
+        var database: AmpacheDatabase,
+        var connection: AmpacheConnection,
+        var prefs: SharedPreferences) {
+
     /**
      * Constants
      */
@@ -27,12 +31,6 @@ class DataManager {
     /**
      * Fields
      */
-    @Inject
-    lateinit var database: AmpacheDatabase
-    @Inject
-    lateinit var connection: AmpacheConnection
-    @Inject
-    lateinit var prefs: SharedPreferences
 
     private var lastSongUpdate = "1970-01-01"
     private var lastArtistUpdate = "1970-01-01"
@@ -45,7 +43,6 @@ class DataManager {
      * Constructor
      */
     init {
-        App.applicationComponent.inject(this)
         lastSongUpdate = prefs.getString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
         lastArtistUpdate = prefs.getString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate)
         lastAlbumUpdate = prefs.getString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate)
@@ -57,8 +54,8 @@ class DataManager {
      * Getter
      */
 
-    fun getSongs(): Observable<List<Song>> = connection
-            .getSongs(lastSongUpdate)
+    fun getSongs(onError: (returnCode: Int) -> Unit): Observable<List<Song>> = connection
+            .getSongs(lastSongUpdate, onError)
             .flatMap {
                 songs ->
                 lastSongUpdate = DATE_FORMATTER.format(Date())

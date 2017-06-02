@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.BaseObservable
 import android.support.design.widget.Snackbar
-import be.florien.ampacheplayer.App
 import be.florien.ampacheplayer.databinding.ActivityConnectBinding
+import be.florien.ampacheplayer.extension.getAmpacheApp
 import be.florien.ampacheplayer.manager.AuthenticationManager
 import be.florien.ampacheplayer.view.PlayerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,7 +27,7 @@ class ConnectActivityVM(val context: Context, val binding: ActivityConnectBindin
      */
     init {
         binding.vm = this
-        App.applicationComponent.inject(this)
+        context.getAmpacheApp().activityComponent?.inject(this)
     }
 
     /**
