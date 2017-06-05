@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.security.KeyPairGeneratorSpec
 import android.util.Base64
 import be.florien.ampacheplayer.extension.applyPutLong
-import io.reactivex.Observable
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -26,10 +25,9 @@ import javax.security.auth.x500.X500Principal
 /**
  * Manager for all things authentication related
  */
-class AuthenticationManager
+class AuthManager
 @Inject constructor(
         var preference: SharedPreferences,
-        var connection: AmpacheConnection,
         var context: Context) {
 
     /**
@@ -40,7 +38,6 @@ class AuthenticationManager
     private val USER_FILENAME = "user"
     private val PASSWORD_FILENAME = "password"
     private val AUTH_FILENAME = "auth"
-    private val THIRTY_MINUTES = 1000 * 60 * 30
 
     private val USER_ALIAS = USER_FILENAME
     private val AUTH_ALIAS = "authData"
@@ -55,60 +52,44 @@ class AuthenticationManager
     val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME).apply {
         load(null)
     }
+    var authToken: String = ""
+        get() {
+            return if (field.trim() != "") {
+                field
+            } else {
+                if (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) {
+                    decryptSecret(AUTH_ALIAS, AUTH_FILENAME)
+                } else {
+                    ""
+                }
+            }
+        }
 
     /**
      * Public methods
      */
-    fun isConnected() = (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) || (keyStore.containsAlias(USER_ALIAS) && isDataValid(USER_ALIAS))
+    fun hasConnectionInfo() = (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) || (keyStore.containsAlias(USER_ALIAS) && isDataValid(USER_ALIAS))
 
 
-    fun authenticate(user: String, password: String): Observable<Boolean> {
-        return connection
-                .authenticate(user, password)
-                .flatMap {
-                    authentication ->
-                    when (authentication.error.code) {
-                        0 -> {
-                            val oneYearDate = Calendar.getInstance()
-                            oneYearDate.add(Calendar.YEAR, 1)
-                            encryptSecret(authentication.auth, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(authentication.sessionExpire))
-                            encryptSecret(user, USER_ALIAS, USER_FILENAME, oneYearDate.time)
-                            encryptSecret(password, USER_ALIAS, PASSWORD_FILENAME, oneYearDate.time)
-                            Observable.just(true)
-                        }
-                        else -> {
-                            Observable.just(false)
-                        }
-                    }
-                }
+    fun authenticate(user: String, password: String, authToken: String, expirationDate: String) {
+        this.authToken = authToken
+        val oneYearDate = Calendar.getInstance()
+        oneYearDate.add(Calendar.YEAR, 1)
+        encryptSecret(authToken, AUTH_ALIAS, AUTH_FILENAME, DATE_FORMATTER.parse(expirationDate))
+        encryptSecret(user, USER_ALIAS, USER_FILENAME, oneYearDate.time)
+        encryptSecret(password, USER_ALIAS, PASSWORD_FILENAME, oneYearDate.time)
     }
 
-    fun extendsSession(): Observable<Boolean> =
-            if (!isConnected()) {
-                Observable.just(false)
-            } else if (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) {
-                val authToken = decryptSecret(AUTH_ALIAS, AUTH_FILENAME)
-                connection
-                        .ping(authToken)
-                        .flatMap { ping ->
-                            if (ping.error.code == 0) {
-                                encryptSecret(authToken, AUTH_ALIAS, AUTH_FILENAME,
-                                        try {
-                                            DATE_FORMATTER.parse(ping.sessionExpire)
-
-                                        } catch (exception: ParseException) {
-                                            val date = Date()
-                                            date.time += THIRTY_MINUTES
-                                            date
-                                        }
-                                )//todo if empty string ?
-                            }
-
-                            Observable.just(ping.error.code == 0)
-                        }
-            } else {
-                authenticate(decryptSecret(USER_ALIAS, USER_FILENAME), decryptSecret(USER_ALIAS, PASSWORD_FILENAME))
+    fun extendsSession(expirationDate: String) {
+        if (keyStore.containsAlias(AUTH_ALIAS)) {
+            val newExpiration = try {
+                DATE_FORMATTER.parse(expirationDate).time
+            } catch (exception: ParseException) {
+                preference.getLong(AUTH_ALIAS, 0)
             }
+            preference.applyPutLong(AUTH_ALIAS, newExpiration)
+        }
+    }
 
     /**
      * Private methods

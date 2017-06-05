@@ -16,8 +16,4 @@ class ActivityModule (val activity : Activity) {
     @Provides
     fun providesActivity() : Activity = activity
 
-    @ActivityScope
-    @Provides
-    fun provideAmpacheConnection(ampacheApi: AmpacheApi, activity: Activity): AmpacheConnection = AmpacheConnection(ampacheApi, activity)
-
 }

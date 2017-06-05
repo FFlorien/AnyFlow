@@ -39,6 +39,10 @@ class DataModule {
 
     @Singleton
     @Provides
+    fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(ampacheApi, authManager, context)
+
+    @Singleton
+    @Provides
     fun provideAmpacheDatabase(): AmpacheDatabase = AmpacheDatabase()
 
     @Singleton
@@ -47,5 +51,5 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideAuthenticationManager(connection: AmpacheConnection, context: Context, prefs: SharedPreferences): AuthenticationManager = AuthenticationManager(prefs, connection, context)
+    fun provideAuthenticationManager(context: Context, prefs: SharedPreferences): AuthManager = AuthManager(prefs, context)
 }

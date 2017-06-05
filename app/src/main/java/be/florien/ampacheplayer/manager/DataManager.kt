@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.manager
 
 import android.content.SharedPreferences
+import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.extension.applyPutString
 import be.florien.ampacheplayer.model.local.*
 import be.florien.ampacheplayer.model.realm.*
@@ -54,10 +55,13 @@ class DataManager
      * Getter
      */
 
-    fun getSongs(onError: (returnCode: Int) -> Unit): Observable<List<Song>> = connection
-            .getSongs(lastSongUpdate, onError)
+    fun getSongs(): Observable<List<Song>> = connection
+            .getSongs(lastSongUpdate)
             .flatMap {
                 songs ->
+                when (songs.error.code ) {
+                    401 -> throw SessionExpiredException(songs.error.errorText)
+                }
                 lastSongUpdate = DATE_FORMATTER.format(Date())
                 prefs.applyPutString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
                 database.addSongs(songs.songs.map(::RealmSong))

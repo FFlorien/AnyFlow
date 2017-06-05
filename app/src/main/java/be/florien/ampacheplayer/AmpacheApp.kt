@@ -2,9 +2,11 @@ package be.florien.ampacheplayer
 
 import android.app.Activity
 import android.app.Application
+import android.util.Log
 import be.florien.ampacheplayer.di.*
 import com.facebook.stetho.Stetho
 import io.realm.Realm
+import timber.log.Timber
 
 
 /**
@@ -20,6 +22,7 @@ class AmpacheApp : Application() {
         super.onCreate()
         Stetho.initializeWithDefaults(this)
         Realm.init(this)
+        Timber.plant(debugTree)
         applicationComponent =
                 DaggerApplicationComponent
                         .builder()
@@ -36,4 +39,10 @@ class AmpacheApp : Application() {
         activityComponent = null
     }
 
+    object debugTree : Timber.Tree() {
+        override fun log(priority: Int, tag: String?, message: String?, t: Throwable?) {
+            Log.println(priority, tag, "Message: $message \n ${Log.getStackTraceString(t)}")
+        }
+
+    }
 }

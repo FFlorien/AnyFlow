@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
+import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.extension.getAmpacheApp
 import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.manager.DataManager
@@ -22,6 +23,8 @@ import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.ConnectActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 /**
@@ -41,6 +44,7 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
      */
     init {
         activity.getAmpacheApp().activityComponent?.inject(this)
+        Timber.tag(this.javaClass.simpleName)
         connection = PlayerConnection()
         bindToService()
         binding.vm = this
@@ -56,22 +60,32 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
 
     fun getSongs() {
         dataManager
-                .getSongs(this::onAmpacheError)
+                .getSongs()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe({
                     val songAdapter = binding.songList.adapter as SongAdapter
                     songAdapter.songs = it
-                }
+                }, {
+                    when (it) {
+                        is SessionExpiredException -> {
+                            Timber.i(it, "The session token is expired")
+                            activity.startActivity(ConnectActivity::class)
+                        }
+                        is SocketTimeoutException -> Timber.e(it, "Couldn't connect to the webservice")
+                    }
+                })
     }
 
     fun play(song: Song) {
         dataManager
                 .getSong(song.id)
                 .subscribeOn(Schedulers.io())
-                .subscribe {
+                .subscribe({
                     player?.play(it)
-                }
+                }, {
+                    Timber.e("Error while playing", it)
+                })
     }
 
     fun playPause() {
@@ -87,7 +101,7 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
                 .getArtists()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { root ->
+                .subscribe { _ ->
                     //                    binding.info.text = root.size.toString()
                 }
     }
@@ -132,13 +146,6 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
 
     fun destroy() {
         activity.unbindService(connection)
-    }
-
-    fun onAmpacheError(returnCode : Int) {
-        if (returnCode == 401) {
-            activity.startActivity(ConnectActivity::class)
-            activity.finish()
-        }
     }
 
     /**
