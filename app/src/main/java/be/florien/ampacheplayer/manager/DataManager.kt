@@ -44,11 +44,11 @@ class DataManager
      * Constructor
      */
     init {
-        lastSongUpdate = prefs.getString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
-        lastArtistUpdate = prefs.getString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate)
-        lastAlbumUpdate = prefs.getString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate)
-        lastPlaylistUpdate = prefs.getString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate)
-        lastTagUpdate = prefs.getString(LAST_TAG_UPDATE_NAME, lastTagUpdate)
+//        lastSongUpdate = prefs.getString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
+//        lastArtistUpdate = prefs.getString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate)
+//        lastAlbumUpdate = prefs.getString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate)
+//        lastPlaylistUpdate = prefs.getString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate)
+//        lastTagUpdate = prefs.getString(LAST_TAG_UPDATE_NAME, lastTagUpdate)
     }
 
     /**
@@ -58,15 +58,19 @@ class DataManager
     fun getSongs(): Observable<List<Song>> = connection
             .getSongs(lastSongUpdate)
             .flatMap {
-                songs ->
-                when (songs.error.code ) {
-                    401 -> throw SessionExpiredException(songs.error.errorText)
+                result ->
+                when (result.error.code) {
+                    401 -> connection.reconnect(connection.getSongs(lastSongUpdate))
+                    else -> Observable.just(result)
                 }
+            }
+            .flatMap {
+                songs ->
                 lastSongUpdate = DATE_FORMATTER.format(Date())
                 prefs.applyPutString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
                 database.addSongs(songs.songs.map(::RealmSong))
+                database.getSongs()
             }
-            .flatMap { database.getSongs() }
             .flatMap { songs -> Observable.just(songs.map(::Song)) }
 
     fun getArtists(): Observable<List<Artist>> = connection

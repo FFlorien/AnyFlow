@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.manager
 
 import android.content.Context
+import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.model.ampache.*
 import io.reactivex.Observable
@@ -44,6 +45,34 @@ class AmpacheConnection
         return ampacheApi
                 .ping(auth = authToken)
                 .doOnNext { result -> authManager.extendsSession(result.sessionExpire) }
+    }
+
+    fun <T> reconnect (request : Observable<T>) : Observable<T> {
+        if (!authManager.hasConnectionInfo()) {
+            return Observable.error { throw SessionExpiredException("Can't reconnect") }
+        } else {
+            if (authManager.authToken.isNotEmpty()) {
+                return ping(authManager.authToken)
+                        .flatMap {
+                            if (it.error.code == 0) {
+                                request
+                            } else {
+                                throw SessionExpiredException("Can't reconnect")
+                            }
+                        }
+            } else if (authManager.user.isNotEmpty() && authManager.password.isNotEmpty()){
+                return authenticate(authManager.user, authManager.password)
+                        .flatMap {
+                            if (it.error.code == 0) {
+                                request
+                            } else {
+                                throw SessionExpiredException("Can't reconnect")
+                            }
+                        }
+            } else {
+                return Observable.error { throw SessionExpiredException("Can't reconnect") }
+            }
+        }
     }
 
     fun getSongs(from: String): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken, update = from)

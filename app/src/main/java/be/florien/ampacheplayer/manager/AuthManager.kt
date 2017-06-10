@@ -54,16 +54,28 @@ class AuthManager
     }
     var authToken: String = ""
         get() {
-            return if (field.trim() != "") {
-                field
+            return getEncryptedData(field, AUTH_ALIAS, AUTH_FILENAME)
+        }
+    var user: String = ""
+        get() {
+            return getEncryptedData(field, USER_ALIAS, USER_FILENAME)
+        }
+    var password: String = ""
+        get() {
+            return getEncryptedData(field, USER_ALIAS, PASSWORD_FILENAME)
+        }
+
+    private fun getEncryptedData(field1: String, alias: String, filename: String): String {
+        return if (field1.trim() != "") {
+            field1
+        } else {
+            if (keyStore.containsAlias(alias) && isDataValid(alias)) {
+                decryptSecret(alias, filename)
             } else {
-                if (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) {
-                    decryptSecret(AUTH_ALIAS, AUTH_FILENAME)
-                } else {
-                    ""
-                }
+                ""
             }
         }
+    }
 
     /**
      * Public methods
@@ -131,8 +143,9 @@ class AuthManager
             nextByte = cipherInputStream.read()
         }
         cipherInputStream.close()
+        val goodBytes = bytes.copyOfRange(0, index -1)
 
-        val decoded = Base64.decode(bytes, Base64.DEFAULT)
+        val decoded = Base64.decode(goodBytes, Base64.DEFAULT)
         return String(decoded, Charsets.UTF_8)
     }
 

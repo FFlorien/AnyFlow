@@ -73,6 +73,7 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
                             activity.startActivity(ConnectActivity::class)
                         }
                         is SocketTimeoutException -> Timber.e(it, "Couldn't connect to the webservice")
+                        else -> Timber.e(it, "Unknown error")
                     }
                 })
     }
