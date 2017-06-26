@@ -51,7 +51,7 @@ class AmpacheConnection
         if (!authManager.hasConnectionInfo()) {
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
-            if (authManager.authToken.isNotEmpty()) {
+            if (authManager.authToken.isNotBlank()) {
                 return ping(authManager.authToken)
                         .flatMap {
                             if (it.error.code == 0) {
@@ -60,7 +60,7 @@ class AmpacheConnection
                                 throw SessionExpiredException("Can't reconnect")
                             }
                         }
-            } else if (authManager.user.isNotEmpty() && authManager.password.isNotEmpty()){
+            } else if (authManager.user.isNotBlank() && authManager.password.isNotBlank()){
                 return authenticate(authManager.user, authManager.password)
                         .flatMap {
                             if (it.error.code == 0) {

@@ -3,7 +3,6 @@ package be.florien.ampacheplayer.manager
 import android.content.Context
 import android.content.SharedPreferences
 import android.security.KeyPairGeneratorSpec
-import android.util.Base64
 import be.florien.ampacheplayer.extension.applyPutLong
 import java.io.File
 import java.io.FileInputStream
@@ -41,7 +40,7 @@ class AuthManager
 
     private val USER_ALIAS = USER_FILENAME
     private val AUTH_ALIAS = "authData"
-    private val RSA_CIPHER = "RSA/ECB/NoPadding"
+    private val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
     private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
 
     /**
@@ -54,20 +53,29 @@ class AuthManager
     }
     var authToken: String = ""
         get() {
-            return getEncryptedData(field, AUTH_ALIAS, AUTH_FILENAME)
+            if (field.isBlank()) {
+                field = getEncryptedData(field, AUTH_ALIAS, AUTH_FILENAME)
+            }
+            return field
         }
     var user: String = ""
         get() {
-            return getEncryptedData(field, USER_ALIAS, USER_FILENAME)
+            if (field.isBlank()) {
+                field = getEncryptedData(field, USER_ALIAS, USER_FILENAME)
+            }
+            return field
         }
     var password: String = ""
         get() {
-            return getEncryptedData(field, USER_ALIAS, PASSWORD_FILENAME)
+            if (field.isBlank()) {
+                field = getEncryptedData(field, USER_ALIAS, PASSWORD_FILENAME)
+            }
+            return field
         }
 
-    private fun getEncryptedData(field1: String, alias: String, filename: String): String {
-        return if (field1.trim() != "") {
-            field1
+    private fun getEncryptedData(propertyField: String, alias: String, filename: String): String {
+        return if (propertyField.trim() != "") {
+            propertyField
         } else {
             if (keyStore.containsAlias(alias) && isDataValid(alias)) {
                 decryptSecret(alias, filename)
@@ -121,32 +129,29 @@ class AuthManager
 
         val outputStream = FileOutputStream(dataDirectoryPath + filename)
         val cipherOutputStream = CipherOutputStream(outputStream, cipher)
-        val encoded = Base64.encode(secret.toByteArray(), Base64.DEFAULT)
-        cipherOutputStream.write(encoded)
+        cipherOutputStream.write(secret.toByteArray())
+        cipherOutputStream.flush()
         cipherOutputStream.close()
     }
 
     private fun decryptSecret(alias: String, filename: String): String {
-        val privateKeyEntry = getRsaKey(alias)
-        val cipher = Cipher.getInstance(RSA_CIPHER)
-        cipher.init(Cipher.DECRYPT_MODE, privateKeyEntry.privateKey)
+        try {
+            val privateKeyEntry = getRsaKey(alias)
+            val cipher = Cipher.getInstance(RSA_CIPHER)
+            cipher.init(Cipher.DECRYPT_MODE, privateKeyEntry.privateKey)
 
-        val inputStream = FileInputStream(dataDirectoryPath + filename)
-        val cipherInputStream = CipherInputStream(inputStream, cipher)
-        val bytes = ByteArray(1000) // TODO: dynamically resize as we get more data
-
-        var index = 0
-        var nextByte = 0
-        while (nextByte != -1) {
-            bytes[index] = nextByte.toByte()
-            index++
-            nextByte = cipherInputStream.read()
+            val inputStream = FileInputStream(dataDirectoryPath + filename)
+            val cipherInputStream = CipherInputStream(inputStream, cipher)
+            val goodBytes = cipherInputStream.readBytes()
+            cipherInputStream.close()
+            return String(goodBytes, Charsets.UTF_8)
+        } catch (exception: Exception) {
+            val file = File(dataDirectoryPath + filename)
+            if (file.exists()) {
+                file.delete()
+            }
+            return ""
         }
-        cipherInputStream.close()
-        val goodBytes = bytes.copyOfRange(0, index -1)
-
-        val decoded = Base64.decode(goodBytes, Base64.DEFAULT)
-        return String(decoded, Charsets.UTF_8)
     }
 
     private fun renewRsaKey(alias: String, expiration: Date) {

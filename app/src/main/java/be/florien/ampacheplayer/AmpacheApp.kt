@@ -41,6 +41,7 @@ class AmpacheApp : Application() {
 
     object debugTree : Timber.Tree() {
         override fun log(priority: Int, tag: String?, message: String?, t: Throwable?) {
+
             Log.println(priority, tag, "Message: $message \n ${Log.getStackTraceString(t)}")
         }
 

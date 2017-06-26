@@ -12,9 +12,11 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
+import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.extension.getAmpacheApp
 import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.manager.DataManager
@@ -72,8 +74,19 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
                             Timber.i(it, "The session token is expired")
                             activity.startActivity(ConnectActivity::class)
                         }
-                        is SocketTimeoutException -> Timber.e(it, "Couldn't connect to the webservice")
-                        else -> Timber.e(it, "Unknown error")
+                        is WrongIdentificationPairException -> {
+                            Timber.i(it, "Couldn't reconnect the user: wrong user/pwd")
+                            activity.startActivity(ConnectActivity::class)
+                        }
+                        is SocketTimeoutException -> {
+                            Timber.e(it, "Couldn't connect to the webservice")
+                            Toast.makeText(activity, "Couldn't connect to the webservice", Toast.LENGTH_LONG).show()
+                        }
+                        else -> {
+                            Timber.e(it, "Unknown error")
+                            Toast.makeText(activity, "Couldn't connect to the webservice", Toast.LENGTH_LONG).show()
+                            activity.startActivity(ConnectActivity::class)
+                        }
                     }
                 })
     }
