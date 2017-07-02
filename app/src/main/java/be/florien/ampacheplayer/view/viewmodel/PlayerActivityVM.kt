@@ -103,10 +103,12 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
     }
 
     fun playPause() {
-        if (player?.isPlaying() ?: false) {
-            player?.resume()
-        } else {
-            player?.pause()
+        player?.apply {
+            if (isPlaying()) {
+                pause()
+            } else {
+                resume()
+            }
         }
     }
 

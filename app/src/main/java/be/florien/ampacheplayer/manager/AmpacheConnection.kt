@@ -75,15 +75,15 @@ class AmpacheConnection
         }
     }
 
-    fun getSongs(from: String): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken, update = from)
+    fun getSongs(from: String = "1970-01-01"): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken, update = from)
 
-    fun getArtists(from: String): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken, update = from)
+    fun getArtists(from: String = "1970-01-01"): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken, update = from)
 
-    fun getAlbums(from: String): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken, update = from)
+    fun getAlbums(from: String = "1970-01-01"): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken, update = from)
 
-    fun getTags(from: String): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken, update = from)
+    fun getTags(from: String = "1970-01-01"): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken, update = from)
 
-    fun getPlaylists(from: String): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken, update = from)
+    fun getPlaylists(from: String = "1970-01-01"): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken, update = from)
 
     fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authManager.authToken, uid = uid)
 

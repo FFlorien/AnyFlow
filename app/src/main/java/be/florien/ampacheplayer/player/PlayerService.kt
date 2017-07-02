@@ -22,10 +22,11 @@ class PlayerService : Service(),
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener,
         AudioManager.OnAudioFocusChangeListener {
+    val NO_VALUE = -3
 
     private var mediaPlayer: MediaPlayer = MediaPlayer()
 
-    private var lastPosition: Int = 0
+    private var lastPosition: Int = NO_VALUE
     private var songUrl: String? = null
 
     /**
@@ -64,8 +65,10 @@ class PlayerService : Service(),
     }
 
     fun resume() {
-        mediaPlayer.seekTo(lastPosition)
-        mediaPlayer.start()
+        if (lastPosition != NO_VALUE) {
+            mediaPlayer.seekTo(lastPosition)
+            mediaPlayer.start()
+        }
     }
 
     /**

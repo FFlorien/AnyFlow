@@ -1,12 +1,9 @@
 package be.florien.ampacheplayer.manager
 
-import android.content.SharedPreferences
-import be.florien.ampacheplayer.extension.applyPutString
 import be.florien.ampacheplayer.model.local.*
+import be.florien.ampacheplayer.model.queue.Filter
 import be.florien.ampacheplayer.model.realm.*
 import io.reactivex.Observable
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -15,105 +12,62 @@ import javax.inject.Inject
 class DataManager
 @Inject constructor(
         var database: AmpacheDatabase,
-        var connection: AmpacheConnection,
-        var prefs: SharedPreferences) {
-
-    /**
-     * Constants
-     */
-    private val LAST_SONG_UPDATE_NAME = "lastSongUpdate"
-    private val LAST_ARTIST_UPDATE_NAME = "lastArtistUpdate"
-    private val LAST_ALBUM_UPDATE_NAME = "lastAlbumUpdate"
-    private val LAST_PLAYLIST_UPDATE_NAME = "lastPlaylistUpdate"
-    private val LAST_TAG_UPDATE_NAME = "lastTagUpdate"
-    private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
-    /**
-     * Fields
-     */
-
-    private var lastSongUpdate = "1970-01-01"
-    private var lastArtistUpdate = "1970-01-01"
-    private var lastAlbumUpdate = "1970-01-01"
-    private var lastPlaylistUpdate = "1970-01-01"
-    private var lastTagUpdate = "1970-01-01"
-
-
-    /**
-     * Constructor
-     */
-    init {
-//        lastSongUpdate = prefs.getString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
-//        lastArtistUpdate = prefs.getString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate)
-//        lastAlbumUpdate = prefs.getString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate)
-//        lastPlaylistUpdate = prefs.getString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate)
-//        lastTagUpdate = prefs.getString(LAST_TAG_UPDATE_NAME, lastTagUpdate)
-    }
+        var connection: AmpacheConnection) {
 
     /**
      * Getter
      */
 
-    fun getSongs(): Observable<List<Song>> = connection
-            .getSongs(lastSongUpdate)
+    fun getSongs(filters: List<Filter<RealmSong, Any>> = emptyList()): Observable<List<Song>> = connection
+            .getSongs()
             .flatMap {
                 result ->
                 when (result.error.code) {
-                    401 -> connection.reconnect(connection.getSongs(lastSongUpdate))
+                    401 -> connection.reconnect(connection.getSongs())
                     else -> Observable.just(result)
                 }
             }
             .flatMap {
                 songs ->
-                lastSongUpdate = DATE_FORMATTER.format(Date())
-                prefs.applyPutString(LAST_SONG_UPDATE_NAME, lastSongUpdate)
                 database.addSongs(songs.songs.map(::RealmSong))
-                val dbSongs = database.getSongs()
+                val dbSongs = database.getSongs(filters)
                 Observable.just(dbSongs.map(::Song))
             }
 
-    fun getArtists(): Observable<List<Artist>> = connection
-            .getArtists(lastArtistUpdate)
+    fun getArtists(filters: List<Filter<RealmArtist, Any>> = emptyList()): Observable<List<Artist>> = connection
+            .getArtists()
             .flatMap {
                 artists ->
-                lastArtistUpdate = DATE_FORMATTER.format(Date())
-                prefs.edit().putString(LAST_ARTIST_UPDATE_NAME, lastArtistUpdate).apply()
                 database.addArtists(artists.artists.map(::RealmArtist))
-                val dbArtists = database.getArtists()
+                val dbArtists = database.getArtists(filters)
 
                 Observable.just(dbArtists.map(::Artist))
             }
 
-    fun getAlbums(): Observable<List<Album>> = connection
-            .getAlbums(lastAlbumUpdate)
+    fun getAlbums(filters: List<Filter<RealmAlbum, Any>> = emptyList()): Observable<List<Album>> = connection
+            .getAlbums()
             .flatMap {
                 albums ->
-                lastAlbumUpdate = DATE_FORMATTER.format(Date())
-                prefs.edit().putString(LAST_ALBUM_UPDATE_NAME, lastAlbumUpdate).apply()
                 database.addAlbums(albums.albums.map(::RealmAlbum))
-                val dbAlbums = database.getAlbums()
+                val dbAlbums = database.getAlbums(filters)
                 Observable.just(dbAlbums.map(::Album))
             }
 
-    fun getPlayLists(): Observable<List<Playlist>> = connection
-            .getPlaylists(lastPlaylistUpdate)
+    fun getPlayLists(filters: List<Filter<RealmPlaylist, Any>> = emptyList()): Observable<List<Playlist>> = connection
+            .getPlaylists()
             .flatMap {
                 playlist ->
-                lastPlaylistUpdate = DATE_FORMATTER.format(Date())
-                prefs.edit().putString(LAST_PLAYLIST_UPDATE_NAME, lastPlaylistUpdate).apply()
                 database.addPlayLists(playlist.playlists.map(::RealmPlaylist))
-                val dbPlayLists = database.getPlayLists()
+                val dbPlayLists = database.getPlayLists(filters)
                 Observable.just(dbPlayLists.map(::Playlist))
             }
 
-    fun getTags(): Observable<List<Tag>> = connection
-            .getTags(lastTagUpdate)
+    fun getTags(filters: List<Filter<RealmTag, Any>> = emptyList()): Observable<List<Tag>> = connection
+            .getTags()
             .flatMap {
                 tag ->
-                lastTagUpdate = DATE_FORMATTER.format(Date())
-                prefs.edit().putString(LAST_TAG_UPDATE_NAME, lastTagUpdate).apply()
                 database.addTags(tag.tags.map(::RealmTag))
-                val dbTags = database.getTags()
+                val dbTags = database.getTags(filters)
                 Observable.just(dbTags.map(::Tag))
             }
 

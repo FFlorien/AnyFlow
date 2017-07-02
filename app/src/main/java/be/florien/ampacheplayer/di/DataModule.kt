@@ -47,7 +47,11 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideDataManager(database: AmpacheDatabase, connection: AmpacheConnection, prefs: SharedPreferences): DataManager = DataManager(database, connection, prefs)
+    fun provideDataManager(database: AmpacheDatabase, connection: AmpacheConnection): DataManager = DataManager(database, connection)
+
+    @Singleton
+    @Provides
+    fun provideAudioQueueManager(dataManager: DataManager) : AudioQueueManager = AudioQueueManager(dataManager)
 
     @Singleton
     @Provides
