@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.exception
 
 /**
- * Created by florien on 3/06/17.
+ * Indicate that the request couldn't finish because the session has expired
  */
 class SessionExpiredException(message: String?) : Exception(message)

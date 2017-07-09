@@ -1,6 +1,6 @@
-package be.florien.ampacheplayer.model.realm
+package be.florien.ampacheplayer.business.realm
 
-import be.florien.ampacheplayer.model.ampache.AmpacheSong
+import be.florien.ampacheplayer.business.ampache.AmpacheSong
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey

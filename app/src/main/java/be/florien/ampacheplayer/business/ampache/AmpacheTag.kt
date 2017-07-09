@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.model.ampache
+package be.florien.ampacheplayer.business.ampache
 
 import org.simpleframework.xml.*
 

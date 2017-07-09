@@ -1,9 +1,8 @@
-package be.florien.ampacheplayer.model.local
+package be.florien.ampacheplayer.business.local
 
-import be.florien.ampacheplayer.model.realm.RealmTag
-import be.florien.ampacheplayer.model.ampache.AmpacheTagName
-import be.florien.ampacheplayer.model.ampache.AmpacheTag
-import io.realm.RealmObject
+import be.florien.ampacheplayer.business.realm.RealmTag
+import be.florien.ampacheplayer.business.ampache.AmpacheTagName
+import be.florien.ampacheplayer.business.ampache.AmpacheTag
 
 /**
  * Database structure that represents to tags

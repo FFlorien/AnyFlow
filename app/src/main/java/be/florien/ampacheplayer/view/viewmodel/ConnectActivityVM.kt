@@ -6,7 +6,7 @@ import android.databinding.BaseObservable
 import android.support.design.widget.Snackbar
 import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.extension.getAmpacheApp
+import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.manager.AmpacheConnection
 import be.florien.ampacheplayer.view.PlayerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,7 +29,7 @@ class ConnectActivityVM(val activity: Activity, val binding: ActivityConnectBind
      */
     init {
         binding.vm = this
-        activity.getAmpacheApp().activityComponent?.inject(this)
+        activity.ampacheApp.activityComponent?.inject(this)
         Timber.tag(this.javaClass.simpleName)
     }
 

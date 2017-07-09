@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.manager
 import android.content.Context
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.model.ampache.*
+import be.florien.ampacheplayer.business.ampache.*
 import io.reactivex.Observable
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -47,7 +47,7 @@ class AmpacheConnection
                 .doOnNext { result -> authManager.extendsSession(result.sessionExpire) }
     }
 
-    fun <T> reconnect (request : Observable<T>) : Observable<T> {
+    fun <T> reconnect(request: Observable<T>): Observable<T> {
         if (!authManager.hasConnectionInfo()) {
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
@@ -60,7 +60,7 @@ class AmpacheConnection
                                 throw SessionExpiredException("Can't reconnect")
                             }
                         }
-            } else if (authManager.user.isNotBlank() && authManager.password.isNotBlank()){
+            } else if (authManager.user.isNotBlank() && authManager.password.isNotBlank()) {
                 return authenticate(authManager.user, authManager.password)
                         .flatMap {
                             if (it.error.code == 0) {

@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.exception
 
 /**
- * Created by florien on 3/06/17.
+ * Indicate that the connection couldn't occur because the username password was incorrect
  */
 class WrongIdentificationPairException(message: String?) : Exception(message)

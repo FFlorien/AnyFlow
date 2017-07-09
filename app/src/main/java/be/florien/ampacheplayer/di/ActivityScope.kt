@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.di
 import javax.inject.Scope
 
 /**
- * Created by florien on 17/05/17.
+ * Annotation defining the scope of Activities lifecycle
  */
 @Scope
 @Retention(AnnotationRetention.RUNTIME)

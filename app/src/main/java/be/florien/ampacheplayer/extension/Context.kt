@@ -7,16 +7,20 @@ import be.florien.ampacheplayer.AmpacheApp
 import kotlin.reflect.KClass
 
 /**
- * Created by florien on 28/05/17.
+ * Extension functions/properties for Context
  */
-fun Context.getAmpacheApp() : AmpacheApp = this.applicationContext as AmpacheApp
-fun Activity.getAmpacheApp() : AmpacheApp = this.applicationContext as AmpacheApp
+val Context.ampacheApp: AmpacheApp
+    get() = this.applicationContext as AmpacheApp
+
+val Activity.ampacheApp: AmpacheApp
+    get() = this.applicationContext as AmpacheApp
 
 fun Context.startActivity(activityClass: KClass<*>, flags: Int) {
     val intent = Intent(this, activityClass.java)
     intent.flags = flags
     startActivity(intent)
 }
+
 fun Context.startActivity(activityClass: KClass<*>) {
     startActivity(Intent(this, activityClass.java))
 }

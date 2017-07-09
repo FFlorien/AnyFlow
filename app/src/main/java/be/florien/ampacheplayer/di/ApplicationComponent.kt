@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.di
 
+import be.florien.ampacheplayer.player.PlayerService
 import dagger.Component
 import javax.inject.Singleton
 
@@ -14,6 +15,6 @@ import javax.inject.Singleton
         )
 )
 interface ApplicationComponent {
-
     fun plus(activity: ActivityModule): ActivityComponent
+    fun inject(playerService: PlayerService)
 }

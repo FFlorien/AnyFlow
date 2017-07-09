@@ -6,7 +6,7 @@ import dagger.Module
 import dagger.Provides
 
 /**
- * Created by florien on 31/03/17.
+ * Module providing system component
  */
 @Module
 class AndroidModule (var context: Context){

@@ -2,21 +2,21 @@ package be.florien.ampacheplayer.view
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import be.florien.ampacheplayer.extension.getAmpacheApp
+import be.florien.ampacheplayer.extension.ampacheApp
 
 /**
- * Created by florien on 17/05/17.
+ * Base activity used to handle activity lifecycle in DI
  */
 
 open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getAmpacheApp().initActivityInjection(this)
+        ampacheApp.initActivityInjection(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        getAmpacheApp().releaseActivityInjection()
+        ampacheApp.releaseActivityInjection()
     }
 }

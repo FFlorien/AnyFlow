@@ -5,12 +5,11 @@ import be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM
 import dagger.Subcomponent
 
 /**
- * Created by florien on 17/05/17.
+ * Injection for Activities lifecycle
  */
 @ActivityScope
 @Subcomponent(modules = arrayOf(ActivityModule::class))
 interface ActivityComponent {
     fun inject(connectActivityVM: ConnectActivityVM)
     fun inject(playerActivityVM: PlayerActivityVM)
-
 }

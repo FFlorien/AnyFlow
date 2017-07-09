@@ -1,7 +1,7 @@
-package be.florien.ampacheplayer.model.local
+package be.florien.ampacheplayer.business.local
 
-import be.florien.ampacheplayer.model.realm.RealmAlbum
-import be.florien.ampacheplayer.model.ampache.AmpacheAlbum
+import be.florien.ampacheplayer.business.realm.RealmAlbum
+import be.florien.ampacheplayer.business.ampache.AmpacheAlbum
 
 /**
  * Database structure that represents to album

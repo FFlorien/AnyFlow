@@ -1,10 +1,7 @@
-package be.florien.ampacheplayer.model.local
+package be.florien.ampacheplayer.business.local
 
-import be.florien.ampacheplayer.model.realm.RealmArtist
-import be.florien.ampacheplayer.model.ampache.AmpacheArtist
-import io.realm.RealmList
-import io.realm.RealmObject
-import io.realm.annotations.PrimaryKey
+import be.florien.ampacheplayer.business.realm.RealmArtist
+import be.florien.ampacheplayer.business.ampache.AmpacheArtist
 
 /**
  * Database structure that represents to artists

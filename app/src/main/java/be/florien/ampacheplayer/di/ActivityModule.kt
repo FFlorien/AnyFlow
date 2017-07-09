@@ -7,13 +7,11 @@ import dagger.Module
 import dagger.Provides
 
 /**
- * Created by florien on 17/05/17.
+ * Module providing component related to activities
  */
 @Module
 class ActivityModule (val activity : Activity) {
-
     @ActivityScope
     @Provides
     fun providesActivity() : Activity = activity
-
 }

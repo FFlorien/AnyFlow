@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.manager
 
-import be.florien.ampacheplayer.model.ampache.*
+import be.florien.ampacheplayer.business.ampache.*
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query

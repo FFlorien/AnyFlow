@@ -8,11 +8,14 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Binder
 import android.os.IBinder
-import be.florien.ampacheplayer.model.local.Song
+import be.florien.ampacheplayer.AmpacheApp
+import be.florien.ampacheplayer.manager.AudioQueueManager
+import be.florien.ampacheplayer.business.local.Song
+import javax.inject.Inject
 
 
 /**
- * Created by florien on 3/04/17.
+ * Service used to handle the media player.
  */
 class PlayerService : Service(),
         MediaPlayer.OnInfoListener,
@@ -24,6 +27,8 @@ class PlayerService : Service(),
         AudioManager.OnAudioFocusChangeListener {
     val NO_VALUE = -3
 
+    @Inject
+    lateinit var audioQueueManager: AudioQueueManager
     private var mediaPlayer: MediaPlayer = MediaPlayer()
 
     private var lastPosition: Int = NO_VALUE
@@ -41,6 +46,7 @@ class PlayerService : Service(),
         mediaPlayer.setOnInfoListener(this)
         mediaPlayer.reset()
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        (application as AmpacheApp).applicationComponent.inject(this)
     }
 
     /**
@@ -65,7 +71,11 @@ class PlayerService : Service(),
     }
 
     fun resume() {
-        if (lastPosition != NO_VALUE) {
+        if (lastPosition == NO_VALUE) {
+            audioQueueManager.getAudioQueue().subscribe({
+                play(it[0])
+            })
+        } else {
             mediaPlayer.seekTo(lastPosition)
             mediaPlayer.start()
         }

@@ -3,9 +3,7 @@ package be.florien.ampacheplayer.extension
 import android.content.SharedPreferences
 
 /**
- * Created by florien on 8/05/17.
- */
-
+ * Extension function for preferences */
 
 fun SharedPreferences.applyPutLong(key: String, long: Long) {
     edit().putLong(key, long).apply()

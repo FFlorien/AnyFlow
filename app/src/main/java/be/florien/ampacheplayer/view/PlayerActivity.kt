@@ -8,7 +8,7 @@ import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM
 
 /**
- * Created by florien on 3/04/17.
+ * Activity controlling the queue, play/pause/next/previous on the PlayerService
  */
 class PlayerActivity : BaseActivity() {
 

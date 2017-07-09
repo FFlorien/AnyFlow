@@ -1,7 +1,7 @@
-package be.florien.ampacheplayer.model.realm
+package be.florien.ampacheplayer.business.realm
 
-import be.florien.ampacheplayer.model.ampache.AmpacheTagName
-import be.florien.ampacheplayer.model.ampache.AmpacheTag
+import be.florien.ampacheplayer.business.ampache.AmpacheTagName
+import be.florien.ampacheplayer.business.ampache.AmpacheTag
 import io.realm.RealmObject
 
 /**

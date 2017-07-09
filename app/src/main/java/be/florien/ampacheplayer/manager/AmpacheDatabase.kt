@@ -1,9 +1,7 @@
 package be.florien.ampacheplayer.manager
 
-import be.florien.ampacheplayer.model.queue.Filter
-import be.florien.ampacheplayer.model.realm.*
+import be.florien.ampacheplayer.business.realm.*
 import io.realm.Realm
-import io.realm.RealmObject
 import io.realm.RealmQuery
 
 /**
@@ -13,35 +11,9 @@ class AmpacheDatabase {
     /**
      * Database getters
      */
-    fun getSongs(filters: List<Filter<RealmSong, Any>> = emptyList()): List<RealmSong> = Realm.getDefaultInstance().let {
+    fun getSongs(filters: List<Filter<*>> = emptyList()): List<RealmSong> = Realm.getDefaultInstance().let {
         val realmQuery = it.where(RealmSong::class.java)
         getRealmObjects(filters, realmQuery, it)
-    }
-
-    fun getArtists(filters: List<Filter<RealmArtist, Any>> = emptyList()): List<RealmArtist> = Realm.getDefaultInstance().let {
-        val realmQuery = it.where(RealmArtist::class.java)
-        getRealmObjects(filters, realmQuery, it)
-    }
-
-    fun getAlbums(filters: List<Filter<RealmAlbum, Any>> = emptyList()): List<RealmAlbum> = Realm.getDefaultInstance().let {
-        val realmQuery = it.where(RealmAlbum::class.java)
-        getRealmObjects(filters, realmQuery, it)
-    }
-
-    fun getPlayLists(filters: List<Filter<RealmPlaylist, Any>> = emptyList()): List<RealmPlaylist> = Realm.getDefaultInstance().let {
-        val realmQuery = it.where(RealmPlaylist::class.java)
-        getRealmObjects(filters, realmQuery, it)
-    }
-
-    fun getTags(filters: List<Filter<RealmTag, Any>> = emptyList()): List<RealmTag> = Realm.getDefaultInstance().let {
-        val realmQuery = it.where(RealmTag::class.java)
-        getRealmObjects(filters, realmQuery, it)
-    }
-
-    fun getSong(uid: Long): RealmSong = Realm.getDefaultInstance().let {
-        val findFirst = it.where(RealmSong::class.java).equalTo("id", uid).findFirst()
-        it.close()
-        findFirst
     }
 
     /**
@@ -79,15 +51,35 @@ class AmpacheDatabase {
                 it.close()
             }
 
+    /**
+     * Private methods
+     */
 
-    private fun <T : RealmObject> getRealmObjects(filters: List<Filter<T, Any>>, realmQuery: RealmQuery<T>, it: Realm): ArrayList<T> {
+    private fun getRealmObjects(filters: List<Filter<*>>, realmQuery: RealmQuery<RealmSong>, realmInstance: Realm): ArrayList<RealmSong> {
+        var isFirstFilter = true
         for (filter in filters) {
-            filter.apply {
-                filterFunction.invoke(realmQuery, fieldName, argument)
-            }
+            applyFilter(realmQuery, filter, isFirstFilter)
+            isFirstFilter = false
         }
         val realmResult = realmQuery.findAllSorted("id")
-        it.close()
+        realmInstance.close()
         return ArrayList(realmResult)
+    }
+
+    private fun applyFilter(realmQuery: RealmQuery<RealmSong>, filter: Filter<*>, isFirst: Boolean) {
+        if (!isFirst) {
+            realmQuery.or()
+        }
+
+        realmQuery.beginGroup()
+        filter.apply {
+            applyFilter(realmQuery)
+            var isFirstSubFilter = true
+            for (subFilter in subFilter) {
+                applyFilter(realmQuery, subFilter, isFirstSubFilter)
+                isFirstSubFilter = false
+            }
+        }
+        realmQuery.endGroup()
     }
 }

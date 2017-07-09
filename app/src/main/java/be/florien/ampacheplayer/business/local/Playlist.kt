@@ -1,10 +1,7 @@
-package be.florien.ampacheplayer.model.local
+package be.florien.ampacheplayer.business.local
 
-import be.florien.ampacheplayer.model.realm.RealmPlaylist
-import be.florien.ampacheplayer.model.ampache.AmpachePlayList
-import io.realm.RealmList
-import io.realm.RealmObject
-import io.realm.annotations.PrimaryKey
+import be.florien.ampacheplayer.business.realm.RealmPlaylist
+import be.florien.ampacheplayer.business.ampache.AmpachePlayList
 
 /**
  * Database structure that represents to playlist

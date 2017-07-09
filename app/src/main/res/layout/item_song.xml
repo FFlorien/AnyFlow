@@ -5,7 +5,7 @@
 
         <variable
             name="song"
-            type="be.florien.ampacheplayer.model.local.Song" />
+            type="be.florien.ampacheplayer.business.local.Song" />
 
         <variable
             name="vm"

@@ -24,11 +24,12 @@ class DataModule {
             .addNetworkInterceptor(StethoInterceptor())
             .build()
 
+    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAmpacheApi(okHttpClient: OkHttpClient): AmpacheApi {
         val retrofit = Retrofit.Builder()
-                .baseUrl("http://192.168.1.42/ampache/")
+                .baseUrl("http://192.168.42.30/ampache/")
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(okHttpClient)
@@ -37,22 +38,27 @@ class DataModule {
         return retrofit.create(AmpacheApi::class.java)
     }
 
+    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(ampacheApi, authManager, context)
 
+    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAmpacheDatabase(): AmpacheDatabase = AmpacheDatabase()
 
+    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideDataManager(database: AmpacheDatabase, connection: AmpacheConnection): DataManager = DataManager(database, connection)
 
+    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAudioQueueManager(dataManager: DataManager) : AudioQueueManager = AudioQueueManager(dataManager)
 
+    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAuthenticationManager(context: Context, prefs: SharedPreferences): AuthManager = AuthManager(prefs, context)

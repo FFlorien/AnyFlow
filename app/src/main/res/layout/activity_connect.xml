@@ -13,8 +13,8 @@
         android:id="@+id/activity_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
         tools:context="be.florien.ampacheplayer.view.ConnectActivity">
 
         <android.support.design.widget.TextInputLayout
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/input_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,13 +48,13 @@
             android:id="@+id/info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal" />
 
         <Button
             android:id="@+id/connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="@{(view) ->vm.connect()}"
-            android:text="Connect"/>
+            android:text="Connect" />
     </LinearLayout>
 </layout>

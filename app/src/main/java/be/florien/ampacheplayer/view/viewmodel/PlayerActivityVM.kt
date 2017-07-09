@@ -17,10 +17,11 @@ import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.extension.getAmpacheApp
+import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.extension.startActivity
+import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.manager.DataManager
-import be.florien.ampacheplayer.model.local.Song
+import be.florien.ampacheplayer.business.local.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.ConnectActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -30,12 +31,13 @@ import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 /**
- * Created by florien on 3/04/17.
+ * ViewModel for the PlayerActivity
  */
 class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBinding) : BaseObservable() {
     /**
      * Fields
      */
+    @field:Inject lateinit var audioQueueManager: AudioQueueManager
     @field:Inject lateinit var dataManager: DataManager
 
     private val connection: PlayerConnection
@@ -45,7 +47,7 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
      * Constructor
      */
     init {
-        activity.getAmpacheApp().activityComponent?.inject(this)
+        activity.ampacheApp.activityComponent?.inject(this)
         Timber.tag(this.javaClass.simpleName)
         connection = PlayerConnection()
         bindToService()
@@ -61,8 +63,8 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
      */
 
     fun getSongs() {
-        dataManager
-                .getSongs()
+        audioQueueManager
+                .getAudioQueue()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
@@ -110,46 +112,6 @@ class PlayerActivityVM(val activity: Activity, val binding: ActivityPlayerBindin
                 resume()
             }
         }
-    }
-
-    fun getArtistAndInfo() {
-        dataManager
-                .getArtists()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { _ ->
-                    //                    binding.info.text = root.size.toString()
-                }
-    }
-
-    fun getAlbumAndInfo() {
-        dataManager
-                .getAlbums()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { root ->
-                    //                    binding.info.text = root.size.toString()
-                }
-    }
-
-    fun getTagAndInfo() {
-        dataManager
-                .getTags()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { root ->
-                    //                    binding.info.text = root.size.toString()
-                }
-    }
-
-    fun getPlaylistAndInfo() {
-        dataManager
-                .getPlayLists()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { root ->
-                    //                    binding.info.text = root.size.toString()
-                }
     }
 
     /**
