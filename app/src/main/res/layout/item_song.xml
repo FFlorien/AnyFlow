@@ -9,7 +9,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM" />
+            type="be.florien.ampacheplayer.view.viewmodel.SongListFragmentVM" />
     </data>
 
     <LinearLayout

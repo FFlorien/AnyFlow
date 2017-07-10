@@ -13,8 +13,9 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.RecyclerView
+        <fragment
             android:id="@+id/songList"
+            android:name="be.florien.ampacheplayer.view.fragment.SongListFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />

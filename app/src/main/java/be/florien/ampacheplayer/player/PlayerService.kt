@@ -9,8 +9,8 @@ import android.os.AsyncTask
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
-import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.business.local.Song
+import be.florien.ampacheplayer.manager.AudioQueueManager
 import javax.inject.Inject
 
 
@@ -46,12 +46,12 @@ class PlayerService : Service(),
         mediaPlayer.setOnInfoListener(this)
         mediaPlayer.reset()
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        (application as AmpacheApp).applicationComponent.inject(this)
     }
 
-    /**
-     * Player methods
-     */
+    override fun onCreate() {
+        super.onCreate()
+        (application as AmpacheApp).applicationComponent.inject(this)
+    }
 
     fun isPlaying() = mediaPlayer.isPlaying
 
@@ -62,7 +62,6 @@ class PlayerService : Service(),
 
     fun stop() {
         mediaPlayer.stop()
-
     }
 
     fun pause() {

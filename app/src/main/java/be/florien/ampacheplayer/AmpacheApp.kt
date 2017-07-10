@@ -1,9 +1,11 @@
 package be.florien.ampacheplayer
 
-import android.app.Activity
 import android.app.Application
 import android.util.Log
-import be.florien.ampacheplayer.di.*
+import be.florien.ampacheplayer.di.AndroidModule
+import be.florien.ampacheplayer.di.ApplicationComponent
+import be.florien.ampacheplayer.di.DaggerApplicationComponent
+import be.florien.ampacheplayer.di.DataModule
 import com.facebook.stetho.Stetho
 import io.realm.Realm
 import timber.log.Timber
@@ -14,8 +16,6 @@ import timber.log.Timber
  */
 class AmpacheApp : Application() {
     lateinit var applicationComponent: ApplicationComponent
-        private set
-    var activityComponent: ActivityComponent? = null
         private set
 
     override fun onCreate() {
@@ -31,17 +31,8 @@ class AmpacheApp : Application() {
                         .build()
     }
 
-    fun initActivityInjection(activity: Activity) {
-        activityComponent = applicationComponent.plus(ActivityModule(activity))
-    }
-
-    fun releaseActivityInjection() {
-        activityComponent = null
-    }
-
     object debugTree : Timber.Tree() {
         override fun log(priority: Int, tag: String?, message: String?, t: Throwable?) {
-
             Log.println(priority, tag, "Message: $message \n ${Log.getStackTraceString(t)}")
         }
 

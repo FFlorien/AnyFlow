@@ -29,7 +29,7 @@ class DataModule {
     @Provides
     fun provideAmpacheApi(okHttpClient: OkHttpClient): AmpacheApi {
         val retrofit = Retrofit.Builder()
-                .baseUrl("http://192.168.42.30/ampache/")
+                .baseUrl("http://192.168.1.42/ampache/")
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(okHttpClient)

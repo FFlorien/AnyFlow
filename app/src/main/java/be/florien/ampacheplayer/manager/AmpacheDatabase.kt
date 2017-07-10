@@ -22,9 +22,8 @@ class AmpacheDatabase {
 
     fun addSongs(songs: List<RealmSong>): Unit =
             Realm.getDefaultInstance().let {
-                it.beginTransaction()
-                it.copyToRealmOrUpdate(songs)
-                it.commitTransaction()
+                it.executeTransaction { it.copyToRealmOrUpdate(songs) }
+                it.close()
             }
 
     fun addArtists(artists: List<RealmArtist>): Unit =
