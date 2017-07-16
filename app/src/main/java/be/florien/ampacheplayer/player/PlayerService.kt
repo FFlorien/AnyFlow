@@ -9,7 +9,6 @@ import android.os.AsyncTask
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
-import be.florien.ampacheplayer.business.local.Song
 import be.florien.ampacheplayer.manager.AudioQueueManager
 import javax.inject.Inject
 
@@ -32,7 +31,6 @@ class PlayerService : Service(),
     private var mediaPlayer: MediaPlayer = MediaPlayer()
 
     private var lastPosition: Int = NO_VALUE
-    private var songUrl: String? = null
 
     /**
      * Constructor
@@ -55,8 +53,7 @@ class PlayerService : Service(),
 
     fun isPlaying() = mediaPlayer.isPlaying
 
-    fun play(song: Song) {
-        songUrl = song.url
+    fun play() {
         Background().execute()
     }
 
@@ -71,9 +68,10 @@ class PlayerService : Service(),
 
     fun resume() {
         if (lastPosition == NO_VALUE) {
-            audioQueueManager.getAudioQueue().subscribe({
-                play(it[0])
-            })
+            val songList = audioQueueManager.getAudioQueue()
+            if (songList.isNotEmpty()) {
+                play()
+            }
         } else {
             mediaPlayer.seekTo(lastPosition)
             mediaPlayer.start()
@@ -123,10 +121,11 @@ class PlayerService : Service(),
 
     inner class Background : AsyncTask<Void, Void, Boolean>() {
         override fun doInBackground(vararg params: Void?): Boolean {
+            val song = audioQueueManager.getCurrentSong()
             mediaPlayer.apply {
                 stop()
                 reset()
-                setDataSource(this@PlayerService, Uri.parse(songUrl))
+                setDataSource(this@PlayerService, Uri.parse(song.url))
                 prepare()
                 start()
             }

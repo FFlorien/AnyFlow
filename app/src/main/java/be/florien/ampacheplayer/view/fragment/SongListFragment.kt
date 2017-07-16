@@ -11,7 +11,7 @@ import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.view.viewmodel.SongListFragmentVM
 
 /**
- * Created by florien on 9/07/17.
+ * Display a list of songs and play it upon selection.
  */
 class SongListFragment: Fragment() {
 
@@ -25,7 +25,7 @@ class SongListFragment: Fragment() {
         val view = inflater.inflate(R.layout.fragment_song_list, container, false)
         val binding = DataBindingUtil.bind<FragmentSongListBinding>(view)
         vm = SongListFragmentVM(activity, binding)
-        vm.getSongs()
+        vm.refreshSongs()
         return view
     }
 

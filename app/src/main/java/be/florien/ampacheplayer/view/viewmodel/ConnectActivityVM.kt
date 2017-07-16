@@ -29,7 +29,7 @@ class ConnectActivityVM(val activity: Activity, val binding: ActivityConnectBind
      */
     init {
         binding.vm = this
-        activity.ampacheApp.applicationComponent?.inject(this)
+        activity.ampacheApp.applicationComponent.inject(this)
         Timber.tag(this.javaClass.simpleName)
     }
 

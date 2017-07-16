@@ -1,17 +1,21 @@
 package be.florien.ampacheplayer.manager
 
+import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.business.realm.*
 import io.realm.Realm
 import io.realm.RealmQuery
+import io.realm.RealmResults
+import javax.inject.Inject
 
 /**
  * Manager for the ampache data database-side
  */
-class AmpacheDatabase {
+class AmpacheDatabase
+@Inject constructor(val realmRead: Realm) {
     /**
      * Database getters
      */
-    fun getSongs(filters: List<Filter<*>> = emptyList()): List<RealmSong> = Realm.getDefaultInstance().let {
+    fun getSongs(filters: List<Filter<*>> = emptyList()): RealmResults<RealmSong> = Realm.getDefaultInstance().let {
         val realmQuery = it.where(RealmSong::class.java)
         getRealmObjects(filters, realmQuery, it)
     }
@@ -54,7 +58,7 @@ class AmpacheDatabase {
      * Private methods
      */
 
-    private fun getRealmObjects(filters: List<Filter<*>>, realmQuery: RealmQuery<RealmSong>, realmInstance: Realm): ArrayList<RealmSong> {
+    private fun getRealmObjects(filters: List<Filter<*>>, realmQuery: RealmQuery<RealmSong>, realmInstance: Realm): RealmResults<RealmSong> {
         var isFirstFilter = true
         for (filter in filters) {
             applyFilter(realmQuery, filter, isFirstFilter)
@@ -62,7 +66,7 @@ class AmpacheDatabase {
         }
         val realmResult = realmQuery.findAllSorted("id")
         realmInstance.close()
-        return ArrayList(realmResult)
+        return realmResult
     }
 
     private fun applyFilter(realmQuery: RealmQuery<RealmSong>, filter: Filter<*>, isFirst: Boolean) {

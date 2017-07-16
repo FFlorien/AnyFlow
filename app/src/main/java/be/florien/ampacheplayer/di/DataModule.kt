@@ -6,10 +6,12 @@ import be.florien.ampacheplayer.manager.*
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
+import io.realm.Realm
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -43,10 +45,14 @@ class DataModule {
     @Provides
     fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(ampacheApi, authManager, context)
 
-    //todo is really useful as singleton ?
     @Singleton
     @Provides
-    fun provideAmpacheDatabase(): AmpacheDatabase = AmpacheDatabase()
+    fun provideRealmRead(): Realm = Realm.getDefaultInstance()
+
+
+    @Singleton
+    @Provides
+    fun provideAmpacheDatabase(realmRead: Realm): AmpacheDatabase = AmpacheDatabase(realmRead)
 
     //todo is really useful as singleton ?
     @Singleton
@@ -56,7 +62,7 @@ class DataModule {
     //todo is really useful as singleton ?
     @Singleton
     @Provides
-    fun provideAudioQueueManager(dataManager: DataManager) : AudioQueueManager = AudioQueueManager(dataManager)
+    fun provideAudioQueueManager(ampacheDatabase: AmpacheDatabase) : AudioQueueManager = AudioQueueManager(ampacheDatabase)
 
     //todo is really useful as singleton ?
     @Singleton

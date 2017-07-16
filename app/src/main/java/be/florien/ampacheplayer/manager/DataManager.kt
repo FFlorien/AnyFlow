@@ -17,21 +17,22 @@ class DataManager
      * Getter
      */
 
-    fun getSongs(filters: List<Filter<*>> = emptyList()): Observable<List<Song>> = connection
-            .getSongs()
-            .flatMap {
-                result ->
-                when (result.error.code) {
-                    401 -> connection.reconnect(connection.getSongs())
-                    else -> Observable.just(result)
+    fun refreshSongs(): Observable<Boolean> {
+        return connection
+                .getSongs()
+                .flatMap {
+                    result ->
+                    when (result.error.code) {
+                        401 -> connection.reconnect(connection.getSongs())
+                        else -> Observable.just(result)
+                    }
                 }
-            }
-            .flatMap {
-                songs ->
-                database.addSongs(songs.songs.map(::RealmSong))
-                val dbSongs = database.getSongs(filters)
-                Observable.just(dbSongs.map(::Song))
-            }
+                .flatMap {
+                    songs ->
+                    database.addSongs(songs.songs.map(::RealmSong))
+                    Observable.just(true)
+                }
+    }
 
     fun getSong(id: Long): Observable<Song> = connection.getSong(id).flatMap { Observable.just(Song(it.songs[0])) }
 }
