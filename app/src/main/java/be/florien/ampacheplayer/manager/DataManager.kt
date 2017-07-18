@@ -1,6 +1,5 @@
 package be.florien.ampacheplayer.manager
 
-import be.florien.ampacheplayer.business.local.Song
 import be.florien.ampacheplayer.business.realm.RealmSong
 import io.reactivex.Observable
 import javax.inject.Inject
@@ -34,5 +33,5 @@ class DataManager
                 }
     }
 
-    fun getSong(id: Long): Observable<Song> = connection.getSong(id).flatMap { Observable.just(Song(it.songs[0])) }
+    fun getSong(id: Long): Observable<RealmSong> = connection.getSong(id).flatMap { Observable.just(RealmSong(it.songs[0])) }
 }

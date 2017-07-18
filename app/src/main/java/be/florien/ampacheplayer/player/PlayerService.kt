@@ -68,7 +68,7 @@ class PlayerService : Service(),
 
     fun resume() {
         if (lastPosition == NO_VALUE) {
-            val songList = audioQueueManager.getAudioQueue()
+            val songList = audioQueueManager.currentAudioQueue
             if (songList.isNotEmpty()) {
                 play()
             }

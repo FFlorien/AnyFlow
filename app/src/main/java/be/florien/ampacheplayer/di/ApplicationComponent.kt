@@ -20,7 +20,6 @@ import javax.inject.Singleton
 interface ApplicationComponent {
     fun inject(playerService: PlayerService)
     fun inject(connectActivityVM: ConnectActivityVM)
-    fun inject(playerActivityVM: PlayerActivityVM)
     fun inject(songListFragmentVM: SongListFragmentVM)
     //todo unbind !!!
 }

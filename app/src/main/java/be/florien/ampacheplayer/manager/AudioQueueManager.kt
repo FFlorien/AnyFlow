@@ -1,6 +1,5 @@
 package be.florien.ampacheplayer.manager
 
-import be.florien.ampacheplayer.business.local.Song
 import be.florien.ampacheplayer.business.realm.RealmSong
 import javax.inject.Inject
 
@@ -21,13 +20,11 @@ class AudioQueueManager
             }
             field = value
         }
-    private var currentAudioQueue = ampacheDatabase.getSongs(filters)
+    var currentAudioQueue = ampacheDatabase.getSongs(filters)
 
     /**
      * Methods
      */
-    fun getAudioQueue(): List<Song> = currentAudioQueue.map(::Song)
-
     fun getCurrentSong(): RealmSong = currentAudioQueue[listPosition]
 
     fun addTitleFilter(title: String) {

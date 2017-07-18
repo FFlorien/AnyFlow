@@ -13,7 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import be.florien.ampacheplayer.business.local.Song
+import be.florien.ampacheplayer.business.realm.RealmSong
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
@@ -78,7 +78,7 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
                 .subscribe({
 
                     val songAdapter = binding.songList.adapter as SongAdapter
-                    songAdapter.songs = audioQueueManager.getAudioQueue()
+                    songAdapter.songs = audioQueueManager.currentAudioQueue
                 }, {
                     when (it) {
                         is SessionExpiredException -> {
@@ -121,7 +121,7 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
     }
 
     inner class SongAdapter : RecyclerView.Adapter<SongViewHolder>() {
-        var songs = listOf<Song>()
+        var songs = listOf<RealmSong>()
             set(value) {
                 field = value
                 notifyDataSetChanged()
