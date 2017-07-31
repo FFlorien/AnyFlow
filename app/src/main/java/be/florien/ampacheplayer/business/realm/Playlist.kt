@@ -9,12 +9,12 @@ import io.realm.annotations.PrimaryKey
  * Database structure that represents to playlist
  */
 
-open class RealmPlaylist : RealmObject {
+open class Playlist : RealmObject {
     @PrimaryKey
     var id: Long = 0
     var name: String = ""
     var owner: String = ""
-    var tag: RealmList<RealmTag> = RealmList()
+    var tag: RealmList<Tag> = RealmList()
 
     constructor() : super()
 
@@ -22,6 +22,6 @@ open class RealmPlaylist : RealmObject {
         id = fromServer.id
         name = fromServer.name
         owner = fromServer.owner
-        tag.addAll(fromServer.tag.map(::RealmTag))
+        tag.addAll(fromServer.tag.map(::Tag))
     }
 }

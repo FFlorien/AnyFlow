@@ -5,6 +5,7 @@ import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.business.ampache.*
 import io.reactivex.Observable
+import timber.log.Timber
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
@@ -18,6 +19,10 @@ class AmpacheConnection
         var ampacheApi: AmpacheApi,
         var authManager: AuthManager,
         var context: Context) {
+
+    init {
+        Timber.tag(this.javaClass.simpleName)
+    }
 
     /**
      * API calls
@@ -39,12 +44,14 @@ class AmpacheConnection
                         }
                     }
                 }
+                .doOnError { Timber.e("Error while authenticating", it) }
     }
 
     fun ping(authToken: String = authManager.authToken): Observable<AmpachePing> {
         return ampacheApi
                 .ping(auth = authToken)
                 .doOnNext { result -> authManager.extendsSession(result.sessionExpire) }
+                .doOnError { Timber.e("Error while ping", it) }
     }
 
     fun <T> reconnect(request: Observable<T>): Observable<T> {
@@ -57,7 +64,14 @@ class AmpacheConnection
                             if (it.error.code == 0) {
                                 request
                             } else {
-                                throw SessionExpiredException("Can't reconnect")
+                                authenticate(authManager.user, authManager.password)
+                                        .flatMap {
+                                            if (it.error.code == 0) {
+                                                request
+                                            } else {
+                                                throw SessionExpiredException("Can't reconnect")
+                                            }
+                                        }
                             }
                         }
             } else if (authManager.user.isNotBlank() && authManager.password.isNotBlank()) {

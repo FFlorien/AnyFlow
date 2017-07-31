@@ -13,7 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import be.florien.ampacheplayer.business.realm.RealmSong
+import be.florien.ampacheplayer.business.realm.Song
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
@@ -21,7 +21,7 @@ import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.manager.AudioQueueManager
-import be.florien.ampacheplayer.manager.DataManager
+import be.florien.ampacheplayer.manager.PersistenceManager
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.activity.ConnectActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -35,7 +35,7 @@ import javax.inject.Inject
  */
 class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBinding) : BaseObservable() {
 
-    @field:Inject lateinit var dataManager: DataManager
+    @field:Inject lateinit var persistenceManager: PersistenceManager
     @field:Inject lateinit var audioQueueManager: AudioQueueManager
     var player: PlayerService? = null
 
@@ -71,14 +71,14 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
      */
 
     fun refreshSongs() {
-        dataManager
+        persistenceManager
                 .refreshSongs()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
 
                     val songAdapter = binding.songList.adapter as SongAdapter
-                    songAdapter.songs = audioQueueManager.currentAudioQueue
+                    songAdapter.songs = audioQueueManager.getCurrentAudioQueue()
                 }, {
                     when (it) {
                         is SessionExpiredException -> {
@@ -103,7 +103,8 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
     }
 
 
-    fun play() {
+    fun play(position: Int) {
+        audioQueueManager.listPosition = position
         player?.play() //todo should play a song in particular
     }
 
@@ -121,7 +122,7 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
     }
 
     inner class SongAdapter : RecyclerView.Adapter<SongViewHolder>() {
-        var songs = listOf<RealmSong>()
+        var songs = listOf<Song>()
             set(value) {
                 field = value
                 notifyDataSetChanged()
@@ -131,6 +132,7 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.binding.song = songs[position]
+            holder.binding.position = position
             holder.binding.vm = this@SongListFragmentVM
         }
 

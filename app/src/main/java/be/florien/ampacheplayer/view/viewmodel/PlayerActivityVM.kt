@@ -8,11 +8,8 @@ import android.content.ServiceConnection
 import android.databinding.BaseObservable
 import android.os.IBinder
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
-import be.florien.ampacheplayer.extension.ampacheApp
-import be.florien.ampacheplayer.manager.DataManager
 import be.florien.ampacheplayer.player.PlayerService
 import timber.log.Timber
-import javax.inject.Inject
 
 /**
  * ViewModel for the PlayerActivity

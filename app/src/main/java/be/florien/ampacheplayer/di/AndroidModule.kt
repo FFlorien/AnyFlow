@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 
 /**
  * Module providing system component
@@ -16,5 +17,6 @@ class AndroidModule (var context: Context){
     fun provideContext() : Context = context
 
     @Provides
+    @Reusable
     fun providePreferences() : SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 }

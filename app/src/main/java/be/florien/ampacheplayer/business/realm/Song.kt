@@ -3,6 +3,7 @@ package be.florien.ampacheplayer.business.realm
 import be.florien.ampacheplayer.business.ampache.AmpacheSong
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 
@@ -10,38 +11,43 @@ import io.realm.annotations.RealmClass
  * Database structure that represents to songs
  */
 @RealmClass
-open class RealmSong(
-        @field:PrimaryKey
-    open var id: Long = 0,
-        open var song: String = "",
-        open var title: String = "",
-        open var name: String = "",
-        open var artistName: String = "",
-        open var artistId: Long = -1,
-        open var albumName: String = "",
-        open var albumId: Long = -1,
-        open var albumArtistName: String = "",
-        open var albumArtistId: Long = -1,
-        open var tag: RealmList<RealmTag> = RealmList(),
-        open var filename: String = "",
-        open var track: Int = 0,
-        open var time: Int = 0,
-        open var year: Int = 0,
-        open var bitrate: Int = 0,
-        open var rate: Int = 0,
-        open var url: String = "",
-        open var art: String = "",
-        open var preciserating: Int = 0,
-        open var rating: Int = 0,
-        open var averagerating: Int = 0,
-        open var composer: String = "",
-        open var comment: String = "",
-        open var publisher: String = "",
-        open var language: String = "",
-        open var genre: String = ""
-): RealmObject() {
+open class Song : RealmObject {
+    @field:PrimaryKey
+    var id: Long = 0
+    var song: String = ""
+    var title: String = ""
+    var name: String = ""
+    var artistName: String = ""
+    @field:Index
+    var artistId: Long = -1
+    var albumName: String = ""
+    @field:Index
+    var albumId: Long = -1
+    var albumArtistName: String = ""
+    @field:Index
+    var albumArtistId: Long = -1
+    var tag: RealmList<Tag> = RealmList()
+    var filename: String = ""
+    var track: Int = 0
+    var time: Int = 0
+    var year: Int = 0
+    var bitrate: Int = 0
+    var rate: Int = 0
+    var url: String = ""
+    var art: String = ""
+    var preciserating: Int = 0
+    var rating: Int = 0
+    var averagerating: Int = 0
+    var composer: String = ""
+    var comment: String = ""
+    var publisher: String = ""
+    var language: String = ""
+    @field:Index
+    var genre: String = ""
 
-    constructor(fromServer: AmpacheSong) : this() {
+    constructor() : super()
+
+    constructor(fromServer: AmpacheSong) : super() {
         id = fromServer.id
         song = fromServer.song
         title = fromServer.title
@@ -52,7 +58,7 @@ open class RealmSong(
         albumId = fromServer.album.id
         albumArtistName = fromServer.albumartist.name
         albumArtistId = fromServer.albumartist.id
-        tag.addAll(fromServer.tag.map(::RealmTag))
+        tag.addAll(fromServer.tag.map(::Tag))
         filename = fromServer.filename
         track = fromServer.track
         time = fromServer.time

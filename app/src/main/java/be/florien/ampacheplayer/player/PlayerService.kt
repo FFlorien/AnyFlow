@@ -5,11 +5,11 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.manager.AudioQueueManager
+import io.realm.Realm
 import javax.inject.Inject
 
 
@@ -49,12 +49,22 @@ class PlayerService : Service(),
     override fun onCreate() {
         super.onCreate()
         (application as AmpacheApp).applicationComponent.inject(this)
+        audioQueueManager.changeListener.subscribe {
+            if (isPlaying()) play()
+        }
     }
 
     fun isPlaying() = mediaPlayer.isPlaying
 
     fun play() {
-        Background().execute()
+        val song = audioQueueManager.getCurrentSong(Realm.getDefaultInstance())
+        mediaPlayer.apply {
+            stop()
+            reset()
+            setDataSource(this@PlayerService, Uri.parse(song.url))
+            prepare()
+            start()
+        }
     }
 
     fun stop() {
@@ -66,9 +76,9 @@ class PlayerService : Service(),
         mediaPlayer.pause()
     }
 
-    fun resume() {
+    fun resume() { //todo threading!!!!!!!!!!
         if (lastPosition == NO_VALUE) {
-            val songList = audioQueueManager.currentAudioQueue
+            val songList = audioQueueManager.getCurrentAudioQueue()
             if (songList.isNotEmpty()) {
                 play()
             }
@@ -95,10 +105,11 @@ class PlayerService : Service(),
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
+        audioQueueManager.listPosition += 1
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        return false
+        return what == -38
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
@@ -117,19 +128,5 @@ class PlayerService : Service(),
     inner class LocalBinder : Binder() {
         val service: PlayerService
             get() = this@PlayerService
-    }
-
-    inner class Background : AsyncTask<Void, Void, Boolean>() {
-        override fun doInBackground(vararg params: Void?): Boolean {
-            val song = audioQueueManager.getCurrentSong()
-            mediaPlayer.apply {
-                stop()
-                reset()
-                setDataSource(this@PlayerService, Uri.parse(song.url))
-                prepare()
-                start()
-            }
-            return true
-        }
     }
 }

@@ -11,7 +11,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
-import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -26,7 +25,6 @@ class DataModule {
             .addNetworkInterceptor(StethoInterceptor())
             .build()
 
-    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAmpacheApi(okHttpClient: OkHttpClient): AmpacheApi {
@@ -40,7 +38,6 @@ class DataModule {
         return retrofit.create(AmpacheApi::class.java)
     }
 
-    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(ampacheApi, authManager, context)
@@ -52,19 +49,16 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheDatabase(realmRead: Realm): AmpacheDatabase = AmpacheDatabase(realmRead)
+    fun provideAmpacheDatabase(realmRead: Realm): DatabaseManager = DatabaseManager(realmRead)
 
-    //todo is really useful as singleton ?
     @Singleton
     @Provides
-    fun provideDataManager(database: AmpacheDatabase, connection: AmpacheConnection): DataManager = DataManager(database, connection)
+    fun providePersistenceManager(databaseManager: DatabaseManager, connection: AmpacheConnection): PersistenceManager = PersistenceManager(databaseManager, connection)
 
-    //todo is really useful as singleton ?
     @Singleton
     @Provides
-    fun provideAudioQueueManager(ampacheDatabase: AmpacheDatabase) : AudioQueueManager = AudioQueueManager(ampacheDatabase)
+    fun provideAudioQueueManager(databaseManager: DatabaseManager) : AudioQueueManager = AudioQueueManager(databaseManager)
 
-    //todo is really useful as singleton ?
     @Singleton
     @Provides
     fun provideAuthenticationManager(context: Context, prefs: SharedPreferences): AuthManager = AuthManager(prefs, context)

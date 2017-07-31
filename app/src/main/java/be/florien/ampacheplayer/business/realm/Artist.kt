@@ -8,11 +8,11 @@ import io.realm.annotations.PrimaryKey
 /**
  * Database structure that represents to artists
  */
-open class RealmArtist : RealmObject{
+open class Artist : RealmObject{
     @PrimaryKey
     var id: Long = 0
     var name: String = ""
-    var tag: RealmList<RealmTag> = RealmList()
+    var tag: RealmList<Tag> = RealmList()
     var preciserating: Int = 0
     var rating: Double = 0.0
 
@@ -21,7 +21,7 @@ open class RealmArtist : RealmObject{
     constructor(fromServer: AmpacheArtist) : super() {
         id = fromServer.id
         name = fromServer.name
-        tag.addAll(fromServer.tag.map(::RealmTag))
+        tag.addAll(fromServer.tag.map(::Tag))
         preciserating = fromServer.preciserating
         rating = fromServer.rating
     }
