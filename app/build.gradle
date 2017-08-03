@@ -66,6 +66,10 @@ dependencies {
         exclude module: 'stax-api'
         exclude module: 'xpp3'
     }
+
+    //ExoPlayer
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.4'
+    compile 'com.google.android.exoplayer:exoplayer-dash:r2.4.4'
 }
 repositories {
     mavenCentral()
