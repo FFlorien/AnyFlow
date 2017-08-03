@@ -9,6 +9,15 @@ import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.manager.AudioQueueManager
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.trackselection.TrackSelector
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import io.realm.Realm
 import javax.inject.Inject
 
@@ -36,6 +45,47 @@ class PlayerService : Service(),
      * Constructor
      */
     init {
+        val trackSelector: TrackSelector = DefaultTrackSelector()
+        val player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
+        val bandwidthMeter = DefaultBandwidthMeter()
+// Produces DataSource instances through which media data is loaded.
+        val dataSourceFactory = DefaultDataSourceFactory(this, "ampachePlayerUserAgent", bandwidthMeter)
+// Produces Extractor instances for parsing the media data.
+        val extractorsFactory = DefaultExtractorsFactory()
+// This is the MediaSource representing the media to be played.
+        val videoSource = ExtractorMediaSource(Uri.parse("tutu"), dataSourceFactory, extractorsFactory, null, null)
+// Prepare the player with the source.
+        player.prepare(videoSource)
+        player.addListener(object :ExoPlayer.EventListener{
+            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPlayerError(error: ExoPlaybackException?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onLoadingChanged(isLoading: Boolean) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPositionDiscontinuity() {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
         mediaPlayer.setOnCompletionListener(this)
         mediaPlayer.setOnErrorListener(this)
         mediaPlayer.setOnPreparedListener(this)

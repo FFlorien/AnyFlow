@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.databinding.BaseObservable
 import android.os.IBinder
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -24,7 +23,6 @@ import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.manager.PersistenceManager
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.activity.ConnectActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -33,7 +31,7 @@ import javax.inject.Inject
 /**
  * Display a list of songs and play it upon selection.
  */
-class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBinding) : BaseObservable() {
+class SongListFragmentVM(val activity: Activity, binding: FragmentSongListBinding) : BaseVM<FragmentSongListBinding>(binding) {
 
     @field:Inject lateinit var persistenceManager: PersistenceManager
     @field:Inject lateinit var audioQueueManager: AudioQueueManager
@@ -62,7 +60,8 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
         activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
-    fun destroy() {
+    override fun destroy() {
+        super.destroy()
         activity.unbindService(connection)
     }
 
@@ -71,15 +70,13 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
      */
 
     fun refreshSongs() {
-        persistenceManager
-                .refreshSongs()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-
+        subscribe(
+                persistenceManager.refreshSongs().subscribeOn(Schedulers.io()),
+                {
                     val songAdapter = binding.songList.adapter as SongAdapter
                     songAdapter.songs = audioQueueManager.getCurrentAudioQueue()
-                }, {
+                },
+                {
                     when (it) {
                         is SessionExpiredException -> {
                             Timber.i(it, "The session token is expired")
@@ -100,12 +97,13 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
                         }
                     }
                 })
+
     }
 
 
     fun play(position: Int) {
         audioQueueManager.listPosition = position
-        player?.play() //todo should play a song in particular
+        player?.play()
     }
 
     /**

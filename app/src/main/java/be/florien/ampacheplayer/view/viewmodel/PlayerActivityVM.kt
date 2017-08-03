@@ -14,7 +14,7 @@ import timber.log.Timber
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) : BaseObservable() {
+class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
 
     private val connection: PlayerConnection
     var player: PlayerService? = null
@@ -51,7 +51,8 @@ class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) :
         activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
-    fun destroy() {
+    override fun destroy() {
+        super.destroy()
         activity.unbindService(connection)
     }
 
