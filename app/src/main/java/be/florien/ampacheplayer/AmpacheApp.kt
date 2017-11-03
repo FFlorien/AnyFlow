@@ -22,7 +22,7 @@ class AmpacheApp : Application() {
         super.onCreate()
         Stetho.initializeWithDefaults(this)
         Realm.init(this)
-        Timber.plant(debugTree)
+        Timber.plant(DebugTree)
         applicationComponent =
                 DaggerApplicationComponent
                         .builder()
@@ -31,7 +31,7 @@ class AmpacheApp : Application() {
                         .build()
     }
 
-    object debugTree : Timber.Tree() {
+    object DebugTree : Timber.Tree() {
         override fun log(priority: Int, tag: String?, message: String?, t: Throwable?) {
             Log.println(priority, tag, "Message: $message \n ${Log.getStackTraceString(t)}")
         }

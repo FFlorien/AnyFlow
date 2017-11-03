@@ -10,13 +10,12 @@ import javax.inject.Inject
  * Manager for the queue of songs that are playing. It handle filters, random, repeat and addition to the queue
  */
 class AudioQueueManager
-@Inject constructor(val databaseManager: DatabaseManager) {
+@Inject constructor(private val databaseManager: DatabaseManager) {
 
     /**
      * Fields
      */
     val changeListener: PublishSubject<Int> = PublishSubject.create()
-    var filters: List<Filter<*>> = mutableListOf()
     var listPosition: Int = 0
         set(value) {
             if (value >= databaseManager.getSongs(filters).size) {
@@ -25,6 +24,7 @@ class AudioQueueManager
             field = value
             changeListener.onNext(value)
         }
+    private var filters: List<Filter<*>> = mutableListOf()
 
 
     /**

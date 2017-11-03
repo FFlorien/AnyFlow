@@ -26,29 +26,32 @@ import javax.security.auth.x500.X500Principal
  */
 class AuthManager
 @Inject constructor(
-        var preference: SharedPreferences,
+        private var preference: SharedPreferences,
         var context: Context) {
 
     /**
      * Constants
      */
-    private val ALGORITHM_NAME = "RSA"
-    private val KEYSTORE_NAME = "AndroidKeyStore"
-    private val USER_FILENAME = "user"
-    private val PASSWORD_FILENAME = "password"
-    private val AUTH_FILENAME = "auth"
+    companion object {
 
-    private val USER_ALIAS = USER_FILENAME
-    private val AUTH_ALIAS = "authData"
-    private val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
-    private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
+        private const val ALGORITHM_NAME = "RSA"
+        private const val KEYSTORE_NAME = "AndroidKeyStore"
+        private const val USER_FILENAME = "user"
+        private const val PASSWORD_FILENAME = "password"
+        private const val AUTH_FILENAME = "auth"
+
+        private const val USER_ALIAS = USER_FILENAME
+        private const val AUTH_ALIAS = "authData"
+        private const val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
+        private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
+    }
 
     /**
      * Fields
      */
 
-    val dataDirectoryPath: String = context.filesDir.absolutePath + File.separator
-    val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME).apply {
+    private val dataDirectoryPath: String = context.filesDir.absolutePath + File.separator
+    private val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME).apply {
         load(null)
     }
     var authToken: String = ""
@@ -154,6 +157,7 @@ class AuthManager
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun renewRsaKey(alias: String, expiration: Date) {
         if (keyStore.containsAlias(alias)) {
             keyStore.deleteEntry(alias)

@@ -7,9 +7,9 @@ import io.realm.RealmQuery
  * Filter to apply to the list of song to be retrieved in order to get a subset.
  */
 sealed class Filter<T>(
-        var filterFunction: RealmQuery<Song>.(String, T) -> RealmQuery<Song>,
-        var fieldName: String,
-        var argument: T,
+        private var filterFunction: RealmQuery<Song>.(String, T) -> RealmQuery<Song>,
+        private var fieldName: String,
+        private var argument: T,
         var subFilter: List<Filter<*>> = mutableListOf()) {
     fun applyFilter(realmQuery: RealmQuery<Song>) {
         realmQuery.filterFunction(fieldName, argument)

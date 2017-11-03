@@ -7,9 +7,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 
-/**
- * Created by FlamentF on 02-Aug-17.
- */
 open class BaseVM<out B : ViewDataBinding>(val binding: B) : BaseObservable() {
 
     private val disposableContainer = CompositeDisposable()

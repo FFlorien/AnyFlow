@@ -63,8 +63,7 @@ class DatabaseManager
             applyFilter(realmQuery, filter, isFirstFilter)
             isFirstFilter = false
         }
-        val realmResult = realmQuery.findAllSorted("id")
-        return realmResult
+        return realmQuery.findAllSorted("id")
     }
 
     private fun applyFilter(realmQuery: RealmQuery<Song>, filter: Filter<*>, isFirst: Boolean) {

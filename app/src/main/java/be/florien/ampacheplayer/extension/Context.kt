@@ -9,9 +9,6 @@ import kotlin.reflect.KClass
 /**
  * Extension functions/properties for Context
  */
-val Context.ampacheApp: AmpacheApp
-    get() = this.applicationContext as AmpacheApp
-
 val Activity.ampacheApp: AmpacheApp
     get() = this.applicationContext as AmpacheApp
 

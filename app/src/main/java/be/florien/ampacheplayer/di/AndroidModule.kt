@@ -10,13 +10,15 @@ import dagger.Reusable
  * Module providing system component
  */
 @Module
-class AndroidModule (var context: Context){
-    private val PREFERENCE_NAME = "ampache_preferences"
+class AndroidModule(var context: Context) {
+    companion object {
+        private const val PREFERENCE_NAME = "ampache_preferences"
+    }
 
     @Provides
-    fun provideContext() : Context = context
+    fun provideContext(): Context = context
 
     @Provides
     @Reusable
-    fun providePreferences() : SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+    fun providePreferences(): SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 }

@@ -31,7 +31,7 @@ import javax.inject.Inject
 /**
  * Display a list of songs and play it upon selection.
  */
-class SongListFragmentVM(val activity: Activity, binding: FragmentSongListBinding) : BaseVM<FragmentSongListBinding>(binding) {
+class SongListFragmentVM(private val activity: Activity, binding: FragmentSongListBinding) : BaseVM<FragmentSongListBinding>(binding) {
 
     @field:Inject lateinit var persistenceManager: PersistenceManager
     @field:Inject lateinit var audioQueueManager: AudioQueueManager

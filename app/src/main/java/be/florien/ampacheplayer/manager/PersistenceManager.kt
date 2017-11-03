@@ -9,8 +9,8 @@ import javax.inject.Inject
  */
 class PersistenceManager
 @Inject constructor(
-        var databaseManager: DatabaseManager,
-        var connection: AmpacheConnection) {
+        private var databaseManager: DatabaseManager,
+        private var connection: AmpacheConnection) {
 
     /**
      * Getter

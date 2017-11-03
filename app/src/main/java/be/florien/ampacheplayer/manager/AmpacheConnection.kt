@@ -16,8 +16,8 @@ import javax.inject.Inject
  */
 class AmpacheConnection
 @Inject constructor(
-        var ampacheApi: AmpacheApi,
-        var authManager: AuthManager,
+        private var ampacheApi: AmpacheApi,
+        private var authManager: AuthManager,
         var context: Context) {
 
     init {

@@ -14,7 +14,7 @@ import timber.log.Timber
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
+class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
 
     private val connection: PlayerConnection
     var player: PlayerService? = null
