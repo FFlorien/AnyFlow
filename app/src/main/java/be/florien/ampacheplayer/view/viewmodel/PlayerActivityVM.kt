@@ -5,11 +5,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.databinding.BaseObservable
+import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
+import be.florien.ampacheplayer.extension.ampacheApp
+import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.player.PlayerService
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * ViewModel for the PlayerActivity
@@ -17,6 +20,7 @@ import timber.log.Timber
 class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
 
     private val connection: PlayerConnection
+    @field:Inject lateinit var audioQueueManager: AudioQueueManager
     var player: PlayerService? = null
 
     /**
@@ -27,6 +31,7 @@ class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBi
         connection = PlayerConnection()
         bindToService()
         binding.vm = this
+        activity.ampacheApp.applicationComponent.inject(this)
     }
 
     fun play() {
@@ -42,6 +47,28 @@ class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBi
             }
         }
     }
+
+    fun next() {
+        try {
+            audioQueueManager.listPosition += 1
+        } catch (exception: IndexOutOfBoundsException) {
+            //notify
+        }
+    }
+
+    fun previous() {
+        try {
+            audioQueueManager.listPosition -= 1
+        } catch (exception: IndexOutOfBoundsException) {
+            //notify
+        }
+    }
+
+    @Bindable
+    fun isNextPossible(): Boolean = audioQueueManager.listPosition == audioQueueManager.itemsCount
+
+    @Bindable
+    fun isPreviousPossible(): Boolean= audioQueueManager.listPosition == 0
 
     /**
      * Private methods
