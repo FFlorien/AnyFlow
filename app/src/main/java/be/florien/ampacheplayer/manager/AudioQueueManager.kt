@@ -6,6 +6,8 @@ import io.realm.Realm
 import io.realm.RealmResults
 import javax.inject.Inject
 
+const val NO_CURRENT_SONG = -13456
+
 /**
  * Manager for the queue of songs that are playing. It handle filters, random, repeat and addition to the queue
  */
@@ -18,15 +20,14 @@ class AudioQueueManager
     private var filters: List<Filter<*>> = mutableListOf()
     val changeListener: PublishSubject<Int> = PublishSubject.create()
     val itemsCount: Int = databaseManager.getSongs(filters).size
-    var listPosition: Int = 0
+    var listPosition: Int = NO_CURRENT_SONG
         set(value) {
-            if (value >= databaseManager.getSongs(filters).size) {
-                throw IndexOutOfBoundsException("You've reach the last song in the queue")
-            } else if (value < 0) {
-                throw IndexOutOfBoundsException("You're at the start of the queue")
+            field = if (value in 0 until databaseManager.getSongs(filters).size) {
+                value
+            } else {
+                NO_CURRENT_SONG
             }
-            field = value
-            changeListener.onNext(value)
+            changeListener.onNext(field)
         }
 
 

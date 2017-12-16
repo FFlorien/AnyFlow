@@ -5,13 +5,20 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.databinding.Bindable
+import android.databinding.DataBindingUtil
 import android.os.IBinder
+import be.florien.ampacheplayer.BR
+import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.extension.ampacheApp
+import be.florien.ampacheplayer.manager.AudioQueueManager
+import be.florien.ampacheplayer.manager.NO_CURRENT_SONG
 import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
+import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -24,7 +31,7 @@ class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) :
     @Inject lateinit var audioQueueManager: AudioQueueManager
     private var playerControllerNumber = 0
     private val connection: PlayerConnection
-    private var isBackKeyPreviousSong: Boolean = false
+private var isBackKeyPreviousSong: Boolean = false    var player: PlayerController = DummyPlayerController()
     var player: PlayerController = DummyPlayerController()
 
     /**
@@ -36,6 +43,20 @@ class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) :
         binding.vm = this
         connection = PlayerConnection()
         bindToService()
+        binding.vm = this
+        activity.ampacheApp.applicationComponent.inject(this)
+    }
+
+    override fun onViewCreated() {
+        super.onViewCreated()
+        subscribe(audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()), onNext = {
+            notifyPropertyChanged(BR.nextPossible)
+            notifyPropertyChanged(BR.previousPossible)
+        })
+    }
+
+    fun play() {
+        player?.play()
     }
 
     fun playPause() {
@@ -60,16 +81,19 @@ class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) :
         }
     }
 
+    @Bindable
+    fun isNextPossible(): Boolean = audioQueueManager.listPosition < audioQueueManager.itemsCount - 1 && audioQueueManager.listPosition != NO_CURRENT_SONG
+
+    @Bindable
+    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0
+
+
     /**
      * Private methods
      */
 
     private fun bindToService() {
         activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
-    }
-
-    override fun attach() {
-        super.attach()
     }
 
     override fun destroy() {

@@ -40,8 +40,10 @@ class PlayerService : Service(),
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener,
         AudioManager.OnAudioFocusChangeListener {
-    val NO_VALUE = -3
 
+    companion object {
+        private val NO_VALUE = -3L
+    }
     //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
     @Inject
     lateinit var audioQueueManager: AudioQueueManager
@@ -55,60 +57,61 @@ class PlayerService : Service(),
     override val songNotifier: Subject<Song> = BehaviorSubject.create<Song>()
 
 
+
+    //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
+    @Inject
+    lateinit var audioQueueManager: AudioQueueManager
+    private val mediaPlayer: ExoPlayer by lazy {
+        val trackSelector: TrackSelector = DefaultTrackSelector()
+        val player = ExoPlayerFactory.newSimpleInstance(this, trackSelector).apply {
+            addListener(object : ExoPlayer.EventListener {
+                override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onPlayerError(error: ExoPlaybackException?) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onLoadingChanged(isLoading: Boolean) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onPositionDiscontinuity() {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+            })
+        }
+//        val bandwidthMeter = DefaultBandwidthMeter()
+//// Produces DataSource instances through which media data is loaded.
+//        val dataSourceFactory = DefaultDataSourceFactory(this, "ampachePlayerUserAgent", bandwidthMeter)
+//// Produces Extractor instances for parsing the media data.
+//        val extractorsFactory = DefaultExtractorsFactory()
+// This is the MediaSource representing the media to be played.
+//        val videoSource = ExtractorMediaSource(Uri.parse("tutu"), dataSourceFactory, extractorsFactory, null, null)
+//// Prepare the player with the source.
+//        player.prepare(videoSource)
+        player
+    }
+
+    private var lastPosition: Long = NO_VALUE
+
     /**
      * Constructor
      */
-    init {
-        /*val trackSelector: TrackSelector = DefaultTrackSelector()
-        val player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
-        val bandwidthMeter = DefaultBandwidthMeter()
-// Produces DataSource instances through which media data is loaded.
-        val dataSourceFactory = DefaultDataSourceFactory(this, "ampachePlayerUserAgent", bandwidthMeter)
-// Produces Extractor instances for parsing the media data.
-        val extractorsFactory = DefaultExtractorsFactory()
-// This is the MediaSource representing the media to be played.
-        val videoSource = ExtractorMediaSource(Uri.parse("tutu"), dataSourceFactory, extractorsFactory, null, null)
-// Prepare the player with the source.
-        player.prepare(videoSource)
-        player.addListener(object : ExoPlayer.EventListener {
-            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onPlayerError(error: ExoPlaybackException?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onLoadingChanged(isLoading: Boolean) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onPositionDiscontinuity() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-        })*/
-        mediaPlayer.setOnCompletionListener(this)
-        mediaPlayer.setOnErrorListener(this)
-        mediaPlayer.setOnPreparedListener(this)
-        mediaPlayer.setOnBufferingUpdateListener(this)
-        mediaPlayer.setOnSeekCompleteListener(this)
-        mediaPlayer.setOnInfoListener(this)
-        mediaPlayer.reset()
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -118,27 +121,34 @@ class PlayerService : Service(),
         }
     }
 
-    override fun isPlaying() = mediaPlayer.isPlaying
+    override fun isPlaying() = mediaPlayer.playWhenReady
 
     override fun play() {
         val song = audioQueueManager.getCurrentSong(Realm.getDefaultInstance())
         mediaPlayer.apply {
             stop()
-            reset()
-            setDataSource(this@PlayerService, Uri.parse(song.url))
-            prepare()
-            start()
+            val bandwidthMeter = DefaultBandwidthMeter()
+// Produces DataSource instances through which media data is loaded.
+            val dataSourceFactory = DefaultDataSourceFactory(this@PlayerService, "ampachePlayerUserAgent", bandwidthMeter)
+// Produces Extractor instances for parsing the media data.
+            val extractorsFactory = DefaultExtractorsFactory()
+// This is the MediaSource representing the media to be played.
+            val audioSource = ExtractorMediaSource(Uri.parse(song.url), dataSourceFactory, extractorsFactory, null, null)
+// Prepare the player with the source.
+            prepare(audioSource)
+            playWhenReady = true
         }
         songNotifier.onNext(song)
     }
 
     override fun stop() {
         mediaPlayer.stop()
+        lastPosition = NO_VALUE
     }
 
     override fun pause() {
         lastPosition = mediaPlayer.currentPosition
-        mediaPlayer.pause()
+        mediaPlayer.playWhenReady = false
     }
 
     override fun resume() { //todo threading!!!!!!!!!!
@@ -149,7 +159,7 @@ class PlayerService : Service(),
             }
         } else {
             mediaPlayer.seekTo(lastPosition)
-            mediaPlayer.start()
+            mediaPlayer.playWhenReady = true
         }
     }
 
