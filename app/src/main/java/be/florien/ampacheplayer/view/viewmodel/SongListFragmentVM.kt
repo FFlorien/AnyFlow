@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.databinding.BaseObservable
 import android.os.IBinder
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -13,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import be.florien.ampacheplayer.business.realm.RealmSong
+import be.florien.ampacheplayer.business.realm.Song
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
@@ -21,10 +20,9 @@ import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.manager.AudioQueueManager
-import be.florien.ampacheplayer.manager.DataManager
+import be.florien.ampacheplayer.manager.PersistenceManager
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.activity.ConnectActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -33,9 +31,9 @@ import javax.inject.Inject
 /**
  * Display a list of songs and play it upon selection.
  */
-class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBinding) : BaseObservable() {
+class SongListFragmentVM(private val activity: Activity, binding: FragmentSongListBinding) : BaseVM<FragmentSongListBinding>(binding) {
 
-    @field:Inject lateinit var dataManager: DataManager
+    @field:Inject lateinit var persistenceManager: PersistenceManager
     @field:Inject lateinit var audioQueueManager: AudioQueueManager
     var player: PlayerService? = null
 
@@ -62,7 +60,8 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
         activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
-    fun destroy() {
+    override fun destroy() {
+        super.destroy()
         activity.unbindService(connection)
     }
 
@@ -71,15 +70,13 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
      */
 
     fun refreshSongs() {
-        dataManager
-                .refreshSongs()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-
+        subscribe(
+                persistenceManager.refreshSongs().subscribeOn(Schedulers.io()),
+                {
                     val songAdapter = binding.songList.adapter as SongAdapter
-                    songAdapter.songs = audioQueueManager.currentAudioQueue
-                }, {
+                    songAdapter.songs = audioQueueManager.getCurrentAudioQueue()
+                },
+                {
                     when (it) {
                         is SessionExpiredException -> {
                             Timber.i(it, "The session token is expired")
@@ -100,11 +97,13 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
                         }
                     }
                 })
+
     }
 
 
-    fun play() {
-        player?.play() //todo should play a song in particular
+    fun play(position: Int) {
+        audioQueueManager.listPosition = position
+        player?.play()
     }
 
     /**
@@ -121,7 +120,7 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
     }
 
     inner class SongAdapter : RecyclerView.Adapter<SongViewHolder>() {
-        var songs = listOf<RealmSong>()
+        var songs = listOf<Song>()
             set(value) {
                 field = value
                 notifyDataSetChanged()
@@ -131,6 +130,7 @@ class SongListFragmentVM(val activity: Activity, val binding: FragmentSongListBi
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.binding.song = songs[position]
+            holder.binding.position = position
             holder.binding.vm = this@SongListFragmentVM
         }
 

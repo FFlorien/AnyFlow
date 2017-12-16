@@ -5,7 +5,11 @@
 
         <variable
             name="song"
-            type="be.florien.ampacheplayer.business.realm.RealmSong" />
+            type="be.florien.ampacheplayer.business.realm.Song" />
+
+        <variable
+            name="position"
+            type="Integer" />
 
         <variable
             name="vm"
@@ -16,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:onClick="@{() -> vm.play()}">
+        android:onClick="@{() -> vm.play(position)}">
 
         <ImageView
             android:id="@+id/cover"

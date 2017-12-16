@@ -5,11 +5,26 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
+import be.florien.ampacheplayer.business.realm.Song
 import be.florien.ampacheplayer.manager.AudioQueueManager
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.trackselection.TrackSelector
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
+import io.realm.Realm
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -17,6 +32,7 @@ import javax.inject.Inject
  * Service used to handle the media player.
  */
 class PlayerService : Service(),
+        PlayerController,
         MediaPlayer.OnInfoListener,
         MediaPlayer.OnBufferingUpdateListener,
         MediaPlayer.OnPreparedListener,
@@ -26,16 +42,64 @@ class PlayerService : Service(),
         AudioManager.OnAudioFocusChangeListener {
     val NO_VALUE = -3
 
+    //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
     @Inject
     lateinit var audioQueueManager: AudioQueueManager
     private var mediaPlayer: MediaPlayer = MediaPlayer()
 
     private var lastPosition: Int = NO_VALUE
+    override val playTimeNotifier: Observable<Int> = Observable
+            .interval(100, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .map { mediaPlayer.currentPosition }
+            .distinct()
+    override val songNotifier: Subject<Song> = BehaviorSubject.create<Song>()
+
 
     /**
      * Constructor
      */
     init {
+        /*val trackSelector: TrackSelector = DefaultTrackSelector()
+        val player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
+        val bandwidthMeter = DefaultBandwidthMeter()
+// Produces DataSource instances through which media data is loaded.
+        val dataSourceFactory = DefaultDataSourceFactory(this, "ampachePlayerUserAgent", bandwidthMeter)
+// Produces Extractor instances for parsing the media data.
+        val extractorsFactory = DefaultExtractorsFactory()
+// This is the MediaSource representing the media to be played.
+        val videoSource = ExtractorMediaSource(Uri.parse("tutu"), dataSourceFactory, extractorsFactory, null, null)
+// Prepare the player with the source.
+        player.prepare(videoSource)
+        player.addListener(object : ExoPlayer.EventListener {
+            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPlayerError(error: ExoPlaybackException?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onLoadingChanged(isLoading: Boolean) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPositionDiscontinuity() {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })*/
         mediaPlayer.setOnCompletionListener(this)
         mediaPlayer.setOnErrorListener(this)
         mediaPlayer.setOnPreparedListener(this)
@@ -49,26 +113,37 @@ class PlayerService : Service(),
     override fun onCreate() {
         super.onCreate()
         (application as AmpacheApp).applicationComponent.inject(this)
+        audioQueueManager.changeListener.subscribe {
+            if (isPlaying()) play()
+        }
     }
 
-    fun isPlaying() = mediaPlayer.isPlaying
+    override fun isPlaying() = mediaPlayer.isPlaying
 
-    fun play() {
-        Background().execute()
+    override fun play() {
+        val song = audioQueueManager.getCurrentSong(Realm.getDefaultInstance())
+        mediaPlayer.apply {
+            stop()
+            reset()
+            setDataSource(this@PlayerService, Uri.parse(song.url))
+            prepare()
+            start()
+        }
+        songNotifier.onNext(song)
     }
 
-    fun stop() {
+    override fun stop() {
         mediaPlayer.stop()
     }
 
-    fun pause() {
+    override fun pause() {
         lastPosition = mediaPlayer.currentPosition
         mediaPlayer.pause()
     }
 
-    fun resume() {
+    override fun resume() { //todo threading!!!!!!!!!!
         if (lastPosition == NO_VALUE) {
-            val songList = audioQueueManager.currentAudioQueue
+            val songList = audioQueueManager.getCurrentAudioQueue()
             if (songList.isNotEmpty()) {
                 play()
             }
@@ -95,10 +170,11 @@ class PlayerService : Service(),
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
+        audioQueueManager.listPosition += 1
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        return false
+        return what == -38
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
@@ -117,19 +193,5 @@ class PlayerService : Service(),
     inner class LocalBinder : Binder() {
         val service: PlayerService
             get() = this@PlayerService
-    }
-
-    inner class Background : AsyncTask<Void, Void, Boolean>() {
-        override fun doInBackground(vararg params: Void?): Boolean {
-            val song = audioQueueManager.getCurrentSong()
-            mediaPlayer.apply {
-                stop()
-                reset()
-                setDataSource(this@PlayerService, Uri.parse(song.url))
-                prepare()
-                start()
-            }
-            return true
-        }
     }
 }

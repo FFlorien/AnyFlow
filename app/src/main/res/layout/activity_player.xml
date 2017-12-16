@@ -30,6 +30,7 @@
                 android:id="@+id/previous"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="@{(view) -> vm.replayOrPrevious()}"
                 android:text="Previous" />
 
             <Button
@@ -43,7 +44,13 @@
                 android:id="@+id/next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="@{(view) -> vm.next()}"
                 android:text="Next" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/playTime"/>
 
         </LinearLayout>
 

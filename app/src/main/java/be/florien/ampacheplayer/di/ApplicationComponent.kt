@@ -21,5 +21,6 @@ interface ApplicationComponent {
     fun inject(playerService: PlayerService)
     fun inject(connectActivityVM: ConnectActivityVM)
     fun inject(songListFragmentVM: SongListFragmentVM)
+    fun inject(playerActivityVM: PlayerActivityVM)
     //todo unbind !!!
 }

@@ -1,16 +1,16 @@
 package be.florien.ampacheplayer.manager
 
-import be.florien.ampacheplayer.business.realm.RealmSong
+import be.florien.ampacheplayer.business.realm.Song
 import io.reactivex.Observable
 import javax.inject.Inject
 
 /**
- * Class managing all request for data, handling caching and updating the database in the process.
+ * Class updating the databaseManager in the process.
  */
-class DataManager
+class PersistenceManager
 @Inject constructor(
-        var database: AmpacheDatabase,
-        var connection: AmpacheConnection) {
+        private var databaseManager: DatabaseManager,
+        private var connection: AmpacheConnection) {
 
     /**
      * Getter
@@ -28,10 +28,8 @@ class DataManager
                 }
                 .flatMap {
                     songs ->
-                    database.addSongs(songs.songs.map(::RealmSong))
+                    databaseManager.addSongs(songs.songs.map(::Song))
                     Observable.just(true)
                 }
     }
-
-    fun getSong(id: Long): Observable<RealmSong> = connection.getSong(id).flatMap { Observable.just(RealmSong(it.songs[0])) }
 }

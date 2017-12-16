@@ -4,17 +4,21 @@ import android.content.Context
 import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 
 /**
  * Module providing system component
  */
 @Module
-class AndroidModule (var context: Context){
-    private val PREFERENCE_NAME = "ampache_preferences"
+class AndroidModule(var context: Context) {
+    companion object {
+        private const val PREFERENCE_NAME = "ampache_preferences"
+    }
 
     @Provides
-    fun provideContext() : Context = context
+    fun provideContext(): Context = context
 
     @Provides
-    fun providePreferences() : SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+    @Reusable
+    fun providePreferences(): SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 }

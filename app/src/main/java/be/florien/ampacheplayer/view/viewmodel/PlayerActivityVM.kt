@@ -5,11 +5,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.databinding.BaseObservable
 import android.os.IBinder
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.extension.ampacheApp
-import be.florien.ampacheplayer.manager.DataManager
+import be.florien.ampacheplayer.manager.AudioQueueManager
+import be.florien.ampacheplayer.player.DummyPlayerController
+import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
 import timber.log.Timber
 import javax.inject.Inject
@@ -17,32 +18,45 @@ import javax.inject.Inject
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) : BaseObservable() {
+class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
+    private val playerControllerIdentifierBase = "playerControllerId"
 
+    @Inject lateinit var audioQueueManager: AudioQueueManager
+    private var playerControllerNumber = 0
     private val connection: PlayerConnection
-    var player: PlayerService? = null
+    private var isBackKeyPreviousSong: Boolean = false
+    var player: PlayerController = DummyPlayerController()
 
     /**
      * Constructor
      */
     init {
         Timber.tag(this.javaClass.simpleName)
+        activity.ampacheApp.applicationComponent.inject(this)
+        binding.vm = this
         connection = PlayerConnection()
         bindToService()
-        binding.vm = this
-    }
-
-    fun play() {
-        player?.play()
     }
 
     fun playPause() {
-        player?.apply {
+        player.apply {
             if (isPlaying()) {
                 pause()
             } else {
                 resume()
             }
+        }
+    }
+
+    fun next() {
+        audioQueueManager.listPosition += 1
+    }
+
+    fun replayOrPrevious() {
+        if (isBackKeyPreviousSong) {
+            audioQueueManager.listPosition -= 1
+        } else {
+            player.play()
         }
     }
 
@@ -54,8 +68,28 @@ class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) :
         activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
-    fun destroy() {
+    override fun attach() {
+        super.attach()
+    }
+
+    override fun destroy() {
+        super.destroy()
         activity.unbindService(connection)
+    }
+
+    private fun initController(controller: PlayerController) {
+        player = controller
+        playerControllerNumber += 1
+        subscribe(player.playTimeNotifier.map { it / 1000 }.distinct(),
+                {
+                    isBackKeyPreviousSong = it < 10
+                    binding.playTime.text = "${it / 60}:${it % 60}"
+                })// todo onError
+        subscribe(player.songNotifier,
+                {
+                    //todo display song played
+                },
+                containerKey = playerControllerIdentifierBase + playerControllerNumber)// todo onError
     }
 
     /**
@@ -63,11 +97,13 @@ class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) :
      */
     inner class PlayerConnection : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
-            player = null
+            dispose(playerControllerIdentifierBase + playerControllerNumber)
+            initController(DummyPlayerController())
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            player = (service as PlayerService.LocalBinder).service
+            dispose(playerControllerIdentifierBase + playerControllerNumber)
+            initController((service as PlayerService.LocalBinder).service)
         }
     }
 }
