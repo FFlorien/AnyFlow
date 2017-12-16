@@ -70,7 +70,7 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
         activity.unbindService(connection)
     }
 
-    override fun onViewCreated() {
+    fun onViewCreated() {
         subscribe(audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()), onNext = {
             binding.songList.adapter.notifyDataSetChanged()
 
@@ -162,7 +162,7 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
 
     inner class SongPendingViewHolder(
             parent: ViewGroup,
-            val binding: ItemSongPendingBinding = ItemSongPendingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            private val binding: ItemSongPendingBinding = ItemSongPendingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         : SongViewHolder(binding.root) {
 
         override fun bind(song: Song, position: Int) {
@@ -175,7 +175,7 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
 
     inner class SongPlayingViewHolder(
             parent: ViewGroup,
-            val binding: ItemSongPlayingBinding = ItemSongPlayingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            private val binding: ItemSongPlayingBinding = ItemSongPlayingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         : SongViewHolder(binding.root) {
 
         override fun bind(song: Song, position: Int) {

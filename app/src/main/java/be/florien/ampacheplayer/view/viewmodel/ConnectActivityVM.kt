@@ -2,7 +2,9 @@ package be.florien.ampacheplayer.view.viewmodel
 
 import android.app.Activity
 import android.content.Intent
+import android.databinding.DataBindingUtil
 import android.support.design.widget.Snackbar
+import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.extension.ampacheApp
@@ -15,7 +17,7 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-class ConnectActivityVM(private val activity: Activity, binding: ActivityConnectBinding) : BaseVM<ActivityConnectBinding>(binding) {
+class ConnectActivityVM(private val activity: Activity) : BaseVM<ActivityConnectBinding>(DataBindingUtil.setContentView(activity, R.layout.activity_connect)) {
 
     /**
      * Fields

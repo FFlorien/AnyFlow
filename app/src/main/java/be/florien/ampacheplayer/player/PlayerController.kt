@@ -5,10 +5,10 @@ import io.reactivex.Observable
 import io.reactivex.subjects.Subject
 
 /**
- * Created by florien on 6/08/17.
+ * Interface used to interact with the player currently used
  */
 interface PlayerController {
-    val playTimeNotifier: Observable<Int>
+    val playTimeNotifier: Observable<Long>
     val songNotifier: Subject<Song>
 
     fun isPlaying() : Boolean

@@ -8,12 +8,11 @@ import io.reactivex.subjects.Subject
 import java.util.concurrent.TimeUnit
 
 /**
- * Created by florien on 6/08/17.
+ * Player used to test the implementation, but that play nothing
  */
 class DummyPlayerController : PlayerController {
-    override val playTimeNotifier: Observable<Int> = Observable
+    override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-            .map { it.toInt() }
     override val songNotifier: Subject<Song> = BehaviorSubject.create()
 
     init {

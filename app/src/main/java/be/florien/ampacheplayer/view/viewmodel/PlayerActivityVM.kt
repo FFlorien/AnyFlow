@@ -14,7 +14,6 @@ import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.manager.NO_CURRENT_SONG
-import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
@@ -25,13 +24,13 @@ import javax.inject.Inject
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerActivityVM(val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
+class PlayerActivityVM(private val activity: Activity) : BaseVM<ActivityPlayerBinding>(DataBindingUtil.setContentView(activity, R.layout.activity_player)) {
     private val playerControllerIdentifierBase = "playerControllerId"
 
     @Inject lateinit var audioQueueManager: AudioQueueManager
     private var playerControllerNumber = 0
-    private val connection: PlayerConnection
-private var isBackKeyPreviousSong: Boolean = false    var player: PlayerController = DummyPlayerController()
+    private val connection: PlayerConnection = PlayerConnection()
+    private var isBackKeyPreviousSong: Boolean = false
     var player: PlayerController = DummyPlayerController()
 
     /**
@@ -40,15 +39,11 @@ private var isBackKeyPreviousSong: Boolean = false    var player: PlayerControll
     init {
         Timber.tag(this.javaClass.simpleName)
         activity.ampacheApp.applicationComponent.inject(this)
-        binding.vm = this
-        connection = PlayerConnection()
         bindToService()
         binding.vm = this
-        activity.ampacheApp.applicationComponent.inject(this)
     }
 
-    override fun onViewCreated() {
-        super.onViewCreated()
+    fun onViewCreated() {
         subscribe(audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()), onNext = {
             notifyPropertyChanged(BR.nextPossible)
             notifyPropertyChanged(BR.previousPossible)
@@ -56,7 +51,7 @@ private var isBackKeyPreviousSong: Boolean = false    var player: PlayerControll
     }
 
     fun play() {
-        player?.play()
+        player.play()
     }
 
     fun playPause() {

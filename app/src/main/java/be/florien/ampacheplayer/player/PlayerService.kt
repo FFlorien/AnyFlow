@@ -47,20 +47,12 @@ class PlayerService : Service(),
     //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
     @Inject
     lateinit var audioQueueManager: AudioQueueManager
-    private var mediaPlayer: MediaPlayer = MediaPlayer()
-
-    private var lastPosition: Int = NO_VALUE
-    override val playTimeNotifier: Observable<Int> = Observable
+    override val playTimeNotifier: Observable<Long> = Observable
             .interval(100, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.currentPosition }
             .distinct()
     override val songNotifier: Subject<Song> = BehaviorSubject.create<Song>()
 
-
-
-    //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
-    @Inject
-    lateinit var audioQueueManager: AudioQueueManager
     private val mediaPlayer: ExoPlayer by lazy {
         val trackSelector: TrackSelector = DefaultTrackSelector()
         val player = ExoPlayerFactory.newSimpleInstance(this, trackSelector).apply {
