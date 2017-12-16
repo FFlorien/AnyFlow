@@ -6,22 +6,30 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.databinding.Bindable
+import android.databinding.DataBindingUtil
 import android.os.IBinder
+import be.florien.ampacheplayer.BR
+import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.manager.AudioQueueManager
+import be.florien.ampacheplayer.manager.NO_CURRENT_SONG
 import be.florien.ampacheplayer.player.PlayerService
+import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
 
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBinding) : BaseVM<ActivityPlayerBinding>(binding) {
+class PlayerActivityVM(private val activity: Activity)
+    : BaseVM<ActivityPlayerBinding>(DataBindingUtil.setContentView(activity, R.layout.activity_player)) {
 
     private val connection: PlayerConnection
-    @field:Inject lateinit var audioQueueManager: AudioQueueManager
+
     var player: PlayerService? = null
+
+    @field:Inject lateinit var audioQueueManager: AudioQueueManager
 
     /**
      * Constructor
@@ -32,6 +40,14 @@ class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBi
         bindToService()
         binding.vm = this
         activity.ampacheApp.applicationComponent.inject(this)
+    }
+
+    override fun onViewCreated() {
+        super.onViewCreated()
+        subscribe(audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()), onNext = {
+            notifyPropertyChanged(BR.nextPossible)
+            notifyPropertyChanged(BR.previousPossible)
+        })
     }
 
     fun play() {
@@ -65,10 +81,10 @@ class PlayerActivityVM(private val activity: Activity, binding: ActivityPlayerBi
     }
 
     @Bindable
-    fun isNextPossible(): Boolean = audioQueueManager.listPosition == audioQueueManager.itemsCount
+    fun isNextPossible(): Boolean = audioQueueManager.listPosition < audioQueueManager.itemsCount - 1 && audioQueueManager.listPosition != NO_CURRENT_SONG
 
     @Bindable
-    fun isPreviousPossible(): Boolean= audioQueueManager.listPosition == 0
+    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0
 
     /**
      * Private methods

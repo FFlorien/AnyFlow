@@ -26,4 +26,7 @@ open class BaseVM<out B : ViewDataBinding>(val binding: B) : BaseObservable() {
     private fun timberLogOnError(throwable: Throwable) {
         Timber.e(throwable, "Standard error message from a ViewModel")
     }
+
+    open fun onViewCreated() {
+    }
 }

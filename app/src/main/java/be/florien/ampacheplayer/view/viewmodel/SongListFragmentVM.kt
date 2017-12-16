@@ -14,7 +14,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import be.florien.ampacheplayer.business.realm.Song
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
-import be.florien.ampacheplayer.databinding.ItemSongBinding
+import be.florien.ampacheplayer.databinding.ItemSongPendingBinding
+import be.florien.ampacheplayer.databinding.ItemSongPlayingBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.extension.ampacheApp
@@ -23,6 +24,7 @@ import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.manager.PersistenceManager
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.activity.ConnectActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -31,6 +33,9 @@ import javax.inject.Inject
 /**
  * Display a list of songs and play it upon selection.
  */
+private const val LIST_ITEM_TYPE_PENDING = 0
+private const val LIST_ITEM_TYPE_PLAYING = 1
+
 class SongListFragmentVM(private val activity: Activity, binding: FragmentSongListBinding) : BaseVM<FragmentSongListBinding>(binding) {
 
     @field:Inject lateinit var persistenceManager: PersistenceManager
@@ -63,6 +68,13 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
     override fun destroy() {
         super.destroy()
         activity.unbindService(connection)
+    }
+
+    override fun onViewCreated() {
+        subscribe(audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()), onNext = {
+            binding.songList.adapter.notifyDataSetChanged()
+
+        })
     }
 
     /**
@@ -106,6 +118,12 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
         player?.play()
     }
 
+    fun playPause() {
+        player?.let {
+            if (it.isPlaying()) it.pause() else it.resume()
+        }
+    }
+
     /**
      * Inner class
      */
@@ -129,13 +147,42 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
         override fun getItemCount() = songs.size
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-            holder.binding.song = songs[position]
-            holder.binding.position = position
-            holder.binding.vm = this@SongListFragmentVM
+            holder.bind(songs[position], position)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(ItemSongBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == LIST_ITEM_TYPE_PENDING) SongPendingViewHolder(parent) else SongPlayingViewHolder(parent)
+
+        override fun getItemViewType(position: Int): Int = if (position == audioQueueManager.listPosition) LIST_ITEM_TYPE_PLAYING else LIST_ITEM_TYPE_PENDING
     }
 
-    inner class SongViewHolder(val binding: ItemSongBinding, root: View = binding.root) : RecyclerView.ViewHolder(root)
+    inner abstract class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        abstract fun bind(song: Song, position: Int)
+    }
+
+    inner class SongPendingViewHolder(
+            parent: ViewGroup,
+            val binding: ItemSongPendingBinding = ItemSongPendingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        : SongViewHolder(binding.root) {
+
+        override fun bind(song: Song, position: Int) {
+            binding.song = song
+            binding.position = position
+            binding.vm = this@SongListFragmentVM
+        }
+
+    }
+
+    inner class SongPlayingViewHolder(
+            parent: ViewGroup,
+            val binding: ItemSongPlayingBinding = ItemSongPlayingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        : SongViewHolder(binding.root) {
+
+        override fun bind(song: Song, position: Int) {
+            binding.song = song
+            binding.position = position
+            binding.vm = this@SongListFragmentVM
+        }
+
+    }
 }

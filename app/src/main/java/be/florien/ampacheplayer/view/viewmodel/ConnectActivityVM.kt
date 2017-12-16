@@ -8,7 +8,6 @@ import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.manager.AmpacheConnection
 import be.florien.ampacheplayer.view.activity.PlayerActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -16,7 +15,7 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-class ConnectActivityVM(val activity: Activity, binding: ActivityConnectBinding) : BaseVM<ActivityConnectBinding>(binding) {
+class ConnectActivityVM(private val activity: Activity, binding: ActivityConnectBinding) : BaseVM<ActivityConnectBinding>(binding) {
 
     /**
      * Fields
