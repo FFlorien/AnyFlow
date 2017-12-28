@@ -16,20 +16,15 @@ class PersistenceManager
      * Getter
      */
 
-    fun refreshSongs(): Observable<Boolean> {
-        return connection
-                .getSongs()
-                .flatMap {
-                    result ->
-                    when (result.error.code) {
-                        401 -> connection.reconnect(connection.getSongs())
-                        else -> Observable.just(result)
-                    }
+    fun refreshSongs(): Observable<Boolean> = connection.getSongs()
+            .flatMap { result ->
+                when (result.error.code) {
+                    401 -> connection.reconnect(connection.getSongs())
+                    else -> Observable.just(result)
                 }
-                .flatMap {
-                    songs ->
-                    databaseManager.addSongs(songs.songs.map(::Song))
-                    Observable.just(true)
-                }
-    }
+            }
+            .flatMap { songs ->
+                databaseManager.addSongs(songs.songs.map(::Song))
+                Observable.just(true)
+            }
 }

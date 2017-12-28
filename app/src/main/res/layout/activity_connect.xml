@@ -54,7 +54,7 @@
             android:id="@+id/connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.connect()}"
+            android:onClick="@{(view) ->vm.connect(input_username.text, input_password.text)}"
             android:text="Connect" />
     </LinearLayout>
 </layout>

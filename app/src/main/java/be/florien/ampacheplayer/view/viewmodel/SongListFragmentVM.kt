@@ -1,25 +1,20 @@
 package be.florien.ampacheplayer.view.viewmodel
 
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import be.florien.ampacheplayer.business.realm.Song
-import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongPendingBinding
 import be.florien.ampacheplayer.databinding.ItemSongPlayingBinding
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.extension.ampacheApp
-import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.manager.AudioQueueManager
 import be.florien.ampacheplayer.manager.PersistenceManager
 import be.florien.ampacheplayer.player.PlayerService
@@ -36,43 +31,28 @@ import javax.inject.Inject
 private const val LIST_ITEM_TYPE_PENDING = 0
 private const val LIST_ITEM_TYPE_PLAYING = 1
 
-class SongListFragmentVM(private val activity: Activity, binding: FragmentSongListBinding) : BaseVM<FragmentSongListBinding>(binding) {
+class SongListFragmentVM : BaseVM() {
 
     @field:Inject lateinit var persistenceManager: PersistenceManager
     @field:Inject lateinit var audioQueueManager: AudioQueueManager
     var player: PlayerService? = null
 
-    private var connection: PlayerConnection
+    internal var connection: PlayerConnection = PlayerConnection()
 
     /**
      * Constructor
      */
     init {
-        activity.ampacheApp.applicationComponent.inject(this)
         Timber.tag(this.javaClass.simpleName)
-        connection = PlayerConnection()
-        bindToService()
-        binding.vm = this
-        binding.songList.adapter = SongAdapter()
-        binding.songList.layoutManager = LinearLayoutManager(activity)
     }
 
     /**
      * Private methods
      */
 
-    private fun bindToService() {
-        activity.bindService(Intent(activity, PlayerService::class.java), connection, Context.BIND_AUTO_CREATE)
-    }
-
-    override fun destroy() {
-        super.destroy()
-        activity.unbindService(connection)
-    }
-
     fun onViewCreated() {
         subscribe(audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()), onNext = {
-            binding.songList.adapter.notifyDataSetChanged()
+           //todo binding.songList.adapter.notifyDataSetChanged()
 
         })
     }
@@ -185,4 +165,6 @@ class SongListFragmentVM(private val activity: Activity, binding: FragmentSongLi
         }
 
     }
+
+    fun getSongAdapter(): SongAdapter = SongAdapter()
 }

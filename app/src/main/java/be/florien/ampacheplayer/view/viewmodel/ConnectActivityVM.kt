@@ -1,15 +1,9 @@
 package be.florien.ampacheplayer.view.viewmodel
 
-import android.app.Activity
-import android.content.Intent
-import android.databinding.DataBindingUtil
-import android.support.design.widget.Snackbar
-import be.florien.ampacheplayer.R
-import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.manager.AmpacheConnection
-import be.florien.ampacheplayer.view.activity.PlayerActivity
+import be.florien.ampacheplayer.manager.DisplayHelper
+import be.florien.ampacheplayer.manager.Navigator
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -17,32 +11,32 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-class ConnectActivityVM(private val activity: Activity) : BaseVM<ActivityConnectBinding>(DataBindingUtil.setContentView(activity, R.layout.activity_connect)) {
+class ConnectActivityVM : BaseVM() {
 
     /**
      * Fields
      */
     @Inject lateinit var ampacheConnection: AmpacheConnection
+    @Inject lateinit var navigator: Navigator
+    @Inject lateinit var displayHelper: DisplayHelper
 
     /**
      * Constructor
      */
     init {
-        binding.vm = this
-        activity.ampacheApp.applicationComponent.inject(this)
         Timber.tag(this.javaClass.simpleName)
     }
 
     /**
      * Buttons calls
      */
-    fun connect() {
-        if (binding.inputUsername.text.isBlank()) {
+    fun connect(username: String, password: String) {
+        if (username.isBlank()) {
             subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()),
                     {
                         when (it.error.code) {
-                            0 -> activity.startActivity(Intent(activity, PlayerActivity::class.java))
-                            else -> Snackbar.make(binding.activityMain, "Impossible de prolonger la session", Snackbar.LENGTH_SHORT).show()
+                            0 -> navigator.goToPlayer()
+                            else -> displayHelper.notifyUserAboutError("Impossible de prolonger la session")
                         }
                     },
                     {
@@ -50,21 +44,21 @@ class ConnectActivityVM(private val activity: Activity) : BaseVM<ActivityConnect
                     })
         } else {
             subscribe(
-                    ampacheConnection.authenticate(binding.inputUsername.text.toString(), binding.inputPassword.text.toString()).subscribeOn(Schedulers.io()),
+                    ampacheConnection.authenticate(username, password).subscribeOn(Schedulers.io()),
                     {
                         when (it.error.code) {
                             0 -> {
-                                activity.startActivity(Intent(activity, PlayerActivity::class.java))
-                                activity.finish()
+                                navigator.goToPlayer()
+                                //todo finish activity
                             }
-                            else -> Snackbar.make(binding.activityMain, "Impossible de se connecter avec les informations données", Snackbar.LENGTH_SHORT).show()
+                            else -> displayHelper.notifyUserAboutError("Impossible de se connecter avec les informations données")
                         }
                     },
                     {
                         when (it) {
                             is WrongIdentificationPairException -> {
                                 Timber.e("Wrong username/password", it)
-                                Snackbar.make(binding.activityMain, "Impossible de se connecter avec les informations données", Snackbar.LENGTH_SHORT).show()
+                                displayHelper.notifyUserAboutError("Impossible de se connecter avec les informations données")
                             }
                         }
 

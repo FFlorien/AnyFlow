@@ -7,15 +7,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 
-open class BaseVM<out B : ViewDataBinding>(val binding: B) : BaseObservable() {
+open class BaseVM : BaseObservable() {
 
     private val disposableContainerMap = mutableMapOf<String, CompositeDisposable>()
 
-    open fun attach() {
-    }
-
     open fun destroy() {
-        binding.unbind()
         for (container in disposableContainerMap.values) {
             container.clear()
         }

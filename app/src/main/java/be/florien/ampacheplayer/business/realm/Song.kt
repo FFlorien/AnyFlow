@@ -37,7 +37,7 @@ open class Song : RealmObject {
     var art: String = ""
     var preciserating: Int = 0
     var rating: Int = 0
-    var averagerating: Int = 0
+    var averagerating: Double = 0.0
     var composer: String = ""
     var comment: String = ""
     var publisher: String = ""

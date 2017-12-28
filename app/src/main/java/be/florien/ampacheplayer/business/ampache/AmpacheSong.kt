@@ -36,7 +36,7 @@ class AmpacheSong {
     @field:Element(name = "art", required = false) var art: String = ""
     @field:Element(name = "preciserating", required = false) var preciserating: Int = 0
     @field:Element(name = "rating", required = false) var rating: Int = 0
-    @field:Element(name = "averagerating", required = false) var averagerating: Int = 0
+    @field:Element(name = "averagerating", required = false) var averagerating: Double = 0.0
     @field:Element(name = "composer", required = false) var composer: String = ""
     @field:Element(name = "channels", required = false) var channels: String = ""
     @field:Element(name = "comment", required = false) var comment: String = ""
