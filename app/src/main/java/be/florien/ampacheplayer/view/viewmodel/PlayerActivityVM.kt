@@ -37,7 +37,7 @@ class PlayerActivityVM : BaseVM() {
 
     fun onViewCreated() {
         subscribe(
-                observable = audioQueueManager.changeListener.observeOn(AndroidSchedulers.mainThread()),
+                observable = audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)

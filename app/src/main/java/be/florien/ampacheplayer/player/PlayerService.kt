@@ -108,7 +108,7 @@ class PlayerService : Service(),
     override fun onCreate() {
         super.onCreate()
         (application as AmpacheApp).applicationComponent.inject(this)
-        audioQueueManager.changeListener.subscribe {
+        audioQueueManager.positionObservable.subscribe {
             if (isPlaying()) play()
         }
     }
