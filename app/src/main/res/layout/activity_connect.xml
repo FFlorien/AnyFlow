@@ -6,7 +6,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.viewmodel.ConnectActivityVM" />
+            type="be.florien.ampacheplayer.view.connect.ConnectActivityVM" />
     </data>
 
     <LinearLayout
@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        tools:context="be.florien.ampacheplayer.view.activity.ConnectActivity">
+        tools:context="be.florien.ampacheplayer.view.connect.ConnectActivity">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_username"
@@ -26,7 +26,8 @@
                 android:id="@+id/input_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="username" />
+                android:hint="username"
+                android:text="@={vm.username}"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -40,7 +41,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="password"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:text="@={vm.password}"
+                />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -54,7 +57,7 @@
             android:id="@+id/connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="@{(view) ->vm.connect(input_username.text, input_password.text)}"
+            android:onClick="@{(view) ->vm.connect()}"
             android:text="Connect" />
     </LinearLayout>
 </layout>

@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.player
 
-import be.florien.ampacheplayer.business.realm.Song
+import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject

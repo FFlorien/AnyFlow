@@ -8,8 +8,7 @@ import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
-import be.florien.ampacheplayer.business.realm.Song
-import be.florien.ampacheplayer.manager.AudioQueueManager
+import be.florien.ampacheplayer.persistence.model.Song
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource

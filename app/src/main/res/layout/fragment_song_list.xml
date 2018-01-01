@@ -3,7 +3,7 @@
     <data>
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.viewmodel.SongListFragmentVM" />
+            type="be.florien.ampacheplayer.view.player.songlist.SongListFragmentVm" />
     </data>
 
     <android.support.v7.widget.RecyclerView

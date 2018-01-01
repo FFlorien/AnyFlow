@@ -5,7 +5,7 @@
 
         <variable
             name="song"
-            type="be.florien.ampacheplayer.business.realm.Song" />
+            type="be.florien.ampacheplayer.persistence.model.Song" />
 
         <variable
             name="position"
@@ -13,7 +13,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.viewmodel.SongListFragmentVM" />
+            type="be.florien.ampacheplayer.view.player.songlist.SongListFragmentVm" />
     </data>
 
     <LinearLayout

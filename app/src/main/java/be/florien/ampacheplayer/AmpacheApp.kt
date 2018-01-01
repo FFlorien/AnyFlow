@@ -2,14 +2,11 @@ package be.florien.ampacheplayer
 
 import android.app.Application
 import android.util.Log
-import be.florien.ampacheplayer.di.AndroidModule
-import be.florien.ampacheplayer.di.ApplicationComponent
-import be.florien.ampacheplayer.di.DaggerApplicationComponent
-import be.florien.ampacheplayer.di.DataModule
 import com.facebook.stetho.Stetho
+import dagger.android.AndroidInjector
+import dagger.android.support.DaggerApplication
 import io.realm.Realm
 import timber.log.Timber
-
 
 /**
  * Application class used for initialization of many libraries
@@ -23,12 +20,7 @@ class AmpacheApp : Application() {
         Stetho.initializeWithDefaults(this)
         Realm.init(this)
         Timber.plant(DebugTree)
-        applicationComponent =
-                DaggerApplicationComponent
-                        .builder()
-                        .dataModule(DataModule())
-                        .androidModule(AndroidModule(this))
-                        .build()
+        applicationComponent = DaggerApplicationComponent.builder().application(this).build()
     }
 
     object DebugTree : Timber.Tree() {

@@ -5,7 +5,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.viewmodel.PlayerActivityVM" />
+            type="be.florien.ampacheplayer.view.player.PlayerActivityVM" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -15,7 +15,7 @@
 
         <fragment
             android:id="@+id/songList"
-            android:name="be.florien.ampacheplayer.view.fragment.SongListFragment"
+            android:name="be.florien.ampacheplayer.view.player.songlist.SongListFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
