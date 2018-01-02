@@ -10,13 +10,15 @@ import dagger.Provides
 import dagger.Reusable
 import io.realm.Realm
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import javax.inject.Singleton
 
 /**
  * todo
  */
 @Module
-abstract class ApplicationModule {
+class ApplicationModule {
 
     companion object {
         private const val PREFERENCE_NAME = "ampache_preferences"
@@ -27,6 +29,8 @@ abstract class ApplicationModule {
     fun provideAmpacheApi(): AmpacheApi = Retrofit
             .Builder()
             .baseUrl("http://192.168.1.42/ampache/")
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addConverterFactory(SimpleXmlConverterFactory.create())
             .build()
             .create(AmpacheApi::class.java)
 
@@ -40,7 +44,7 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(ampacheApi, authManager)
+    fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager): AmpacheConnection = AmpacheConnection(ampacheApi, authManager)
 
     @Provides
     @Singleton

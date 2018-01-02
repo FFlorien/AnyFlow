@@ -3,8 +3,6 @@ package be.florien.ampacheplayer
 import android.app.Application
 import android.util.Log
 import com.facebook.stetho.Stetho
-import dagger.android.AndroidInjector
-import dagger.android.support.DaggerApplication
 import io.realm.Realm
 import timber.log.Timber
 
@@ -20,7 +18,11 @@ class AmpacheApp : Application() {
         Stetho.initializeWithDefaults(this)
         Realm.init(this)
         Timber.plant(DebugTree)
-        applicationComponent = DaggerApplicationComponent.builder().application(this).build()
+        applicationComponent = DaggerApplicationComponent
+                .builder()
+                .application(this)
+                .applicationModule(ApplicationModule())
+                .build()
     }
 
     object DebugTree : Timber.Tree() {

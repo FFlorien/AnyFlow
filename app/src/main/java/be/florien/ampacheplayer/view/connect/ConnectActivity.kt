@@ -7,6 +7,7 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.view.ActivityComponent
+import be.florien.ampacheplayer.view.ActivityModule
 
 /**
  * Simple activity for connection
@@ -21,13 +22,15 @@ class ConnectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_connect)
-        vm = ConnectActivityVM()
-        binding.vm = vm
         activityComponent = ampacheApp.applicationComponent.activityComponentBuilder()
                 .activity(this)
+                .activityModule(ActivityModule())
                 .view(binding.root)
                 .build()
         activityComponent.inject(this)
+        vm = ConnectActivityVM()
+        activityComponent.inject(vm)
+        binding.vm = vm
     }
 
     override fun onDestroy() {

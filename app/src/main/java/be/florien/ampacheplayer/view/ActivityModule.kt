@@ -10,7 +10,7 @@ import dagger.Reusable
  * Created by florien on 1/01/18.
  */
 @Module
-abstract class ActivityModule {
+class ActivityModule {
 
     @Provides
     @Reusable

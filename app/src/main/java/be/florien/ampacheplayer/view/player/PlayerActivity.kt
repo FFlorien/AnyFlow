@@ -10,6 +10,8 @@ import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.ActivityComponent
+import be.florien.ampacheplayer.view.ActivityModule
+import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 
 /**
  * Activity controlling the queue, play/pause/next/previous on the PlayerService
@@ -23,17 +25,21 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
-        vm = PlayerActivityVM()
-        binding.vm = vm
         activityComponent = ampacheApp
                 .applicationComponent
                 .activityComponentBuilder()
                 .activity(this)
+                .activityModule(ActivityModule())
                 .view(binding.root)
                 .build()
         activityComponent.inject(this)
+        vm = PlayerActivityVM()
+        activityComponent.inject(vm)
+        binding.vm = vm
         vm.onViewCreated()
         bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
+
+        supportFragmentManager.beginTransaction().add(R.id.container, SongListFragment()).commit() //todo dirty, should fix
     }
 
     override fun onDestroy() {

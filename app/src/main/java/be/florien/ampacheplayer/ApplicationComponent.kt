@@ -12,9 +12,7 @@ import javax.inject.Singleton
  * Component used to add dependency injection about data into classes
  */
 @Singleton
-@Component(
-        modules = [(ApplicationModule::class), (ApplicationContextModule::class)]
-)
+@Component(modules = [(ApplicationModule::class), (ApplicationContextModule::class)])
 interface ApplicationComponent {
 
     fun activityComponentBuilder(): ActivityComponent.Builder
@@ -26,6 +24,9 @@ interface ApplicationComponent {
 
         @BindsInstance
         fun application(application: Application): Builder
+
+        @BindsInstance
+        fun applicationModule(applicationModule: ApplicationModule): Builder
 
         fun build(): ApplicationComponent
     }
