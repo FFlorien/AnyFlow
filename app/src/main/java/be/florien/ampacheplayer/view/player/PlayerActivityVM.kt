@@ -74,7 +74,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     fun isNextPossible(): Boolean = audioQueueManager.listPosition < audioQueueManager.itemsCount - 1 && audioQueueManager.listPosition != NO_CURRENT_SONG
 
     @Bindable
-    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0
+    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0 || playBackTime > 10
 
 
     /**
@@ -95,6 +95,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
                 onNext = {
                     playBackTime = it / 1000
                     isBackKeyPreviousSong = playBackTime < 10
+                    notifyPropertyChanged(BR.previousPossible)
                     notifyPropertyChanged(BR.playTimeDisplay)
                 },
                 onError = {

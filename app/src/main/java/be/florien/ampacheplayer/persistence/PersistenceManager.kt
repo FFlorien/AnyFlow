@@ -11,16 +11,16 @@ import javax.inject.Inject
 class PersistenceManager
 @Inject constructor(
         private var databaseManager: DatabaseManager,
-        private var connection: AmpacheConnection) {
+        private var songServerConnection: AmpacheConnection) {
 
     /**
      * Getter
      */
 
-    fun refreshSongs(): Observable<Boolean> = connection.getSongs()
+    fun refreshSongs(): Observable<Boolean> = songServerConnection.getSongs()
             .flatMap { result ->
                 when (result.error.code) {
-                    401 -> connection.reconnect(connection.getSongs())
+                    401 -> songServerConnection.reconnect(songServerConnection.getSongs())
                     else -> Observable.just(result)
                 }
             }

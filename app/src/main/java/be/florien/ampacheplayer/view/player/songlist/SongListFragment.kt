@@ -37,7 +37,7 @@ class SongListFragment : Fragment() {
         (activity as PlayerActivity).activityComponent.inject(this)
         binding.vm = vm
         vm.refreshSongs()
-        binding.songList.adapter = SongAdapter()
+        binding.songList.adapter = SongAdapter().apply { songs = vm.getCurrentAudioQueue() }
         binding.songList.layoutManager = LinearLayoutManager(activity)
         activity.bindService(Intent(activity, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {

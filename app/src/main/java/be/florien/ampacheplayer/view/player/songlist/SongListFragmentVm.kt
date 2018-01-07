@@ -62,7 +62,7 @@ class SongListFragmentVm
     fun getListPosition() = audioQueueManager.listPosition
 
     fun refreshSongs() {
-        isLoadingAll = true
+        isLoadingAll = audioQueueManager.itemsCount == 0
         subscribe(
                 persistenceManager.refreshSongs().subscribeOn(Schedulers.io()),
                 {

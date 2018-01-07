@@ -22,7 +22,8 @@ class AudioQueueManager
      */
     private var filters: List<Filter<*>> = mutableListOf()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
-    val itemsCount: Int = databaseManager.getSongs(filters).size
+    val itemsCount: Int
+        get() = databaseManager.getSongs(filters).size
     var listPosition: Int = NO_CURRENT_SONG
         set(value) {
             field = if (value in 0 until databaseManager.getSongs(filters).size) {
