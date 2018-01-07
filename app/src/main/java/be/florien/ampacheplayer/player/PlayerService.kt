@@ -2,18 +2,17 @@ package be.florien.ampacheplayer.player
 
 import android.app.Service
 import android.content.Intent
-import android.media.AudioManager
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.persistence.model.Song
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -30,14 +29,7 @@ import javax.inject.Inject
  * Service used to handle the media player.
  */
 class PlayerService : Service(),
-        PlayerController,
-        MediaPlayer.OnInfoListener,
-        MediaPlayer.OnBufferingUpdateListener,
-        MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnSeekCompleteListener,
-        MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnErrorListener,
-        AudioManager.OnAudioFocusChangeListener {
+        PlayerController, Player.EventListener {
 
     companion object {
         private val NO_VALUE = -3L
@@ -53,7 +45,9 @@ class PlayerService : Service(),
 
     private val mediaPlayer: ExoPlayer by lazy {
         val trackSelector: TrackSelector = DefaultTrackSelector()
-        ExoPlayerFactory.newSimpleInstance(this, trackSelector)
+        ExoPlayerFactory.newSimpleInstance(this, trackSelector).apply {
+            addListener(this@PlayerService)
+        }
     }
 
     private var lastPosition: Long = NO_VALUE
@@ -117,28 +111,45 @@ class PlayerService : Service(),
     /**
      * Listener implementation
      */
-    override fun onInfo(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        return false
+    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onBufferingUpdate(mp: MediaPlayer?, percent: Int) {
+    override fun onSeekProcessed() {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onPrepared(mp: MediaPlayer?) {
+    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
     }
 
-    override fun onSeekComplete(mp: MediaPlayer?) {
+    override fun onPlayerError(error: ExoPlaybackException?) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onCompletion(mp: MediaPlayer?) {
-        audioQueueManager.listPosition += 1
+    override fun onLoadingChanged(isLoading: Boolean) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        return what == -38
+    override fun onPositionDiscontinuity(reason: Int) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onAudioFocusChange(focusChange: Int) {
+    override fun onRepeatModeChanged(repeatMode: Int) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        if (playbackState == Player.STATE_ENDED) {
+            audioQueueManager.listPosition += 1
+        }
     }
 
     /**

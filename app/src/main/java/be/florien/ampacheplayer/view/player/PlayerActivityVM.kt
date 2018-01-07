@@ -94,7 +94,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
                 observable = player.playTimeNotifier,
                 onNext = {
                     playBackTime = it / 1000
-                    isBackKeyPreviousSong = it < 10
+                    isBackKeyPreviousSong = playBackTime < 10
                     notifyPropertyChanged(BR.playTimeDisplay)
                 },
                 onError = {
