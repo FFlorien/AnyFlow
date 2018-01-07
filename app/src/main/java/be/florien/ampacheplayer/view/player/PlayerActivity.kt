@@ -35,7 +35,6 @@ class PlayerActivity : AppCompatActivity() {
                 .build()
         activityComponent.inject(this)
         binding.vm = vm
-        vm.onViewCreated()
         bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
         if (savedInstanceState == null) {

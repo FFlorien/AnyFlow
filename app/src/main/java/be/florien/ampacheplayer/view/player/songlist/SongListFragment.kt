@@ -52,11 +52,6 @@ class SongListFragment : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        vm.onViewCreated()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         vm.destroy()

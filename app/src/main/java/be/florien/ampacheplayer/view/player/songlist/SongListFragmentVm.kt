@@ -47,13 +47,6 @@ class SongListFragmentVm
      */
     init {
         Timber.tag(this.javaClass.simpleName)
-    }
-
-    /**
-     * Private methods
-     */
-
-    fun onViewCreated() {
         subscribe(audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
             notifyPropertyChanged(BR.listPosition)
         })

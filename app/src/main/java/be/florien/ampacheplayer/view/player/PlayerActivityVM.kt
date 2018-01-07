@@ -37,15 +37,6 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
         Timber.tag(this.javaClass.simpleName)
     }
 
-    fun onViewCreated() {
-        subscribe(
-                observable = audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    notifyPropertyChanged(BR.nextPossible)
-                    notifyPropertyChanged(BR.previousPossible)
-                })
-    }
-
     fun play() {
         player.play()
     }
@@ -73,7 +64,11 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     }
 
     @Bindable
-    fun getPlayTime(): String = "${playBackTime / 60}:${playBackTime % 60}"
+    fun getPlayTimeDisplay(): String {
+        val minutesDisplay = String.format("%02d", (playBackTime / 60))
+        val secondsDisplay = String.format("%02d", (playBackTime % 60))
+        return "$minutesDisplay:$secondsDisplay"
+    }
 
     @Bindable
     fun isNextPossible(): Boolean = audioQueueManager.listPosition < audioQueueManager.itemsCount - 1 && audioQueueManager.listPosition != NO_CURRENT_SONG
@@ -90,11 +85,17 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
         player = controller
         playerControllerNumber += 1
         subscribe(
-                observable = player.playTimeNotifier.map { it / 1000 }.distinct(),
+                observable = audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
-                    playBackTime = it
+                    notifyPropertyChanged(BR.nextPossible)
+                    notifyPropertyChanged(BR.previousPossible)
+                })
+        subscribe(
+                observable = player.playTimeNotifier,
+                onNext = {
+                    playBackTime = it / 1000
                     isBackKeyPreviousSong = it < 10
-                    notifyPropertyChanged(BR.playTime)
+                    notifyPropertyChanged(BR.playTimeDisplay)
                 },
                 onError = {
                     Timber.e(it, "error while retrieving the playtime")

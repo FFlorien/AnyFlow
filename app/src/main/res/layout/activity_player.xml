@@ -52,8 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/playTime"
-                android:text="@{vm.getPlayTime}"/>
-
+                android:text="@{vm.getPlayTimeDisplay}"/>
         </LinearLayout>
     </LinearLayout>
 </layout>
