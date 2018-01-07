@@ -8,12 +8,13 @@ import be.florien.ampacheplayer.databinding.ActivityConnectBinding
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.view.ActivityComponent
 import be.florien.ampacheplayer.view.ActivityModule
+import javax.inject.Inject
 
 /**
  * Simple activity for connection
  */
 class ConnectActivity : AppCompatActivity() {
-    lateinit var vm: ConnectActivityVM
+    @field:Inject lateinit var vm: ConnectActivityVM
     lateinit var binding: ActivityConnectBinding
 
     private lateinit var activityComponent: ActivityComponent
@@ -28,8 +29,6 @@ class ConnectActivity : AppCompatActivity() {
                 .view(binding.root)
                 .build()
         activityComponent.inject(this)
-        vm = ConnectActivityVM()
-        activityComponent.inject(vm)
         binding.vm = vm
     }
 

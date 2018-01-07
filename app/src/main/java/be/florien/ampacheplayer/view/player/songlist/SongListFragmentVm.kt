@@ -7,12 +7,12 @@ import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.player.AudioQueueManager
-import be.florien.ampacheplayer.view.DisplayHelper
-import be.florien.ampacheplayer.view.Navigator
 import be.florien.ampacheplayer.persistence.PersistenceManager
+import be.florien.ampacheplayer.player.AudioQueueManager
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.BaseVM
+import be.florien.ampacheplayer.view.DisplayHelper
+import be.florien.ampacheplayer.view.Navigator
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -23,12 +23,15 @@ import javax.inject.Inject
  * Display a list of songs and play it upon selection.
  */
 
-class SongListFragmentVm : BaseVM() {
+class SongListFragmentVm
+@Inject constructor(
+        private val persistenceManager: PersistenceManager,
+        private val audioQueueManager: AudioQueueManager,
+        private val navigator: Navigator,
+        private val displayHelper: DisplayHelper
+) : BaseVM() {
 
-    @field:Inject lateinit var persistenceManager: PersistenceManager
-    @field:Inject lateinit var audioQueueManager: AudioQueueManager
-    @field:Inject lateinit var navigator: Navigator
-    @field:Inject lateinit var displayHelper: DisplayHelper
+
     var player: PlayerService? = null
 
     internal var connection: PlayerConnection = PlayerConnection()
@@ -46,7 +49,7 @@ class SongListFragmentVm : BaseVM() {
 
     fun onViewCreated() {
         subscribe(audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
-           notifyPropertyChanged(BR.listPosition)
+            notifyPropertyChanged(BR.listPosition)
         })
     }
 

@@ -6,12 +6,14 @@ import io.reactivex.subjects.PublishSubject
 import io.realm.Realm
 import io.realm.RealmResults
 import javax.inject.Inject
+import javax.inject.Singleton
 
 const val NO_CURRENT_SONG = -13456
 
 /**
  * Manager for the queue of songs that are playing. It handle filters, random, repeat and addition to the queue
  */
+@Singleton
 class AudioQueueManager
 @Inject constructor(private val databaseManager: DatabaseManager) {
 

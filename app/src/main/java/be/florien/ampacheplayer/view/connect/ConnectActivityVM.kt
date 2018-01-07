@@ -13,14 +13,15 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-class ConnectActivityVM : BaseVM() {
+class ConnectActivityVM
+@Inject constructor(
+        private val ampacheConnection: AmpacheConnection,
+        private val navigator: Navigator,
+        private val displayHelper: DisplayHelper) : BaseVM() {
 
     /**
      * Fields
      */
-    @Inject lateinit var ampacheConnection: AmpacheConnection
-    @Inject lateinit var navigator: Navigator
-    @Inject lateinit var displayHelper: DisplayHelper
 
     @Bindable
     var username: String = ""

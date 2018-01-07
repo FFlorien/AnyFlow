@@ -12,6 +12,7 @@ import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.ActivityComponent
 import be.florien.ampacheplayer.view.ActivityModule
 import be.florien.ampacheplayer.view.player.songlist.SongListFragment
+import javax.inject.Inject
 
 /**
  * Activity controlling the queue, play/pause/next/previous on the PlayerService
@@ -19,7 +20,7 @@ import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 class PlayerActivity : AppCompatActivity() {
 
     lateinit var activityComponent: ActivityComponent
-    lateinit var vm: PlayerActivityVM
+    @Inject lateinit var vm: PlayerActivityVM
     lateinit var binding: ActivityPlayerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,13 +34,12 @@ class PlayerActivity : AppCompatActivity() {
                 .view(binding.root)
                 .build()
         activityComponent.inject(this)
-        vm = PlayerActivityVM()
-        activityComponent.inject(vm)
         binding.vm = vm
         vm.onViewCreated()
         bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
-        supportFragmentManager.beginTransaction().add(R.id.container, SongListFragment()).commit() //todo dirty, should fix
+        val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName) ?: SongListFragment()
+        supportFragmentManager.beginTransaction().add(R.id.container, fragment).commit() //todo dirty, should fix
     }
 
     override fun onDestroy() {

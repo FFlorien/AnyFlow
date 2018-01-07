@@ -13,12 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.R
-import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongPendingBinding
 import be.florien.ampacheplayer.databinding.ItemSongPlayingBinding
+import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
+import javax.inject.Inject
 
 private const val LIST_ITEM_TYPE_PENDING = 0
 private const val LIST_ITEM_TYPE_PLAYING = 1
@@ -28,13 +29,12 @@ private const val LIST_ITEM_TYPE_PLAYING = 1
  */
 class SongListFragment : Fragment() {
 
-    lateinit var vm: SongListFragmentVm
+    @Inject lateinit var vm: SongListFragmentVm
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_song_list, container, false)
         val binding = DataBindingUtil.bind<FragmentSongListBinding>(view)
-        vm = SongListFragmentVm()
-        (activity as PlayerActivity).activityComponent.inject(vm)
+        (activity as PlayerActivity).activityComponent.inject(this)
         binding.vm = vm
         vm.refreshSongs()
         binding.songList.adapter = SongAdapter()

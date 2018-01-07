@@ -18,10 +18,11 @@ import javax.inject.Inject
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerActivityVM : BaseVM() {
+class PlayerActivityVM
+@Inject
+constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     private val playerControllerIdentifierBase = "playerControllerId"
 
-    @Inject lateinit var audioQueueManager: AudioQueueManager
     private var playerControllerNumber = 0
     internal val connection: PlayerConnection = PlayerConnection()
     private var isBackKeyPreviousSong: Boolean = false
