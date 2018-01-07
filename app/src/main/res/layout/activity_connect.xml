@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -7,10 +8,12 @@
         <variable
             name="vm"
             type="be.florien.ampacheplayer.view.connect.ConnectActivityVM" />
+
+        <import type="android.view.View" />
     </data>
 
-    <LinearLayout
-        android:id="@+id/activity_main"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/loading_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
@@ -20,21 +23,25 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_username"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/input_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="username"
-                android:text="@={vm.username}"/>
+                android:text="@={vm.username}" />
 
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_password"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            app:layout_constraintTop_toBottomOf="@+id/input_layout_username">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/input_password"
@@ -42,8 +49,7 @@
                 android:layout_height="wrap_content"
                 android:hint="password"
                 android:inputType="textPassword"
-                android:text="@={vm.password}"
-                />
+                android:text="@={vm.password}" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -51,13 +57,52 @@
             android:id="@+id/info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal" />
+            android:gravity="center_horizontal"
+            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            app:layout_constraintTop_toBottomOf="@+id/input_layout_password" />
 
         <Button
             android:id="@+id/connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             android:onClick="@{(view) ->vm.connect()}"
-            android:text="Connect" />
-    </LinearLayout>
+            android:text="Connect"
+            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/info" />
+
+        <ProgressBar
+            android:id="@+id/loadingProgress"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="@{vm.loading ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/input_layout_username"
+            app:layout_constraintVertical_bias="0.167" />
+
+        <TextView
+            android:id="@+id/loadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="Connection, please wait..."
+            android:visibility="@{vm.loading ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loadingProgress"
+            app:layout_constraintVertical_bias="0.24" />
+    </android.support.constraint.ConstraintLayout>
 </layout>

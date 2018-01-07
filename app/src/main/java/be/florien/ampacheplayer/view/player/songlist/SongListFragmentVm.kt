@@ -31,6 +31,12 @@ class SongListFragmentVm
         private val displayHelper: DisplayHelper
 ) : BaseVM() {
 
+    @get:Bindable
+    var isLoadingAll: Boolean = false
+        set(value) {
+            notifyPropertyChanged(BR.loadingAll)
+            field = value
+        }
 
     var player: PlayerService? = null
 
@@ -63,12 +69,15 @@ class SongListFragmentVm
     fun getListPosition() = audioQueueManager.listPosition
 
     fun refreshSongs() {
+        isLoadingAll = true
         subscribe(
                 persistenceManager.refreshSongs().subscribeOn(Schedulers.io()),
                 {
+                    isLoadingAll = false
                     notifyPropertyChanged(BR.currentAudioQueue)
                 },
                 {
+                    isLoadingAll = false
                     when (it) {
                         is SessionExpiredException -> {
                             Timber.i(it, "The session token is expired")

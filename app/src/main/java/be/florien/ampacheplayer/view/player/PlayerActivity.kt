@@ -38,8 +38,10 @@ class PlayerActivity : AppCompatActivity() {
         vm.onViewCreated()
         bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
-        val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName) ?: SongListFragment()
-        supportFragmentManager.beginTransaction().add(R.id.container, fragment).commit() //todo dirty, should fix
+        if (savedInstanceState == null) {
+            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName) ?: SongListFragment()
+            supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
+        }
     }
 
     override fun onDestroy() {
