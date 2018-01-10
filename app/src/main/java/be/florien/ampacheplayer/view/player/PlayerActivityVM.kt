@@ -64,6 +64,16 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     }
 
     @Bindable
+    fun getCurrentDuration(): Int {
+        return playBackTime.toInt()
+    }
+
+    @Bindable
+    fun getTotalDuration(): Int {
+        return audioQueueManager.getCurrentSong().time
+    }
+
+    @Bindable
     fun getPlayTimeDisplay(): String {
         val minutesDisplay = String.format("%02d", (playBackTime / 60))
         val secondsDisplay = String.format("%02d", (playBackTime % 60))
@@ -89,6 +99,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
                 onNext = {
                     notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)
+                    notifyPropertyChanged(BR.totalDuration)
                 })
         subscribe(
                 observable = player.playTimeNotifier,
@@ -97,6 +108,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
                     isBackKeyPreviousSong = playBackTime < 10
                     notifyPropertyChanged(BR.previousPossible)
                     notifyPropertyChanged(BR.playTimeDisplay)
+                    notifyPropertyChanged(BR.currentDuration)
                 },
                 onError = {
                     Timber.e(it, "error while retrieving the playtime")

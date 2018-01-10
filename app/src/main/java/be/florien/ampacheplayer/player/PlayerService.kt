@@ -67,7 +67,7 @@ class PlayerService : Service(),
     override fun isPlaying() = mediaPlayer.playWhenReady
 
     override fun play() {
-        val song = audioQueueManager.getCurrentSong(Realm.getDefaultInstance())
+        val song = audioQueueManager.getCurrentSong()
         mediaPlayer.apply {
             stop()
             val bandwidthMeter = DefaultBandwidthMeter()

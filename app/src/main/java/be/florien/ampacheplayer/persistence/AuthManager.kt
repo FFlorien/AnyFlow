@@ -1,8 +1,12 @@
 package be.florien.ampacheplayer.persistence
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.security.KeyPairGeneratorSpec
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import be.florien.ampacheplayer.extension.applyPutLong
 import timber.log.Timber
 import java.io.File
@@ -15,8 +19,6 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.crypto.Cipher
-import javax.crypto.CipherInputStream
-import javax.crypto.CipherOutputStream
 import javax.crypto.NoSuchPaddingException
 import javax.inject.Inject
 import javax.security.auth.x500.X500Principal
@@ -114,12 +116,12 @@ class AuthManager
             val privateKeyEntry = getRsaKey(alias)
             val cipher = Cipher.getInstance(RSA_CIPHER)
             cipher.init(Cipher.ENCRYPT_MODE, privateKeyEntry.certificate.publicKey)
+            val encryptedSecret = cipher.doFinal(secret.toByteArray())
 
             val outputStream = FileOutputStream(dataDirectoryPath + filename)
-            val cipherOutputStream = CipherOutputStream(outputStream, cipher)
-            cipherOutputStream.write(secret.toByteArray())
-            cipherOutputStream.flush()
-            cipherOutputStream.close()
+            outputStream.write(encryptedSecret)
+            outputStream.flush()
+            outputStream.close()
         }
 
         private fun decryptSecret(alias: String, filename: String): String {
@@ -129,10 +131,10 @@ class AuthManager
                 cipher.init(Cipher.DECRYPT_MODE, privateKeyEntry.privateKey)
 
                 val inputStream = FileInputStream(dataDirectoryPath + filename)
-                val cipherInputStream = CipherInputStream(inputStream, cipher)
-                val goodBytes = cipherInputStream.readBytes()
-                cipherInputStream.close()
-                return String(goodBytes, Charsets.UTF_8)
+                val encryptedSecret = ByteArray(1024)
+                val bytesRead = inputStream.read(encryptedSecret)
+                val decryptedSecret = cipher.doFinal(encryptedSecret, 0, bytesRead)
+                return String(decryptedSecret)
             } catch (exception: Exception) {
                 Timber.e(exception, "Error while trying to retrieve a secured data")
                 val file = File(dataDirectoryPath + filename)
@@ -143,7 +145,6 @@ class AuthManager
             }
         }
 
-        @Suppress("DEPRECATION")
         private fun renewRsaKey(alias: String, expiration: Date) {
             if (keyStore.containsAlias(alias)) {
                 keyStore.deleteEntry(alias)
@@ -152,16 +153,33 @@ class AuthManager
 
             val keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM_NAME, KEYSTORE_NAME)
 
-            val keySpec = KeyPairGeneratorSpec.Builder(context)
-                    .setAlias(alias)
-                    .setStartDate(nowDate)
-                    .setEndDate(expiration)
-                    .setSubject(X500Principal("C=BE, CN=ampachePlayer"))
-                    .setSerialNumber(BigInteger.valueOf(1337))
-                    .build()
-            keyPairGenerator.initialize(keySpec)
+            val spec = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                getSpecFromKeyPairGenerator(alias, nowDate, expiration)
+            } else {
+                getSpecFromKeyGenParameter(alias, nowDate, expiration)
+            }
+            keyPairGenerator.initialize(spec)
             keyPairGenerator.generateKeyPair()
             preference.applyPutLong(alias, expiration.time)
         }
+
+        @Suppress("DEPRECATION")
+        private fun getSpecFromKeyPairGenerator(alias: String, nowDate: Date, expiration: Date) =
+                KeyPairGeneratorSpec.Builder(context)
+                        .setAlias(alias)
+                        .setStartDate(nowDate)
+                        .setEndDate(expiration)
+                        .setSubject(X500Principal("CN=$alias CA Certificate"))
+                        .setSerialNumber(BigInteger.valueOf(1337))
+                        .build()
+
+        @TargetApi(Build.VERSION_CODES.M)
+        private fun getSpecFromKeyGenParameter(alias: String, nowDate: Date, expiration: Date) =
+                KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                        .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
+                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
+                        .setCertificateNotAfter(expiration)
+                        .setCertificateNotBefore(nowDate)
+                        .build()
     }
 }

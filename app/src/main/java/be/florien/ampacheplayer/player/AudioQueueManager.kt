@@ -24,7 +24,7 @@ class AudioQueueManager
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
     val itemsCount: Int
         get() = databaseManager.getSongs(filters).size
-    var listPosition: Int = NO_CURRENT_SONG
+    var listPosition: Int = 0
         set(value) {
             field = if (value in 0 until databaseManager.getSongs(filters).size) {
                 value
@@ -38,7 +38,7 @@ class AudioQueueManager
     /**
      * Methods
      */
-    fun getCurrentSong(realmInstance: Realm): Song = databaseManager.getSongs(filters, realmInstance)[listPosition]
+    fun getCurrentSong(): Song = databaseManager.getSongs(filters)[listPosition]
 
     fun getCurrentAudioQueue(): RealmResults<Song> = databaseManager.getSongs(filters)
 }
