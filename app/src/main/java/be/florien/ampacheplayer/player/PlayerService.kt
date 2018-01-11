@@ -39,7 +39,7 @@ class PlayerService : Service(),
     @Inject
     lateinit var audioQueueManager: AudioQueueManager
     override val playTimeNotifier: Observable<Long> = Observable
-            .interval(100, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }
     override val songNotifier: Subject<Song> = BehaviorSubject.create<Song>()
 

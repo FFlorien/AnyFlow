@@ -70,13 +70,14 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
 
     @Bindable
     fun getTotalDuration(): Int {
-        return audioQueueManager.getCurrentSong().time
+        return audioQueueManager.getCurrentSong().time * 1000
     }
 
     @Bindable
     fun getPlayTimeDisplay(): String {
-        val minutesDisplay = String.format("%02d", (playBackTime / 60))
-        val secondsDisplay = String.format("%02d", (playBackTime % 60))
+        val playBackTimeInSeconds = playBackTime / 1000
+        val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
+        val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
         return "$minutesDisplay:$secondsDisplay"
     }
 
@@ -84,7 +85,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     fun isNextPossible(): Boolean = audioQueueManager.listPosition < audioQueueManager.itemsCount - 1 && audioQueueManager.listPosition != NO_CURRENT_SONG
 
     @Bindable
-    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0 || playBackTime > 10
+    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0 || playBackTime > 10000
 
 
     /**
@@ -104,8 +105,8 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
         subscribe(
                 observable = player.playTimeNotifier,
                 onNext = {
-                    playBackTime = it / 1000
-                    isBackKeyPreviousSong = playBackTime < 10
+                    playBackTime = it
+                    isBackKeyPreviousSong = playBackTime < 10000
                     notifyPropertyChanged(BR.previousPossible)
                     notifyPropertyChanged(BR.playTimeDisplay)
                     notifyPropertyChanged(BR.currentDuration)

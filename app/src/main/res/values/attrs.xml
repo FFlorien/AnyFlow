@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="PlayerControls">
-        <attr name="marksOffsets" format="integer"/>
-        <attr name="transitionDuration" format="integer"/>
-        <attr name="transitionAnimationDuration" format="integer"/>
+        <attr name="progressAnimDuration" format="integer"/>
+        <attr name="changeTrackAnimDuration" format="integer"/>
         <attr name="smallestButtonWidth" format="dimension"/>
         <attr name="currentDuration" format="integer"/>
+        <attr name="durationText" format="string"/>
         <attr name="totalDuration" format="integer"/>
     </declare-styleable>
 </resources>
