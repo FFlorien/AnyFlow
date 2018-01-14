@@ -178,8 +178,8 @@ class AuthManager
                 KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                         .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
-                        .setCertificateNotAfter(expiration)
                         .setCertificateNotBefore(nowDate)
+                        .setCertificateNotAfter(expiration)
                         .build()
     }
 }

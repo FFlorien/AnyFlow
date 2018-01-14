@@ -3,6 +3,7 @@ package be.florien.ampacheplayer.view.customView
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -57,6 +58,18 @@ class PlayerControls
     private val buttonPaint = Paint().apply {
         setARGB(255, 45, 25, 0)
         strokeWidth = 2f
+    }
+    private val playiconPath: Path by lazy {
+        Path().apply {
+            val margin = height / 4
+            val iconSize = height / 2
+            val startX = (((width - smallestButtonWidth) / 2) + margin).toFloat()
+            val startY = margin.toFloat()
+            moveTo(startX, startY)
+            lineTo(startX + iconSize, startY + (iconSize / 2))
+            lineTo(startX, startY + iconSize)
+            lineTo(startX, startY)
+        }
     }
     private var playButtonMaxWidthOffset: Int = 0
     private var prevButtonRightBound: Int = 0
@@ -116,7 +129,7 @@ class PlayerControls
         if (desiredWidth < (smallestButtonWidth * 3)) {
             smallestButtonWidth = desiredWidth / 3
         }
-        centerLeftX = ((desiredWidth - smallestButtonWidth).toFloat() /2).toInt()
+        centerLeftX = ((desiredWidth - smallestButtonWidth).toFloat() / 2).toInt()
         centerRightX = centerLeftX + smallestButtonWidth
         playButtonMaxWidthOffset = centerLeftX - smallestButtonWidth
     }
@@ -130,6 +143,7 @@ class PlayerControls
         canvas.drawLine(centerLeftX.toFloat(), 0f, centerLeftX.toFloat(), height.toFloat(), textPaint)
         canvas.drawLine(centerRightX.toFloat(), 0f, centerRightX.toFloat(), height.toFloat(), textPaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, timelinePaint)
+        canvas.drawPath(playiconPath, buttonPaint)
         nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, baseline - 20, timelinePaint) }
         canvas.drawText(durationText, playButtonLeftBound + (smallestButtonWidth / 2), baseline, textPaint)
         canvas.drawRect(0f, 0f, prevButtonRightBound.toFloat(), height.toFloat(), buttonPaint)

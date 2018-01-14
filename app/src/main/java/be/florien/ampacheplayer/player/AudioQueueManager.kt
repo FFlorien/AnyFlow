@@ -38,7 +38,10 @@ class AudioQueueManager
     /**
      * Methods
      */
-    fun getCurrentSong(): Song = databaseManager.getSongs(filters)[listPosition]
+    fun getCurrentSong(): Song {
+        val songs = databaseManager.getSongs(filters)
+        return if (songs.size <= listPosition) Song() else songs[listPosition]
+    }
 
     fun getCurrentAudioQueue(): RealmResults<Song> = databaseManager.getSongs(filters)
 }
