@@ -17,7 +17,19 @@ class DatabaseManager
      */
     fun getSongs(filters: List<Filter<*>> = emptyList(), realmInstance: Realm = realmRead): RealmResults<Song> = realmInstance.let {
         val realmQuery = it.where(Song::class.java)
-        getRealmObjects(filters, realmQuery)
+        var isFirstFilter = true
+        for (filter in filters) {
+            applyFilter(realmQuery, filter, isFirstFilter)
+            isFirstFilter = false
+        }
+        return realmQuery.findAllSorted("id")
+    }
+
+    fun getGenres(realmInstance: Realm = realmRead): List<String> = realmInstance.let {
+        val distinctGenres = mutableListOf<String>()
+        val realmQuery = it.where(Song::class.java)
+        realmQuery.distinct("genre").mapTo(distinctGenres) { it.genre }
+        return distinctGenres
     }
 
     /**
@@ -57,15 +69,6 @@ class DatabaseManager
     /**
      * Private methods
      */
-
-    private fun getRealmObjects(filters: List<Filter<*>>, realmQuery: RealmQuery<Song>): RealmResults<Song> {
-        var isFirstFilter = true
-        for (filter in filters) {
-            applyFilter(realmQuery, filter, isFirstFilter)
-            isFirstFilter = false
-        }
-        return realmQuery.findAllSorted("id")
-    }
 
     private fun applyFilter(realmQuery: RealmQuery<Song>, filter: Filter<*>, isFirst: Boolean) {
         if (!isFirst) {

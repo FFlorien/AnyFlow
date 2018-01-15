@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AmpachePlayer.iml" filepath="$PROJECT_DIR$/AmpachePlayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/AmpachePlayer.iml" filepath="$PROJECT_DIR$/.idea/AmpachePlayer.iml" />
+      <module fileurl="file://C:\Users\FLAMENTF\git\AmpachePlayer\AmpachePlayer.iml" filepath="C:\Users\FLAMENTF\git\AmpachePlayer\AmpachePlayer.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

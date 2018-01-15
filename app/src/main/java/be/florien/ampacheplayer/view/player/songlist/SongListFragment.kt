@@ -47,7 +47,6 @@ class SongListFragment : Fragment() {
                     BR.listPosition -> (binding.songList.adapter as SongAdapter).notifyItemChanged(vm.getListPosition())
                 }
             }
-
         })
         return view
     }

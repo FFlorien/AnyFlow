@@ -20,7 +20,7 @@ class AudioQueueManager
     /**
      * Fields
      */
-    private var filters: List<Filter<*>> = mutableListOf()
+    private var filters: MutableList<Filter<*>> = mutableListOf()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
     val itemsCount: Int
         get() = databaseManager.getSongs(filters).size
@@ -44,4 +44,7 @@ class AudioQueueManager
     }
 
     fun getCurrentAudioQueue(): RealmResults<Song> = databaseManager.getSongs(filters)
+
+    fun addFilter(filter: Filter<*>) = filters.add(filter)
+
 }
