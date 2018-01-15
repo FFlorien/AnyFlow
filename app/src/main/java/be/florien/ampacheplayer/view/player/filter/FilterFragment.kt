@@ -1,6 +1,5 @@
 package be.florien.ampacheplayer.view.player.filter
 
-import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import be.florien.ampacheplayer.BR
-import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentFilterBinding
 import be.florien.ampacheplayer.databinding.ItemFilterTypeBinding
 import be.florien.ampacheplayer.view.player.PlayerActivity
@@ -29,7 +27,7 @@ class FilterFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_filter, container, false)
+        fragmentBinding = FragmentFilterBinding.inflate(inflater, container, false)
         fragmentBinding.vm = vm
         fragmentBinding.filterList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         fragmentBinding.filterList.adapter = FilterListAdapter()
@@ -55,11 +53,13 @@ class FilterFragment : Fragment() {
     }
 
     inner class FilterViewHolder(
-            private val itemFilterTypeBinding: ItemFilterTypeBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_filter_type, fragmentBinding.filterList, false)
+            private val itemFilterTypeBinding: ItemFilterTypeBinding = ItemFilterTypeBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
     ) : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
-        fun bind(filterType: String) {
-            itemFilterTypeBinding.filterValue = filterType
-            itemFilterTypeBinding.filterName.text = filterType
+
+        fun bind(filter: FilterFragmentVM.FilterItem) {
+            itemFilterTypeBinding.filterValue = filter.id
+            itemFilterTypeBinding.vm = vm
+            itemFilterTypeBinding.filterName.text = filter.displayName
         }
     }
 }

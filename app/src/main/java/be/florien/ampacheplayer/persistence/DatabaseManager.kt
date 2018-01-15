@@ -32,6 +32,10 @@ class DatabaseManager
         return distinctGenres
     }
 
+    fun getArtists(realmInstance: Realm = realmRead): RealmResults<Artist> = realmInstance.where(Artist::class.java).findAll()
+
+    fun getAlbums(realmInstance: Realm = realmRead): RealmResults<Album> = realmInstance.where(Album::class.java).findAll()
+
     /**
      * Database setters
      */
@@ -86,4 +90,6 @@ class DatabaseManager
         }
         realmQuery.endGroup()
     }
+
+
 }
