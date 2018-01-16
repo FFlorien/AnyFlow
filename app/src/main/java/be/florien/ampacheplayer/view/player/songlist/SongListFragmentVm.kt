@@ -64,7 +64,7 @@ class SongListFragmentVm
     fun refreshSongs() {
         isLoadingAll = audioQueueManager.itemsCount == 0
         subscribe(
-                persistenceManager.getSongs().subscribeOn(Schedulers.io()),
+                persistenceManager.getSongs().toObservable().subscribeOn(Schedulers.io()),
                 {
                     isLoadingAll = false
                     notifyPropertyChanged(BR.currentAudioQueue)

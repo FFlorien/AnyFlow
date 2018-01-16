@@ -37,10 +37,6 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
         Timber.tag(this.javaClass.simpleName)
     }
 
-    fun play() {
-        player.play()
-    }
-
     fun playPause() {
         player.apply {
             if (isPlaying()) {

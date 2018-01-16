@@ -11,10 +11,23 @@ import javax.inject.Inject
  * Manager for the ampache data databaseManager-side
  */
 class DatabaseManager
-@Inject constructor(val realmRead: Realm) {
+@Inject constructor(private val realmRead: Realm) {
     /**
-     * Database getters
+     * Database getters : Unfiltered
      */
+
+    fun getSongs(): RealmResults<Song> = realmRead.where(Song::class.java).sort("id").findAll()
+
+    fun getGenres(): RealmResults<Song> = realmRead.where(Song::class.java).distinctValues("genre").findAll() //todo create genre RealmObject
+
+    fun getArtists(): RealmResults<Artist> = realmRead.where(Artist::class.java).findAll()
+
+    fun getAlbums(): RealmResults<Album> = realmRead.where(Album::class.java).findAll()
+
+    /**
+     * Database getters : Filtered
+     */
+
     fun getSongs(filters: List<Filter<*>> = emptyList(), realmInstance: Realm = realmRead): RealmResults<Song> = realmInstance.let {
         val realmQuery = it.where(Song::class.java)
         var isFirstFilter = true
@@ -22,19 +35,9 @@ class DatabaseManager
             applyFilter(realmQuery, filter, isFirstFilter)
             isFirstFilter = false
         }
-        return realmQuery.findAllSorted("id")
+        realmQuery.sort("id")
+        return realmQuery.findAll()
     }
-
-    fun getGenres(realmInstance: Realm = realmRead): List<String> = realmInstance.let {
-        val distinctGenres = mutableListOf<String>()
-        val realmQuery = it.where(Song::class.java)
-        realmQuery.distinct("genre").mapTo(distinctGenres) { it.genre }
-        return distinctGenres
-    }
-
-    fun getArtists(realmInstance: Realm = realmRead): RealmResults<Artist> = realmInstance.where(Artist::class.java).findAll()
-
-    fun getAlbums(realmInstance: Realm = realmRead): RealmResults<Album> = realmInstance.where(Album::class.java).findAll()
 
     /**
      * Database setters

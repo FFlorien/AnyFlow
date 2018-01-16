@@ -2,12 +2,18 @@ package be.florien.ampacheplayer.persistence
 
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.api.model.AmpacheAlbumList
+import be.florien.ampacheplayer.api.model.AmpacheArtistList
+import be.florien.ampacheplayer.api.model.AmpacheError
+import be.florien.ampacheplayer.api.model.AmpacheSongList
 import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
+import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
 import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.realm.RealmObject
 import io.realm.RealmResults
 import java.util.*
 import javax.inject.Inject
@@ -34,40 +40,65 @@ class PersistenceManager
      * Getter
      */
 
-    fun getSongs(): Flowable<RealmResults<Song>> {
+    fun getSongs(): Flowable<RealmResults<Song>> = getUpToDateList(
+                LAST_SONG_UPDATE,
+                AmpacheConnection::getSongs,
+                DatabaseManager::getSongs,
+                AmpacheSongList::error,
+                {databaseManager.addSongs(it.songs.map (::Song))})
+
+    fun getGenres(): Flowable<RealmResults<Song>> = getUpToDateList(
+                LAST_SONG_UPDATE,
+                AmpacheConnection::getSongs,
+                DatabaseManager::getGenres,
+                AmpacheSongList::error,
+                {databaseManager.addSongs(it.songs.map (::Song))})
+
+    fun getArtists(): Flowable<RealmResults<Artist>> = getUpToDateList(
+                LAST_ARTIST_UPDATE,
+                AmpacheConnection::getArtists,
+                DatabaseManager::getArtists,
+                AmpacheArtistList::error,
+                {databaseManager.addArtists(it.artists.map (::Artist))})
+
+    fun getAlbums(): Flowable<RealmResults<Album>> = getUpToDateList(
+                LAST_ALBUM_UPDATE,
+                AmpacheConnection::getAlbums,
+                DatabaseManager::getAlbums,
+                AmpacheAlbumList::error,
+                {databaseManager.addAlbums(it.albums.map (::Album))})
+
+    /**
+     * Private Method
+     */
+
+    private fun <REALM_TYPE: RealmObject, SERVER_TYPE> getUpToDateList(
+            updatePreferenceName: String,
+            getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
+            getListOnDatabase: DatabaseManager.() -> RealmResults<REALM_TYPE>,
+            getError: SERVER_TYPE.() -> AmpacheError,
+            saveToDatabase: (SERVER_TYPE) -> Unit)
+            : Flowable<RealmResults<REALM_TYPE>> {
         val nowDate = Calendar.getInstance()
-        val lastUpdate = sharedPreferences.getDate(LAST_SONG_UPDATE, 0)
+        val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
         val lastAcceptableUpdate = lastAcceptableUpdate()
         return if (lastUpdate.before(lastAcceptableUpdate)) {
             songServerConnection
-                    .getSongs(from = nowDate)
+                    .getListOnServer(lastUpdate)
                     .doOnNext {
-                        databaseManager.addSongs(it.songs.map(::Song))
+                        saveToDatabase(it)
+                        sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
                     }
                     .flatMap { result ->
-                        when (result.error.code) {
-                            401 -> songServerConnection.reconnect(songServerConnection.getSongs())
+                        when (result.getError().code) {
+                            401 -> songServerConnection.reconnect(songServerConnection.getListOnServer(lastUpdate))
                             else -> Observable.just(result)
                         }
                     }
-                    .doOnComplete { sharedPreferences.applyPutLong(LAST_SONG_UPDATE, nowDate.timeInMillis) }
-                    .to { databaseManager.getSongs().asFlowable() }
+                    .to { databaseManager.getListOnDatabase().asFlowable() }
 
         } else {
-            databaseManager.getSongs().asFlowable()
+            databaseManager.getListOnDatabase().asFlowable()
         }
-
     }
-
-    fun getArtists(): Observable<Artist> = songServerConnection.getArtists()
-            .flatMap { result ->
-                when (result.error.code) {
-                    401 -> songServerConnection.reconnect(songServerConnection.getArtists())
-                    else -> Observable.just(result)
-                }
-            }
-            .flatMap { artists ->
-                databaseManager.addArtists(artists.artists.map(::Artist))
-                databaseManager.getArtists().asObservable()
-            }
 }

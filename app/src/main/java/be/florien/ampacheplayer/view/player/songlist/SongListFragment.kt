@@ -70,7 +70,12 @@ class SongListFragment : Fragment() {
             holder.bind(songs[position], position)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == LIST_ITEM_TYPE_PENDING) SongPendingViewHolder(parent) else SongPlayingViewHolder(parent)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                if (viewType == LIST_ITEM_TYPE_PENDING) {
+                    SongPendingViewHolder(parent)
+                } else {
+                    SongPlayingViewHolder(parent)
+                }
 
         override fun getItemViewType(position: Int): Int = if (position == vm.getListPosition()) LIST_ITEM_TYPE_PLAYING else LIST_ITEM_TYPE_PENDING
     }

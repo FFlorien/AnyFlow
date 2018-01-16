@@ -14,7 +14,6 @@ import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.ActivityComponent
 import be.florien.ampacheplayer.view.ActivityModule
 import be.florien.ampacheplayer.view.player.filter.FilterFragment
-import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import javax.inject.Inject
 
 /**
@@ -26,7 +25,7 @@ class PlayerActivity : AppCompatActivity() {
     @Inject lateinit var vm: PlayerActivityVM
     lateinit var binding: ActivityPlayerBinding
 
-    var isFilterDisplayed = false
+    private var isFilterDisplayed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,23 +55,26 @@ class PlayerActivity : AppCompatActivity() {
         if (item.itemId == R.id.filters) {
             if (!isFilterDisplayed) {
                 displayFilters()
-            }else{
+            } else {
                 displaySongList()
             }
-
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun displaySongList() {
-        val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName) ?: SongListFragment()
-        supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
+        supportFragmentManager.popBackStackImmediate()
         isFilterDisplayed = false
     }
 
     private fun displayFilters() {
         val fragment = supportFragmentManager.findFragmentByTag(FilterFragment::class.java.simpleName) ?: FilterFragment()
-        supportFragmentManager.beginTransaction().replace(R.id.container, fragment, FilterFragment::class.java.simpleName).commit()
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container, fragment, FilterFragment::class.java.simpleName)
+                .setTransition(R.anim.slide_in_top)
+                .addToBackStack(null)
+                .commit()
         isFilterDisplayed = true
     }
 

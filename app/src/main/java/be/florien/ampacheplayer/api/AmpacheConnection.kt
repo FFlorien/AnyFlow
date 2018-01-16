@@ -8,6 +8,7 @@ import io.reactivex.Observable
 import timber.log.Timber
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,6 +25,9 @@ class AmpacheConnection
     init {
         Timber.tag(this.javaClass.simpleName)
     }
+
+    private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
+    private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
 
     /**
      * API calls
@@ -90,15 +94,15 @@ class AmpacheConnection
         }
     }
 
-    fun getSongs(from: String = "1970-01-01"): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken.first, update = from)
+    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken.first, update = dateFormatter.format(from))
 
-    fun getArtists(from: String = "1970-01-01"): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken.first, update = from)
+    fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken.first, update = dateFormatter.format(from))
 
-    fun getAlbums(from: String = "1970-01-01"): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken.first, update = from)
+    fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken.first, update = dateFormatter.format(from))
 
-    fun getTags(from: String = "1970-01-01"): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken.first, update = from)
+    fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken.first, update = dateFormatter.format(from))
 
-    fun getPlaylists(from: String = "1970-01-01"): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken.first, update = from)
+    fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken.first, update = dateFormatter.format(from))
 
     fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authManager.authToken.first, uid = uid)
 
