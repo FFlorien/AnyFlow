@@ -40,28 +40,28 @@ class PersistenceManager
      * Getter
      */
 
-    fun getSongs(): Flowable<RealmResults<Song>> = getUpToDateList(
+    fun getSongs(): Observable<RealmResults<Song>> = getUpToDateList(
                 LAST_SONG_UPDATE,
                 AmpacheConnection::getSongs,
                 DatabaseManager::getSongs,
                 AmpacheSongList::error,
                 {databaseManager.addSongs(it.songs.map (::Song))})
 
-    fun getGenres(): Flowable<RealmResults<Song>> = getUpToDateList(
+    fun getGenres(): Observable<RealmResults<Song>> = getUpToDateList(
                 LAST_SONG_UPDATE,
                 AmpacheConnection::getSongs,
                 DatabaseManager::getGenres,
                 AmpacheSongList::error,
                 {databaseManager.addSongs(it.songs.map (::Song))})
 
-    fun getArtists(): Flowable<RealmResults<Artist>> = getUpToDateList(
+    fun getArtists(): Observable<RealmResults<Artist>> = getUpToDateList(
                 LAST_ARTIST_UPDATE,
                 AmpacheConnection::getArtists,
                 DatabaseManager::getArtists,
                 AmpacheArtistList::error,
                 {databaseManager.addArtists(it.artists.map (::Artist))})
 
-    fun getAlbums(): Flowable<RealmResults<Album>> = getUpToDateList(
+    fun getAlbums(): Observable<RealmResults<Album>> = getUpToDateList(
                 LAST_ALBUM_UPDATE,
                 AmpacheConnection::getAlbums,
                 DatabaseManager::getAlbums,
@@ -78,27 +78,25 @@ class PersistenceManager
             getListOnDatabase: DatabaseManager.() -> RealmResults<REALM_TYPE>,
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: (SERVER_TYPE) -> Unit)
-            : Flowable<RealmResults<REALM_TYPE>> {
+            : Observable<RealmResults<REALM_TYPE>> {
         val nowDate = Calendar.getInstance()
         val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
         val lastAcceptableUpdate = lastAcceptableUpdate()
         return if (lastUpdate.before(lastAcceptableUpdate)) {
             songServerConnection
                     .getListOnServer(lastUpdate)
-                    .doOnNext {
-                        saveToDatabase(it)
-                        sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
-                    }
                     .flatMap { result ->
+                        saveToDatabase(result)
+                        sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
                         when (result.getError().code) {
                             401 -> songServerConnection.reconnect(songServerConnection.getListOnServer(lastUpdate))
                             else -> Observable.just(result)
                         }
                     }
-                    .to { databaseManager.getListOnDatabase().asFlowable() }
-
+                    .doOnNext(saveToDatabase)
+                    .flatMap { databaseManager.getListOnDatabase().asFlowable().toObservable() }
         } else {
-            databaseManager.getListOnDatabase().asFlowable()
+            databaseManager.getListOnDatabase().asFlowable().toObservable()
         }
     }
 }

@@ -14,6 +14,7 @@ import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.ActivityComponent
 import be.florien.ampacheplayer.view.ActivityModule
 import be.florien.ampacheplayer.view.player.filter.FilterFragment
+import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import javax.inject.Inject
 
 /**
@@ -63,7 +64,10 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun displaySongList() {
-        supportFragmentManager.popBackStackImmediate()
+        if (!supportFragmentManager.popBackStackImmediate()) {
+            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName) ?: SongListFragment()
+            supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
+        }
         isFilterDisplayed = false
     }
 

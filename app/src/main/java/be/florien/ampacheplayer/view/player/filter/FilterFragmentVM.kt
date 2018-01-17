@@ -36,9 +36,9 @@ class FilterFragmentVM
      */
 
     init {
-        subscribe(persistenceManager.getGenres().toObservable(), onNext = { updateGenre(it) })
-        subscribe(persistenceManager.getArtists().toObservable(), onNext = { updateArtists(it) })
-        subscribe(persistenceManager.getAlbums().toObservable(), onNext = { updateAlbums(it) })
+        subscribe(persistenceManager.getGenres(), onNext = { updateGenre(it) })
+        subscribe(persistenceManager.getArtists(), onNext = { updateArtists(it) })
+        subscribe(persistenceManager.getAlbums(), onNext = { updateAlbums(it) })
     }
 
     /**

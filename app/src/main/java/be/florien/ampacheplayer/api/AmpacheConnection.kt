@@ -94,15 +94,15 @@ class AmpacheConnection
         }
     }
 
-    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken.first, update = dateFormatter.format(from))
+    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken.first, update = dateFormatter.format(from))
+    fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken.first, update = dateFormatter.format(from))
+    fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken.first, update = dateFormatter.format(from))
+    fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken.first, update = dateFormatter.format(from))
+    fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
 
     fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authManager.authToken.first, uid = uid)
 

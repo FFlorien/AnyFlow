@@ -14,7 +14,6 @@ import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.DisplayHelper
 import be.florien.ampacheplayer.view.Navigator
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -64,7 +63,7 @@ class SongListFragmentVm
     fun refreshSongs() {
         isLoadingAll = audioQueueManager.itemsCount == 0
         subscribe(
-                persistenceManager.getSongs().toObservable().subscribeOn(Schedulers.io()),
+                persistenceManager.getSongs().subscribeOn(AndroidSchedulers.mainThread()),
                 {
                     isLoadingAll = false
                     notifyPropertyChanged(BR.currentAudioQueue)

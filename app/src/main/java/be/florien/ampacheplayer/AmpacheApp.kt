@@ -9,19 +9,14 @@ import timber.log.Timber
 /**
  * Application class used for initialization of many libraries
  */
-class AmpacheApp : Application() {
-    lateinit var applicationComponent: ApplicationComponent
-        private set
+abstract class AmpacheApp : Application() {
+    lateinit var applicationComponent: IApplicationComponent
+        protected set
 
     override fun onCreate() {
         super.onCreate()
-        Stetho.initializeWithDefaults(this)
-        Realm.init(this)
-        Timber.plant(Timber.DebugTree())
-        applicationComponent = DaggerApplicationComponent
-                .builder()
-                .application(this)
-                .applicationModule(ApplicationModule())
-                .build()
+        initLibrariesForBuildType()
     }
+
+    abstract fun initLibrariesForBuildType()
 }
