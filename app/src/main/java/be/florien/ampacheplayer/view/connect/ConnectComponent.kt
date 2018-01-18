@@ -1,18 +1,14 @@
-package be.florien.ampacheplayer.view
+package be.florien.ampacheplayer.view.connect
 
 import android.app.Activity
 import android.view.View
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.view.connect.ConnectActivity
-import be.florien.ampacheplayer.view.player.PlayerActivity
-import be.florien.ampacheplayer.view.player.filter.FilterFragment
-import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent(modules = [(ActivityModule::class)])
+@Subcomponent()
 @ActivityScope
-interface ActivityComponent {
+interface ConnectComponent {
 
     fun inject(connectActivity: ConnectActivity)
 
@@ -25,7 +21,7 @@ interface ActivityComponent {
         @BindsInstance
         fun view(view: View): Builder
 
-        fun build(): ActivityComponent
+        fun build(): ConnectComponent
     }
 
 }

@@ -5,6 +5,8 @@ import android.content.ServiceConnection
 import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
+import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.player.AudioQueueManager
 import be.florien.ampacheplayer.player.NO_CURRENT_SONG
 import be.florien.ampacheplayer.player.DummyPlayerController
@@ -18,6 +20,7 @@ import javax.inject.Inject
 /**
  * ViewModel for the PlayerActivity
  */
+@ActivityScope
 class PlayerActivityVM
 @Inject
 constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {

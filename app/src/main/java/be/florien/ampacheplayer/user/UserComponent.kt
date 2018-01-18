@@ -1,10 +1,9 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.user
 
+import be.florien.ampacheplayer.ApplicationComponent
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.player.PlayerService
-import be.florien.ampacheplayer.view.player.PlayerActivity
-import be.florien.ampacheplayer.view.player.filter.FilterFragment
-import be.florien.ampacheplayer.view.player.songlist.SongListFragment
+import be.florien.ampacheplayer.view.player.PlayerComponent
 import dagger.BindsInstance
 import dagger.Component
 
@@ -17,9 +16,8 @@ import dagger.Component
 interface UserComponent {
 
     fun inject(playerService: PlayerService)
-    fun inject(playerActivity: PlayerActivity)
-    fun inject(songListFragment: SongListFragment)
-    fun inject(filterFragment: FilterFragment)
+
+    fun playerComponentBuilder(): PlayerComponent.Builder
 
     @Component.Builder
     interface Builder {

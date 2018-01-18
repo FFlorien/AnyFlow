@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.AmpacheConnection
-import be.florien.ampacheplayer.persistence.AuthManager
+import be.florien.ampacheplayer.user.AuthManager
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable

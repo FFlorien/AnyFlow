@@ -1,10 +1,10 @@
 package be.florien.ampacheplayer.api
 
-import be.florien.ampacheplayer.UserComponent
+import be.florien.ampacheplayer.user.UserComponent
 import be.florien.ampacheplayer.api.model.*
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.persistence.AuthManager
+import be.florien.ampacheplayer.user.AuthManager
 import io.reactivex.Observable
 import timber.log.Timber
 import java.math.BigInteger

@@ -6,6 +6,7 @@ import be.florien.ampacheplayer.api.model.AmpacheAlbumList
 import be.florien.ampacheplayer.api.model.AmpacheArtistList
 import be.florien.ampacheplayer.api.model.AmpacheError
 import be.florien.ampacheplayer.api.model.AmpacheSongList
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.model.Album
@@ -26,6 +27,7 @@ private const val LAST_ALBUM_ARTIST_UPDATE = "LAST_ALBUM_ARTIST_UPDATE"
 /**
  * Class updating the databaseManager in the process.
  */
+@UserScope
 class PersistenceManager
 @Inject constructor(
         private val databaseManager: DatabaseManager,

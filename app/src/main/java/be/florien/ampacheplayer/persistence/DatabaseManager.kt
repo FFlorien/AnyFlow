@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.persistence
 
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.*
 import be.florien.ampacheplayer.player.Filter
 import io.realm.Realm
@@ -10,6 +11,7 @@ import javax.inject.Inject
 /**
  * Manager for the ampache data databaseManager-side
  */
+@UserScope
 class DatabaseManager
 @Inject constructor(private val realmRead: Realm) {
     /**

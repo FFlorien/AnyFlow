@@ -16,6 +16,8 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongPendingBinding
 import be.florien.ampacheplayer.databinding.ItemSongPlayingBinding
+import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
@@ -27,6 +29,7 @@ private const val LIST_ITEM_TYPE_PLAYING = 1
 /**
  * Display a list of songs and play it upon selection.
  */
+@ActivityScope
 class SongListFragment : Fragment() {
 
     @Inject lateinit var vm: SongListFragmentVm

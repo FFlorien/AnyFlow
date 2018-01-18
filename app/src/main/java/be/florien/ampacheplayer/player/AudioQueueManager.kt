@@ -1,13 +1,11 @@
 package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.persistence.DatabaseManager
+import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.subjects.PublishSubject
-import io.realm.Realm
 import io.realm.RealmResults
 import javax.inject.Inject
-import javax.inject.Singleton
 
 const val NO_CURRENT_SONG = -13456
 

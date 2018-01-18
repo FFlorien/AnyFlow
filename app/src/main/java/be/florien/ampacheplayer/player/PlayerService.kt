@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import be.florien.ampacheplayer.AmpacheApp
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.Song
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
@@ -36,6 +37,7 @@ class PlayerService : Service(),
     }
 
     //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
+    @UserScope
     @Inject
     lateinit var audioQueueManager: AudioQueueManager
     override val playTimeNotifier: Observable<Long> = Observable

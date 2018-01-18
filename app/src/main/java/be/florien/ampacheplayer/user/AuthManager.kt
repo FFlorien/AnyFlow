@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.persistence
+package be.florien.ampacheplayer.user
 
 import android.annotation.TargetApi
 import android.content.Context

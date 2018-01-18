@@ -9,10 +9,10 @@ import android.view.Menu
 import android.view.MenuItem
 import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
+import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.player.PlayerService
-import be.florien.ampacheplayer.view.ActivityComponent
-import be.florien.ampacheplayer.view.ActivityModule
 import be.florien.ampacheplayer.view.player.filter.FilterFragment
 import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import javax.inject.Inject
@@ -20,9 +20,11 @@ import javax.inject.Inject
 /**
  * Activity controlling the queue, play/pause/next/previous on the PlayerService
  */
+@ActivityScope
+@UserScope
 class PlayerActivity : AppCompatActivity() {
 
-    lateinit var activityComponent: ActivityComponent
+    lateinit var activityComponent: PlayerComponent
     @Inject lateinit var vm: PlayerActivityVM
     lateinit var binding: ActivityPlayerBinding
 
@@ -33,7 +35,7 @@ class PlayerActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         activityComponent = ampacheApp
                 .applicationComponent
-                .activityComponentBuilder()
+                .playerComponentBuilder()
                 .activity(this)
                 .view(binding.root)
                 .build() // todo yes, but when the activity is recreated ???

@@ -2,9 +2,9 @@ package be.florien.ampacheplayer.view.connect
 
 import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
-import be.florien.ampacheplayer.MockUpModule
-import be.florien.ampacheplayer.UserComponent
 import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.DisplayHelper
@@ -16,6 +16,7 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
+@ActivityScope
 class ConnectActivityVM
 @Inject constructor(
         private val ampacheConnection: AmpacheConnection,

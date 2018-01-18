@@ -11,12 +11,16 @@ import android.view.ViewGroup
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.databinding.FragmentFilterBinding
 import be.florien.ampacheplayer.databinding.ItemFilterTypeBinding
+import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.view.player.PlayerActivity
 import javax.inject.Inject
 
 /**
  * Created by FlamentF on 08-Jan-18.
  */
+@ActivityScope
+@UserScope
 class FilterFragment : Fragment() {
     @Inject lateinit var vm: FilterFragmentVM
     private lateinit var fragmentBinding: FragmentFilterBinding

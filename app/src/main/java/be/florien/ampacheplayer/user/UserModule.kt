@@ -1,10 +1,9 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.user
 
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.di.UserScope
 import dagger.Module
 import dagger.Provides
-import io.realm.Realm
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory

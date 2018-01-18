@@ -5,6 +5,8 @@ import android.content.ServiceConnection
 import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
+import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.persistence.PersistenceManager
@@ -22,6 +24,7 @@ import javax.inject.Inject
  * Display a list of songs and play it upon selection.
  */
 
+@ActivityScope
 class SongListFragmentVm
 @Inject constructor(
         private val persistenceManager: PersistenceManager,
