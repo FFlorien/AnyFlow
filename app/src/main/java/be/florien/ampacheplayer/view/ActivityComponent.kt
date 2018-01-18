@@ -12,21 +12,15 @@ import dagger.Subcomponent
 
 @Subcomponent(modules = [(ActivityModule::class)])
 @ActivityScope
-abstract class ActivityComponent {
+interface ActivityComponent {
 
-    abstract fun inject(connectActivity: ConnectActivity)
-    abstract fun inject(playerActivity: PlayerActivity)
-    abstract fun inject(songListFragment: SongListFragment)
-    abstract fun inject(filterFragment: FilterFragment)
+    fun inject(connectActivity: ConnectActivity)
 
     @Subcomponent.Builder
     interface Builder {
 
         @BindsInstance
         fun activity(activity: Activity): Builder
-
-        @BindsInstance
-        fun activityModule(activityModule: ActivityModule): Builder
 
         @BindsInstance
         fun view(view: View): Builder

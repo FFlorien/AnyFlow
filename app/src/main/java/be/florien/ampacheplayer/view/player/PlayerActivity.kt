@@ -35,7 +35,6 @@ class PlayerActivity : AppCompatActivity() {
                 .applicationComponent
                 .activityComponentBuilder()
                 .activity(this)
-                .activityModule(ActivityModule())
                 .view(binding.root)
                 .build() // todo yes, but when the activity is recreated ???
         activityComponent.inject(this)

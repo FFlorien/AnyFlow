@@ -10,7 +10,7 @@ import timber.log.Timber
  * Application class used for initialization of many libraries
  */
 abstract class AmpacheApp : Application() {
-    lateinit var applicationComponent: IApplicationComponent
+    lateinit var applicationComponent: ApplicationComponent
         protected set
 
     override fun onCreate() {

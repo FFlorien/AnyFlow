@@ -21,6 +21,7 @@ import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.NoSuchPaddingException
 import javax.inject.Inject
+import javax.inject.Singleton
 import javax.security.auth.x500.X500Principal
 import kotlin.reflect.KProperty
 
@@ -37,6 +38,7 @@ private const val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
 /**
  * Manager for all things authentication related
  */
+@Singleton
 class AuthManager
 @Inject constructor(
         private var preference: SharedPreferences,

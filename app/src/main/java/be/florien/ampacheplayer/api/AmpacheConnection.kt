@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.api
 
+import be.florien.ampacheplayer.UserComponent
 import be.florien.ampacheplayer.api.model.*
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
@@ -17,10 +18,11 @@ import javax.inject.Singleton
  * Manager for the ampache API server-side
  */
 @Singleton
-class AmpacheConnection
-@Inject constructor(
-        private var ampacheApi: AmpacheApi,
-        private var authManager: AuthManager) {
+open class AmpacheConnection{
+    @Inject lateinit var ampacheApi: AmpacheApi
+    @Inject lateinit var authManager: AuthManager
+
+    private lateinit var usercomponent: UserComponent
 
     init {
         Timber.tag(this.javaClass.simpleName)
@@ -28,6 +30,7 @@ class AmpacheConnection
 
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
+    open val hasMockUpMode = false
 
     /**
      * API calls
@@ -43,12 +46,8 @@ class AmpacheConnection
                 .authenticate(user = user, auth = auth, time = time)
                 .doOnNext { result ->
                     when (result.error.code) {
-                        401 -> {
-                            throw WrongIdentificationPairException(result.error.errorText)
-                        }
-                        0 -> {
-                            authManager.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
-                        }
+                        401 -> throw WrongIdentificationPairException(result.error.errorText)
+                        0 -> authManager.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
                     }
                 }
                 .doOnError { Timber.e(it, "Error while authenticating") }

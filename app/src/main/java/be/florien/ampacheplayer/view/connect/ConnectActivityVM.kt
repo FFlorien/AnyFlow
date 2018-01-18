@@ -2,6 +2,8 @@ package be.florien.ampacheplayer.view.connect
 
 import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
+import be.florien.ampacheplayer.MockUpModule
+import be.florien.ampacheplayer.UserComponent
 import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.view.BaseVM
@@ -42,6 +44,9 @@ class ConnectActivityVM
             field = value
             notifyPropertyChanged(BR.loading)
         }
+
+    @get:Bindable
+    val hasMockUpMode = ampacheConnection.hasMockUpMode
 
 
     /**
