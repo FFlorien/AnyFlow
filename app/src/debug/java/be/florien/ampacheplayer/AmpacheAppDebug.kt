@@ -14,10 +14,9 @@ class AmpacheAppDebug : AmpacheApp() {
         Stetho.initializeWithDefaults(this)
         Realm.init(this)
         Timber.plant(Timber.DebugTree())
-//        applicationComponent = DaggerMockUpComponent
-//                .builder()
-//                .application(this)
-//                .applicationModule(MockUpModule())
-//                .build()
+        applicationComponent = DaggerApplicationComponent
+                .builder()
+                .application(this)
+                .build()
     }
 }

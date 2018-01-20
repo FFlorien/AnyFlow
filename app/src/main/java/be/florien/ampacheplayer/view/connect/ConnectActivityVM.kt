@@ -4,7 +4,6 @@ import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.DisplayHelper
@@ -27,6 +26,12 @@ class ConnectActivityVM
      * Fields
      */
 
+    @get:Bindable
+    var server: String = ""
+        set(value) {
+            field = value
+            notifyPropertyChanged(BR.server)
+        }
     @get:Bindable
     var username: String = ""
         set(value) {
@@ -62,6 +67,7 @@ class ConnectActivityVM
      */
     fun connect() {
         isLoading = true
+        ampacheConnection.openConnection(server)
         if (username.isBlank()) {
             subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()),
                     {

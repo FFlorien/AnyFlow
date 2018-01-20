@@ -1,11 +1,15 @@
 package be.florien.ampacheplayer.api
 
-import be.florien.ampacheplayer.user.UserComponent
+import android.content.Context
+import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.api.model.*
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.user.AuthManager
 import io.reactivex.Observable
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -18,11 +22,13 @@ import javax.inject.Singleton
  * Manager for the ampache API server-side
  */
 @Singleton
-open class AmpacheConnection{
-    @Inject lateinit var ampacheApi: AmpacheApi
-    @Inject lateinit var authManager: AuthManager
-
-    private lateinit var usercomponent: UserComponent
+open class AmpacheConnection
+@Inject constructor(
+        var authManager: AuthManager,
+        var context: Context) {
+    var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
+//
+//    var userComponent: UserComponent? = null
 
     init {
         Timber.tag(this.javaClass.simpleName)
@@ -31,6 +37,21 @@ open class AmpacheConnection{
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
     open val hasMockUpMode = false
+
+    fun openConnection(serverUrl: String) {
+        val applicationComponent = (context.applicationContext as AmpacheApp).applicationComponent
+        ampacheApi = Retrofit
+                .Builder()
+                .baseUrl(serverUrl)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .build()
+                .create(AmpacheApi::class.java)
+        (context.applicationContext as AmpacheApp).userComponent = applicationComponent
+                .userComponentBuilder()
+                .ampacheApi(ampacheApi)
+                .build()
+    }
 
     /**
      * API calls

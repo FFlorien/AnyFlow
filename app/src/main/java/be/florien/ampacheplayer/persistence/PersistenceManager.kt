@@ -12,8 +12,9 @@ import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
 import be.florien.ampacheplayer.persistence.model.Song
-import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.realm.RealmObject
 import io.realm.RealmResults
 import java.util.*
@@ -96,6 +97,8 @@ class PersistenceManager
                         }
                     }
                     .doOnNext(saveToDatabase)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .flatMap { databaseManager.getListOnDatabase().asFlowable().toObservable() }
         } else {
             databaseManager.getListOnDatabase().asFlowable().toObservable()

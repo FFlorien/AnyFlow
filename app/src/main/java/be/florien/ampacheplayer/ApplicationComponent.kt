@@ -1,14 +1,10 @@
 package be.florien.ampacheplayer
 
 import android.app.Application
-import android.content.SharedPreferences
-import android.view.View
-import be.florien.ampacheplayer.api.AmpacheConnection
-import be.florien.ampacheplayer.view.Navigator
+import be.florien.ampacheplayer.user.UserComponent
 import be.florien.ampacheplayer.view.connect.ConnectComponent
 import dagger.BindsInstance
 import dagger.Component
-import io.realm.Realm
 import javax.inject.Singleton
 
 
@@ -20,10 +16,7 @@ import javax.inject.Singleton
 interface ApplicationComponent  {
 
     fun connectComponentBuilder(): ConnectComponent.Builder
-
-    fun realm(): Realm
-    fun ampacheConnection(): AmpacheConnection
-    fun preferences(): SharedPreferences
+    fun userComponentBuilder(): UserComponent.Builder
 
     @Component.Builder
     interface Builder {
@@ -33,5 +26,4 @@ interface ApplicationComponent  {
 
         fun build(): ApplicationComponent
     }
-
 }

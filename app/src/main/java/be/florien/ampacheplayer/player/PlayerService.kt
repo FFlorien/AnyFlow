@@ -21,7 +21,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
-import io.realm.Realm
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -33,7 +32,7 @@ class PlayerService : Service(),
         PlayerController, Player.EventListener {
 
     companion object {
-        private val NO_VALUE = -3L
+        private const val NO_VALUE = -3L
     }
 
     //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
@@ -60,7 +59,7 @@ class PlayerService : Service(),
 
     override fun onCreate() {
         super.onCreate()
-        (application as AmpacheApp).applicationComponent.inject(this)
+        (application as AmpacheApp).userComponent?.inject(this)
         audioQueueManager.positionObservable.subscribe {
             if (isPlaying()) play()
         }

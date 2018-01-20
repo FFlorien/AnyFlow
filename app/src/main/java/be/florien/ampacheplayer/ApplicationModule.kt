@@ -3,6 +3,7 @@ package be.florien.ampacheplayer
 import android.content.Context
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.user.AuthManager
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -29,5 +30,5 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(): AmpacheConnection = AmpacheConnection()
+    fun provideAmpacheConnection(authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(authManager, context)
 }

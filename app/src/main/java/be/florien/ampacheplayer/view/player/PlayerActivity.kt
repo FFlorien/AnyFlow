@@ -12,7 +12,9 @@ import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.ampacheApp
+import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.player.PlayerService
+import be.florien.ampacheplayer.view.connect.ConnectActivity
 import be.florien.ampacheplayer.view.player.filter.FilterFragment
 import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import javax.inject.Inject
@@ -25,7 +27,8 @@ import javax.inject.Inject
 class PlayerActivity : AppCompatActivity() {
 
     lateinit var activityComponent: PlayerComponent
-    @Inject lateinit var vm: PlayerActivityVM
+    @Inject
+    lateinit var vm: PlayerActivityVM
     lateinit var binding: ActivityPlayerBinding
 
     private var isFilterDisplayed = false
@@ -33,18 +36,25 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
-        activityComponent = ampacheApp
-                .applicationComponent
-                .playerComponentBuilder()
-                .activity(this)
-                .view(binding.root)
-                .build() // todo yes, but when the activity is recreated ???
-        activityComponent.inject(this)
-        binding.vm = vm
-        bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
-        if (savedInstanceState == null) {
-            displaySongList()
+        val component = ampacheApp.userComponent
+                ?.playerComponentBuilder()
+                ?.activity(this)
+                ?.view(binding.root)
+                ?.build()
+
+        if (component == null) {
+            startActivity(ConnectActivity::class)
+            finish()
+        } else {
+            activityComponent = component
+            activityComponent.inject(this)
+            binding.vm = vm
+            bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
+
+            if (savedInstanceState == null) {
+                displaySongList()
+            }
         }
     }
 
@@ -66,14 +76,16 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun displaySongList() {
         if (!supportFragmentManager.popBackStackImmediate()) {
-            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName) ?: SongListFragment()
+            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName)
+                    ?: SongListFragment()
             supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
         }
         isFilterDisplayed = false
     }
 
     private fun displayFilters() {
-        val fragment = supportFragmentManager.findFragmentByTag(FilterFragment::class.java.simpleName) ?: FilterFragment()
+        val fragment = supportFragmentManager.findFragmentByTag(FilterFragment::class.java.simpleName)
+                ?: FilterFragment()
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.container, fragment, FilterFragment::class.java.simpleName)
@@ -85,6 +97,9 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (ampacheApp.userComponent == null) {
+            return
+        }
         unbindService(vm.connection)
         vm.destroy()
     }

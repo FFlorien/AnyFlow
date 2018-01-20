@@ -35,7 +35,7 @@ class MockUpModule {
 
     @Provides
     @Singleton
-    fun provideAmpacheConnection(ampacheApi: AmpacheApi, authManager: AuthManager): AmpacheConnection = AmpacheConnection()
+    fun provideAmpacheConnection(authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(authManager, context)
 
     @Provides
     @Singleton
