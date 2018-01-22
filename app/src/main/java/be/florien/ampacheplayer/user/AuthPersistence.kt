@@ -27,10 +27,12 @@ import kotlin.reflect.KProperty
 
 private const val ALGORITHM_NAME = "RSA"
 private const val KEYSTORE_NAME = "AndroidKeyStore"
+private const val SERVER_FILENAME = "server"
 private const val USER_FILENAME = "user"
 private const val PASSWORD_FILENAME = "password"
 private const val AUTH_FILENAME = "auth"
 
+private const val SERVER_ALIAS = "ServerUrl"
 private const val USER_ALIAS = USER_FILENAME
 private const val AUTH_ALIAS = "authData"
 private const val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
@@ -39,7 +41,7 @@ private const val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
  * Manager for all things authentication related
  */
 @Singleton
-class AuthManager
+class AuthPersistence
 @Inject constructor(
         private var preference: SharedPreferences,
         private var context: Context) {
@@ -54,6 +56,7 @@ class AuthManager
     private val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME).apply {
         load(null)
     }
+    var serverUrl: Pair<String, Long> by Encrypted(SERVER_ALIAS, SERVER_FILENAME)
     var authToken: Pair<String, Long> by Encrypted(AUTH_ALIAS, AUTH_FILENAME)
     var user: Pair<String, Long> by Encrypted(USER_ALIAS, USER_FILENAME)
     var password: Pair<String, Long> by Encrypted(USER_ALIAS, PASSWORD_FILENAME)
@@ -61,7 +64,13 @@ class AuthManager
     /**
      * Public methods
      */
-    fun hasConnectionInfo() = (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) || (keyStore.containsAlias(USER_ALIAS) && isDataValid(USER_ALIAS))
+    fun hasConnectionInfo() = keyStore.containsAlias(SERVER_ALIAS) && (keyStore.containsAlias(AUTH_ALIAS) && isDataValid(AUTH_ALIAS)) || (keyStore.containsAlias(USER_ALIAS) && isDataValid(USER_ALIAS))
+
+    fun saveServerInfo(serverUrl: String) {
+        val oneYearDate = Calendar.getInstance()
+        oneYearDate.add(Calendar.YEAR, 1)
+        this.serverUrl = serverUrl to oneYearDate.timeInMillis
+    }
 
     fun saveConnectionInfo(user: String, password: String, authToken: String, expirationDate: String) {
         val oneYearDate = Calendar.getInstance()

@@ -5,7 +5,7 @@ import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.api.model.*
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.user.AuthManager
+import be.florien.ampacheplayer.user.AuthPersistence
 import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -24,11 +24,9 @@ import javax.inject.Singleton
 @Singleton
 open class AmpacheConnection
 @Inject constructor(
-        var authManager: AuthManager,
-        var context: Context) {
-    var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
-//
-//    var userComponent: UserComponent? = null
+        private var authPersistence: AuthPersistence,
+        private var context: Context) {
+    private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
     init {
         Timber.tag(this.javaClass.simpleName)
@@ -39,18 +37,30 @@ open class AmpacheConnection
     open val hasMockUpMode = false
 
     fun openConnection(serverUrl: String) {
+        val correctedUrl = if (!serverUrl.endsWith('/')) {
+            serverUrl + "/"
+        } else {
+            serverUrl
+        }
         val applicationComponent = (context.applicationContext as AmpacheApp).applicationComponent
         ampacheApi = Retrofit
                 .Builder()
-                .baseUrl(serverUrl)
+                .baseUrl(correctedUrl)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .build()
                 .create(AmpacheApi::class.java)
         (context.applicationContext as AmpacheApp).userComponent = applicationComponent
+                //todo don't generate a new one if it is the same server
                 .userComponentBuilder()
                 .ampacheApi(ampacheApi)
                 .build()
+        authPersistence.saveServerInfo(serverUrl)
+    }
+
+    fun closeConnection() {
+        ampacheApi = AmpacheApiDisconnected()
+        (context.applicationContext as AmpacheApp).userComponent = null
     }
 
     /**
@@ -68,30 +78,30 @@ open class AmpacheConnection
                 .doOnNext { result ->
                     when (result.error.code) {
                         401 -> throw WrongIdentificationPairException(result.error.errorText)
-                        0 -> authManager.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
+                        0 -> authPersistence.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
                     }
                 }
                 .doOnError { Timber.e(it, "Error while authenticating") }
     }
 
-    fun ping(authToken: String = authManager.authToken.first): Observable<AmpachePing> {
+    fun ping(authToken: String = authPersistence.authToken.first): Observable<AmpachePing> {
         return ampacheApi
                 .ping(auth = authToken)
-                .doOnNext { result -> authManager.setNewAuthExpiration(result.sessionExpire) }
+                .doOnNext { result -> authPersistence.setNewAuthExpiration(result.sessionExpire) }
                 .doOnError { Timber.e(it, "Error while ping") }
     }
 
-    fun <T> reconnect(request: Observable<T>): Observable<T> {
-        if (!authManager.hasConnectionInfo()) {
+    fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverurl from authpersistence if NoServerException. Or look before
+        if (!authPersistence.hasConnectionInfo()) {
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
-            return if (authManager.authToken.first.isNotBlank()) {
-                ping(authManager.authToken.first).flatMap {
+            return if (authPersistence.authToken.first.isNotBlank()) {
+                ping(authPersistence.authToken.first).flatMap {
                     //todo it's already too late by now, we should ping more often
                     if (it.error.code == 0) {
                         request
                     } else {
-                        authenticate(authManager.user.first, authManager.password.first).flatMap {
+                        authenticate(authPersistence.user.first, authPersistence.password.first).flatMap {
                             if (it.error.code == 0) {
                                 request
                             } else {
@@ -100,8 +110,8 @@ open class AmpacheConnection
                         }
                     }
                 }
-            } else if (authManager.user.first.isNotBlank() && authManager.password.first.isNotBlank()) {
-                authenticate(authManager.user.first, authManager.password.first).flatMap {
+            } else if (authPersistence.user.first.isNotBlank() && authPersistence.password.first.isNotBlank()) {
+                authenticate(authPersistence.user.first, authPersistence.password.first).flatMap {
                     if (it.error.code == 0) {
                         request
                     } else {
@@ -114,17 +124,17 @@ open class AmpacheConnection
         }
     }
 
-    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
+    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
+    fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
+    fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = ampacheApi.getAlbums(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
+    fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = ampacheApi.getTags(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authManager.authToken.first, update = dateFormatter.format(from.time))
+    fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
-    fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authManager.authToken.first, uid = uid)
+    fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authPersistence.authToken.first, uid = uid)
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 }

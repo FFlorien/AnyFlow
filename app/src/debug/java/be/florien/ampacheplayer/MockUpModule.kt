@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.AmpacheConnection
-import be.florien.ampacheplayer.user.AuthManager
+import be.florien.ampacheplayer.user.AuthPersistence
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -35,9 +35,9 @@ class MockUpModule {
 
     @Provides
     @Singleton
-    fun provideAmpacheConnection(authManager: AuthManager, context: Context): AmpacheConnection = AmpacheConnection(authManager, context)
+    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context): AmpacheConnection = AmpacheConnection(authPersistence, context)
 
     @Provides
     @Singleton
-    fun provideAuthManager(preference: SharedPreferences, context: Context): AuthManager = AuthManager(preference, context)
+    fun provideAuthManager(preference: SharedPreferences, context: Context): AuthPersistence = AuthPersistence(preference, context)
 }

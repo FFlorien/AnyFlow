@@ -1,7 +1,7 @@
 package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.persistence.DatabaseManager
+import be.florien.ampacheplayer.persistence.SongsDatabase
 import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.subjects.PublishSubject
 import io.realm.RealmResults
@@ -14,7 +14,7 @@ const val NO_CURRENT_SONG = -13456
  */
 @UserScope
 class AudioQueueManager
-@Inject constructor(private val databaseManager: DatabaseManager) {
+@Inject constructor(private val songsDatabase: SongsDatabase) {
 
     /**
      * Fields
@@ -22,10 +22,10 @@ class AudioQueueManager
     private var filters: MutableList<Filter<*>> = mutableListOf()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
     val itemsCount: Int
-        get() = databaseManager.getSongs(filters).size
+        get() = songsDatabase.getSongs(filters).size
     var listPosition: Int = 0
         set(value) {
-            field = if (value in 0 until databaseManager.getSongs(filters).size) {
+            field = if (value in 0 until songsDatabase.getSongs(filters).size) {
                 value
             } else {
                 NO_CURRENT_SONG
@@ -38,11 +38,11 @@ class AudioQueueManager
      * Methods
      */
     fun getCurrentSong(): Song {
-        val songs = databaseManager.getSongs(filters)
+        val songs = songsDatabase.getSongs(filters)
         return if (songs.size <= listPosition) Song() else songs[listPosition] ?: Song()
     }
 
-    fun getCurrentAudioQueue(): RealmResults<Song> = databaseManager.getSongs(filters)
+    fun getCurrentAudioQueue(): RealmResults<Song> = songsDatabase.getSongs(filters)
 
     fun addFilter(filter: Filter<*>) = filters.add(filter)
 

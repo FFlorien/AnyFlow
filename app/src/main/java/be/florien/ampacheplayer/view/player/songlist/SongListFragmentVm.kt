@@ -6,7 +6,7 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.di.UserScope
+import be.florien.ampacheplayer.exception.NoServerException
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.persistence.PersistenceManager
@@ -82,7 +82,7 @@ class SongListFragmentVm
                             Timber.i(it, "Couldn't reconnect the user: wrong user/pwd")
                             navigator.goToConnection()
                         }
-                        is SocketTimeoutException -> {
+                        is SocketTimeoutException, is NoServerException -> {
                             Timber.e(it, "Couldn't connect to the webservice")
                             displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
                         }

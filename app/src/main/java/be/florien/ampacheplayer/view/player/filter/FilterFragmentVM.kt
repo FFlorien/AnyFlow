@@ -3,7 +3,6 @@ package be.florien.ampacheplayer.view.player.filter
 import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.PersistenceManager
 import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist

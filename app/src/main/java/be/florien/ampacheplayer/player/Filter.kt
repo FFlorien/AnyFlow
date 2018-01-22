@@ -10,7 +10,7 @@ sealed class Filter<T>(
         private var filterFunction: RealmQuery<Song>.(String, T) -> RealmQuery<Song>,
         private var fieldName: String,
         private var argument: T,
-        var subFilter: List<Filter<*>> = mutableListOf()) {
+        var subFilter: List<Filter<*>> = mutableListOf()){
     fun applyFilter(realmQuery: RealmQuery<Song>) {
         realmQuery.filterFunction(fieldName, argument)
     }

@@ -12,7 +12,7 @@ import javax.inject.Inject
  * Manager for the ampache data databaseManager-side
  */
 @UserScope
-class DatabaseManager
+class SongsDatabase
 @Inject constructor(private val realmRead: Realm) {
     /**
      * Database getters : Unfiltered
