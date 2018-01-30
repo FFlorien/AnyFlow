@@ -11,6 +11,8 @@ import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.persistence.PersistenceManager
 import be.florien.ampacheplayer.player.AudioQueueManager
+import be.florien.ampacheplayer.player.DummyPlayerController
+import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.DisplayHelper
@@ -40,7 +42,7 @@ class SongListFragmentVm
             field = value
         }
 
-    var player: PlayerService? = null
+    var player: PlayerController = DummyPlayerController()
 
     internal var connection: PlayerConnection = PlayerConnection()
 
@@ -99,11 +101,11 @@ class SongListFragmentVm
 
     fun play(position: Int) {
         audioQueueManager.listPosition = position
-        player?.play()
+        player.play()
     }
 
     fun playPause() {
-        player?.let {
+        player.let {
             if (it.isPlaying()) it.pause() else it.resume()
         }
     }
@@ -113,7 +115,7 @@ class SongListFragmentVm
      */
     inner class PlayerConnection : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
-            player = null
+            player = DummyPlayerController()
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {

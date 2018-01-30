@@ -12,8 +12,10 @@ import javax.inject.Singleton
  * Component used to add dependency injection about data into classes
  */
 @Singleton
-@Component(modules = [(ApplicationModule::class), (ApplicationWideModule::class)])
+@Component(modules = [(MockUpModule::class), (ApplicationWideModule::class)])
 interface ApplicationComponent  {
+
+    fun inject(ampacheApp: AmpacheApp)
 
     fun connectComponentBuilder(): ConnectComponent.Builder
     fun userComponentBuilder(): UserComponent.Builder

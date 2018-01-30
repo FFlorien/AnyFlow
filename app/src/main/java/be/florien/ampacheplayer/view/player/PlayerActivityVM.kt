@@ -6,12 +6,7 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.player.AudioQueueManager
-import be.florien.ampacheplayer.player.NO_CURRENT_SONG
-import be.florien.ampacheplayer.player.DummyPlayerController
-import be.florien.ampacheplayer.player.PlayerController
-import be.florien.ampacheplayer.player.PlayerService
+import be.florien.ampacheplayer.player.*
 import be.florien.ampacheplayer.view.BaseVM
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -40,6 +35,10 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
         Timber.tag(this.javaClass.simpleName)
     }
 
+    /**
+     * Public methods
+     */
+
     fun playPause() {
         player.apply {
             if (isPlaying()) {
@@ -61,6 +60,10 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
             player.play()
         }
     }
+
+    /**
+     * Bindables
+     */
 
     @Bindable
     fun getCurrentDuration(): Int {

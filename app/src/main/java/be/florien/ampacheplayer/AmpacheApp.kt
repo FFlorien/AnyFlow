@@ -1,24 +1,56 @@
 package be.florien.ampacheplayer
 
 import android.app.Application
-import android.util.Log
+import be.florien.ampacheplayer.api.AmpacheApi
+import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.user.UserComponent
-import com.facebook.stetho.Stetho
 import io.realm.Realm
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Application class used for initialization of many libraries
  */
-abstract class AmpacheApp : Application() {
+open class AmpacheApp : Application() {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     var userComponent: UserComponent? = null
 
+    @Inject
+    lateinit var ampacheConnection: AmpacheConnection
+
     override fun onCreate() {
         super.onCreate()
-        initLibrariesForBuildType()
+        Realm.init(this)
+        Timber.plant(Timber.DebugTree())
+        initApplicationComponent()
+        ampacheConnection.ensureConnection()
     }
 
-    abstract fun initLibrariesForBuildType()
+    protected open fun initApplicationComponent() {
+        applicationComponent = DaggerApplicationComponent
+                .builder()
+                .application(this)
+                .build()
+        applicationComponent.inject(this)
+    }
+
+    open fun createUserScopeForServer(serverUrl: String): AmpacheApi {
+        val ampacheApi = Retrofit
+                .Builder()
+                .baseUrl(serverUrl)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .build()
+                .create(AmpacheApi::class.java)
+        userComponent = applicationComponent
+                //todo don't generate a new one if it is the same server
+                .userComponentBuilder()
+                .ampacheApi(ampacheApi)
+                .build()
+        return ampacheApi
+    }
 }

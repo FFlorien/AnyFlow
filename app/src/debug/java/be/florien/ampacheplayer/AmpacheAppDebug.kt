@@ -1,22 +1,14 @@
 package be.florien.ampacheplayer
 
 import com.facebook.stetho.Stetho
-import io.realm.Realm
-import timber.log.Timber
 
 /**
- * Created by FlamentF on 17-Jan-18.
+ * Application class used for initialization of many libraries
  */
-
 class AmpacheAppDebug : AmpacheApp() {
 
-    override fun initLibrariesForBuildType() {
+    override fun onCreate() {
+        super.onCreate()
         Stetho.initializeWithDefaults(this)
-        Realm.init(this)
-        Timber.plant(Timber.DebugTree())
-        applicationComponent = DaggerApplicationComponent
-                .builder()
-                .application(this)
-                .build()
     }
 }

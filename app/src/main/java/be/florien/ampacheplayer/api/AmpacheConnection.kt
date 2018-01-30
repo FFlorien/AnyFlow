@@ -7,9 +7,6 @@ import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.user.AuthPersistence
 import io.reactivex.Observable
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -28,13 +25,23 @@ open class AmpacheConnection
         private var context: Context) {
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
+    private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
+    private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
+    open val hasMockUpMode = false
+
+    private var userComponent
+        get() = (context.applicationContext as AmpacheApp).userComponent
+        set(value) {
+            (context.applicationContext as AmpacheApp).userComponent = value
+        }
+
     init {
         Timber.tag(this.javaClass.simpleName)
     }
 
-    private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
-    private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
-    open val hasMockUpMode = false
+    /**
+     * Ampache connection handling
+     */
 
     fun openConnection(serverUrl: String) {
         val correctedUrl = if (!serverUrl.endsWith('/')) {
@@ -42,29 +49,21 @@ open class AmpacheConnection
         } else {
             serverUrl
         }
-        val applicationComponent = (context.applicationContext as AmpacheApp).applicationComponent
-        ampacheApi = Retrofit
-                .Builder()
-                .baseUrl(correctedUrl)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(SimpleXmlConverterFactory.create())
-                .build()
-                .create(AmpacheApi::class.java)
-        (context.applicationContext as AmpacheApp).userComponent = applicationComponent
-                //todo don't generate a new one if it is the same server
-                .userComponentBuilder()
-                .ampacheApi(ampacheApi)
-                .build()
-        authPersistence.saveServerInfo(serverUrl)
+        ampacheApi = (context.applicationContext as AmpacheApp).createUserScopeForServer(correctedUrl)
+        authPersistence.saveServerInfo(correctedUrl)
     }
 
-    fun closeConnection() {
-        ampacheApi = AmpacheApiDisconnected()
-        (context.applicationContext as AmpacheApp).userComponent = null
+    fun ensureConnection() {
+        if (userComponent == null) {
+            val savedServerUrl = authPersistence.serverUrl.first
+            if (savedServerUrl.isNotBlank()) {
+                openConnection(savedServerUrl)
+            }
+        }
     }
 
     /**
-     * API calls
+     * API calls : connection
      */
     fun authenticate(user: String, password: String): Observable<AmpacheAuthentication> {
         val time = (Date().time / 1000).toString()
@@ -84,12 +83,12 @@ open class AmpacheConnection
                 .doOnError { Timber.e(it, "Error while authenticating") }
     }
 
-    fun ping(authToken: String = authPersistence.authToken.first): Observable<AmpachePing> {
-        return ampacheApi
-                .ping(auth = authToken)
-                .doOnNext { result -> authPersistence.setNewAuthExpiration(result.sessionExpire) }
-                .doOnError { Timber.e(it, "Error while ping") }
-    }
+    //todo it's already too late by now, we should ping more often
+    fun ping(authToken: String = authPersistence.authToken.first): Observable<AmpachePing> =
+            ampacheApi
+                    .ping(auth = authToken)
+                    .doOnNext { result -> authPersistence.setNewAuthExpiration(result.sessionExpire) }
+                    .doOnError { Timber.e(it, "Error while ping") }
 
     fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverurl from authpersistence if NoServerException. Or look before
         if (!authPersistence.hasConnectionInfo()) {
@@ -97,7 +96,6 @@ open class AmpacheConnection
         } else {
             return if (authPersistence.authToken.first.isNotBlank()) {
                 ping(authPersistence.authToken.first).flatMap {
-                    //todo it's already too late by now, we should ping more often
                     if (it.error.code == 0) {
                         request
                     } else {
@@ -123,6 +121,10 @@ open class AmpacheConnection
             }
         }
     }
+
+    /**
+     * API calls : data
+     */
 
     fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 

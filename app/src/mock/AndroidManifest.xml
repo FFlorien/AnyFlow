@@ -4,7 +4,7 @@
     package="be.florien.ampacheplayer">
 
     <application
-        android:name=".AmpacheAppDebug"
+        android:name=".AmpacheAppMock"
         tools:replace="name"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
