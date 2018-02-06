@@ -30,7 +30,8 @@ import javax.inject.Inject
  */
 class PlayerService : Service() {
 
-    private lateinit var playerController: PlayerController
+    @Inject
+    internal lateinit var playerController: PlayerController
 
     /**
      * Constructor
@@ -38,7 +39,7 @@ class PlayerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        playerController = ExoPlayerController(this)
+        (application as AmpacheApp).userComponent?.inject(this)
     }
 
     /**

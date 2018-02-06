@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer
 
 import be.florien.ampacheplayer.api.AmpacheApi
+import be.florien.ampacheplayer.api.MockUpAmpacheApi
 import com.facebook.stetho.Stetho
 
 /**

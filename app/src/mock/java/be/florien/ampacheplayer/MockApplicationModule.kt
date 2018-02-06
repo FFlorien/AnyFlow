@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.api.MockUpAmpacheApi
 import be.florien.ampacheplayer.user.AuthPersistence
 import dagger.Module
 import dagger.Provides
@@ -15,7 +16,7 @@ import javax.inject.Singleton
  * todo
  */
 @Module
-class MockUpModule {
+class MockApplicationModule {
 
     companion object {
         private const val PREFERENCE_NAME = "ampache_preferences_Mockup"

@@ -2,8 +2,6 @@ package be.florien.ampacheplayer.player
 
 import android.content.Context
 import android.net.Uri
-import be.florien.ampacheplayer.AmpacheApp
-import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.Song
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
@@ -21,19 +19,14 @@ import io.reactivex.subjects.Subject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-/**
- * Created by FlamentF on 30-Jan-18.
- */
-class ExoPlayerController(context: Context) : PlayerController, Player.EventListener {
+class ExoPlayerController
+@Inject constructor(context: Context, private var audioQueueManager: AudioQueueManager) : PlayerController, Player.EventListener {
 
     companion object {
         private const val NO_VALUE = -3L
     }
 
     //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
-    @UserScope
-    @Inject
-    lateinit var audioQueueManager: AudioQueueManager
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }
@@ -49,7 +42,6 @@ class ExoPlayerController(context: Context) : PlayerController, Player.EventList
      */
 
     init {
-        (context.applicationContext as AmpacheApp).userComponent?.inject(this)
         audioQueueManager.positionObservable.subscribe {
             if (isPlaying()) play()
         }

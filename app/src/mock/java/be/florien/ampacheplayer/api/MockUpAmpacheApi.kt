@@ -1,6 +1,5 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.api
 
-import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.model.*
 import io.reactivex.Observable
 

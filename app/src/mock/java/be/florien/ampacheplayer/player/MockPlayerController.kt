@@ -6,11 +6,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 /**
  * Player used to test the implementation, but that play nothing
  */
-class MockPlayerController : PlayerController {
+class MockPlayerController
+    @Inject constructor(): PlayerController {
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
     override val songNotifier: Subject<Song> = BehaviorSubject.create()
