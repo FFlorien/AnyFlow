@@ -7,12 +7,11 @@ import be.florien.ampacheplayer.view.player.PlayerComponent
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-
 /**
  * Component used to add dependency injection about data into classes
  */
 @UserScope
-@Subcomponent(modules = [(MockUserModule::class)])
+@Subcomponent(modules = [(UserModule::class)])
 interface UserComponent {
 
     fun inject(playerService: PlayerService)
@@ -27,6 +26,4 @@ interface UserComponent {
 
         fun build(): UserComponent
     }
-
-
 }

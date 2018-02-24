@@ -1,7 +1,12 @@
 package be.florien.ampacheplayer.user
 
+import android.content.Context
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.di.UserScope
+import be.florien.ampacheplayer.player.AudioQueueManager
+import be.florien.ampacheplayer.player.DummyPlayerController
+import be.florien.ampacheplayer.player.ExoPlayerController
+import be.florien.ampacheplayer.player.PlayerController
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
@@ -23,4 +28,8 @@ class UserModule {
             .addConverterFactory(SimpleXmlConverterFactory.create())
             .build()
             .create(AmpacheApi::class.java)
+
+    @Provides
+    @UserScope
+    fun providePlayerController(context: Context, audioQueueManager: AudioQueueManager): PlayerController = ExoPlayerController(context, audioQueueManager)
 }

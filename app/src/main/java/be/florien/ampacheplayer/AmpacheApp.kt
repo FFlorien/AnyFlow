@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer
 
+import android.annotation.SuppressLint
 import android.app.Application
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.AmpacheConnection
@@ -14,6 +15,7 @@ import javax.inject.Inject
 /**
  * Application class used for initialization of many libraries
  */
+@SuppressLint("Registered")
 open class AmpacheApp : Application() {
     lateinit var applicationComponent: ApplicationComponent
         protected set

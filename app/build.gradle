@@ -4,14 +4,6 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storeFile file('C:/Users/FLAMENTF/.android/debug.keystore')
-            storePassword 'android'
-        }
-    }
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
@@ -30,12 +22,12 @@ android {
             shrinkResources false
         }
         mock {
+            initWith(debug)
             applicationIdSuffix '.mock'
             versionNameSuffix '-MOCK'
             minifyEnabled false
             shrinkResources false
             debuggable true
-            signingConfig signingConfigs.config
         }
         release {
             minifyEnabled false
@@ -44,6 +36,9 @@ android {
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        mock {
+            java.srcDirs = ['src/main/java', 'src/debug/java', 'src/mock/java']
+        }
     }
     dataBinding {
         enabled = true

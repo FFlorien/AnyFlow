@@ -12,7 +12,7 @@ import dagger.Provides
  * todo
  */
 @Module
-class MockUserModule {
+class UserModule {
 
     @Provides
     @UserScope
