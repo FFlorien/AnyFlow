@@ -9,6 +9,7 @@ import be.florien.ampacheplayer.player.ExoPlayerController
 import be.florien.ampacheplayer.player.PlayerController
 import dagger.Module
 import dagger.Provides
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
@@ -24,6 +25,7 @@ class UserModule {
     fun provideAmpacheApi(url: String): AmpacheApi = Retrofit
             .Builder()
             .baseUrl(url)
+            .client(OkHttpClient())//todo set stetho !!!!
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(SimpleXmlConverterFactory.create())
             .build()
