@@ -13,7 +13,7 @@ const val NO_CURRENT_SONG = -13456
  * Manager for the queue of songs that are playing. It handle filters, random, repeat and addition to the queue
  */
 @UserScope
-class AudioQueueManager
+class AudioQueue
 @Inject constructor(private val songsDatabase: SongsDatabase) {
 
     /**
@@ -39,7 +39,7 @@ class AudioQueueManager
      */
     fun getCurrentSong(): Song {
         val songs = songsDatabase.getSongs(filters)
-        return if (songs.size <= listPosition) Song() else songs[listPosition] ?: Song()
+        return if (listPosition in 0..songs.size) songs[listPosition] ?: Song() else Song()
     }
 
     fun getCurrentAudioQueue(): RealmResults<Song> = songsDatabase.getSongs(filters)

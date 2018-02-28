@@ -36,6 +36,7 @@ android {
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        mock.java.srcDirs = ['src/main/java', 'src/mock/java']
     }
     dataBinding {
         enabled = true

@@ -18,7 +18,7 @@ import javax.inject.Inject
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
+constructor(private val audioQueue: AudioQueue) : BaseVM() {
     private val playerControllerIdentifierBase = "playerControllerId"
 
     private var playerControllerNumber = 0
@@ -50,12 +50,12 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     }
 
     fun next() {
-        audioQueueManager.listPosition += 1
+        audioQueue.listPosition += 1
     }
 
     fun replayOrPrevious() {
         if (isBackKeyPreviousSong) {
-            audioQueueManager.listPosition -= 1
+            audioQueue.listPosition -= 1
         } else {
             player.play()
         }
@@ -72,7 +72,7 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
 
     @Bindable
     fun getTotalDuration(): Int {
-        return audioQueueManager.getCurrentSong().time * 1000
+        return audioQueue.getCurrentSong().time * 1000
     }
 
     @Bindable
@@ -84,10 +84,10 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
     }
 
     @Bindable
-    fun isNextPossible(): Boolean = audioQueueManager.listPosition < audioQueueManager.itemsCount - 1 && audioQueueManager.listPosition != NO_CURRENT_SONG
+    fun isNextPossible(): Boolean = audioQueue.listPosition < audioQueue.itemsCount - 1 && audioQueue.listPosition != NO_CURRENT_SONG
 
     @Bindable
-    fun isPreviousPossible(): Boolean = audioQueueManager.listPosition != 0 || playBackTime > 10000
+    fun isPreviousPossible(): Boolean = audioQueue.listPosition != 0 || playBackTime > 10000
 
 
     /**
@@ -98,11 +98,12 @@ constructor(private val audioQueueManager: AudioQueueManager) : BaseVM() {
         player = controller
         playerControllerNumber += 1
         subscribe(
-                observable = audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()),
+                observable = audioQueue.positionObservable.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)
                     notifyPropertyChanged(BR.totalDuration)
+                    notifyPropertyChanged(BR.currentDuration)
                 })
         subscribe(
                 observable = player.playTimeNotifier,

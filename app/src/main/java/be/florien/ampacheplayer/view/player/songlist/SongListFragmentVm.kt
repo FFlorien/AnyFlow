@@ -10,7 +10,7 @@ import be.florien.ampacheplayer.exception.NoServerException
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.persistence.PersistenceManager
-import be.florien.ampacheplayer.player.AudioQueueManager
+import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
@@ -30,7 +30,7 @@ import javax.inject.Inject
 class SongListFragmentVm
 @Inject constructor(
         private val persistenceManager: PersistenceManager,
-        private val audioQueueManager: AudioQueueManager,
+        private val audioQueueManager: AudioQueue,
         private val navigator: Navigator,
         private val displayHelper: DisplayHelper
 ) : BaseVM() {

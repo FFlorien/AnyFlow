@@ -7,7 +7,7 @@ import be.florien.ampacheplayer.persistence.PersistenceManager
 import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
 import be.florien.ampacheplayer.persistence.model.Song
-import be.florien.ampacheplayer.player.AudioQueueManager
+import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.Filter
 import be.florien.ampacheplayer.view.BaseVM
 import io.realm.RealmResults
@@ -31,7 +31,7 @@ const val SEARCH_FILTER_ID = -5L
 class FilterFragmentVM
 @Inject constructor(
         persistenceManager: PersistenceManager,
-        private val audioQueueManager: AudioQueueManager) : BaseVM() {
+        private val audioQueueManager: AudioQueue) : BaseVM() {
 
     /**
      * Constructor

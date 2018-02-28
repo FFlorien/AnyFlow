@@ -7,19 +7,39 @@ import io.reactivex.Observable
  * Created by FlamentF on 17-Jan-18.
  */
 class MockUpAmpacheApi : AmpacheApi {
-    override fun authenticate(action: String, time: String, version: String, auth: String, user: String): Observable<AmpacheAuthentication>
-            = Observable.just(AmpacheAuthentication().apply {
+    companion object {
+        const val ACCOUNT_VALID_1_HOUR = "OneHour"
+        const val ACCOUNT_VALID_30_SECONDS = "ThirtySeconds"
+        const val BAD_PASSWORD = "BadPassword"
+        const val CANNOT_REACH = "CannotReach"  //todo
+    }
+
+    override fun authenticate(action: String, time: String, version: String, auth: String, user: String): Observable<AmpacheAuthentication> = when (user) {
+        ACCOUNT_VALID_1_HOUR -> Observable.just(AmpacheAuthentication().apply {
+            sessionExpire = "3024-01-01T00:00:00GMT"//todo
+            update = "3024-01-01T00:00:00GMT"
+        })
+        ACCOUNT_VALID_30_SECONDS -> Observable.just(AmpacheAuthentication().apply {
+            sessionExpire = "3024-01-01T00:00:00GMT"//todo
+            update = "3024-01-01T00:00:00GMT"
+        })
+        BAD_PASSWORD -> Observable.just(AmpacheAuthentication().apply {
+            error = AmpacheError().apply {
+                code = 401
+                errorText = "Bad user/password"
+            }
+        })
+        else -> Observable.just(AmpacheAuthentication().apply {
+            sessionExpire = "3024-01-01T00:00:00GMT"//todo
+            update = "3024-01-01T00:00:00GMT"
+        })
+    }
+
+    override fun ping(action: String, auth: String): Observable<AmpachePing> = Observable.just(AmpachePing().apply {
         sessionExpire = "3024-01-01T00:00:00GMT"
-        update = "3024-01-01T00:00:00GMT"
     })
 
-    override fun ping(action: String, auth: String): Observable<AmpachePing>
-            = Observable.just(AmpachePing().apply {
-        sessionExpire = "3024-01-01T00:00:00GMT"
-    })
-
-    override fun getSongs(action: String, update: String, auth: String): Observable<AmpacheSongList>
-            = Observable.just(AmpacheSongList().apply {
+    override fun getSongs(action: String, update: String, auth: String): Observable<AmpacheSongList> = Observable.just(AmpacheSongList().apply {
         total_count = 2
         songs = listOf(
                 AmpacheSong().apply {
@@ -85,8 +105,7 @@ class MockUpAmpacheApi : AmpacheApi {
         )
     })
 
-    override fun getArtists(action: String, update: String, auth: String): Observable<AmpacheArtistList>
-            = Observable.just(AmpacheArtistList().apply {
+    override fun getArtists(action: String, update: String, auth: String): Observable<AmpacheArtistList> = Observable.just(AmpacheArtistList().apply {
         total_count = 2
         artists = listOf(
                 AmpacheArtist().apply {
@@ -100,8 +119,7 @@ class MockUpAmpacheApi : AmpacheApi {
         )
     })
 
-    override fun getAlbums(action: String, update: String, auth: String): Observable<AmpacheAlbumList>
-            = Observable.just(AmpacheAlbumList().apply {
+    override fun getAlbums(action: String, update: String, auth: String): Observable<AmpacheAlbumList> = Observable.just(AmpacheAlbumList().apply {
         total_count = 2
         albums = listOf(
                 AmpacheAlbum().apply {
@@ -115,8 +133,7 @@ class MockUpAmpacheApi : AmpacheApi {
         )
     })
 
-    override fun getTags(action: String, update: String, auth: String): Observable<AmpacheTagList>
-            = Observable.just(AmpacheTagList().apply {
+    override fun getTags(action: String, update: String, auth: String): Observable<AmpacheTagList> = Observable.just(AmpacheTagList().apply {
         total_count = 1
         tags = listOf(
                 AmpacheTag().apply {
@@ -126,14 +143,12 @@ class MockUpAmpacheApi : AmpacheApi {
         )
     })
 
-    override fun getPlaylists(action: String, update: String, auth: String): Observable<AmpachePlayListList>
-            = Observable.just(AmpachePlayListList().apply {
+    override fun getPlaylists(action: String, update: String, auth: String): Observable<AmpachePlayListList> = Observable.just(AmpachePlayListList().apply {
         total_count = 0
         playlists = listOf()
     })
 
-    override fun getSong(action: String, uid: Long, auth: String): Observable<AmpacheSongList>
-            = Observable.just(AmpacheSongList().apply {
+    override fun getSong(action: String, uid: Long, auth: String): Observable<AmpacheSongList> = Observable.just(AmpacheSongList().apply {
         total_count = 1
         songs = listOf(
                 AmpacheSong().apply {
@@ -168,5 +183,4 @@ class MockUpAmpacheApi : AmpacheApi {
                 }
         )
     })
-
 }

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ExoPlayerController
-@Inject constructor(context: Context, private var audioQueueManager: AudioQueueManager) : PlayerController, Player.EventListener {
+@Inject constructor(context: Context, private var audioQueueManager: AudioQueue) : PlayerController, Player.EventListener {
 
     companion object {
         private const val NO_VALUE = -3L
