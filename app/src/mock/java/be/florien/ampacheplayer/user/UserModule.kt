@@ -17,7 +17,7 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun provideAmpacheApi(url: String): AmpacheApi = MockUpAmpacheApi()
+    fun provideAmpacheApi(): AmpacheApi = MockUpAmpacheApi()
 
     @Provides
     @UserScope

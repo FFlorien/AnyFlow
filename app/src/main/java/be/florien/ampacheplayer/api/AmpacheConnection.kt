@@ -27,7 +27,6 @@ open class AmpacheConnection
 
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
-    open val hasMockUpMode = false
 
     private var userComponent
         get() = (context.applicationContext as AmpacheApp).userComponent

@@ -1,0 +1,20 @@
+<accounts>
+    <root>
+        <session_expire>0000-00-00T00:00:30GMT</session_expire>
+        <update>0000-00-00T00:00:00GMT</update>
+        <auth>abcdef</auth>
+    </root>
+    <root>
+        <session_expire>0000-00-00T01:00:00GMT</session_expire>
+        <update>0000-00-00T00:00:00GMT</update>
+        <auth>abcdef</auth>
+    </root>
+    <root>
+        <session_expire>0030-00-00T00:00:00GMT</session_expire>
+        <update>0000-00-00T00:00:00GMT</update>
+        <auth>abcdef</auth>
+    </root>
+    <root>
+        <error code="401" errorText="Bad authentication" />
+    </root>
+</accounts>

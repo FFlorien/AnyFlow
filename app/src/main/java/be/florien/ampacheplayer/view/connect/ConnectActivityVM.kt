@@ -16,7 +16,7 @@ import javax.inject.Inject
  * ViewModel for the main activity
  */
 @ActivityScope
-class ConnectActivityVM
+open class ConnectActivityVM
 @Inject constructor(
         private val ampacheConnection: AmpacheConnection,
         private val navigator: Navigator,
@@ -50,10 +50,6 @@ class ConnectActivityVM
             field = value
             notifyPropertyChanged(BR.loading)
         }
-
-    @get:Bindable
-    val hasMockUpMode = ampacheConnection.hasMockUpMode
-
 
     /**
      * Constructor
