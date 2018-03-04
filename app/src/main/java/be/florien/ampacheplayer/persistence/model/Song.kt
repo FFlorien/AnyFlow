@@ -8,7 +8,7 @@ import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 
 /**
- * Database structure that represents to songs
+ * Database structure that represents to accounts
  */
 @RealmClass
 open class Song : RealmObject {

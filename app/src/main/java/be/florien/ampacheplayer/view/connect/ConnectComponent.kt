@@ -10,7 +10,7 @@ import dagger.Subcomponent
 @ActivityScope
 interface ConnectComponent {
 
-    fun inject(connectActivity: ConnectActivity)
+    fun inject(connectActivityBase: ConnectActivityBase)
 
     @Subcomponent.Builder
     interface Builder {

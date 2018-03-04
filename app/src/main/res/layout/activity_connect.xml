@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.connect.ConnectActivityVM" />
+            type="be.florien.ampacheplayer.view.connect.ConnectActivityVMBase" />
 
         <import type="android.view.View" />
     </data>
@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        tools:context="be.florien.ampacheplayer.view.connect.ConnectActivity">
+        tools:context="be.florien.ampacheplayer.view.connect.ConnectActivityBase">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_server"
@@ -91,6 +91,7 @@
             app:layout_constraintTop_toBottomOf="@+id/info" />
 
         <include
+            android:id="@+id/extra"
             layout="@layout/build_addition"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/connect" />

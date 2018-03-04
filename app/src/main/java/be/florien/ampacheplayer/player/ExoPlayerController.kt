@@ -26,7 +26,7 @@ class ExoPlayerController
         private const val NO_VALUE = -3L
     }
 
-    //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next songs
+    //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next accounts
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }

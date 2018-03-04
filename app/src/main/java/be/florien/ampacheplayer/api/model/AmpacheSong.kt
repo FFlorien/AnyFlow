@@ -6,7 +6,7 @@ import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
 
 /**
- * Server-side data structures that relates to songs
+ * Server-side data structures that relates to accounts
  */
 
 @Root(name = "song", strict = false)

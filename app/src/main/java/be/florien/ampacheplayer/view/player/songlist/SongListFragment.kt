@@ -26,7 +26,7 @@ private const val LIST_ITEM_TYPE_PENDING = 0
 private const val LIST_ITEM_TYPE_PLAYING = 1
 
 /**
- * Display a list of songs and play it upon selection.
+ * Display a list of accounts and play it upon selection.
  */
 @ActivityScope
 class SongListFragment : Fragment() {

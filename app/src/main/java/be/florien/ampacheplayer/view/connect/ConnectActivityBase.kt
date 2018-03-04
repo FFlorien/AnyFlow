@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.view.connect
 
+import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -13,11 +14,12 @@ import javax.inject.Inject
 /**
  * Simple activity for connection
  */
+@SuppressLint("Registered")
 @ActivityScope
 @UserScope
-class ConnectActivity : AppCompatActivity() {
-    @field:Inject lateinit var vm: ConnectActivityVM
-    lateinit var binding: ActivityConnectBinding
+open class ConnectActivityBase : AppCompatActivity() {
+    @field:Inject lateinit var vm: ConnectActivityVMBase
+    internal lateinit var binding: ActivityConnectBinding
 
     private lateinit var connectComponent: ConnectComponent
 

@@ -16,7 +16,7 @@ import javax.inject.Inject
  * ViewModel for the main activity
  */
 @ActivityScope
-open class ConnectActivityVM
+open class ConnectActivityVMBase
 @Inject constructor(
         private val ampacheConnection: AmpacheConnection,
         private val navigator: Navigator,

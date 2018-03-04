@@ -14,7 +14,7 @@ import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.player.PlayerService
-import be.florien.ampacheplayer.view.connect.ConnectActivity
+import be.florien.ampacheplayer.view.connect.ConnectActivityBase
 import be.florien.ampacheplayer.view.player.filter.FilterFragment
 import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import javax.inject.Inject
@@ -44,7 +44,7 @@ class PlayerActivity : AppCompatActivity() {
                 ?.build()
 
         if (component == null) {
-            startActivity(ConnectActivity::class)
+            startActivity(ConnectActivityBase::class)
             finish()
         } else {
             activityComponent = component

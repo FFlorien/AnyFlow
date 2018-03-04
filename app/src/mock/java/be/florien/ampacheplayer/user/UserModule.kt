@@ -1,7 +1,7 @@
 package be.florien.ampacheplayer.user
 
-import be.florien.ampacheplayer.api.MockUpAmpacheApi
 import be.florien.ampacheplayer.api.AmpacheApi
+import be.florien.ampacheplayer.api.MockUpAmpacheApi
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.MockPlayerController

@@ -23,7 +23,7 @@ import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 /**
- * Display a list of songs and play it upon selection.
+ * Display a list of accounts and play it upon selection.
  */
 
 @ActivityScope

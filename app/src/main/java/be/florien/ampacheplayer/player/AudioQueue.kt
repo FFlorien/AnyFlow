@@ -10,7 +10,7 @@ import javax.inject.Inject
 const val NO_CURRENT_SONG = -13456
 
 /**
- * Manager for the queue of songs that are playing. It handle filters, random, repeat and addition to the queue
+ * Manager for the queue of accounts that are playing. It handle filters, random, repeat and addition to the queue
  */
 @UserScope
 class AudioQueue
