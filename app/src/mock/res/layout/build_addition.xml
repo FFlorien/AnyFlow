@@ -2,13 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="vm"
-            type="be.florien.ampacheplayer.view.connect.ConnectActivityVM" />
-    </data>
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/mockAccount"
         android:layout_width="match_parent"

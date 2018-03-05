@@ -2,25 +2,38 @@ package be.florien.ampacheplayer.api
 
 import be.florien.ampacheplayer.api.model.*
 import io.reactivex.Observable
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by FlamentF on 17-Jan-18.
  */
 class MockUpAmpacheApi : AmpacheApi {
     companion object {
-        const val ACCOUNT_VALID_1_HOUR = "OneHour"
-        const val ACCOUNT_VALID_30_SECONDS = "ThirtySeconds"
-        const val BAD_PASSWORD = "BadPassword"
-        const val CANNOT_REACH = "CannotReach"  //todo
+        const val ACCOUNT_VALID_30_SECONDS = "30Seconds"
+        const val ACCOUNT_VALID_1_HOUR = "1hour"
+        const val ACCOUNT_VALID_30_YEAR = "30years"
+        const val BAD_PASSWORD = "BadAuth"
+        private const val MS_TO_S : Long = 1000L
+        private const val MS_TO_M : Long = MS_TO_S * 60L
+        private const val MS_TO_H : Long = MS_TO_M * 60L
+        private const val MS_TO_D : Long = MS_TO_H * 24L
+        private const val MS_TO_Y_ISH : Long = MS_TO_D * 365L
     }
 
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
+
     override fun authenticate(action: String, time: String, version: String, auth: String, user: String): Observable<AmpacheAuthentication> = when (user) {
-        ACCOUNT_VALID_1_HOUR -> Observable.just(AmpacheAuthentication().apply {
-            sessionExpire = "3024-01-01T00:00:00GMT"//todo
+        ACCOUNT_VALID_30_SECONDS -> Observable.just(AmpacheAuthentication().apply {
+            sessionExpire = dateFormatter.format(Date(Date().time + (30 * MS_TO_S)))
             update = "3024-01-01T00:00:00GMT"
         })
-        ACCOUNT_VALID_30_SECONDS -> Observable.just(AmpacheAuthentication().apply {
-            sessionExpire = "3024-01-01T00:00:00GMT"//todo
+        ACCOUNT_VALID_1_HOUR -> Observable.just(AmpacheAuthentication().apply {
+            sessionExpire = dateFormatter.format(Date(Date().time + (1 * MS_TO_H)))
+            update = "3024-01-01T00:00:00GMT"
+        })
+        ACCOUNT_VALID_30_YEAR -> Observable.just(AmpacheAuthentication().apply {
+            sessionExpire = dateFormatter.format(Date(Date().time + (30 * MS_TO_Y_ISH)))
             update = "3024-01-01T00:00:00GMT"
         })
         BAD_PASSWORD -> Observable.just(AmpacheAuthentication().apply {
@@ -30,8 +43,10 @@ class MockUpAmpacheApi : AmpacheApi {
             }
         })
         else -> Observable.just(AmpacheAuthentication().apply {
-            sessionExpire = "3024-01-01T00:00:00GMT"//todo
-            update = "3024-01-01T00:00:00GMT"
+            error = AmpacheError().apply {
+                code = 401
+                errorText = "Bad user/password"
+            }
         })
     }
 

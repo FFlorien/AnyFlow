@@ -18,7 +18,7 @@ import javax.inject.Inject
 @ActivityScope
 @UserScope
 open class ConnectActivityBase : AppCompatActivity() {
-    @field:Inject lateinit var vm: ConnectActivityVMBase
+    @field:Inject lateinit var vm: ConnectActivityVM
     internal lateinit var binding: ActivityConnectBinding
 
     private lateinit var connectComponent: ConnectComponent

@@ -39,7 +39,7 @@ class AudioQueue
      */
     fun getCurrentSong(): Song {
         val songs = songsDatabase.getSongs(filters)
-        return if (listPosition in 0..songs.size) songs[listPosition] ?: Song() else Song()
+        return if (listPosition in 0 until songs.size) songs[listPosition] ?: Song() else Song()
     }
 
     fun getCurrentAudioQueue(): RealmResults<Song> = songsDatabase.getSongs(filters)

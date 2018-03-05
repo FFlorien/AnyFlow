@@ -1,20 +1,26 @@
 <accounts>
     <root>
-        <session_expire>0000-00-00T00:00:30GMT</session_expire>
-        <update>0000-00-00T00:00:00GMT</update>
-        <auth>abcdef</auth>
+        <server>whoCares</server>
+        <password>WhoCares</password>
+        <user>30Seconds</user>
+        <name>30 seconds valid account</name>
     </root>
     <root>
-        <session_expire>0000-00-00T01:00:00GMT</session_expire>
-        <update>0000-00-00T00:00:00GMT</update>
-        <auth>abcdef</auth>
+        <server>whoCares</server>
+        <password>WhoCares</password>
+        <user>1hour</user>
+        <name>1 hour valid account</name>
     </root>
     <root>
-        <session_expire>0030-00-00T00:00:00GMT</session_expire>
-        <update>0000-00-00T00:00:00GMT</update>
-        <auth>abcdef</auth>
+        <server>whoCares</server>
+        <password>WhoCares</password>
+        <user>30years</user>
+        <name>30 years valid account</name>
     </root>
     <root>
-        <error code="401" errorText="Bad authentication" />
+        <server>whoCares</server>
+        <password>WhoCares</password>
+        <user>BadAuth</user>
+        <name>Bad authentication account</name>
     </root>
 </accounts>

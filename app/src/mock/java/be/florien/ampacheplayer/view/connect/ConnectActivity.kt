@@ -2,7 +2,7 @@ package be.florien.ampacheplayer.view.connect
 
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.os.Environment
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,8 +11,7 @@ import be.florien.ampacheplayer.api.model.Account
 import be.florien.ampacheplayer.api.model.AccountList
 import be.florien.ampacheplayer.databinding.ItemAccountBinding
 import org.simpleframework.xml.core.Persister
-import java.io.File
-import java.io.FileReader
+import java.io.InputStreamReader
 
 
 /**
@@ -22,12 +21,9 @@ class ConnectActivity : ConnectActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val file = File(Environment.getExternalStorageDirectory().absolutePath + "/mock_accounts.xml")
-        val serializer = Persister()
-        val reader = FileReader(file)
-        val osd = serializer.read(AccountList::class.java, reader)
-
-
+        val reader = InputStreamReader(assets.open("mock_account.xml"))
+        val osd = Persister().read(AccountList::class.java, reader)
+        binding.extra.mockAccount.layoutManager = LinearLayoutManager(this)
         binding.extra.mockAccount.adapter = AccountAdapter(osd.accounts)
     }
 
@@ -48,9 +44,17 @@ class ConnectActivity : ConnectActivityBase() {
             = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.item_account, parent, false))
         : RecyclerView.ViewHolder(binding.root) {
 
+        private lateinit var boundAccount: Account
+
         fun bindAccount(account: Account) {
+            boundAccount = account
             binding.accountName = account.name
+            itemView.setOnClickListener {
+                vm.server = account.server
+                vm.username = account.user
+                vm.password = account.password
+                vm.connect()
+            }
         }
     }
-
 }
