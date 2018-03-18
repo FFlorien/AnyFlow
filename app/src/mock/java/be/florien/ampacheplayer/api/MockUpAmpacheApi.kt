@@ -1,24 +1,25 @@
 package be.florien.ampacheplayer.api
 
+import android.content.Context
 import be.florien.ampacheplayer.api.model.*
 import io.reactivex.Observable
+import org.simpleframework.xml.core.Persister
+import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * Created by FlamentF on 17-Jan-18.
- */
-class MockUpAmpacheApi : AmpacheApi {
+class MockUpAmpacheApi(val context: Context) : AmpacheApi {
+
     companion object {
         const val ACCOUNT_VALID_30_SECONDS = "30Seconds"
         const val ACCOUNT_VALID_1_HOUR = "1hour"
         const val ACCOUNT_VALID_30_YEAR = "30years"
         const val BAD_PASSWORD = "BadAuth"
-        private const val MS_TO_S : Long = 1000L
-        private const val MS_TO_M : Long = MS_TO_S * 60L
-        private const val MS_TO_H : Long = MS_TO_M * 60L
-        private const val MS_TO_D : Long = MS_TO_H * 24L
-        private const val MS_TO_Y_ISH : Long = MS_TO_D * 365L
+        private const val MS_TO_S: Long = 1000L
+        private const val MS_TO_M: Long = MS_TO_S * 60L
+        private const val MS_TO_H: Long = MS_TO_M * 60L
+        private const val MS_TO_D: Long = MS_TO_H * 24L
+        private const val MS_TO_Y_ISH: Long = MS_TO_D * 365L
     }
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
@@ -54,71 +55,10 @@ class MockUpAmpacheApi : AmpacheApi {
         sessionExpire = "3024-01-01T00:00:00GMT"
     })
 
-    override fun getSongs(action: String, update: String, auth: String): Observable<AmpacheSongList> = Observable.just(AmpacheSongList().apply {
-        total_count = 2
-        songs = listOf(
-                AmpacheSong().apply {
-                    id = 100
-                    song = "First Song"
-                    title = "First Song"
-                    name = "First Song"
-                    artist = AmpacheArtistName().apply {
-                        id = 200
-                        name = "First Singer"
-                    }
-                    album = AmpacheAlbumName().apply {
-                        id = 300
-                        name = "First Album"
-                    }
-                    albumartist = AmpacheAlbumArtist().apply {
-                        id = 200
-                        name = "First Singer"
-                    }
-                    tag = listOf(
-                            AmpacheTagName().apply {
-                                id = 400
-                                this.value = "Cool"
-                            }
-                    )
-                    filename = "First Singer - First Song"
-                    track = 1
-                    time = 150
-                    url = "mock://firstsong"
-                    art = "mock://firstsongart"
-                    genre = "Pop"
-                },
-                AmpacheSong().apply {
-                    id = 101
-                    song = "Second Song"
-                    title = "Second Song"
-                    name = "Second Song"
-                    artist = AmpacheArtistName().apply {
-                        id = 201
-                        name = "Second Singer"
-                    }
-                    album = AmpacheAlbumName().apply {
-                        id = 301
-                        name = "Second Album"
-                    }
-                    albumartist = AmpacheAlbumArtist().apply {
-                        id = 201
-                        name = "Second Singer"
-                    }
-                    tag = listOf(
-                            AmpacheTagName().apply {
-                                id = 401
-                                this.value = "Cool"
-                            }
-                    )
-                    filename = "Second Singer - Second Song"
-                    track = 1
-                    time = 100
-                    url = "mock://secondsong"
-                    art = "mock://secondsongart"
-                    genre = "Pop"
-                }
-        )
-    })
+    override fun getSongs(action: String, update: String, auth: String): Observable<AmpacheSongList> {
+        val reader = InputStreamReader(context.assets.open("mock_songs.xml"))
+        return Observable.just(Persister().read(AmpacheSongList::class.java, reader))
+    }
 
     override fun getArtists(action: String, update: String, auth: String): Observable<AmpacheArtistList> = Observable.just(AmpacheArtistList().apply {
         total_count = 2

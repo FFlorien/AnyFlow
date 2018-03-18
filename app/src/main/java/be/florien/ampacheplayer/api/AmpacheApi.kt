@@ -26,7 +26,7 @@ interface AmpacheApi {
 
     @GET("server/xml.server.php")
     fun getSongs(
-            @Query("action") action: String = "accounts",
+            @Query("action") action: String = "songs",
             @Query("update") update: String = "1970-01-01",
             @Query("auth") auth: String)
             : Observable<AmpacheSongList>

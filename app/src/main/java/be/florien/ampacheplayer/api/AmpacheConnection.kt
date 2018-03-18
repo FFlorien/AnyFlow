@@ -26,7 +26,7 @@ open class AmpacheConnection
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
-    private val dateFormatter = SimpleDateFormat("aaaa-MM-dd", Locale.getDefault())
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     private var userComponent
         get() = (context.applicationContext as AmpacheApp).userComponent
@@ -44,7 +44,7 @@ open class AmpacheConnection
 
     fun openConnection(serverUrl: String) {
         val correctedUrl = if (!serverUrl.endsWith('/')) {
-            serverUrl + "/"
+            "$serverUrl/"
         } else {
             serverUrl
         }

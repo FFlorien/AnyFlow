@@ -15,7 +15,7 @@ class AmpacheAppMock : AmpacheApp() {
     }
 
     override fun createUserScopeForServer(serverUrl: String): AmpacheApi {
-        val ampacheApi = MockUpAmpacheApi()
+        val ampacheApi = MockUpAmpacheApi(this)
         userComponent = applicationComponent
                 .userComponentBuilder()
                 .ampacheApi(ampacheApi)

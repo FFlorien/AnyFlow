@@ -15,7 +15,7 @@ class AmpacheAuthentication {
     @field:Element(name = "tags", required = false) var tags: String = ""
     @field:Element(name = "artists", required = false) var artists: String = ""
     @field:Element(name = "clean", required = false) var clean: String = ""
-    @field:Element(name = "accounts", required = false) var songs: String = ""
+    @field:Element(name = "songs", required = false) var songs: String = ""
     @field:Element(name = "albums", required = false) var albums: String = ""
     @field:Element(name = "playlists", required = false) var playlists: String = ""
     @field:Element(name = "catalogs", required = false) var catalogs: String = ""

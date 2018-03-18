@@ -17,9 +17,5 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun provideAmpacheApi(): AmpacheApi = MockUpAmpacheApi()
-
-    @Provides
-    @UserScope
     fun providePlayerController(audioQueueManager: AudioQueue): PlayerController = MockPlayerController(audioQueueManager)
 }

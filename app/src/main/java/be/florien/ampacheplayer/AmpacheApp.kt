@@ -5,7 +5,9 @@ import android.app.Application
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.user.UserComponent
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import io.realm.Realm
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
@@ -44,6 +46,7 @@ open class AmpacheApp : Application() {
         val ampacheApi = Retrofit
                 .Builder()
                 .baseUrl(serverUrl)
+                .client(OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .build()
