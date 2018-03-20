@@ -59,7 +59,7 @@ class PlayerControls
         setARGB(255, 45, 25, 0)
         strokeWidth = 2f
     }
-    private val playiconPath: Path by lazy {
+    private val playIconPath: Path by lazy {
         Path().apply {
             val margin = height / 4
             val iconSize = height / 2
@@ -71,6 +71,7 @@ class PlayerControls
             lineTo(startX, startY)
         }
     }
+    private var playButtonMaxWidth: Int = 0
     private var playButtonMaxWidthOffset: Int = 0
     private var prevButtonRightBound: Int = 0
     private var nextButtonLeftBound: Int = 0
@@ -132,20 +133,16 @@ class PlayerControls
         centerLeftX = ((desiredWidth - smallestButtonWidth).toFloat() / 2).toInt()
         centerRightX = centerLeftX + smallestButtonWidth
         playButtonMaxWidthOffset = centerLeftX - smallestButtonWidth
+        playButtonMaxWidth = desiredWidth - (smallestButtonWidth * 2)
     }
 
     override fun onDraw(canvas: Canvas) {
-        val playButtonLeftBound = (smallestButtonWidth + playButtonMaxWidthOffset).toFloat()
-        val playButtonRightBound = (width - smallestButtonWidth - playButtonMaxWidthOffset).toFloat()
         val baseline = height - 10f
-        canvas.drawLine(prevButtonRightBound.toFloat(), baseline, playButtonLeftBound, baseline, timelinePaint)
-        canvas.drawLine(playButtonRightBound, baseline, (width - smallestButtonWidth).toFloat(), baseline, timelinePaint)
-        canvas.drawLine(centerLeftX.toFloat(), 0f, centerLeftX.toFloat(), height.toFloat(), textPaint)
-        canvas.drawLine(centerRightX.toFloat(), 0f, centerRightX.toFloat(), height.toFloat(), textPaint)
+        canvas.drawLine(prevButtonRightBound.toFloat(), baseline, (width - smallestButtonWidth).toFloat(), baseline, timelinePaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, timelinePaint)
-        canvas.drawPath(playiconPath, buttonPaint)
-        nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, baseline - 20, timelinePaint) }
-        canvas.drawText(durationText, playButtonLeftBound + (smallestButtonWidth / 2), baseline, textPaint)
+        canvas.drawPath(playIconPath, buttonPaint)
+        nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, height.toFloat(), timelinePaint) }
+        canvas.drawText(durationText, centerLeftX.toFloat() + (smallestButtonWidth / 2), baseline, textPaint)
         canvas.drawRect(0f, 0f, prevButtonRightBound.toFloat(), height.toFloat(), buttonPaint)
         canvas.drawRect(nextButtonLeftBound.toFloat(), 0f, width.toFloat(), height.toFloat(), buttonPaint)
     }
@@ -197,15 +194,14 @@ class PlayerControls
 
     private fun computeTicks() {
         val tickOffset = playButtonMaxWidthOffset.toFloat() / 2
-        val nextTickInDuration = 5000 - ((currentDuration - 5000) % 5000)
+        val nextTickInDuration = 5000 - (currentDuration % 5000)
         val percentageOfDuration = nextTickInDuration.toFloat() / 10000f
-        val firstTickX = smallestButtonWidth + (percentageOfDuration * playButtonMaxWidthOffset)
+        val firstTickX = (width / 2) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2)
 
         for (i in 0 until 6) {
             val maybeTickX = firstTickX + (tickOffset * i)
-            nextTicksX[i] = when {
-                maybeTickX in prevButtonRightBound..centerLeftX -> maybeTickX
-                (maybeTickX + smallestButtonWidth) in centerRightX..nextButtonLeftBound -> maybeTickX + smallestButtonWidth
+            nextTicksX[i] = when (maybeTickX) {
+                in prevButtonRightBound..nextButtonLeftBound -> maybeTickX
                 else -> -1f
             }
         }

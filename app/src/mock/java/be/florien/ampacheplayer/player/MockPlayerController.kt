@@ -12,7 +12,7 @@ import javax.inject.Inject
  * Player used to test the implementation, but that play nothing
  */
 class MockPlayerController
-@Inject constructor(private val audioQueueManager: AudioQueue) : PlayerController {
+@Inject constructor(private val audioQueue: AudioQueue) : PlayerController {
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { currentTime }
@@ -21,7 +21,7 @@ class MockPlayerController
                     currentTime ++
                 } else {
                     currentTime = 0
-                    audioQueueManager.listPosition++
+                    audioQueue.listPosition++
                 }
             }}
             .distinctUntilChanged()
@@ -32,13 +32,14 @@ class MockPlayerController
     private var isPlaying = false
 
     init {
-        songNotifier.onNext(audioQueueManager.getCurrentSong())
+        songNotifier.onNext(audioQueue.getCurrentSong())
+        audioQueue.positionObservable.subscribe { currentTime = 0 }
     }
 
     override fun isPlaying(): Boolean = isPlaying
 
     override fun play() {
-        songNotifier.onNext(audioQueueManager.getCurrentSong())
+        songNotifier.onNext(audioQueue.getCurrentSong())
         currentTime = 0
         resume()
     }
@@ -53,7 +54,7 @@ class MockPlayerController
     }
 
     override fun resume() {
-        totalTime = (audioQueueManager.getCurrentSong().time * 1000).toLong()
+        totalTime = (audioQueue.getCurrentSong().time * 1000).toLong()
         isPlaying = true
     }
 }

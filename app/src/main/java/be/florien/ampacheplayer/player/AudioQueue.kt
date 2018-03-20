@@ -25,10 +25,10 @@ class AudioQueue
         get() = songsDatabase.getSongs(filters).size
     var listPosition: Int = 0
         set(value) {
-            field = if (value in 0 until songsDatabase.getSongs(filters).size) {
-                value
-            } else {
-                NO_CURRENT_SONG
+            field = when {
+                value in 0 until songsDatabase.getSongs(filters).size -> value
+                value < 0 -> 0
+                else -> songsDatabase.getSongs(filters).size -1
             }
             positionObservable.onNext(field)
         }
