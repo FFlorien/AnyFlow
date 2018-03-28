@@ -81,6 +81,7 @@ class PlayerControls
 
     // Variables used for gestures
     private var lastDownEventX = 0f
+    private var currentScrollOffset = 0f
     var onPreviousClicked: OnPreviousClickedListener? = null
     var onNextClicked: OnNextClickedListener? = null
     var onPlayPauseClicked: OnPlayPauseClickedListener? = null
@@ -151,7 +152,9 @@ class PlayerControls
         when (event.action) {
             MotionEvent.ACTION_DOWN -> lastDownEventX = event.x
             MotionEvent.ACTION_UP -> {
-                if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
+                if (currentScrollOffset > smallestButtonWidth) {
+                    //todo send scroll event to player
+                } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     onPreviousClicked?.onPreviousClicked()
                 } else if (lastDownEventX in nextButtonLeftBound..width && event.x in nextButtonLeftBound..width) {
                     onNextClicked?.onNextClicked()
@@ -160,6 +163,9 @@ class PlayerControls
                 } else {
                     return super.onTouchEvent(event)
                 }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                currentScrollOffset = event.x - lastDownEventX
             }
             else -> return super.onTouchEvent(event)
         }
@@ -195,8 +201,9 @@ class PlayerControls
     private fun computeTicks() {
         val tickOffset = playButtonMaxWidthOffset.toFloat() / 2
         val nextTickInDuration = 5000 - (currentDuration % 5000)
+        val scrollingOffset = currentScrollOffset % 5000
         val percentageOfDuration = nextTickInDuration.toFloat() / 10000f
-        val firstTickX = (width / 2) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2)
+        val firstTickX = (width / 2) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2) + scrollingOffset
 
         for (i in 0 until 6) {
             val maybeTickX = firstTickX + (tickOffset * i)

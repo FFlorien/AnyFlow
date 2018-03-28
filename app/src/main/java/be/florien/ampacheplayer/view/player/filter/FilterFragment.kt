@@ -30,7 +30,7 @@ class FilterFragment : Fragment() {
         (activity as PlayerActivity).activityComponent.inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentFilterBinding.inflate(inflater, container, false)
         fragmentBinding.vm = vm
         fragmentBinding.filterList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
@@ -47,7 +47,7 @@ class FilterFragment : Fragment() {
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): FilterViewHolder = FilterViewHolder()
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = FilterViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             holder.bind(vm.getFilterList()[position])

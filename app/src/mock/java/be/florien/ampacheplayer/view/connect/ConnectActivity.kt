@@ -23,8 +23,8 @@ class ConnectActivity : ConnectActivityBase() {
         super.onCreate(savedInstanceState)
         val reader = InputStreamReader(assets.open("mock_account.xml"))
         val osd = Persister().read(AccountList::class.java, reader)
-        binding.extra.mockAccount.layoutManager = LinearLayoutManager(this)
-        binding.extra.mockAccount.adapter = AccountAdapter(osd.accounts)
+        binding.extra?.mockAccount?.layoutManager = LinearLayoutManager(this)
+        binding.extra?.mockAccount?.adapter = AccountAdapter(osd.accounts)
     }
 
     inner class AccountAdapter(val accounts: List<Account>) : RecyclerView.Adapter<AccountViewHolder>() {

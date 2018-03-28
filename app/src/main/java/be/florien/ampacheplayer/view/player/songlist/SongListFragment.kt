@@ -37,16 +37,16 @@ class SongListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_song_list, container, false)
         val binding = DataBindingUtil.bind<FragmentSongListBinding>(view)
         (activity as PlayerActivity).activityComponent.inject(this)
-        binding.vm = vm
+        binding?.vm = vm
         vm.refreshSongs()
-        binding.songList.adapter = SongAdapter().apply { songs = vm.getCurrentAudioQueue() }
-        binding.songList.layoutManager = LinearLayoutManager(activity)
-        activity.bindService(Intent(activity, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
+        binding?.songList?.adapter = SongAdapter().apply { songs = vm.getCurrentAudioQueue() }
+        binding?.songList?.layoutManager = LinearLayoutManager(activity)
+        requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.currentAudioQueue -> (binding.songList.adapter as SongAdapter).songs = vm.getCurrentAudioQueue()
-                    BR.listPosition -> (binding.songList.adapter as SongAdapter).notifyItemChanged(vm.getListPosition())
+                    BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).songs = vm.getCurrentAudioQueue()
+                    BR.listPosition -> (binding?.songList?.adapter as SongAdapter).notifyItemChanged(vm.getListPosition())
                 }
             }
         })
@@ -56,7 +56,7 @@ class SongListFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         vm.destroy()
-        activity.unbindService(vm.connection)
+        requireActivity().unbindService(vm.connection)
     }
 
     inner class SongAdapter : RecyclerView.Adapter<SongViewHolder>() {
@@ -82,7 +82,7 @@ class SongListFragment : Fragment() {
         override fun getItemViewType(position: Int): Int = if (position == vm.getListPosition()) LIST_ITEM_TYPE_PLAYING else LIST_ITEM_TYPE_PENDING
     }
 
-    inner abstract class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    abstract inner class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         abstract fun bind(song: Song, position: Int)
     }
