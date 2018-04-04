@@ -11,6 +11,7 @@ import be.florien.ampacheplayer.view.BaseVM
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.absoluteValue
 
 /**
  * ViewModel for the PlayerActivity
@@ -68,6 +69,12 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
     @Bindable
     fun getCurrentDuration(): Int {
         return playBackTime.toInt()
+    }
+
+    fun setCurrentDuration(duration: Int) {
+        if ((playBackTime - duration).absoluteValue > 3000) {
+            player.seekTo(duration)
+        }
     }
 
     @Bindable

@@ -16,4 +16,5 @@ interface PlayerController {
     fun stop()
     fun pause()
     fun resume()
+    fun seekTo(duration: Int)
 }

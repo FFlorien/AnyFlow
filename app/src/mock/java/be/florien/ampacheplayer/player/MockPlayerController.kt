@@ -13,6 +13,10 @@ import javax.inject.Inject
  */
 class MockPlayerController
 @Inject constructor(private val audioQueue: AudioQueue) : PlayerController {
+    override fun seekTo(duration: Int) {
+        currentTime = duration.toLong()
+    }
+
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { currentTime }

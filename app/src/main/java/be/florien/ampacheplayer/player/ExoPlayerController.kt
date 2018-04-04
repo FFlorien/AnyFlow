@@ -92,6 +92,10 @@ class ExoPlayerController
         }
     }
 
+    override fun seekTo(duration: Int) {
+        mediaPlayer.seekTo(duration.toLong())
+    }
+
     /**
      * Listener implementation
      */

@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import be.florien.ampacheplayer.R
+import kotlin.math.absoluteValue
 
 
 private const val CLICKABLE_SIZE_DP = 48f
@@ -37,6 +38,7 @@ class PlayerControls
             computeLeftBoundOfNextButton()
             computeTicks()
             invalidate()
+            onCurrentDurationChanged?.onCurrentDurationChanged()
         }
 
     var totalDuration: Int = 0
@@ -81,10 +83,11 @@ class PlayerControls
 
     // Variables used for gestures
     private var lastDownEventX = 0f
-    private var currentScrollOffset = 0f
+    private var currentScrollOffset = 0
     var onPreviousClicked: OnPreviousClickedListener? = null
     var onNextClicked: OnNextClickedListener? = null
     var onPlayPauseClicked: OnPlayPauseClickedListener? = null
+    var onCurrentDurationChanged: OnCurrentDurationChangedListener? = null
 
 
     init {
@@ -152,8 +155,9 @@ class PlayerControls
         when (event.action) {
             MotionEvent.ACTION_DOWN -> lastDownEventX = event.x
             MotionEvent.ACTION_UP -> {
-                if (currentScrollOffset > smallestButtonWidth) {
-                    //todo send scroll event to player
+                if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
+                    currentDuration += currentScrollOffset
+                    currentScrollOffset = 0
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     onPreviousClicked?.onPreviousClicked()
                 } else if (lastDownEventX in nextButtonLeftBound..width && event.x in nextButtonLeftBound..width) {
@@ -163,9 +167,10 @@ class PlayerControls
                 } else {
                     return super.onTouchEvent(event)
                 }
+                lastDownEventX = 0f
             }
             MotionEvent.ACTION_MOVE -> {
-                currentScrollOffset = event.x - lastDownEventX
+                currentScrollOffset = (event.x - lastDownEventX).toInt()
             }
             else -> return super.onTouchEvent(event)
         }
@@ -227,5 +232,9 @@ class PlayerControls
 
     interface OnPlayPauseClickedListener {
         fun onPlayPauseClicked()
+    }
+
+    interface OnCurrentDurationChangedListener {
+        fun onCurrentDurationChanged()
     }
 }
