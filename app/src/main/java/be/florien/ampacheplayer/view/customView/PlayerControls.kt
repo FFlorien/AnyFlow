@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import be.florien.ampacheplayer.R
+import timber.log.Timber
 import kotlin.math.absoluteValue
 
 
@@ -91,6 +92,7 @@ class PlayerControls
 
 
     init {
+        Timber.tag(this.javaClass.simpleName)
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PlayerControls)
             durationText = typedArray.getNonResourceString(R.styleable.PlayerControls_durationText) ?: durationText
@@ -185,7 +187,8 @@ class PlayerControls
         prevButtonRightBound = if (currentDuration < progressAnimDuration) {
             val percentageOfStartProgress = currentDuration.toFloat() / progressAnimDuration.toFloat()
             val offsetOfPlayButton = (percentageOfStartProgress * playButtonMaxWidthOffset).toInt()
-            smallestButtonWidth + playButtonMaxWidthOffset - offsetOfPlayButton
+            val maybeRightBound = smallestButtonWidth + playButtonMaxWidthOffset - offsetOfPlayButton + currentScrollOffset
+            if (maybeRightBound > smallestButtonWidth) maybeRightBound else smallestButtonWidth
         } else {
             smallestButtonWidth
         }
@@ -197,7 +200,8 @@ class PlayerControls
         nextButtonLeftBound = if (currentDuration > totalDuration - progressAnimDuration) {
             val percentageOfEndProgress = (totalDuration - currentDuration).toFloat() / progressAnimDuration.toFloat()
             val offsetOfPlayButton = (percentageOfEndProgress * playButtonMaxWidthOffset).toInt()
-            mostRightNextLeft - playButtonMaxWidthOffset + offsetOfPlayButton
+            val maybeLeftBound = mostRightNextLeft - playButtonMaxWidthOffset + offsetOfPlayButton + currentScrollOffset
+            if (maybeLeftBound < mostRightNextLeft) maybeLeftBound else mostRightNextLeft
         } else {
             mostRightNextLeft
         }

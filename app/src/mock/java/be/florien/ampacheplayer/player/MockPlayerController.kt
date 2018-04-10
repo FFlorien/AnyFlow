@@ -2,7 +2,6 @@ package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import java.util.concurrent.TimeUnit
@@ -18,7 +17,7 @@ class MockPlayerController
     }
 
     override val playTimeNotifier: Observable<Long> = Observable
-            .interval(1, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .interval(1, TimeUnit.MILLISECONDS)
             .map { currentTime }
             .doOnNext { if (isPlaying) {
                 if (currentTime < totalTime) {
@@ -28,7 +27,7 @@ class MockPlayerController
                     audioQueue.listPosition++
                 }
             }}
-            .distinctUntilChanged()
+            .sample(40, TimeUnit.MILLISECONDS)
     override val songNotifier: Subject<Song> = BehaviorSubject.create()
 
     private var currentTime: Long = 0
@@ -37,7 +36,12 @@ class MockPlayerController
 
     init {
         songNotifier.onNext(audioQueue.getCurrentSong())
-        audioQueue.positionObservable.subscribe { currentTime = 0 }
+        audioQueue.positionObservable.subscribe {
+            val currentSong = audioQueue.getCurrentSong()
+            songNotifier.onNext(currentSong)
+            currentTime = 0
+            totalTime = (currentSong.time * 1000).toLong()
+        }
     }
 
     override fun isPlaying(): Boolean = isPlaying

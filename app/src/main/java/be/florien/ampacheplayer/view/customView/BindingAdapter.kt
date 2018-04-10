@@ -17,7 +17,7 @@ fun setListener(controls: PlayerControls, listener: InverseBindingListener) {
 
 @BindingAdapter("app:currentDuration")
 fun PlayerControls.setCurrentDuration(value: Int) {
-    if ((currentDuration - value).absoluteValue < 1000) {
+    if ((currentDuration - value).absoluteValue > 10) {
         currentDuration = value
     }
 }

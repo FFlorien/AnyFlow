@@ -11,7 +11,6 @@ import be.florien.ampacheplayer.view.BaseVM
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.absoluteValue
 
 /**
  * ViewModel for the PlayerActivity
@@ -27,7 +26,14 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
     private var isBackKeyPreviousSong: Boolean = false
     var player: PlayerController = DummyPlayerController()
 
-    private var playBackTime: Long = 0L
+    @Bindable
+    var currentDuration: Int = 0
+    set(value) {
+        if (field != value) {
+            field = value
+            player.seekTo(value)
+        }
+    }
 
     /**
      * Constructor
@@ -67,24 +73,13 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
      */
 
     @Bindable
-    fun getCurrentDuration(): Int {
-        return playBackTime.toInt()
-    }
-
-    fun setCurrentDuration(duration: Int) {
-        if ((playBackTime - duration).absoluteValue > 3000) {
-            player.seekTo(duration)
-        }
-    }
-
-    @Bindable
     fun getTotalDuration(): Int {
         return audioQueue.getCurrentSong().time * 1000
     }
 
     @Bindable
     fun getPlayTimeDisplay(): String {
-        val playBackTimeInSeconds = playBackTime / 1000
+        val playBackTimeInSeconds = currentDuration / 1000
         val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
         val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
         return "$minutesDisplay:$secondsDisplay"
@@ -94,7 +89,7 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
     fun isNextPossible(): Boolean = audioQueue.listPosition < audioQueue.itemsCount - 1 && audioQueue.listPosition != NO_CURRENT_SONG
 
     @Bindable
-    fun isPreviousPossible(): Boolean = audioQueue.listPosition != 0 || playBackTime > 10000
+    fun isPreviousPossible(): Boolean = audioQueue.listPosition != 0 || currentDuration > 10000
 
 
     /**
@@ -115,8 +110,9 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
         subscribe(
                 observable = player.playTimeNotifier,
                 onNext = {
-                    playBackTime = it
-                    isBackKeyPreviousSong = playBackTime < 10000
+                    currentDuration = it.toInt()
+                    isBackKeyPreviousSong = currentDuration < 10000
+                    notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)
                     notifyPropertyChanged(BR.playTimeDisplay)
                     notifyPropertyChanged(BR.currentDuration)
