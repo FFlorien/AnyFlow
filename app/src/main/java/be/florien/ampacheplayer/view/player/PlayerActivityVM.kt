@@ -11,6 +11,7 @@ import be.florien.ampacheplayer.view.BaseVM
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.absoluteValue
 
 /**
  * ViewModel for the PlayerActivity
@@ -28,12 +29,15 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
 
     @Bindable
     var currentDuration: Int = 0
-    set(value) {
-        if (field != value) {
-            field = value
-            player.seekTo(value)
+        set(value) {
+            val oldValue = field
+            if (oldValue != value) {
+                field = value
+                if ((value - oldValue).absoluteValue > 1000) {
+                    player.seekTo(value)
+                }
+            }
         }
-    }
 
     /**
      * Constructor

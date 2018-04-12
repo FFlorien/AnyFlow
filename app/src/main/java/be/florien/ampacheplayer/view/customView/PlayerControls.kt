@@ -158,7 +158,8 @@ class PlayerControls
             MotionEvent.ACTION_DOWN -> lastDownEventX = event.x
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
-                    currentDuration += currentScrollOffset
+                    val durationOffset = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
+                    currentDuration -= durationOffset.toInt()
                     currentScrollOffset = 0
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     onPreviousClicked?.onPreviousClicked()

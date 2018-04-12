@@ -28,6 +28,7 @@ class MockPlayerController
                 }
             }}
             .sample(40, TimeUnit.MILLISECONDS)
+            .distinctUntilChanged()
     override val songNotifier: Subject<Song> = BehaviorSubject.create()
 
     private var currentTime: Long = 0
