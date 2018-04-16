@@ -25,10 +25,8 @@
             android:gravity="center_horizontal"
             app:durationText="@{vm.playTimeDisplay}"
             app:totalDuration="@{vm.totalDuration}"
-            app:currentDuration="@={vm.currentDuration}"
+            app:currentDuration="@{vm.currentDuration}"
             app:progressAnimDuration="10000"
-            app:onNextClicked="@{vm::next}"
-            app:onPlayPauseClicked="@{vm::playPause}"
-            app:onPreviousClicked="@{vm::replayOrPrevious}" />
+            app:actionListener="@{vm}" />
     </LinearLayout>
 </layout>

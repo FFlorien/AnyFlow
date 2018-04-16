@@ -8,6 +8,7 @@ import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.player.*
 import be.florien.ampacheplayer.view.BaseVM
+import be.florien.ampacheplayer.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -19,7 +20,8 @@ import kotlin.math.absoluteValue
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val audioQueue: AudioQueue) : BaseVM() {
+constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnActionListener {
+
     private val playerControllerIdentifierBase = "playerControllerId"
 
     private var playerControllerNumber = 0
@@ -29,15 +31,6 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
 
     @Bindable
     var currentDuration: Int = 0
-        set(value) {
-            val oldValue = field
-            if (oldValue != value) {
-                field = value
-                if ((value - oldValue).absoluteValue > 1000) {
-                    player.seekTo(value)
-                }
-            }
-        }
 
     /**
      * Constructor
@@ -49,8 +42,19 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
     /**
      * Public methods
      */
+    override fun onPreviousClicked() {
+        if (isBackKeyPreviousSong) {
+            audioQueue.listPosition -= 1
+        } else {
+            player.play()
+        }
+    }
 
-    fun playPause() {
+    override fun onNextClicked() {
+        audioQueue.listPosition += 1
+    }
+
+    override fun onPlayPauseClicked() {
         player.apply {
             if (isPlaying()) {
                 pause()
@@ -60,15 +64,9 @@ constructor(private val audioQueue: AudioQueue) : BaseVM() {
         }
     }
 
-    fun next() {
-        audioQueue.listPosition += 1
-    }
-
-    fun replayOrPrevious() {
-        if (isBackKeyPreviousSong) {
-            audioQueue.listPosition -= 1
-        } else {
-            player.play()
+    override fun onCurrentDurationChanged(newDuration: Int) {
+        if ((currentDuration - newDuration).absoluteValue > 1000) {
+            player.seekTo(newDuration)
         }
     }
 

@@ -39,8 +39,8 @@ class PlayerControls
             computeLeftBoundOfNextButton()
             computeTicks()
             invalidate()
-            onCurrentDurationChanged?.onCurrentDurationChanged()
         }
+    var actionListener: OnActionListener? = null
 
     var totalDuration: Int = 0
     var progressAnimDuration: Int = 10000
@@ -85,10 +85,6 @@ class PlayerControls
     // Variables used for gestures
     private var lastDownEventX = 0f
     private var currentScrollOffset = 0
-    var onPreviousClicked: OnPreviousClickedListener? = null
-    var onNextClicked: OnNextClickedListener? = null
-    var onPlayPauseClicked: OnPlayPauseClickedListener? = null
-    var onCurrentDurationChanged: OnCurrentDurationChangedListener? = null
 
 
     init {
@@ -159,14 +155,14 @@ class PlayerControls
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
                     val durationOffset = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
-                    currentDuration -= durationOffset.toInt()
+                    actionListener?.onCurrentDurationChanged((currentDuration - durationOffset).toInt())
                     currentScrollOffset = 0
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
-                    onPreviousClicked?.onPreviousClicked()
+                    actionListener?.onPreviousClicked()
                 } else if (lastDownEventX in nextButtonLeftBound..width && event.x in nextButtonLeftBound..width) {
-                    onNextClicked?.onNextClicked()
+                    actionListener?.onNextClicked()
                 } else if (lastDownEventX in prevButtonRightBound..nextButtonLeftBound && event.x in prevButtonRightBound..nextButtonLeftBound) {
-                    onPlayPauseClicked?.onPlayPauseClicked()
+                    actionListener?.onPlayPauseClicked()
                 } else {
                     return super.onTouchEvent(event)
                 }
@@ -227,19 +223,10 @@ class PlayerControls
     /**
      * Listeners
      */
-    interface OnPreviousClickedListener {
+    interface OnActionListener {
         fun onPreviousClicked()
-    }
-
-    interface OnNextClickedListener {
         fun onNextClicked()
-    }
-
-    interface OnPlayPauseClickedListener {
         fun onPlayPauseClicked()
-    }
-
-    interface OnCurrentDurationChangedListener {
-        fun onCurrentDurationChanged()
+        fun onCurrentDurationChanged(newDuration: Int)
     }
 }
