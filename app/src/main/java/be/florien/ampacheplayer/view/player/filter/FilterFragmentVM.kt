@@ -68,9 +68,6 @@ class FilterFragmentVM
      */
 
     @Bindable
-    var currentSearch = ""
-
-    @Bindable
     fun getFilterList(): List<FilterItem> = when (currentFilterType) { //todo getItemId (position) and getItemDisplayName(position)
         MASTER_FILTER_ID -> filtersNames
         GENRE_FILTER_ID -> getGenresValues()

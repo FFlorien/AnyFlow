@@ -40,7 +40,7 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
     }
 
     /**
-     * Public methods
+     * PlayerControls.OnActionListener methods
      */
     override fun onPreviousClicked() {
         if (isBackKeyPreviousSong) {

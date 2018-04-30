@@ -74,6 +74,50 @@ class PlayerControls
             lineTo(startX, startY)
         }
     }
+    private val nextIconPath: Path by lazy {
+        Path().apply {
+            val margin = height / 4
+            val iconHeight = height / 2
+            val arrowsWidth = iconHeight - (iconHeight / 10)
+            val startX = (width - smallestButtonWidth + margin).toFloat()
+            val startY = margin.toFloat()
+            val midIconHeight = iconHeight / 2
+            val midArrowsWidth = arrowsWidth / 2
+            val verticalCenter = startY + midIconHeight
+            val horizontalCenter = startX + midArrowsWidth
+            moveTo(startX, startY)
+            lineTo(horizontalCenter, verticalCenter)
+            lineTo(horizontalCenter, startY)
+            lineTo(startX + arrowsWidth, verticalCenter)
+            lineTo(horizontalCenter, startY + iconHeight)
+            lineTo(horizontalCenter, verticalCenter)
+            lineTo(startX, startY + iconHeight)
+            lineTo(startX, startY)
+            addRect(startX + arrowsWidth, startY, startX + (height / 2).toFloat(), startY + iconHeight, Path.Direction.CW)
+        }
+    }
+    private val prevIconPath: Path by lazy {
+        Path().apply {
+            val margin = height / 4
+            val iconHeight = height / 2
+            val arrowsWidth = iconHeight - (iconHeight / 10)
+            val startX = margin.toFloat() + iconHeight
+            val startY = margin.toFloat()
+            val midIconHeight = iconHeight / 2
+            val midArrowsWidth = (arrowsWidth / 2)
+            val centerY = startY + midIconHeight
+            val centerX = startX - midArrowsWidth
+            moveTo(startX, startY)
+            lineTo(centerX, centerY)
+            lineTo(centerX, startY)
+            lineTo(startX - arrowsWidth, centerY)
+            lineTo(centerX, startY + iconHeight)
+            lineTo(centerX, centerY)
+            lineTo(startX, startY + iconHeight)
+            lineTo(startX, startY)
+            addRect(margin.toFloat(), startY, startX - arrowsWidth, startY + iconHeight, Path.Direction.CW)
+        }
+    }
     private var playButtonMaxWidth: Int = 0
     private var playButtonMaxWidthOffset: Int = 0
     private var prevButtonRightBound: Int = 0
@@ -140,13 +184,15 @@ class PlayerControls
 
     override fun onDraw(canvas: Canvas) {
         val baseline = height - 10f
-        canvas.drawLine(prevButtonRightBound.toFloat(), baseline, (width - smallestButtonWidth).toFloat(), baseline, timelinePaint)
+        canvas.drawLine(prevButtonRightBound.toFloat(), baseline, nextButtonLeftBound.toFloat(), baseline, timelinePaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, timelinePaint)
         canvas.drawPath(playIconPath, buttonPaint)
         nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, height.toFloat(), timelinePaint) }
         canvas.drawText(durationText, centerLeftX.toFloat() + (smallestButtonWidth / 2), baseline, textPaint)
-        canvas.drawRect(0f, 0f, prevButtonRightBound.toFloat(), height.toFloat(), buttonPaint)
-        canvas.drawRect(nextButtonLeftBound.toFloat(), 0f, width.toFloat(), height.toFloat(), buttonPaint)
+        canvas.drawLine(prevButtonRightBound.toFloat(), 0f, prevButtonRightBound.toFloat(), height.toFloat(), timelinePaint)
+        canvas.drawPath(prevIconPath, buttonPaint)
+        canvas.drawLine(nextButtonLeftBound.toFloat(), 0f, nextButtonLeftBound.toFloat(), height.toFloat(), timelinePaint)
+        canvas.drawPath(nextIconPath, buttonPaint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

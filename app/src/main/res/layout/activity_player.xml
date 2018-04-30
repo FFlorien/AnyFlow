@@ -27,6 +27,8 @@
             app:totalDuration="@{vm.totalDuration}"
             app:currentDuration="@{vm.currentDuration}"
             app:progressAnimDuration="10000"
-            app:actionListener="@{vm}" />
+            app:actionListener="@{vm}"
+            app:hasPrevious="@{vm.isPreviousPossible}"
+            app:hasNext="@{vm.isNextPossible}" />
     </LinearLayout>
 </layout>
