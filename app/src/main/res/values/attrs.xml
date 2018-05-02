@@ -5,7 +5,8 @@
         <attr name="changeTrackAnimDuration" format="integer"/>
         <attr name="smallestButtonWidth" format="dimension"/>
         <attr name="currentDuration" format="integer"/>
-        <attr name="durationText" format="string"/>
+        <attr name="elapsedDurationText" format="string"/>
+        <attr name="remainingDurationText" format="string"/>
         <attr name="totalDuration" format="integer"/>
     </declare-styleable>
 </resources>

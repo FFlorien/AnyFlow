@@ -15,7 +15,7 @@ class AmpacheSong {
     @field:Element(name = "song", required = false) var song: String = ""
     @field:Element(name = "title", required = false) var title: String = ""
     @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "artistName", required = false) var artist: AmpacheArtistName = AmpacheArtistName()
+    @field:Element(name = "artist", required = false) var artist: AmpacheArtistName = AmpacheArtistName()
     @field:Element(name = "album", required = false) var album: AmpacheAlbumName = AmpacheAlbumName()
     @field:Element(name = "albumartist", required = false) var albumartist: AmpacheAlbumArtist = AmpacheAlbumArtist()
     @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<AmpacheTagName> = mutableListOf()

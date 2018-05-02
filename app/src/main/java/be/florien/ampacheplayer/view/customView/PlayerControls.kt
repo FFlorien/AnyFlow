@@ -31,7 +31,8 @@ class PlayerControls
     var hasNext: Boolean = false
 
     // Variables that can be configured by XML attributes
-    var durationText: String = "00:00"
+    var elapsedDurationText: String = "00:00"
+    var remainingDurationText: String = "-00:00"
     var currentDuration: Int = 0
         set(value) {
             field = value
@@ -135,7 +136,8 @@ class PlayerControls
         Timber.tag(this.javaClass.simpleName)
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PlayerControls)
-            durationText = typedArray.getNonResourceString(R.styleable.PlayerControls_durationText) ?: durationText
+            elapsedDurationText = typedArray.getNonResourceString(R.styleable.PlayerControls_elapsedDurationText) ?: elapsedDurationText
+            remainingDurationText = typedArray.getNonResourceString(R.styleable.PlayerControls_remainingDurationText) ?: remainingDurationText
             currentDuration = typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
             totalDuration = typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
             progressAnimDuration = typedArray.getInt(R.styleable.PlayerControls_progressAnimDuration, progressAnimDuration)
@@ -187,8 +189,9 @@ class PlayerControls
         canvas.drawLine(prevButtonRightBound.toFloat(), baseline, nextButtonLeftBound.toFloat(), baseline, timelinePaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, timelinePaint)
         canvas.drawPath(playIconPath, buttonPaint)
-        nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, height.toFloat(), timelinePaint) }
-        canvas.drawText(durationText, centerLeftX.toFloat() + (smallestButtonWidth / 2), baseline, textPaint)
+        nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, (height / 4 * 3).toFloat(), timelinePaint) }
+        canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), baseline, textPaint)
+        canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), baseline, textPaint)
         canvas.drawLine(prevButtonRightBound.toFloat(), 0f, prevButtonRightBound.toFloat(), height.toFloat(), timelinePaint)
         canvas.drawPath(prevIconPath, buttonPaint)
         canvas.drawLine(nextButtonLeftBound.toFloat(), 0f, nextButtonLeftBound.toFloat(), height.toFloat(), timelinePaint)
@@ -227,7 +230,8 @@ class PlayerControls
      */
 
     private fun computeRightBoundOfPrevButton() {
-        prevButtonRightBound = if (currentDuration < progressAnimDuration) {
+        val currentScrollDuration = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
+        prevButtonRightBound = if (currentDuration - currentScrollDuration < progressAnimDuration) {
             val percentageOfStartProgress = currentDuration.toFloat() / progressAnimDuration.toFloat()
             val offsetOfPlayButton = (percentageOfStartProgress * playButtonMaxWidthOffset).toInt()
             val maybeRightBound = smallestButtonWidth + playButtonMaxWidthOffset - offsetOfPlayButton + currentScrollOffset
