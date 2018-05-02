@@ -46,4 +46,6 @@ class AudioQueue
 
     fun addFilter(filter: Filter<*>) = filters.add(filter)
 
+    fun resetFilters() {filters.clear()}
+
 }

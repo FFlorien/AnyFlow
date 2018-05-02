@@ -43,7 +43,7 @@ class ExoPlayerController
 
     init {
         audioQueueManager.positionObservable.subscribe {
-            if (isPlaying()) play()
+            if (isPlaying()) play() else lastPosition = NO_VALUE
         }
         val trackSelector: TrackSelector = DefaultTrackSelector()
         mediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector).apply {

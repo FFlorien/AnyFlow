@@ -17,12 +17,14 @@ const val GENRE_NAME = "Genre"
 const val ARTIST_NAME = "Artist"
 const val ALBUM_NAME = "Album"
 const val SEARCH_NAME = "Search"
+const val RESET_NAME = "Reset"
 
 const val MASTER_FILTER_ID = -1L
 const val GENRE_FILTER_ID = -2L
 const val ARTIST_FILTER_ID = -3L
 const val ALBUM_FILTER_ID = -4L
 const val SEARCH_FILTER_ID = -5L
+const val RESET_FILTER_ID = -6L
 
 /**
  * Created by FlamentF on 08-Jan-18.
@@ -51,7 +53,8 @@ class FilterFragmentVM
             FilterItem(GENRE_FILTER_ID, GENRE_NAME),
             FilterItem(ARTIST_FILTER_ID, ARTIST_NAME),
             FilterItem(ALBUM_FILTER_ID, ALBUM_NAME),
-            FilterItem(SEARCH_FILTER_ID, SEARCH_NAME))
+            FilterItem(SEARCH_FILTER_ID, SEARCH_NAME),
+            FilterItem(RESET_FILTER_ID, RESET_NAME))
 
     private var genresValues: RealmResults<Song>? = null
     private var artistsValues: RealmResults<Artist>? = null
@@ -82,7 +85,13 @@ class FilterFragmentVM
 
     fun onFilterSelected(filterSelected: Long) {
         when (currentFilterType) {
-            MASTER_FILTER_ID -> currentFilterType = filterSelected
+            MASTER_FILTER_ID -> {
+                if (filterSelected == RESET_FILTER_ID) {
+                    audioQueueManager.resetFilters()
+                } else {
+                    currentFilterType = filterSelected
+                }
+            }
             GENRE_FILTER_ID -> audioQueueManager.addFilter(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName))
             ARTIST_FILTER_ID -> audioQueueManager.addFilter(Filter.ArtistIs(filterSelected))
             ALBUM_FILTER_ID -> audioQueueManager.addFilter(Filter.AlbumIs(filterSelected))
@@ -97,11 +106,14 @@ class FilterFragmentVM
      * Private methods
      */
 
-    private fun getGenresValues(): List<FilterItem> = genresValues?.mapIndexed { index, song -> FilterItem(index.toLong(), song.genre) } ?: listOf()
+    private fun getGenresValues(): List<FilterItem> = genresValues?.mapIndexed { index, song -> FilterItem(index.toLong(), song.genre) }
+            ?: listOf()
 
-    private fun getArtistsValues(): List<FilterItem> = artistsValues?.map { FilterItem(it.id, it.name) } ?: listOf()
+    private fun getArtistsValues(): List<FilterItem> = artistsValues?.map { FilterItem(it.id, it.name) }
+            ?: listOf()
 
-    private fun getAlbumsValues(): List<FilterItem> = albumsValues?.map { FilterItem(it.id, it.name) } ?: listOf()
+    private fun getAlbumsValues(): List<FilterItem> = albumsValues?.map { FilterItem(it.id, it.name) }
+            ?: listOf()
 
     private fun updateGenre(songResults: RealmResults<Song>) {
         genresValues = songResults

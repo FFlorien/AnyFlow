@@ -8,9 +8,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
@@ -33,6 +31,11 @@ class SongListFragment : Fragment() {
 
     @Inject lateinit var vm: SongListFragmentVm
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_song_list, container, false)
         val binding = DataBindingUtil.bind<FragmentSongListBinding>(view)
@@ -46,11 +49,28 @@ class SongListFragment : Fragment() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
                     BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).songs = vm.getCurrentAudioQueue()
-                    BR.listPosition -> (binding?.songList?.adapter as SongAdapter).notifyItemChanged(vm.getListPosition())
+                    BR.listPosition -> {
+                        (binding?.songList?.adapter as? SongAdapter)?.notifyItemChanged(vm.getListPosition())
+                        binding?.songList?.scrollToPosition(vm.getListPosition())
+                    }
                 }
             }
         })
         return view
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_song_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.refresh) {
+            vm.refreshSongs()
+            true
+        } else {
+            false
+        }
     }
 
     override fun onDestroy() {
