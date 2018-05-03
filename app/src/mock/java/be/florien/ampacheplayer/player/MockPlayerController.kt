@@ -23,7 +23,6 @@ class MockPlayerController
                 if (currentTime < totalTime) {
                     currentTime ++
                 } else {
-                    currentTime = 0
                     audioQueue.listPosition++
                 }
             }}
@@ -38,10 +37,9 @@ class MockPlayerController
     init {
         songNotifier.onNext(audioQueue.getCurrentSong())
         audioQueue.positionObservable.subscribe {
-            val currentSong = audioQueue.getCurrentSong()
-            songNotifier.onNext(currentSong)
-            currentTime = 0
-            totalTime = (currentSong.time * 1000).toLong()
+            if (isPlaying) {
+                play()
+            }
         }
     }
 

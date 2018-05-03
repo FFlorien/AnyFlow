@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.persistence
 
 import be.florien.ampacheplayer.di.UserScope
+import be.florien.ampacheplayer.extension.realmInstance
 import be.florien.ampacheplayer.persistence.model.*
 import be.florien.ampacheplayer.player.Filter
 import io.realm.Realm
@@ -13,24 +14,24 @@ import javax.inject.Inject
  */
 @UserScope
 class SongsDatabase
-@Inject constructor(private val realmRead: Realm) {
+@Inject constructor() {
     /**
      * Database getters : Unfiltered
      */
 
-    fun getSongs(): RealmResults<Song> = realmRead.where(Song::class.java).sort("id").findAll()
+    fun getSongs(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).sort("id").findAll()
 
-    fun getGenres(): RealmResults<Song> = realmRead.where(Song::class.java).distinctValues("genre").findAll() //todo create genre RealmObject
+    fun getGenres(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).distinctValues("genre").findAll() //todo create genre RealmObject
 
-    fun getArtists(): RealmResults<Artist> = realmRead.where(Artist::class.java).findAll()
+    fun getArtists(): RealmResults<Artist> = Thread.currentThread().realmInstance.where(Artist::class.java).findAll()
 
-    fun getAlbums(): RealmResults<Album> = realmRead.where(Album::class.java).findAll()
+    fun getAlbums(): RealmResults<Album> = Thread.currentThread().realmInstance.where(Album::class.java).findAll()
 
     /**
      * Database getters : Filtered
      */
 
-    fun getSongs(filters: List<Filter<*>> = emptyList(), realmInstance: Realm = realmRead): RealmResults<Song> = realmInstance.let {
+    fun getSongs(filters: List<Filter<*>> = emptyList()): RealmResults<Song> = Thread.currentThread().realmInstance.let {
         val realmQuery = it.where(Song::class.java)
         var isFirstFilter = true
         for (filter in filters) {
