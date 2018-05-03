@@ -29,10 +29,10 @@ class PlayerControls
     // Variable changing due to usage
     var hasPrevious: Boolean = false
     var hasNext: Boolean = false
+    private var elapsedDurationText = ""
+    private var remainingDurationText = ""
 
     // Variables that can be configured by XML attributes
-    var elapsedDurationText: String = "00:00"
-    var remainingDurationText: String = "-00:00"
     var currentDuration: Int = 0
         set(value) {
             field = value
@@ -51,6 +51,13 @@ class PlayerControls
     // Variable used for drawing
     private val textPaint = Paint().apply {
         setARGB(255, 65, 65, 65)
+        textAlign = Paint.Align.CENTER
+        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
+        strokeWidth = 2f
+    }
+
+    private val textScrollingPaint = Paint().apply {
+        setARGB(255, 5, 5, 65)
         textAlign = Paint.Align.CENTER
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
         strokeWidth = 2f
@@ -129,6 +136,7 @@ class PlayerControls
 
     // Variables used for gestures
     private var lastDownEventX = 0f
+    private var durationOnScroll = -1
     private var currentScrollOffset = 0
 
 
@@ -136,8 +144,6 @@ class PlayerControls
         Timber.tag(this.javaClass.simpleName)
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PlayerControls)
-            elapsedDurationText = typedArray.getNonResourceString(R.styleable.PlayerControls_elapsedDurationText) ?: elapsedDurationText
-            remainingDurationText = typedArray.getNonResourceString(R.styleable.PlayerControls_remainingDurationText) ?: remainingDurationText
             currentDuration = typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
             totalDuration = typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
             progressAnimDuration = typedArray.getInt(R.styleable.PlayerControls_progressAnimDuration, progressAnimDuration)
@@ -190,8 +196,9 @@ class PlayerControls
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, timelinePaint)
         canvas.drawPath(playIconPath, buttonPaint)
         nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, baseline, it, (height / 4 * 3).toFloat(), timelinePaint) }
-        canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), baseline, textPaint)
-        canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), baseline, textPaint)
+        val selectedTextPaint = if (durationOnScroll == -1) textPaint else textScrollingPaint
+        canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), baseline, selectedTextPaint)
+        canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), baseline, selectedTextPaint)
         canvas.drawLine(prevButtonRightBound.toFloat(), 0f, prevButtonRightBound.toFloat(), height.toFloat(), timelinePaint)
         canvas.drawPath(prevIconPath, buttonPaint)
         canvas.drawLine(nextButtonLeftBound.toFloat(), 0f, nextButtonLeftBound.toFloat(), height.toFloat(), timelinePaint)
@@ -200,11 +207,14 @@ class PlayerControls
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
-            MotionEvent.ACTION_DOWN -> lastDownEventX = event.x
+            MotionEvent.ACTION_DOWN -> {
+                lastDownEventX = event.x
+                durationOnScroll = currentDuration
+            }
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
                     val durationOffset = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
-                    actionListener?.onCurrentDurationChanged((currentDuration - durationOffset).toInt())
+                    actionListener?.onCurrentDurationChanged((durationOnScroll - durationOffset).toInt())
                     currentScrollOffset = 0
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     actionListener?.onPreviousClicked()
@@ -216,6 +226,7 @@ class PlayerControls
                     return super.onTouchEvent(event)
                 }
                 lastDownEventX = 0f
+                durationOnScroll = -1
             }
             MotionEvent.ACTION_MOVE -> {
                 currentScrollOffset = (event.x - lastDownEventX).toInt()
@@ -239,9 +250,16 @@ class PlayerControls
         } else {
             smallestButtonWidth
         }
+
+        val durationToDisplay = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
+        val playBackTimeInSeconds = durationToDisplay / 1000
+        val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
+        val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
+        elapsedDurationText = "$minutesDisplay:$secondsDisplay"
     }
 
     private fun computeLeftBoundOfNextButton() {
+        val currentScrollDuration = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
         val mostRightNextLeft = width - smallestButtonWidth
 
         nextButtonLeftBound = if (currentDuration > totalDuration - progressAnimDuration) {
@@ -252,14 +270,21 @@ class PlayerControls
         } else {
             mostRightNextLeft
         }
+
+        val durationToDisplay = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
+        val playBackTimeInSeconds = (totalDuration - durationToDisplay) / 1000
+        val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
+        val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
+        remainingDurationText = "-$minutesDisplay:$secondsDisplay"
     }
 
     private fun computeTicks() {
+        val currentScrollDuration = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
         val tickOffset = playButtonMaxWidthOffset.toFloat() / 2
-        val nextTickInDuration = 5000 - (currentDuration % 5000)
-        val scrollingOffset = currentScrollOffset % 5000
+        val durationToDisplay = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
+        val nextTickInDuration = 5000 - (durationToDisplay % 5000)
         val percentageOfDuration = nextTickInDuration.toFloat() / 10000f
-        val firstTickX = (width / 2) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2) + scrollingOffset
+        val firstTickX = (width / 2) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2)
 
         for (i in 0 until 6) {
             val maybeTickX = firstTickX + (tickOffset * i)

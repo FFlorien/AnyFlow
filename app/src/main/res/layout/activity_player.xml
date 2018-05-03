@@ -23,8 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            app:elapsedDurationText="@{vm.playTimeDisplay}"
-            app:remainingDurationText="@{vm.remainingPlayTimeDisplay}"
             app:totalDuration="@{vm.totalDuration}"
             app:currentDuration="@{vm.currentDuration}"
             app:progressAnimDuration="10000"

@@ -80,22 +80,6 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
     }
 
     @Bindable
-    fun getPlayTimeDisplay(): String {
-        val playBackTimeInSeconds = currentDuration / 1000
-        val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
-        val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
-        return "$minutesDisplay:$secondsDisplay"
-    }
-
-    @Bindable
-    fun getRemainingPlayTimeDisplay(): String {
-        val playBackTimeInSeconds = (getTotalDuration() - currentDuration) / 1000
-        val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
-        val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
-        return "-$minutesDisplay:$secondsDisplay"
-    }
-
-    @Bindable
     fun isNextPossible(): Boolean = audioQueue.listPosition < audioQueue.itemsCount - 1 && audioQueue.listPosition != NO_CURRENT_SONG
 
     @Bindable
@@ -124,8 +108,6 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
                     isBackKeyPreviousSong = currentDuration < 10000
                     notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)
-                    notifyPropertyChanged(BR.playTimeDisplay)
-                    notifyPropertyChanged(BR.remainingPlayTimeDisplay)
                     notifyPropertyChanged(BR.currentDuration)
                 },
                 onError = {
