@@ -25,6 +25,7 @@
             android:gravity="center_horizontal"
             app:totalDuration="@{vm.totalDuration}"
             app:currentDuration="@{vm.currentDuration}"
+            app:changeTrackAnimDuration="350"
             app:progressAnimDuration="10000"
             app:actionListener="@{vm}"
             app:hasPrevious="@{vm.isPreviousPossible}"

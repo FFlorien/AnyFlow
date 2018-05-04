@@ -26,7 +26,7 @@ class MockPlayerController
                     audioQueue.listPosition++
                 }
             }}
-            .sample(40, TimeUnit.MILLISECONDS)
+//            .sample(40, TimeUnit.MILLISECONDS)
             .distinctUntilChanged()
     override val songNotifier: Subject<Song> = BehaviorSubject.create()
 

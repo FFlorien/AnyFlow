@@ -1,5 +1,8 @@
 package be.florien.ampacheplayer.view.customView
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -8,6 +11,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import be.florien.ampacheplayer.R
 import timber.log.Timber
 import kotlin.math.absoluteValue
@@ -23,6 +27,8 @@ class PlayerControls
 @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : View(context, attrs, defStyleAttr) {
 
+    //todo Separate context (in different class ?): drawing values, and values that are represented. Calculator which take values to represent and return drawing values
+
     /**
      * Attributes
      */
@@ -35,20 +41,23 @@ class PlayerControls
     // Variables that can be configured by XML attributes
     var currentDuration: Int = 0
         set(value) {
+            if (isAnimatingNextTrack || isAnimatingPreviousTrack) {
+                return
+            }
             field = value
             computeRightBoundOfPrevButton()
             computeLeftBoundOfNextButton()
             computeTicks()
             invalidate()
         }
-    var actionListener: OnActionListener? = null
 
+    var actionListener: OnActionListener? = null
     var totalDuration: Int = 0
     var progressAnimDuration: Int = 10000
     var changeTrackAnimDuration: Int = 0
     var smallestButtonWidth: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, resources.displayMetrics).toInt()
 
-    // Variable used for drawing
+    // Paints
     private val textPaint = Paint().apply {
         setARGB(255, 65, 65, 65)
         textAlign = Paint.Align.CENTER
@@ -70,6 +79,8 @@ class PlayerControls
         setARGB(255, 45, 25, 0)
         strokeWidth = 2f
     }
+
+    // Paths
     private val playIconPath: Path by lazy {
         Path().apply {
             val margin = height / 4
@@ -126,6 +137,8 @@ class PlayerControls
             addRect(margin.toFloat(), startY, startX - arrowsWidth, startY + iconHeight, Path.Direction.CW)
         }
     }
+
+    // Calculations
     private var playButtonMaxWidth: Int = 0
     private var playButtonMaxWidthOffset: Int = 0
     private var prevButtonRightBound: Int = 0
@@ -133,13 +146,36 @@ class PlayerControls
     private var centerLeftX: Int = 0
     private var centerRightX: Int = 0
     private val nextTicksX: FloatArray = FloatArray(6)
-
-    // Variables used for gestures
     private var lastDownEventX = 0f
     private var durationOnScroll = -1
     private var currentScrollOffset = 0
 
+    private var isAnimatingPreviousTrack = false
+    set(value) {
+        field = value
+        if (field) {
+            startChangeTrackAnimation()
+        }
+    }
+    private var isAnimatingNextTrack = false
+        set(value) {
+            field = value
+            if (field) {
+                startChangeTrackAnimation()
+            }
+        }
 
+    private val changeTrackAnimationInterpolator = AccelerateDecelerateInterpolator()
+    private var animatorSet = AnimatorSet()
+
+    private val currentScrollDuration
+        get() = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
+    private val durationToDisplay
+        get() = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
+
+    /**
+     * Constructor
+     */
     init {
         Timber.tag(this.javaClass.simpleName)
         if (attrs != null) {
@@ -218,8 +254,10 @@ class PlayerControls
                     currentScrollOffset = 0
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     actionListener?.onPreviousClicked()
+                    isAnimatingPreviousTrack = true
                 } else if (lastDownEventX in nextButtonLeftBound..width && event.x in nextButtonLeftBound..width) {
                     actionListener?.onNextClicked()
+                    isAnimatingNextTrack = true
                 } else if (lastDownEventX in prevButtonRightBound..nextButtonLeftBound && event.x in prevButtonRightBound..nextButtonLeftBound) {
                     actionListener?.onPlayPauseClicked()
                 } else {
@@ -241,17 +279,23 @@ class PlayerControls
      */
 
     private fun computeRightBoundOfPrevButton() {
-        val currentScrollDuration = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
-        prevButtonRightBound = if (currentDuration - currentScrollDuration < progressAnimDuration) {
+        prevButtonRightBound = if (durationToDisplay < progressAnimDuration) {
             val percentageOfStartProgress = currentDuration.toFloat() / progressAnimDuration.toFloat()
             val offsetOfPlayButton = (percentageOfStartProgress * playButtonMaxWidthOffset).toInt()
             val maybeRightBound = smallestButtonWidth + playButtonMaxWidthOffset - offsetOfPlayButton + currentScrollOffset
-            if (maybeRightBound > smallestButtonWidth) maybeRightBound else smallestButtonWidth
+            if (maybeRightBound > smallestButtonWidth) {
+                if (maybeRightBound < centerLeftX) {
+                    maybeRightBound
+                } else {
+                    centerLeftX
+                }
+            } else {
+                smallestButtonWidth
+            }
         } else {
             smallestButtonWidth
         }
 
-        val durationToDisplay = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
         val playBackTimeInSeconds = durationToDisplay / 1000
         val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
         val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
@@ -259,19 +303,25 @@ class PlayerControls
     }
 
     private fun computeLeftBoundOfNextButton() {
-        val currentScrollDuration = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
         val mostRightNextLeft = width - smallestButtonWidth
 
         nextButtonLeftBound = if (currentDuration > totalDuration - progressAnimDuration) {
             val percentageOfEndProgress = (totalDuration - currentDuration).toFloat() / progressAnimDuration.toFloat()
             val offsetOfPlayButton = (percentageOfEndProgress * playButtonMaxWidthOffset).toInt()
             val maybeLeftBound = mostRightNextLeft - playButtonMaxWidthOffset + offsetOfPlayButton + currentScrollOffset
-            if (maybeLeftBound < mostRightNextLeft) maybeLeftBound else mostRightNextLeft
+            if (maybeLeftBound < mostRightNextLeft) {
+                if (maybeLeftBound > centerRightX) {
+                    maybeLeftBound
+                } else {
+                    centerRightX
+                }
+            } else {
+                mostRightNextLeft
+            }
         } else {
             mostRightNextLeft
         }
 
-        val durationToDisplay = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
         val playBackTimeInSeconds = (totalDuration - durationToDisplay) / 1000
         val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
         val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
@@ -279,9 +329,7 @@ class PlayerControls
     }
 
     private fun computeTicks() {
-        val currentScrollDuration = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
         val tickOffset = playButtonMaxWidthOffset.toFloat() / 2
-        val durationToDisplay = if (durationOnScroll == -1) currentDuration else durationOnScroll - currentScrollDuration.toInt()
         val nextTickInDuration = 5000 - (durationToDisplay % 5000)
         val percentageOfDuration = nextTickInDuration.toFloat() / 10000f
         val firstTickX = (width / 2) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2)
@@ -293,6 +341,59 @@ class PlayerControls
                 else -> -1f
             }
         }
+    }
+
+    private fun startChangeTrackAnimation() {
+        animatorSet.cancel()
+        animatorSet = AnimatorSet()
+        animatorSet.duration = changeTrackAnimDuration.toLong()
+        animatorSet.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                isAnimatingNextTrack = false
+                isAnimatingPreviousTrack = false
+                animatorSet = AnimatorSet()
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+                isAnimatingNextTrack = false
+                isAnimatingPreviousTrack = false
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+            }
+
+        })
+        if (isAnimatingNextTrack) {
+            val previousButtonAnimator = ValueAnimator.ofInt(prevButtonRightBound, 0).apply {
+                interpolator = changeTrackAnimationInterpolator
+                addUpdateListener {
+                    prevButtonRightBound = it.animatedValue as Int
+                    invalidate()
+                }
+            }
+            val nextButtonAnimator = ValueAnimator.ofInt(nextButtonLeftBound, centerLeftX).apply {
+                interpolator = changeTrackAnimationInterpolator
+                addUpdateListener { nextButtonLeftBound = it.animatedValue as Int }
+            }
+            animatorSet.playTogether(nextButtonAnimator, previousButtonAnimator)
+        } else if (isAnimatingPreviousTrack) {
+            val previousButtonAnimator = ValueAnimator.ofInt(prevButtonRightBound, nextButtonLeftBound).apply {
+                interpolator = changeTrackAnimationInterpolator
+                addUpdateListener {
+                    prevButtonRightBound = it.animatedValue as Int
+                    invalidate()
+                }
+            }
+            val nextButtonAnimator = ValueAnimator.ofInt(nextButtonLeftBound, width).apply {
+                interpolator = changeTrackAnimationInterpolator
+                addUpdateListener { nextButtonLeftBound = it.animatedValue as Int }
+            }
+            animatorSet.playTogether(nextButtonAnimator, previousButtonAnimator)
+        }
+        animatorSet.start()
     }
 
     /**
