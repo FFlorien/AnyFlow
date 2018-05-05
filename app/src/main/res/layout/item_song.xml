@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:padding="@dimen/list_item_padding"
         android:onClick="@{() -> vm.play(position)}">
 
         <ImageView
@@ -30,6 +31,7 @@
             android:scaleType="fitXY" />
 
         <LinearLayout
+            android:paddingLeft="@dimen/small_dimen"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical">

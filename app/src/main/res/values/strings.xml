@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Ampache Player</string>
+    <string name="connect_server_hint">Server</string>
+    <string name="connect_username_hint">Username</string>
+    <string name="connect_password_hint">Password</string>
+    <string name="connect_connect_action">Connect</string>
+    <string name="connect_wait_label">Connection, please wait…</string>
+    <string name="general_loading_label">Loading, please wait…</string>
 </resources>

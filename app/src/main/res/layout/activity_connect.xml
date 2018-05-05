@@ -30,7 +30,7 @@
                 android:id="@+id/input_server"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="server"
+                android:hint="@string/connect_server_hint"
                 android:text="@={vm.server}" />
 
         </android.support.design.widget.TextInputLayout>
@@ -46,7 +46,7 @@
                 android:id="@+id/input_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="username"
+                android:hint="@string/connect_username_hint"
                 android:text="@={vm.username}" />
 
         </android.support.design.widget.TextInputLayout>
@@ -63,7 +63,7 @@
                 android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="password"
+                android:hint="@string/connect_password_hint"
                 android:inputType="textPassword"
                 android:text="@={vm.password}" />
 
@@ -84,7 +84,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:onClick="@{(view) ->vm.connect()}"
-            android:text="Connect"
+            android:text="@string/connect_connect_action"
             android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -127,7 +127,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:text="Connection, please wait..."
+            android:text="@string/connect_wait_label"
             android:visibility="@{vm.loading ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
