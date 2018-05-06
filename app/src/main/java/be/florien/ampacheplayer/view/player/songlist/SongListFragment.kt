@@ -19,8 +19,6 @@ import be.florien.ampacheplayer.extension.GlideApp
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import javax.inject.Inject
 
 /**

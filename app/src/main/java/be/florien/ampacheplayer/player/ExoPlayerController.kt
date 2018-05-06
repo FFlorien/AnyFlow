@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import be.florien.ampacheplayer.persistence.model.Song
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -12,15 +13,19 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.HttpDataSource
+import com.google.android.exoplayer2.util.Util
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
+import okhttp3.OkHttpClient
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ExoPlayerController
-@Inject constructor(context: Context, private var audioQueueManager: AudioQueue) : PlayerController, Player.EventListener {
+@Inject constructor(context: Context, private var audioQueueManager: AudioQueue, okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
 
     companion object {
         private const val NO_VALUE = -3L
@@ -50,7 +55,8 @@ class ExoPlayerController
             addListener(this@ExoPlayerController)
         }
         val bandwidthMeter = DefaultBandwidthMeter()
-        dataSourceFactory = DefaultDataSourceFactory(context, "ampachePlayerUserAgent", bandwidthMeter)
+        val userAgent = Util.getUserAgent(context, "ampachePlayerUserAgent")
+        dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
 
     }
@@ -110,8 +116,13 @@ class ExoPlayerController
     override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
     }
 
-    override fun onPlayerError(error: ExoPlaybackException?) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onPlayerError(error: ExoPlaybackException) {
+        Timber.i(error, "Error while playback")
+        if (error.cause is HttpDataSource.InvalidResponseCodeException) {
+            if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
+                //todo reconnect
+            }
+        }
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {

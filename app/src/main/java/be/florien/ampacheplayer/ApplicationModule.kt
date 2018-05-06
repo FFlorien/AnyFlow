@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.user.AuthPersistence
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
 import io.realm.Realm
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 /**
@@ -27,6 +29,10 @@ class ApplicationModule {
     @Singleton
     @Provides
     fun provideRealm(): Realm = Realm.getDefaultInstance()
+
+    @Singleton
+    @Provides
+    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build()
 
     @Singleton
     @Provides

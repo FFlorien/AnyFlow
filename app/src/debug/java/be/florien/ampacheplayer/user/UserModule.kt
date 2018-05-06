@@ -7,6 +7,7 @@ import be.florien.ampacheplayer.player.ExoPlayerController
 import be.florien.ampacheplayer.player.PlayerController
 import dagger.Module
 import dagger.Provides
+import okhttp3.OkHttpClient
 
 /**
  * todo
@@ -16,5 +17,5 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun providePlayerController(context: Context, audioQueueManager: AudioQueue): PlayerController = ExoPlayerController(context, audioQueueManager)
+    fun providePlayerController(context: Context, audioQueueManager: AudioQueue, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(context, audioQueueManager, okHttpClient)
 }

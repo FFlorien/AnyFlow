@@ -83,6 +83,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.7.1'
     //ExoPlayer
     implementation 'com.google.android.exoplayer:exoplayer-core:2.6.1'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.6.1'
 }
 repositories {
     mavenCentral()
