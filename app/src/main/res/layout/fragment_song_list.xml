@@ -28,7 +28,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:gravity="center"
-            android:text="Loading, please wait..."
+            android:text="@string/general_loading_label"
             android:visibility="@{vm.loadingAll ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
