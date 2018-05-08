@@ -110,8 +110,8 @@ class SongListFragment : Fragment() {
             binding.vm = vm
             GlideApp.with(binding.root)
                     .load(song.art)
-                    .placeholder(R.drawable.cover_placeholder)
-                    .error(R.drawable.cover_placeholder)
+//                    .placeholder(R.drawable.cover_placeholder)
+//                    .error(R.drawable.cover_placeholder)
                     .fitCenter()
                     .into(binding.cover)
         }
