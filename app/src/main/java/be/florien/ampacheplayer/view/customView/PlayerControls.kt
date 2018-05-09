@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.view.customView
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -8,6 +9,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateInterpolator
 import be.florien.ampacheplayer.R
 import timber.log.Timber
 import kotlin.math.absoluteValue
@@ -24,7 +26,7 @@ class PlayerControls
     : View(context, attrs, defStyleAttr) {
 
     //todo Separate context (in different class ?): drawing values, and values that are represented. Calculator which take values to represent and return drawing values
-
+    //todo When changing track because end of track animate the change
     /**
      * Attributes
      */
@@ -35,13 +37,20 @@ class PlayerControls
     private var remainingDurationText = ""
 
     // Variables that can be configured by XML attributes
-    var currentDuration: Int = 0
+    private var _currentDuration: Int = 0
+    var currentDuration: Int
         set(value) {
-            if ((isAnimatingNextTrack || isAnimatingPreviousTrack) && value > changeTrackAnimDuration) {
+            if ((isAnimatingNextTrack || isAnimatingPreviousTrack) && value > changeTrackAnimDuration && value < totalDuration - 100) {
                 isAnimatingPreviousTrack = false
                 isAnimatingNextTrack = false
+            } else if (value >= totalDuration - 100) {
+                isAnimatingNextTrack = true
             }
-            field = value
+
+            if (!isAnimatingNextTrack && !isAnimatingPreviousTrack) {
+                _currentDuration = value
+            }
+
             computeInformationBaseline()
             computeRightBoundOfPrevButton()
             computeLeftBoundOfNextButton()
@@ -50,6 +59,7 @@ class PlayerControls
             computeTicks()
             invalidate()
         }
+        get() = _currentDuration
 
     var actionListener: OnActionListener? = null
     var totalDuration: Int = 0
@@ -162,6 +172,7 @@ class PlayerControls
 
     private var isAnimatingPreviousTrack = false
     private var isAnimatingNextTrack = false
+    private val changeTrackAnimator: ValueAnimator
 
     private val currentScrollDuration
         get() = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
@@ -182,6 +193,16 @@ class PlayerControls
             smallestButtonWidth = typedArray.getDimensionPixelSize(R.styleable.PlayerControls_smallestButtonWidth, smallestButtonWidth)
             typedArray.recycle()
         }
+        changeTrackAnimator = ValueAnimator
+                .ofInt(0, changeTrackAnimDuration)
+                .setDuration(changeTrackAnimDuration.toLong())
+                .apply {
+                    interpolator = AccelerateInterpolator()
+                    addUpdateListener {
+                        _currentDuration = it.animatedValue as Int
+                        currentDuration = it.animatedValue as Int
+                    }
+                }
     }
 
 
@@ -251,11 +272,13 @@ class PlayerControls
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     actionListener?.onPreviousClicked()
                     isAnimatingPreviousTrack = true
+                    changeTrackAnimator.start()
                     prevButtonRightBoundAtAnimStart = prevButtonRightBound
                     nextButtonLeftBoundAtAnimStart = nextButtonLeftBound
                 } else if (lastDownEventX in nextButtonLeftBound..width && event.x in nextButtonLeftBound..width) {
                     actionListener?.onNextClicked()
                     isAnimatingNextTrack = true
+                    changeTrackAnimator.start()
                     prevButtonRightBoundAtAnimStart = prevButtonRightBound
                     nextButtonLeftBoundAtAnimStart = nextButtonLeftBound
                 } else if (lastDownEventX in prevButtonRightBound..nextButtonLeftBound && event.x in prevButtonRightBound..nextButtonLeftBound) {
