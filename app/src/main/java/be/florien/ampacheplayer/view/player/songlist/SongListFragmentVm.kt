@@ -53,6 +53,7 @@ class SongListFragmentVm
         Timber.tag(this.javaClass.simpleName)
         subscribe(audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
             notifyPropertyChanged(BR.listPosition)
+            notifyPropertyChanged(BR.currentSong)
         })
     }
 
@@ -61,6 +62,9 @@ class SongListFragmentVm
      */
     @Bindable
     fun getCurrentAudioQueue() = audioQueueManager.getCurrentAudioQueue()
+
+    @Bindable
+    fun getCurrentSong() = audioQueueManager.getCurrentAudioQueue()[getListPosition()]
 
     @Bindable
     fun getListPosition() = audioQueueManager.listPosition

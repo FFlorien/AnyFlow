@@ -22,7 +22,13 @@
             android:layout_height="match_parent"
             android:visibility="@{vm.loadingAll ? View.GONE : View.VISIBLE}" />
 
+        <include
+            android:id="@+id/currentSongDisplay"
+            layout="@layout/item_song"
+            app:song="@{vm.currentSong}" />
+
         <TextView
+            android:id="@+id/loadingText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"

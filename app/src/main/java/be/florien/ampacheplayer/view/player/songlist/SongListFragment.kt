@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
+import android.os.Build
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
+import android.support.constraint.ConstraintSet
 import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.widget.LinearLayoutManager
@@ -30,6 +33,25 @@ class SongListFragment : Fragment() {
     @Inject
     lateinit var vm: SongListFragmentVm
 
+    private lateinit var linearLayoutManager: LinearLayoutManager
+    private var binding: FragmentSongListBinding? = null
+
+
+    private val topSet by lazy {
+        ConstraintSet().apply {
+            clone(binding?.root as ConstraintLayout)
+            clear(R.id.currentSongDisplay, ConstraintSet.BOTTOM)
+            connect(R.id.currentSongDisplay, ConstraintSet.TOP, R.id.songList, ConstraintSet.TOP)
+        }
+    }
+    private val bottomSet by lazy {
+        ConstraintSet().apply {
+            clone(binding?.root as ConstraintLayout)
+            clear(R.id.currentSongDisplay, ConstraintSet.TOP)
+            connect(R.id.currentSongDisplay, ConstraintSet.BOTTOM, R.id.songList, ConstraintSet.BOTTOM)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -37,12 +59,24 @@ class SongListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_song_list, container, false)
-        val binding = DataBindingUtil.bind<FragmentSongListBinding>(view)
+        binding = DataBindingUtil.bind(view)
         (activity as PlayerActivity).activityComponent.inject(this)
         binding?.vm = vm
         vm.refreshSongs()
         binding?.songList?.adapter = SongAdapter().apply { songs = vm.getCurrentAudioQueue() }
-        binding?.songList?.layoutManager = LinearLayoutManager(activity)
+        linearLayoutManager = LinearLayoutManager(activity)
+        binding?.songList?.layoutManager = linearLayoutManager
+        binding?.songList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                updateCurrentSongDisplay()
+            }
+        })
+        binding?.currentSongDisplay?.root?.setBackgroundResource(R.color.selected)
+        binding?.currentSongDisplay?.root?.setOnClickListener { binding?.songList?.scrollToPosition(vm.getListPosition()) }
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            binding?.currentSongDisplay?.root?.elevation = resources.getDimension(R.dimen.small_dimen)
+        }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
@@ -53,7 +87,7 @@ class SongListFragment : Fragment() {
                         songAdapter?.notifyItemChanged(songAdapter.lastPosition)
                         songAdapter?.notifyItemChanged(vm.getListPosition())
                         songAdapter?.lastPosition = vm.getListPosition()
-                        binding?.songList?.scrollToPosition(vm.getListPosition())
+                        updateCurrentSongDisplay()
                     }
                 }
             }
@@ -81,6 +115,22 @@ class SongListFragment : Fragment() {
         requireActivity().unbindService(vm.connection)
     }
 
+    private fun updateCurrentSongDisplay() {
+        val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+        val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
+        if (vm.getListPosition() in firstVisibleItemPosition..lastVisibleItemPosition) {
+            binding?.currentSongDisplay?.root?.visibility = View.GONE
+        } else if (binding?.currentSongDisplay?.root?.visibility != View.VISIBLE) {
+            binding?.currentSongDisplay?.root?.visibility = View.VISIBLE
+            if (vm.getListPosition() < firstVisibleItemPosition) {
+                topSet.applyTo(binding?.root as ConstraintLayout?)
+            } else if (vm.getListPosition() > lastVisibleItemPosition) {
+                bottomSet.applyTo(binding?.root as ConstraintLayout?)
+            }
+        }
+    }
+
+
     inner class SongAdapter : RecyclerView.Adapter<SongViewHolder>() {
         var songs = listOf<Song>()
             set(value) {
@@ -104,10 +154,15 @@ class SongListFragment : Fragment() {
             private val binding: ItemSongBinding = ItemSongBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         : RecyclerView.ViewHolder(binding.root) {
 
+        private var songPosition: Int = 0
+
+        init {
+            binding.root.setOnClickListener { vm.play(songPosition) }
+        }
+
         fun bind(song: Song, position: Int) {
+            this.songPosition = position
             binding.song = song
-            binding.position = position
-            binding.vm = vm
             GlideApp.with(binding.root)
                     .load(song.art)
 //                    .placeholder(R.drawable.cover_placeholder)
