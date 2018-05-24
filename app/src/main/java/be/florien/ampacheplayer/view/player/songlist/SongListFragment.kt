@@ -18,7 +18,6 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.extension.GlideApp
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
@@ -163,12 +162,6 @@ class SongListFragment : Fragment() {
         fun bind(song: Song, position: Int) {
             this.songPosition = position
             binding.song = song
-            GlideApp.with(binding.root)
-                    .load(song.art)
-//                    .placeholder(R.drawable.cover_placeholder)
-//                    .error(R.drawable.cover_placeholder)
-                    .fitCenter()
-                    .into(binding.cover)
         }
 
         var isCurrentSong: Boolean = false

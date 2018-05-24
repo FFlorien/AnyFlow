@@ -64,7 +64,7 @@ class SongListFragmentVm
     fun getCurrentAudioQueue() = audioQueueManager.getCurrentAudioQueue()
 
     @Bindable
-    fun getCurrentSong() = audioQueueManager.getCurrentAudioQueue()[getListPosition()]
+    fun getCurrentSong() = audioQueueManager.getCurrentSong()
 
     @Bindable
     fun getListPosition() = audioQueueManager.listPosition
@@ -106,12 +106,6 @@ class SongListFragmentVm
     fun play(position: Int) {
         audioQueueManager.listPosition = position
         player.play()
-    }
-
-    fun playPause() {
-        player.let {
-            if (it.isPlaying()) it.pause() else it.resume()
-        }
     }
 
     /**

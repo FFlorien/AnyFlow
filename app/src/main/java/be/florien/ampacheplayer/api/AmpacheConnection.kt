@@ -5,6 +5,7 @@ import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.api.model.*
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
+import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.user.AuthPersistence
 import io.reactivex.Observable
 import timber.log.Timber
@@ -136,6 +137,9 @@ open class AmpacheConnection
     fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = ampacheApi.getPlaylists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
     fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authPersistence.authToken.first, uid = uid)
+
+    //http://192.168.1.42/ampache/play/index.php?ssid=ecdef4a7aa77237415ba62ac803ce66a&type=song&oid=63&uid=1&player=api&name=Aivi%20-%20Surasshu%20-%2038.mp3
+    fun getSongUrl(song: Song): String = "${authPersistence.serverUrl}play/index.php?ssid=${authPersistence.authToken}&type=song&oid=${song.id}"
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 }

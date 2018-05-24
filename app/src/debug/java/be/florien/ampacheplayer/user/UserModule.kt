@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.user
 
 import android.content.Context
+import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.ExoPlayerController
@@ -17,5 +18,5 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun providePlayerController(context: Context, audioQueueManager: AudioQueue, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(context, audioQueueManager, okHttpClient)
+    fun providePlayerController(context: Context, audioQueueManager: AudioQueue, ampacheConnection: AmpacheConnection, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(context, audioQueueManager, ampacheConnection, okHttpClient)
 }

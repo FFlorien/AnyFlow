@@ -2,6 +2,7 @@ package be.florien.ampacheplayer.player
 
 import android.content.Context
 import android.net.Uri
+import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.persistence.model.Song
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ExoPlayerController
-@Inject constructor(context: Context, private var audioQueueManager: AudioQueue, okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
+@Inject constructor(context: Context, private var audioQueueManager: AudioQueue, private var ampacheConnection: AmpacheConnection, okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
 
     companion object {
         private const val NO_VALUE = -3L
@@ -69,7 +70,7 @@ class ExoPlayerController
             stop()
             val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
                     .setExtractorsFactory(extractorsFactory)
-                    .createMediaSource(Uri.parse(song.url))
+                    .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song)))
             prepare(audioSource)
             playWhenReady = true
         }
