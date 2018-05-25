@@ -6,6 +6,10 @@ import io.realm.RealmObject
 import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
+import io.realm.RealmResults
+import io.realm.annotations.LinkingObjects
+
+
 
 /**
  * Database structure that represents to accounts
@@ -44,6 +48,9 @@ open class Song : RealmObject {
     var language: String = ""
     @field:Index
     var genre: String = ""
+
+    @field:LinkingObjects("song")
+    private val queueOrder: RealmResults<QueueOrder>? = null
 
     constructor() : super()
 

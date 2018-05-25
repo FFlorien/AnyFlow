@@ -39,7 +39,9 @@ class SongsDatabase
             isFirstFilter = false
         }
         realmQuery.sort("id")
-        return realmQuery.findAll()
+        setOrderRandom(realmQuery.findAll())
+
+        return it.where(Song::class.java).sort("queueOrder.order").findAll()
     }
 
     /**
@@ -75,6 +77,33 @@ class SongsDatabase
                 it.executeTransaction { realm -> realm.copyToRealmOrUpdate(playlist) }
                 it.close()
             }
+
+    fun setOrderRandom(songList: RealmResults<Song>) {
+
+        if (Thread.currentThread().realmInstance.where(QueueOrder::class.java).count() > 0) {
+            Thread.currentThread().realmInstance.delete(QueueOrder::class.java)
+        }
+
+        val orders = mutableListOf<Int>()
+        for (order in 0 until songList.size) {
+            orders[order] = order
+        }
+
+        orders.shuffle()
+        val ordering = mutableListOf<QueueOrder>()
+
+        for (position in 0 until songList.size) {
+            val nullSafeSong = songList[position]
+            if (nullSafeSong != null) {
+                ordering.add(QueueOrder(orders[position], nullSafeSong))
+            }
+        }
+
+        Thread.currentThread().realmInstance.executeTransaction { realmTransactionInstance ->
+            realmTransactionInstance.copyToRealm(ordering)
+        }
+
+    }//todo other than random
 
     /**
      * Private methods
