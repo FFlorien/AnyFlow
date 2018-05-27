@@ -55,6 +55,9 @@ class SongListFragmentVm
             notifyPropertyChanged(BR.listPosition)
             notifyPropertyChanged(BR.currentSong)
         })
+        subscribe(audioQueueManager.orderObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
+            notifyPropertyChanged(BR.currentQueueOrder)
+        })
     }
 
     /**
@@ -73,7 +76,7 @@ class SongListFragmentVm
     fun getListPosition() = audioQueueManager.listPosition
 
     fun random() {
-        persistenceManager.setOrderRandom()
+        audioQueueManager.setOrderRandom()
     }
 
     fun refreshSongs() {

@@ -84,6 +84,7 @@ class SongListFragment : Fragment() {
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
+                    BR.currentQueueOrder -> (binding?.songList?.adapter as SongAdapter).queueOrder = vm.getCurrentQueueOrder()
                     BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).songs = vm.getCurrentAudioQueue()
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
@@ -153,7 +154,7 @@ class SongListFragment : Fragment() {
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.getListPosition()
-            holder.bind(songs[position], position)
+            holder.bind(songs[queueOrder[position].position], position)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(parent)

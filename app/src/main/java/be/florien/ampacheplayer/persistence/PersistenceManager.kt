@@ -81,25 +81,6 @@ class PersistenceManager
 
     }
 
-    fun setOrderRandom() {
-        val songList = songsDatabase.getSongs()
-        val orders = mutableListOf<Int>()
-        for (order in 0 until songList.size) {
-            orders.add(order)
-        }
-
-        orders.shuffle()
-        val ordering = mutableListOf<QueueOrder>()
-
-        for (position in 0 until songList.size) {
-            ordering.add(QueueOrder(orders[position], position))
-        }
-
-        songsDatabase.setOrder(ordering)
-
-    }//todo other than random
-
-
     /**
      * Private Method
      */
