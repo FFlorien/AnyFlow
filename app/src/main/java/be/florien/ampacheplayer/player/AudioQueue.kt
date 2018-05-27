@@ -2,6 +2,7 @@ package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.SongsDatabase
+import be.florien.ampacheplayer.persistence.model.QueueOrder
 import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.subjects.PublishSubject
 import io.realm.RealmResults
@@ -39,10 +40,14 @@ class AudioQueue
      */
     fun getCurrentSong(): Song {
         val songs = songsDatabase.getSongs(filters)
-        return if (listPosition in 0 until songs.size) songs[listPosition] ?: Song() else Song()
+        val order = songsDatabase.getQueueOrder()
+        val position = if (listPosition in 0 until order.size) order[listPosition]?.position ?: listPosition else listPosition
+        return if (listPosition in 0 until songs.size) songs[position] ?: Song() else Song()
     }
 
     fun getCurrentAudioQueue(): RealmResults<Song> = songsDatabase.getSongs(filters)
+
+    fun getCurrentQueueOrder(): RealmResults<QueueOrder> = songsDatabase.getQueueOrder()
 
     fun addFilter(filter: Filter<*>) = filters.add(filter)
 

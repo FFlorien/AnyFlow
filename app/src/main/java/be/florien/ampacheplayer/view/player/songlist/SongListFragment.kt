@@ -18,6 +18,7 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.persistence.model.QueueOrder
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
@@ -62,7 +63,10 @@ class SongListFragment : Fragment() {
         (activity as PlayerActivity).activityComponent.inject(this)
         binding?.vm = vm
         vm.refreshSongs()
-        binding?.songList?.adapter = SongAdapter().apply { songs = vm.getCurrentAudioQueue() }
+        binding?.songList?.adapter = SongAdapter().apply {
+            songs = vm.getCurrentAudioQueue()
+            queueOrder = vm.getCurrentQueueOrder()
+        }
         linearLayoutManager = LinearLayoutManager(activity)
         binding?.songList?.layoutManager = linearLayoutManager
         binding?.songList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -101,7 +105,7 @@ class SongListFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.refresh) {
-            vm.refreshSongs()
+            vm.random()
             true
         } else {
             false
@@ -136,7 +140,14 @@ class SongListFragment : Fragment() {
                 field = value
                 notifyDataSetChanged()
             }
+        var queueOrder = listOf<QueueOrder>()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
         var lastPosition = 0
+
+        //todo diffutils
 
         override fun getItemCount() = songs.size
 

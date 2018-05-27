@@ -8,10 +8,10 @@ import io.realm.annotations.RealmClass
 open class QueueOrder() : RealmObject() {
     @field:PrimaryKey
     var order = 0
-    var song: Song? = null
+    var position = 0
 
-    constructor(order: Int, song: Song) : this() {
+    constructor(order: Int, position: Int) : this() {
         this.order = order
-        this.song = song
+        this.position = position
     }
 }

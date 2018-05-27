@@ -138,8 +138,10 @@ open class AmpacheConnection
 
     fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authPersistence.authToken.first, uid = uid)
 
-    //http://192.168.1.42/ampache/play/index.php?ssid=ecdef4a7aa77237415ba62ac803ce66a&type=song&oid=63&uid=1&player=api&name=Aivi%20-%20Surasshu%20-%2038.mp3
-    fun getSongUrl(song: Song): String = "${authPersistence.serverUrl}play/index.php?ssid=${authPersistence.authToken}&type=song&oid=${song.id}"
+    fun getSongUrl(song: Song): String {
+        val ssidStart = song.url.indexOf("ssid=") + 5
+        return song.url.replaceRange(ssidStart, song.url.indexOf('&', ssidStart), authPersistence.authToken.first)
+    }
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 }

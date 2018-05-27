@@ -49,9 +49,6 @@ open class Song : RealmObject {
     @field:Index
     var genre: String = ""
 
-    @field:LinkingObjects("song")
-    private val queueOrder: RealmResults<QueueOrder>? = null
-
     constructor() : super()
 
     constructor(fromServer: AmpacheSong) : super() {

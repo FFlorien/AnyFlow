@@ -21,11 +21,13 @@ class SongsDatabase
 
     fun getSongs(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).sort("id").findAll()
 
-    fun getGenres(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).distinctValues("genre").findAll() //todo create genre RealmObject
+    fun getGenres(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).distinct("genre").findAll() //todo create genre RealmObject
 
     fun getArtists(): RealmResults<Artist> = Thread.currentThread().realmInstance.where(Artist::class.java).findAll()
 
     fun getAlbums(): RealmResults<Album> = Thread.currentThread().realmInstance.where(Album::class.java).findAll()
+
+    fun getQueueOrder(): RealmResults<QueueOrder> = Thread.currentThread().realmInstance.where(QueueOrder::class.java).sort("order").findAll()
 
     /**
      * Database getters : Filtered
@@ -38,10 +40,7 @@ class SongsDatabase
             applyFilter(realmQuery, filter, isFirstFilter)
             isFirstFilter = false
         }
-        realmQuery.sort("id")
-        setOrderRandom(realmQuery.findAll())
-
-        return it.where(Song::class.java).sort("queueOrder.order").findAll()
+        return realmQuery.sort("id").findAll()
     }
 
     /**
@@ -78,32 +77,11 @@ class SongsDatabase
                 it.close()
             }
 
-    fun setOrderRandom(songList: RealmResults<Song>) {
-
-        if (Thread.currentThread().realmInstance.where(QueueOrder::class.java).count() > 0) {
-            Thread.currentThread().realmInstance.delete(QueueOrder::class.java)
-        }
-
-        val orders = mutableListOf<Int>()
-        for (order in 0 until songList.size) {
-            orders[order] = order
-        }
-
-        orders.shuffle()
-        val ordering = mutableListOf<QueueOrder>()
-
-        for (position in 0 until songList.size) {
-            val nullSafeSong = songList[position]
-            if (nullSafeSong != null) {
-                ordering.add(QueueOrder(orders[position], nullSafeSong))
-            }
-        }
-
-        Thread.currentThread().realmInstance.executeTransaction { realmTransactionInstance ->
-            realmTransactionInstance.copyToRealm(ordering)
-        }
-
-    }//todo other than random
+    fun setOrder(songList: List<QueueOrder>) : Unit =
+            Realm.getDefaultInstance().let {
+                it.executeTransaction { realm -> realm.copyToRealmOrUpdate(songList) }
+                it.close()
+            }//todo other than random
 
     /**
      * Private methods

@@ -64,10 +64,17 @@ class SongListFragmentVm
     fun getCurrentAudioQueue() = audioQueueManager.getCurrentAudioQueue()
 
     @Bindable
+    fun getCurrentQueueOrder() = audioQueueManager.getCurrentQueueOrder()
+
+    @Bindable
     fun getCurrentSong() = audioQueueManager.getCurrentSong()
 
     @Bindable
     fun getListPosition() = audioQueueManager.listPosition
+
+    fun random() {
+        persistenceManager.setOrderRandom()
+    }
 
     fun refreshSongs() {
         isLoadingAll = audioQueueManager.itemsCount == 0
