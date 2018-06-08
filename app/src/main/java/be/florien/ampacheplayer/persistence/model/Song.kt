@@ -1,21 +1,17 @@
 package be.florien.ampacheplayer.persistence.model
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 import be.florien.ampacheplayer.api.model.AmpacheSong
-import io.realm.RealmList
-import io.realm.RealmObject
 import io.realm.annotations.Index
-import io.realm.annotations.PrimaryKey
-import io.realm.annotations.RealmClass
-import io.realm.RealmResults
-import io.realm.annotations.LinkingObjects
 
 
 
 /**
  * Database structure that represents to accounts
  */
-@RealmClass
-open class Song : RealmObject {
+@Entity
+open class Song  {
     @field:PrimaryKey
     var id: Long = 0
     var song: String = ""
@@ -30,7 +26,7 @@ open class Song : RealmObject {
     var albumArtistName: String = ""
     @field:Index
     var albumArtistId: Long = -1
-    var tag: RealmList<Tag> = RealmList()
+    var tag: MutableList<Tag> = mutableListOf()
     var filename: String = ""
     var track: Int = 0
     var time: Int = 0

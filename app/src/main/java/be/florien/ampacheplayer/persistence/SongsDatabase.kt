@@ -1,12 +1,10 @@
 package be.florien.ampacheplayer.persistence
 
+import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.extension.realmInstance
 import be.florien.ampacheplayer.persistence.model.*
 import be.florien.ampacheplayer.player.Filter
-import io.realm.Realm
 import io.realm.RealmQuery
-import io.realm.RealmResults
 import javax.inject.Inject
 
 /**
@@ -14,74 +12,42 @@ import javax.inject.Inject
  */
 @UserScope
 class SongsDatabase
-@Inject constructor() {
+@Inject constructor(val context: Context) {
     /**
      * Database getters : Unfiltered
      */
 
-    fun getSongs(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).sort("id").findAll()
+    fun getSongs(): List<Song> = LibraryDatabase.getInstance(context).getSongDao().getSong()
 
-    fun getGenres(): RealmResults<Song> = Thread.currentThread().realmInstance.where(Song::class.java).distinct("genre").findAll() //todo create genre RealmObject
+    fun getGenres(): List<Song> = LibraryDatabase.getInstance(context).getSongDao().getSong()
 
-    fun getArtists(): RealmResults<Artist> = Thread.currentThread().realmInstance.where(Artist::class.java).findAll()
+    fun getArtists(): List<Artist> = LibraryDatabase.getInstance(context).getArtistDao().getArtist()
 
-    fun getAlbums(): RealmResults<Album> = Thread.currentThread().realmInstance.where(Album::class.java).findAll()
+    fun getAlbums(): List<Album> = LibraryDatabase.getInstance(context).getAlbumDao().getAlbum()
 
-    fun getQueueOrder(): RealmResults<QueueOrder> = Thread.currentThread().realmInstance.where(QueueOrder::class.java).sort("order").findAll()
+    fun getQueueOrder(): List<QueueOrder> = LibraryDatabase.getInstance(context).getQueueOrderDao().getQueueOrder()
 
     /**
      * Database getters : Filtered
      */
 
-    fun getSongs(filters: List<Filter<*>> = emptyList()): RealmResults<Song> = Thread.currentThread().realmInstance.let {
-        val realmQuery = it.where(Song::class.java)
-        var isFirstFilter = true
-        for (filter in filters) {
-            applyFilter(realmQuery, filter, isFirstFilter)
-            isFirstFilter = false
-        }
-        return realmQuery.sort("id").findAll()
-    }
+    fun getSongs(filters: List<Filter<*>> = emptyList()): List<Song> = getSongs() //todo implement filter
 
     /**
      * Database setters
      */
 
-    fun addSongs(songs: List<Song>): Unit =
-            Realm.getDefaultInstance().let {
-                it.executeTransaction { it.copyToRealmOrUpdate(songs) }
-                it.close()
-            }
+    fun addSongs(songs: List<Song>): Unit = LibraryDatabase.getInstance(context).getSongDao().insert(songs)
 
-    fun addArtists(artists: List<Artist>): Unit =
-            Realm.getDefaultInstance().let {
-                it.executeTransaction { realm -> realm.copyToRealmOrUpdate(artists) }
-                it.close()
-            }
+    fun addArtists(artists: List<Artist>): Unit = LibraryDatabase.getInstance(context).getArtistDao().insert(artists)
 
-    fun addAlbums(albums: List<Album>): Unit =
-            Realm.getDefaultInstance().let {
-                it.executeTransaction { realm -> realm.copyToRealmOrUpdate(albums) }
-                it.close()
-            }
+    fun addAlbums(albums: List<Album>): Unit = LibraryDatabase.getInstance(context).getAlbumDao().insert(albums)
 
-    fun addTags(tags: List<Tag>): Unit =
-            Realm.getDefaultInstance().let {
-                it.executeTransaction { realm -> realm.copyToRealmOrUpdate(tags) }
-                it.close()
-            }
+    fun addTags(tags: List<Tag>): Unit = LibraryDatabase.getInstance(context).getTagDao().insert(tags)
 
-    fun addPlayLists(playlist: List<Playlist>): Unit =
-            Realm.getDefaultInstance().let {
-                it.executeTransaction { realm -> realm.copyToRealmOrUpdate(playlist) }
-                it.close()
-            }
+    fun addPlayLists(playlist: List<Playlist>): Unit = LibraryDatabase.getInstance(context).getPlaylistDao().insert(playlist)
 
-    fun setOrder(songList: List<QueueOrder>) : Unit =
-            Realm.getDefaultInstance().let {
-                it.executeTransaction { realm -> realm.copyToRealmOrUpdate(songList) }
-                it.close()
-            }//todo other than random
+    fun setOrder(songList: List<QueueOrder>): Unit = LibraryDatabase.getInstance(context).getQueueOrderDao().insert(songList)
 
     /**
      * Private methods

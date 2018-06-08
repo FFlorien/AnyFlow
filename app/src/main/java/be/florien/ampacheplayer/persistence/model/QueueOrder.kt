@@ -1,11 +1,10 @@
 package be.florien.ampacheplayer.persistence.model
 
-import io.realm.RealmObject
-import io.realm.annotations.PrimaryKey
-import io.realm.annotations.RealmClass
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 
-@RealmClass
-open class QueueOrder() : RealmObject() {
+@Entity
+open class QueueOrder() {
     @field:PrimaryKey
     var order = 0
     var position = 0
