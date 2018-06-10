@@ -64,9 +64,9 @@ class AudioQueue
         orderObservable.onNext(true)
     }//todo other than random
 
-    fun getCurrentAudioQueue(): RealmResults<Song> = songsDatabase.getSongs(filters)
+    fun getCurrentAudioQueue(): List<Song> = songsDatabase.getSongs(filters)
 
-    fun getCurrentQueueOrder(): RealmResults<QueueOrder> = songsDatabase.getQueueOrder()
+    fun getCurrentQueueOrder(): List<QueueOrder> = songsDatabase.getQueueOrder()
 
     fun addFilter(filter: Filter<*>) = filters.add(filter)
 

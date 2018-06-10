@@ -10,7 +10,6 @@ import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.Filter
 import be.florien.ampacheplayer.view.BaseVM
-import io.realm.RealmResults
 import javax.inject.Inject
 
 const val GENRE_NAME = "Genre"
@@ -56,9 +55,9 @@ class FilterFragmentVM
             FilterItem(SEARCH_FILTER_ID, SEARCH_NAME),
             FilterItem(RESET_FILTER_ID, RESET_NAME))
 
-    private var genresValues: RealmResults<Song>? = null
-    private var artistsValues: RealmResults<Artist>? = null
-    private var albumsValues: RealmResults<Album>? = null
+    private var genresValues: List<Song>? = null
+    private var artistsValues: List<Artist>? = null
+    private var albumsValues: List<Album>? = null
 
     private var currentFilterType = MASTER_FILTER_ID
         set(value) {
@@ -115,21 +114,21 @@ class FilterFragmentVM
     private fun getAlbumsValues(): List<FilterItem> = albumsValues?.map { FilterItem(it.id, it.name) }
             ?: listOf()
 
-    private fun updateGenre(songResults: RealmResults<Song>) {
+    private fun updateGenre(songResults: List<Song>) {
         genresValues = songResults
         if (currentFilterType == GENRE_FILTER_ID) {
             notifyPropertyChanged(BR.filterList)
         }
     }
 
-    private fun updateArtists(artistsResults: RealmResults<Artist>?) {
+    private fun updateArtists(artistsResults: List<Artist>?) {
         artistsValues = artistsResults
         if (currentFilterType == ARTIST_FILTER_ID) {
             notifyPropertyChanged(BR.filterList)
         }
     }
 
-    private fun updateAlbums(albumsResults: RealmResults<Album>?) {
+    private fun updateAlbums(albumsResults: List<Album>?) {
         albumsValues = albumsResults
         if (currentFilterType == ALBUM_FILTER_ID) {
             notifyPropertyChanged(BR.filterList)

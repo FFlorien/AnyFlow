@@ -11,14 +11,11 @@ import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
-import be.florien.ampacheplayer.persistence.model.QueueOrder
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.Filter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.realm.RealmObject
-import io.realm.RealmResults
 import java.util.*
 import javax.inject.Inject
 
@@ -45,28 +42,28 @@ class PersistenceManager
      * Getter
      */
 
-    fun getSongs(): Observable<RealmResults<Song>> = getUpToDateList(
+    fun getSongs(): Observable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             SongsDatabase::getSongs,
             AmpacheSongList::error,
             { songsDatabase.addSongs(it.songs.map(::Song)) })
 
-    fun getGenres(): Observable<RealmResults<Song>> = getUpToDateList(
+    fun getGenres(): Observable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             SongsDatabase::getGenres,
             AmpacheSongList::error,
             { songsDatabase.addSongs(it.songs.map(::Song)) })
 
-    fun getArtists(): Observable<RealmResults<Artist>> = getUpToDateList(
+    fun getArtists(): Observable<List<Artist>> = getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             SongsDatabase::getArtists,
             AmpacheArtistList::error,
             { songsDatabase.addArtists(it.artists.map(::Artist)) })
 
-    fun getAlbums(): Observable<RealmResults<Album>> = getUpToDateList(
+    fun getAlbums(): Observable<List<Album>> = getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             SongsDatabase::getAlbums,
@@ -85,13 +82,13 @@ class PersistenceManager
      * Private Method
      */
 
-    private fun <REALM_TYPE : RealmObject, SERVER_TYPE> getUpToDateList(
+    private fun <ROOM_TYPE, SERVER_TYPE> getUpToDateList(
             updatePreferenceName: String,
             getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
-            getListOnDatabase: SongsDatabase.() -> RealmResults<REALM_TYPE>,
+            getListOnDatabase: SongsDatabase.() -> List<ROOM_TYPE>,
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: (SERVER_TYPE) -> Unit)
-            : Observable<RealmResults<REALM_TYPE>> {
+            : Observable<List<ROOM_TYPE>> {
         val nowDate = Calendar.getInstance()
         val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
         val lastAcceptableUpdate = lastAcceptableUpdate()
@@ -109,9 +106,9 @@ class PersistenceManager
                     .doOnNext(saveToDatabase)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap { songsDatabase.getListOnDatabase().asFlowable().toObservable() }
+                    .flatMap { Observable.just(songsDatabase.getListOnDatabase()) }
         } else {
-            songsDatabase.getListOnDatabase().asFlowable().toObservable()
+            Observable.just(songsDatabase.getListOnDatabase())
         }
     }
 }

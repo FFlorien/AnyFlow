@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.persistence.model
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import be.florien.ampacheplayer.api.model.AmpacheAlbum
 import io.realm.annotations.Index
@@ -19,6 +20,7 @@ open class Album {
     var year: Int = 0
     var tracks: Int = 0
     var disk: Int = 0
+    @Ignore
     var tag: MutableList<Tag> = mutableListOf()
     var art: String = ""
     var preciserating: Int = 0
