@@ -9,7 +9,7 @@ interface ArtistDao {
     @Query("SELECT * FROM artist")
     fun getArtist(): List<Artist>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert( artists: List<Artist>)
 
     @Update

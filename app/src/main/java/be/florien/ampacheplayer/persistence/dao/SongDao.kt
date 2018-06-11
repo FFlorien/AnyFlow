@@ -10,7 +10,7 @@ interface SongDao {
     @Query("SELECT * FROM song")
     fun getSong(): List<Song>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert( songs: List<Song>)
 
     @Update

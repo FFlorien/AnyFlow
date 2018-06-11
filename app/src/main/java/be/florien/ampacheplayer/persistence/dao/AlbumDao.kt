@@ -9,7 +9,7 @@ interface AlbumDao {
     @Query("SELECT * FROM album")
     fun getAlbum(): List<Album>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert( albums: List<Album>)
 
     @Update

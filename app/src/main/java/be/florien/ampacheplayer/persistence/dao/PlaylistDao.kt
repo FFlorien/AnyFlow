@@ -9,7 +9,7 @@ interface PlaylistDao {
     @Query("SELECT * FROM playlist")
     fun getPlaylist(): List<Playlist>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert( playlists: List<Playlist>)
 
     @Update

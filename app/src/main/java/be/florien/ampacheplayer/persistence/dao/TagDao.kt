@@ -9,7 +9,7 @@ interface TagDao {
     @Query("SELECT * FROM tag")
     fun getTag(): List<Tag>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert( tags: List<Tag>)
 
     @Update

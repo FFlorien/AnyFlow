@@ -85,7 +85,7 @@ class PersistenceManager
     private fun <ROOM_TYPE, SERVER_TYPE> getUpToDateList(
             updatePreferenceName: String,
             getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
-            getListOnDatabase: SongsDatabase.() -> List<ROOM_TYPE>,
+            getListOnDatabase: SongsDatabase.() -> Observable<List<ROOM_TYPE>>,
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: (SERVER_TYPE) -> Unit)
             : Observable<List<ROOM_TYPE>> {
@@ -106,9 +106,9 @@ class PersistenceManager
                     .doOnNext(saveToDatabase)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap { Observable.just(songsDatabase.getListOnDatabase()) }
+                    .flatMap { songsDatabase.getListOnDatabase() }
         } else {
-            Observable.just(songsDatabase.getListOnDatabase())
+            songsDatabase.getListOnDatabase()
         }
     }
 }

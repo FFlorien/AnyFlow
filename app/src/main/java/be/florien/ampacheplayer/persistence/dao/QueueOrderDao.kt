@@ -9,7 +9,7 @@ interface QueueOrderDao {
     @Query("SELECT * FROM queueorder")
     fun getQueueOrder(): List<QueueOrder>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert( queueOrders: List<QueueOrder>)
 
     @Update
