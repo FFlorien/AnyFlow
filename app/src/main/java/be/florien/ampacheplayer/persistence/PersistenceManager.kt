@@ -13,6 +13,7 @@ import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.Filter
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -85,7 +86,7 @@ class PersistenceManager
     private fun <ROOM_TYPE, SERVER_TYPE> getUpToDateList(
             updatePreferenceName: String,
             getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
-            getListOnDatabase: SongsDatabase.() -> Observable<List<ROOM_TYPE>>,
+            getListOnDatabase: SongsDatabase.() -> Flowable<List<ROOM_TYPE>>,
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: (SERVER_TYPE) -> Unit)
             : Observable<List<ROOM_TYPE>> {
@@ -106,9 +107,9 @@ class PersistenceManager
                     .doOnNext(saveToDatabase)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap { songsDatabase.getListOnDatabase() }
+                    .flatMap { songsDatabase.getListOnDatabase().toObservable() }
         } else {
-            songsDatabase.getListOnDatabase()
+            songsDatabase.getListOnDatabase().toObservable()
         }
     }
 }

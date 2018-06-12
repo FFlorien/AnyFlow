@@ -150,7 +150,7 @@ class SongListFragment : Fragment() {
 
         //todo diffutils
 
-        override fun getItemCount() = songs.size
+        override fun getItemCount() = songs.size.coerceAtMost(queueOrder.size)
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.getListPosition()

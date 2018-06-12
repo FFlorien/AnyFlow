@@ -4,7 +4,8 @@ import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.*
 import be.florien.ampacheplayer.player.Filter
-import io.reactivex.Observable
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.realm.RealmQuery
 import javax.inject.Inject
@@ -19,21 +20,21 @@ class SongsDatabase
      * Database getters : Unfiltered
      */
 
-    fun getSongs(): Observable<List<Song>> = Observable.create<List<Song>> { LibraryDatabase.getInstance(context).getSongDao().getSong() }.subscribeOn(Schedulers.io())
+    fun getSongs(): Flowable<List<Song>> = Flowable.create<List<Song>>({ it.onNext(LibraryDatabase.getInstance(context).getSongDao().getSong()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
 
-    fun getGenres(): Observable<List<Song>> = Observable.create<List<Song>> { LibraryDatabase.getInstance(context).getSongDao().getSong() }.subscribeOn(Schedulers.io())
+    fun getGenres(): Flowable<List<Song>> = Flowable.create<List<Song>>({ it.onNext(LibraryDatabase.getInstance(context).getSongDao().getSong()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
 
-    fun getArtists(): Observable<List<Artist>> = Observable.create<List<Artist>> { LibraryDatabase.getInstance(context).getArtistDao().getArtist() }.subscribeOn(Schedulers.io())
+    fun getArtists(): Flowable<List<Artist>> = Flowable.create<List<Artist>>({ it.onNext(LibraryDatabase.getInstance(context).getArtistDao().getArtist()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
 
-    fun getAlbums(): Observable<List<Album>> = Observable.create<List<Album>> { LibraryDatabase.getInstance(context).getAlbumDao().getAlbum() }.subscribeOn(Schedulers.io())
+    fun getAlbums(): Flowable<List<Album>> = Flowable.create<List<Album>>({ it.onNext(LibraryDatabase.getInstance(context).getAlbumDao().getAlbum()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
 
-    fun getQueueOrder(): Observable<List<QueueOrder>> = Observable.create<List<QueueOrder>> { LibraryDatabase.getInstance(context).getQueueOrderDao().getQueueOrder() }.subscribeOn(Schedulers.io())
+    fun getQueueOrder(): Flowable<List<QueueOrder>> = Flowable.create<List<QueueOrder>>({ it.onNext(LibraryDatabase.getInstance(context).getQueueOrderDao().getQueueOrder()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
 
     /**
      * Database getters : Filtered
      */
 
-    fun getSongs(filters: List<Filter<*>> = emptyList()): Observable<List<Song>> = getSongs() //todo implement filter
+    fun getSongs(filters: List<Filter<*>> = emptyList()): Flowable<List<Song>> = getSongs() //todo implement filter
 
     /**
      * Database setters
