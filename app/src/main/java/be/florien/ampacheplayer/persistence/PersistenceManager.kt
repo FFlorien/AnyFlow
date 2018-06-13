@@ -13,6 +13,7 @@ import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.Filter
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -88,7 +89,7 @@ class PersistenceManager
             getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
             getListOnDatabase: SongsDatabase.() -> Flowable<List<ROOM_TYPE>>,
             getError: SERVER_TYPE.() -> AmpacheError,
-            saveToDatabase: (SERVER_TYPE) -> Unit)
+            saveToDatabase: (SERVER_TYPE) -> Completable)
             : Observable<List<ROOM_TYPE>> {
         val nowDate = Calendar.getInstance()
         val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
@@ -97,14 +98,13 @@ class PersistenceManager
             songServerConnection
                     .getListOnServer(lastUpdate)
                     .flatMap { result ->
-                        saveToDatabase(result)
+                        saveToDatabase(result).blockingAwait()
                         sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
                         when (result.getError().code) {
                             401 -> songServerConnection.reconnect(songServerConnection.getListOnServer(lastUpdate))
                             else -> Observable.just(result)
                         }
                     }
-                    .doOnNext(saveToDatabase)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap { songsDatabase.getListOnDatabase().toObservable() }

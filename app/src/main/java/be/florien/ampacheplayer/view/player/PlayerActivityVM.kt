@@ -113,15 +113,6 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
                 onError = {
                     Timber.e(it, "error while retrieving the playtime")
                 })
-        subscribe(
-                observable = player.songNotifier,
-                onNext = {
-                    //todo display song played
-                },
-                onError = {
-                    Timber.e(it, "error while displaying the current song")
-                },
-                containerKey = playerControllerIdentifierBase + playerControllerNumber)
     }
 
     /**

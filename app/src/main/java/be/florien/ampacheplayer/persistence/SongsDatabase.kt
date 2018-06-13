@@ -4,7 +4,7 @@ import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.*
 import be.florien.ampacheplayer.player.Filter
-import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.realm.RealmQuery
@@ -20,15 +20,17 @@ class SongsDatabase
      * Database getters : Unfiltered
      */
 
-    fun getSongs(): Flowable<List<Song>> = Flowable.create<List<Song>>({ it.onNext(LibraryDatabase.getInstance(context).getSongDao().getSong()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+    fun getSongs(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getSongDao().getSong().subscribeOn(Schedulers.io())
 
-    fun getGenres(): Flowable<List<Song>> = Flowable.create<List<Song>>({ it.onNext(LibraryDatabase.getInstance(context).getSongDao().getSong()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+    fun getSongsInQueueOrder(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getQueueOrderDao().getSongsInQueueOrder().subscribeOn(Schedulers.io())
 
-    fun getArtists(): Flowable<List<Artist>> = Flowable.create<List<Artist>>({ it.onNext(LibraryDatabase.getInstance(context).getArtistDao().getArtist()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+    fun getGenres(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getSongDao().getSong().subscribeOn(Schedulers.io())
 
-    fun getAlbums(): Flowable<List<Album>> = Flowable.create<List<Album>>({ it.onNext(LibraryDatabase.getInstance(context).getAlbumDao().getAlbum()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+    fun getArtists(): Flowable<List<Artist>> = LibraryDatabase.getInstance(context).getArtistDao().getArtist().subscribeOn(Schedulers.io())
 
-    fun getQueueOrder(): Flowable<List<QueueOrder>> = Flowable.create<List<QueueOrder>>({ it.onNext(LibraryDatabase.getInstance(context).getQueueOrderDao().getQueueOrder()) }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+    fun getAlbums(): Flowable<List<Album>> = LibraryDatabase.getInstance(context).getAlbumDao().getAlbum().subscribeOn(Schedulers.io())
+
+    fun getQueueOrder(): Flowable<List<QueueOrder>> = LibraryDatabase.getInstance(context).getQueueOrderDao().getQueueOrder().subscribeOn(Schedulers.io())
 
     /**
      * Database getters : Filtered
@@ -40,17 +42,36 @@ class SongsDatabase
      * Database setters
      */
 
-    fun addSongs(songs: List<Song>): Unit = LibraryDatabase.getInstance(context).getSongDao().insert(songs)
+    fun addSongs(songs: List<Song>): Completable = Completable.fromAction {
+        val queue = mutableListOf<QueueOrder>()
 
-    fun addArtists(artists: List<Artist>): Unit = LibraryDatabase.getInstance(context).getArtistDao().insert(artists)
+        songs.forEachIndexed { index, song ->
+            queue.add(QueueOrder(index, song))
+        }
 
-    fun addAlbums(albums: List<Album>): Unit = LibraryDatabase.getInstance(context).getAlbumDao().insert(albums)
+        LibraryDatabase.getInstance(context).getSongDao().insert(songs)
+        LibraryDatabase.getInstance(context).getQueueOrderDao().insert(queue)
+    }.subscribeOn(Schedulers.io())
 
-    fun addTags(tags: List<Tag>): Unit = LibraryDatabase.getInstance(context).getTagDao().insert(tags)
+    fun addArtists(artists: List<Artist>): Completable = Completable.fromAction {
+        LibraryDatabase.getInstance(context).getArtistDao().insert(artists)
+    }.subscribeOn(Schedulers.io())
 
-    fun addPlayLists(playlist: List<Playlist>): Unit = LibraryDatabase.getInstance(context).getPlaylistDao().insert(playlist)
+    fun addAlbums(albums: List<Album>): Completable = Completable.fromAction {
+        LibraryDatabase.getInstance(context).getAlbumDao().insert(albums)
+    }.subscribeOn(Schedulers.io())
 
-    fun setOrder(songList: List<QueueOrder>): Unit = LibraryDatabase.getInstance(context).getQueueOrderDao().insert(songList)
+    fun addTags(tags: List<Tag>): Completable = Completable.fromAction {
+        LibraryDatabase.getInstance(context).getTagDao().insert(tags)
+    }.subscribeOn(Schedulers.io())
+
+    fun addPlayLists(playlist: List<Playlist>): Completable = Completable.fromAction {
+        LibraryDatabase.getInstance(context).getPlaylistDao().insert(playlist)
+    }.subscribeOn(Schedulers.io())
+
+    fun setOrder(songList: List<QueueOrder>): Completable = Completable.fromAction {
+        LibraryDatabase.getInstance(context).getQueueOrderDao().insert(songList)
+    }.subscribeOn(Schedulers.io())
 
     /**
      * Private methods
@@ -72,6 +93,4 @@ class SongsDatabase
         }
         realmQuery.endGroup()
     }
-
-
 }

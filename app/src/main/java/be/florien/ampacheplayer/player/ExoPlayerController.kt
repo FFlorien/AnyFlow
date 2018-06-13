@@ -3,7 +3,6 @@ package be.florien.ampacheplayer.player
 import android.content.Context
 import android.net.Uri
 import be.florien.ampacheplayer.api.AmpacheConnection
-import be.florien.ampacheplayer.persistence.model.Song
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
@@ -18,8 +17,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.util.Util
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -36,7 +33,6 @@ class ExoPlayerController
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }
-    override val songNotifier: Subject<Song> = BehaviorSubject.create<Song>()
 
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Long = NO_VALUE
@@ -74,7 +70,6 @@ class ExoPlayerController
             prepare(audioSource)
             playWhenReady = true
         }
-        songNotifier.onNext(song)
     }
 
     override fun stop() {

@@ -18,7 +18,6 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.model.QueueOrder
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
@@ -65,7 +64,6 @@ class SongListFragment : Fragment() {
         vm.refreshSongs()
         binding?.songList?.adapter = SongAdapter().apply {
             songs = vm.getCurrentAudioQueue()
-            queueOrder = vm.getCurrentQueueOrder()
         }
         linearLayoutManager = LinearLayoutManager(activity)
         binding?.songList?.layoutManager = linearLayoutManager
@@ -84,7 +82,6 @@ class SongListFragment : Fragment() {
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.currentQueueOrder -> (binding?.songList?.adapter as SongAdapter).queueOrder = vm.getCurrentQueueOrder()
                     BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).songs = vm.getCurrentAudioQueue()
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
@@ -106,7 +103,8 @@ class SongListFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.refresh) {
-            vm.random()
+//            vm.random()
+            vm.refreshSongs()
             true
         } else {
             false
@@ -141,20 +139,15 @@ class SongListFragment : Fragment() {
                 field = value
                 notifyDataSetChanged()
             }
-        var queueOrder = listOf<QueueOrder>()
-            set(value) {
-                field = value
-                notifyDataSetChanged()
-            }
         var lastPosition = 0
 
         //todo diffutils
 
-        override fun getItemCount() = songs.size.coerceAtMost(queueOrder.size)
+        override fun getItemCount() = songs.size
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.getListPosition()
-            holder.bind(songs[queueOrder[position].position], position)
+            holder.bind(songs[position], position)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(parent)

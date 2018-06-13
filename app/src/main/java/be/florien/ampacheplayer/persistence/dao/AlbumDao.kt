@@ -2,15 +2,16 @@ package be.florien.ampacheplayer.persistence.dao
 
 import android.arch.persistence.room.*
 import be.florien.ampacheplayer.persistence.model.Album
+import io.reactivex.Flowable
 
 
 @Dao
 interface AlbumDao {
     @Query("SELECT * FROM album")
-    fun getAlbum(): List<Album>
+    fun getAlbum(): Flowable<List<Album>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert( albums: List<Album>)
+    fun insert(albums: List<Album>)
 
     @Update
     fun update(vararg albums: Album)
