@@ -6,9 +6,9 @@ import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.persistence.PersistenceManager
 import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
+import be.florien.ampacheplayer.persistence.model.Filter
 import be.florien.ampacheplayer.persistence.model.Song
 import be.florien.ampacheplayer.player.AudioQueue
-import be.florien.ampacheplayer.player.Filter
 import be.florien.ampacheplayer.view.BaseVM
 import javax.inject.Inject
 
@@ -32,7 +32,7 @@ const val RESET_FILTER_ID = -6L
 class FilterFragmentVM
 @Inject constructor(
         persistenceManager: PersistenceManager,
-        private val audioQueueManager: AudioQueue) : BaseVM() {
+        private val audioQueue: AudioQueue) : BaseVM() {
 
     /**
      * Constructor
@@ -86,14 +86,14 @@ class FilterFragmentVM
         when (currentFilterType) {
             MASTER_FILTER_ID -> {
                 if (filterSelected == RESET_FILTER_ID) {
-                    audioQueueManager.resetFilters()
+                    audioQueue.resetFilters()
                 } else {
                     currentFilterType = filterSelected
                 }
             }
-            GENRE_FILTER_ID -> audioQueueManager.addFilter(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName))
-            ARTIST_FILTER_ID -> audioQueueManager.addFilter(Filter.ArtistIs(filterSelected))
-            ALBUM_FILTER_ID -> audioQueueManager.addFilter(Filter.AlbumIs(filterSelected))
+            GENRE_FILTER_ID -> audioQueue.addFilter(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName))
+            ARTIST_FILTER_ID -> audioQueue.addFilter(Filter.ArtistIs(filterSelected))
+            ALBUM_FILTER_ID -> audioQueue.addFilter(Filter.AlbumIs(filterSelected))
         }
 
         if (currentFilterType != filterSelected) {

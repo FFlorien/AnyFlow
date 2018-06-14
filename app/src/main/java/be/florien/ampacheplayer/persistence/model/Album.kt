@@ -2,20 +2,19 @@ package be.florien.ampacheplayer.persistence.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import be.florien.ampacheplayer.api.model.AmpacheAlbum
-import io.realm.annotations.Index
 
 /**
  * Database structure that represents to album
  */
-@Entity
+@Entity(indices = [Index("artistId")])
 open class Album {
-    @field:PrimaryKey
+    @PrimaryKey
     var id: Long = 0
     var name: String = ""
     var artistName: String = ""
-    @field:Index
     var artistId: Long = -1
     var year: Int = 0
     var tracks: Int = 0

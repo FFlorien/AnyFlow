@@ -2,6 +2,7 @@ package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.SongsDatabase
+import be.florien.ampacheplayer.persistence.model.Filter
 import be.florien.ampacheplayer.persistence.model.Song
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
@@ -19,7 +20,7 @@ class AudioQueue
     /**
      * Fields
      */
-    private var filters: MutableList<Filter<*>> = mutableListOf()
+    private var filters: MutableList<Filter> = mutableListOf()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
     val songList: MutableList<Song> = mutableListOf()
     val itemsCount: Int
@@ -58,7 +59,7 @@ class AudioQueue
 
     fun getCurrentAudioQueue(): List<Song> = songList
 
-    fun addFilter(filter: Filter<*>) = filters.add(filter)
+    fun addFilter(filter: Filter) = filters.add(filter)
 
     fun resetFilters() {
         filters.clear()

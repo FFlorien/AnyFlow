@@ -3,11 +3,9 @@ package be.florien.ampacheplayer.persistence
 import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.model.*
-import be.florien.ampacheplayer.player.Filter
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
-import io.realm.RealmQuery
 import javax.inject.Inject
 
 /**
@@ -30,13 +28,11 @@ class SongsDatabase
 
     fun getAlbums(): Flowable<List<Album>> = LibraryDatabase.getInstance(context).getAlbumDao().getAlbum().subscribeOn(Schedulers.io())
 
-    fun getQueueOrder(): Flowable<List<QueueOrder>> = LibraryDatabase.getInstance(context).getQueueOrderDao().getQueueOrder().subscribeOn(Schedulers.io())
-
     /**
      * Database getters : Filtered
      */
 
-    fun getSongs(filters: List<Filter<*>> = emptyList()): Flowable<List<Song>> = getSongs() //todo implement filter
+    fun getSongs(filters: List<Filter> = emptyList()): Flowable<List<Song>> = getSongs() //todo implement filter
 
     /**
      * Database setters
@@ -73,24 +69,7 @@ class SongsDatabase
         LibraryDatabase.getInstance(context).getQueueOrderDao().insert(songList)
     }.subscribeOn(Schedulers.io())
 
-    /**
-     * Private methods
-     */
-
-    private fun applyFilter(realmQuery: RealmQuery<Song>, filter: Filter<*>, isFirst: Boolean) {
-        if (!isFirst) {
-            realmQuery.or()
-        }
-
-        realmQuery.beginGroup()
-        filter.apply {
-            applyFilter(realmQuery)
-            var isFirstSubFilter = true
-            for (subFilter in subFilter) {
-                applyFilter(realmQuery, subFilter, isFirstSubFilter)
-                isFirstSubFilter = false
-            }
-        }
-        realmQuery.endGroup()
-    }
+    fun setFilter(songList: List<Filter>): Completable = Completable.fromAction {
+        LibraryDatabase.getInstance(context).getFilterDao().insert(songList)
+    }.subscribeOn(Schedulers.io())
 }

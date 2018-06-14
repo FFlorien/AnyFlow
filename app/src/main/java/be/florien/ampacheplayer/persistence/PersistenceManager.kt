@@ -11,8 +11,8 @@ import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.model.Album
 import be.florien.ampacheplayer.persistence.model.Artist
+import be.florien.ampacheplayer.persistence.model.Filter
 import be.florien.ampacheplayer.persistence.model.Song
-import be.florien.ampacheplayer.player.Filter
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -76,7 +76,7 @@ class PersistenceManager
      * Setter
      */
 
-    fun <T> addFilter(filter: Filter<T>) {
+    fun addFilter(filter: Filter) {
 
     }
 

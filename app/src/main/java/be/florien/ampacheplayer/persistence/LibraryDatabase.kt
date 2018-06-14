@@ -17,6 +17,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     abstract fun getQueueOrderDao(): QueueOrderDao
     abstract fun getTagDao(): TagDao
     abstract fun getSongDao(): SongDao
+    abstract fun getFilterDao(): FilterDao
 
     companion object {
         @Volatile

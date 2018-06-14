@@ -1,7 +1,6 @@
 package be.florien.ampacheplayer
 
 import com.facebook.stetho.Stetho
-import io.realm.Realm
 import timber.log.Timber
 
 /**
@@ -12,7 +11,6 @@ class AmpacheAppRelease : AmpacheApp() {
 
     override fun initLibrariesForBuildType() {
         Stetho.initializeWithDefaults(this)
-        Realm.init(this)
         Timber.plant(Timber.DebugTree())
         applicationComponent = DaggerApplicationComponent
                 .builder()

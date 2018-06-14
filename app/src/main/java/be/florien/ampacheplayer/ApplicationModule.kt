@@ -8,7 +8,6 @@ import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import io.realm.Realm
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -25,10 +24,6 @@ class ApplicationModule {
     @Provides
     @Reusable
     fun providePreferences(context: Context): SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-
-    @Singleton
-    @Provides
-    fun provideRealm(): Realm = Realm.getDefaultInstance()
 
     @Singleton
     @Provides

@@ -5,7 +5,6 @@ import android.app.Application
 import be.florien.ampacheplayer.api.AmpacheApi
 import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.user.UserComponent
-import io.realm.Realm
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -29,7 +28,6 @@ open class AmpacheApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Realm.init(this)
         Timber.plant(Timber.DebugTree())
         initApplicationComponent()
         ampacheConnection.ensureConnection()

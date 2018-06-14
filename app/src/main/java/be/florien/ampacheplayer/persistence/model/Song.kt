@@ -2,30 +2,29 @@ package be.florien.ampacheplayer.persistence.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import be.florien.ampacheplayer.api.model.AmpacheSong
-import io.realm.annotations.Index
-
 
 
 /**
  * Database structure that represents to accounts
  */
-@Entity
-open class Song  {
-    @field:PrimaryKey
+@Entity(indices = [Index("artistId"),
+    Index("albumId"),
+    Index("albumArtistId"),
+    Index("genre")])
+open class Song {
+    @PrimaryKey
     var id: Long = 0
     var song: String = ""
     var title: String = ""
     var name: String = ""
     var artistName: String = ""
-    @field:Index
     var artistId: Long = -1
     var albumName: String = ""
-    @field:Index
     var albumId: Long = -1
     var albumArtistName: String = ""
-    @field:Index
     var albumArtistId: Long = -1
     @Ignore
     var tag: MutableList<Tag> = mutableListOf()
@@ -44,7 +43,6 @@ open class Song  {
     var comment: String = ""
     var publisher: String = ""
     var language: String = ""
-    @field:Index
     var genre: String = ""
 
     constructor() : super()
