@@ -116,7 +116,7 @@ class ExoPlayerController
         Timber.i(error, "Error while playback")
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
-                //todo reconnect
+                ampacheConnection.reconnect(Observable.fromCallable { resume() })
             }
         }
     }

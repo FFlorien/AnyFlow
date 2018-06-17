@@ -7,6 +7,7 @@ import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
 import be.florien.ampacheplayer.persistence.local.model.Album
 import be.florien.ampacheplayer.persistence.local.model.Artist
+import be.florien.ampacheplayer.persistence.local.model.QueueOrder
 import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.persistence.server.model.AmpacheAlbumList
@@ -48,29 +49,38 @@ class PersistenceManager
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             LocalDataManager::getSongs,
-            AmpacheSongList::error,
-            { localDataManager.addSongs(it.songs.map(::Song)) })
+            AmpacheSongList::error
+    ) {
+        localDataManager.addSongs(it.songs.map(::Song)).blockingAwait()
+        localDataManager.getSongs().flatMapCompletable {
+            val queueOrder = mutableListOf<QueueOrder>()
+            it.forEachIndexed { index, song ->
+                queueOrder.add(QueueOrder(index, song))
+            }
+            localDataManager.setOrder(queueOrder)
+        }
+    }
 
     fun getGenres(): Observable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             LocalDataManager::getGenres,
-            AmpacheSongList::error,
-            { localDataManager.addSongs(it.songs.map(::Song)) })
+            AmpacheSongList::error
+    ) { localDataManager.addSongs(it.songs.map(::Song)) }
 
     fun getArtists(): Observable<List<Artist>> = getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             LocalDataManager::getArtists,
-            AmpacheArtistList::error,
-            { localDataManager.addArtists(it.artists.map(::Artist)) })
+            AmpacheArtistList::error
+    ) { localDataManager.addArtists(it.artists.map(::Artist)) }
 
     fun getAlbums(): Observable<List<Album>> = getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             LocalDataManager::getAlbums,
-            AmpacheAlbumList::error,
-            { localDataManager.addAlbums(it.albums.map(::Album)) })
+            AmpacheAlbumList::error
+    ) { localDataManager.addAlbums(it.albums.map(::Album)) }
 
     /**
      * Getters without server updates
