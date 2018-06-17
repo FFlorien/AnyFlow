@@ -8,7 +8,6 @@ import be.florien.ampacheplayer.persistence.local.model.Album
 import be.florien.ampacheplayer.persistence.local.model.Artist
 import be.florien.ampacheplayer.persistence.local.model.Filter
 import be.florien.ampacheplayer.persistence.local.model.Song
-import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.view.BaseVM
 import javax.inject.Inject
 
@@ -16,23 +15,20 @@ const val GENRE_NAME = "Genre"
 const val ARTIST_NAME = "Artist"
 const val ALBUM_NAME = "Album"
 const val SEARCH_NAME = "Search"
-const val RESET_NAME = "Reset"
 
 const val MASTER_FILTER_ID = -1L
 const val GENRE_FILTER_ID = -2L
 const val ARTIST_FILTER_ID = -3L
 const val ALBUM_FILTER_ID = -4L
 const val SEARCH_FILTER_ID = -5L
-const val RESET_FILTER_ID = -6L
 
 /**
  * Created by FlamentF on 08-Jan-18.
  */
 @ActivityScope
-class FilterFragmentVM
+class AddFilterFragmentVM
 @Inject constructor(
-        persistenceManager: PersistenceManager,
-        private val audioQueue: AudioQueue) : BaseVM() {
+        private val persistenceManager: PersistenceManager) : BaseVM() {
 
     /**
      * Constructor
@@ -52,8 +48,7 @@ class FilterFragmentVM
             FilterItem(GENRE_FILTER_ID, GENRE_NAME),
             FilterItem(ARTIST_FILTER_ID, ARTIST_NAME),
             FilterItem(ALBUM_FILTER_ID, ALBUM_NAME),
-            FilterItem(SEARCH_FILTER_ID, SEARCH_NAME),
-            FilterItem(RESET_FILTER_ID, RESET_NAME))
+            FilterItem(SEARCH_FILTER_ID, SEARCH_NAME))
 
     private var genresValues: List<Song>? = null
     private var artistsValues: List<Artist>? = null
@@ -85,15 +80,11 @@ class FilterFragmentVM
     fun onFilterSelected(filterSelected: Long) {
         when (currentFilterType) {
             MASTER_FILTER_ID -> {
-                if (filterSelected == RESET_FILTER_ID) {
-                    audioQueue.resetFilters()
-                } else {
-                    currentFilterType = filterSelected
-                }
+                currentFilterType = filterSelected
             }
-            GENRE_FILTER_ID -> audioQueue.addFilter(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName))
-            ARTIST_FILTER_ID -> audioQueue.addFilter(Filter.ArtistIs(filterSelected))
-            ALBUM_FILTER_ID -> audioQueue.addFilter(Filter.AlbumIs(filterSelected))
+            GENRE_FILTER_ID -> persistenceManager.addFilters(listOf(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName)))
+            ARTIST_FILTER_ID -> persistenceManager.addFilters(listOf(Filter.ArtistIs(filterSelected)))
+            ALBUM_FILTER_ID -> persistenceManager.addFilters(listOf(Filter.AlbumIs(filterSelected)))
         }
 
         if (currentFilterType != filterSelected) {

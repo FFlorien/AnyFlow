@@ -21,8 +21,8 @@ import javax.inject.Inject
  */
 @ActivityScope
 @UserScope
-class FilterFragment : Fragment() {
-    @Inject lateinit var vm: FilterFragmentVM
+class AddFilterFragment : Fragment() {
+    @Inject lateinit var vm: AddFilterFragmentVM
     private lateinit var fragmentBinding: FragmentFilterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +60,7 @@ class FilterFragment : Fragment() {
             private val itemFilterTypeBinding: ItemFilterTypeBinding = ItemFilterTypeBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
     ) : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
 
-        fun bind(filter: FilterFragmentVM.FilterItem) {
+        fun bind(filter: AddFilterFragmentVM.FilterItem) {
             itemFilterTypeBinding.filterValue = filter.id
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.filterName.text = filter.displayName

@@ -20,7 +20,6 @@ class AudioQueue
     /**
      * Fields
      */
-    private var filters: MutableList<Filter> = mutableListOf()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
     val songList: MutableList<Song> = mutableListOf()
     val itemsCount: Int
@@ -58,11 +57,4 @@ class AudioQueue
     }
 
     fun getCurrentAudioQueue(): List<Song> = songList
-
-    fun addFilter(filter: Filter) = filters.add(filter)
-
-    fun resetFilters() {
-        filters.clear()
-    }
-
 }

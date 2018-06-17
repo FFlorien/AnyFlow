@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.view.player
 import android.app.Activity
 import android.view.View
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.view.player.filter.FilterFragment
+import be.florien.ampacheplayer.view.player.filter.AddFilterFragment
 import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import dagger.BindsInstance
 import dagger.Subcomponent
@@ -14,7 +14,7 @@ interface PlayerComponent {
 
     fun inject(playerActivity: PlayerActivity)
     fun inject(songListFragment: SongListFragment)
-    fun inject(filterFragment: FilterFragment)
+    fun inject(addFilterFragment: AddFilterFragment)
 
     @Subcomponent.Builder
     interface Builder {

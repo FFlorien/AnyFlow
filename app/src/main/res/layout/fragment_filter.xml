@@ -5,7 +5,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.player.filter.FilterFragmentVM" />
+            type="be.florien.ampacheplayer.view.player.filter.AddFilterFragmentVM" />
     </data>
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

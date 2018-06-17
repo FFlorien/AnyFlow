@@ -5,10 +5,7 @@ import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
-import be.florien.ampacheplayer.persistence.local.model.Album
-import be.florien.ampacheplayer.persistence.local.model.Artist
-import be.florien.ampacheplayer.persistence.local.model.QueueOrder
-import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.persistence.local.model.*
 import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.persistence.server.model.AmpacheAlbumList
 import be.florien.ampacheplayer.persistence.server.model.AmpacheArtistList
@@ -53,12 +50,16 @@ class PersistenceManager
     ) {
         localDataManager.addSongs(it.songs.map(::Song)).blockingAwait()
         localDataManager.getSongs().flatMapCompletable {
-            val queueOrder = mutableListOf<QueueOrder>()
-            it.forEachIndexed { index, song ->
-                queueOrder.add(QueueOrder(index, song))
-            }
-            localDataManager.setOrder(queueOrder)
+            saveQueueOrder(it)
         }
+    }
+
+    private fun saveQueueOrder(it: List<Song>): Completable {
+        val queueOrder = mutableListOf<QueueOrder>()
+        it.forEachIndexed { index, song ->
+            queueOrder.add(QueueOrder(index, song))
+        }
+        return localDataManager.setOrder(queueOrder)
     }
 
     fun getGenres(): Observable<List<Song>> = getUpToDateList(
@@ -88,7 +89,20 @@ class PersistenceManager
 
     fun getSongsInQueueOrder(): Flowable<List<Song>> = localDataManager.getSongsInQueueOrder()
 
+    fun getFilters(): Flowable<List<Filter>> = localDataManager.getFilters()
+
 //    fun getSongsForCurrentFilters(): Flowable<List<Song>> = localDataManager.getSongsForCurrentFilters()
+
+    /**
+     * Setters
+     */
+
+    fun clearFilters(): Completable = localDataManager.clearFilters()
+
+    fun addFilters(filters: List<Filter>): Completable = localDataManager.addFilters(filters).andThen(Completable.fromAction {
+        val songsForFilters = localDataManager.getSongsForFilters()
+        saveQueueOrder(songsForFilters)
+    })
 
     /**
      * Private Method
