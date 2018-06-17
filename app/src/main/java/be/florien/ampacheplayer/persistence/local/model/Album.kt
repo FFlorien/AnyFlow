@@ -1,10 +1,10 @@
-package be.florien.ampacheplayer.persistence.model
+package be.florien.ampacheplayer.persistence.local.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
-import be.florien.ampacheplayer.api.model.AmpacheAlbum
+import be.florien.ampacheplayer.persistence.server.model.AmpacheAlbum
 
 /**
  * Database structure that represents to album

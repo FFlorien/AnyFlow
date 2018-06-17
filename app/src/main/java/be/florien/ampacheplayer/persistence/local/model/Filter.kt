@@ -1,16 +1,21 @@
-package be.florien.ampacheplayer.persistence.model
+package be.florien.ampacheplayer.persistence.local.model
 
 import android.arch.persistence.room.Entity
 
-@Entity
-sealed class Filter(
-        private var filterFunction: String) {
+sealed class Filter {
+    var filterFunction: String = ""
 
-    @Entity
-    open class StringFilter(filterFunction: String, var argument: String): Filter(filterFunction)
+    open class StringFilter(filterFunction: String, var argument: String) : Filter(){
+        init {
+            this.filterFunction = filterFunction
+        }
+    }
 
-    @Entity
-    open class LongFilter(filterFunction: String, var argument: Long): Filter(filterFunction)
+    open class LongFilter(filterFunction: String, var argument: Long) : Filter(){
+        init {
+            this.filterFunction = filterFunction
+        }
+    }
 
     /**
      * String filters

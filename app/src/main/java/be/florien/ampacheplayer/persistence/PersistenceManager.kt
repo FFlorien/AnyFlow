@@ -1,18 +1,18 @@
 package be.florien.ampacheplayer.persistence
 
 import android.content.SharedPreferences
-import be.florien.ampacheplayer.api.AmpacheConnection
-import be.florien.ampacheplayer.api.model.AmpacheAlbumList
-import be.florien.ampacheplayer.api.model.AmpacheArtistList
-import be.florien.ampacheplayer.api.model.AmpacheError
-import be.florien.ampacheplayer.api.model.AmpacheSongList
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
-import be.florien.ampacheplayer.persistence.model.Album
-import be.florien.ampacheplayer.persistence.model.Artist
-import be.florien.ampacheplayer.persistence.model.Filter
-import be.florien.ampacheplayer.persistence.model.Song
+import be.florien.ampacheplayer.persistence.local.LocalDataManager
+import be.florien.ampacheplayer.persistence.local.model.Album
+import be.florien.ampacheplayer.persistence.local.model.Artist
+import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.persistence.server.AmpacheConnection
+import be.florien.ampacheplayer.persistence.server.model.AmpacheAlbumList
+import be.florien.ampacheplayer.persistence.server.model.AmpacheArtistList
+import be.florien.ampacheplayer.persistence.server.model.AmpacheError
+import be.florien.ampacheplayer.persistence.server.model.AmpacheSongList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -27,12 +27,12 @@ private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
 private const val LAST_ALBUM_ARTIST_UPDATE = "LAST_ALBUM_ARTIST_UPDATE"
 
 /**
- * Class updating the songsDatabase in the process.
+ * Class updating the localDataManager in the process.
  */
 @UserScope
 class PersistenceManager
 @Inject constructor(
-        private val songsDatabase: SongsDatabase,
+        private val localDataManager: LocalDataManager,
         private val songServerConnection: AmpacheConnection,
         private val sharedPreferences: SharedPreferences) {
 
@@ -41,44 +41,44 @@ class PersistenceManager
     }
 
     /**
-     * Getter
+     * Getter with server updates
      */
 
     fun getSongs(): Observable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
-            SongsDatabase::getSongs,
+            LocalDataManager::getSongs,
             AmpacheSongList::error,
-            { songsDatabase.addSongs(it.songs.map(::Song)) })
+            { localDataManager.addSongs(it.songs.map(::Song)) })
 
     fun getGenres(): Observable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
-            SongsDatabase::getGenres,
+            LocalDataManager::getGenres,
             AmpacheSongList::error,
-            { songsDatabase.addSongs(it.songs.map(::Song)) })
+            { localDataManager.addSongs(it.songs.map(::Song)) })
 
     fun getArtists(): Observable<List<Artist>> = getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
-            SongsDatabase::getArtists,
+            LocalDataManager::getArtists,
             AmpacheArtistList::error,
-            { songsDatabase.addArtists(it.artists.map(::Artist)) })
+            { localDataManager.addArtists(it.artists.map(::Artist)) })
 
     fun getAlbums(): Observable<List<Album>> = getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
-            SongsDatabase::getAlbums,
+            LocalDataManager::getAlbums,
             AmpacheAlbumList::error,
-            { songsDatabase.addAlbums(it.albums.map(::Album)) })
+            { localDataManager.addAlbums(it.albums.map(::Album)) })
 
     /**
-     * Setter
+     * Getters without server updates
      */
 
-    fun addFilter(filter: Filter) {
+    fun getSongsInQueueOrder(): Flowable<List<Song>> = localDataManager.getSongsInQueueOrder()
 
-    }
+//    fun getSongsForCurrentFilters(): Flowable<List<Song>> = localDataManager.getSongsForCurrentFilters()
 
     /**
      * Private Method
@@ -87,7 +87,7 @@ class PersistenceManager
     private fun <ROOM_TYPE, SERVER_TYPE> getUpToDateList(
             updatePreferenceName: String,
             getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
-            getListOnDatabase: SongsDatabase.() -> Flowable<List<ROOM_TYPE>>,
+            getListOnDatabase: LocalDataManager.() -> Flowable<List<ROOM_TYPE>>,
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: (SERVER_TYPE) -> Completable)
             : Observable<List<ROOM_TYPE>> {
@@ -107,9 +107,9 @@ class PersistenceManager
                     }
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap { songsDatabase.getListOnDatabase().toObservable() }
+                    .flatMap { localDataManager.getListOnDatabase().toObservable() }
         } else {
-            songsDatabase.getListOnDatabase().toObservable()
+            localDataManager.getListOnDatabase().toObservable()
         }
     }
 }

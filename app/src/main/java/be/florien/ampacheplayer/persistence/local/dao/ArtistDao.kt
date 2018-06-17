@@ -1,7 +1,7 @@
-package be.florien.ampacheplayer.persistence.dao
+package be.florien.ampacheplayer.persistence.local.dao
 
 import android.arch.persistence.room.*
-import be.florien.ampacheplayer.persistence.model.Artist
+import be.florien.ampacheplayer.persistence.local.model.Artist
 import io.reactivex.Flowable
 
 

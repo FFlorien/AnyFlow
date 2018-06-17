@@ -4,10 +4,10 @@ import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.persistence.PersistenceManager
-import be.florien.ampacheplayer.persistence.model.Album
-import be.florien.ampacheplayer.persistence.model.Artist
-import be.florien.ampacheplayer.persistence.model.Filter
-import be.florien.ampacheplayer.persistence.model.Song
+import be.florien.ampacheplayer.persistence.local.model.Album
+import be.florien.ampacheplayer.persistence.local.model.Artist
+import be.florien.ampacheplayer.persistence.local.model.Filter
+import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.view.BaseVM
 import javax.inject.Inject

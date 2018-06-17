@@ -1,11 +1,11 @@
-package be.florien.ampacheplayer.persistence
+package be.florien.ampacheplayer.persistence.local
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
-import be.florien.ampacheplayer.persistence.dao.*
-import be.florien.ampacheplayer.persistence.model.*
+import be.florien.ampacheplayer.persistence.local.dao.*
+import be.florien.ampacheplayer.persistence.local.model.*
 
 
 @Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, Tag::class], version = 1)
@@ -17,7 +17,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     abstract fun getQueueOrderDao(): QueueOrderDao
     abstract fun getTagDao(): TagDao
     abstract fun getSongDao(): SongDao
-    abstract fun getFilterDao(): FilterDao
+//    abstract fun getFilterDao(): FilterDao
 
     companion object {
         @Volatile

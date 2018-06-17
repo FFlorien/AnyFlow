@@ -18,7 +18,7 @@ import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.model.Song
+import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.api.model
+package be.florien.ampacheplayer.persistence.server.model
 
 import org.simpleframework.xml.*
 

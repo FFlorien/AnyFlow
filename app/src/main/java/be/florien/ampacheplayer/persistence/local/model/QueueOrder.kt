@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.persistence.model
+package be.florien.ampacheplayer.persistence.local.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey

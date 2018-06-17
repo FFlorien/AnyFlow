@@ -1,7 +1,7 @@
-package be.florien.ampacheplayer.api
+package be.florien.ampacheplayer.persistence.server
 
-import be.florien.ampacheplayer.api.model.*
 import be.florien.ampacheplayer.exception.NoServerException
+import be.florien.ampacheplayer.persistence.server.model.*
 import io.reactivex.Observable
 
 /**

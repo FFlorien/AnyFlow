@@ -1,8 +1,10 @@
-package be.florien.ampacheplayer.persistence
+package be.florien.ampacheplayer.persistence.local
 
+import android.arch.persistence.db.SimpleSQLiteQuery
 import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.persistence.model.*
+import be.florien.ampacheplayer.persistence.local.model.*
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
@@ -12,7 +14,7 @@ import javax.inject.Inject
  * Manager for the ampache data databaseManager-side
  */
 @UserScope
-class SongsDatabase
+class LocalDataManager
 @Inject constructor(val context: Context) {
     /**
      * Database getters : Unfiltered
@@ -20,19 +22,30 @@ class SongsDatabase
 
     fun getSongs(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getSongDao().getSong().subscribeOn(Schedulers.io())
 
-    fun getSongsInQueueOrder(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getQueueOrderDao().getSongsInQueueOrder().subscribeOn(Schedulers.io())
+    fun getSongsInQueueOrder(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getSongDao().getSongsInQueueOrder().subscribeOn(Schedulers.io())
+
+//    fun getSongsForCurrentFilters(): Flowable<List<Song>> = Flowable.create<List<Song>>({
+//        val filters = LibraryDatabase.getInstance(context).getFilterDao().getFilters()
+//        var query = "SELECT * FROM song"
+//
+//        query += if (filters.isNotEmpty()) {
+//            " WHERE"
+//        } else {
+//            ""
+//        }
+//
+//        for (filter in filters) {
+//            query += " ${filter.filterFunction}"
+//        }
+//
+//        it.onNext(LibraryDatabase.getInstance(context).getSongDao().getSongsforCurrentFilters(SimpleSQLiteQuery(query)))
+//    }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
 
     fun getGenres(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getSongDao().getSong().subscribeOn(Schedulers.io())
 
     fun getArtists(): Flowable<List<Artist>> = LibraryDatabase.getInstance(context).getArtistDao().getArtist().subscribeOn(Schedulers.io())
 
     fun getAlbums(): Flowable<List<Album>> = LibraryDatabase.getInstance(context).getAlbumDao().getAlbum().subscribeOn(Schedulers.io())
-
-    /**
-     * Database getters : Filtered
-     */
-
-    fun getSongs(filters: List<Filter> = emptyList()): Flowable<List<Song>> = getSongs() //todo implement filter
 
     /**
      * Database setters
@@ -66,10 +79,14 @@ class SongsDatabase
     }.subscribeOn(Schedulers.io())
 
     fun setOrder(songList: List<QueueOrder>): Completable = Completable.fromAction {
-        LibraryDatabase.getInstance(context).getQueueOrderDao().insert(songList)
+        val queueOrderDao = LibraryDatabase.getInstance(context).getQueueOrderDao()
+        queueOrderDao.deleteAll()
+        queueOrderDao.insert(songList)
     }.subscribeOn(Schedulers.io())
 
-    fun setFilter(songList: List<Filter>): Completable = Completable.fromAction {
-        LibraryDatabase.getInstance(context).getFilterDao().insert(songList)
-    }.subscribeOn(Schedulers.io())
+//    fun setFilter(songList: List<Filter>): Completable = Completable.fromAction {
+//        val filterDao = LibraryDatabase.getInstance(context).getFilterDao()
+//        filterDao.deleteAll()
+//        filterDao.insert(songList)
+//    }.subscribeOn(Schedulers.io())
 }

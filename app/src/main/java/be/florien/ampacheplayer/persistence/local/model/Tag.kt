@@ -1,10 +1,10 @@
-package be.florien.ampacheplayer.persistence.model
+package be.florien.ampacheplayer.persistence.local.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
-import be.florien.ampacheplayer.api.model.AmpacheTag
-import be.florien.ampacheplayer.api.model.AmpacheTagName
+import be.florien.ampacheplayer.persistence.server.model.AmpacheTag
+import be.florien.ampacheplayer.persistence.server.model.AmpacheTagName
 
 /**
  * Database structure that represents to tags

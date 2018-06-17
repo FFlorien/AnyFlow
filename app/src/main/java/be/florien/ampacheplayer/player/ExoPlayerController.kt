@@ -2,7 +2,7 @@ package be.florien.ampacheplayer.player
 
 import android.content.Context
 import android.net.Uri
-import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory

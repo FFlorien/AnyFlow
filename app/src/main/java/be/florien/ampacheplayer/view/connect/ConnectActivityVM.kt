@@ -2,9 +2,9 @@ package be.florien.ampacheplayer.view.connect
 
 import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
-import be.florien.ampacheplayer.api.AmpacheConnection
 import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
+import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.DisplayHelper
 import be.florien.ampacheplayer.view.Navigator
@@ -75,7 +75,7 @@ open class ConnectActivityVM
                     },
                     {
                         isLoading = false
-                        Timber.e("Error while extending session", it)
+                        Timber.e(it, "Error while extending session")
                     })
         } else {
             subscribe(
@@ -91,7 +91,7 @@ open class ConnectActivityVM
                         isLoading = false
                         when (it) {
                             is WrongIdentificationPairException -> {
-                                Timber.e("Wrong username/password", it)
+                                Timber.e(it, "Wrong username/password")
                                 displayHelper.notifyUserAboutError("Impossible de se connecter avec les informations données")
                             }
                         }

@@ -1,7 +1,7 @@
 package be.florien.ampacheplayer.user
 
 import android.content.Context
-import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.ExoPlayerController

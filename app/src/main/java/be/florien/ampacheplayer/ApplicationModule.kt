@@ -2,7 +2,7 @@ package be.florien.ampacheplayer
 
 import android.content.Context
 import android.content.SharedPreferences
-import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.user.AuthPersistence
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module

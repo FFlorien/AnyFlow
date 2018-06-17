@@ -1,35 +1,33 @@
-package be.florien.ampacheplayer.api.model
+package be.florien.ampacheplayer.persistence.server.model
 
 import org.simpleframework.xml.*
 
 /**
- * Server-side data structures that relates to artists
+ * Server-side data structures that relates to album
  */
-@Root(name = "artist", strict = false)
-class AmpacheArtist {
+@Root(name = "album", strict = false)
+class AmpacheAlbum {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "albums", required = false) var albums: String = ""
-    @field:Element(name = "accounts", required = false) var songs: String = ""
+    @field:Element(name = "artistName ", required = false) var artist: AmpacheArtistName = AmpacheArtistName()
+    @field:Element(name = "year", required = false) var year: Int = 0
+    @field:Element(name = "tracks", required = false) var tracks: Int = 0
+    @field:Element(name = "disk", required = false) var disk: Int = 0
     @field:ElementList(entry = "tag", inline = true, required = false) var tag: List<AmpacheTagName> = mutableListOf()
+    @field:Element(name = "art", required = false) var art: String = ""
     @field:Element(name = "preciserating", required = false) var preciserating: Int = 0
     @field:Element(name = "rating", required = false) var rating: Double = 0.0
-
 }
 
 @Root(name = "root", strict = false)
-class AmpacheArtistList {
+class AmpacheAlbumList {
     @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var artists: List<AmpacheArtist> = mutableListOf()
+    @field:ElementList(inline = true, required = false) var albums: List<AmpacheAlbum> = mutableListOf()
     @field:Element(name = "error", required = false) var error: AmpacheError = AmpacheError()
+
 }
 
-class AmpacheAlbumArtist {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Text() var name: String = ""
-}
-
-class AmpacheArtistName {
+class AmpacheAlbumName {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Text() var name: String = ""
 }

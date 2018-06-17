@@ -2,8 +2,8 @@ package be.florien.ampacheplayer
 
 import android.annotation.SuppressLint
 import android.app.Application
-import be.florien.ampacheplayer.api.AmpacheApi
-import be.florien.ampacheplayer.api.AmpacheConnection
+import be.florien.ampacheplayer.persistence.server.AmpacheApi
+import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.user.UserComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
