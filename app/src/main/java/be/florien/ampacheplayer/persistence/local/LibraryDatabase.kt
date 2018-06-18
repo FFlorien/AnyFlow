@@ -8,7 +8,7 @@ import be.florien.ampacheplayer.persistence.local.dao.*
 import be.florien.ampacheplayer.persistence.local.model.*
 
 
-@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, Tag::class], version = 1)
+@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, Tag::class, DbFilter::class], version = 1)
 abstract class LibraryDatabase : RoomDatabase() {
 
     abstract fun getAlbumDao(): AlbumDao

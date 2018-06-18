@@ -14,7 +14,7 @@ class AmpacheApiDisconnected : AmpacheApi {
     override fun ping(action: String, auth: String): Observable<AmpachePing> =
             Observable.error(NoServerException())
 
-    override fun getSongs(action: String, update: String, auth: String): Observable<AmpacheSongList> =
+    override fun getSongs(action: String, update: String, auth: String, limit: Int, offset: Int): Observable<AmpacheSongList> =
             Observable.error(NoServerException())
 
     override fun getArtists(action: String, update: String, auth: String): Observable<AmpacheArtistList> =

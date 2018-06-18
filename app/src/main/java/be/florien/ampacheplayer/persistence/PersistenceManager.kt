@@ -99,10 +99,7 @@ class PersistenceManager
 
     fun clearFilters(): Completable = localDataManager.clearFilters()
 
-    fun addFilters(filters: List<Filter>): Completable = localDataManager.addFilters(filters).andThen(Completable.fromAction {
-        val songsForFilters = localDataManager.getSongsForFilters()
-        saveQueueOrder(songsForFilters)
-    })
+    fun addFilters(filters: List<Filter>): Completable = localDataManager.addFilters(filters)
 
     /**
      * Private Method

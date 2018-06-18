@@ -2,6 +2,7 @@ package be.florien.ampacheplayer.persistence.local.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 
 @Entity(foreignKeys = [ForeignKey(

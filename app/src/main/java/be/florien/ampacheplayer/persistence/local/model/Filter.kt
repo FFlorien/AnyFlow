@@ -66,12 +66,12 @@ sealed class Filter (
             }
         }
     }
+}
 
-    @Entity
-    class DbFilter {
-        @PrimaryKey(autoGenerate = true)
-        var id: Long = 0
-        var clause: String = ""
-        var argument: String = ""
-    }
+@Entity
+class DbFilter {
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0
+    var clause: String = ""
+    var argument: String = ""
 }

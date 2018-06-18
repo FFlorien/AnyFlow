@@ -15,8 +15,8 @@ import javax.inject.Inject
  */
 @UserScope
 class LocalDataManager
-@Inject constructor(private val context: Context,
-                    private val libraryDatabase: LibraryDatabase = LibraryDatabase.getInstance(context)) {
+@Inject constructor(private val context: Context) {
+    private val libraryDatabase: LibraryDatabase = LibraryDatabase.getInstance(context)
     /**
      * Database getters : Unfiltered
      */
@@ -102,5 +102,6 @@ class LocalDataManager
         filterDao.deleteAll()
         filterDao.insert(songList.map { Filter.toDbFilter(it) })
     }
+
     private fun asyncCompletable(action: () -> Unit): Completable = Completable.fromAction(action).subscribeOn(Schedulers.io())
 }

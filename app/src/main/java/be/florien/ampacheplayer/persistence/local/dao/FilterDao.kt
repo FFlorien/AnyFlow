@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.persistence.local.dao
 
 import android.arch.persistence.room.*
+import be.florien.ampacheplayer.persistence.local.model.DbFilter
 import be.florien.ampacheplayer.persistence.local.model.Filter
 import io.reactivex.Flowable
 
@@ -8,19 +9,19 @@ import io.reactivex.Flowable
 @Dao
 interface FilterDao {
     @Query("SELECT * FROM dbfilter")
-    fun getFilters(): Flowable<List<Filter.DbFilter>>
+    fun getFilters(): Flowable<List<DbFilter>>
 
     @Query("SELECT * FROM dbfilter")
-    fun getFiltersSync(): List<Filter.DbFilter>
+    fun getFiltersSync(): List<DbFilter>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(artists: List<Filter.DbFilter>)
+    fun insert(artists: List<DbFilter>)
 
     @Update
-    fun update(vararg artists: Filter.DbFilter)
+    fun update(vararg artists: DbFilter)
 
     @Delete
-    fun delete(vararg artists: Filter.DbFilter)
+    fun delete(vararg artists: DbFilter)
 
     @Query("DELETE FROM dbfilter")
     fun deleteAll()

@@ -29,6 +29,9 @@ open class AmpacheConnection
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    private val songLimit: Int = 50
+    private var songOffset: Int = 0
+
     private var userComponent
         get() = (context.applicationContext as AmpacheApp).userComponent
         set(value) {
@@ -126,7 +129,7 @@ open class AmpacheConnection
      * API calls : data
      */
 
-    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
+    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = songLimit, offset = songOffset).doOnNext { songOffset += songLimit }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 
