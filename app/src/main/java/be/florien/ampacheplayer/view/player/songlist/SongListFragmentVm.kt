@@ -6,20 +6,15 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.exception.NoServerException
-import be.florien.ampacheplayer.exception.SessionExpiredException
-import be.florien.ampacheplayer.exception.WrongIdentificationPairException
-import be.florien.ampacheplayer.persistence.PersistenceManager
+import be.florien.ampacheplayer.persistence.local.LocalDataManager
+import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.BaseVM
-import be.florien.ampacheplayer.view.DisplayHelper
-import be.florien.ampacheplayer.view.Navigator
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 /**
@@ -29,10 +24,11 @@ import javax.inject.Inject
 @ActivityScope
 class SongListFragmentVm
 @Inject constructor(
-        private val persistenceManager: PersistenceManager,
+//        private val persistenceManager: PersistenceManager,
         private val audioQueueManager: AudioQueue,
-        private val navigator: Navigator,
-        private val displayHelper: DisplayHelper
+        private val localDataManager: LocalDataManager
+//        private val navigator: Navigator,
+//        private val displayHelper: DisplayHelper
 ) : BaseVM() {
 
     @get:Bindable
@@ -45,6 +41,7 @@ class SongListFragmentVm
     var player: PlayerController = DummyPlayerController()
 
     internal var connection: PlayerConnection = PlayerConnection()
+    private val songList = mutableListOf<Song>()
 
     /**
      * Constructor
@@ -55,57 +52,67 @@ class SongListFragmentVm
             notifyPropertyChanged(BR.listPosition)
             notifyPropertyChanged(BR.currentSong)
         })
+        subscribe(localDataManager.getSongs().observeOn(AndroidSchedulers.mainThread()), onNext =  {
+            songList.clear()
+            songList.addAll(it)
+            notifyPropertyChanged(BR.currentAudioQueue)
+        })
     }
 
     /**
      * Public methods
      */
     @Bindable
-    fun getCurrentAudioQueue() = audioQueueManager.getCurrentAudioQueue()
+    fun getCurrentAudioQueue() = songList
 
     @Bindable
-    fun getCurrentSong() = audioQueueManager.getCurrentSong()
+    fun getCurrentSong() = if (songList.size > 0) {
+        songList[0]
+    } else {
+        Song()
+    }
 
     @Bindable
-    fun getListPosition() = audioQueueManager.listPosition
+    fun getListPosition() = 0
 
     fun refreshSongs() {
         isLoadingAll = audioQueueManager.itemsCount == 0
-        subscribe(
-                persistenceManager.getSongs().subscribeOn(AndroidSchedulers.mainThread()),
-                { _ ->
-                    isLoadingAll = false
-                    notifyPropertyChanged(BR.currentAudioQueue)
-                },
-                { throwable ->
-                    isLoadingAll = false
-                    when (throwable) {
-                        is SessionExpiredException -> {
-                            Timber.i(throwable, "The session token is expired")
-                            navigator.goToConnection()
-                        }
-                        is WrongIdentificationPairException -> {
-                            Timber.i(throwable, "Couldn't reconnect the user: wrong user/pwd")
-                            navigator.goToConnection()
-                        }
-                        is SocketTimeoutException, is NoServerException -> {
-                            Timber.e(throwable, "Couldn't connect to the webservice")
-                            displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
-                        }
-                        else -> {
-                            Timber.e(throwable, "Unknown error")
-                            displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
-                            navigator.goToConnection()
-                        }
-                    }
-                })
+
+//        subscribe(
+//                persistenceManager.updateSongs().subscribeOn(AndroidSchedulers.mainThread()),
+//                { _ ->
+//                    isLoadingAll = false
+//                    notifyPropertyChanged(BR.currentAudioQueue)
+//                },
+//                { throwable ->
+//                    isLoadingAll = false
+//                    when (throwable) {
+//                        is SessionExpiredException -> {
+//                            Timber.i(throwable, "The session token is expired")
+//                            navigator.goToConnection()
+//                        }
+//                        is WrongIdentificationPairException -> {
+//                            Timber.i(throwable, "Couldn't reconnect the user: wrong user/pwd")
+//                            navigator.goToConnection()
+//                        }
+//                        is SocketTimeoutException, is NoServerException -> {
+//                            Timber.e(throwable, "Couldn't connect to the webservice")
+//                            displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
+//                        }
+//                        else -> {
+//                            Timber.e(throwable, "Unknown error")
+//                            displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
+//                            navigator.goToConnection()
+//                        }
+//                    }
+//                })
 
     }
 
 
     fun play(position: Int) {
-        audioQueueManager.listPosition = position
-        player.play()
+//        audioQueueManager.listPosition = position
+//        player.play()
     }
 
     /**

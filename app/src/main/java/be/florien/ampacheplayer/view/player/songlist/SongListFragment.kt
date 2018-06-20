@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
@@ -17,6 +18,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.R
+import be.florien.ampacheplayer.UpdateService
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
@@ -56,6 +58,9 @@ class SongListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        val intent = Intent(requireContext(), UpdateService::class.java)
+        intent.data = Uri.parse(UpdateService.UPDATE_ALL)
+        requireActivity().startService(intent)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

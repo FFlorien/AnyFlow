@@ -1,8 +1,7 @@
 package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.persistence.PersistenceManager
-import be.florien.ampacheplayer.persistence.local.model.Filter
+import be.florien.ampacheplayer.persistence.local.LocalDataManager
 import be.florien.ampacheplayer.persistence.local.model.Song
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
@@ -15,7 +14,7 @@ const val NO_CURRENT_SONG = -13456
  */
 @UserScope
 class AudioQueue
-@Inject constructor(persistenceManager: PersistenceManager) {
+@Inject constructor(localDataManager: LocalDataManager) {
 
     /**
      * Fields
@@ -35,7 +34,7 @@ class AudioQueue
         }
 
     init {
-        persistenceManager
+        localDataManager
                 .getSongsInQueueOrder()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {

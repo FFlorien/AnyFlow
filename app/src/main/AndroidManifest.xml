@@ -23,6 +23,7 @@
         <activity android:name=".view.connect.ConnectActivity" />
 
         <service android:name=".player.PlayerService" />
+        <service android:name=".UpdateService" />
     </application>
 
 </manifest>

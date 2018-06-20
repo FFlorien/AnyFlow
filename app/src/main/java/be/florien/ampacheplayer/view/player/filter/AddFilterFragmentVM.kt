@@ -3,7 +3,7 @@ package be.florien.ampacheplayer.view.player.filter
 import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.PersistenceManager
+import be.florien.ampacheplayer.persistence.local.LocalDataManager
 import be.florien.ampacheplayer.persistence.local.model.Album
 import be.florien.ampacheplayer.persistence.local.model.Artist
 import be.florien.ampacheplayer.persistence.local.model.Filter
@@ -28,16 +28,16 @@ const val SEARCH_FILTER_ID = -5L
 @ActivityScope
 class AddFilterFragmentVM
 @Inject constructor(
-        private val persistenceManager: PersistenceManager) : BaseVM() {
+        private val localDataManager: LocalDataManager) : BaseVM() {
 
     /**
      * Constructor
      */
 
     init {
-        subscribe(persistenceManager.getGenres(), onNext = { updateGenre(it) })
-        subscribe(persistenceManager.getArtists(), onNext = { updateArtists(it) })
-        subscribe(persistenceManager.getAlbums(), onNext = { updateAlbums(it) })
+        subscribe(localDataManager.getGenres(), onNext = { updateGenre(it) })
+        subscribe(localDataManager.getArtists(), onNext = { updateArtists(it) })
+        subscribe(localDataManager.getAlbums(), onNext = { updateAlbums(it) })
     }
 
     /**
@@ -82,9 +82,9 @@ class AddFilterFragmentVM
             MASTER_FILTER_ID -> {
                 currentFilterType = filterSelected
             }
-            GENRE_FILTER_ID -> persistenceManager.addFilters(listOf(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName)))
-            ARTIST_FILTER_ID -> persistenceManager.addFilters(listOf(Filter.ArtistIs(filterSelected)))
-            ALBUM_FILTER_ID -> persistenceManager.addFilters(listOf(Filter.AlbumIs(filterSelected)))
+            GENRE_FILTER_ID -> localDataManager.addFilters(listOf(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName)))
+            ARTIST_FILTER_ID -> localDataManager.addFilters(listOf(Filter.ArtistIs(filterSelected)))
+            ALBUM_FILTER_ID -> localDataManager.addFilters(listOf(Filter.AlbumIs(filterSelected)))
         }
 
         if (currentFilterType != filterSelected) {
