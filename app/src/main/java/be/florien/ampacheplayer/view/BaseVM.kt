@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.view
 
 import android.databinding.BaseObservable
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,21 +17,27 @@ open class BaseVM : BaseObservable() {
         }
     }
 
-    fun <T> subscribe(observable: Observable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete) {
-        subscribe(observable,onNext, onError, onComplete, "DEFAULT")
+    fun <T> subscribe(observable: Observable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
+        getContainer(containerKey).add(observable.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext, onError, onComplete))
     }
 
-    fun <T> subscribe(observable: Observable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String) {
-        var container = disposableContainerMap[containerKey]
-        if (container == null) {
-            container = CompositeDisposable()
-            disposableContainerMap[containerKey] = container
-        }
-        container.add(observable.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext, onError, onComplete))
+    fun <T> subscribe(flowable: Flowable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
+        getContainer(containerKey).add(flowable.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext, onError, onComplete))
     }
 
     fun dispose(containerKey : String) {
         disposableContainerMap[containerKey]?.clear()
+    }
+
+    private fun getContainer(containerKey: String): CompositeDisposable {
+        val container = disposableContainerMap[containerKey]
+        return if (container == null) {
+            val newContainer = CompositeDisposable()
+            disposableContainerMap[containerKey] = newContainer
+            newContainer
+        } else {
+            container
+        }
     }
 
     private fun doNothingOnComplete() {

@@ -11,6 +11,11 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
+import android.app.NotificationManager
+import android.app.NotificationChannel
+import android.os.Build
+
+
 
 /**
  * Application class used for initialization of many libraries
@@ -31,6 +36,7 @@ open class AmpacheApp : Application() {
         Timber.plant(Timber.DebugTree())
         initApplicationComponent()
         ampacheConnection.ensureConnection()
+        createNotificationChannel()
     }
 
     protected open fun initApplicationComponent() {
@@ -56,5 +62,17 @@ open class AmpacheApp : Application() {
                 .ampacheApi(ampacheApi)
                 .build()
         return ampacheApi
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Music"
+            val description = "It play music"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("AmpacheMusic", name, importance)
+            channel.description = description
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }

@@ -10,6 +10,8 @@ import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v7.recyclerview.extensions.ListAdapter
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -63,7 +65,7 @@ class SongListFragment : Fragment() {
         binding?.vm = vm
         vm.refreshSongs()
         binding?.songList?.adapter = SongAdapter().apply {
-            songs = vm.getCurrentAudioQueue()
+            submitList(vm.getCurrentAudioQueue())
         }
         linearLayoutManager = LinearLayoutManager(activity)
         binding?.songList?.layoutManager = linearLayoutManager
@@ -82,7 +84,7 @@ class SongListFragment : Fragment() {
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).songs = vm.getCurrentAudioQueue()
+                    BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.getCurrentAudioQueue())
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
                         songAdapter?.notifyItemChanged(songAdapter.lastPosition)
@@ -133,21 +135,17 @@ class SongListFragment : Fragment() {
     }
 
 
-    inner class SongAdapter : RecyclerView.Adapter<SongViewHolder>() {
-        var songs = listOf<Song>()
-            set(value) {
-                field = value
-                notifyDataSetChanged()
-            }
+    inner class SongAdapter : ListAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
+        override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
+
+    }) {
         var lastPosition = 0
-
-        //todo diffutils
-
-        override fun getItemCount() = songs.size
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.getListPosition()
-            holder.bind(songs[position], position)
+            holder.bind(getItem(position), position)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(parent)

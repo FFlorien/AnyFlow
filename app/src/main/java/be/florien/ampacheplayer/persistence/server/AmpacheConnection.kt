@@ -129,7 +129,16 @@ open class AmpacheConnection
      * API calls : data
      */
 
-    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = songLimit, offset = songOffset).doOnNext { songOffset += songLimit }
+    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
+        ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = songLimit, offset = songOffset).doOnNext {
+            if (it.songs.isEmpty()) {
+                emitter.onComplete()
+            } else {
+                emitter.onNext(it)
+                songOffset += songLimit
+            }
+        }.subscribe()
+    }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time))
 

@@ -73,27 +73,27 @@ class SongListFragmentVm
         isLoadingAll = audioQueueManager.itemsCount == 0
         subscribe(
                 persistenceManager.getSongs().subscribeOn(AndroidSchedulers.mainThread()),
-                {
+                { _ ->
                     isLoadingAll = false
                     notifyPropertyChanged(BR.currentAudioQueue)
                 },
-                {
+                { throwable ->
                     isLoadingAll = false
-                    when (it) {
+                    when (throwable) {
                         is SessionExpiredException -> {
-                            Timber.i(it, "The session token is expired")
+                            Timber.i(throwable, "The session token is expired")
                             navigator.goToConnection()
                         }
                         is WrongIdentificationPairException -> {
-                            Timber.i(it, "Couldn't reconnect the user: wrong user/pwd")
+                            Timber.i(throwable, "Couldn't reconnect the user: wrong user/pwd")
                             navigator.goToConnection()
                         }
                         is SocketTimeoutException, is NoServerException -> {
-                            Timber.e(it, "Couldn't connect to the webservice")
+                            Timber.e(throwable, "Couldn't connect to the webservice")
                             displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
                         }
                         else -> {
-                            Timber.e(it, "Unknown error")
+                            Timber.e(throwable, "Unknown error")
                             displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
                             navigator.goToConnection()
                         }

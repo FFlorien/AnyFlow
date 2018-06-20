@@ -119,14 +119,14 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
      * Inner class
      */
     inner class PlayerConnection : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-            dispose(playerControllerIdentifierBase + playerControllerNumber)
-            initController(DummyPlayerController())
-        }
-
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             dispose(playerControllerIdentifierBase + playerControllerNumber)
             initController((service as PlayerService.LocalBinder).service)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            dispose(playerControllerIdentifierBase + playerControllerNumber)
+            initController(DummyPlayerController())
         }
     }
 }

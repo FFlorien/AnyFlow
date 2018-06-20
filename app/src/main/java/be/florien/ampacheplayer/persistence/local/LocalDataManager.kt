@@ -11,12 +11,27 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 /**
- * Manager for the ampache data databaseManager-side
+ * Manager for the ampache data database-side
  */
 @UserScope
 class LocalDataManager
 @Inject constructor(private val context: Context) {
     private val libraryDatabase: LibraryDatabase = LibraryDatabase.getInstance(context)
+
+    init {
+        getSongsForFilters().distinct().doOnNext {
+            saveOrder(it)
+        }
+    }
+
+    private fun saveOrder(it: List<Song>) {
+        val queueOrder = mutableListOf<QueueOrder>()
+        it.forEachIndexed { index, song ->
+            queueOrder.add(QueueOrder(index, song))
+        }
+        setOrder(queueOrder)
+    }
+
     /**
      * Database getters : Unfiltered
      */
@@ -25,7 +40,7 @@ class LocalDataManager
 
     fun getSongsInQueueOrder(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongsInQueueOrder().subscribeOn(Schedulers.io())
 
-    fun getSongsForFilters(): Flowable<List<Song>> = Flowable.create<List<Song>>({
+    private fun getSongsForFilters(): Flowable<List<Song>> = Flowable.create<List<Song>>({
         val filters = LibraryDatabase.getInstance(context).getFilterDao().getFiltersSync().map { Filter.getTypedFilter(it) }
         var query = "SELECT * FROM song"
 
@@ -83,7 +98,7 @@ class LocalDataManager
         libraryDatabase.getPlaylistDao().insert(playlist)
     }
 
-    fun setOrder(orderList: List<QueueOrder>): Completable = asyncCompletable {
+    private fun setOrder(orderList: List<QueueOrder>): Completable = asyncCompletable {
         val queueOrderDao = libraryDatabase.getQueueOrderDao()
         queueOrderDao.deleteAll()
         queueOrderDao.insert(orderList)

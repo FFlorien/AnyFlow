@@ -5,7 +5,10 @@ import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
-import be.florien.ampacheplayer.persistence.local.model.*
+import be.florien.ampacheplayer.persistence.local.model.Album
+import be.florien.ampacheplayer.persistence.local.model.Artist
+import be.florien.ampacheplayer.persistence.local.model.Filter
+import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.persistence.server.model.AmpacheAlbumList
 import be.florien.ampacheplayer.persistence.server.model.AmpacheArtistList
@@ -14,8 +17,6 @@ import be.florien.ampacheplayer.persistence.server.model.AmpacheSongList
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
@@ -25,7 +26,7 @@ private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
 private const val LAST_ALBUM_ARTIST_UPDATE = "LAST_ALBUM_ARTIST_UPDATE"
 
 /**
- * Class updating the localDataManager in the process.
+ * Entry point for getting data, and make the link between server-side and app
  */
 @UserScope
 class PersistenceManager
@@ -42,41 +43,28 @@ class PersistenceManager
      * Getter with server updates
      */
 
-    fun getSongs(): Observable<List<Song>> = getUpToDateList(
+    fun getSongs(): Flowable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             LocalDataManager::getSongs,
             AmpacheSongList::error
-    ) {
-        localDataManager.addSongs(it.songs.map(::Song)).blockingAwait()
-        localDataManager.getSongs().flatMapCompletable {
-            saveQueueOrder(it)
-        }
-    }
+    ) { localDataManager.addSongs(it.songs.map(::Song)) }
 
-    private fun saveQueueOrder(it: List<Song>): Completable {
-        val queueOrder = mutableListOf<QueueOrder>()
-        it.forEachIndexed { index, song ->
-            queueOrder.add(QueueOrder(index, song))
-        }
-        return localDataManager.setOrder(queueOrder)
-    }
-
-    fun getGenres(): Observable<List<Song>> = getUpToDateList(
+    fun getGenres(): Flowable<List<Song>> = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             LocalDataManager::getGenres,
             AmpacheSongList::error
     ) { localDataManager.addSongs(it.songs.map(::Song)) }
 
-    fun getArtists(): Observable<List<Artist>> = getUpToDateList(
+    fun getArtists(): Flowable<List<Artist>> = getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             LocalDataManager::getArtists,
             AmpacheArtistList::error
     ) { localDataManager.addArtists(it.artists.map(::Artist)) }
 
-    fun getAlbums(): Observable<List<Album>> = getUpToDateList(
+    fun getAlbums(): Flowable<List<Album>> = getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             LocalDataManager::getAlbums,
@@ -111,7 +99,7 @@ class PersistenceManager
             getListOnDatabase: LocalDataManager.() -> Flowable<List<ROOM_TYPE>>,
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: (SERVER_TYPE) -> Completable)
-            : Observable<List<ROOM_TYPE>> {
+            : Flowable<List<ROOM_TYPE>> {
         val nowDate = Calendar.getInstance()
         val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
         val lastAcceptableUpdate = lastAcceptableUpdate()
@@ -126,11 +114,9 @@ class PersistenceManager
                             else -> Observable.just(result)
                         }
                     }
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap { localDataManager.getListOnDatabase().toObservable() }
+                    .to { localDataManager.getListOnDatabase() }
         } else {
-            localDataManager.getListOnDatabase().toObservable()
+            localDataManager.getListOnDatabase()
         }
     }
 }
