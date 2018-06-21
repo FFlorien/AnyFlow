@@ -11,7 +11,7 @@ interface SongDao {
     @Query("SELECT * FROM song ORDER BY song.albumArtistName, song.albumName, song.track")
     fun getSongs(): Flowable<List<Song>>
 
-    @Query("SELECT * FROM song JOIN queueorder ON song.id is queueorder.songId ORDER BY queueorder.`order`")
+    @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     fun getSongsInQueueOrder(): Flowable<List<Song>>
 
     @RawQuery(observedEntities = [Song::class])

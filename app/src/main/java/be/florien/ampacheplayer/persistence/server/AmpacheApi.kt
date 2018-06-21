@@ -37,28 +37,36 @@ interface AmpacheApi {
     fun getArtists(
             @Query("action") action: String = "artists",
             @Query("update") update: String = "1970-01-01",
-            @Query("auth") auth: String)
+            @Query("auth") auth: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int)
             : Observable<AmpacheArtistList>
 
     @GET("server/xml.server.php")
     fun getAlbums(
             @Query("action") action: String = "albums",
             @Query("update") update: String = "1970-01-01",
-            @Query("auth") auth: String)
+            @Query("auth") auth: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int)
             : Observable<AmpacheAlbumList>
 
     @GET("server/xml.server.php")
     fun getTags(
             @Query("action") action: String = "tags",
             @Query("update") update: String = "1970-01-01",
-            @Query("auth") auth: String)
+            @Query("auth") auth: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int)
             : Observable<AmpacheTagList>
 
     @GET("server/xml.server.php")
     fun getPlaylists(
             @Query("action") action: String = "playlists",
             @Query("update") update: String = "1970-01-01",
-            @Query("auth") auth: String)
+            @Query("auth") auth: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int)
             : Observable<AmpachePlayListList>
 
     @GET("server/xml.server.php")
