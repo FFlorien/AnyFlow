@@ -89,7 +89,7 @@ class SongListFragment : Fragment() {
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.getCurrentAudioQueue())
+                    BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(ArrayList(vm.getCurrentAudioQueue()))
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
                         songAdapter?.notifyItemChanged(songAdapter.lastPosition)
@@ -110,7 +110,6 @@ class SongListFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.refresh) {
-//            vm.random()
             vm.refreshSongs()
             true
         } else {

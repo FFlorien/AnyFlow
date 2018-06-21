@@ -3,6 +3,7 @@ package be.florien.ampacheplayer.player
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
 import be.florien.ampacheplayer.persistence.local.model.Song
+import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -19,27 +20,27 @@ class AudioQueue
     /**
      * Fields
      */
+    val songListUpdater: Flowable<List<Song>> = localDataManager.getSongsInQueueOrder()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
-    val songList: MutableList<Song> = mutableListOf()
     val itemsCount: Int
-        get() = songList.size
+        get() = currentAudioQueue.size
     var listPosition: Int = 0
         set(value) {
             field = when {
-                value in 0 until songList.size -> value
+                value in 0 until currentAudioQueue.size -> value
                 value < 0 -> 0
-                else -> songList.size - 1
+                else -> currentAudioQueue.size - 1
             }
             positionObservable.onNext(field)
         }
 
+    var currentAudioQueue: List<Song> = listOf()
+
     init {
-        localDataManager
-                .getSongsInQueueOrder()
+        songListUpdater
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    songList.clear()
-                    songList.addAll(it)
+                    currentAudioQueue = it
                 }
     }
 
@@ -51,9 +52,7 @@ class AudioQueue
         return if (itemsCount == 0) {
             Song()
         } else {
-            songList[listPosition]
+            currentAudioQueue[listPosition]
         }
     }
-
-    fun getCurrentAudioQueue(): List<Song> = songList
 }

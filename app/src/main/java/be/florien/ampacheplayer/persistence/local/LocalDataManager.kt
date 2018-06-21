@@ -4,7 +4,6 @@ import android.arch.persistence.db.SimpleSQLiteQuery
 import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.local.model.*
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
@@ -19,9 +18,10 @@ class LocalDataManager
     private val libraryDatabase: LibraryDatabase = LibraryDatabase.getInstance(context)
 
     init {
-        getSongsForFilters().distinct().doOnNext {
-            saveOrder(it)
-        }
+        getSongsForFilters()
+                .doOnNext { saveOrder(it) }
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     private fun saveOrder(it: List<Song>) {
@@ -29,7 +29,7 @@ class LocalDataManager
         it.forEachIndexed { index, song ->
             queueOrder.add(QueueOrder(index, song))
         }
-        setOrder(queueOrder)
+        setOrder(queueOrder).subscribe()
     }
 
     /**
@@ -40,25 +40,27 @@ class LocalDataManager
 
     fun getSongsInQueueOrder(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongsInQueueOrder().subscribeOn(Schedulers.io())
 
-    private fun getSongsForFilters(): Flowable<List<Song>> = Flowable.create<List<Song>>({
-        val filters = LibraryDatabase.getInstance(context).getFilterDao().getFiltersSync().map { Filter.getTypedFilter(it) }
+    private fun getSongsForFilters(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getFilterDao().getFilters().flatMap { dbFilters ->
+        val typedFilterList = mutableListOf<Filter>()
+        dbFilters.forEach {
+            typedFilterList.add(Filter.getTypedFilter(it))
+        }
         var query = "SELECT * FROM song"
 
-        query += if (filters.isNotEmpty()) {
+        query += if (typedFilterList.isNotEmpty()) {
             " WHERE"
         } else {
             ""
         }
 
-        filters.forEachIndexed { index, filter ->
+        typedFilterList.forEachIndexed { index, filter ->
             query += " ${filter.clause}"
-            if (index < filters.size - 1) {
+            if (index < typedFilterList.size - 1) {
                 query += " AND"
             }
         }
-
-        it.onNext(LibraryDatabase.getInstance(context).getSongDao().getSongsforCurrentFilters(SimpleSQLiteQuery(query)))
-    }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+        LibraryDatabase.getInstance(context).getSongDao().getSongsForCurrentFilters(SimpleSQLiteQuery(query))
+    }
 
     fun getGenres(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongs().subscribeOn(Schedulers.io())
 

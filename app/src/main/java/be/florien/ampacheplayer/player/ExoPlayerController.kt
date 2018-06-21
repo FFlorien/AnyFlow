@@ -82,9 +82,9 @@ class ExoPlayerController
         mediaPlayer.playWhenReady = false
     }
 
-    override fun resume() { //todo threading!!!!!!!!!!
+    override fun resume() {
         if (lastPosition == NO_VALUE) {
-            val songList = audioQueueManager.getCurrentAudioQueue()
+            val songList = audioQueueManager.currentAudioQueue
             if (songList.isNotEmpty()) {
                 play()
             }

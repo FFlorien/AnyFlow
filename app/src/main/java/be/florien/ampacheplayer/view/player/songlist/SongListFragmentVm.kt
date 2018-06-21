@@ -6,8 +6,6 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.local.LocalDataManager
-import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
@@ -24,11 +22,7 @@ import javax.inject.Inject
 @ActivityScope
 class SongListFragmentVm
 @Inject constructor(
-//        private val persistenceManager: PersistenceManager,
-        private val audioQueueManager: AudioQueue,
-        private val localDataManager: LocalDataManager
-//        private val navigator: Navigator,
-//        private val displayHelper: DisplayHelper
+        private val audioQueue: AudioQueue
 ) : BaseVM() {
 
     @get:Bindable
@@ -41,20 +35,17 @@ class SongListFragmentVm
     var player: PlayerController = DummyPlayerController()
 
     internal var connection: PlayerConnection = PlayerConnection()
-    private val songList = mutableListOf<Song>()
 
     /**
      * Constructor
      */
     init {
         Timber.tag(this.javaClass.simpleName)
-        subscribe(audioQueueManager.positionObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
+        subscribe(audioQueue.positionObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
             notifyPropertyChanged(BR.listPosition)
             notifyPropertyChanged(BR.currentSong)
         })
-        subscribe(localDataManager.getSongs().observeOn(AndroidSchedulers.mainThread()), onNext =  {
-            songList.clear()
-            songList.addAll(it)
+        subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()), onNext =  {
             notifyPropertyChanged(BR.currentAudioQueue)
         })
     }
@@ -63,20 +54,16 @@ class SongListFragmentVm
      * Public methods
      */
     @Bindable
-    fun getCurrentAudioQueue() = songList
+    fun getCurrentAudioQueue() = audioQueue.currentAudioQueue
 
     @Bindable
-    fun getCurrentSong() = if (songList.size > 0) {
-        songList[0]
-    } else {
-        Song()
-    }
+    fun getCurrentSong() = audioQueue.getCurrentSong()
 
     @Bindable
     fun getListPosition() = 0
 
     fun refreshSongs() {
-        isLoadingAll = audioQueueManager.itemsCount == 0
+        isLoadingAll = audioQueue.itemsCount == 0
 
 //        subscribe(
 //                persistenceManager.updateSongs().subscribeOn(AndroidSchedulers.mainThread()),
@@ -111,8 +98,8 @@ class SongListFragmentVm
 
 
     fun play(position: Int) {
-//        audioQueueManager.listPosition = position
-//        player.play()
+        audioQueue.listPosition = position
+        player.play()
     }
 
     /**

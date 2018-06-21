@@ -14,8 +14,8 @@ interface SongDao {
     @Query("SELECT * FROM song JOIN queueorder ON song.id is queueorder.songId ORDER BY queueorder.`order`")
     fun getSongsInQueueOrder(): Flowable<List<Song>>
 
-    @RawQuery
-    fun getSongsforCurrentFilters(query: SupportSQLiteQuery): List<Song>
+    @RawQuery(observedEntities = [Song::class])
+    fun getSongsForCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Song>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(songs: List<Song>)

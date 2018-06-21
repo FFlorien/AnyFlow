@@ -11,9 +11,6 @@ interface FilterDao {
     @Query("SELECT * FROM dbfilter")
     fun getFilters(): Flowable<List<DbFilter>>
 
-    @Query("SELECT * FROM dbfilter")
-    fun getFiltersSync(): List<DbFilter>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(artists: List<DbFilter>)
 
