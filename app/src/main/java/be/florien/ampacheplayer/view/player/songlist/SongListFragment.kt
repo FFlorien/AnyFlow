@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.view.player.songlist
 
+import android.arch.paging.PagedListAdapter
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -11,7 +12,6 @@ import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -70,7 +70,7 @@ class SongListFragment : Fragment() {
         binding?.vm = vm
         vm.refreshSongs()
         binding?.songList?.adapter = SongAdapter().apply {
-            submitList(vm.getCurrentAudioQueue())
+            submitList(vm.getPagedAudioQueue())
         }
         linearLayoutManager = LinearLayoutManager(activity)
         binding?.songList?.layoutManager = linearLayoutManager
@@ -89,7 +89,7 @@ class SongListFragment : Fragment() {
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.currentAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(ArrayList(vm.getCurrentAudioQueue()))
+                    BR.pagedAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.getPagedAudioQueue())
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
                         songAdapter?.notifyItemChanged(songAdapter.lastPosition)
@@ -139,7 +139,7 @@ class SongListFragment : Fragment() {
     }
 
 
-    inner class SongAdapter : ListAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
+    inner class SongAdapter : PagedListAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
         override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
@@ -166,7 +166,7 @@ class SongListFragment : Fragment() {
             binding.root.setOnClickListener { vm.play(songPosition) }
         }
 
-        fun bind(song: Song, position: Int) {
+        fun bind(song: Song?, position: Int) {
             this.songPosition = position
             binding.song = song
         }

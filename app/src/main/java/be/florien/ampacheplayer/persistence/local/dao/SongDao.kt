@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.persistence.local.dao
 
+import android.arch.paging.DataSource
 import android.arch.persistence.db.SupportSQLiteQuery
 import android.arch.persistence.room.*
 import be.florien.ampacheplayer.persistence.local.model.Song
@@ -12,7 +13,7 @@ interface SongDao {
     fun getSongs(): Flowable<List<Song>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun getSongsInQueueOrder(): Flowable<List<Song>>
+    fun getSongsInQueueOrder(): DataSource.Factory<Int, Song>
 
     @RawQuery(observedEntities = [Song::class])
     fun getSongsForCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Song>>

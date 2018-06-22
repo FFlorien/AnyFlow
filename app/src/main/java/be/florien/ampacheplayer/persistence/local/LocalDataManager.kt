@@ -1,9 +1,12 @@
 package be.florien.ampacheplayer.persistence.local
 
+import android.arch.paging.PagedList
+import android.arch.paging.RxPagedListBuilder
 import android.arch.persistence.db.SimpleSQLiteQuery
 import android.content.Context
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.local.model.*
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
@@ -38,7 +41,14 @@ class LocalDataManager
 
     fun getSongs(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongs().subscribeOn(Schedulers.io())
 
-    fun getSongsInQueueOrder(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongsInQueueOrder().subscribeOn(Schedulers.io())
+    fun getSongsInQueueOrder(): Flowable<PagedList<Song>> {
+        val dataSourceFactory = libraryDatabase.getSongDao().getSongsInQueueOrder()
+        val pagedListConfig = PagedList.Config.Builder()
+                .setEnablePlaceholders(true)
+                .setPageSize(100)
+                .build()
+        return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+    }
 
     private fun getSongsForFilters(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getFilterDao().getFilters().flatMap { dbFilters ->
         val typedFilterList = mutableListOf<Filter>()

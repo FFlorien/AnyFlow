@@ -85,7 +85,7 @@ class ExoPlayerController
     override fun resume() {
         if (lastPosition == NO_VALUE) {
             val songList = audioQueueManager.currentAudioQueue
-            if (songList.isNotEmpty()) {
+            if (songList != null && songList.isNotEmpty()) {
                 play()
             }
         } else {

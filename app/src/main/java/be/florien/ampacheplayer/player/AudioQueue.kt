@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.player
 
+import android.arch.paging.PagedList
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
 import be.florien.ampacheplayer.persistence.local.model.Song
@@ -20,21 +21,21 @@ class AudioQueue
     /**
      * Fields
      */
-    val songListUpdater: Flowable<List<Song>> = localDataManager.getSongsInQueueOrder()
+    val songListUpdater: Flowable<PagedList<Song>> = localDataManager.getSongsInQueueOrder()
     val positionObservable: PublishSubject<Int> = PublishSubject.create()
     val itemsCount: Int
-        get() = currentAudioQueue.size
+        get() = currentAudioQueue?.size ?: 0
     var listPosition: Int = 0
         set(value) {
             field = when {
-                value in 0 until currentAudioQueue.size -> value
+                value in 0 until itemsCount -> value
                 value < 0 -> 0
-                else -> currentAudioQueue.size - 1
+                else -> itemsCount - 1
             }
             positionObservable.onNext(field)
         }
 
-    var currentAudioQueue: List<Song> = listOf()
+    var currentAudioQueue: PagedList<Song>? = null
 
     init {
         songListUpdater
@@ -52,7 +53,7 @@ class AudioQueue
         return if (itemsCount == 0) {
             Song()
         } else {
-            currentAudioQueue[listPosition]
+            currentAudioQueue?.get(listPosition) ?: Song()
         }
     }
 }

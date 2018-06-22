@@ -10,7 +10,10 @@ import com.bumptech.glide.module.AppGlideModule
 class MyAppGlideModule : AppGlideModule()
 
 @BindingAdapter("coverImageUrl")
-fun ImageView.setCoverImageUrl(url: String) {
+fun ImageView.setCoverImageUrl(url: String?) {
+    if (url == null) {
+        setImageBitmap(null)
+    }
     GlideApp.with(this.rootView)
             .load(url)
             .placeholder(R.drawable.cover_placeholder)

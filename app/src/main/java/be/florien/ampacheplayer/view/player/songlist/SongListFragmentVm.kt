@@ -1,11 +1,13 @@
 package be.florien.ampacheplayer.view.player.songlist
 
+import android.arch.paging.PagedList
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
+import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
@@ -36,6 +38,8 @@ class SongListFragmentVm
 
     internal var connection: PlayerConnection = PlayerConnection()
 
+    var songList: PagedList<Song>? = null
+
     /**
      * Constructor
      */
@@ -46,7 +50,8 @@ class SongListFragmentVm
             notifyPropertyChanged(BR.currentSong)
         })
         subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()), onNext =  {
-            notifyPropertyChanged(BR.currentAudioQueue)
+            songList = it
+            notifyPropertyChanged(BR.pagedAudioQueue)
         })
     }
 
@@ -54,7 +59,7 @@ class SongListFragmentVm
      * Public methods
      */
     @Bindable
-    fun getCurrentAudioQueue() = audioQueue.currentAudioQueue
+    fun getPagedAudioQueue(): PagedList<Song>? = songList
 
     @Bindable
     fun getCurrentSong() = audioQueue.getCurrentSong()
