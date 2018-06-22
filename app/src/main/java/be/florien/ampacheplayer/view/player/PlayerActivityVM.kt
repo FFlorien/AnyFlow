@@ -22,15 +22,15 @@ class PlayerActivityVM
 @Inject
 constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnActionListener {
 
-    private val playerControllerIdentifierBase = "playerControllerId"
+    companion object {
+        const val PLAYER_CONTROLLER_IDENTIFIER = "playerControllerId"
+    }
 
-    private var playerControllerNumber = 0
     internal val connection: PlayerConnection = PlayerConnection()
+    private var playerControllerNumber = 0
     private var isBackKeyPreviousSong: Boolean = false
-    var player: PlayerController = DummyPlayerController()
 
-    @Bindable
-    var currentDuration: Int = 0
+    var player: PlayerController = DummyPlayerController()
 
     /**
      * Constructor
@@ -75,9 +75,10 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
      */
 
     @Bindable
-    fun getTotalDuration(): Int {
-        return audioQueue.getCurrentSong().time * 1000
-    }
+    var currentDuration: Int = 0
+
+    @Bindable
+    var totalDuration: Int = 0
 
     @Bindable
     fun isNextPossible(): Boolean = audioQueue.listPosition < audioQueue.itemsCount - 1 && audioQueue.listPosition != NO_CURRENT_SONG
@@ -94,11 +95,16 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
         player = controller
         playerControllerNumber += 1
         subscribe(
-                observable = audioQueue.positionObservable.observeOn(AndroidSchedulers.mainThread()),
+                flowable = audioQueue.currentSongUpdater,
+                onNext = {
+                    totalDuration = it?.time ?: 0
+                    notifyPropertyChanged(BR.totalDuration)
+                })
+        subscribe(
+                observable = audioQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)
-                    notifyPropertyChanged(BR.totalDuration)
                     notifyPropertyChanged(BR.currentDuration)
                 })
         subscribe(
@@ -106,8 +112,6 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
                 onNext = {
                     currentDuration = it.toInt()
                     isBackKeyPreviousSong = currentDuration < 10000
-                    notifyPropertyChanged(BR.nextPossible)
-                    notifyPropertyChanged(BR.previousPossible)
                     notifyPropertyChanged(BR.currentDuration)
                 },
                 onError = {
@@ -120,12 +124,12 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
      */
     inner class PlayerConnection : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            dispose(playerControllerIdentifierBase + playerControllerNumber)
+            dispose(PLAYER_CONTROLLER_IDENTIFIER + playerControllerNumber)
             initController((service as PlayerService.LocalBinder).service)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            dispose(playerControllerIdentifierBase + playerControllerNumber)
+            dispose(PLAYER_CONTROLLER_IDENTIFIER + playerControllerNumber)
             initController(DummyPlayerController())
         }
     }

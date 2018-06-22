@@ -68,7 +68,7 @@ class SongListFragment : Fragment() {
         binding = DataBindingUtil.bind(view)
         (activity as PlayerActivity).activityComponent.inject(this)
         binding?.vm = vm
-        vm.refreshSongs()
+        vm.refreshSongs() //todo communication between service and VM
         binding?.songList?.adapter = SongAdapter().apply {
             submitList(vm.getPagedAudioQueue())
         }
@@ -92,9 +92,7 @@ class SongListFragment : Fragment() {
                     BR.pagedAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.getPagedAudioQueue())
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
-                        songAdapter?.notifyItemChanged(songAdapter.lastPosition)
-                        songAdapter?.notifyItemChanged(vm.getListPosition())
-                        songAdapter?.lastPosition = vm.getListPosition()
+                        songAdapter?.setSelectedPosition(vm.getListPosition())
                         updateCurrentSongDisplay()
                     }
                 }
@@ -153,6 +151,12 @@ class SongListFragment : Fragment() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(parent)
+
+        fun setSelectedPosition(position: Int) {
+            notifyItemChanged(lastPosition)
+            notifyItemChanged(position)
+            lastPosition = position
+        }
     }
 
     inner class SongViewHolder(

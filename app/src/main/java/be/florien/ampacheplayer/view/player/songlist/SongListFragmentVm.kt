@@ -35,23 +35,26 @@ class SongListFragmentVm
         }
 
     var player: PlayerController = DummyPlayerController()
-
+    var songList: PagedList<Song>? = null
     internal var connection: PlayerConnection = PlayerConnection()
 
-    var songList: PagedList<Song>? = null
+    private var currentSong: Song? = null
 
     /**
      * Constructor
      */
     init {
         Timber.tag(this.javaClass.simpleName)
-        subscribe(audioQueue.positionObservable.observeOn(AndroidSchedulers.mainThread()), onNext = {
+        subscribe(audioQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = {
             notifyPropertyChanged(BR.listPosition)
-            notifyPropertyChanged(BR.currentSong)
         })
         subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()), onNext =  {
             songList = it
             notifyPropertyChanged(BR.pagedAudioQueue)
+        })
+        subscribe(audioQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = {
+            currentSong = it
+            notifyPropertyChanged(BR.currentSong)
         })
     }
 
@@ -62,7 +65,7 @@ class SongListFragmentVm
     fun getPagedAudioQueue(): PagedList<Song>? = songList
 
     @Bindable
-    fun getCurrentSong() = audioQueue.getCurrentSong()
+    fun getCurrentSong() = currentSong
 
     @Bindable
     fun getListPosition() = 0
@@ -104,7 +107,6 @@ class SongListFragmentVm
 
     fun play(position: Int) {
         audioQueue.listPosition = position
-        player.play()
     }
 
     /**

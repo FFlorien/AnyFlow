@@ -41,6 +41,8 @@ class LocalDataManager
 
     fun getSongs(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongs().subscribeOn(Schedulers.io())
 
+    fun getSongInPosition(position: Int) = libraryDatabase.getSongDao().getSongForPositionInQueue(position)
+
     fun getSongsInQueueOrder(): Flowable<PagedList<Song>> {
         val dataSourceFactory = libraryDatabase.getSongDao().getSongsInQueueOrder()
         val pagedListConfig = PagedList.Config.Builder()

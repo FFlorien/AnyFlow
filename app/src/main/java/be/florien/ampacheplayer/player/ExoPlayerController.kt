@@ -2,6 +2,7 @@ package be.florien.ampacheplayer.player
 
 import android.content.Context
 import android.net.Uri
+import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
@@ -23,7 +24,11 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ExoPlayerController
-@Inject constructor(context: Context, private var audioQueueManager: AudioQueue, private var ampacheConnection: AmpacheConnection, okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
+@Inject constructor(
+        context: Context,
+        private var audioQueue: AudioQueue,
+        private var ampacheConnection: AmpacheConnection,
+        okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
 
     companion object {
         private const val NO_VALUE = -3L
@@ -44,9 +49,6 @@ class ExoPlayerController
      */
 
     init {
-        audioQueueManager.positionObservable.subscribe {
-            if (isPlaying()) play() else lastPosition = NO_VALUE
-        }
         val trackSelector: TrackSelector = DefaultTrackSelector()
         mediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector).apply {
             addListener(this@ExoPlayerController)
@@ -55,13 +57,20 @@ class ExoPlayerController
         val userAgent = Util.getUserAgent(context, "ampachePlayerUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
+        audioQueue.currentSongUpdater.subscribe {// todo unsuscribe
+            if (isPlaying() && it != null) play(it) else lastPosition = NO_VALUE
+        }
 
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
 
     override fun play() {
-        val song = audioQueueManager.getCurrentSong()
+        stop()
+        resume()
+    }
+
+    override fun play(song: Song) {
         mediaPlayer.apply {
             stop()
             val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
@@ -83,14 +92,12 @@ class ExoPlayerController
     }
 
     override fun resume() {
+        mediaPlayer.playWhenReady = true
+
         if (lastPosition == NO_VALUE) {
-            val songList = audioQueueManager.currentAudioQueue
-            if (songList != null && songList.isNotEmpty()) {
-                play()
-            }
+            audioQueue.listPosition = audioQueue.listPosition
         } else {
             mediaPlayer.seekTo(lastPosition)
-            mediaPlayer.playWhenReady = true
         }
     }
 
@@ -143,7 +150,7 @@ class ExoPlayerController
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         if (playbackState == Player.STATE_ENDED) {
-            audioQueueManager.listPosition += 1
+            audioQueue.listPosition += 1
         }
     }
 

@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.player
 
+import be.florien.ampacheplayer.persistence.local.model.Song
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
@@ -15,6 +16,7 @@ class DummyPlayerController : PlayerController {
     override fun isPlaying(): Boolean = false
 
     override fun play() {}
+    override fun play(song: Song) {}
 
     override fun stop() {}
 

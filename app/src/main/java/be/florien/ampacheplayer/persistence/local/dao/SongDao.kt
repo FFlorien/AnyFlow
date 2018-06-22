@@ -5,6 +5,7 @@ import android.arch.persistence.db.SupportSQLiteQuery
 import android.arch.persistence.room.*
 import be.florien.ampacheplayer.persistence.local.model.Song
 import io.reactivex.Flowable
+import io.reactivex.Observable
 
 
 @Dao
@@ -14,6 +15,9 @@ interface SongDao {
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     fun getSongsInQueueOrder(): DataSource.Factory<Int, Song>
+
+    @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
+    fun getSongForPositionInQueue(position: Int): List<Song>
 
     @RawQuery(observedEntities = [Song::class])
     fun getSongsForCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Song>>

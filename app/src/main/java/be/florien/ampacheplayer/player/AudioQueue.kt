@@ -4,8 +4,10 @@ import android.arch.paging.PagedList
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
 import be.florien.ampacheplayer.persistence.local.model.Song
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -18,13 +20,17 @@ const val NO_CURRENT_SONG = -13456
 class AudioQueue
 @Inject constructor(localDataManager: LocalDataManager) {
 
-    /**
-     * Fields
-     */
+    val positionUpdater: PublishSubject<Int> = PublishSubject.create()
+    val currentSongUpdater: Flowable<Song?> = positionUpdater
+            .toFlowable(BackpressureStrategy.LATEST)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .map { localDataManager.getSongInPosition(it).firstOrNull() }
     val songListUpdater: Flowable<PagedList<Song>> = localDataManager.getSongsInQueueOrder()
-    val positionObservable: PublishSubject<Int> = PublishSubject.create()
+
     val itemsCount: Int
         get() = currentAudioQueue?.size ?: 0
+    var currentAudioQueue: PagedList<Song>? = null
     var listPosition: Int = 0
         set(value) {
             field = when {
@@ -32,10 +38,9 @@ class AudioQueue
                 value < 0 -> 0
                 else -> itemsCount - 1
             }
-            positionObservable.onNext(field)
+            positionUpdater.onNext(field)
         }
 
-    var currentAudioQueue: PagedList<Song>? = null
 
     init {
         songListUpdater
@@ -43,17 +48,5 @@ class AudioQueue
                 .subscribe {
                     currentAudioQueue = it
                 }
-    }
-
-
-    /**
-     * Methods
-     */
-    fun getCurrentSong(): Song {
-        return if (itemsCount == 0) {
-            Song()
-        } else {
-            currentAudioQueue?.get(listPosition) ?: Song()
-        }
     }
 }
