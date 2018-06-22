@@ -58,7 +58,7 @@ class ExoPlayerController
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
         audioQueue.currentSongUpdater.subscribe {// todo unsuscribe
-            if (isPlaying() && it != null) play(it) else lastPosition = NO_VALUE
+            if (it != null) play(it) else lastPosition = NO_VALUE
         }
 
     }

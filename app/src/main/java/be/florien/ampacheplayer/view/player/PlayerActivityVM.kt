@@ -97,7 +97,7 @@ constructor(private val audioQueue: AudioQueue) : BaseVM(), PlayerControls.OnAct
         subscribe(
                 flowable = audioQueue.currentSongUpdater,
                 onNext = {
-                    totalDuration = it?.time ?: 0
+                    totalDuration = (it?.time ?: 0) * 1000
                     notifyPropertyChanged(BR.totalDuration)
                 })
         subscribe(

@@ -31,5 +31,5 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context): AmpacheConnection = AmpacheConnection(authPersistence, context)
+    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection = AmpacheConnection(authPersistence, context, sharedPreferences)
 }

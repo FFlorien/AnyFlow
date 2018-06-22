@@ -83,12 +83,13 @@ class PersistenceManager
                     .getListOnServer(lastUpdate)
                     .flatMapCompletable { result ->
                         saveToDatabase(result).doFinally {
-                            sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
                             when (result.getError().code) {
                                 401 -> songServerConnection.reconnect(songServerConnection.getListOnServer(lastUpdate))
                                 else -> Observable.just(result)
                             }
                         }
+                    }.doOnComplete {
+                        sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
                     }
         } else {
             Completable.complete()

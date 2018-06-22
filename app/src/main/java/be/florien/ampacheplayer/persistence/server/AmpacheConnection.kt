@@ -1,9 +1,11 @@
 package be.florien.ampacheplayer.persistence.server
 
 import android.content.Context
+import android.content.SharedPreferences
 import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
+import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.model.*
 import be.florien.ampacheplayer.user.AuthPersistence
@@ -23,22 +25,19 @@ import javax.inject.Singleton
 open class AmpacheConnection
 @Inject constructor(
         private var authPersistence: AuthPersistence,
-        private var context: Context) {
+        private var context: Context,
+        private val sharedPreferences: SharedPreferences) {
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    private val songLimit: Int = 50
-    private var songOffset: Int = 0
-    private val artistLimit: Int = 50
-    private var artistOffset: Int = 0
-    private val albumLimit: Int = 50
-    private var albumOffset: Int = 0
-    private val tagLimit: Int = 50
-    private var tagOffset: Int = 0
-    private val playlistLimit: Int = 50
-    private var playlistOffset: Int = 0
+    private val itemLimit: Int = 50
+    private var songOffset: Int = sharedPreferences.getLong("songOffset", 0).toInt()
+    private var artistOffset: Int = sharedPreferences.getLong("artistOffset", 0).toInt()
+    private var albumOffset: Int = sharedPreferences.getLong("albumOffset", 0).toInt()
+    private var tagOffset: Int = sharedPreferences.getLong("tagOffset", 0).toInt()
+    private var playlistOffset: Int = sharedPreferences.getLong("playlistOffset", 0).toInt()
 
     private var userComponent
         get() = (context.applicationContext as AmpacheApp).userComponent
@@ -138,58 +137,79 @@ open class AmpacheConnection
      */
 
     fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
-        ampacheApi.getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = songLimit, offset = songOffset).doOnNext {
-            if (it.songs.isEmpty()) {
-                emitter.onComplete()
-            } else {
-                emitter.onNext(it)
-                songOffset += songLimit
-            }
-        }.subscribe()
+        ampacheApi
+                .getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
+                .doOnNext {
+                    if (it.songs.isEmpty()) {
+                        emitter.onComplete()
+                        sharedPreferences.edit().remove("songOffset").apply()
+                    } else {
+                        emitter.onNext(it)
+                        sharedPreferences.applyPutLong("songOffset", songOffset.toLong())
+                        songOffset += itemLimit
+                    }
+                }
+                .subscribe()
     }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = Observable.generate { emitter ->
-        ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = artistLimit, offset = artistOffset).doOnNext {
-            if (it.artists.isEmpty()) {
-                emitter.onComplete()
-            } else {
-                emitter.onNext(it)
-                artistOffset += artistLimit
-            }
-        }.subscribe()
+        ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
+                .doOnNext {
+                    if (it.artists.isEmpty()) {
+                        emitter.onComplete()
+                        sharedPreferences.edit().remove("artistOffset").apply()
+                    } else {
+                        emitter.onNext(it)
+                        sharedPreferences.applyPutLong("artistOffset", artistOffset.toLong())
+                        artistOffset += itemLimit
+                    }
+                }
+                .subscribe()
     }
 
     fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = Observable.generate { emitter ->
-        ampacheApi.getAlbums(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = albumLimit, offset = albumOffset).doOnNext {
-            if (it.albums.isEmpty()) {
-                emitter.onComplete()
-            } else {
-                emitter.onNext(it)
-                albumOffset += albumLimit
-            }
-        }.subscribe()
+        ampacheApi.getAlbums(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
+                .doOnNext {
+                    if (it.albums.isEmpty()) {
+                        emitter.onComplete()
+                        sharedPreferences.edit().remove("albumOffset").apply()
+                    } else {
+                        emitter.onNext(it)
+                        sharedPreferences.applyPutLong("albumOffset", albumOffset.toLong())
+                        albumOffset += itemLimit
+                    }
+                }
+                .subscribe()
     }
 
     fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = Observable.generate { emitter ->
-        ampacheApi.getTags(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = tagLimit, offset = tagOffset).doOnNext {
-            if (it.tags.isEmpty()) {
-                emitter.onComplete()
-            } else {
-                emitter.onNext(it)
-                tagOffset += tagLimit
-            }
-        }.subscribe()
+        ampacheApi.getTags(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
+                .doOnNext {
+                    if (it.tags.isEmpty()) {
+                        emitter.onComplete()
+                        sharedPreferences.edit().remove("tagOffset").apply()
+                    } else {
+                        emitter.onNext(it)
+                        sharedPreferences.applyPutLong("tagOffset", tagOffset.toLong())
+                        tagOffset += itemLimit
+                    }
+                }
+                .subscribe()
     }
 
     fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = Observable.generate { emitter ->
-        ampacheApi.getPlaylists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = playlistLimit, offset = playlistOffset).doOnNext {
-            if (it.playlists.isEmpty()) {
-                emitter.onComplete()
-            } else {
-                emitter.onNext(it)
-                playlistOffset += playlistLimit
-            }
-        }.subscribe()
+        ampacheApi.getPlaylists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
+                .doOnNext {
+                    if (it.playlists.isEmpty()) {
+                        emitter.onComplete()
+                        sharedPreferences.edit().remove("playlistOffset").apply()
+                    } else {
+                        emitter.onNext(it)
+                        sharedPreferences.applyPutLong("playlistOffset", playlistOffset.toLong())
+                        playlistOffset += itemLimit
+                    }
+                }
+                .subscribe()
     }
 
     fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authPersistence.authToken.first, uid = uid)

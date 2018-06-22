@@ -70,7 +70,7 @@ class SongListFragment : Fragment() {
         binding?.vm = vm
         vm.refreshSongs() //todo communication between service and VM
         binding?.songList?.adapter = SongAdapter().apply {
-            submitList(vm.getPagedAudioQueue())
+            submitList(vm.pagedAudioQueue)
         }
         linearLayoutManager = LinearLayoutManager(activity)
         binding?.songList?.layoutManager = linearLayoutManager
@@ -80,7 +80,7 @@ class SongListFragment : Fragment() {
             }
         })
         binding?.currentSongDisplay?.root?.setBackgroundResource(R.color.selected)
-        binding?.currentSongDisplay?.root?.setOnClickListener { binding?.songList?.scrollToPosition(vm.getListPosition()) }
+        binding?.currentSongDisplay?.root?.setOnClickListener { binding?.songList?.scrollToPosition(vm.listPosition) }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding?.currentSongDisplay?.root?.elevation = resources.getDimension(R.dimen.small_dimen)
@@ -89,10 +89,10 @@ class SongListFragment : Fragment() {
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.pagedAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.getPagedAudioQueue())
+                    BR.pagedAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.pagedAudioQueue)
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
-                        songAdapter?.setSelectedPosition(vm.getListPosition())
+                        songAdapter?.setSelectedPosition(vm.listPosition)
                         updateCurrentSongDisplay()
                     }
                 }
@@ -124,13 +124,13 @@ class SongListFragment : Fragment() {
     private fun updateCurrentSongDisplay() {
         val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
         val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-        if (vm.getListPosition() in firstVisibleItemPosition..lastVisibleItemPosition) {
+        if (vm.listPosition in firstVisibleItemPosition..lastVisibleItemPosition) {
             binding?.currentSongDisplay?.root?.visibility = View.GONE
         } else if (binding?.currentSongDisplay?.root?.visibility != View.VISIBLE) {
             binding?.currentSongDisplay?.root?.visibility = View.VISIBLE
-            if (vm.getListPosition() < firstVisibleItemPosition) {
+            if (vm.listPosition < firstVisibleItemPosition) {
                 topSet.applyTo(binding?.root as ConstraintLayout?)
-            } else if (vm.getListPosition() > lastVisibleItemPosition) {
+            } else if (vm.listPosition > lastVisibleItemPosition) {
                 bottomSet.applyTo(binding?.root as ConstraintLayout?)
             }
         }
@@ -146,7 +146,7 @@ class SongListFragment : Fragment() {
         var lastPosition = 0
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-            holder.isCurrentSong = position == vm.getListPosition()
+            holder.isCurrentSong = position == vm.listPosition
             holder.bind(getItem(position), position)
         }
 
