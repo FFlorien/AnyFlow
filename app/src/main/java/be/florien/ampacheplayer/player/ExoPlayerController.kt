@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.util.Util
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -123,7 +124,7 @@ class ExoPlayerController
         Timber.i(error, "Error while playback")
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
-                ampacheConnection.reconnect(Observable.fromCallable { resume() })
+                ampacheConnection.reconnect(Observable.fromCallable { resume() }).subscribeOn(Schedulers.io()).subscribe() //todo unsubscribe + on complete/next/error
             }
         }
     }

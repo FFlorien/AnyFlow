@@ -97,8 +97,8 @@ class PlayerControls
     // Paths
     private val playIconPath: Path by lazy {
         Path().apply {
-            val margin = height / 4
-            val iconSize = height / 2
+            val margin = smallestButtonWidth / 4
+            val iconSize = smallestButtonWidth / 2
             val startX = (((width - smallestButtonWidth) / 2) + margin).toFloat()
             val startY = margin.toFloat()
             moveTo(startX, startY)
@@ -109,8 +109,8 @@ class PlayerControls
     }
     private val nextIconPath: Path by lazy {
         Path().apply {
-            val margin = height / 4
-            val iconHeight = height / 2
+            val margin = smallestButtonWidth / 4
+            val iconHeight = smallestButtonWidth / 2
             val arrowsWidth = iconHeight - (iconHeight / 10)
             val startX = (width - smallestButtonWidth + margin).toFloat()
             val startY = margin.toFloat()
@@ -126,13 +126,13 @@ class PlayerControls
             lineTo(horizontalCenter, verticalCenter)
             lineTo(startX, startY + iconHeight)
             lineTo(startX, startY)
-            addRect(startX + arrowsWidth, startY, startX + (height / 2).toFloat(), startY + iconHeight, Path.Direction.CW)
+            addRect(startX + arrowsWidth, startY, startX + (smallestButtonWidth / 2).toFloat(), startY + iconHeight, Path.Direction.CW)
         }
     }
     private val prevIconPath: Path by lazy {
         Path().apply {
-            val margin = height / 4
-            val iconHeight = height / 2
+            val margin = smallestButtonWidth / 4
+            val iconHeight = smallestButtonWidth / 2
             val arrowsWidth = iconHeight - (iconHeight / 10)
             val startX = margin.toFloat() + iconHeight
             val startY = margin.toFloat()

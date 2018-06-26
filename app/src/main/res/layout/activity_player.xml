@@ -21,7 +21,7 @@
 
         <be.florien.ampacheplayer.view.customView.PlayerControls
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:gravity="center_horizontal"
             app:totalDuration="@{vm.totalDuration}"
             app:currentDuration="@{vm.currentDuration}"
