@@ -5,13 +5,15 @@ import android.arch.persistence.db.SupportSQLiteQuery
 import android.arch.persistence.room.*
 import be.florien.ampacheplayer.persistence.local.model.Song
 import io.reactivex.Flowable
-import io.reactivex.Observable
 
 
 @Dao
 interface SongDao {
     @Query("SELECT * FROM song ORDER BY song.albumArtistName, song.albumName, song.track")
     fun getSongs(): Flowable<List<Song>>
+
+    @Query("SELECT DISTINCT genre FROM song")
+    fun getSongsGenre(): Flowable<List<String>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     fun getSongsInQueueOrder(): DataSource.Factory<Int, Song>

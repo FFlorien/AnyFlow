@@ -53,7 +53,7 @@ class LocalDataManager
     }
 
     private fun getSongsForFilters(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getFilterDao().getFilters().flatMap { dbFilters ->
-        val typedFilterList = mutableListOf<Filter>()
+        val typedFilterList = mutableListOf<Filter<*>>()
         dbFilters.forEach {
             typedFilterList.add(Filter.getTypedFilter(it))
         }
@@ -66,26 +66,29 @@ class LocalDataManager
         }
 
         typedFilterList.forEachIndexed { index, filter ->
-            query += " ${filter.clause}"
+            query += when (filter) {
+                is Filter.StringFilter -> " ${filter.clause} \"${filter.argument}\""
+                is Filter.LongFilter -> " ${filter.clause} ${filter.argument}"
+            }
             if (index < typedFilterList.size - 1) {
-                query += " AND"
+                query += " OR"
             }
         }
         LibraryDatabase.getInstance(context).getSongDao().getSongsForCurrentFilters(SimpleSQLiteQuery(query))
     }
 
-    fun getGenres(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongs().subscribeOn(Schedulers.io())
+    fun getGenres(): Flowable<List<String>> = libraryDatabase.getSongDao().getSongsGenre().subscribeOn(Schedulers.io())
 
     fun getArtists(): Flowable<List<Artist>> = libraryDatabase.getArtistDao().getArtist().subscribeOn(Schedulers.io())
 
     fun getAlbums(): Flowable<List<Album>> = libraryDatabase.getAlbumDao().getAlbum().subscribeOn(Schedulers.io())
 
-    fun getFilters(): Flowable<List<Filter>> = libraryDatabase.getFilterDao().getFilters().map {
-        val typedList = mutableListOf<Filter>()
+    fun getFilters(): Flowable<List<Filter<*>>> = libraryDatabase.getFilterDao().getFilters().map {
+        val typedList = mutableListOf<Filter<*>>()
         it.forEach {
             Filter.getTypedFilter(it)
         }
-        typedList as List<Filter>
+        typedList as List<Filter<*>>
     }.subscribeOn(Schedulers.io())
 
     /**
@@ -122,15 +125,16 @@ class LocalDataManager
         libraryDatabase.getFilterDao().deleteAll()
     }
 
-    fun addFilters(filters: List<Filter>): Completable = asyncCompletable {
+    fun addFilters(filters: List<Filter<*>>): Completable = asyncCompletable {
         libraryDatabase.getFilterDao().insert(filters.map { Filter.toDbFilter(it) })
     }
 
-    fun setFilters(songList: List<Filter>): Completable = asyncCompletable {
+    fun setFilters(songList: List<Filter<*>>): Completable = asyncCompletable {
         val filterDao = libraryDatabase.getFilterDao()
         filterDao.deleteAll()
         filterDao.insert(songList.map { Filter.toDbFilter(it) })
     }
 
     private fun asyncCompletable(action: () -> Unit): Completable = Completable.fromAction(action).subscribeOn(Schedulers.io())
+
 }

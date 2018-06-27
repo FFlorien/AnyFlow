@@ -45,13 +45,7 @@ class PersistenceManager
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             AmpacheSongList::error
-    ) { localDataManager.addSongs(it.songs.map(::Song)) }
-
-    fun updateGenres(): Completable= getUpToDateList(
-            LAST_SONG_UPDATE,
-            AmpacheConnection::getSongs,
-            AmpacheSongList::error
-    ) { localDataManager.addSongs(it.songs.map(::Song)) }
+    ) { localDataManager.addSongs(it.songs.map(::Song))}
 
     fun updateArtists(): Completable= getUpToDateList(
             LAST_ARTIST_UPDATE,

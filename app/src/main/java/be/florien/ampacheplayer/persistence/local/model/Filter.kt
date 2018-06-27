@@ -3,12 +3,13 @@ package be.florien.ampacheplayer.persistence.local.model
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 
-sealed class Filter (
-    var clause: String){
+sealed class Filter<T>(
+        var clause: String,
+        var argument: T) {
 
-    open class StringFilter(clause: String, var argument: String) : Filter(clause)
+    open class StringFilter(clause: String, argument: String) : Filter<String>(clause, argument)
 
-    open class LongFilter(clause: String, var argument: Long) : Filter(clause)
+    open class LongFilter(clause: String, argument: Long) : Filter<Long>(clause, argument)
 
     /**
      * String filters
@@ -40,21 +41,21 @@ sealed class Filter (
         private const val ALBUM_ARTIST_ID = "song.albumArtistId = "
         private const val ALBUM_ID = "song.albumId = "
 
-        fun getTypedFilter(fromDb: DbFilter): Filter {
+        fun getTypedFilter(fromDb: DbFilter): Filter<*> {
             return when (fromDb.clause) {
-                TITLE_IS-> TitleIs(fromDb.argument)
-                TITLE_CONTAIN-> TitleContain(fromDb.argument)
-                GENRE_IS-> GenreIs(fromDb.argument)
-                SONG_ID-> SongIs(fromDb.argument.toLong())
-                ARTIST_ID-> ArtistIs(fromDb.argument.toLong())
-                ALBUM_ARTIST_ID-> AlbumArtistIs(fromDb.argument.toLong())
-                ALBUM_ID-> AlbumIs(fromDb.argument.toLong())
+                TITLE_IS -> TitleIs(fromDb.argument)
+                TITLE_CONTAIN -> TitleContain(fromDb.argument)
+                GENRE_IS -> GenreIs(fromDb.argument)
+                SONG_ID -> SongIs(fromDb.argument.toLong())
+                ARTIST_ID -> ArtistIs(fromDb.argument.toLong())
+                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong())
+                ALBUM_ID -> AlbumIs(fromDb.argument.toLong())
                 else -> TitleIs("")
             }
         }
 
-        fun toDbFilter(fromApp: Filter): DbFilter {
-            return when(fromApp) {
+        fun toDbFilter(fromApp: Filter<*>): DbFilter {
+            return when (fromApp) {
                 is StringFilter -> DbFilter().apply {
                     clause = fromApp.clause
                     argument = fromApp.argument

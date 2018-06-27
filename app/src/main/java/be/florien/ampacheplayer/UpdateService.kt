@@ -31,7 +31,6 @@ class UpdateService
                 persistenceManager.updateSongs()
                         .andThen(persistenceManager.updateAlbums())
                         .andThen(persistenceManager.updateArtists())
-                        .andThen(persistenceManager.updateGenres())
                         .doOnError { throwable ->
                             when (throwable) {
                                 is SessionExpiredException -> {

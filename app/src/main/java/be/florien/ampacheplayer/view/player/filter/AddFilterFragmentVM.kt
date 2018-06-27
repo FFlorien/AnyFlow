@@ -4,11 +4,10 @@ import android.databinding.Bindable
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.persistence.local.LocalDataManager
-import be.florien.ampacheplayer.persistence.local.model.Album
-import be.florien.ampacheplayer.persistence.local.model.Artist
-import be.florien.ampacheplayer.persistence.local.model.Filter
-import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.persistence.local.model.*
 import be.florien.ampacheplayer.view.BaseVM
+import io.reactivex.Completable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 const val GENRE_NAME = "Genre"
@@ -50,7 +49,7 @@ class AddFilterFragmentVM
             FilterItem(ALBUM_FILTER_ID, ALBUM_NAME),
             FilterItem(SEARCH_FILTER_ID, SEARCH_NAME))
 
-    private var genresValues: List<Song>? = null
+    private var genresValues: List<String>? = null
     private var artistsValues: List<Artist>? = null
     private var albumsValues: List<Album>? = null
 
@@ -78,25 +77,27 @@ class AddFilterFragmentVM
      */
 
     fun onFilterSelected(filterSelected: Long) {
-        when (currentFilterType) {
-            MASTER_FILTER_ID -> {
-                currentFilterType = filterSelected
-            }
+        val completable = when (currentFilterType) {
             GENRE_FILTER_ID -> localDataManager.addFilters(listOf(Filter.GenreIs(getGenresValues()[filterSelected.toInt()].displayName)))
             ARTIST_FILTER_ID -> localDataManager.addFilters(listOf(Filter.ArtistIs(filterSelected)))
             ALBUM_FILTER_ID -> localDataManager.addFilters(listOf(Filter.AlbumIs(filterSelected)))
+            else -> Completable.fromAction { currentFilterType = filterSelected }
         }
 
-        if (currentFilterType != filterSelected) {
-            currentFilterType = MASTER_FILTER_ID
-        }
+        completable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (currentFilterType != filterSelected) {
+                        currentFilterType = MASTER_FILTER_ID
+                    }
+                }
     }
 
     /**
      * Private methods
      */
 
-    private fun getGenresValues(): List<FilterItem> = genresValues?.mapIndexed { index, song -> FilterItem(index.toLong(), song.genre) }
+    private fun getGenresValues(): List<FilterItem> = genresValues?.mapIndexed { index, genre -> FilterItem(index.toLong(), genre) }
             ?: listOf()
 
     private fun getArtistsValues(): List<FilterItem> = artistsValues?.map { FilterItem(it.id, it.name) }
@@ -105,8 +106,8 @@ class AddFilterFragmentVM
     private fun getAlbumsValues(): List<FilterItem> = albumsValues?.map { FilterItem(it.id, it.name) }
             ?: listOf()
 
-    private fun updateGenre(songResults: List<Song>) {
-        genresValues = songResults
+    private fun updateGenre(genreResults: List<String>) {
+        genresValues = genreResults
         if (currentFilterType == GENRE_FILTER_ID) {
             notifyPropertyChanged(BR.filterList)
         }
