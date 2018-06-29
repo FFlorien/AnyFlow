@@ -12,13 +12,13 @@ interface FilterDao {
     fun getFilters(): Flowable<List<DbFilter>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(artists: List<DbFilter>)
+    fun insert(filters: List<DbFilter>)
 
     @Update
-    fun update(vararg artists: DbFilter)
+    fun update(vararg filters: DbFilter)
 
     @Delete
-    fun delete(vararg artists: DbFilter)
+    fun delete(vararg filters: DbFilter)
 
     @Query("DELETE FROM dbfilter")
     fun deleteAll()

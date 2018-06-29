@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.view
 
 import android.databinding.BaseObservable
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -19,6 +20,10 @@ open class BaseVM : BaseObservable() {
 
     fun <T> subscribe(observable: Observable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
         getContainer(containerKey).add(observable.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext, onError, onComplete))
+    }
+
+    fun subscribe(completable: Completable, onError: (Throwable) -> Unit = this::timberLogOnError, onComplete: () -> Unit = this::doNothingOnComplete, containerKey: String = "Default") {
+        getContainer(containerKey).add(completable.observeOn(AndroidSchedulers.mainThread()).subscribe(onComplete, onError))
     }
 
     fun <T> subscribe(flowable: Flowable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {

@@ -35,12 +35,6 @@ class LocalDataManager
         setOrder(queueOrder).subscribe()
     }
 
-    /**
-     * Database getters : Unfiltered
-     */
-
-    fun getSongs(): Flowable<List<Song>> = libraryDatabase.getSongDao().getSongs().subscribeOn(Schedulers.io())
-
     fun getSongInPosition(position: Int) = libraryDatabase.getSongDao().getSongForPositionInQueue(position)
 
     fun getSongsInQueueOrder(): Flowable<PagedList<Song>> {
@@ -86,7 +80,7 @@ class LocalDataManager
     fun getFilters(): Flowable<List<Filter<*>>> = libraryDatabase.getFilterDao().getFilters().map {
         val typedList = mutableListOf<Filter<*>>()
         it.forEach {
-            Filter.getTypedFilter(it)
+            typedList.add(Filter.getTypedFilter(it))
         }
         typedList as List<Filter<*>>
     }.subscribeOn(Schedulers.io())
@@ -125,7 +119,7 @@ class LocalDataManager
         libraryDatabase.getFilterDao().deleteAll()
     }
 
-    fun addFilters(filters: List<Filter<*>>): Completable = asyncCompletable {
+    fun addFilters(vararg filters: Filter<*>): Completable = asyncCompletable {
         libraryDatabase.getFilterDao().insert(filters.map { Filter.toDbFilter(it) })
     }
 

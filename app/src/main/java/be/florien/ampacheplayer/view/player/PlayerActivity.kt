@@ -15,7 +15,7 @@ import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.extension.startActivity
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.connect.ConnectActivity
-import be.florien.ampacheplayer.view.player.filter.AddFilterFragment
+import be.florien.ampacheplayer.view.player.filter.display.FilterFragment
 import be.florien.ampacheplayer.view.player.songlist.SongListFragment
 import javax.inject.Inject
 
@@ -84,11 +84,11 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun displayFilters() {
-        val fragment = supportFragmentManager.findFragmentByTag(AddFilterFragment::class.java.simpleName)
-                ?: AddFilterFragment()
+        val fragment = supportFragmentManager.findFragmentByTag(FilterFragment::class.java.simpleName)
+                ?: FilterFragment()
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.container, fragment, AddFilterFragment::class.java.simpleName)
+                .replace(R.id.container, fragment, FilterFragment::class.java.simpleName)
                 .setTransition(R.anim.slide_in_top)
                 .addToBackStack(null)
                 .commit()

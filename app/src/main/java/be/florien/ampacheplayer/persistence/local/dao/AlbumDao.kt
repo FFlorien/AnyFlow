@@ -7,7 +7,7 @@ import io.reactivex.Flowable
 
 @Dao
 interface AlbumDao {
-    @Query("SELECT * FROM album")
+    @Query("SELECT * FROM album ORDER BY name")
     fun getAlbum(): Flowable<List<Album>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

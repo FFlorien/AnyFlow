@@ -7,7 +7,7 @@ import io.reactivex.Flowable
 
 @Dao
 interface ArtistDao {
-    @Query("SELECT * FROM artist")
+    @Query("SELECT * FROM artist ORDER BY name")
     fun getArtist(): Flowable<List<Artist>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

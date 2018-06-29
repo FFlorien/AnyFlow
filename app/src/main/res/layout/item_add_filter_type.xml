@@ -5,11 +5,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.player.filter.AddFilterFragmentVM" />
-
-        <variable
-            name="filterValue"
-            type="long" />
+            type="be.florien.ampacheplayer.view.player.filter.selectType.AddFilterTypeFragmentVM" />
     </data>
 
     <TextView
@@ -20,6 +16,5 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:onClick="@{() -> vm.onFilterSelected(filterValue)}" />
+        android:gravity="center" />
 </layout>

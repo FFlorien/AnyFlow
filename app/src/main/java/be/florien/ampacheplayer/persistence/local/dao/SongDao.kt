@@ -9,10 +9,7 @@ import io.reactivex.Flowable
 
 @Dao
 interface SongDao {
-    @Query("SELECT * FROM song ORDER BY song.albumArtistName, song.albumName, song.track")
-    fun getSongs(): Flowable<List<Song>>
-
-    @Query("SELECT DISTINCT genre FROM song")
+    @Query("SELECT DISTINCT genre FROM song ORDER BY genre")
     fun getSongsGenre(): Flowable<List<String>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
