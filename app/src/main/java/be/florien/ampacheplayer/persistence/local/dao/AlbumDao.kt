@@ -1,21 +1,12 @@
 package be.florien.ampacheplayer.persistence.local.dao
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Query
 import be.florien.ampacheplayer.persistence.local.model.Album
 import io.reactivex.Flowable
 
-
 @Dao
-interface AlbumDao {
+interface AlbumDao : BaseDao<Album> {
     @Query("SELECT * FROM album ORDER BY name")
-    fun getAlbum(): Flowable<List<Album>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(albums: List<Album>)
-
-    @Update
-    fun update(vararg albums: Album)
-
-    @Delete
-    fun delete(vararg albums: Album)
+    fun orderedByName(): Flowable<List<Album>>
 }

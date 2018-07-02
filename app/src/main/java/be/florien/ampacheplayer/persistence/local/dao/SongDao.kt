@@ -6,27 +6,18 @@ import android.arch.persistence.room.*
 import be.florien.ampacheplayer.persistence.local.model.Song
 import io.reactivex.Flowable
 
-
 @Dao
-interface SongDao {
-    @Query("SELECT DISTINCT genre FROM song ORDER BY genre")
-    fun getSongsGenre(): Flowable<List<String>>
+interface SongDao : BaseDao<Song> {
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun getSongsInQueueOrder(): DataSource.Factory<Int, Song>
+    fun inQueueOrder(): DataSource.Factory<Int, Song>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
-    fun getSongForPositionInQueue(position: Int): List<Song>
+    fun forPositionInQueue(position: Int): List<Song>
 
     @RawQuery(observedEntities = [Song::class])
-    fun getSongsForCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Song>>
+    fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Song>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(songs: List<Song>)
-
-    @Update
-    fun update(vararg songs: Song)
-
-    @Delete
-    fun delete(vararg songs: Song)
+    @Query("SELECT DISTINCT genre FROM song ORDER BY genre")
+    fun genreOrderedByGenre(): Flowable<List<String>>
 }

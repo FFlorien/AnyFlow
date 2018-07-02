@@ -6,10 +6,7 @@ import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import be.florien.ampacheplayer.persistence.server.model.AmpacheAlbum
 
-/**
- * Database structure that represents to album
- */
-@Entity(indices = [Index("artistId")])
+@Entity(indices = [Index("artistId"), Index("name")])
 open class Album {
     @PrimaryKey
     var id: Long = 0

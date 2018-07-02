@@ -13,7 +13,3 @@ fun SharedPreferences.getDate(key: String, long: Long): Calendar = Calendar.getI
 fun SharedPreferences.applyPutLong(key: String, long: Long) {
     edit().putLong(key, long).apply()
 }
-
-fun SharedPreferences.applyPutString(key: String, string: String) {
-    edit().putString(key, string).apply()
-}

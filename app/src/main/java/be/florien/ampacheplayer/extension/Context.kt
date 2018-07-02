@@ -12,12 +12,6 @@ import kotlin.reflect.KClass
 val Activity.ampacheApp: AmpacheApp
     get() = this.applicationContext as AmpacheApp
 
-fun Context.startActivity(activityClass: KClass<*>, flags: Int) {
-    val intent = Intent(this, activityClass.java)
-    intent.flags = flags
-    startActivity(intent)
-}
-
 fun Context.startActivity(activityClass: KClass<*>) {
     startActivity(Intent(this, activityClass.java))
 }

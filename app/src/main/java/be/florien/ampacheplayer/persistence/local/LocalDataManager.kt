@@ -21,24 +21,20 @@ class LocalDataManager
     private val libraryDatabase: LibraryDatabase = LibraryDatabase.getInstance(context)
 
     init {
-        getSongsForFilters()
-                .doOnNext { saveOrder(it) }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
+        asyncCompletable {
+            if (!libraryDatabase.getQueueOrderDao().hasQueue()) {
+                getSongsForFilters()
+                        .doOnNext { saveOrder(it) }
+                        .subscribeOn(Schedulers.io())
+                        .subscribe()
+            }
+        }.subscribe()
     }
 
-    private fun saveOrder(it: List<Song>) {
-        val queueOrder = mutableListOf<QueueOrder>()
-        it.forEachIndexed { index, song ->
-            queueOrder.add(QueueOrder(index, song))
-        }
-        setOrder(queueOrder).subscribe()
-    }
-
-    fun getSongInPosition(position: Int) = libraryDatabase.getSongDao().getSongForPositionInQueue(position)
+    fun getSongInPosition(position: Int) = libraryDatabase.getSongDao().forPositionInQueue(position)
 
     fun getSongsInQueueOrder(): Flowable<PagedList<Song>> {
-        val dataSourceFactory = libraryDatabase.getSongDao().getSongsInQueueOrder()
+        val dataSourceFactory = libraryDatabase.getSongDao().inQueueOrder()
         val pagedListConfig = PagedList.Config.Builder()
                 .setEnablePlaceholders(true)
                 .setPageSize(100)
@@ -46,7 +42,7 @@ class LocalDataManager
         return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
     }
 
-    private fun getSongsForFilters(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getFilterDao().getFilters().flatMap { dbFilters ->
+    private fun getSongsForFilters(): Flowable<List<Song>> = LibraryDatabase.getInstance(context).getFilterDao().all().flatMap { dbFilters ->
         val typedFilterList = mutableListOf<Filter<*>>()
         dbFilters.forEach {
             typedFilterList.add(Filter.getTypedFilter(it))
@@ -68,16 +64,16 @@ class LocalDataManager
                 query += " OR"
             }
         }
-        LibraryDatabase.getInstance(context).getSongDao().getSongsForCurrentFilters(SimpleSQLiteQuery(query))
+        LibraryDatabase.getInstance(context).getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
     }
 
-    fun getGenres(): Flowable<List<String>> = libraryDatabase.getSongDao().getSongsGenre().subscribeOn(Schedulers.io())
+    fun getGenres(): Flowable<List<String>> = libraryDatabase.getSongDao().genreOrderedByGenre().subscribeOn(Schedulers.io())
 
-    fun getArtists(): Flowable<List<Artist>> = libraryDatabase.getArtistDao().getArtist().subscribeOn(Schedulers.io())
+    fun getArtists(): Flowable<List<Artist>> = libraryDatabase.getArtistDao().orderedByName().subscribeOn(Schedulers.io())
 
-    fun getAlbums(): Flowable<List<Album>> = libraryDatabase.getAlbumDao().getAlbum().subscribeOn(Schedulers.io())
+    fun getAlbums(): Flowable<List<Album>> = libraryDatabase.getAlbumDao().orderedByName().subscribeOn(Schedulers.io())
 
-    fun getFilters(): Flowable<List<Filter<*>>> = libraryDatabase.getFilterDao().getFilters().map {
+    fun getFilters(): Flowable<List<Filter<*>>> = libraryDatabase.getFilterDao().all().map {
         val typedList = mutableListOf<Filter<*>>()
         it.forEach {
             typedList.add(Filter.getTypedFilter(it))
@@ -109,12 +105,6 @@ class LocalDataManager
         libraryDatabase.getPlaylistDao().insert(playlist)
     }
 
-    private fun setOrder(orderList: List<QueueOrder>): Completable = asyncCompletable {
-        val queueOrderDao = libraryDatabase.getQueueOrderDao()
-        queueOrderDao.deleteAll()
-        queueOrderDao.insert(orderList)
-    }
-
     fun clearFilters(): Completable = asyncCompletable {
         libraryDatabase.getFilterDao().deleteAll()
     }
@@ -127,6 +117,14 @@ class LocalDataManager
         val filterDao = libraryDatabase.getFilterDao()
         filterDao.deleteAll()
         filterDao.insert(songList.map { Filter.toDbFilter(it) })
+    }
+
+    private fun saveOrder(it: List<Song>) {
+        val queueOrder = mutableListOf<QueueOrder>()
+        it.forEachIndexed { index, song ->
+            queueOrder.add(QueueOrder(index, song))
+        }
+        asyncCompletable { libraryDatabase.getQueueOrderDao().setOrder(queueOrder)}.subscribe()
     }
 
     private fun asyncCompletable(action: () -> Unit): Completable = Completable.fromAction(action).subscribeOn(Schedulers.io())
