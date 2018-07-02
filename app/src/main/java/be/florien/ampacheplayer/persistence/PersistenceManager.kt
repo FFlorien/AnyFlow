@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.applyPutLong
 import be.florien.ampacheplayer.extension.getDate
-import be.florien.ampacheplayer.persistence.local.LocalDataManager
+import be.florien.ampacheplayer.persistence.local.LibraryDatabase
 import be.florien.ampacheplayer.persistence.local.model.Album
 import be.florien.ampacheplayer.persistence.local.model.Artist
 import be.florien.ampacheplayer.persistence.local.model.Song
@@ -29,7 +29,7 @@ private const val LAST_ALBUM_ARTIST_UPDATE = "LAST_ALBUM_ARTIST_UPDATE"
 @UserScope
 class PersistenceManager
 @Inject constructor(
-        private val localDataManager: LocalDataManager,
+        private val libraryDatabase: LibraryDatabase,
         private val songServerConnection: AmpacheConnection,
         private val sharedPreferences: SharedPreferences) {
 
@@ -45,19 +45,21 @@ class PersistenceManager
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             AmpacheSongList::error
-    ) { localDataManager.addSongs(it.songs.map(::Song))}
+    ) { libraryDatabase.addSongs(it.songs.map(::Song))}
 
     fun updateArtists(): Completable= getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             AmpacheArtistList::error
-    ) { localDataManager.addArtists(it.artists.map(::Artist)) }
+    ) { libraryDatabase.addArtists(it.artists.map(::Artist)) }
 
     fun updateAlbums(): Completable= getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             AmpacheAlbumList::error
-    ) { localDataManager.addAlbums(it.albums.map(::Album)) }
+    ) {
+        libraryDatabase.addAlbums(it.albums.map(::Album)
+        ) }
 
     /**
      * Private Method

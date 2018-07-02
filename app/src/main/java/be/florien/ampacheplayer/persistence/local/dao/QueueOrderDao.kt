@@ -18,7 +18,7 @@ abstract class QueueOrderDao : BaseDao<QueueOrder> {
     fun hasQueue() = getCount() > 0
 
     @Transaction
-    fun setOrder(orderList: List<QueueOrder>) {
+    open fun setOrder(orderList: List<QueueOrder>) {
         deleteAll()
         insert(orderList)
     }

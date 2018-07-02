@@ -7,7 +7,7 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import be.florien.ampacheplayer.player.AudioQueue
 import be.florien.ampacheplayer.player.DummyPlayerController
 import be.florien.ampacheplayer.player.PlayerController
@@ -48,14 +48,14 @@ class SongListFragmentVm
         }, onError = {
             Timber.e(it, "Error while updating position")
         })
-        subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()), onNext =  {
+        subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = {
             pagedAudioQueue = it
             notifyPropertyChanged(BR.pagedAudioQueue)
         }, onError = {
             Timber.e(it, "Error while updating songList")
         })
-        subscribe(audioQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = {
-            currentSong = it
+        subscribe(audioQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = { maybeSong ->
+            currentSong = maybeSong?.let { SongDisplay(it) }
             notifyPropertyChanged(BR.currentSong)
         }, onError = {
             Timber.e(it, "Error while updating currentSong")
@@ -66,10 +66,10 @@ class SongListFragmentVm
      * Public methods
      */
     @Bindable
-    var pagedAudioQueue: PagedList<Song>? = null
+    var pagedAudioQueue: PagedList<SongDisplay>? = null
 
     @Bindable
-    var currentSong: Song? = null
+    var currentSong: SongDisplay? = null
 
     @Bindable
     var listPosition = 0

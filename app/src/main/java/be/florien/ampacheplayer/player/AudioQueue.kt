@@ -2,8 +2,9 @@ package be.florien.ampacheplayer.player
 
 import android.arch.paging.PagedList
 import be.florien.ampacheplayer.di.UserScope
-import be.florien.ampacheplayer.persistence.local.LocalDataManager
+import be.florien.ampacheplayer.persistence.local.LibraryDatabase
 import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -18,19 +19,20 @@ const val NO_CURRENT_SONG = -13456
  */
 @UserScope
 class AudioQueue
-@Inject constructor(localDataManager: LocalDataManager) {
+@Inject constructor(libraryDatabase: LibraryDatabase) {
 
     val positionUpdater: PublishSubject<Int> = PublishSubject.create()
     val currentSongUpdater: Flowable<Song?> = positionUpdater
             .toFlowable(BackpressureStrategy.LATEST)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
-            .map { localDataManager.getSongInPosition(it).firstOrNull() }
-    val songListUpdater: Flowable<PagedList<Song>> = localDataManager.getSongsInQueueOrder()
+            .map { libraryDatabase.getSongAtPosition(it).firstOrNull() }
+
+    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder()
 
     val itemsCount: Int
         get() = currentAudioQueue?.size ?: 0
-    var currentAudioQueue: PagedList<Song>? = null
+    var currentAudioQueue: PagedList<SongDisplay>? = null
     var listPosition: Int = 0
         set(value) {
             field = when {

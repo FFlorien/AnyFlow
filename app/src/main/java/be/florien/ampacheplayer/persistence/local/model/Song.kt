@@ -1,79 +1,87 @@
 package be.florien.ampacheplayer.persistence.local.model
 
 import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import be.florien.ampacheplayer.persistence.server.model.AmpacheSong
 
-
-/**
- * Database structure that represents to accounts
- */
-@Entity(indices = [Index("artistId"),
+@Entity(indices = [(Index("artistId")),
     Index("albumId"),
     Index("albumArtistId"),
     Index("genre")])
-open class Song {
-    @PrimaryKey
-    var id: Long = 0
-    var song: String = ""
-    var title: String = ""
-    var name: String = ""
-    var artistName: String = ""
-    var artistId: Long = -1
-    var albumName: String = ""
-    var albumId: Long = -1
-    var albumArtistName: String = ""
-    var albumArtistId: Long = -1
-    @Ignore
-    var tag: MutableList<Tag> = mutableListOf()
-    var filename: String = ""
-    var track: Int = 0
-    var time: Int = 0
-    var year: Int = 0
-    var bitrate: Int = 0
-    var rate: Int = 0
-    var url: String = ""
-    var art: String = ""
-    var preciserating: Int = 0
-    var rating: Int = 0
-    var averagerating: Double = 0.0
-    var composer: String = ""
-    var comment: String = ""
-    var publisher: String = ""
-    var language: String = ""
-    var genre: String = ""
+data class Song(
+        @PrimaryKey
+        val id: Long,
+        val song: String,
+        val title: String,
+        val name: String,
+        val artistName: String,
+        val artistId: Long,
+        val albumName: String,
+        val albumId: Long,
+        val albumArtistName: String,
+        val albumArtistId: Long,
+        val filename: String,
+        val track: Int,
+        val time: Int,
+        val year: Int,
+        val bitrate: Int,
+        val rate: Int,
+        val url: String,
+        val art: String,
+        val preciserating: Int,
+        val rating: Int,
+        val averagerating: Double,
+        val composer: String,
+        val comment: String,
+        val publisher: String,
+        val language: String,
+        val genre: String) {
 
-    constructor() : super()
+    constructor(fromServer: AmpacheSong) : this(
+            fromServer.id,
+            fromServer.song,
+            fromServer.title,
+            fromServer.name,
+            fromServer.artist.name,
+            fromServer.artist.id,
+            fromServer.album.name,
+            fromServer.album.id,
+            fromServer.albumartist.name,
+            fromServer.albumartist.id,
+            fromServer.filename,
+            fromServer.track,
+            fromServer.time,
+            fromServer.year,
+            fromServer.bitrate,
+            fromServer.rate,
+            fromServer.url,
+            fromServer.art,
+            fromServer.preciserating,
+            fromServer.rating,
+            fromServer.averagerating,
+            fromServer.composer,
+            fromServer.comment,
+            fromServer.publisher,
+            fromServer.language,
+            fromServer.genre)
+}
 
-    constructor(fromServer: AmpacheSong) : super() {
-        id = fromServer.id
-        song = fromServer.song
-        title = fromServer.title
-        name = fromServer.name
-        artistName = fromServer.artist.name
-        artistId = fromServer.artist.id
-        albumName = fromServer.album.name
-        albumId = fromServer.album.id
-        albumArtistName = fromServer.albumartist.name
-        albumArtistId = fromServer.albumartist.id
-        tag.addAll(fromServer.tag.map(::Tag))
-        filename = fromServer.filename
-        track = fromServer.track
-        time = fromServer.time
-        year = fromServer.year
-        bitrate = fromServer.bitrate
-        rate = fromServer.rate
-        url = fromServer.url
-        art = fromServer.art
-        preciserating = fromServer.preciserating
-        rating = fromServer.rating
-        averagerating = fromServer.averagerating
-        composer = fromServer.composer
-        comment = fromServer.comment
-        publisher = fromServer.publisher
-        language = fromServer.language
-        genre = fromServer.genre
-    }
+data class SongDisplay(
+        val id: Long,
+        val title: String,
+        val artistName: String,
+        val albumName: String,
+        val albumArtistName: String,
+        val time: Int,
+        val art: String) {
+
+    constructor(song: Song) : this(
+            song.id,
+            song.title,
+            song.artistName,
+            song.albumName,
+            song.albumArtistName,
+            song.time,
+            song.art)
 }

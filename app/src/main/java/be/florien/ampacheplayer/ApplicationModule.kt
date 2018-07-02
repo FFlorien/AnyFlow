@@ -2,6 +2,7 @@ package be.florien.ampacheplayer
 
 import android.content.Context
 import android.content.SharedPreferences
+import be.florien.ampacheplayer.persistence.local.LibraryDatabase
 import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.user.AuthPersistence
 import com.facebook.stetho.okhttp3.StethoInterceptor
@@ -32,4 +33,8 @@ class ApplicationModule {
     @Singleton
     @Provides
     fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection = AmpacheConnection(authPersistence, context, sharedPreferences)
+
+    @Singleton
+    @Provides
+    fun provideLibrary(context: Context): LibraryDatabase = LibraryDatabase.getInstance(context)
 }

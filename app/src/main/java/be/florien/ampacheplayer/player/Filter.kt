@@ -1,7 +1,6 @@
-package be.florien.ampacheplayer.persistence.local.model
+package be.florien.ampacheplayer.player
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import be.florien.ampacheplayer.persistence.local.model.DbFilter
 
 sealed class Filter<T>(
         var clause: String,
@@ -41,7 +40,7 @@ sealed class Filter<T>(
         private const val ALBUM_ARTIST_ID = "song.albumArtistId = "
         private const val ALBUM_ID = "song.albumId = "
 
-        fun getTypedFilter(fromDb: DbFilter): Filter<*> {
+        fun toTypedFilter(fromDb: DbFilter): Filter<*> {
             return when (fromDb.clause) {
                 TITLE_IS -> TitleIs(fromDb.argument)
                 TITLE_CONTAIN -> TitleContain(fromDb.argument)
@@ -56,23 +55,9 @@ sealed class Filter<T>(
 
         fun toDbFilter(fromApp: Filter<*>): DbFilter {
             return when (fromApp) {
-                is StringFilter -> DbFilter().apply {
-                    clause = fromApp.clause
-                    argument = fromApp.argument
-                }
-                is LongFilter -> DbFilter().apply {
-                    clause = fromApp.clause
-                    argument = fromApp.argument.toString()
-                }
+                is StringFilter -> DbFilter(0, fromApp.clause, fromApp.argument)
+                is LongFilter -> DbFilter(0, fromApp.clause, fromApp.argument.toString())
             }
         }
     }
-}
-
-@Entity
-class DbFilter {
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0
-    var clause: String = ""
-    var argument: String = ""
 }

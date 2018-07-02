@@ -10,20 +10,14 @@ import be.florien.ampacheplayer.persistence.server.model.AmpachePlayList
  */
 
 @Entity
-open class Playlist {
-    @PrimaryKey
-    var id: Long = 0
-    var name: String = ""
-    var owner: String = ""
-    @Ignore
-    var tag: MutableList<Tag> = mutableListOf()
+open class Playlist(
+        @PrimaryKey
+        val id: Long,
+        val name: String,
+        val owner: String) {
 
-    constructor() : super()
-
-    constructor(fromServer: AmpachePlayList) : super(){
-        id = fromServer.id
-        name = fromServer.name
-        owner = fromServer.owner
-        tag.addAll(fromServer.tag.map(::Tag))
-    }
+    constructor(fromServer: AmpachePlayList) : this(
+            fromServer.id,
+            fromServer.name,
+            fromServer.owner)
 }

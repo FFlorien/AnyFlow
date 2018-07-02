@@ -23,6 +23,7 @@ import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
 import javax.inject.Inject
@@ -137,10 +138,10 @@ class SongListFragment : Fragment() {
     }
 
 
-    inner class SongAdapter : PagedListAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
-        override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
+    inner class SongAdapter : PagedListAdapter<SongDisplay, SongViewHolder>(object : DiffUtil.ItemCallback<SongDisplay>() {
+        override fun areItemsTheSame(oldItem: SongDisplay, newItem: SongDisplay) = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
+        override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
 
     }) {
         var lastPosition = 0
@@ -170,7 +171,7 @@ class SongListFragment : Fragment() {
             binding.root.setOnClickListener { vm.play(songPosition) }
         }
 
-        fun bind(song: Song?, position: Int) {
+        fun bind(song: SongDisplay?, position: Int) {
             this.songPosition = position
             binding.song = song
         }

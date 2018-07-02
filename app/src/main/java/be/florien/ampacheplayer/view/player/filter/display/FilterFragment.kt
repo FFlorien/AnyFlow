@@ -1,5 +1,6 @@
 package be.florien.ampacheplayer.view.player.filter.display
 
+import android.databinding.Observable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -8,11 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.FragmentFilterBinding
-import be.florien.ampacheplayer.persistence.local.model.Filter
+import be.florien.ampacheplayer.player.Filter
 import be.florien.ampacheplayer.view.player.PlayerActivity
-import be.florien.ampacheplayer.view.player.filter.addition.AddFilterFragment
 import be.florien.ampacheplayer.view.player.filter.selectType.AddFilterTypeFragment
 import javax.inject.Inject
 
@@ -22,18 +23,26 @@ class FilterFragment : Fragment() {
     lateinit var vm: FilterFragmentVM
 
     private lateinit var binding: FragmentFilterBinding
+    private val filterListAdapter = FilterListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentFilterBinding.inflate(inflater, container, false)
         binding.vm = vm
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
-        binding.filterList.adapter = FilterListAdapter()
+        binding.filterList.adapter = filterListAdapter
+        vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (propertyId == BR.currentFilters) {
+                    filterListAdapter.notifyDataSetChanged()
+                }
+            }
+
+        })
         return binding.root
     }
 

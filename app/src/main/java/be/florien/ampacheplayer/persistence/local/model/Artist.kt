@@ -9,22 +9,20 @@ import be.florien.ampacheplayer.persistence.server.model.AmpacheArtist
  * Database structure that represents to artists
  */
 @Entity
-open class Artist {
+data class Artist (
     @field:PrimaryKey
-    var id: Long = 0
-    var name: String = ""
-    @Ignore
-    var tag: MutableList<Tag> = mutableListOf()
-    var preciserating: Int = 0
-    var rating: Double = 0.0
+    val id: Long,
+    val name: String,
+    val preciserating: Int,
+    val rating: Double = 0.0) {
 
-    constructor() : super()
-
-    constructor(fromServer: AmpacheArtist) : super() {
-        id = fromServer.id
-        name = fromServer.name
-        tag.addAll(fromServer.tag.map(::Tag))
-        preciserating = fromServer.preciserating
-        rating = fromServer.rating
-    }
+    constructor(fromServer: AmpacheArtist) : this(
+        fromServer.id,
+        fromServer.name,
+        fromServer.preciserating,
+        fromServer.rating)
 }
+
+data class ArtistDisplay(
+        val id: Long,
+        val name: String)
