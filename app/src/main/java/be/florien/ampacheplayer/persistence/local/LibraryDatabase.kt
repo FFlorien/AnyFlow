@@ -27,14 +27,10 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
 
     init {
-        asyncCompletable {
-            if (!getQueueOrderDao().hasQueue()) {
-                getSongsForFilters()
-                        .doOnNext { saveOrder(it) }
-                        .subscribeOn(Schedulers.io())
-                        .subscribe()
-            }
-        }.subscribe()
+        getSongsForFilters()
+                .doOnNext { saveOrder(it) }
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     /**
@@ -70,35 +66,19 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Setters
      */
 
-    fun addSongs(songs: List<Song>): Completable = asyncCompletable {
-        getSongDao().insert(songs)
-    }
+    fun addSongs(songs: List<Song>): Completable = asyncCompletable { getSongDao().insert(songs) }
 
-    fun addArtists(artists: List<Artist>): Completable = asyncCompletable {
-        getArtistDao().insert(artists)
-    }
+    fun addArtists(artists: List<Artist>): Completable = asyncCompletable { getArtistDao().insert(artists) }
 
-    fun addAlbums(albums: List<Album>): Completable = asyncCompletable {
-        getAlbumDao().insert(albums)
-    }
+    fun addAlbums(albums: List<Album>): Completable = asyncCompletable { getAlbumDao().insert(albums) }
 
-    fun addPlayLists(playlist: List<Playlist>): Completable = asyncCompletable {
-        getPlaylistDao().insert(playlist)
-    }
+    fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable { getPlaylistDao().insert(playlists) }
 
-    fun addFilters(vararg filters: Filter<*>): Completable = asyncCompletable {
-        getFilterDao().insert(filters.map { Filter.toDbFilter(it) })
-    }
+    fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable { getFilterDao().insert(filters.toList()) }
 
-    fun clearFilters(): Completable = asyncCompletable {
-        getFilterDao().deleteAll()
-    }
+    fun clearFilters(): Completable = asyncCompletable { getFilterDao().deleteAll() }
 
-    fun setFilters(songList: List<Filter<*>>): Completable = asyncCompletable {
-        val filterDao = getFilterDao()
-        filterDao.deleteAll()
-        filterDao.insert(songList.map { Filter.toDbFilter(it) })
-    }
+    fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable { getFilterDao().replaceBy(filters) }
 
     /**
      * Private methods
@@ -126,6 +106,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                 query += " OR"
             }
         }
+        query += " ORDER BY song.artistName, song.year, song.albumName, song.track, song.title"
         getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
     }
 
@@ -134,7 +115,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         it.forEachIndexed { index, songId ->
             queueOrder.add(QueueOrder(index, songId))
         }
-        asyncCompletable { getQueueOrderDao().setOrder(queueOrder)}.subscribe()
+        asyncCompletable { getQueueOrderDao().setOrder(queueOrder) }.subscribe()
     }
 
     private fun asyncCompletable(action: () -> Unit): Completable = Completable.fromAction(action).subscribeOn(Schedulers.io())

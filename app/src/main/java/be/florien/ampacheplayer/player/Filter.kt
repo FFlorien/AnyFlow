@@ -6,6 +6,13 @@ sealed class Filter<T>(
         var clause: String,
         var argument: T) {
 
+    fun toDbFilter(): DbFilter {
+        return when (this) {
+            is StringFilter -> DbFilter(0, clause, argument)
+            is LongFilter -> DbFilter(0, clause, argument.toString())
+        }
+    }
+
     open class StringFilter(clause: String, argument: String) : Filter<String>(clause, argument)
 
     open class LongFilter(clause: String, argument: Long) : Filter<Long>(clause, argument)
@@ -50,13 +57,6 @@ sealed class Filter<T>(
                 ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong())
                 ALBUM_ID -> AlbumIs(fromDb.argument.toLong())
                 else -> TitleIs("")
-            }
-        }
-
-        fun toDbFilter(fromApp: Filter<*>): DbFilter {
-            return when (fromApp) {
-                is StringFilter -> DbFilter(0, fromApp.clause, fromApp.argument)
-                is LongFilter -> DbFilter(0, fromApp.clause, fromApp.argument.toString())
             }
         }
     }

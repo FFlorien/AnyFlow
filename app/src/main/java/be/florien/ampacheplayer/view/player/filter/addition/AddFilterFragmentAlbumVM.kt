@@ -25,6 +25,6 @@ class AddFilterFragmentAlbumVM(activity: Activity) : AddFilterFragmentVM<AlbumDi
     override fun getDisplayedValues(): List<FilterItem> = values.map { album -> FilterItem(album.id, album.name, album.art) }
 
     override fun onFilterSelected(filterValue: Long) {
-        subscribe(localDataManager.addFilters(Filter.AlbumIs(filterValue)))
+        subscribe(localDataManager.addFilters(Filter.AlbumIs(filterValue).toDbFilter()))
     }
 }

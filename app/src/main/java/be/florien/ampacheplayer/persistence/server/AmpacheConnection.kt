@@ -27,17 +27,25 @@ open class AmpacheConnection
         private var authPersistence: AuthPersistence,
         private var context: Context,
         private val sharedPreferences: SharedPreferences) {
+    companion object {
+        private const val OFFSET_SONG = "songOffset"
+        private const val OFFSET_ARTIST = "artistOffset"
+        private const val OFFSET_ALBUM = "albumOffset"
+        private const val OFFSET_TAG = "tagOffset"
+        private const val OFFSET_PLAYLIST = "playlistOffset"
+    }
+
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     private val itemLimit: Int = 50
-    private var songOffset: Int = sharedPreferences.getLong("songOffset", 0).toInt()
-    private var artistOffset: Int = sharedPreferences.getLong("artistOffset", 0).toInt()
-    private var albumOffset: Int = sharedPreferences.getLong("albumOffset", 0).toInt()
-    private var tagOffset: Int = sharedPreferences.getLong("tagOffset", 0).toInt()
-    private var playlistOffset: Int = sharedPreferences.getLong("playlistOffset", 0).toInt()
+    private var songOffset: Int = sharedPreferences.getLong(OFFSET_SONG, 0).toInt()
+    private var artistOffset: Int = sharedPreferences.getLong(OFFSET_ARTIST, 0).toInt()
+    private var albumOffset: Int = sharedPreferences.getLong(OFFSET_ALBUM, 0).toInt()
+    private var tagOffset: Int = sharedPreferences.getLong(OFFSET_TAG, 0).toInt()
+    private var playlistOffset: Int = sharedPreferences.getLong(OFFSET_PLAYLIST, 0).toInt()
 
     private var userComponent
         get() = (context.applicationContext as AmpacheApp).userComponent
@@ -142,10 +150,10 @@ open class AmpacheConnection
                 .doOnNext {
                     if (it.songs.isEmpty()) {
                         emitter.onComplete()
-                        sharedPreferences.edit().remove("songOffset").apply()
+                        sharedPreferences.edit().remove(OFFSET_SONG).apply()
                     } else {
                         emitter.onNext(it)
-                        sharedPreferences.applyPutLong("songOffset", songOffset.toLong())
+                        sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
                         songOffset += itemLimit
                     }
                 }
@@ -157,10 +165,10 @@ open class AmpacheConnection
                 .doOnNext {
                     if (it.artists.isEmpty()) {
                         emitter.onComplete()
-                        sharedPreferences.edit().remove("artistOffset").apply()
+                        sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                     } else {
                         emitter.onNext(it)
-                        sharedPreferences.applyPutLong("artistOffset", artistOffset.toLong())
+                        sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
                         artistOffset += itemLimit
                     }
                 }
@@ -172,10 +180,10 @@ open class AmpacheConnection
                 .doOnNext {
                     if (it.albums.isEmpty()) {
                         emitter.onComplete()
-                        sharedPreferences.edit().remove("albumOffset").apply()
+                        sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
                     } else {
                         emitter.onNext(it)
-                        sharedPreferences.applyPutLong("albumOffset", albumOffset.toLong())
+                        sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
                         albumOffset += itemLimit
                     }
                 }
@@ -187,10 +195,10 @@ open class AmpacheConnection
                 .doOnNext {
                     if (it.tags.isEmpty()) {
                         emitter.onComplete()
-                        sharedPreferences.edit().remove("tagOffset").apply()
+                        sharedPreferences.edit().remove(OFFSET_TAG).apply()
                     } else {
                         emitter.onNext(it)
-                        sharedPreferences.applyPutLong("tagOffset", tagOffset.toLong())
+                        sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
                         tagOffset += itemLimit
                     }
                 }
@@ -202,17 +210,15 @@ open class AmpacheConnection
                 .doOnNext {
                     if (it.playlists.isEmpty()) {
                         emitter.onComplete()
-                        sharedPreferences.edit().remove("playlistOffset").apply()
+                        sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
                     } else {
                         emitter.onNext(it)
-                        sharedPreferences.applyPutLong("playlistOffset", playlistOffset.toLong())
+                        sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
                         playlistOffset += itemLimit
                     }
                 }
                 .subscribe()
     }
-
-    fun getSong(uid: Long): Observable<AmpacheSongList> = ampacheApi.getSong(auth = authPersistence.authToken.first, uid = uid)
 
     fun getSongUrl(song: Song): String {
         val ssidStart = song.url.indexOf("ssid=") + 5

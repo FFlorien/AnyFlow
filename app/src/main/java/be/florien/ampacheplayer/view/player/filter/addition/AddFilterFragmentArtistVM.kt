@@ -25,6 +25,6 @@ class AddFilterFragmentArtistVM(activity: Activity) : AddFilterFragmentVM<Artist
     override fun getDisplayedValues(): List<FilterItem> = values.map{ artist -> FilterItem(artist.id, artist.name) }
 
     override fun onFilterSelected(filterValue: Long) {
-        subscribe(library.addFilters(Filter.ArtistIs(filterValue)))
+        subscribe(library.addFilters(Filter.ArtistIs(filterValue).toDbFilter()))
     }
 }
