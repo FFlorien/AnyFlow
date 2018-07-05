@@ -106,7 +106,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                 query += " OR"
             }
         }
-        query += " ORDER BY song.artistName, song.year, song.albumName, song.track, song.title"
+        query += " ORDER BY song.albumArtistName, song.year, song.albumName, song.track, song.title"
         getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
     }
 

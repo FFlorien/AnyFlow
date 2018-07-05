@@ -1,7 +1,9 @@
 package be.florien.ampacheplayer.player
 
 import android.arch.paging.PagedList
+import android.content.SharedPreferences
 import be.florien.ampacheplayer.di.UserScope
+import be.florien.ampacheplayer.extension.applyPutInt
 import be.florien.ampacheplayer.persistence.local.LibraryDatabase
 import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.local.model.SongDisplay
@@ -19,21 +21,33 @@ const val NO_CURRENT_SONG = -13456
  */
 @UserScope
 class AudioQueue
-@Inject constructor(libraryDatabase: LibraryDatabase) {
+@Inject constructor(libraryDatabase: LibraryDatabase, private val sharedPreferences: SharedPreferences) {
+    companion object {
+        private const val POSITION_NOT_SET = -5
+        private const val POSITION_PREF = "POSITION_PREF"
+    }
 
     val positionUpdater: PublishSubject<Int> = PublishSubject.create()
     val currentSongUpdater: Flowable<Song?> = positionUpdater
             .toFlowable(BackpressureStrategy.LATEST)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
+            .doOnSubscribe {
+                it.request(Long.MAX_VALUE)
+            }
             .map { libraryDatabase.getSongAtPosition(it).firstOrNull() }
 
     val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder()
 
-    val itemsCount: Int
-        get() = currentAudioQueue?.size ?: 0
-    var currentAudioQueue: PagedList<SongDisplay>? = null
-    var listPosition: Int = 0
+    var itemsCount: Int = 0
+    var listPosition: Int = POSITION_NOT_SET
+        get() {
+            if (field == POSITION_NOT_SET) {
+                field = sharedPreferences.getInt(POSITION_PREF, 0)
+                positionUpdater.onNext(field)
+            }
+            return field
+        }
         set(value) {
             field = when {
                 value in 0 until itemsCount -> value
@@ -41,6 +55,7 @@ class AudioQueue
                 else -> itemsCount - 1
             }
             positionUpdater.onNext(field)
+            sharedPreferences.applyPutInt(POSITION_PREF, field)
         }
 
 
@@ -48,7 +63,7 @@ class AudioQueue
         songListUpdater
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    currentAudioQueue = it
+                    itemsCount = it.size
                 }
     }
 }

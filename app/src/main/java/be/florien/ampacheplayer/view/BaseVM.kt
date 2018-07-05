@@ -27,7 +27,7 @@ open class BaseVM : BaseObservable() {
     }
 
     fun <T> subscribe(flowable: Flowable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
-        getContainer(containerKey).add(flowable.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext, onError, onComplete))
+        getContainer(containerKey).add(flowable.observeOn(AndroidSchedulers.mainThread()).doOnNext(onNext).doOnError(onError).doOnComplete(onComplete).subscribe())
     }
 
     fun dispose(containerKey : String) {

@@ -64,11 +64,16 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.filters) {
-            if (!isFilterDisplayed) {
-                displayFilters()
-            } else {
-                displaySongList()
+        when (item.itemId) {
+            R.id.filters -> {
+                if (!isFilterDisplayed) {
+                    displayFilters()
+                } else {
+                    displaySongList()
+                }
+            }
+            R.id.reconnect -> {
+                vm.forceReconnect()
             }
         }
         return super.onOptionsItemSelected(item)

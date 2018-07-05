@@ -22,7 +22,6 @@ import be.florien.ampacheplayer.UpdateService
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.player.PlayerActivity
@@ -99,6 +98,7 @@ class SongListFragment : Fragment() {
                 }
             }
         })
+        updateCurrentSongDisplay()
         return view
     }
 
@@ -108,7 +108,7 @@ class SongListFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.refresh) {
+        return if (item.itemId == R.id.reconnect) {
             vm.refreshSongs()
             true
         } else {
@@ -144,7 +144,7 @@ class SongListFragment : Fragment() {
         override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
 
     }) {
-        var lastPosition = 0
+        private var lastPosition = 0
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.listPosition

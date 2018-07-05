@@ -24,7 +24,8 @@
         <include
             android:id="@+id/currentSongDisplay"
             layout="@layout/item_song"
-            app:song="@{vm.currentSong}" />
+            app:song="@{vm.currentSong}"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/loadingText"

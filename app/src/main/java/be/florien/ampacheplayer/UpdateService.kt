@@ -6,6 +6,7 @@ import be.florien.ampacheplayer.exception.NoServerException
 import be.florien.ampacheplayer.exception.SessionExpiredException
 import be.florien.ampacheplayer.exception.WrongIdentificationPairException
 import be.florien.ampacheplayer.persistence.PersistenceManager
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -52,6 +53,7 @@ class UpdateService
                                 }
                             }
                         }
+                        .subscribeOn(Schedulers.io())
                         .subscribe()
             }
         }

@@ -42,24 +42,30 @@ class SongListFragmentVm
      */
     init {
         Timber.tag(this.javaClass.simpleName)
-        subscribe(audioQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = {
-            listPosition = it
-            notifyPropertyChanged(BR.listPosition)
-        }, onError = {
-            Timber.e(it, "Error while updating position")
-        })
-        subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = {
-            pagedAudioQueue = it
-            notifyPropertyChanged(BR.pagedAudioQueue)
-        }, onError = {
-            Timber.e(it, "Error while updating songList")
-        })
-        subscribe(audioQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()), onNext = { maybeSong ->
-            currentSong = maybeSong?.let { SongDisplay(it) }
-            notifyPropertyChanged(BR.currentSong)
-        }, onError = {
-            Timber.e(it, "Error while updating currentSong")
-        })
+        subscribe(audioQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    listPosition = it
+                    notifyPropertyChanged(BR.listPosition)
+                },
+                onError = {
+                    Timber.e(it, "Error while updating position")
+                })
+        subscribe(audioQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    pagedAudioQueue = it
+                    notifyPropertyChanged(BR.pagedAudioQueue)
+                },
+                onError = {
+                    Timber.e(it, "Error while updating songList")
+                })
+        subscribe(audioQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = { maybeSong ->
+                    currentSong = maybeSong?.let { SongDisplay(it) }
+                    notifyPropertyChanged(BR.currentSong)
+                },
+                onError = {
+                    Timber.e(it, "Error while updating currentSong")
+                })
     }
 
     /**

@@ -10,6 +10,7 @@ import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.model.*
 import be.florien.ampacheplayer.user.AuthPersistence
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -107,6 +108,7 @@ open class AmpacheConnection
                     .ping(auth = authToken)
                     .doOnNext { result -> authPersistence.setNewAuthExpiration(result.sessionExpire) }
                     .doOnError { Timber.e(it, "Error while ping") }
+                    .subscribeOn(Schedulers.io())
 
     fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverurl from authpersistence if NoServerException. Or look before
         if (!authPersistence.hasConnectionInfo()) {
