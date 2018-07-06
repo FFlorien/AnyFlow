@@ -10,34 +10,33 @@ import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-const val NO_CURRENT_SONG = -13456
-
 /**
- * Manager for the queue of accounts that are playing. It handle filters, random, repeat and addition to the queue
+ * Event handler for the queue of songs that are playing.
  */
 @UserScope
-class AudioQueue
+class PlayingQueue
 @Inject constructor(libraryDatabase: LibraryDatabase, private val sharedPreferences: SharedPreferences) {
     companion object {
         private const val POSITION_NOT_SET = -5
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
+    private val disposable: Disposable
     val positionUpdater: PublishSubject<Int> = PublishSubject.create()
     val currentSongUpdater: Flowable<Song?> = positionUpdater
             .toFlowable(BackpressureStrategy.LATEST)
+            .flatMap { libraryDatabase.getSongAtPosition(it) }
+            .filter { it.isNotEmpty() }
+            .map { it.first() }
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .doOnSubscribe {
-                it.request(Long.MAX_VALUE)
-            }
-            .map { libraryDatabase.getSongAtPosition(it).firstOrNull() }
+            .share()
 
-    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder()
+    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().share()
 
     var itemsCount: Int = 0
     var listPosition: Int = POSITION_NOT_SET
@@ -59,11 +58,17 @@ class AudioQueue
         }
 
 
+
     init {
-        songListUpdater
+        disposable = songListUpdater
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     itemsCount = it.size
+                    listPosition = 0
                 }
+    }
+    //todo use when disconnection
+    fun cleanUp() {
+        disposable.dispose()
     }
 }

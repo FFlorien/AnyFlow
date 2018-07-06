@@ -8,5 +8,5 @@ import io.reactivex.Flowable
 @Dao
 interface ArtistDao : BaseDao<Artist> {
     @Query("SELECT * FROM artist ORDER BY name")
-    fun orderedByName(): Flowable<List<ArtistDisplay>>
+    fun orderByName(): Flowable<List<ArtistDisplay>>
 }

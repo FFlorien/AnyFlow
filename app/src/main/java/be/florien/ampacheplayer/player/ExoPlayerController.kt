@@ -26,16 +26,15 @@ import javax.inject.Inject
 
 class ExoPlayerController
 @Inject constructor(
-        context: Context,
-        private var audioQueue: AudioQueue,
+        private var playingQueue: PlayingQueue,
         private var ampacheConnection: AmpacheConnection,
+        context: Context,
         okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
 
     companion object {
         private const val NO_VALUE = -3L
     }
 
-    //todo switch between 3 mediaplayers: 1 playing, the others already preparing previous and next accounts
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }
@@ -58,8 +57,9 @@ class ExoPlayerController
         val userAgent = Util.getUserAgent(context, "ampachePlayerUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
-        audioQueue.currentSongUpdater.subscribe {// todo unsuscribe
-            if (it != null) play(it) else lastPosition = NO_VALUE
+        playingQueue.currentSongUpdater.subscribe {
+            // todo unsuscribe
+            if (it != null && isPlaying()) play(it) else lastPosition = NO_VALUE
         }
 
     }
@@ -96,7 +96,7 @@ class ExoPlayerController
         mediaPlayer.playWhenReady = true
 
         if (lastPosition == NO_VALUE) {
-            audioQueue.listPosition = audioQueue.listPosition
+            playingQueue.listPosition = playingQueue.listPosition
         } else {
             mediaPlayer.seekTo(lastPosition)
         }
@@ -151,7 +151,7 @@ class ExoPlayerController
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         if (playbackState == Player.STATE_ENDED) {
-            audioQueue.listPosition += 1
+            playingQueue.listPosition += 1
         }
     }
 

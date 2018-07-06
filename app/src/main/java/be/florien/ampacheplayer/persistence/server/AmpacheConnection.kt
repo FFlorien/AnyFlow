@@ -10,6 +10,7 @@ import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.model.*
 import be.florien.ampacheplayer.user.AuthPersistence
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.math.BigInteger
@@ -35,6 +36,8 @@ open class AmpacheConnection
         private const val OFFSET_TAG = "tagOffset"
         private const val OFFSET_PLAYLIST = "playlistOffset"
     }
+
+    private val subscriptions: CompositeDisposable = CompositeDisposable()
 
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
@@ -147,7 +150,7 @@ open class AmpacheConnection
      */
 
     fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
-        ampacheApi
+        val disposable = ampacheApi
                 .getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
                 .doOnNext {
                     if (it.songs.isEmpty()) {
@@ -160,6 +163,7 @@ open class AmpacheConnection
                     }
                 }
                 .subscribe()
+        subscriptions.add(disposable)
     }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = Observable.generate { emitter ->

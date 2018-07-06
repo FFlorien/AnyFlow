@@ -21,7 +21,6 @@ import javax.inject.Inject
 private const val LAST_SONG_UPDATE = "LAST_SONG_UPDATE"
 private const val LAST_ARTIST_UPDATE = "LAST_ARTIST_UPDATE"
 private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
-private const val LAST_ALBUM_ARTIST_UPDATE = "LAST_ALBUM_ARTIST_UPDATE"
 
 /**
  * Update the local data with the one from the server
@@ -41,25 +40,23 @@ class PersistenceManager
      * Getter with server updates
      */
 
-    fun updateSongs(): Completable= getUpToDateList(
+    fun updateSongs(): Completable = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             AmpacheSongList::error
-    ) { libraryDatabase.addSongs(it.songs.map(::Song))}
+    ) { libraryDatabase.addSongs(it.songs.map(::Song)) }
 
-    fun updateArtists(): Completable= getUpToDateList(
+    fun updateArtists(): Completable = getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             AmpacheArtistList::error
     ) { libraryDatabase.addArtists(it.artists.map(::Artist)) }
 
-    fun updateAlbums(): Completable= getUpToDateList(
+    fun updateAlbums(): Completable = getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             AmpacheAlbumList::error
-    ) {
-        libraryDatabase.addAlbums(it.albums.map(::Album)
-        ) }
+    ) { libraryDatabase.addAlbums(it.albums.map(::Album)) }
 
     /**
      * Private Method

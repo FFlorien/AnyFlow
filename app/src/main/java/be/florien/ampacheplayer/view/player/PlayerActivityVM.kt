@@ -10,8 +10,8 @@ import be.florien.ampacheplayer.persistence.server.AmpacheConnection
 import be.florien.ampacheplayer.player.*
 import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.customView.PlayerControls
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.absoluteValue
@@ -22,7 +22,7 @@ import kotlin.math.absoluteValue
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val audioQueue: AudioQueue, private var ampacheConnection: AmpacheConnection) : BaseVM(), PlayerControls.OnActionListener {
+constructor(private val playingQueue: PlayingQueue, private var ampacheConnection: AmpacheConnection) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYER_CONTROLLER_IDENTIFIER = "playerControllerId"
@@ -32,7 +32,7 @@ constructor(private val audioQueue: AudioQueue, private var ampacheConnection: A
     private var playerControllerNumber = 0
     private var isBackKeyPreviousSong: Boolean = false
 
-    var player: PlayerController = DummyPlayerController()
+    var player: PlayerController = IdlePlayerController()
 
     /**
      * Constructor
@@ -46,14 +46,14 @@ constructor(private val audioQueue: AudioQueue, private var ampacheConnection: A
      */
     override fun onPreviousClicked() {
         if (isBackKeyPreviousSong) {
-            audioQueue.listPosition -= 1
+            playingQueue.listPosition -= 1
         } else {
             player.play()
         }
     }
 
     override fun onNextClicked() {
-        audioQueue.listPosition += 1
+        playingQueue.listPosition += 1
     }
 
     override fun onPlayPauseClicked() {
@@ -73,7 +73,7 @@ constructor(private val audioQueue: AudioQueue, private var ampacheConnection: A
     }
 
     fun forceReconnect() {
-        subscribe(ampacheConnection.reconnect(Observable.just(true)).observeOn(AndroidSchedulers.mainThread()), onNext = {})
+        subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()), onNext = {})
     }
     /**
      * Bindables
@@ -86,11 +86,10 @@ constructor(private val audioQueue: AudioQueue, private var ampacheConnection: A
     var totalDuration: Int = 0
 
     @Bindable
-    fun isNextPossible(): Boolean = audioQueue.listPosition < audioQueue.itemsCount - 1 && audioQueue.listPosition != NO_CURRENT_SONG
+    fun isNextPossible(): Boolean = playingQueue.listPosition < playingQueue.itemsCount - 1
 
     @Bindable
-    fun isPreviousPossible(): Boolean = audioQueue.listPosition != 0 || currentDuration > 10000
-
+    fun isPreviousPossible(): Boolean = playingQueue.listPosition != 0 || currentDuration > 10000
 
     /**
      * Private methods
@@ -100,13 +99,13 @@ constructor(private val audioQueue: AudioQueue, private var ampacheConnection: A
         player = controller
         playerControllerNumber += 1
         subscribe(
-                flowable = audioQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
+                flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     totalDuration = (it?.time ?: 0) * 1000
                     notifyPropertyChanged(BR.totalDuration)
                 })
         subscribe(
-                observable = audioQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
+                observable = playingQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     notifyPropertyChanged(BR.nextPossible)
                     notifyPropertyChanged(BR.previousPossible)
@@ -135,7 +134,7 @@ constructor(private val audioQueue: AudioQueue, private var ampacheConnection: A
 
         override fun onServiceDisconnected(name: ComponentName?) {
             dispose(PLAYER_CONTROLLER_IDENTIFIER + playerControllerNumber)
-            initController(DummyPlayerController())
+            initController(IdlePlayerController())
         }
     }
 }

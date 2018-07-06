@@ -6,9 +6,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 
 /**
- * Player used to test the implementation, but that play nothing
+ * Player used to fill the implementation, but that play nothing
  */
-class DummyPlayerController : PlayerController {
+class IdlePlayerController : PlayerController {
 
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
@@ -16,6 +16,7 @@ class DummyPlayerController : PlayerController {
     override fun isPlaying(): Boolean = false
 
     override fun play() {}
+
     override fun play(song: Song) {}
 
     override fun stop() {}

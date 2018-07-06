@@ -37,7 +37,7 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters
      */
 
-    fun getSongAtPosition(position: Int) = getSongDao().forPositionInQueue(position)
+    fun getSongAtPosition(position: Int): Flowable<List<Song?>> = getSongDao().forPositionInQueue(position).subscribeOn(Schedulers.io())
 
     fun getSongsInQueueOrder(): Flowable<PagedList<SongDisplay>> {
         val dataSourceFactory = getSongDao().inQueueOrder()
@@ -48,11 +48,11 @@ abstract class LibraryDatabase : RoomDatabase() {
         return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
     }
 
-    fun getGenres(): Flowable<List<String>> = getSongDao().genreOrderedByGenre().subscribeOn(Schedulers.io())
+    fun getGenres(): Flowable<List<String>> = getSongDao().genreOrderByGenre().subscribeOn(Schedulers.io())
 
-    fun getArtists(): Flowable<List<ArtistDisplay>> = getArtistDao().orderedByName().subscribeOn(Schedulers.io())
+    fun getArtists(): Flowable<List<ArtistDisplay>> = getArtistDao().orderByName().subscribeOn(Schedulers.io())
 
-    fun getAlbums(): Flowable<List<AlbumDisplay>> = getAlbumDao().orderedByName().subscribeOn(Schedulers.io())
+    fun getAlbums(): Flowable<List<AlbumDisplay>> = getAlbumDao().orderByName().subscribeOn(Schedulers.io())
 
     fun getFilters(): Flowable<List<Filter<*>>> = getFilterDao().all().map {
         val typedList = mutableListOf<Filter<*>>()
@@ -118,7 +118,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         asyncCompletable { getQueueOrderDao().setOrder(queueOrder) }.subscribe()
     }
 
-    private fun asyncCompletable(action: () -> Unit): Completable = Completable.fromAction(action).subscribeOn(Schedulers.io())
+    private fun asyncCompletable(action: () -> Unit): Completable = Completable.defer { Completable.fromAction(action) }.subscribeOn(Schedulers.io())
 
     companion object {
         @Volatile

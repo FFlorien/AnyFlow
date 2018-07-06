@@ -2,7 +2,9 @@ package be.florien.ampacheplayer.persistence.local.dao
 
 import android.arch.paging.DataSource
 import android.arch.persistence.db.SupportSQLiteQuery
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Query
+import android.arch.persistence.room.RawQuery
 import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import io.reactivex.Flowable
@@ -14,11 +16,11 @@ interface SongDao : BaseDao<Song> {
     fun inQueueOrder(): DataSource.Factory<Int, SongDisplay>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
-    fun forPositionInQueue(position: Int): List<Song>
+    fun forPositionInQueue(position: Int): Flowable<List<Song?>>
 
     @RawQuery(observedEntities = [Song::class])
     fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>
 
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre")
-    fun genreOrderedByGenre(): Flowable<List<String>>
+    fun genreOrderByGenre(): Flowable<List<String>>
 }
