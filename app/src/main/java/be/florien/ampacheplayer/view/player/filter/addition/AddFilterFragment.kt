@@ -25,7 +25,12 @@ import be.florien.ampacheplayer.view.player.filter.selectType.GENRE_NAME
 @ActivityScope
 @UserScope
 class AddFilterFragment @SuppressLint("ValidFragment")
-constructor(private var filterType: String) : Fragment() { //todo reduce type available to warn when when isn't complete
+constructor(private var filterType: String) : Fragment() { //todo reduce type available to warn when isn't complete
+
+    companion object {
+        private const val FILTER_TYPE = "TYPE"
+    }
+
     lateinit var vm: AddFilterFragmentVM<*>
     private lateinit var fragmentBinding: FragmentAddFilterBinding
 
@@ -66,12 +71,7 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
         return fragmentBinding.root
     }
 
-    companion object {
-        private const val FILTER_TYPE = "TYPE"
-    }
-
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = FilterViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {

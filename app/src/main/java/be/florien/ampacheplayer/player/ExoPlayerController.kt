@@ -110,11 +110,11 @@ class ExoPlayerController
      * Listener implementation
      */
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onSeekProcessed() {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
@@ -130,23 +130,23 @@ class ExoPlayerController
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onPositionDiscontinuity(reason: Int) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onRepeatModeChanged(repeatMode: Int) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented")
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
