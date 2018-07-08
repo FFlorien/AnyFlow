@@ -22,7 +22,7 @@ class AddFilterFragmentGenreVM(activity: Activity) : AddFilterFragmentVM<String>
 
     override fun getDisplayedValues(): List<FilterItem> = values.mapIndexed{ index, genre -> FilterItem(index.toLong(), genre) }
 
-    override fun onFilterSelected(filterValue: Long) {
-        subscribe(libraryDatabase.addFilters(Filter.GenreIs(values[filterValue.toInt()]).toDbFilter()))
+    override fun onFilterSelected(filterValue: FilterItem) {
+        subscribe(libraryDatabase.addFilters(Filter.GenreIs(values[filterValue.id.toInt()]).toDbFilter()))
     }
 }

@@ -3,40 +3,36 @@ package be.florien.ampacheplayer.player
 import be.florien.ampacheplayer.persistence.local.model.DbFilter
 
 sealed class Filter<T>(
-        var clause: String,
-        var argument: T) {
+        val clause: String,
+        val argument: T,
+        val displayValue: String) {
 
-    fun toDbFilter(): DbFilter {
-        return when (this) {
-            is StringFilter -> DbFilter(0, clause, argument)
-            is LongFilter -> DbFilter(0, clause, argument.toString())
-        }
-    }
+    fun toDbFilter(): DbFilter = DbFilter(0, clause, argument.toString(), displayValue)
 
-    open class StringFilter(clause: String, argument: String) : Filter<String>(clause, argument)
+    //open class StringFilter(clause: String, argument: String, displayValue: String) : Filter<String>(clause, argument, displayValue)
 
-    open class LongFilter(clause: String, argument: Long) : Filter<Long>(clause, argument)
+  //  open class LongFilter(clause: String, argument: Long, displayValue: String) : Filter<Long>(clause, argument, displayValue)
 
     /**
      * String filters
      */
-    class TitleIs(argument: String) : StringFilter(TITLE_IS, argument)
+    class TitleIs(argument: String) : Filter<String>(TITLE_IS, argument, argument)
 
-    class TitleContain(argument: String) : StringFilter(TITLE_CONTAIN, argument)
+    class TitleContain(argument: String) : Filter<String>(TITLE_CONTAIN, argument, argument)
 
-    class GenreIs(argument: String) : StringFilter(GENRE_IS, argument)
+    class GenreIs(argument: String) : Filter<String>(GENRE_IS, argument, argument)
 
     /**
      * Long filters
      */
 
-    class SongIs(argument: Long) : LongFilter(SONG_ID, argument)
+    class SongIs(argument: Long, displayValue: String) : Filter<Long>(SONG_ID, argument, displayValue)
 
-    class ArtistIs(argument: Long) : LongFilter(ARTIST_ID, argument)
+    class ArtistIs(argument: Long, displayValue: String) : Filter<Long>(ARTIST_ID, argument, displayValue)
 
-    class AlbumArtistIs(argument: Long) : LongFilter(ALBUM_ARTIST_ID, argument)
+    class AlbumArtistIs(argument: Long, displayValue: String) : Filter<Long>(ALBUM_ARTIST_ID, argument, displayValue)
 
-    class AlbumIs(argument: Long) : LongFilter(ALBUM_ID, argument)
+    class AlbumIs(argument: Long, displayValue: String) : Filter<Long>(ALBUM_ID, argument, displayValue)
 
     companion object {
         private const val TITLE_IS = "title = "
@@ -52,10 +48,10 @@ sealed class Filter<T>(
                 TITLE_IS -> TitleIs(fromDb.argument)
                 TITLE_CONTAIN -> TitleContain(fromDb.argument)
                 GENRE_IS -> GenreIs(fromDb.argument)
-                SONG_ID -> SongIs(fromDb.argument.toLong())
-                ARTIST_ID -> ArtistIs(fromDb.argument.toLong())
-                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong())
-                ALBUM_ID -> AlbumIs(fromDb.argument.toLong())
+                SONG_ID -> SongIs(fromDb.argument.toLong(), fromDb.displayValue)
+                ARTIST_ID -> ArtistIs(fromDb.argument.toLong(), fromDb.displayValue)
+                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong(), fromDb.displayValue)
+                ALBUM_ID -> AlbumIs(fromDb.argument.toLong(), fromDb.displayValue)
                 else -> TitleIs("")
             }
         }

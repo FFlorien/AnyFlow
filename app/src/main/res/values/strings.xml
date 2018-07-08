@@ -6,4 +6,13 @@
     <string name="connect_connect_action">Connect</string>
     <string name="connect_wait_label">Connection, please wait…</string>
     <string name="general_loading_label">Loading, please wait…</string>
+    <string name="action_filter_clear">Clear filters</string>
+    <string name="action_filter_add">Add filters</string>
+    <string name="filter_display_title_is">Song title is %s</string>
+    <string name="filter_display_genre_is">Genre is %s</string>
+    <string name="filter_display_song_is">Song is %s</string>
+    <string name="filter_display_artist_is">Artist is %s</string>
+    <string name="filter_display_album_artist_is">Album artist is %s</string>
+    <string name="filter_display_album_is">Album is %s</string>
+    <string name="filter_display_title_contain">Song title contain %s</string>
 </resources>

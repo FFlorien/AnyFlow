@@ -14,9 +14,11 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.math.BigInteger
+import java.net.ConnectException
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,7 +39,7 @@ open class AmpacheConnection
         private const val OFFSET_PLAYLIST = "playlistOffset"
     }
 
-    private val subscriptions: CompositeDisposable = CompositeDisposable()
+    private val subscriptions: CompositeDisposable = CompositeDisposable() //todo
 
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
@@ -150,7 +152,7 @@ open class AmpacheConnection
      */
 
     fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
-        val disposable = ampacheApi
+        ampacheApi
                 .getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
                 .doOnNext {
                     if (it.songs.isEmpty()) {
@@ -162,8 +164,19 @@ open class AmpacheConnection
                         songOffset += itemLimit
                     }
                 }
+                .doOnError {
+                    when (it) {
+                        is TimeoutException -> {
+                        }
+                        is ConnectException -> {
+                        }
+                        else -> {
+                        }
+                    //todo inform user and let him try later
+
+                    }
+                }
                 .subscribe()
-        subscriptions.add(disposable)
     }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = Observable.generate { emitter ->
@@ -176,6 +189,11 @@ open class AmpacheConnection
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
                         artistOffset += itemLimit
+                    }
+                }
+                .doOnError {
+                    if (it is TimeoutException) {
+                        //todo inform user and let him try later
                     }
                 }
                 .subscribe()
@@ -193,6 +211,11 @@ open class AmpacheConnection
                         albumOffset += itemLimit
                     }
                 }
+                .doOnError {
+                    if (it is TimeoutException) {
+                        //todo inform user and let him try later
+                    }
+                }
                 .subscribe()
     }
 
@@ -208,6 +231,11 @@ open class AmpacheConnection
                         tagOffset += itemLimit
                     }
                 }
+                .doOnError {
+                    if (it is TimeoutException) {
+                        //todo inform user and let him try later
+                    }
+                }
                 .subscribe()
     }
 
@@ -221,6 +249,11 @@ open class AmpacheConnection
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
                         playlistOffset += itemLimit
+                    }
+                }
+                .doOnError {
+                    if (it is TimeoutException) {
+                        //todo inform user and let him try later
                     }
                 }
                 .subscribe()

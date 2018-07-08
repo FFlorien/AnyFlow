@@ -10,7 +10,6 @@ import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -26,13 +25,11 @@ class PlayingQueue
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
-    private val disposable: Disposable
     val positionUpdater: PublishSubject<Int> = PublishSubject.create()
     val currentSongUpdater: Flowable<Song?> = positionUpdater
             .toFlowable(BackpressureStrategy.LATEST)
             .flatMap { libraryDatabase.getSongAtPosition(it) }
-            .filter { it.isNotEmpty() }
-            .map { it.first() }
+            .distinctUntilChanged { song -> song.id }
             .subscribeOn(Schedulers.io())
             .share()
 
@@ -58,17 +55,18 @@ class PlayingQueue
         }
 
 
-
     init {
-        disposable = songListUpdater
+        songListUpdater
+                .doOnNext {
+                    itemsCount = it.size
+                }
+                .flatMap {
+                    libraryDatabase.getSongAtPosition(listPosition)
+                }
+                .distinct { it.id }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    itemsCount = it.size
                     listPosition = 0
                 }
-    }
-    //todo use when disconnection
-    fun cleanUp() {
-        disposable.dispose()
     }
 }

@@ -19,9 +19,6 @@ import be.florien.ampacheplayer.view.player.filter.selectType.ALBUM_NAME
 import be.florien.ampacheplayer.view.player.filter.selectType.ARTIST_NAME
 import be.florien.ampacheplayer.view.player.filter.selectType.GENRE_NAME
 
-/**
- * Created by FlamentF on 08-Jan-18.
- */
 @ActivityScope
 @UserScope
 class AddFilterFragment @SuppressLint("ValidFragment")
@@ -81,14 +78,13 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
         override fun getItemCount(): Int = vm.getDisplayedValues().size
     }
 
-    inner class FilterViewHolder(
-            private val itemFilterTypeBinding: ItemAddFilterBinding = ItemAddFilterBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
-    ) : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
+    inner class FilterViewHolder(private val itemFilterTypeBinding: ItemAddFilterBinding
+                                 = ItemAddFilterBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
+        : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
 
         fun bind(filter: AddFilterFragmentVM.FilterItem) {
-            itemFilterTypeBinding.filterValue = filter.id
             itemFilterTypeBinding.vm = vm
-            itemFilterTypeBinding.filterName.text = filter.displayName
+            itemFilterTypeBinding.item = filter
         }
     }
 }

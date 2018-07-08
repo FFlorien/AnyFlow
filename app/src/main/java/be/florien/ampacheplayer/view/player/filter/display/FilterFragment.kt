@@ -51,21 +51,25 @@ class FilterFragment : Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = FilterViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
-            if (position == 0) {
-                (holder.itemView as TextView).text = "Clear filters"
-                holder.itemView.setOnClickListener { vm.clearFilters() }
-            }else if (position == itemCount-1) {
-                (holder.itemView as TextView).text = "Add filters"
-                holder.itemView.setOnClickListener {
-                    requireActivity()
-                            .supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.container, AddFilterTypeFragment(), AddFilterTypeFragment::class.java.simpleName)
-                            .commitNow()
+            when (position) {
+                0 -> {
+                    (holder.itemView as TextView).text = getString(R.string.action_filter_clear)
+                    holder.itemView.setOnClickListener { vm.clearFilters() }
                 }
-            } else {
-                holder.bind(vm.currentFilters[position -1])
-                holder.itemView.setOnClickListener(null)
+                itemCount - 1 -> {
+                    (holder.itemView as TextView).text = getString(R.string.action_filter_add)
+                    holder.itemView.setOnClickListener {
+                        requireActivity()
+                                .supportFragmentManager
+                                .beginTransaction()
+                                .replace(R.id.container, AddFilterTypeFragment(), AddFilterTypeFragment::class.java.simpleName)
+                                .commitNow()
+                    }
+                }
+                else -> {
+                    holder.bind(vm.currentFilters[position - 1])
+                    holder.itemView.setOnClickListener(null)
+                }
             }
         }
 
@@ -75,7 +79,15 @@ class FilterFragment : Fragment() {
     inner class FilterViewHolder : RecyclerView.ViewHolder(layoutInflater.inflate(R.layout.item_filter_active, binding.filterList, false)) {
 
         fun bind(filter: Filter<*>) {
-            (itemView as TextView).text = "${filter.clause} ${filter.argument?.toString()}"
+            (itemView as TextView).text = when(filter) {
+                is Filter.TitleIs -> getString(R.string.filter_display_title_is, filter.displayValue)
+                is Filter.TitleContain -> getString(R.string.filter_display_title_contain, filter.displayValue)
+                is Filter.GenreIs -> getString(R.string.filter_display_genre_is, filter.displayValue)
+                is Filter.SongIs -> getString(R.string.filter_display_song_is, filter.displayValue)
+                is Filter.ArtistIs -> getString(R.string.filter_display_artist_is, filter.displayValue)
+                is Filter.AlbumArtistIs -> getString(R.string.filter_display_album_artist_is, filter.displayValue)
+                is Filter.AlbumIs -> getString(R.string.filter_display_album_is, filter.displayValue)
+            }
         }
     }
 }

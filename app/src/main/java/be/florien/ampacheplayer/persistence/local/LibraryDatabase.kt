@@ -37,7 +37,11 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters
      */
 
-    fun getSongAtPosition(position: Int): Flowable<List<Song?>> = getSongDao().forPositionInQueue(position).subscribeOn(Schedulers.io())
+    fun getSongAtPosition(position: Int): Flowable<Song?> = getSongDao()
+            .forPositionInQueue(position)
+            .filter { it.isNotEmpty() }
+            .map { it.first() }
+            .subscribeOn(Schedulers.io())
 
     fun getSongsInQueueOrder(): Flowable<PagedList<SongDisplay>> {
         val dataSourceFactory = getSongDao().inQueueOrder()
@@ -99,8 +103,13 @@ abstract class LibraryDatabase : RoomDatabase() {
 
         typedFilterList.forEachIndexed { index, filter ->
             query += when (filter) {
-                is Filter.StringFilter -> " ${filter.clause} \"${filter.argument}\""
-                is Filter.LongFilter -> " ${filter.clause} ${filter.argument}"
+                is Filter.TitleIs,
+                is Filter.TitleContain,
+                is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
+                is Filter.SongIs,
+                is Filter.ArtistIs,
+                is Filter.AlbumArtistIs,
+                is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
             }
             if (index < typedFilterList.size - 1) {
                 query += " OR"

@@ -8,4 +8,5 @@ data class DbFilter (
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val clause: String,
-    val argument: String)
+    val argument: String,
+    val displayValue: String)
