@@ -8,6 +8,7 @@ import android.arch.persistence.room.RawQuery
 import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 
 @Dao
 interface SongDao : BaseDao<Song> {
@@ -16,7 +17,10 @@ interface SongDao : BaseDao<Song> {
     fun inQueueOrder(): DataSource.Factory<Int, SongDisplay>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
-    fun forPositionInQueue(position: Int): Flowable<List<Song?>>
+    fun forPositionInQueue(position: Int): Maybe<Song>
+
+    @Query("SELECT `order` FROM queueorder JOIN song ON song.id = queueorder.songId WHERE queueorder.songId = :songId")
+    fun findPositionInQueue(songId: Long): Maybe<Int>
 
     @RawQuery(observedEntities = [Song::class])
     fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>

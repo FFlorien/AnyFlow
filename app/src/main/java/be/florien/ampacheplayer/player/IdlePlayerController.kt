@@ -17,7 +17,7 @@ class IdlePlayerController : PlayerController {
 
     override fun play() {}
 
-    override fun play(song: Song) {}
+    override fun prepare(song: Song) {}
 
     override fun stop() {}
 

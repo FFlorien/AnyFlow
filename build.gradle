@@ -5,7 +5,7 @@ buildscript {
         jcenter()
         google()
     }
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.51'
     ext.gradle_version = '3.1.2'
     ext.support_version = '27.1.1'
     ext.dagger_version = '2.11'

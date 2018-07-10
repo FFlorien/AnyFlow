@@ -9,6 +9,7 @@ import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -25,10 +26,11 @@ class PlayingQueue
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
+    private var currentSong: Song? = null
     val positionUpdater: PublishSubject<Int> = PublishSubject.create()
     val currentSongUpdater: Flowable<Song?> = positionUpdater
+            .flatMapMaybe { libraryDatabase.getSongAtPosition(it) }
             .toFlowable(BackpressureStrategy.LATEST)
-            .flatMap { libraryDatabase.getSongAtPosition(it) }
             .distinctUntilChanged { song -> song.id }
             .subscribeOn(Schedulers.io())
             .share()
@@ -56,17 +58,39 @@ class PlayingQueue
 
 
     init {
+        keepPlayingQueueCoherent(libraryDatabase)
+    }
+
+    private fun keepPlayingQueueCoherent(libraryDatabase: LibraryDatabase) {
         songListUpdater
                 .doOnNext {
                     itemsCount = it.size
                 }
-                .flatMap {
-                    libraryDatabase.getSongAtPosition(listPosition)
+                .flatMapMaybe {
+                    val nullSafeSong = currentSong
+                    if (nullSafeSong != null) {
+                        libraryDatabase.getPositionForSong(nullSafeSong)
+                    } else {
+                        listPosition = 0
+                        if (itemsCount == 0) {
+                            Maybe.empty()
+                        } else {
+                            Maybe.just(listPosition)
+                        }
+                    }
                 }
-                .distinct { it.id }
+                .doOnNext {
+                    listPosition = it
+                }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    listPosition = 0
+                .subscribe()
+
+        currentSongUpdater
+                .doOnNext {
+                    currentSong = it
                 }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+
     }
 }

@@ -11,7 +11,7 @@ interface PlayerController {
 
     fun isPlaying() : Boolean
     fun play()
-    fun play(song: Song)
+    fun prepare(song: Song)
     fun stop()
     fun pause()
     fun resume()

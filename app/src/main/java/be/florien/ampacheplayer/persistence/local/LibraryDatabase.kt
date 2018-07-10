@@ -13,6 +13,7 @@ import be.florien.ampacheplayer.player.Filter
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.schedulers.Schedulers
 
 
@@ -37,11 +38,9 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters
      */
 
-    fun getSongAtPosition(position: Int): Flowable<Song?> = getSongDao()
-            .forPositionInQueue(position)
-            .filter { it.isNotEmpty() }
-            .map { it.first() }
-            .subscribeOn(Schedulers.io())
+    fun getSongAtPosition(position: Int): Maybe<Song> = getSongDao().forPositionInQueue(position).subscribeOn(Schedulers.io())
+
+    fun getPositionForSong(song: Song): Maybe<Int> = getSongDao().findPositionInQueue(song.id).subscribeOn(Schedulers.io())
 
     fun getSongsInQueueOrder(): Flowable<PagedList<SongDisplay>> {
         val dataSourceFactory = getSongDao().inQueueOrder()
@@ -115,7 +114,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                 query += " OR"
             }
         }
-        query += " ORDER BY song.albumArtistName, song.year, song.albumName, song.track, song.title"
+        query += " ORDER BY song.albumArtistName COLLATE NOCASE, song.year COLLATE NOCASE, song.albumName COLLATE NOCASE, song.track COLLATE NOCASE, song.title COLLATE NOCASE"
         getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
     }
 

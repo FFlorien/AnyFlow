@@ -59,7 +59,8 @@ class ExoPlayerController
         extractorsFactory = DefaultExtractorsFactory()
         playingQueue.currentSongUpdater.subscribe {
             // todo unsuscribe
-            if (it != null && isPlaying()) play(it) else lastPosition = NO_VALUE
+            it?.let { prepare(it) }
+            if (it != null && isPlaying()) play() else lastPosition = NO_VALUE
         }
 
     }
@@ -67,18 +68,16 @@ class ExoPlayerController
     override fun isPlaying() = mediaPlayer.playWhenReady
 
     override fun play() {
-        stop()
+        seekTo(0)
         resume()
     }
 
-    override fun play(song: Song) {
+    override fun prepare(song: Song) {
         mediaPlayer.apply {
-            stop()
             val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
                     .setExtractorsFactory(extractorsFactory)
                     .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song)))
             prepare(audioSource)
-            playWhenReady = true
         }
     }
 
@@ -93,13 +92,13 @@ class ExoPlayerController
     }
 
     override fun resume() {
-        mediaPlayer.playWhenReady = true
-
         if (lastPosition == NO_VALUE) {
-            playingQueue.listPosition = playingQueue.listPosition
+            mediaPlayer.seekTo(0)
         } else {
             mediaPlayer.seekTo(lastPosition)
         }
+
+        mediaPlayer.playWhenReady = true
     }
 
     override fun seekTo(duration: Int) {
