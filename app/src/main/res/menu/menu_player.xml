@@ -4,6 +4,11 @@
 
     <item
         android:id="@+id/filters"
-        android:title="Filters"
+        android:title="@string/menu_filters"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/order"
+        android:title="@string/menu_order"
         app:showAsAction="always" />
 </menu>

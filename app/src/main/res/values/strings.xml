@@ -15,4 +15,6 @@
     <string name="filter_display_album_artist_is">Album artist is %s</string>
     <string name="filter_display_album_is">Album is %s</string>
     <string name="filter_display_title_contain">Song title contain %s</string>
+    <string name="menu_filters">Filters</string>
+    <string name="menu_order">Random</string>
 </resources>

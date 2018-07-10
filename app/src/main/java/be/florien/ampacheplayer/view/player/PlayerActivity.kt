@@ -72,8 +72,8 @@ class PlayerActivity : AppCompatActivity() {
                     displaySongList()
                 }
             }
-            R.id.reconnect -> {
-                vm.forceReconnect()
+            R.id.order -> {
+                vm.random()
             }
         }
         return super.onOptionsItemSelected(item)

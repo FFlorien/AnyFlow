@@ -35,13 +35,13 @@ sealed class Filter<T>(
     class AlbumIs(argument: Long, displayValue: String) : Filter<Long>(ALBUM_ID, argument, displayValue)
 
     companion object {
-        private const val TITLE_IS = "title = "
-        private const val TITLE_CONTAIN = "title LIKE "
-        private const val GENRE_IS = "song.genre = "
-        private const val SONG_ID = "song.id = "
-        private const val ARTIST_ID = "song.artistId = "
-        private const val ALBUM_ARTIST_ID = "song.albumArtistId = "
-        private const val ALBUM_ID = "song.albumId = "
+        private const val TITLE_IS = "title ="
+        private const val TITLE_CONTAIN = "title LIKE"
+        private const val GENRE_IS = "song.genre ="
+        private const val SONG_ID = "song.id ="
+        private const val ARTIST_ID = "song.artistId ="
+        private const val ALBUM_ARTIST_ID = "song.albumArtistId ="
+        private const val ALBUM_ID = "song.albumId ="
 
         fun toTypedFilter(fromDb: DbFilter): Filter<*> {
             return when (fromDb.clause) {

@@ -102,20 +102,6 @@ class SongListFragment : Fragment() {
         return view
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_song_list, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.reconnect) {
-            vm.refreshSongs()
-            true
-        } else {
-            false
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         vm.destroy()

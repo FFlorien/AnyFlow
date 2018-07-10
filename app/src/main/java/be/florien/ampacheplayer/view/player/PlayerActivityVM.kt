@@ -6,12 +6,11 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.di.ActivityScope
-import be.florien.ampacheplayer.persistence.server.AmpacheConnection
+import be.florien.ampacheplayer.persistence.local.LibraryDatabase
 import be.florien.ampacheplayer.player.*
 import be.florien.ampacheplayer.view.BaseVM
 import be.florien.ampacheplayer.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.absoluteValue
@@ -22,7 +21,7 @@ import kotlin.math.absoluteValue
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val playingQueue: PlayingQueue, private var ampacheConnection: AmpacheConnection) : BaseVM(), PlayerControls.OnActionListener {
+constructor(private val playingQueue: PlayingQueue, private val libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYER_CONTROLLER_IDENTIFIER = "playerControllerId"
@@ -72,8 +71,8 @@ constructor(private val playingQueue: PlayingQueue, private var ampacheConnectio
         }
     }
 
-    fun forceReconnect() {
-        subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()), onNext = {})
+    fun random() {
+        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL, Ordering.RANDOM).toDbOrder())))
     }
     /**
      * Bindables

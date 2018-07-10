@@ -10,14 +10,17 @@ import android.content.Context
 import be.florien.ampacheplayer.persistence.local.dao.*
 import be.florien.ampacheplayer.persistence.local.model.*
 import be.florien.ampacheplayer.player.Filter
+import be.florien.ampacheplayer.player.Order
+import be.florien.ampacheplayer.player.Ordering
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
 
-@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class], version = 1)
+@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 1)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -26,10 +29,19 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getQueueOrderDao(): QueueOrderDao
     protected abstract fun getSongDao(): SongDao
     protected abstract fun getFilterDao(): FilterDao
+    protected abstract fun getOrderDao(): OrderDao
+    private var orderingIsRandom: Boolean = false
 
     init {
         getSongsForFilters()
-                .doOnNext { saveOrder(it) }
+                .doOnNext {
+                    val listToSave = if (orderingIsRandom) {
+                        it.shuffled()
+                    } else {
+                        it
+                    }
+                    saveOrder(listToSave)
+                }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }
@@ -83,40 +95,74 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable { getFilterDao().replaceBy(filters) }
 
+    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable { getOrderDao().replaceBy(orders) }
+
+
     /**
      * Private methods
      */
 
-    private fun getSongsForFilters(): Flowable<List<Long>> = getFilterDao().all().flatMap { dbFilters ->
-        val typedFilterList = mutableListOf<Filter<*>>()
-        dbFilters.forEach {
-            typedFilterList.add(Filter.toTypedFilter(it))
-        }
-        var query = "SELECT id FROM song"
+    private fun getSongsForFilters(): Flowable<List<Long>> =
+            getFilterDao().all()
+                    .withLatestFrom(
+                            getOrderDao().all(),
+                            BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
+                                val typedFilterList = mutableListOf<Filter<*>>()
+                                val orderList = mutableListOf<Order>()
+                                dbFilters.forEach {
+                                    typedFilterList.add(Filter.toTypedFilter(it))
+                                }
+                                dbOrders.forEach {
+                                    orderList.add(Order.toOrder(it))
+                                }
+                                var query = "SELECT id FROM song"
 
-        query += if (typedFilterList.isNotEmpty()) {
-            " WHERE"
-        } else {
-            ""
-        }
+                                query += if (typedFilterList.isNotEmpty()) {
+                                    " WHERE"
+                                } else {
+                                    ""
+                                }
 
-        typedFilterList.forEachIndexed { index, filter ->
-            query += when (filter) {
-                is Filter.TitleIs,
-                is Filter.TitleContain,
-                is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
-                is Filter.SongIs,
-                is Filter.ArtistIs,
-                is Filter.AlbumArtistIs,
-                is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
-            }
-            if (index < typedFilterList.size - 1) {
-                query += " OR"
-            }
-        }
-        query += " ORDER BY song.albumArtistName COLLATE NOCASE, song.year COLLATE NOCASE, song.albumName COLLATE NOCASE, song.track COLLATE NOCASE, song.title COLLATE NOCASE"
-        getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
-    }
+                                typedFilterList.forEachIndexed { index, filter ->
+                                    query += when (filter) {
+                                        is Filter.TitleIs,
+                                        is Filter.TitleContain,
+                                        is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
+                                        is Filter.SongIs,
+                                        is Filter.ArtistIs,
+                                        is Filter.AlbumArtistIs,
+                                        is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
+                                    }
+                                    if (index < typedFilterList.size - 1) {
+                                        query += " OR"
+                                    }
+                                }
+
+                                query += if (orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }) {
+                                    " ORDER BY"
+                                } else {
+                                    ""
+                                }
+
+                                orderList.forEachIndexed { index, order ->
+                                    if (order.ordering != Ordering.RANDOM) {
+                                        query += when (order.ordering) {
+                                            Ordering.ASCENDING -> " ASC"
+                                            Ordering.DESCENDING -> " DESC"
+                                            Ordering.RANDOM -> ""
+                                        }
+                                        if (index < orderList.size - 1) {
+                                            query += ","
+                                        }
+                                    } else {
+                                        orderingIsRandom = true
+                                    }
+                                }
+                                query
+                            })
+                    .flatMap {
+                        getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
+                    }
 
     private fun saveOrder(it: List<Long>) {
         val queueOrder = mutableListOf<QueueOrder>()
