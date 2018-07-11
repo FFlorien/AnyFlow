@@ -12,6 +12,7 @@ import be.florien.ampacheplayer.persistence.local.model.*
 import be.florien.ampacheplayer.player.Filter
 import be.florien.ampacheplayer.player.Order
 import be.florien.ampacheplayer.player.Ordering
+import be.florien.ampacheplayer.player.Subject
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -33,7 +34,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     private var orderingIsRandom: Boolean = false
 
     init {
-        getSongsForFilters()
+        getPlaylist()
                 .doOnNext {
                     val listToSave = if (orderingIsRandom) {
                         it.shuffled()
@@ -77,6 +78,8 @@ abstract class LibraryDatabase : RoomDatabase() {
         typedList as List<Filter<*>>
     }.subscribeOn(Schedulers.io())
 
+    fun getOrder() = getOrderDao().all()
+
     /**
      * Setters
      */
@@ -97,72 +100,105 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable { getOrderDao().replaceBy(orders) }
 
+    fun setOrdersSubject(orders: List<Subject>): Completable = asyncCompletable {
+        val dbOrders = orders.mapIndexed { index, order ->
+            Order(index, order, Ordering.ASCENDING).toDbOrder()
+        }
+        getOrderDao().replaceBy(dbOrders)
+    }
+
 
     /**
      * Private methods
      */
 
-    private fun getSongsForFilters(): Flowable<List<Long>> =
-            getFilterDao().all()
-                    .withLatestFrom(
-                            getOrderDao().all(),
-                            BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
-                                val typedFilterList = mutableListOf<Filter<*>>()
-                                val orderList = mutableListOf<Order>()
-                                dbFilters.forEach {
-                                    typedFilterList.add(Filter.toTypedFilter(it))
-                                }
-                                dbOrders.forEach {
-                                    orderList.add(Order.toOrder(it))
-                                }
-                                var query = "SELECT id FROM song"
+    private fun getPlaylist(): Flowable<List<Long>> =
+            Flowable.merge(getPlaylistFromFilter(), getPlaylistFromOrder())
 
-                                query += if (typedFilterList.isNotEmpty()) {
-                                    " WHERE"
-                                } else {
-                                    ""
-                                }
+    private fun getPlaylistFromFilter(): Flowable<List<Long>> = getFilterDao().all()
+            .withLatestFrom(
+                    getOrderDao().all(),
+                    BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
+                        getQueryForSongs(dbFilters, dbOrders)
+                    })
+            .flatMap {
+                getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
+            }
 
-                                typedFilterList.forEachIndexed { index, filter ->
-                                    query += when (filter) {
-                                        is Filter.TitleIs,
-                                        is Filter.TitleContain,
-                                        is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
-                                        is Filter.SongIs,
-                                        is Filter.ArtistIs,
-                                        is Filter.AlbumArtistIs,
-                                        is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
-                                    }
-                                    if (index < typedFilterList.size - 1) {
-                                        query += " OR"
-                                    }
-                                }
+    private fun getPlaylistFromOrder(): Flowable<List<Long>> = getOrderDao().all()
+            .withLatestFrom(
+                    getFilterDao().all(),
+                    BiFunction { dbOrders: List<DbOrder>, dbFilters: List<DbFilter> ->
+                        getQueryForSongs(dbFilters, dbOrders)
+                    })
+            .flatMap {
+                getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
+            }
 
-                                query += if (orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }) {
-                                    " ORDER BY"
-                                } else {
-                                    ""
-                                }
+    private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {
+        val typedFilterList = mutableListOf<Filter<*>>()
+        val orderList = mutableListOf<Order>()
+        dbFilters.forEach {
+            typedFilterList.add(Filter.toTypedFilter(it))
+        }
+        dbOrders.forEach {
+            orderList.add(Order.toOrder(it))
+        }
+        var query = "SELECT id FROM song"
 
-                                orderList.forEachIndexed { index, order ->
-                                    if (order.ordering != Ordering.RANDOM) {
-                                        query += when (order.ordering) {
-                                            Ordering.ASCENDING -> " ASC"
-                                            Ordering.DESCENDING -> " DESC"
-                                            Ordering.RANDOM -> ""
-                                        }
-                                        if (index < orderList.size - 1) {
-                                            query += ","
-                                        }
-                                    } else {
-                                        orderingIsRandom = true
-                                    }
-                                }
-                                query
-                            })
-                    .flatMap {
-                        getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
-                    }
+        query += if (typedFilterList.isNotEmpty()) {
+            " WHERE"
+        } else {
+            ""
+        }
+
+        typedFilterList.forEachIndexed { index, filter ->
+            query += when (filter) {
+                is Filter.TitleIs,
+                is Filter.TitleContain,
+                is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
+                is Filter.SongIs,
+                is Filter.ArtistIs,
+                is Filter.AlbumArtistIs,
+                is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
+            }
+            if (index < typedFilterList.size - 1) {
+                query += " OR"
+            }
+        }
+
+        query += if (orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }) {
+            " ORDER BY"
+        } else {
+            ""
+        }
+
+        orderingIsRandom = orderList.all { it.ordering == Ordering.RANDOM }
+
+        if (!orderingIsRandom) {
+            orderList.forEachIndexed { index, order ->
+                query += when (order.subject) {
+                    Subject.ALL -> " song.id"
+                    Subject.ARTIST -> " song.artistName"
+                    Subject.ALBUM_ARTIST -> " song.albumArtistName"
+                    Subject.ALBUM -> " song.albumName"
+                    Subject.YEAR -> " song.year"
+                    Subject.GENRE -> " song.genre"
+                    Subject.TRACK -> " song.track"
+                    Subject.TITLE -> " song.title"
+                }
+                query += when (order.ordering) {
+                    Ordering.ASCENDING -> " ASC"
+                    Ordering.DESCENDING -> " DESC"
+                    Ordering.RANDOM -> ""
+                }
+                if (index < orderList.size - 1) {
+                    query += ","
+                }
+            }
+        }
+        return query
+    }
 
     private fun saveOrder(it: List<Long>) {
         val queueOrder = mutableListOf<QueueOrder>()

@@ -38,6 +38,10 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
      */
     init {
         Timber.tag(this.javaClass.simpleName)
+        subscribe(playingQueue.orderingUpdater, onNext = {
+            isOrderRandom = it
+            notifyPropertyChanged(BR.isOrderRandom)
+        })
     }
 
     /**
@@ -71,9 +75,14 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
         }
     }
 
-    fun random() {
+    fun randomOrder() {
         subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL, Ordering.RANDOM).toDbOrder())))
     }
+
+    fun classicOrder() {
+        subscribe(libraryDatabase.setOrdersSubject(listOf(Subject.ALBUM_ARTIST, Subject.YEAR, Subject.ALBUM, Subject.TRACK, Subject.TITLE)))
+    }
+
     /**
      * Bindables
      */
@@ -83,6 +92,9 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
 
     @Bindable
     var totalDuration: Int = 0
+
+    @Bindable
+    var isOrderRandom: Boolean = false
 
     @Bindable
     fun isNextPossible(): Boolean = playingQueue.listPosition < playingQueue.itemsCount - 1

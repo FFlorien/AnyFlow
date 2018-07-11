@@ -2,7 +2,7 @@ package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.persistence.local.model.DbOrder
 
-class Order(private val priority: Int, private val subject: Subject, val ordering: Ordering) {
+class Order(private val priority: Int, val subject: Subject, val ordering: Ordering) {
     fun toDbOrder() = DbOrder(priority, subject.name, ordering.name)
 
     companion object {
@@ -17,7 +17,8 @@ enum class Subject {
     ALBUM,
     YEAR,
     GENRE,
-    TRACK
+    TRACK,
+    TITLE
 }
 
 enum class Ordering {

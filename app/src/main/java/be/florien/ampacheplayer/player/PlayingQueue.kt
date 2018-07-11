@@ -36,6 +36,12 @@ class PlayingQueue
             .share()
 
     val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().share()
+    val orderingUpdater: Flowable<Boolean> =
+            libraryDatabase
+                    .getOrder()
+                    .map {
+                        it.all { Order.toOrder(it).ordering == Ordering.RANDOM }
+                    }
 
     var itemsCount: Int = 0
     var listPosition: Int = POSITION_NOT_SET

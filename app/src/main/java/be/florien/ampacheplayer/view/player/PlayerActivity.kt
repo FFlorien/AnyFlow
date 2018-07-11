@@ -3,10 +3,12 @@ package be.florien.ampacheplayer.view.player
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
+import android.databinding.Observable
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.databinding.ActivityPlayerBinding
 import be.florien.ampacheplayer.di.ActivityScope
@@ -30,6 +32,8 @@ class PlayerActivity : AppCompatActivity() {
     @Inject
     lateinit var vm: PlayerActivityVM
     lateinit var binding: ActivityPlayerBinding
+
+    private var orderingMenu: MenuItem? = null
 
     private var isFilterDisplayed = false
 
@@ -56,11 +60,30 @@ class PlayerActivity : AppCompatActivity() {
                 displaySongList()
             }
         }
+
+        vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                when (propertyId) {
+                    BR.isOrderRandom -> {
+                        orderingMenu?.setTitle(if (vm.isOrderRandom) {
+                            R.string.menu_order_classic
+                        } else {
+                            R.string.menu_order_random
+                        })
+                    }
+                }
+            }
+        })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_player, menu)
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        orderingMenu = menu.findItem(R.id.order)
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -73,7 +96,11 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
             R.id.order -> {
-                vm.random()
+                if (vm.isOrderRandom) {
+                    vm.classicOrder()
+                } else {
+                    vm.randomOrder()
+                }
             }
         }
         return super.onOptionsItemSelected(item)

@@ -151,6 +151,7 @@ class ExoPlayerController
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         if (playbackState == Player.STATE_ENDED) {
             playingQueue.listPosition += 1
+            lastPosition = 0
         }
     }
 
