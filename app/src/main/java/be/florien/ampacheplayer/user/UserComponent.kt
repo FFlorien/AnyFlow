@@ -1,6 +1,6 @@
 package be.florien.ampacheplayer.user
 
-import be.florien.ampacheplayer.UpdateService
+import be.florien.ampacheplayer.persistence.UpdateService
 import be.florien.ampacheplayer.persistence.server.AmpacheApi
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.player.PlayerService
@@ -16,7 +16,7 @@ import dagger.Subcomponent
 interface UserComponent {
 
     fun inject(playerService: PlayerService)
-    fun inject(updateService: UpdateService)
+    fun inject(updateService: be.florien.ampacheplayer.persistence.UpdateService)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
 

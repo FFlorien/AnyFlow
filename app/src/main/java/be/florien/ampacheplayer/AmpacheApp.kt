@@ -14,7 +14,7 @@ import javax.inject.Inject
 import android.app.NotificationManager
 import android.app.NotificationChannel
 import android.os.Build
-
+import be.florien.ampacheplayer.di.DaggerApplicationComponent
 
 
 /**
@@ -22,7 +22,7 @@ import android.os.Build
  */
 @SuppressLint("Registered")
 open class AmpacheApp : Application() {
-    lateinit var applicationComponent: ApplicationComponent
+    lateinit var applicationComponent: be.florien.ampacheplayer.di.ApplicationComponent
         protected set
     var userComponent: UserComponent? = null
 
@@ -69,7 +69,7 @@ open class AmpacheApp : Application() {
             val name = "Music"
             val description = "It play music"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("AmpacheMusic", name, importance)
+            val channel = NotificationChannel("AnyFlow", name, importance)
             channel.description = description
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)

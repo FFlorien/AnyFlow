@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.di
 
 import android.app.Application
 import android.content.Context

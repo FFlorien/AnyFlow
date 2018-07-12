@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.di
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -24,7 +24,7 @@ class ApplicationModule {
 
     @Provides
     @Reusable
-    fun providePreferences(context: Context): SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+    fun providePreferences(context: Context): SharedPreferences = context.getSharedPreferences(be.florien.ampacheplayer.di.ApplicationModule.Companion.PREFERENCE_NAME, Context.MODE_PRIVATE)
 
     @Singleton
     @Provides

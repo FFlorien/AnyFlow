@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.di
 
 import android.app.Application
 import be.florien.ampacheplayer.user.UserComponent
@@ -12,10 +12,10 @@ import javax.inject.Singleton
  * Component used to add dependency injection about data into classes
  */
 @Singleton
-@Component(modules = [(ApplicationModule::class), (ApplicationWideModule::class)])
+@Component(modules = [(be.florien.ampacheplayer.di.ApplicationModule::class), (be.florien.ampacheplayer.di.ApplicationWideModule::class)])
 interface ApplicationComponent  {
 
-    fun inject(ampacheApp: AmpacheApp)
+    fun inject(ampacheApp: be.florien.ampacheplayer.AmpacheApp)
 
     fun connectComponentBuilder(): ConnectComponent.Builder
     fun userComponentBuilder(): UserComponent.Builder
@@ -24,8 +24,8 @@ interface ApplicationComponent  {
     interface Builder {
 
         @BindsInstance
-        fun application(application: Application): Builder
+        fun application(application: Application): be.florien.ampacheplayer.di.ApplicationComponent.Builder
 
-        fun build(): ApplicationComponent
+        fun build(): be.florien.ampacheplayer.di.ApplicationComponent
     }
 }

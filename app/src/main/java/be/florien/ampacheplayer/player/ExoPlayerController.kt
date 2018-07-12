@@ -1,6 +1,10 @@
 package be.florien.ampacheplayer.player
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.media.AudioManager
 import android.net.Uri
 import be.florien.ampacheplayer.persistence.local.model.Song
 import be.florien.ampacheplayer.persistence.server.AmpacheConnection
@@ -28,7 +32,7 @@ class ExoPlayerController
 @Inject constructor(
         private var playingQueue: PlayingQueue,
         private var ampacheConnection: AmpacheConnection,
-        context: Context,
+        private val context: Context,
         okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
 
     companion object {
@@ -43,6 +47,18 @@ class ExoPlayerController
     private var lastPosition: Long = NO_VALUE
     private var dataSourceFactory: DefaultDataSourceFactory
     private var extractorsFactory: DefaultExtractorsFactory
+
+    private var isReceiverRegistered: Boolean = false
+    private val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+    private val myNoisyAudioStreamReceiver = BecomingNoisyReceiver()
+
+    inner class BecomingNoisyReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
+                pause()
+            }
+        }
+    }
 
     /**
      * Constructor
@@ -62,7 +78,6 @@ class ExoPlayerController
             it?.let { prepare(it) }
             if (it != null && isPlaying()) play() else lastPosition = NO_VALUE
         }
-
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
@@ -149,9 +164,16 @@ class ExoPlayerController
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        if (playbackState == Player.STATE_ENDED) {
-            playingQueue.listPosition += 1
-            lastPosition = 0
+        when (playbackState) {
+            Player.STATE_ENDED -> {
+                playingQueue.listPosition += 1
+                lastPosition = 0
+            }
+        }
+        if (playWhenReady && !isReceiverRegistered) {
+            context.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
+        } else if (isReceiverRegistered){
+            context.unregisterReceiver(myNoisyAudioStreamReceiver)
         }
     }
 

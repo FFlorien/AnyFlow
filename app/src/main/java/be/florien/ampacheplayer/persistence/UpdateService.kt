@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer
+package be.florien.ampacheplayer.persistence
 
 import android.app.IntentService
 import android.content.Intent
@@ -23,12 +23,12 @@ class UpdateService
 
     override fun onCreate() {
         super.onCreate()
-        (application as AmpacheApp).userComponent?.inject(this)
+        (application as be.florien.ampacheplayer.AmpacheApp).userComponent?.inject(this)
     }
 
     override fun onHandleIntent(intent: Intent) {
         when (intent.dataString) {
-            UPDATE_ALL -> {
+            be.florien.ampacheplayer.persistence.UpdateService.Companion.UPDATE_ALL -> {
                 persistenceManager.updateSongs()
                         .andThen(persistenceManager.updateAlbums())
                         .andThen(persistenceManager.updateArtists())
