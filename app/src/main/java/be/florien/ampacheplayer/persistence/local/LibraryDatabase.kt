@@ -32,6 +32,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getOrderDao(): OrderDao
     private var orderingIsRandom: Boolean = false
+    private var isFirstOrderLoading: Boolean = true
+    private var isFirstFilterLoading: Boolean = true
 
     init {
         getPlaylist()
@@ -115,25 +117,48 @@ abstract class LibraryDatabase : RoomDatabase() {
     private fun getPlaylist(): Flowable<List<Long>> =
             Flowable.merge(getPlaylistFromFilter(), getPlaylistFromOrder())
 
-    private fun getPlaylistFromFilter(): Flowable<List<Long>> = getFilterDao().all()
-            .withLatestFrom(
-                    getOrderDao().all(),
-                    BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
-                        getQueryForSongs(dbFilters, dbOrders)
-                    })
-            .flatMap {
-                getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
-            }
+    private fun getPlaylistFromFilter(): Flowable<List<Long>> =
+            getFilterDao()
+                    .all()
+                    .filter {
+                        val wasFirstLoading = isFirstFilterLoading
+                        isFirstFilterLoading = false
+                        !wasFirstLoading
+                    }
+                    .withLatestFrom(
+                            getOrderDao().all(),
+                            BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
+                                getQueryForSongs(dbFilters, dbOrders)
+                            })
+                    .flatMap {
+                        getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
+                    }
 
-    private fun getPlaylistFromOrder(): Flowable<List<Long>> = getOrderDao().all()
-            .withLatestFrom(
-                    getFilterDao().all(),
-                    BiFunction { dbOrders: List<DbOrder>, dbFilters: List<DbFilter> ->
-                        getQueryForSongs(dbFilters, dbOrders)
-                    })
-            .flatMap {
-                getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
-            }
+    private fun getPlaylistFromOrder(): Flowable<List<Long>> =
+            getOrderDao()
+                    .all()
+                    .doOnNext { retrieveRandomness(it) }
+                    .filter {
+                        val wasFirstLoading = isFirstOrderLoading
+                        isFirstOrderLoading = false
+                        !wasFirstLoading
+                    }
+                    .withLatestFrom(
+                            getFilterDao().all(),
+                            BiFunction { dbOrders: List<DbOrder>, dbFilters: List<DbFilter> ->
+                                getQueryForSongs(dbFilters, dbOrders)
+                            })
+                    .flatMap {
+                        getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
+                    }
+
+    private fun retrieveRandomness(dbOrders: List<DbOrder>) {
+        val orderList = mutableListOf<Order>()
+        dbOrders.forEach {
+            orderList.add(Order.toOrder(it))
+        }
+        orderingIsRandom = orderList.all { it.ordering == Ordering.RANDOM }
+    }
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {
         val typedFilterList = mutableListOf<Filter<*>>()
@@ -172,8 +197,6 @@ abstract class LibraryDatabase : RoomDatabase() {
         } else {
             ""
         }
-
-        orderingIsRandom = orderList.all { it.ordering == Ordering.RANDOM }
 
         if (!orderingIsRandom) {
             orderList.forEachIndexed { index, order ->
