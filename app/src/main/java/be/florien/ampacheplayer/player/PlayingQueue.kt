@@ -12,7 +12,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject
 
 /**
@@ -20,29 +20,13 @@ import javax.inject.Inject
  */
 @UserScope
 class PlayingQueue
-@Inject constructor(libraryDatabase: LibraryDatabase, private val sharedPreferences: SharedPreferences) {
+@Inject constructor(private val libraryDatabase: LibraryDatabase, private val sharedPreferences: SharedPreferences) {
     companion object {
         private const val POSITION_NOT_SET = -5
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
     private var currentSong: Song? = null
-    val positionUpdater: PublishSubject<Int> = PublishSubject.create()
-    val currentSongUpdater: Flowable<Song?> = positionUpdater
-            .flatMapMaybe { libraryDatabase.getSongAtPosition(it) }
-            .toFlowable(BackpressureStrategy.LATEST)
-            .distinctUntilChanged { song -> song.id }
-            .subscribeOn(Schedulers.io())
-            .share()
-
-    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().share()
-    val orderingUpdater: Flowable<Boolean> =
-            libraryDatabase
-                    .getOrder()
-                    .map {
-                        it.all { Order.toOrder(it).ordering == Ordering.RANDOM }
-                    }
-
     var itemsCount: Int = 0
     var listPosition: Int = POSITION_NOT_SET
         get() {
@@ -61,6 +45,22 @@ class PlayingQueue
             positionUpdater.onNext(field)
             sharedPreferences.applyPutInt(POSITION_PREF, field)
         }
+    val positionUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
+    val currentSongUpdater: Flowable<Song?>
+        get() = positionUpdater
+                .flatMapMaybe { libraryDatabase.getSongAtPosition(it) }
+                .toFlowable(BackpressureStrategy.LATEST)
+                .distinctUntilChanged { song -> song.id }
+                .subscribeOn(Schedulers.io())
+                .share()
+
+    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().share()
+    val orderingUpdater: Flowable<Boolean> =
+            libraryDatabase
+                    .getOrder()
+                    .map {
+                        it.all { Order.toOrder(it).ordering == Ordering.RANDOM }
+                    }
 
 
     init {

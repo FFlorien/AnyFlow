@@ -18,7 +18,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import be.florien.ampacheplayer.BR
 import be.florien.ampacheplayer.R
-import be.florien.ampacheplayer.persistence.UpdateService
 import be.florien.ampacheplayer.databinding.FragmentSongListBinding
 import be.florien.ampacheplayer.databinding.ItemSongBinding
 import be.florien.ampacheplayer.di.ActivityScope

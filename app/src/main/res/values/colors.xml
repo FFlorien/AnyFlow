@@ -1,10 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!--?xml version="1.0" encoding="UTF-8"?-->
 <resources>
-    <color name="colorPrimary">#2040FF</color>
-    <color name="colorPrimaryDark">#050288</color>
-    <color name="colorAccent">#ffc400</color>
-    <color name="colorError">#880205</color>
-    <color name="unselected">#e8eaf6</color>
-    <color name="selected">#c5cae9</color>
+    <color name="ic_launcher_background">@color/primary</color>
+    <color name="primary">#2196f3</color>
+    <color name="primaryLight">#6ec6ff</color>
+    <color name="primaryDark">#0069c0</color>
+    <color name="accent">#ffd600</color>
+    <color name="accentLight">#ffff52</color>
+    <color name="accentDark">#c7a500</color>
+    <color name="onPrimaryText">#ffffff</color>
+    <color name="onSecondaryText">#000000</color>
+    <color name="error">#880205</color>
+    <color name="selected">#e3f2fd</color>
+    <color name="unselected">#fafafa</color>
     <color name="disabled">#9e9e9e</color>
 </resources>

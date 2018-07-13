@@ -79,7 +79,7 @@ class PlayerService : Service() {
                 .setContentText(song.albumName)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.notif)
-                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .setColor(ContextCompat.getColor(this, R.color.primary))
         if (albumArt != null) {
             notificationBuilder.setLargeIcon(albumArt)
         }
