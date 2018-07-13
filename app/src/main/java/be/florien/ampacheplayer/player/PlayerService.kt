@@ -1,21 +1,22 @@
 package be.florien.ampacheplayer.player
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Binder
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import be.florien.ampacheplayer.AmpacheApp
 import be.florien.ampacheplayer.R
 import be.florien.ampacheplayer.extension.GlideApp
 import be.florien.ampacheplayer.persistence.local.model.Song
+import be.florien.ampacheplayer.view.player.PlayerActivity
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
-import android.app.PendingIntent
-import be.florien.ampacheplayer.view.player.PlayerActivity
 
 
 /**
@@ -67,6 +68,8 @@ class PlayerService : Service() {
     }
 
     private fun displayNotification(song: Song, albumArt: Bitmap? = null) {
+
+
         val intent = Intent(this, PlayerActivity::class.java)
         intent.action = Intent.ACTION_MAIN
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -75,7 +78,8 @@ class PlayerService : Service() {
                 .setContentTitle("${song.title} by ${song.artistName}")
                 .setContentText(song.albumName)
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.cover_placeholder)
+                .setSmallIcon(R.drawable.notif)
+                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
         if (albumArt != null) {
             notificationBuilder.setLargeIcon(albumArt)
         }
