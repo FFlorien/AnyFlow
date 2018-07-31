@@ -32,8 +32,6 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getOrderDao(): OrderDao
     private var orderingIsRandom: Boolean = false
-    private var isFirstOrderLoading: Boolean = true
-    private var isFirstFilterLoading: Boolean = true
 
     init {
         getPlaylist()
@@ -120,11 +118,6 @@ abstract class LibraryDatabase : RoomDatabase() {
     private fun getPlaylistFromFilter(): Flowable<List<Long>> =
             getFilterDao()
                     .all()
-                    .filter {
-                        val wasFirstLoading = isFirstFilterLoading
-                        isFirstFilterLoading = false
-                        !wasFirstLoading
-                    }
                     .withLatestFrom(
                             getOrderDao().all(),
                             BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
@@ -138,11 +131,6 @@ abstract class LibraryDatabase : RoomDatabase() {
             getOrderDao()
                     .all()
                     .doOnNext { retrieveRandomness(it) }
-                    .filter {
-                        val wasFirstLoading = isFirstOrderLoading
-                        isFirstOrderLoading = false
-                        !wasFirstLoading
-                    }
                     .withLatestFrom(
                             getFilterDao().all(),
                             BiFunction { dbOrders: List<DbOrder>, dbFilters: List<DbFilter> ->
@@ -157,7 +145,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         dbOrders.forEach {
             orderList.add(Order.toOrder(it))
         }
-        orderingIsRandom = orderList.all { it.ordering == Ordering.RANDOM }
+        orderingIsRandom = !orderList.all { it.ordering != Ordering.RANDOM }
     }
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {

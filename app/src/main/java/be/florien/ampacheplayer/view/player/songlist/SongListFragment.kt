@@ -37,7 +37,8 @@ class SongListFragment : Fragment() {
 
     private lateinit var linearLayoutManager: LinearLayoutManager
     private var binding: FragmentSongListBinding? = null
-
+    private var isListFollowingCurrentSong = true
+    private var isUserScroll = false
 
     private val topSet by lazy {
         ConstraintSet().apply {
@@ -75,11 +76,21 @@ class SongListFragment : Fragment() {
         binding?.songList?.layoutManager = linearLayoutManager
         binding?.songList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                updateCurrentSongDisplay()
+                updateCurrentSongDisplay(true)
+            }
+        })
+        binding?.songList?.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?): Boolean {
+                isUserScroll = true
+                return false
             }
         })
         binding?.currentSongDisplay?.root?.setBackgroundResource(R.color.selected)
-        binding?.currentSongDisplay?.root?.setOnClickListener { binding?.songList?.scrollToPosition(vm.listPosition) }
+        binding?.currentSongDisplay?.root?.setOnClickListener {
+            isListFollowingCurrentSong = true
+            binding?.songList?.stopScroll()
+            linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
+        }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding?.currentSongDisplay?.root?.elevation = resources.getDimension(R.dimen.small_dimen)
@@ -92,12 +103,12 @@ class SongListFragment : Fragment() {
                     BR.listPosition -> {
                         val songAdapter = binding?.songList?.adapter as? SongAdapter
                         songAdapter?.setSelectedPosition(vm.listPosition)
-                        updateCurrentSongDisplay()
+                        updateCurrentSongDisplay(false)
                     }
                 }
             }
         })
-        updateCurrentSongDisplay()
+        updateCurrentSongDisplay(false)
         return view
     }
 
@@ -107,19 +118,32 @@ class SongListFragment : Fragment() {
         requireActivity().unbindService(vm.connection)
     }
 
-    private fun updateCurrentSongDisplay() {
+    private fun updateCurrentSongDisplay(isFromScrollListener: Boolean) {
         val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
         val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
         if (vm.listPosition in firstVisibleItemPosition..lastVisibleItemPosition) {
             binding?.currentSongDisplay?.root?.visibility = View.GONE
-        } else if (binding?.currentSongDisplay?.root?.visibility != View.VISIBLE) {
-            binding?.currentSongDisplay?.root?.visibility = View.VISIBLE
-            if (vm.listPosition < firstVisibleItemPosition) {
-                topSet.applyTo(binding?.root as ConstraintLayout?)
-            } else if (vm.listPosition > lastVisibleItemPosition) {
-                bottomSet.applyTo(binding?.root as ConstraintLayout?)
+        } else {
+            if (isUserScroll) {
+                isListFollowingCurrentSong = false
+            }
+
+            if (binding?.currentSongDisplay?.root?.visibility != View.VISIBLE) {
+
+                binding?.currentSongDisplay?.root?.visibility = View.VISIBLE
+                if (vm.listPosition < firstVisibleItemPosition) {
+                    topSet.applyTo(binding?.root as ConstraintLayout?)
+                } else if (vm.listPosition > lastVisibleItemPosition) {
+                    bottomSet.applyTo(binding?.root as ConstraintLayout?)
+                }
             }
         }
+
+        if (isListFollowingCurrentSong and !isFromScrollListener) {
+            linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
+        }
+
+        isUserScroll = false
     }
 
 
@@ -129,6 +153,17 @@ class SongListFragment : Fragment() {
         override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
 
     }) {
+
+        init {
+            registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                    if (lastPosition in fromPosition..(fromPosition + itemCount)) {
+                        setSelectedPosition(lastPosition + (fromPosition - toPosition))
+                    }
+                }
+            })
+        }
+
         private var lastPosition = 0
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {

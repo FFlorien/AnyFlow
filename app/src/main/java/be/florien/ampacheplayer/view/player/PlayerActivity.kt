@@ -61,21 +61,21 @@ class PlayerActivity : AppCompatActivity() {
             if (savedInstanceState == null) {
                 displaySongList()
             }
-        }
 
-        vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                when (propertyId) {
-                    BR.isOrderRandom -> {
-                        orderingMenu?.setTitle(if (vm.isOrderRandom) {
-                            R.string.menu_order_classic
-                        } else {
-                            R.string.menu_order_random
-                        })
+            vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                    when (propertyId) {
+                        BR.isOrderRandom -> {
+                            orderingMenu?.setTitle(if (vm.isOrderRandom) {
+                                R.string.menu_order_classic
+                            } else {
+                                R.string.menu_order_random
+                            })
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
