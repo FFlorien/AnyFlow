@@ -54,12 +54,12 @@ class PlayingQueue
                 .subscribeOn(Schedulers.io())
                 .share()
 
-    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().share()
+    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
     val orderingUpdater: Flowable<Boolean> =
             libraryDatabase
                     .getOrder()
-                    .map {
-                        it.all { Order.toOrder(it).ordering == Ordering.RANDOM }
+                    .map { orderList ->
+                        orderList.all { Order.toOrder(it).ordering == Ordering.RANDOM }
                     }
 
 

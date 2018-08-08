@@ -129,8 +129,8 @@ class SongListFragment : Fragment() {
             }
 
             if (binding?.currentSongDisplay?.root?.visibility != View.VISIBLE) {
-
                 binding?.currentSongDisplay?.root?.visibility = View.VISIBLE
+
                 if (vm.listPosition < firstVisibleItemPosition) {
                     topSet.applyTo(binding?.root as ConstraintLayout?)
                 } else if (vm.listPosition > lastVisibleItemPosition) {

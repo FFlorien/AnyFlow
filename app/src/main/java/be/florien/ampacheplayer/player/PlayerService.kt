@@ -47,12 +47,6 @@ class PlayerService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-//        val notification = NotificationCompat.Builder(this, "AnyFlow")
-//                .setContentTitle("Ampache")
-//                .setContentText("Ampache")
-//                .setSmallIcon(R.drawable.cover_placeholder)
-//                .build()
-//        startForeground(1, notification)
         return iBinder
     }
 
@@ -68,8 +62,6 @@ class PlayerService : Service() {
     }
 
     private fun displayNotification(song: Song, albumArt: Bitmap? = null) {
-
-
         val intent = Intent(this, PlayerActivity::class.java)
         intent.action = Intent.ACTION_MAIN
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
