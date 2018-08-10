@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.persistence.local.model.Song
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit
  * Player used to fill the implementation, but that play nothing
  */
 class IdlePlayerController : PlayerController {
+    override val stateChangeNotifier: Flowable<PlayerController.State> = Flowable.just(PlayerController.State.NO_MEDIA).onBackpressureLatest()
 
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
@@ -25,5 +27,5 @@ class IdlePlayerController : PlayerController {
 
     override fun resume() {}
 
-    override fun seekTo(duration: Int) {}
+    override fun seekTo(duration: Long) {}
 }

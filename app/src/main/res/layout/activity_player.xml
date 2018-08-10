@@ -2,6 +2,8 @@
 <layout>
     <data>
 
+        <import type="be.florien.ampacheplayer.player.PlayerController.State"/>
+
         <variable
             name="vm"
             type="be.florien.ampacheplayer.view.player.PlayerActivityVM" />
@@ -20,6 +22,7 @@
             android:layout_weight="1" />
 
         <be.florien.ampacheplayer.view.customView.PlayerControls
+            android:id="@+id/playerControls"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:gravity="center_horizontal"

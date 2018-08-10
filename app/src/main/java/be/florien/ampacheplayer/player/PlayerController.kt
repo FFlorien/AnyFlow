@@ -1,6 +1,7 @@
 package be.florien.ampacheplayer.player
 
 import be.florien.ampacheplayer.persistence.local.model.Song
+import io.reactivex.Flowable
 import io.reactivex.Observable
 
 /**
@@ -8,6 +9,7 @@ import io.reactivex.Observable
  */
 interface PlayerController {
     val playTimeNotifier: Observable<Long>
+    val stateChangeNotifier: Flowable<State>
 
     fun isPlaying() : Boolean
     fun play()
@@ -15,5 +17,13 @@ interface PlayerController {
     fun stop()
     fun pause()
     fun resume()
-    fun seekTo(duration: Int)
+    fun seekTo(duration: Long)
+
+    enum class State {
+        BUFFER,
+        RECONNECT,
+        PLAY,
+        PAUSE,
+        NO_MEDIA
+    }
 }

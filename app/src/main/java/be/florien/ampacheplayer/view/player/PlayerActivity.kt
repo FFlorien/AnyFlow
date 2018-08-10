@@ -5,6 +5,7 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -15,6 +16,7 @@ import be.florien.ampacheplayer.di.ActivityScope
 import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.extension.ampacheApp
 import be.florien.ampacheplayer.extension.startActivity
+import be.florien.ampacheplayer.player.PlayerController
 import be.florien.ampacheplayer.player.PlayerService
 import be.florien.ampacheplayer.view.connect.ConnectActivity
 import be.florien.ampacheplayer.view.player.filter.display.FilterFragment
@@ -31,15 +33,18 @@ class PlayerActivity : AppCompatActivity() {
     lateinit var activityComponent: PlayerComponent
     @Inject
     lateinit var vm: PlayerActivityVM
-    lateinit var binding: ActivityPlayerBinding
+    private lateinit var binding: ActivityPlayerBinding
+    private lateinit var snackbar: Snackbar
 
     private var orderingMenu: MenuItem? = null
 
     private var isFilterDisplayed = false
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
+        snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_app)
 
@@ -71,6 +76,16 @@ class PlayerActivity : AppCompatActivity() {
                             } else {
                                 R.string.menu_order_random
                             })
+                        }
+                        BR.playerState -> {
+                            when (vm.playerState) {
+                                PlayerController.State.RECONNECT -> snackbar.setText("Reconnecting").show()
+                                else -> {
+                                    snackbar.dismiss()
+                                    binding.playerControls.isBuffering = false
+                                }
+                            }
+                            binding.playerControls.isBuffering = vm.playerState == PlayerController.State.BUFFER // todo  through databinding
                         }
                     }
                 }

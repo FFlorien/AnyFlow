@@ -31,6 +31,13 @@ class PlayerControls
      * Attributes
      */
     // Variable changing due to usage
+    var isBuffering: Boolean = false
+        set(value) {
+            if (value != field) {
+                Timber.i("Is buffering : $value")
+                field = value
+            }
+        }
     var hasPrevious: Boolean = false
     var hasNext: Boolean = false
     private var elapsedDurationText = ""
@@ -45,6 +52,9 @@ class PlayerControls
                 isAnimatingNextTrack = false
             } else if (value >= totalDuration - 100) {
                 isAnimatingNextTrack = true
+            } else {
+                isAnimatingPreviousTrack = false
+                isAnimatingNextTrack = false
             }
 
             if (!isAnimatingNextTrack && !isAnimatingPreviousTrack) {
@@ -91,6 +101,10 @@ class PlayerControls
     }
     private val buttonPaint = Paint().apply {
         setARGB(255, 45, 25, 0)
+        strokeWidth = 2f
+    }
+    private val buttonBufferingPaint = Paint().apply {
+        setARGB(255, 150,150, 150)
         strokeWidth = 2f
     }
 
@@ -246,7 +260,7 @@ class PlayerControls
     override fun onDraw(canvas: Canvas) {
         canvas.drawLine(timelineLeftBound.toFloat(), informationBaseline.toFloat(), timelineRightBound.toFloat(), informationBaseline.toFloat(), timelinePaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, fixedTimelinePaint)
-        canvas.drawPath(playIconPath, buttonPaint)
+        canvas.drawPath(playIconPath, if (isBuffering) buttonBufferingPaint else buttonPaint)
         nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelinePaint) }
         val selectedTextPaint = if (durationOnScroll == -1) textPaint else textScrollingPaint
         canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), selectedTextPaint)
@@ -267,7 +281,7 @@ class PlayerControls
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
                     val durationOffset = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
-                    actionListener?.onCurrentDurationChanged((durationOnScroll - durationOffset).toInt())
+                    actionListener?.onCurrentDurationChanged((durationOnScroll - durationOffset).toLong())
                     currentScrollOffset = 0
                 } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
                     actionListener?.onPreviousClicked()
@@ -453,6 +467,6 @@ class PlayerControls
         fun onPreviousClicked()
         fun onNextClicked()
         fun onPlayPauseClicked()
-        fun onCurrentDurationChanged(newDuration: Int)
+        fun onCurrentDurationChanged(newDuration: Long)
     }
 }

@@ -20,9 +20,12 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.util.Util
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -34,6 +37,8 @@ class ExoPlayerController
         private var ampacheConnection: AmpacheConnection,
         private val context: Context,
         okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
+    private val stateChangePublisher: BehaviorSubject<PlayerController.State> = BehaviorSubject.create()
+    override val stateChangeNotifier: Flowable<PlayerController.State> = stateChangePublisher.toFlowable(BackpressureStrategy.LATEST)
 
     companion object {
         private const val NO_VALUE = -3L
@@ -73,10 +78,10 @@ class ExoPlayerController
         val userAgent = Util.getUserAgent(context, "ampachePlayerUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
-        playingQueue.currentSongUpdater.subscribe {
+        playingQueue.currentSongUpdater.subscribe { song ->
             // todo unsuscribe
-            it?.let { prepare(it) }
-            if (it != null && isPlaying()) play() else lastPosition = NO_VALUE
+            song?.let { prepare(it) }
+            if (song != null && isPlaying()) play() else lastPosition = NO_VALUE
         }
     }
 
@@ -88,12 +93,10 @@ class ExoPlayerController
     }
 
     override fun prepare(song: Song) {
-        mediaPlayer.apply {
-            val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
-                    .setExtractorsFactory(extractorsFactory)
-                    .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song)))
-            prepare(audioSource)
-        }
+        val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
+                .setExtractorsFactory(extractorsFactory)
+                .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song)))
+        mediaPlayer.prepare(audioSource)
     }
 
     override fun stop() {
@@ -104,20 +107,22 @@ class ExoPlayerController
     override fun pause() {
         lastPosition = mediaPlayer.currentPosition
         mediaPlayer.playWhenReady = false
+        stateChangePublisher.onNext(PlayerController.State.PAUSE)
     }
 
     override fun resume() {
         if (lastPosition == NO_VALUE) {
-            mediaPlayer.seekTo(0)
+            seekTo(0)
         } else {
-            mediaPlayer.seekTo(lastPosition)
+            seekTo(lastPosition)
         }
 
         mediaPlayer.playWhenReady = true
+        stateChangePublisher.onNext(PlayerController.State.PLAY)
     }
 
-    override fun seekTo(duration: Int) {
-        mediaPlayer.seekTo(duration.toLong())
+    override fun seekTo(duration: Long) {
+        mediaPlayer.seekTo(duration)
     }
 
     /**
@@ -138,6 +143,7 @@ class ExoPlayerController
         Timber.i(error, "Error while playback")
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
+                stateChangePublisher.onNext(PlayerController.State.RECONNECT)
                 ampacheConnection.reconnect(Observable.fromCallable { resume() }).subscribeOn(Schedulers.io()).subscribe() //todo unsubscribe + on complete/next/error
             }
         }
@@ -169,10 +175,14 @@ class ExoPlayerController
                 playingQueue.listPosition += 1
                 lastPosition = 0
             }
+            Player.STATE_BUFFERING -> stateChangePublisher.onNext(PlayerController.State.BUFFER)
+            Player.STATE_IDLE -> stateChangePublisher.onNext(PlayerController.State.NO_MEDIA)
+            Player.STATE_READY -> stateChangePublisher.onNext(if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE)
         }
+
         if (playWhenReady && !isReceiverRegistered) {
             context.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
-        } else if (isReceiverRegistered){
+        } else if (isReceiverRegistered) {
             context.unregisterReceiver(myNoisyAudioStreamReceiver)
         }
     }

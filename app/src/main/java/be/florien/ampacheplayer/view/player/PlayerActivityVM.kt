@@ -24,24 +24,75 @@ class PlayerActivityVM
 constructor(private val playingQueue: PlayingQueue, private val libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
-        const val PLAYER_CONTROLLER_IDENTIFIER = "playerControllerId"
+        const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
+        const val PLAYER_CONTROLLER_CONTAINER = "PlayerController"
     }
 
     internal val connection: PlayerConnection = PlayerConnection()
-    private var playerControllerNumber = 0
     private var isBackKeyPreviousSong: Boolean = false
+    @Bindable
+    var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
+    set(value) {
+        if (value != field) {
+            Timber.i("New playerState: ${value.name}")
+            field = value
+        }
+    }
 
     var player: PlayerController = IdlePlayerController()
+        set(value) {
+            dispose(PLAYER_CONTROLLER_CONTAINER)
+            field = value
+            subscribe(
+                    field.stateChangeNotifier.subscribeOn(AndroidSchedulers.mainThread()),
+                    onNext = {
+                        playerState = it
+                        notifyPropertyChanged(BR.playerState)
+                    },
+                    onError = {
+                        Timber.e(it, "error while retrieving the state")
+                    },
+                    containerKey = PLAYER_CONTROLLER_CONTAINER)
+            subscribe(
+                    observable = player.playTimeNotifier,
+                    onNext = {
+                        currentDuration = it.toInt()
+                        isBackKeyPreviousSong = currentDuration < 10000
+                        notifyPropertyChanged(BR.currentDuration)
+                    },
+                    onError = {
+                        Timber.e(it, "error while retrieving the playtime")
+                    },
+                    containerKey = PLAYER_CONTROLLER_CONTAINER)
+        }
 
     /**
      * Constructor
      */
     init {
         Timber.tag(this.javaClass.simpleName)
-        subscribe(playingQueue.orderingUpdater, onNext = {
-            isOrderRandom = it
-            notifyPropertyChanged(BR.isOrderRandom)
-        })
+        subscribe(
+                flowable = playingQueue.orderingUpdater,
+                onNext = {
+                    isOrderRandom = it
+                    notifyPropertyChanged(BR.isOrderRandom)
+                },
+                containerKey = PLAYING_QUEUE_CONTAINER)
+        subscribe(
+                flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    totalDuration = (it?.time ?: 0) * 1000
+                    notifyPropertyChanged(BR.totalDuration)
+                },
+                containerKey = PLAYING_QUEUE_CONTAINER)
+        subscribe(
+                observable = playingQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    notifyPropertyChanged(BR.nextPossible)
+                    notifyPropertyChanged(BR.previousPossible)
+                    notifyPropertyChanged(BR.currentDuration)
+                },
+                containerKey = PLAYING_QUEUE_CONTAINER)
     }
 
     /**
@@ -69,7 +120,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
         }
     }
 
-    override fun onCurrentDurationChanged(newDuration: Int) {
+    override fun onCurrentDurationChanged(newDuration: Long) {
         if ((currentDuration - newDuration).absoluteValue > 1000) {
             player.seekTo(newDuration)
         }
@@ -103,49 +154,15 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     fun isPreviousPossible(): Boolean = playingQueue.listPosition != 0 || currentDuration > 10000
 
     /**
-     * Private methods
-     */
-
-    private fun initController(controller: PlayerController) {
-        player = controller
-        playerControllerNumber += 1
-        subscribe(
-                flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    totalDuration = (it?.time ?: 0) * 1000
-                    notifyPropertyChanged(BR.totalDuration)
-                })
-        subscribe(
-                observable = playingQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    notifyPropertyChanged(BR.nextPossible)
-                    notifyPropertyChanged(BR.previousPossible)
-                    notifyPropertyChanged(BR.currentDuration)
-                })
-        subscribe(
-                observable = player.playTimeNotifier,
-                onNext = {
-                    currentDuration = it.toInt()
-                    isBackKeyPreviousSong = currentDuration < 10000
-                    notifyPropertyChanged(BR.currentDuration)
-                },
-                onError = {
-                    Timber.e(it, "error while retrieving the playtime")
-                })
-    }
-
-    /**
      * Inner class
      */
     inner class PlayerConnection : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            dispose(PLAYER_CONTROLLER_IDENTIFIER + playerControllerNumber)
-            initController((service as PlayerService.LocalBinder).service)
+            player = (service as PlayerService.LocalBinder).service
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            dispose(PLAYER_CONTROLLER_IDENTIFIER + playerControllerNumber)
-            initController(IdlePlayerController())
+            player = IdlePlayerController()
         }
     }
 }
