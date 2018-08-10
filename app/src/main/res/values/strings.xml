@@ -18,4 +18,5 @@
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
+    <string name="display_reconnecting">Reconnecting</string>
 </resources>

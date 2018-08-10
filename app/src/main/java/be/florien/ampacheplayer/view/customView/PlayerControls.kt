@@ -31,13 +31,7 @@ class PlayerControls
      * Attributes
      */
     // Variable changing due to usage
-    var isBuffering: Boolean = false
-        set(value) {
-            if (value != field) {
-                Timber.i("Is buffering : $value")
-                field = value
-            }
-        }
+    var shouldShowBuffering: Boolean = false
     var hasPrevious: Boolean = false
     var hasNext: Boolean = false
     private var elapsedDurationText = ""
@@ -260,7 +254,7 @@ class PlayerControls
     override fun onDraw(canvas: Canvas) {
         canvas.drawLine(timelineLeftBound.toFloat(), informationBaseline.toFloat(), timelineRightBound.toFloat(), informationBaseline.toFloat(), timelinePaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, fixedTimelinePaint)
-        canvas.drawPath(playIconPath, if (isBuffering) buttonBufferingPaint else buttonPaint)
+        canvas.drawPath(playIconPath, if (shouldShowBuffering) buttonBufferingPaint else buttonPaint)
         nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelinePaint) }
         val selectedTextPaint = if (durationOnScroll == -1) textPaint else textScrollingPaint
         canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), selectedTextPaint)

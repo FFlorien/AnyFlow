@@ -31,13 +31,9 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     internal val connection: PlayerConnection = PlayerConnection()
     private var isBackKeyPreviousSong: Boolean = false
     @Bindable
+    var shouldShowBuffering: Boolean = false
+    @Bindable
     var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
-    set(value) {
-        if (value != field) {
-            Timber.i("New playerState: ${value.name}")
-            field = value
-        }
-    }
 
     var player: PlayerController = IdlePlayerController()
         set(value) {
@@ -47,7 +43,9 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                     field.stateChangeNotifier.subscribeOn(AndroidSchedulers.mainThread()),
                     onNext = {
                         playerState = it
+                        shouldShowBuffering = it ==PlayerController.State.BUFFER
                         notifyPropertyChanged(BR.playerState)
+                        notifyPropertyChanged(BR.shouldShowBuffering)
                     },
                     onError = {
                         Timber.e(it, "error while retrieving the state")

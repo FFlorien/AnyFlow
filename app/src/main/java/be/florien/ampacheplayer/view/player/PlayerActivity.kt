@@ -79,13 +79,9 @@ class PlayerActivity : AppCompatActivity() {
                         }
                         BR.playerState -> {
                             when (vm.playerState) {
-                                PlayerController.State.RECONNECT -> snackbar.setText("Reconnecting").show()
-                                else -> {
-                                    snackbar.dismiss()
-                                    binding.playerControls.isBuffering = false
-                                }
+                                PlayerController.State.RECONNECT -> snackbar.setText(R.string.display_reconnecting).show()
+                                else -> snackbar.dismiss()
                             }
-                            binding.playerControls.isBuffering = vm.playerState == PlayerController.State.BUFFER // todo  through databinding
                         }
                     }
                 }
