@@ -18,6 +18,7 @@ import be.florien.ampacheplayer.di.UserScope
 import be.florien.ampacheplayer.view.player.filter.selectType.ALBUM_NAME
 import be.florien.ampacheplayer.view.player.filter.selectType.ARTIST_NAME
 import be.florien.ampacheplayer.view.player.filter.selectType.GENRE_NAME
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
 @UserScope
@@ -68,7 +69,7 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
         return fragmentBinding.root
     }
 
-    inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {
+    inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = FilterViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
@@ -76,6 +77,8 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
         }
 
         override fun getItemCount(): Int = vm.getDisplayedValues().size
+
+        override fun getSectionName(position: Int): String = vm.getDisplayedValues()[position].displayName.first().toUpperCase().toString()
     }
 
     inner class FilterViewHolder(private val itemFilterTypeBinding: ItemAddFilterBinding

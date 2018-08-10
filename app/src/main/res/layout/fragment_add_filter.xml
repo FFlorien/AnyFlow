@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -12,9 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
+        <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/filterList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            app:fastScrollPopupBgColor="@color/accent"
+            app:fastScrollPopupTextColor="@android:color/primary_text_light"
+            app:fastScrollThumbColor="@color/accent" />
     </android.support.constraint.ConstraintLayout>
 </layout>

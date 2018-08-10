@@ -25,6 +25,6 @@ interface SongDao : BaseDao<Song> {
     @RawQuery(observedEntities = [Song::class])
     fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>
 
-    @Query("SELECT DISTINCT genre FROM song ORDER BY genre")
+    @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenre(): Flowable<List<String>>
 }
