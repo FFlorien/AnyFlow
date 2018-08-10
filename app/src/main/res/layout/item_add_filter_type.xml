@@ -5,7 +5,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.player.filter.selectType.AddFilterTypeFragmentVM" />
+            type="be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragmentVM" />
     </data>
 
     <TextView

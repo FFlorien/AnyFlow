@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.player.songlist.SongListFragmentVm" />
+            type="be.florien.anyflow.view.player.songlist.SongListFragmentVm" />
 
         <import type="android.view.View" />
     </data>

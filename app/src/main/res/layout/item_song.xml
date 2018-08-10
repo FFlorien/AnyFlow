@@ -6,7 +6,7 @@
 
         <variable
             name="song"
-            type="be.florien.ampacheplayer.persistence.local.model.SongDisplay" />
+            type="be.florien.anyflow.persistence.local.model.SongDisplay" />
     </data>
 
     <LinearLayout

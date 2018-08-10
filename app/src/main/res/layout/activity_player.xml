@@ -2,11 +2,11 @@
 <layout>
     <data>
 
-        <import type="be.florien.ampacheplayer.player.PlayerController.State"/>
+        <import type="be.florien.anyflow.player.PlayerController.State"/>
 
         <variable
             name="vm"
-            type="be.florien.ampacheplayer.view.player.PlayerActivityVM" />
+            type="be.florien.anyflow.view.player.PlayerActivityVM" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -21,7 +21,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <be.florien.ampacheplayer.view.customView.PlayerControls
+        <be.florien.anyflow.view.customView.PlayerControls
             android:id="@+id/playerControls"
             android:layout_width="match_parent"
             android:layout_height="64dp"
