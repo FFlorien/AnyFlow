@@ -75,7 +75,7 @@ class ExoPlayerController
             addListener(this@ExoPlayerController)
         }
         val bandwidthMeter = DefaultBandwidthMeter()
-        val userAgent = Util.getUserAgent(context, "ampachePlayerUserAgent")
+        val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
         playingQueue.currentSongUpdater.subscribe { song ->

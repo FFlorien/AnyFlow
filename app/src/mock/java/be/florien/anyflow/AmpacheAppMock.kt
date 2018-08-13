@@ -1,13 +1,13 @@
-package be.florien.ampacheplayer
+package be.florien.anyflow
 
-import be.florien.ampacheplayer.api.AmpacheApi
-import be.florien.ampacheplayer.api.MockUpAmpacheApi
+import be.florien.anyflow.api.AmpacheApi
+import be.florien.anyflow.api.MockUpAmpacheApi
 import com.facebook.stetho.Stetho
 
 /**
  * Application class used for initialization of many libraries
  */
-class AmpacheAppMock : AmpacheApp() {
+class AnyFlowAppMock : AnyFlowApp() {
 
     override fun onCreate() {
         super.onCreate()

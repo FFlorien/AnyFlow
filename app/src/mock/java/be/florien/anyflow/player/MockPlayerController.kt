@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.player
+package be.florien.anyflow.player
 
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit

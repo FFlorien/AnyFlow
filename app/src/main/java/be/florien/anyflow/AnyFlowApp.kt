@@ -1,7 +1,11 @@
 package be.florien.anyflow
 
 import android.annotation.SuppressLint
-import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import android.support.multidex.MultiDexApplication
+import be.florien.anyflow.di.DaggerApplicationComponent
 import be.florien.anyflow.persistence.server.AmpacheApi
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.user.UserComponent
@@ -11,17 +15,13 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
-import android.app.NotificationManager
-import android.app.NotificationChannel
-import android.os.Build
-import be.florien.anyflow.di.DaggerApplicationComponent
 
 
 /**
  * Application class used for initialization of many libraries
  */
 @SuppressLint("Registered")
-open class AnyFlowApp : Application() {
+open class AnyFlowApp : MultiDexApplication() {
     lateinit var applicationComponent: be.florien.anyflow.di.ApplicationComponent
         protected set
     var userComponent: UserComponent? = null
@@ -33,10 +33,11 @@ open class AnyFlowApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Timber.plant(Timber.DebugTree())
+        Timber.plant(CrashReportingTree())
         initApplicationComponent()
         ampacheConnection.ensureConnection()
         createNotificationChannel()
+        Thread.setDefaultUncaughtExceptionHandler { _, e -> Timber.e(e, "Unexpected error") }
     }
 
     protected open fun initApplicationComponent() {

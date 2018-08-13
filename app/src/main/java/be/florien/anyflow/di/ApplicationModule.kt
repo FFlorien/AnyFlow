@@ -19,12 +19,12 @@ import javax.inject.Singleton
 class ApplicationModule {
 
     companion object {
-        private const val PREFERENCE_NAME = "ampache_preferences"
+        private const val PREFERENCE_NAME = "anyflow_preferences"
     }
 
     @Provides
     @Reusable
-    fun providePreferences(context: Context): SharedPreferences = context.getSharedPreferences(be.florien.anyflow.di.ApplicationModule.Companion.PREFERENCE_NAME, Context.MODE_PRIVATE)
+    fun providePreferences(context: Context): SharedPreferences = context.getSharedPreferences(be.florien.anyflow.di.ApplicationModule.PREFERENCE_NAME, Context.MODE_PRIVATE)
 
     @Singleton
     @Provides

@@ -1,12 +1,14 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "be.florien.ampacheplayer"
+        applicationId "be.florien.anyflow"
+        multiDexEnabled true
         minSdkVersion 18
         targetSdkVersion 27
         versionCode 1
@@ -53,6 +55,8 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.18'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
     //tests
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -61,6 +65,7 @@ dependencies {
     //debug
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.4'
     //todo don't initialize it in main
     implementation 'com.jakewharton.timber:timber:4.7.0'
     //DI
@@ -96,3 +101,5 @@ repositories {
     mavenCentral()
     google()
 }
+
+apply plugin: 'com.google.gms.google-services'

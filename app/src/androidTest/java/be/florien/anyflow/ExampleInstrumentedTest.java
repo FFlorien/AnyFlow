@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("be.florien.ampacheplayer", appContext.getPackageName());
+        assertEquals("be.florien.anyflow", appContext.getPackageName());
     }
 }

@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.api.model
+package be.florien.anyflow.api.model
 
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList

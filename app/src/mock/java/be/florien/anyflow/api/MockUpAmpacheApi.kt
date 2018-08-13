@@ -1,7 +1,7 @@
-package be.florien.ampacheplayer.api
+package be.florien.anyflow.api
 
 import android.content.Context
-import be.florien.ampacheplayer.api.model.*
+import be.florien.anyflow.api.model.*
 import io.reactivex.Observable
 import org.simpleframework.xml.core.Persister
 import java.io.InputStreamReader

@@ -1,4 +1,4 @@
-package be.florien.ampacheplayer.view.connect
+package be.florien.anyflow.view.connect
 
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -6,10 +6,10 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import be.florien.ampacheplayer.R
-import be.florien.ampacheplayer.api.model.Account
-import be.florien.ampacheplayer.api.model.AccountList
-import be.florien.ampacheplayer.databinding.ItemAccountBinding
+import be.florien.anyflow.R
+import be.florien.anyflow.api.model.Account
+import be.florien.anyflow.api.model.AccountList
+import be.florien.anyflow.databinding.ItemAccountBinding
 import org.simpleframework.xml.core.Persister
 import java.io.InputStreamReader
 
