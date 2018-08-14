@@ -180,13 +180,14 @@ abstract class LibraryDatabase : RoomDatabase() {
             }
         }
 
-        query += if (orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }) {
+        val isSorted = orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }
+        query += if (isSorted) {
             " ORDER BY"
         } else {
             ""
         }
 
-        if (!orderingIsRandom) {
+        if (isSorted) {
             orderList.forEachIndexed { index, order ->
                 query += when (order.subject) {
                     Subject.ALL -> " song.id"

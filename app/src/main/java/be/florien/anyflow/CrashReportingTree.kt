@@ -15,7 +15,7 @@ class CrashReportingTree : Timber.Tree() {
         if (message.isNotBlank()) {
             Crashlytics.log(priority, tag, message)
         }
-        if (throwable != null) {
+        if (throwable != null && priority >= Log.ERROR) {
             Crashlytics.logException(throwable)
         }
     }
