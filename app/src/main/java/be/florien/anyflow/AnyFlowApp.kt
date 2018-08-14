@@ -15,6 +15,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 
 
 /**
@@ -33,6 +35,7 @@ open class AnyFlowApp : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
+        Fabric.with(this, Crashlytics())
         Timber.plant(CrashReportingTree())
         initApplicationComponent()
         ampacheConnection.ensureConnection()
