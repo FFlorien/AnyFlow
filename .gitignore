@@ -33,3 +33,6 @@ output.json
 #NDK
 obj/
 .externalNativeBuild
+
+#API Key
+google-services.json
