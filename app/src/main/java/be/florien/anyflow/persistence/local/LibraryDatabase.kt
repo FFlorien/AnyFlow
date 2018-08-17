@@ -19,6 +19,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 
 @Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 1)
@@ -70,9 +71,9 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getAlbums(): Flowable<List<AlbumDisplay>> = getAlbumDao().orderByName().subscribeOn(Schedulers.io())
 
-    fun getFilters(): Flowable<List<Filter<*>>> = getFilterDao().all().map {
+    fun getFilters(): Flowable<List<Filter<*>>> = getFilterDao().all().map { filterList ->
         val typedList = mutableListOf<Filter<*>>()
-        it.forEach {
+        filterList.forEach {
             typedList.add(Filter.toTypedFilter(it))
         }
         typedList as List<Filter<*>>
@@ -149,67 +150,81 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {
-        val typedFilterList = mutableListOf<Filter<*>>()
-        val orderList = mutableListOf<Order>()
-        dbFilters.forEach {
-            typedFilterList.add(Filter.toTypedFilter(it))
-        }
-        dbOrders.forEach {
-            orderList.add(Order.toOrder(it))
-        }
-        var query = "SELECT id FROM song"
 
-        query += if (typedFilterList.isNotEmpty()) {
-            " WHERE"
-        } else {
-            ""
-        }
-
-        typedFilterList.forEachIndexed { index, filter ->
-            query += when (filter) {
-                is Filter.TitleIs,
-                is Filter.TitleContain,
-                is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
-                is Filter.SongIs,
-                is Filter.ArtistIs,
-                is Filter.AlbumArtistIs,
-                is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
+        fun constructWhereStatement(): String {
+            val typedFilterList = mutableListOf<Filter<*>>()
+            dbFilters.forEach {
+                typedFilterList.add(Filter.toTypedFilter(it))
             }
-            if (index < typedFilterList.size - 1) {
-                query += " OR"
+
+            var whereStatement = if (typedFilterList.isNotEmpty()) {
+                " WHERE"
+            } else {
+                ""
             }
-        }
 
-        val isSorted = orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }
-        query += if (isSorted) {
-            " ORDER BY"
-        } else {
-            ""
-        }
-
-        if (isSorted) {
-            orderList.forEachIndexed { index, order ->
-                query += when (order.subject) {
-                    Subject.ALL -> " song.id"
-                    Subject.ARTIST -> " song.artistName"
-                    Subject.ALBUM_ARTIST -> " song.albumArtistName"
-                    Subject.ALBUM -> " song.albumName"
-                    Subject.YEAR -> " song.year"
-                    Subject.GENRE -> " song.genre"
-                    Subject.TRACK -> " song.track"
-                    Subject.TITLE -> " song.title"
+            typedFilterList.forEachIndexed { index, filter ->
+                whereStatement += when (filter) {
+                    is Filter.TitleIs,
+                    is Filter.TitleContain,
+                    is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
+                    is Filter.SongIs,
+                    is Filter.ArtistIs,
+                    is Filter.AlbumArtistIs,
+                    is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
                 }
-                query += when (order.ordering) {
-                    Ordering.ASCENDING -> " ASC"
-                    Ordering.DESCENDING -> " DESC"
-                    Ordering.RANDOM -> ""
-                }
-                if (index < orderList.size - 1) {
-                    query += ","
+                if (index < typedFilterList.size - 1) {
+                    whereStatement += " OR"
                 }
             }
+
+            return whereStatement
         }
-        return query
+
+        fun constructOrderStatement(): String {
+            val orderList = mutableListOf<Order>()
+            dbOrders.forEach {
+                orderList.add(Order.toOrder(it))
+            }
+
+            val isSorted = orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }
+
+            var orderStatement = if (isSorted) {
+                Timber.i("Order statement is not sorted")
+                " ORDER BY"
+            } else {
+                Timber.i("Order statement is sorted")
+                ""
+            }
+
+            if (isSorted) {
+                orderList.forEachIndexed { index, order ->
+                    Timber.i("Order processed: ${order.subject.name}")
+                    orderStatement += when (order.subject) {
+                        Subject.ALL -> " song.id"
+                        Subject.ARTIST -> " song.artistName"
+                        Subject.ALBUM_ARTIST -> " song.albumArtistName"
+                        Subject.ALBUM -> " song.albumName"
+                        Subject.YEAR -> " song.year"
+                        Subject.GENRE -> " song.genre"
+                        Subject.TRACK -> " song.track"
+                        Subject.TITLE -> " song.title"
+                    }
+                    orderStatement += when (order.ordering) {
+                        Ordering.ASCENDING -> " ASC"
+                        Ordering.DESCENDING -> " DESC"
+                        Ordering.RANDOM -> ""
+                    }
+                    if (index < orderList.size - 1) {
+                        orderStatement += ","
+                    }
+                }
+            }
+
+            return orderStatement
+        }
+
+        return "SELECT id FROM song" + constructWhereStatement() + constructOrderStatement()
     }
 
     private fun saveOrder(it: List<Long>) {
