@@ -26,7 +26,7 @@ class PlayingQueue
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
-    private var currentSong: Song? = null
+    var currentSong: Song? = null
     var itemsCount: Int = 0
     var listPosition: Int = POSITION_NOT_SET
         get() {

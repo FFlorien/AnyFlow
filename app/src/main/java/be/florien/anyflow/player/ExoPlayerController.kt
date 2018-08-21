@@ -144,7 +144,7 @@ class ExoPlayerController
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
                 stateChangePublisher.onNext(PlayerController.State.RECONNECT)
-                ampacheConnection.reconnect(Observable.fromCallable { resume() }).subscribeOn(Schedulers.io()).subscribe() //todo unsubscribe + on complete/next/error
+                ampacheConnection.reconnect(Observable.fromCallable { playingQueue.currentSong?.let { prepare(it) } }).subscribeOn(Schedulers.io()).subscribe() //todo unsubscribe + on complete/next/error
             }
         }
     }
