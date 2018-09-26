@@ -18,6 +18,7 @@ interface PlayerController {
     fun pause()
     fun resume()
     fun seekTo(duration: Long)
+    fun onDestroy()
 
     enum class State {
         BUFFER,
@@ -26,4 +27,5 @@ interface PlayerController {
         PAUSE,
         NO_MEDIA
     }
+
 }

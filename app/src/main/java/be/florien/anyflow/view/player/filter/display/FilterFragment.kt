@@ -83,6 +83,7 @@ class FilterFragment : Fragment() {
                 is Filter.TitleIs -> getString(R.string.filter_display_title_is, filter.displayValue)
                 is Filter.TitleContain -> getString(R.string.filter_display_title_contain, filter.displayValue)
                 is Filter.GenreIs -> getString(R.string.filter_display_genre_is, filter.displayValue)
+                is Filter.Search -> getString(R.string.filter_display_search, filter.displayValue)
                 is Filter.SongIs -> getString(R.string.filter_display_song_is, filter.displayValue)
                 is Filter.ArtistIs -> getString(R.string.filter_display_artist_is, filter.displayValue)
                 is Filter.AlbumArtistIs -> getString(R.string.filter_display_album_artist_is, filter.displayValue)

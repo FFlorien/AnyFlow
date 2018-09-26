@@ -1,8 +1,7 @@
 package be.florien.anyflow.user
 
-import be.florien.anyflow.persistence.UpdateService
-import be.florien.anyflow.persistence.server.AmpacheApi
 import be.florien.anyflow.di.UserScope
+import be.florien.anyflow.persistence.server.AmpacheApi
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.player.PlayerComponent
 import dagger.BindsInstance

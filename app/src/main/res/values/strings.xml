@@ -10,6 +10,7 @@
     <string name="action_filter_add">Add filters</string>
     <string name="filter_display_title_is">Song title is %s</string>
     <string name="filter_display_genre_is">Genre is %s</string>
+    <string name="filter_display_search">Anything contain %s</string>
     <string name="filter_display_song_is">Song is %s</string>
     <string name="filter_display_artist_is">Artist is %s</string>
     <string name="filter_display_album_artist_is">Album artist is %s</string>

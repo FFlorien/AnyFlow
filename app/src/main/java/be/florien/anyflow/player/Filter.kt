@@ -22,6 +22,8 @@ sealed class Filter<T>(
 
     class GenreIs(argument: String) : Filter<String>(GENRE_IS, argument, argument)
 
+    class Search(argument: String) : Filter<String>(SEARCH, argument, argument)
+
     /**
      * Long filters
      */
@@ -37,6 +39,7 @@ sealed class Filter<T>(
     companion object {
         private const val TITLE_IS = "title ="
         private const val TITLE_CONTAIN = "title LIKE"
+        private const val SEARCH = "title AND genre AND artistName AND albumName LIKE"
         private const val GENRE_IS = "song.genre ="
         private const val SONG_ID = "song.id ="
         private const val ARTIST_ID = "song.artistId ="

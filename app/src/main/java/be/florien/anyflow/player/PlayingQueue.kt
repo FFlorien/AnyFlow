@@ -53,6 +53,8 @@ class PlayingQueue
                 .distinctUntilChanged { song -> song.id }
                 .subscribeOn(Schedulers.io())
                 .share()
+                .publish()
+                .autoConnect()
 
     val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
     val orderingUpdater: Flowable<Boolean> =

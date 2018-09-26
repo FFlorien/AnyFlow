@@ -167,6 +167,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                 whereStatement += when (filter) {
                     is Filter.TitleIs,
                     is Filter.TitleContain,
+                    is Filter.Search,
                     is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
                     is Filter.SongIs,
                     is Filter.ArtistIs,

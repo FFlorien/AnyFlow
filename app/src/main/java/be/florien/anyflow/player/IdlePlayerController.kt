@@ -10,10 +10,17 @@ import java.util.concurrent.TimeUnit
  * Player used to fill the implementation, but that play nothing
  */
 class IdlePlayerController : PlayerController {
-    override val stateChangeNotifier: Flowable<PlayerController.State> = Flowable.just(PlayerController.State.NO_MEDIA).onBackpressureLatest()
+
+    override val stateChangeNotifier: Flowable<PlayerController.State> = Flowable
+            .just(PlayerController.State.NO_MEDIA)
+            .onBackpressureLatest()
+            .publish()
+            .autoConnect()
 
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+            .publish()
+            .autoConnect()
 
     override fun isPlaying(): Boolean = false
 
@@ -28,4 +35,6 @@ class IdlePlayerController : PlayerController {
     override fun resume() {}
 
     override fun seekTo(duration: Long) {}
+
+    override fun onDestroy() {}
 }

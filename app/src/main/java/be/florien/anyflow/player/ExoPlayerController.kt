@@ -24,6 +24,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
@@ -37,8 +38,14 @@ class ExoPlayerController
         private var ampacheConnection: AmpacheConnection,
         private val context: Context,
         okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
+
     private val stateChangePublisher: BehaviorSubject<PlayerController.State> = BehaviorSubject.create()
-    override val stateChangeNotifier: Flowable<PlayerController.State> = stateChangePublisher.toFlowable(BackpressureStrategy.LATEST)
+    override val stateChangeNotifier: Flowable<PlayerController.State> =
+            stateChangePublisher
+                    .toFlowable(BackpressureStrategy.LATEST)
+                    .share()
+                    .publish()
+                    .autoConnect()
 
     companion object {
         private const val NO_VALUE = -3L
@@ -47,6 +54,11 @@ class ExoPlayerController
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }
+            .share()
+            .publish()
+            .autoConnect()
+
+    private var subscription: Disposable?
 
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Long = NO_VALUE
@@ -78,8 +90,7 @@ class ExoPlayerController
         val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         extractorsFactory = DefaultExtractorsFactory()
-        playingQueue.currentSongUpdater.subscribe { song ->
-            // todo unsuscribe
+        subscription = playingQueue.currentSongUpdater.subscribe { song ->
             song?.let { prepare(it) }
             if (song != null && isPlaying()) play() else lastPosition = NO_VALUE
         }
@@ -125,6 +136,10 @@ class ExoPlayerController
         mediaPlayer.seekTo(duration)
     }
 
+    override fun onDestroy() {
+        subscription?.dispose()
+    }
+
     /**
      * Listener implementation
      */
@@ -165,7 +180,7 @@ class ExoPlayerController
 //        TODO("not implemented")
     }
 
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
 //        TODO("not implemented")
     }
 
