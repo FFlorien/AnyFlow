@@ -54,6 +54,7 @@ class ExoPlayerController
     override val playTimeNotifier: Observable<Long> = Observable
             .interval(10, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { mediaPlayer.contentPosition }
+            .doOnNext { lastPosition = it }
             .share()
             .publish()
             .autoConnect()
@@ -92,14 +93,17 @@ class ExoPlayerController
         extractorsFactory = DefaultExtractorsFactory()
         subscription = playingQueue.currentSongUpdater.subscribe { song ->
             song?.let { prepare(it) }
-            if (song != null && isPlaying()) play() else lastPosition = NO_VALUE
+            lastPosition = NO_VALUE
+            if (song != null && isPlaying()) {
+                play()
+            }
         }
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
 
     override fun play() {
-        seekTo(0)
+        lastPosition = NO_VALUE
         resume()
     }
 
@@ -116,7 +120,6 @@ class ExoPlayerController
     }
 
     override fun pause() {
-        lastPosition = mediaPlayer.currentPosition
         mediaPlayer.playWhenReady = false
         stateChangePublisher.onNext(PlayerController.State.PAUSE)
     }
