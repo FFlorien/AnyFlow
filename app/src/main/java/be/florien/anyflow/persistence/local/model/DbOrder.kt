@@ -8,4 +8,4 @@ data class DbOrder(
         @PrimaryKey
         val priority: Int,
         val subject: String,
-        val ordering: String)
+        val ordering: Int)

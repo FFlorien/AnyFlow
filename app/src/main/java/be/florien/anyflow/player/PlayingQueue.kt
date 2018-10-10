@@ -61,15 +61,15 @@ class PlayingQueue
             libraryDatabase
                     .getOrder()
                     .map { orderList ->
-                        orderList.all { Order.toOrder(it).ordering == Ordering.RANDOM }
+                        orderList.all { Order.toOrder(it).isRandom }
                     }
 
 
     init {
-        keepPlayingQueueCoherent(libraryDatabase)
+        keepPlayingQueueCoherent()
     }
 
-    private fun keepPlayingQueueCoherent(libraryDatabase: LibraryDatabase) {
+    private fun keepPlayingQueueCoherent() {
         songListUpdater
                 .doOnNext {
                     itemsCount = it.size

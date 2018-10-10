@@ -11,7 +11,6 @@ import be.florien.anyflow.persistence.local.dao.*
 import be.florien.anyflow.persistence.local.model.*
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.player.Order
-import be.florien.anyflow.player.Ordering
 import be.florien.anyflow.player.Subject
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -20,6 +19,7 @@ import io.reactivex.Maybe
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.util.*
 
 
 @Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 1)
@@ -32,13 +32,13 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getSongDao(): SongDao
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getOrderDao(): OrderDao
-    private var orderingIsRandom: Boolean = false
+    private var randomOrderingSeed = 2
 
     init {
         getPlaylist()
                 .doOnNext {
-                    val listToSave = if (orderingIsRandom) {
-                        it.shuffled()
+                    val listToSave = if (randomOrderingSeed >= 0) {
+                        it.shuffled(Random(randomOrderingSeed.toLong()))
                     } else {
                         it
                     }
@@ -103,7 +103,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun setOrdersSubject(orders: List<Subject>): Completable = asyncCompletable {
         val dbOrders = orders.mapIndexed { index, order ->
-            Order(index, order, Ordering.ASCENDING).toDbOrder()
+            Order(index, order, Order.ASCENDING).toDbOrder()
         }
         getOrderDao().replaceBy(dbOrders)
     }
@@ -142,11 +142,8 @@ abstract class LibraryDatabase : RoomDatabase() {
                     }
 
     private fun retrieveRandomness(dbOrders: List<DbOrder>) {
-        val orderList = mutableListOf<Order>()
-        dbOrders.forEach {
-            orderList.add(Order.toOrder(it))
-        }
-        orderingIsRandom = !orderList.all { it.ordering != Ordering.RANDOM }
+        val orderList = dbOrders.map { Order.toOrder(it) }
+        randomOrderingSeed = orderList.firstOrNull { it.isRandom }?.ordering ?: -1
     }
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {
@@ -188,7 +185,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                 orderList.add(Order.toOrder(it))
             }
 
-            val isSorted = orderList.isNotEmpty() && orderList.all { it.ordering != Ordering.RANDOM }
+            val isSorted = orderList.isNotEmpty() && orderList.all { !it.isRandom }
 
             var orderStatement = if (isSorted) {
                 Timber.i("Order statement is not sorted")
@@ -212,9 +209,9 @@ abstract class LibraryDatabase : RoomDatabase() {
                         Subject.TITLE -> " song.title"
                     }
                     orderStatement += when (order.ordering) {
-                        Ordering.ASCENDING -> " ASC"
-                        Ordering.DESCENDING -> " DESC"
-                        Ordering.RANDOM -> ""
+                        Order.ASCENDING -> " ASC"
+                        Order.DESCENDING -> " DESC"
+                        else -> ""
                     }
                     if (index < orderList.size - 1) {
                         orderStatement += ","

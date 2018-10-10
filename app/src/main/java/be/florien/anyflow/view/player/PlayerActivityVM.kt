@@ -125,7 +125,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     }
 
     fun randomOrder() {
-        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL, Ordering.RANDOM).toDbOrder())))
+        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL).toDbOrder())))
     }
 
     fun classicOrder() {
