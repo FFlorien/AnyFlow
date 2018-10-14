@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
+import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -71,11 +73,7 @@ class PlayerActivity : AppCompatActivity() {
                 override fun onPropertyChanged(sender: Observable, propertyId: Int) {
                     when (propertyId) {
                         BR.isOrderRandom -> {
-                            orderingMenu?.setTitle(if (vm.isOrderRandom) {
-                                R.string.menu_order_classic
-                            } else {
-                                R.string.menu_order_random
-                            })
+                            changeOrderMenu()
                         }
                         BR.playerState -> {
                             when (vm.playerState) {
@@ -96,6 +94,7 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         orderingMenu = menu.findItem(R.id.order)
+        changeOrderMenu()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -138,6 +137,22 @@ class PlayerActivity : AppCompatActivity() {
                 .addToBackStack(null)
                 .commit()
         isFilterDisplayed = true
+    }
+
+    private fun changeOrderMenu() {
+        orderingMenu?.run {
+            setTitle(if (vm.isOrderRandom) {
+                R.string.menu_order_classic
+            } else {
+                R.string.menu_order_random
+            })
+            icon = if (vm.isOrderRandom) {
+                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_order_to_random_anim)
+            } else {
+                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_order_to_classic_anim)
+            }
+            (icon as? Animatable)?.start()
+        }
     }
 
     override fun onDestroy() {

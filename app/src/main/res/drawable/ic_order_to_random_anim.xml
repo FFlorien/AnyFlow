@@ -1,0 +1,47 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="NewApi">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="400"
+            android:viewportHeight="400">
+            <path
+                android:name="triangle"
+                android:fillColor="#FFF"
+                android:pathData="M 210 324 L 269 399 L 330 324 L 210 324 Z M 70 324 L 129 399 L 190 324 L 70 324 Z"
+                android:strokeWidth="1" />
+            <path
+                android:name="straight_lines"
+                android:fillColor="#FFF"
+                android:pathData="M 130 -2 C 130 107 130 216 130 325 M 270 -2 C 270 107 270 216 270 325"
+                android:strokeWidth="60"
+                android:strokeColor="#FFF" />
+        </vector>
+    </aapt:attr>
+    <target android:name="straight_lines">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:valueFrom="M 130 -2 C 130 107 130 216 130 325 M 270 -2 C 270 107 270 216 270 325"
+                android:valueTo="M 130 -1 C 133.808 186.717 269.952 189.745 269 327 M 269 -1 C 265.247 186.717 131.072 189.745 132.01 327"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+    <target android:name="triangle">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:valueFrom="M 210 324 L 269 399 L 330 324 L 210 324 Z M 70 324 L 129 399 L 190 324 L 70 324 Z"
+                android:valueTo="M 70 324 L 129 399 L 190 324 L 70 324 Z M 210 324 L 269 399 L 330 324 L 210 324 Z"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+</animated-vector>
