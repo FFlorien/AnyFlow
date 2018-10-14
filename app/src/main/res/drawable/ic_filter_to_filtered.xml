@@ -1,0 +1,136 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="NewApi">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="400"
+            android:viewportHeight="400">
+            <path
+                android:name="bottom_filler"
+                android:pathData="M 312.273 300 L 312.273 390 L 87.273 390 L 87.5 300"
+                android:strokeWidth="20"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="top_filler"
+                android:pathData="M 87.273 100.436 L 87.273 10 L 312.273 10 L 312.273 100.436"
+                android:strokeWidth="20"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_2"
+                android:pathData="M 87.273 100 L 312.273 100 L 312.273 200 L 87.273 200 Z"
+                android:strokeWidth="20"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_5"
+                android:fillColor="#FFF"
+                android:pathData="M 77.536 44.576 L 97.536 44.576 L 97.536 64.576 L 77.536 64.576 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_38"
+                android:fillColor="#FFF"
+                android:pathData="M 77.536 335.484 L 97.536 335.484 L 97.536 355.484 L 77.536 355.484 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_37"
+                android:fillColor="#FFF"
+                android:pathData="M 257.535 -0.304 L 277.535 -0.304 L 277.535 19.696 L 257.535 19.696 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_41"
+                android:fillColor="#FFF"
+                android:pathData="M 167.233 379.535 L 187.233 379.535 L 187.233 399.535 L 167.233 399.535 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_45"
+                android:fillColor="#FFF"
+                android:pathData="M 257.535 379.088 L 277.535 379.088 L 277.535 399.088 L 257.535 399.088 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_36"
+                android:fillColor="#FFF"
+                android:pathData="M 301.778 0.142 L 321.778 0.142 L 321.778 20.142 L 301.778 20.142 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_42"
+                android:fillColor="#FFF"
+                android:pathData="M 212.081 379.088 L 232.081 379.088 L 232.081 399.088 L 212.081 399.088 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_35"
+                android:fillColor="#FFF"
+                android:pathData="M 301.778 44.576 L 321.778 44.576 L 321.778 64.576 L 301.778 64.576 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_40"
+                android:fillColor="#FFF"
+                android:pathData="M 121.778 379.088 L 141.778 379.088 L 141.778 399.088 L 121.778 399.088 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_43"
+                android:fillColor="#FFF"
+                android:pathData="M 301.778 335.484 L 321.778 335.484 L 321.778 355.484 L 301.778 355.484 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_44"
+                android:fillColor="#FFF"
+                android:pathData="M 301.778 379.535 L 321.778 379.535 L 321.778 399.535 L 301.778 399.535 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_39"
+                android:fillColor="#FFF"
+                android:pathData="M 77.536 379.535 L 97.536 379.535 L 97.536 399.535 L 77.536 399.535 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_7"
+                android:fillColor="#FFF"
+                android:pathData="M 77.536 0.142 L 97.536 0.142 L 97.536 20.142 L 77.536 20.142 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_33"
+                android:fillColor="#FFF"
+                android:pathData="M 167.233 0.142 L 187.233 0.142 L 187.233 20.142 L 167.233 20.142 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_46"
+                android:pathData="M 87.273 200 L 312.273 200 L 312.273 300 L 87.273 300 Z"
+                android:strokeWidth="20"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_34"
+                android:fillColor="#FFF"
+                android:pathData="M 212.081 -0.304 L 232.081 -0.304 L 232.081 19.696 L 212.081 19.696 Z"
+                android:strokeColor="#FFF" />
+            <path
+                android:name="svg_14"
+                android:fillColor="#FFF"
+                android:pathData="M 121.778 -0.304 L 141.778 -0.304 L 141.778 19.696 L 121.778 19.696 Z"
+                android:strokeColor="#FFF" />
+        </vector>
+    </aapt:attr>
+    <target android:name="bottom_filler">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+                android:propertyName="trimPathEnd"
+                android:valueFrom="1"
+                android:valueTo="0"
+                android:valueType="floatType" />
+        </aapt:attr>
+    </target>
+    <target android:name="top_filler">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+                android:propertyName="trimPathStart"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType" />
+        </aapt:attr>
+    </target>
+</animated-vector>

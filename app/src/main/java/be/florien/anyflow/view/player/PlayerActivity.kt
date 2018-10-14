@@ -5,8 +5,10 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.graphics.drawable.Animatable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -39,6 +41,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var snackbar: Snackbar
 
     private var orderingMenu: MenuItem? = null
+    private var filteringMenu: MenuItem? = null
 
     private var isFilterDisplayed = false
 
@@ -75,6 +78,9 @@ class PlayerActivity : AppCompatActivity() {
                         BR.isOrderRandom -> {
                             changeOrderMenu()
                         }
+                        BR.isFiltered -> {
+                            changeFilterMenu()
+                        }
                         BR.playerState -> {
                             when (vm.playerState) {
                                 PlayerController.State.RECONNECT -> snackbar.setText(R.string.display_reconnecting).show()
@@ -94,7 +100,9 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         orderingMenu = menu.findItem(R.id.order)
+        filteringMenu = menu.findItem(R.id.filters)
         changeOrderMenu()
+        changeFilterMenu()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -150,6 +158,23 @@ class PlayerActivity : AppCompatActivity() {
                 AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_order_to_random_anim)
             } else {
                 AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_order_to_classic_anim)
+            }
+            (icon as? Animatable)?.start()
+        }
+    }
+
+    private fun changeFilterMenu() {
+        filteringMenu?.run {
+            icon = if (vm.isFiltered) {
+                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_filter_to_filtered)?.apply {
+                    registerAnimationCallback(object : Animatable2Compat.AnimationCallback(){
+                        override fun onAnimationEnd(drawable: Drawable?) {
+                            super.onAnimationEnd(drawable)
+                        }
+                    })
+                }
+            } else {
+                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_filter_to_unfiltered)
             }
             (icon as? Animatable)?.start()
         }

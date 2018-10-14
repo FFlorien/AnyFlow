@@ -91,6 +91,14 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                     notifyPropertyChanged(BR.currentDuration)
                 },
                 containerKey = PLAYING_QUEUE_CONTAINER)
+        subscribe(
+                flowable = libraryDatabase.getFilters().observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    isFiltered = it.isNotEmpty()
+                    notifyPropertyChanged(BR.isFiltered)
+                },
+                containerKey = PLAYING_QUEUE_CONTAINER
+        )
     }
 
     /**
@@ -144,6 +152,9 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
 
     @Bindable
     var isOrderRandom: Boolean = false
+
+    @Bindable
+    var isFiltered: Boolean = false
 
     @Bindable
     fun isNextPossible(): Boolean = playingQueue.listPosition < playingQueue.itemsCount - 1
