@@ -163,20 +163,45 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    private val drawableUnfiltered: AnimatedVectorDrawableCompat
+    get() {
+        val vectorDrawable = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_unfiltered)
+        return vectorDrawable?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    filteringMenu?.icon = drawableFiltered
+                    isFilterIconFiltered = true
+                }
+            })
+        } ?: throw IllegalStateException("Error parsing the vector drawable")
+    }
+
+    private val drawableFiltered: AnimatedVectorDrawableCompat
+    get() {
+        val vectorDrawable = AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_filter_filtered)
+        return vectorDrawable?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    filteringMenu?.icon = drawableUnfiltered
+                    isFilterIconFiltered = false
+                }
+            })
+        } ?: throw IllegalStateException("Error parsing the vector drawable")
+    }
+
+    var isFilterIconFiltered = true
+
     private fun changeFilterMenu() {
         filteringMenu?.run {
-            icon = if (vm.isFiltered) {
-                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_filter_to_filtered)?.apply {
-                    registerAnimationCallback(object : Animatable2Compat.AnimationCallback(){
-                        override fun onAnimationEnd(drawable: Drawable?) {
-                            super.onAnimationEnd(drawable)
-                        }
-                    })
+            if ((vm.isFiltered && !isFilterIconFiltered) || (!vm.isFiltered && isFilterIconFiltered)) {
+                if (icon == null) {
+                    icon = if (vm.isFiltered) drawableFiltered else drawableUnfiltered
+                } else {
+                    (icon as? Animatable)?.start()
                 }
-            } else {
-                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_filter_to_unfiltered)
             }
-            (icon as? Animatable)?.start()
         }
     }
 

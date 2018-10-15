@@ -11,33 +11,33 @@
             android:viewportHeight="400">
             <path
                 android:name="bottom_filler"
-                android:pathData="M 312.273 300 L 312.273 390 L 87.273 390 L 87.5 300"
+                android:pathData="M 312.500 300 L 312.500 390 L 87.500 390 L 87.5 300"
                 android:strokeWidth="20"
                 android:strokeColor="#FFF" />
             <path
                 android:name="top_filler"
-                android:pathData="M 87.273 100.436 L 87.273 10 L 312.273 10 L 312.273 100.436"
+                android:pathData="M 87.500 100 L 87.500 10 L 312.500 10 L 312.500 100"
                 android:strokeWidth="20"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_2"
-                android:pathData="M 87.273 100 L 312.273 100 L 312.273 200 L 87.273 200 Z"
+                android:pathData="M 87.500 100 L 312.500 100 L 312.500 200 L 87.500 200 Z"
                 android:strokeWidth="20"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_5"
                 android:fillColor="#FFF"
-                android:pathData="M 77.536 44.576 L 97.536 44.576 L 97.536 64.576 L 77.536 64.576 Z"
+                android:pathData="M 77.5 45 L 97.536 45 L 97.5 65 L 77.5 65 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_38"
                 android:fillColor="#FFF"
-                android:pathData="M 77.536 335.484 L 97.536 335.484 L 97.536 355.484 L 77.536 355.484 Z"
+                android:pathData="M 77.5 335 L 97.5 335 L 97.5 355 L 77.5 355 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_37"
                 android:fillColor="#FFF"
-                android:pathData="M 257.535 -0.304 L 277.535 -0.304 L 277.535 19.696 L 257.535 19.696 Z"
+                android:pathData="M 257.5 0 L 277.5 0 L 277.5 20 L 257.5 20 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_41"
@@ -47,7 +47,7 @@
             <path
                 android:name="svg_45"
                 android:fillColor="#FFF"
-                android:pathData="M 257.535 379.088 L 277.535 379.088 L 277.535 399.088 L 257.535 399.088 Z"
+                android:pathData="M 257.5 379.088 L 277.5 379.088 L 277.5 399.088 L 257.5 399.088 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_36"
@@ -62,7 +62,7 @@
             <path
                 android:name="svg_35"
                 android:fillColor="#FFF"
-                android:pathData="M 301.778 44.576 L 321.778 44.576 L 321.778 64.576 L 301.778 64.576 Z"
+                android:pathData="M 301.778 45 L 321.778 45 L 321.778 65 L 301.778 65 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_40"
@@ -72,7 +72,7 @@
             <path
                 android:name="svg_43"
                 android:fillColor="#FFF"
-                android:pathData="M 301.778 335.484 L 321.778 335.484 L 321.778 355.484 L 301.778 355.484 Z"
+                android:pathData="M 301.778 335 L 321.778 335 L 321.778 355 L 301.778 355 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_44"
@@ -82,12 +82,12 @@
             <path
                 android:name="svg_39"
                 android:fillColor="#FFF"
-                android:pathData="M 77.536 379.535 L 97.536 379.535 L 97.536 399.535 L 77.536 399.535 Z"
+                android:pathData="M 77.5 379.535 L 97.5 379.535 L 97.5 399.535 L 77.5 399.535 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_7"
                 android:fillColor="#FFF"
-                android:pathData="M 77.536 0.142 L 97.536 0.142 L 97.536 20.142 L 77.536 20.142 Z"
+                android:pathData="M 77.5 0.142 L 97.5 0.142 L 97.5 20.142 L 77.5 20.142 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_33"
@@ -96,18 +96,18 @@
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_46"
-                android:pathData="M 87.273 200 L 312.273 200 L 312.273 300 L 87.273 300 Z"
+                android:pathData="M 87.500 200 L 312.500 200 L 312.500 300 L 87.500 300 Z"
                 android:strokeWidth="20"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_34"
                 android:fillColor="#FFF"
-                android:pathData="M 212.081 -0.304 L 232.081 -0.304 L 232.081 19.696 L 212.081 19.696 Z"
+                android:pathData="M 212.081 0 L 232.081 0 L 232.081 20 L 212.081 20 Z"
                 android:strokeColor="#FFF" />
             <path
                 android:name="svg_14"
                 android:fillColor="#FFF"
-                android:pathData="M 121.778 -0.304 L 141.778 -0.304 L 141.778 19.696 L 121.778 19.696 Z"
+                android:pathData="M 121.778 0 L 141.778 0 L 141.778 20 L 121.778 20 Z"
                 android:strokeColor="#FFF" />
         </vector>
     </aapt:attr>
