@@ -40,11 +40,56 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var snackbar: Snackbar
 
-    private var orderingMenu: MenuItem? = null
-    private var filteringMenu: MenuItem? = null
-
     private var isFilterDisplayed = false
 
+    private var orderingMenu: MenuItem? = null
+    private var filteringMenu: MenuItem? = null
+    var isFilterIconFiltered = true
+    var isOrderIconRandom = true
+
+    private val drawableUnfiltered: AnimatedVectorDrawableCompat
+        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_unfiltered)?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    filteringMenu?.icon = drawableFiltered
+                    isFilterIconFiltered = true
+                }
+            })
+        } ?: throw IllegalStateException("Error parsing the vector drawable")
+
+    private val drawableFiltered: AnimatedVectorDrawableCompat
+        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_filtered)?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    filteringMenu?.icon = drawableUnfiltered
+                    isFilterIconFiltered = false
+                }
+            })
+        } ?: throw IllegalStateException("Error parsing the vector drawable")
+
+    private val drawableOrdered: AnimatedVectorDrawableCompat
+        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_order_ordered)?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    orderingMenu?.icon = drawableRandom
+                    isOrderIconRandom = true
+                }
+            })
+        } ?: throw IllegalStateException("Error parsing the vector drawable")
+
+    private val drawableRandom: AnimatedVectorDrawableCompat
+        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_order_random)?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    orderingMenu?.icon = drawableOrdered
+                    isOrderIconRandom = false
+                }
+            })
+        } ?: throw IllegalStateException("Error parsing the vector drawable")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,53 +199,22 @@ class PlayerActivity : AppCompatActivity() {
             } else {
                 R.string.menu_order_random
             })
-            icon = if (vm.isOrderRandom) {
-                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_order_to_random_anim)
-            } else {
-                AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_order_to_classic_anim)
+            if (icon == null) {
+                icon = if (vm.isOrderRandom) drawableRandom else drawableOrdered
+                isOrderIconRandom = vm.isOrderRandom
+            } else if (vm.isOrderRandom != isOrderIconRandom) {
+                (icon as? Animatable)?.start()
             }
-            (icon as? Animatable)?.start()
         }
     }
 
-    private val drawableUnfiltered: AnimatedVectorDrawableCompat
-    get() {
-        val vectorDrawable = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_unfiltered)
-        return vectorDrawable?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    filteringMenu?.icon = drawableFiltered
-                    isFilterIconFiltered = true
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-    }
-
-    private val drawableFiltered: AnimatedVectorDrawableCompat
-    get() {
-        val vectorDrawable = AnimatedVectorDrawableCompat.create(this@PlayerActivity, R.drawable.ic_filter_filtered)
-        return vectorDrawable?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    filteringMenu?.icon = drawableUnfiltered
-                    isFilterIconFiltered = false
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-    }
-
-    var isFilterIconFiltered = true
-
     private fun changeFilterMenu() {
         filteringMenu?.run {
-            if ((vm.isFiltered && !isFilterIconFiltered) || (!vm.isFiltered && isFilterIconFiltered)) {
-                if (icon == null) {
-                    icon = if (vm.isFiltered) drawableFiltered else drawableUnfiltered
-                } else {
-                    (icon as? Animatable)?.start()
-                }
+            if (icon == null) {
+                icon = if (vm.isFiltered) drawableFiltered else drawableUnfiltered
+                isFilterIconFiltered = vm.isFiltered
+            } else if (vm.isFiltered != isFilterIconFiltered) {
+                (icon as? Animatable)?.start()
             }
         }
     }

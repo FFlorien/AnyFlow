@@ -12,12 +12,12 @@
             <path
                 android:name="triangle"
                 android:fillColor="#FFF"
-                android:pathData="M 210 324 L 269 399 L 330 324 L 210 324 Z M 70 324 L 129 399 L 190 324 L 70 324 Z"
+                android:pathData="M 210 324 L 270 400 L 330 324 L 210 324 Z M 70 324 L 129 400 L 190 324 L 70 324 Z"
                 android:strokeWidth="1" />
             <path
                 android:name="curved_lines"
                 android:fillColor="#FFF"
-                android:pathData="M 130 -1 C 133.808 186.717 269.952 189.745 269 327 M 269 -1 C 265.247 186.717 131.072 189.745 132.01 327"
+                android:pathData="M 130 -1 C 133.808 186.717 270 189.745 270 327 M 270 -1 C 265.247 186.717 131.072 189.745 132.01 327"
                 android:strokeWidth="60"
                 android:strokeColor="#FFF" />
         </vector>
@@ -28,7 +28,7 @@
                 android:duration="300"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M 130 -1 C 133.808 186.717 269.952 189.745 269 327 M 269 -1 C 265.247 186.717 131.072 189.745 132.01 327"
+                android:valueFrom="M 130 -1 C 133.808 186.717 270.952 189.745 270 327 M 270 -1 C 265.247 186.717 131.072 189.745 132.01 327"
                 android:valueTo="M 130 -2 C 130 107 130 216 130 325 M 270 -2 C 270 107 270 216 270 325"
                 android:valueType="pathType" />
         </aapt:attr>
@@ -39,8 +39,8 @@
                 android:duration="300"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M 210 324 L 269 399 L 330 324 L 210 324 Z M 70 324 L 129 399 L 190 324 L 70 324 Z"
-                android:valueTo="M 70 324 L 129 399 L 190 324 L 70 324 Z M 210 324 L 269 399 L 330 324 L 210 324 Z"
+                android:valueFrom="M 210 324 L 270 400 L 330 324 L 210 324 Z M 70 324 L 129 400 L 190 324 L 70 324 Z"
+                android:valueTo="M 70 324 L 129 400 L 190 324 L 70 324 Z M 210 324 L 270 400 L 330 324 L 210 324 Z"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>

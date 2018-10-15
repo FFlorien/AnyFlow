@@ -10,6 +10,5 @@
     <item
         android:id="@+id/order"
         android:title="@string/menu_order_random"
-        android:icon="@drawable/ic_order_to_random_anim"
         app:showAsAction="always" />
 </menu>
