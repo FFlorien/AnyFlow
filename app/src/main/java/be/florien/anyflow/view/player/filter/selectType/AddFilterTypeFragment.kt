@@ -58,7 +58,8 @@ class AddFilterTypeFragment : Fragment() {
                 (activity as PlayerActivity).supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.container, AddFilterFragment(type), AddFilterFragment::class.java.simpleName)
-                        .commitNow()
+                        .addToBackStack(null)
+                        .commit()
             }
         }
     }

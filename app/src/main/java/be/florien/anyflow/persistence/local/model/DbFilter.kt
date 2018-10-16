@@ -5,8 +5,9 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity
 data class DbFilter (
-    @PrimaryKey(autoGenerate = true)
+        @PrimaryKey(autoGenerate = true)
     val id: Long,
-    val clause: String,
-    val argument: String,
-    val displayValue: String)
+        val clause: String,
+        val argument: String,
+        val displayText: String,
+        val displayImage: String?)

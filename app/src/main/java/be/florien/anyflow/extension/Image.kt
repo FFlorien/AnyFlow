@@ -13,11 +13,12 @@ class MyAppGlideModule : AppGlideModule()
 fun ImageView.setCoverImageUrl(url: String?) {
     if (url == null) {
         setImageBitmap(null)
+    }else {
+        GlideApp.with(this.rootView)
+                .load(url)
+                .placeholder(R.drawable.cover_placeholder)
+                .error(R.drawable.cover_placeholder)
+                .fitCenter()
+                .into(this)
     }
-    GlideApp.with(this.rootView)
-            .load(url)
-            .placeholder(R.drawable.cover_placeholder)
-            .error(R.drawable.cover_placeholder)
-            .fitCenter()
-            .into(this)
 }

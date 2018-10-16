@@ -5,13 +5,10 @@ import be.florien.anyflow.persistence.local.model.DbFilter
 sealed class Filter<T>(
         val clause: String,
         val argument: T,
-        val displayValue: String) {
+        val displayText: String,
+        val displayImage: String? = null) {
 
-    fun toDbFilter(): DbFilter = DbFilter(0, clause, argument.toString(), displayValue)
-
-    //open class StringFilter(clause: String, argument: String, displayValue: String) : Filter<String>(clause, argument, displayValue)
-
-  //  open class LongFilter(clause: String, argument: Long, displayValue: String) : Filter<Long>(clause, argument, displayValue)
+    fun toDbFilter(): DbFilter = DbFilter(0, clause, argument.toString(), displayText, displayImage)
 
     /**
      * String filters
@@ -28,13 +25,13 @@ sealed class Filter<T>(
      * Long filters
      */
 
-    class SongIs(argument: Long, displayValue: String) : Filter<Long>(SONG_ID, argument, displayValue)
+    class SongIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(SONG_ID, argument, displayValue, displayImage)
 
     class ArtistIs(argument: Long, displayValue: String) : Filter<Long>(ARTIST_ID, argument, displayValue)
 
     class AlbumArtistIs(argument: Long, displayValue: String) : Filter<Long>(ALBUM_ARTIST_ID, argument, displayValue)
 
-    class AlbumIs(argument: Long, displayValue: String) : Filter<Long>(ALBUM_ID, argument, displayValue)
+    class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(ALBUM_ID, argument, displayValue, displayImage)
 
     companion object {
         private const val TITLE_IS = "title ="
@@ -51,10 +48,10 @@ sealed class Filter<T>(
                 TITLE_IS -> TitleIs(fromDb.argument)
                 TITLE_CONTAIN -> TitleContain(fromDb.argument)
                 GENRE_IS -> GenreIs(fromDb.argument)
-                SONG_ID -> SongIs(fromDb.argument.toLong(), fromDb.displayValue)
-                ARTIST_ID -> ArtistIs(fromDb.argument.toLong(), fromDb.displayValue)
-                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong(), fromDb.displayValue)
-                ALBUM_ID -> AlbumIs(fromDb.argument.toLong(), fromDb.displayValue)
+                SONG_ID -> SongIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
+                ARTIST_ID -> ArtistIs(fromDb.argument.toLong(), fromDb.displayText)
+                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong(), fromDb.displayText)
+                ALBUM_ID -> AlbumIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
                 else -> TitleIs("")
             }
         }
