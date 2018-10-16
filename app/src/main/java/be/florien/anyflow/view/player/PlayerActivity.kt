@@ -40,12 +40,10 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var snackbar: Snackbar
 
-    private var isFilterDisplayed = false
+    private var fragmentDisplayed = DISPLAYED_SONG_LIST
 
-    private var orderingMenu: MenuItem? = null
     private var filteringMenu: MenuItem? = null
-    var isFilterIconFiltered = true
-    var isOrderIconRandom = true
+    private var isFilterIconFiltered = true
 
     private val drawableUnfiltered: AnimatedVectorDrawableCompat
         get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_unfiltered)?.apply {
@@ -69,27 +67,6 @@ class PlayerActivity : AppCompatActivity() {
             })
         } ?: throw IllegalStateException("Error parsing the vector drawable")
 
-    private val drawableOrdered: AnimatedVectorDrawableCompat
-        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_order_ordered)?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    orderingMenu?.icon = drawableRandom
-                    isOrderIconRandom = true
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-
-    private val drawableRandom: AnimatedVectorDrawableCompat
-        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_order_random)?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    orderingMenu?.icon = drawableOrdered
-                    isOrderIconRandom = false
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,9 +97,6 @@ class PlayerActivity : AppCompatActivity() {
             vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable, propertyId: Int) {
                     when (propertyId) {
-                        BR.isOrderRandom -> {
-                            changeOrderMenu()
-                        }
                         BR.isFiltered -> {
                             changeFilterMenu()
                         }
@@ -144,9 +118,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        orderingMenu = menu.findItem(R.id.order)
         filteringMenu = menu.findItem(R.id.filters)
-        changeOrderMenu()
         changeFilterMenu()
         return super.onPrepareOptionsMenu(menu)
     }
@@ -154,30 +126,31 @@ class PlayerActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.filters -> {
-                if (!isFilterDisplayed) {
+                if (fragmentDisplayed == DISPLAYED_SONG_LIST) {
                     displayFilters()
                 } else {
                     displaySongList()
                 }
-            }
-            R.id.order -> {
-                if (vm.isOrderRandom) {
-                    vm.classicOrder()
-                } else {
-                    vm.randomOrder()
-                }
+                return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun displaySongList() {
-        if (!supportFragmentManager.popBackStackImmediate()) {
-            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName)
-                    ?: SongListFragment()
-            supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
+    override fun onDestroy() {
+        super.onDestroy()
+        if (anyFlowApp.userComponent == null) {
+            return
         }
-        isFilterDisplayed = false
+        unbindService(vm.connection)
+        vm.destroy()
+    }
+
+    private fun displaySongList() {
+        val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName)
+                ?: SongListFragment()
+        supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
+        fragmentDisplayed = DISPLAYED_SONG_LIST
     }
 
     private fun displayFilters() {
@@ -189,23 +162,7 @@ class PlayerActivity : AppCompatActivity() {
                 .setTransition(R.anim.slide_in_top)
                 .addToBackStack(null)
                 .commit()
-        isFilterDisplayed = true
-    }
-
-    private fun changeOrderMenu() {
-        orderingMenu?.run {
-            setTitle(if (vm.isOrderRandom) {
-                R.string.menu_order_classic
-            } else {
-                R.string.menu_order_random
-            })
-            if (icon == null) {
-                icon = if (vm.isOrderRandom) drawableRandom else drawableOrdered
-                isOrderIconRandom = vm.isOrderRandom
-            } else if (vm.isOrderRandom != isOrderIconRandom) {
-                (icon as? Animatable)?.start()
-            }
-        }
+        fragmentDisplayed = DISPLAYED_FILTERS
     }
 
     private fun changeFilterMenu() {
@@ -219,12 +176,8 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (anyFlowApp.userComponent == null) {
-            return
-        }
-        unbindService(vm.connection)
-        vm.destroy()
+    companion object {
+        const val DISPLAYED_SONG_LIST = 0
+        const val DISPLAYED_FILTERS = 1
     }
 }

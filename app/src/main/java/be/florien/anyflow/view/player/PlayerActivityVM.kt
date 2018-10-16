@@ -7,7 +7,10 @@ import android.os.IBinder
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.persistence.local.LibraryDatabase
-import be.florien.anyflow.player.*
+import be.florien.anyflow.player.IdlePlayerController
+import be.florien.anyflow.player.PlayerController
+import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.player.PlayingQueue
 import be.florien.anyflow.view.BaseVM
 import be.florien.anyflow.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,7 +24,7 @@ import kotlin.math.absoluteValue
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val playingQueue: PlayingQueue, private val libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
+constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
@@ -30,10 +33,27 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
 
     internal val connection: PlayerConnection = PlayerConnection()
     private var isBackKeyPreviousSong: Boolean = false
+
     @Bindable
     var shouldShowBuffering: Boolean = false
+
     @Bindable
     var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
+
+    @Bindable
+    var currentDuration: Int = 0
+
+    @Bindable
+    var totalDuration: Int = 0
+
+    @Bindable
+    var isFiltered: Boolean = false
+
+    @Bindable
+    fun isNextPossible(): Boolean = playingQueue.listPosition < playingQueue.itemsCount - 1
+
+    @Bindable
+    fun isPreviousPossible(): Boolean = playingQueue.listPosition != 0 || currentDuration > 10000
 
     var player: PlayerController = IdlePlayerController()
         set(value) {
@@ -43,7 +63,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                     field.stateChangeNotifier.subscribeOn(AndroidSchedulers.mainThread()),
                     onNext = {
                         playerState = it
-                        shouldShowBuffering = it ==PlayerController.State.BUFFER
+                        shouldShowBuffering = it == PlayerController.State.BUFFER
                         notifyPropertyChanged(BR.playerState)
                         notifyPropertyChanged(BR.shouldShowBuffering)
                     },
@@ -69,13 +89,6 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
      */
     init {
         Timber.tag(this.javaClass.simpleName)
-        subscribe(
-                flowable = playingQueue.orderingUpdater,
-                onNext = {
-                    isOrderRandom = it
-                    notifyPropertyChanged(BR.isOrderRandom)
-                },
-                containerKey = PLAYING_QUEUE_CONTAINER)
         subscribe(
                 flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
@@ -131,36 +144,6 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
             player.seekTo(newDuration)
         }
     }
-
-    fun randomOrder() {
-        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL).toDbOrder())))
-    }
-
-    fun classicOrder() {
-        subscribe(libraryDatabase.setOrdersSubject(listOf(Subject.ALBUM_ARTIST, Subject.YEAR, Subject.ALBUM, Subject.TRACK, Subject.TITLE)))
-    }
-
-    /**
-     * Bindables
-     */
-
-    @Bindable
-    var currentDuration: Int = 0
-
-    @Bindable
-    var totalDuration: Int = 0
-
-    @Bindable
-    var isOrderRandom: Boolean = false
-
-    @Bindable
-    var isFiltered: Boolean = false
-
-    @Bindable
-    fun isNextPossible(): Boolean = playingQueue.listPosition < playingQueue.itemsCount - 1
-
-    @Bindable
-    fun isPreviousPossible(): Boolean = playingQueue.listPosition != 0 || currentDuration > 10000
 
     /**
      * Inner class

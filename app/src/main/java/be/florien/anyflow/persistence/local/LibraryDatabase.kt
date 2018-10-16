@@ -18,7 +18,6 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.util.*
 
 
@@ -188,16 +187,13 @@ abstract class LibraryDatabase : RoomDatabase() {
             val isSorted = orderList.isNotEmpty() && orderList.all { !it.isRandom }
 
             var orderStatement = if (isSorted) {
-                Timber.i("Order statement is not sorted")
                 " ORDER BY"
             } else {
-                Timber.i("Order statement is sorted")
                 ""
             }
 
             if (isSorted) {
                 orderList.forEachIndexed { index, order ->
-                    Timber.i("Order processed: ${order.subject.name}")
                     orderStatement += when (order.subject) {
                         Subject.ALL -> " song.id"
                         Subject.ARTIST -> " song.artistName"

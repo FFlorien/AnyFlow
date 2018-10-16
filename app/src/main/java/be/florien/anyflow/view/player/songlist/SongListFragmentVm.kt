@@ -7,12 +7,11 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
+import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.persistence.local.model.SongDisplay
-import be.florien.anyflow.player.PlayingQueue
-import be.florien.anyflow.player.IdlePlayerController
-import be.florien.anyflow.player.PlayerController
-import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.player.*
 import be.florien.anyflow.view.BaseVM
+import be.florien.anyflow.view.player.PlayerActivityVM
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,7 +23,8 @@ import javax.inject.Inject
 @ActivityScope
 class SongListFragmentVm
 @Inject constructor(
-        private val playingQueue: PlayingQueue
+        private val playingQueue: PlayingQueue,
+        private val libraryDatabase: LibraryDatabase
 ) : BaseVM() {
 
     @get:Bindable
@@ -66,6 +66,12 @@ class SongListFragmentVm
                 onError = {
                     Timber.e(it, "Error while updating currentSong")
                 })
+        subscribe(
+                flowable = playingQueue.orderingUpdater,
+                onNext = {
+                    isOrderRandom = it
+                    notifyPropertyChanged(BR.isOrderRandom)
+                })
     }
 
     /**
@@ -80,6 +86,9 @@ class SongListFragmentVm
     @Bindable
     var listPosition = 0
 
+    @Bindable
+    var isOrderRandom: Boolean = false
+
     fun refreshSongs() {
         isLoadingAll = playingQueue.itemsCount == 0
 
@@ -88,6 +97,14 @@ class SongListFragmentVm
     fun play(position: Int) {
         playingQueue.listPosition = position
         player.play()
+    }
+
+    fun randomOrder() {
+        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL).toDbOrder())))
+    }
+
+    fun classicOrder() {
+        subscribe(libraryDatabase.setOrdersSubject(listOf(Subject.ALBUM_ARTIST, Subject.YEAR, Subject.ALBUM, Subject.TRACK, Subject.TITLE)))
     }
 
     /**
