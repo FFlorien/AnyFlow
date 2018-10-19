@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/filters"
+        android:id="@+id/menu_filters"
         android:title="@string/menu_filters"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_order"
+        android:title="@string/menu_order_random"
         app:showAsAction="always" />
 </menu>

@@ -5,6 +5,7 @@ import android.content.Context
 import android.databinding.Observable
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import be.florien.anyflow.BR
 import be.florien.anyflow.databinding.FragmentAddFilterBinding
 import be.florien.anyflow.databinding.ItemAddFilterBinding
+import be.florien.anyflow.databinding.ItemAddFilterGridBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.view.player.filter.selectType.ALBUM_NAME
@@ -57,7 +59,11 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentAddFilterBinding.inflate(inflater, container, false)
         fragmentBinding.vm = vm
-        fragmentBinding.filterList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        fragmentBinding.filterList.layoutManager = if (vm.itemDisplayType == AddFilterFragmentVM.ITEM_LIST) {
+            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        } else {
+            GridLayoutManager(activity, 3)
+        }
         fragmentBinding.filterList.adapter = FilterListAdapter()
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
@@ -70,7 +76,7 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = FilterViewHolder()
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = if (vm.itemDisplayType == AddFilterFragmentVM.ITEM_LIST) FilterListViewHolder() else FilterGridViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             holder.bind(vm.getDisplayedValues()[position])
@@ -81,11 +87,25 @@ constructor(private var filterType: String) : Fragment() { //todo reduce type av
         override fun getSectionName(position: Int): String = vm.getDisplayedValues()[position].displayName.first().toUpperCase().toString()
     }
 
-    inner class FilterViewHolder(private val itemFilterTypeBinding: ItemAddFilterBinding
-                                 = ItemAddFilterBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
-        : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
+    abstract class FilterViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        abstract fun bind(filter: AddFilterFragmentVM.FilterItem)
+    }
 
-        fun bind(filter: AddFilterFragmentVM.FilterItem) {
+    inner class FilterListViewHolder(private val itemFilterTypeBinding: ItemAddFilterBinding
+                                 = ItemAddFilterBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
+        : FilterViewHolder(itemFilterTypeBinding.root) {
+
+        override fun bind(filter: AddFilterFragmentVM.FilterItem) {
+            itemFilterTypeBinding.vm = vm
+            itemFilterTypeBinding.item = filter
+        }
+    }
+
+    inner class FilterGridViewHolder(private val itemFilterTypeBinding: ItemAddFilterGridBinding
+                                 = ItemAddFilterGridBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
+        : FilterViewHolder(itemFilterTypeBinding.root) {
+
+        override fun bind(filter: AddFilterFragmentVM.FilterItem) {
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.item = filter
         }

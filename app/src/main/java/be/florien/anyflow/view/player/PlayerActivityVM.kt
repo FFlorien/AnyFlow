@@ -7,10 +7,7 @@ import android.os.IBinder
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.persistence.local.LibraryDatabase
-import be.florien.anyflow.player.IdlePlayerController
-import be.florien.anyflow.player.PlayerController
-import be.florien.anyflow.player.PlayerService
-import be.florien.anyflow.player.PlayingQueue
+import be.florien.anyflow.player.*
 import be.florien.anyflow.view.BaseVM
 import be.florien.anyflow.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,7 +21,7 @@ import kotlin.math.absoluteValue
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
+constructor(private val playingQueue: PlayingQueue, private val libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
@@ -34,11 +31,18 @@ constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryData
     internal val connection: PlayerConnection = PlayerConnection()
     private var isBackKeyPreviousSong: Boolean = false
 
+    /**
+     * Bindables
+     */
+
     @Bindable
     var shouldShowBuffering: Boolean = false
 
     @Bindable
     var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
+
+    @Bindable
+    var isOrdered: Boolean = true
 
     @Bindable
     var currentDuration: Int = 0
@@ -47,7 +51,7 @@ constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryData
     var totalDuration: Int = 0
 
     @Bindable
-    var isFiltered: Boolean = false
+    var isUnfiltered: Boolean = true
 
     @Bindable
     fun isNextPossible(): Boolean = playingQueue.listPosition < playingQueue.itemsCount - 1
@@ -90,6 +94,13 @@ constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryData
     init {
         Timber.tag(this.javaClass.simpleName)
         subscribe(
+                flowable = playingQueue.orderingUpdater,
+                onNext = {
+                    isOrdered = !it
+                    notifyPropertyChanged(BR.isOrdered)
+                },
+                containerKey = PLAYING_QUEUE_CONTAINER)
+        subscribe(
                 flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     totalDuration = (it?.time ?: 0) * 1000
@@ -107,8 +118,8 @@ constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryData
         subscribe(
                 flowable = libraryDatabase.getFilters().observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
-                    isFiltered = it.isNotEmpty()
-                    notifyPropertyChanged(BR.isFiltered)
+                    isUnfiltered = it.isEmpty()
+                    notifyPropertyChanged(BR.isUnfiltered)
                 },
                 containerKey = PLAYING_QUEUE_CONTAINER
         )
@@ -143,6 +154,14 @@ constructor(private val playingQueue: PlayingQueue, libraryDatabase: LibraryData
         if ((currentDuration - newDuration).absoluteValue > 1000) {
             player.seekTo(newDuration)
         }
+    }
+
+    fun randomOrder() {
+        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL).toDbOrder())))
+    }
+
+    fun classicOrder() {
+        subscribe(libraryDatabase.setOrdersSubject(listOf(Subject.ALBUM_ARTIST, Subject.YEAR, Subject.ALBUM, Subject.TRACK, Subject.TITLE)))
     }
 
     /**

@@ -5,15 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
-import android.graphics.drawable.Animatable
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
-import android.support.graphics.drawable.Animatable2Compat
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.util.DiffUtil
@@ -43,31 +39,6 @@ class SongListFragment : Fragment() {
     private var binding: FragmentSongListBinding? = null
     private var isListFollowingCurrentSong = true
     private var isUserScroll = false
-    private var orderingMenu: MenuItem? = null
-    var isOrderIconRandom = true
-
-    private val drawableOrdered: AnimatedVectorDrawableCompat
-        get() = AnimatedVectorDrawableCompat.create(requireActivity(), R.drawable.ic_order_ordered)?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    orderingMenu?.icon = drawableRandom
-                    isOrderIconRandom = true
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-
-    private val drawableRandom: AnimatedVectorDrawableCompat
-        get() = AnimatedVectorDrawableCompat.create(requireActivity(), R.drawable.ic_order_random)?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    orderingMenu?.icon = drawableOrdered
-                    isOrderIconRandom = false
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-
 
     private val topSet by lazy {
         ConstraintSet().apply {
@@ -91,21 +62,12 @@ class SongListFragment : Fragment() {
         val intent = Intent(requireContext(), be.florien.anyflow.persistence.UpdateService::class.java)
         intent.data = Uri.parse(be.florien.anyflow.persistence.UpdateService.UPDATE_ALL)
         requireActivity().startService(intent)
-
-        vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                when (propertyId) {
-                    BR.isOrderRandom -> {
-                        changeOrderMenu()
-                    }
-                }
-            }
-        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_song_list, container, false)
         binding = DataBindingUtil.bind(view)
+        (activity as PlayerActivity).activityComponent.inject(this)
         binding?.vm = vm
         vm.refreshSongs() //todo communication between service and VM
         binding?.songList?.adapter = SongAdapter().apply {
@@ -151,31 +113,6 @@ class SongListFragment : Fragment() {
         return view
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_song_list, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        orderingMenu = menu.findItem(R.id.order)
-        changeOrderMenu()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.order -> {
-                if (vm.isOrderRandom) {
-                    vm.classicOrder()
-                } else {
-                    vm.randomOrder()
-                }
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         vm.destroy()
@@ -208,22 +145,6 @@ class SongListFragment : Fragment() {
         }
 
         isUserScroll = false
-    }
-
-    private fun changeOrderMenu() {
-        orderingMenu?.run {
-            setTitle(if (vm.isOrderRandom) {
-                R.string.menu_order_classic
-            } else {
-                R.string.menu_order_random
-            })
-            if (icon == null) {
-                icon = if (vm.isOrderRandom) drawableRandom else drawableOrdered
-                isOrderIconRandom = vm.isOrderRandom
-            } else if (vm.isOrderRandom != isOrderIconRandom) {
-                (icon as? Animatable)?.start()
-            }
-        }
     }
 
 

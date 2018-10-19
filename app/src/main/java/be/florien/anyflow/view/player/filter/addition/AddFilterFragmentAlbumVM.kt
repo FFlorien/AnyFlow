@@ -10,6 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 class AddFilterFragmentAlbumVM(activity: Activity) : AddFilterFragmentVM<AlbumDisplay>() {
+    override val itemDisplayType = ITEM_GRID
     @Inject
     lateinit var localDataManager: LibraryDatabase
 
@@ -22,7 +23,7 @@ class AddFilterFragmentAlbumVM(activity: Activity) : AddFilterFragmentVM<AlbumDi
         })
     }
 
-    override fun getDisplayedValues(): List<FilterItem> = values.map { album -> FilterItem(album.id, album.name, album.art) }
+    override fun getDisplayedValues(): List<FilterItem> = values.map { album -> FilterItem(album.id, "${album.name}\nby\n${album.artistName}", album.art) }
 
     override fun onFilterSelected(filterValue: FilterItem) {
         subscribe(localDataManager.addFilters(Filter.AlbumIs(filterValue.id, filterValue.displayName, filterValue.artUrl).toDbFilter()))

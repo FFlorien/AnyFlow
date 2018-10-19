@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 class AddFilterFragmentGenreVM(activity: Activity) : AddFilterFragmentVM<String>() {
+    override val itemDisplayType = ITEM_LIST
     @Inject lateinit var libraryDatabase: LibraryDatabase
 
     init {

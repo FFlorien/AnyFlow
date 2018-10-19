@@ -13,19 +13,21 @@ import android.support.v7.widget.RecyclerView
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.player.Filter
+import be.florien.anyflow.view.menu.ConfirmMenuHolder
+import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragment
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import javax.inject.Inject
 
 class FilterFragment : Fragment() {
@@ -34,10 +36,15 @@ class FilterFragment : Fragment() {
 
     private lateinit var binding: FragmentFilterBinding
     private val filterListAdapter = FilterListAdapter()
+    private val menuCoordinator = MenuCoordinator()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
+        setHasOptionsMenu(true)
+        menuCoordinator.addMenuHolder(ConfirmMenuHolder {
+            //todo
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -64,6 +71,20 @@ class FilterFragment : Fragment() {
         return binding.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menuCoordinator.inflateMenus(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menuCoordinator.prepareMenus(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return menuCoordinator.handleMenuClick(item.itemId)
+    }
+
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = FilterViewHolder(parent)
@@ -71,7 +92,7 @@ class FilterFragment : Fragment() {
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             when (position) {
                 0 -> {
-                    holder.bind(getString(R.string.action_filter_clear), R.drawable.abc_ic_clear_material)
+                    holder.bind(getString(R.string.action_filter_clear), R.drawable.ic_clear)
                     holder.itemView.setOnClickListener { vm.clearFilters() }
                 }
                 else -> {
@@ -81,7 +102,7 @@ class FilterFragment : Fragment() {
             }
         }
 
-        override fun getItemCount(): Int = vm.currentFilters.size + 1
+        override fun getItemCount(): Int = vm.currentFilters.size + (if (vm.currentFilters.size > 0) 1 else 0)
     }
 
     inner class FilterViewHolder(
@@ -112,13 +133,19 @@ class FilterFragment : Fragment() {
                 GlideApp.with(requireActivity())
                         .asBitmap()
                         .load(filter.displayImage)
-                        .into(object : SimpleTarget<Bitmap>() {
-                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        .listener(object : RequestListener<Bitmap> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                                return true
+                            }
+
+                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                                 val drawable = BitmapDrawable(resources, resource)
                                 drawable.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
                                 binding.filterName.setCompoundDrawables(drawable, null, null, null)
+                                return true
                             }
                         })
+                        .submit()
             } else {
                 binding.filterName.setPadding(leftDrawableSize + paddingSize, paddingSize, paddingSize, paddingSize)
             }

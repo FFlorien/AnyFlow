@@ -94,6 +94,8 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable { getFilterDao().insert(filters.toList()) }
 
+    fun deleteFilter(filter: DbFilter): Completable = asyncCompletable { getFilterDao().delete(filter) }
+
     fun clearFilters(): Completable = asyncCompletable { getFilterDao().deleteAll() }
 
     fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable { getFilterDao().replaceBy(filters) }

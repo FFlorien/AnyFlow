@@ -9,7 +9,7 @@ import org.simpleframework.xml.*
 class AmpacheAlbum {
     @field:Attribute(name = "id", required = false) var id: Long = 0
     @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "artistName ", required = false) var artist: AmpacheArtistName = AmpacheArtistName()
+    @field:Element(name = "artist", required = false) var artist: AmpacheArtistName = AmpacheArtistName()
     @field:Element(name = "year", required = false) var year: Int = 0
     @field:Element(name = "tracks", required = false) var tracks: Int = 0
     @field:Element(name = "disk", required = false) var disk: Int = 0

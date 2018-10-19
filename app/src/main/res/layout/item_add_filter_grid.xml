@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="item"
+            type="be.florien.anyflow.view.player.filter.addition.AddFilterFragmentVM.FilterItem" />
+
+        <variable
+            name="vm"
+            type="be.florien.anyflow.view.player.filter.addition.AddFilterFragmentVM" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> vm.onFilterSelected(item)}"
+        android:padding="@dimen/list_item_padding">
+
+        <ImageView
+            android:id="@+id/imageView"
+            coverImageUrl="@{item.artUrl}"
+            android:layout_width="@dimen/imageSize"
+            android:layout_height="@dimen/imageSize"
+            android:layout_marginBottom="@dimen/list_item_padding"
+            android:contentDescription="@null"
+            android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/filterName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@{item.displayName}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+    </android.support.constraint.ConstraintLayout>
+</layout>

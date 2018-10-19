@@ -27,10 +27,10 @@ class UpdateService
 
     override fun onHandleIntent(intent: Intent) {
         when (intent.dataString) {
-            be.florien.anyflow.persistence.UpdateService.Companion.UPDATE_ALL -> {
-                persistenceManager.updateSongs()
+            be.florien.anyflow.persistence.UpdateService.UPDATE_ALL -> {
+                persistenceManager.updateArtists()
                         .andThen(persistenceManager.updateAlbums())
-                        .andThen(persistenceManager.updateArtists())
+                        .andThen(persistenceManager.updateSongs())
                         .doOnError { throwable ->
                             when (throwable) {
                                 is SessionExpiredException -> {

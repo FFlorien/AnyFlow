@@ -7,6 +7,7 @@ import be.florien.anyflow.view.BaseVM
 @ActivityScope
 abstract class AddFilterFragmentVM<T> : BaseVM() {
     protected val values: MutableList<T> = mutableListOf()
+    abstract val itemDisplayType: Int
 
     @Bindable
     abstract fun getDisplayedValues(): List<FilterItem>
@@ -14,4 +15,9 @@ abstract class AddFilterFragmentVM<T> : BaseVM() {
     abstract fun onFilterSelected(filterValue: FilterItem)
 
     class FilterItem(val id: Long, val displayName: String, val artUrl: String? = null)
+
+    companion object {
+        const val ITEM_GRID = 0
+        const val ITEM_LIST = 1
+    }
 }

@@ -4,12 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
-import android.graphics.drawable.Animatable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.graphics.drawable.Animatable2Compat
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -23,6 +19,9 @@ import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.connect.ConnectActivity
+import be.florien.anyflow.view.menu.FilterMenuHolder
+import be.florien.anyflow.view.menu.MenuCoordinator
+import be.florien.anyflow.view.menu.OrderMenuHolder
 import be.florien.anyflow.view.player.filter.display.FilterFragment
 import be.florien.anyflow.view.player.songlist.SongListFragment
 import javax.inject.Inject
@@ -42,31 +41,9 @@ class PlayerActivity : AppCompatActivity() {
 
     private var fragmentDisplayed = DISPLAYED_SONG_LIST
 
-    private var filteringMenu: MenuItem? = null
-    private var isFilterIconFiltered = true
-
-    private val drawableUnfiltered: AnimatedVectorDrawableCompat
-        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_unfiltered)?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    filteringMenu?.icon = drawableFiltered
-                    isFilterIconFiltered = true
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-
-    private val drawableFiltered: AnimatedVectorDrawableCompat
-        get() = AnimatedVectorDrawableCompat.create(this, R.drawable.ic_filter_filtered)?.apply {
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    filteringMenu?.icon = drawableUnfiltered
-                    isFilterIconFiltered = false
-                }
-            })
-        } ?: throw IllegalStateException("Error parsing the vector drawable")
-
+    private val menuCoordinator = MenuCoordinator()
+    private lateinit var filterMenu: FilterMenuHolder
+    private lateinit var orderMenu: OrderMenuHolder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +67,24 @@ class PlayerActivity : AppCompatActivity() {
             binding.vm = vm
             bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
+            filterMenu = FilterMenuHolder(vm.isUnfiltered, this) {
+                if (fragmentDisplayed == DISPLAYED_SONG_LIST) {
+                    displayFilters()
+                } else {
+                    displaySongList()
+                }
+            }
+            orderMenu = OrderMenuHolder(vm.isOrdered, this) {
+                if (vm.isOrdered) {
+                    vm.randomOrder()
+                } else {
+                    vm.classicOrder()
+                }
+            }
+
+            menuCoordinator.addMenuHolder(filterMenu)
+            menuCoordinator.addMenuHolder(orderMenu)
+
             if (savedInstanceState == null) {
                 displaySongList()
             }
@@ -97,8 +92,13 @@ class PlayerActivity : AppCompatActivity() {
             vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable, propertyId: Int) {
                     when (propertyId) {
-                        BR.isFiltered -> {
-                            changeFilterMenu()
+                        BR.isOrdered -> {
+                            orderMenu.changeState()
+                        }
+                        BR.isUnfiltered -> {
+                            if (vm.isUnfiltered != filterMenu.isIconInFirstState) {
+                                filterMenu.changeState()
+                            }
                         }
                         BR.playerState -> {
                             when (vm.playerState) {
@@ -113,28 +113,17 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_player, menu)
+        menuCoordinator.inflateMenus(menu, menuInflater)
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        filteringMenu = menu.findItem(R.id.filters)
-        changeFilterMenu()
-        return super.onPrepareOptionsMenu(menu)
+        menuCoordinator.prepareMenus(menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.filters -> {
-                if (fragmentDisplayed == DISPLAYED_SONG_LIST) {
-                    displayFilters()
-                } else {
-                    displaySongList()
-                }
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
+        return menuCoordinator.handleMenuClick(item.itemId)
     }
 
     override fun onDestroy() {
@@ -151,6 +140,8 @@ class PlayerActivity : AppCompatActivity() {
                 ?: SongListFragment()
         supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
         fragmentDisplayed = DISPLAYED_SONG_LIST
+        filterMenu.isVisible = true
+        orderMenu.isVisible = true
     }
 
     private fun displayFilters() {
@@ -163,17 +154,8 @@ class PlayerActivity : AppCompatActivity() {
                 .addToBackStack(null)
                 .commit()
         fragmentDisplayed = DISPLAYED_FILTERS
-    }
-
-    private fun changeFilterMenu() {
-        filteringMenu?.run {
-            if (icon == null) {
-                icon = if (vm.isFiltered) drawableFiltered else drawableUnfiltered
-                isFilterIconFiltered = vm.isFiltered
-            } else if (vm.isFiltered != isFilterIconFiltered) {
-                (icon as? Animatable)?.start()
-            }
-        }
+        filterMenu.isVisible = false
+        orderMenu.isVisible = false
     }
 
     companion object {

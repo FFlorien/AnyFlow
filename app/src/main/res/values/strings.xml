@@ -20,4 +20,5 @@
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
     <string name="display_reconnecting">Reconnecting</string>
+    <string name="confirm">Confirm</string>
 </resources>

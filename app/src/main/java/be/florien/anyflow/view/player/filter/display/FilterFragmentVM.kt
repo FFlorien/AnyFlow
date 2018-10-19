@@ -27,4 +27,8 @@ constructor(private val libraryDatabase: LibraryDatabase
     fun clearFilters() {
         subscribe(libraryDatabase.clearFilters())
     }
+
+    fun deleteFilter(filter: Filter<*>) {
+        subscribe(libraryDatabase.deleteFilter(filter.toDbFilter()))
+    }
 }
