@@ -1,19 +1,17 @@
 package be.florien.anyflow.view.player.filter.display
 
+import android.app.Activity
 import android.databinding.Bindable
 import be.florien.anyflow.player.Filter
-import be.florien.anyflow.player.FiltersManager
-import be.florien.anyflow.view.BaseVM
+import be.florien.anyflow.view.player.PlayerActivity
+import be.florien.anyflow.view.player.filter.BaseFilterVM
 import com.android.databinding.library.baseAdapters.BR
 import io.reactivex.android.schedulers.AndroidSchedulers
-import javax.inject.Inject
 
-class FilterFragmentVM
-@Inject
-constructor(private val filtersManager: FiltersManager
-) : BaseVM() {
+class FilterFragmentVM(activity: Activity) : BaseFilterVM() {
 
     init {
+        (activity as PlayerActivity).activityComponent.inject(this)
         subscribe(filtersManager.filtersInEdition.observeOn(AndroidSchedulers.mainThread()), onNext = {
             currentFilters.clear()
             currentFilters.addAll(it)
@@ -30,12 +28,5 @@ constructor(private val filtersManager: FiltersManager
 
     fun deleteFilter(filter: Filter<*>) {
         filtersManager.removeFilter(filter)
-    }
-
-    fun confirmChanges() {
-        subscribe(
-                completable = filtersManager.commitChanges(),
-                onComplete = {}//todo alert playerActivity?
-        )
     }
 }

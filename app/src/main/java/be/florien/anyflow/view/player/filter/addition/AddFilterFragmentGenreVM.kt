@@ -12,8 +12,6 @@ import javax.inject.Inject
 class AddFilterFragmentGenreVM(activity: Activity) : AddFilterFragmentVM<String>() {
     override val itemDisplayType = ITEM_LIST
     @Inject lateinit var libraryDatabase: LibraryDatabase
-    @Inject
-    lateinit var filtersManager: FiltersManager
 
     init {
         (activity as PlayerActivity).activityComponent.inject(this)

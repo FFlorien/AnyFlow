@@ -1,12 +1,12 @@
 package be.florien.anyflow.view.player.filter.display
 
+import android.content.Context
 import android.databinding.Observable
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
-import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -20,31 +20,31 @@ import be.florien.anyflow.databinding.FragmentFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.player.Filter
-import be.florien.anyflow.view.menu.ConfirmMenuHolder
-import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.player.PlayerActivity
+import be.florien.anyflow.view.player.filter.BaseFilterFragment
+import be.florien.anyflow.view.player.filter.BaseFilterVM
 import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragment
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import javax.inject.Inject
 
-class FilterFragment : Fragment() {
-    @Inject
+class FilterFragment : BaseFilterFragment() {
+    override val baseVm: BaseFilterVM
+        get() = vm
     lateinit var vm: FilterFragmentVM
 
     private lateinit var binding: FragmentFilterBinding
     private val filterListAdapter = FilterListAdapter()
-    private val menuCoordinator = MenuCoordinator()
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        vm = FilterFragmentVM(requireActivity())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
-        setHasOptionsMenu(true)
-        menuCoordinator.addMenuHolder(ConfirmMenuHolder {
-            vm.confirmChanges()
-        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -69,20 +69,6 @@ class FilterFragment : Fragment() {
                     .commit()
         }
         return binding.root
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menuCoordinator.inflateMenus(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menuCoordinator.prepareMenus(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return menuCoordinator.handleMenuClick(item.itemId)
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {

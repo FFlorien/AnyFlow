@@ -14,8 +14,6 @@ class AddFilterFragmentAlbumVM(activity: Activity) : AddFilterFragmentVM<AlbumDi
     override val itemDisplayType = ITEM_GRID
     @Inject
     lateinit var localDataManager: LibraryDatabase
-    @Inject
-    lateinit var filtersManager: FiltersManager
 
     init {
         (activity as PlayerActivity).activityComponent.inject(this)

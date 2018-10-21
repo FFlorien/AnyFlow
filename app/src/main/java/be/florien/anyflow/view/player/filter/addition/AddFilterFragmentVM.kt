@@ -2,10 +2,10 @@ package be.florien.anyflow.view.player.filter.addition
 
 import android.databinding.Bindable
 import be.florien.anyflow.di.ActivityScope
-import be.florien.anyflow.view.BaseVM
+import be.florien.anyflow.view.player.filter.BaseFilterVM
 
 @ActivityScope
-abstract class AddFilterFragmentVM<T> : BaseVM() {
+abstract class AddFilterFragmentVM<T> : BaseFilterVM() {
     protected val values: MutableList<T> = mutableListOf()
     abstract val itemDisplayType: Int
 

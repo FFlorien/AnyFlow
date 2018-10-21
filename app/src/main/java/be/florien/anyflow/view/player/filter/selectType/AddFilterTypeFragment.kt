@@ -1,7 +1,7 @@
 package be.florien.anyflow.view.player.filter.selectType
 
+import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,21 +13,29 @@ import be.florien.anyflow.databinding.ItemAddFilterTypeBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.view.player.PlayerActivity
+import be.florien.anyflow.view.player.filter.BaseFilterFragment
+import be.florien.anyflow.view.player.filter.BaseFilterVM
 import be.florien.anyflow.view.player.filter.addition.AddFilterFragment
-import javax.inject.Inject
 
 /**
  * Created by FlamentF on 08-Jan-18.
  */
 @ActivityScope
 @UserScope
-class AddFilterTypeFragment : Fragment() {
-    @Inject lateinit var vm: AddFilterTypeFragmentVM
+class AddFilterTypeFragment : BaseFilterFragment() {
+    override val baseVm: BaseFilterVM
+        get() = vm
+    lateinit var vm: AddFilterTypeFragmentVM
     private lateinit var fragmentBinding: FragmentAddFilterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        vm = AddFilterTypeFragmentVM(requireActivity())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

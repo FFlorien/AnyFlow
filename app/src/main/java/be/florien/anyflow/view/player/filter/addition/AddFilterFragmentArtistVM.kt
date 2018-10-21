@@ -14,8 +14,6 @@ class AddFilterFragmentArtistVM(activity: Activity) : AddFilterFragmentVM<Artist
     override val itemDisplayType = ITEM_LIST
 
     @Inject lateinit var library: LibraryDatabase
-    @Inject
-    lateinit var filtersManager: FiltersManager
 
     init {
         (activity as PlayerActivity).activityComponent.inject(this)
