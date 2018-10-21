@@ -10,6 +10,16 @@ sealed class Filter<T>(
 
     fun toDbFilter(): DbFilter = DbFilter(0, clause, argument.toString(), displayText, displayImage)
 
+    override fun equals(other: Any?): Boolean {
+        return other is Filter<*> && clause == other.clause && argument == other.argument
+    }
+
+    override fun hashCode(): Int {
+        var result = clause.hashCode()
+        result = 31 * result + (argument?.hashCode() ?: 0)
+        return result
+    }
+
     /**
      * String filters
      */

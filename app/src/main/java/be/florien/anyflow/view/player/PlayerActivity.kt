@@ -51,6 +51,7 @@ class PlayerActivity : AppCompatActivity() {
         snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_app)
+        supportFragmentManager.addOnBackStackChangedListener { updateMenuItemVisibility() }
 
         val component = anyFlowApp.userComponent
                 ?.playerComponentBuilder()
@@ -93,12 +94,10 @@ class PlayerActivity : AppCompatActivity() {
                 override fun onPropertyChanged(sender: Observable, propertyId: Int) {
                     when (propertyId) {
                         BR.isOrdered -> {
-                            orderMenu.changeState()
+                            orderMenu.changeState(vm.isOrdered)
                         }
                         BR.isUnfiltered -> {
-                            if (vm.isUnfiltered != filterMenu.isIconInFirstState) {
-                                filterMenu.changeState()
-                            }
+                            filterMenu.changeState(vm.isUnfiltered)
                         }
                         BR.playerState -> {
                             when (vm.playerState) {
@@ -140,8 +139,6 @@ class PlayerActivity : AppCompatActivity() {
                 ?: SongListFragment()
         supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
         fragmentDisplayed = DISPLAYED_SONG_LIST
-        filterMenu.isVisible = true
-        orderMenu.isVisible = true
     }
 
     private fun displayFilters() {
@@ -154,8 +151,12 @@ class PlayerActivity : AppCompatActivity() {
                 .addToBackStack(null)
                 .commit()
         fragmentDisplayed = DISPLAYED_FILTERS
-        filterMenu.isVisible = false
-        orderMenu.isVisible = false
+    }
+
+    private fun updateMenuItemVisibility() {
+        val isSongListVisible = supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
+        filterMenu.isVisible = isSongListVisible
+        orderMenu.isVisible = isSongListVisible
     }
 
     companion object {

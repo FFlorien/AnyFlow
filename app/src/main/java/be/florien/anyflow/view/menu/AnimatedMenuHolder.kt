@@ -50,11 +50,17 @@ abstract class AnimatedMenuHolder(
         setState(isIconInFirstState)
     }
 
-    fun changeState() {
-        (menuItem?.icon as? Animatable)?.start()
+    fun changeState(toFirstState: Boolean) {
+        if (isIconInFirstState != toFirstState) {
+            if (isVisible) {
+                (menuItem?.icon as? Animatable)?.start()
+            } else {
+                setState(toFirstState)
+            }
+        }
     }
 
-    fun setState(isFirstState: Boolean) {
+    private fun setState(isFirstState: Boolean) {
         isIconInFirstState = isFirstState
         menuItem?.icon = if (isFirstState) firstStateDrawable else secondStateDrawable
     }

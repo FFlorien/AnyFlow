@@ -4,6 +4,7 @@ import android.app.Activity
 import be.florien.anyflow.BR
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.player.Filter
+import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.view.player.PlayerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
@@ -11,6 +12,8 @@ import javax.inject.Inject
 class AddFilterFragmentGenreVM(activity: Activity) : AddFilterFragmentVM<String>() {
     override val itemDisplayType = ITEM_LIST
     @Inject lateinit var libraryDatabase: LibraryDatabase
+    @Inject
+    lateinit var filtersManager: FiltersManager
 
     init {
         (activity as PlayerActivity).activityComponent.inject(this)
@@ -24,6 +27,6 @@ class AddFilterFragmentGenreVM(activity: Activity) : AddFilterFragmentVM<String>
     override fun getDisplayedValues(): List<FilterItem> = values.mapIndexed{ index, genre -> FilterItem(index.toLong(), genre) }
 
     override fun onFilterSelected(filterValue: FilterItem) {
-        subscribe(libraryDatabase.addFilters(Filter.GenreIs(values[filterValue.id.toInt()]).toDbFilter()))
+        filtersManager.addFilter(Filter.GenreIs(values[filterValue.id.toInt()]))
     }
 }

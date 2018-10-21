@@ -43,7 +43,7 @@ class FilterFragment : Fragment() {
         (activity as PlayerActivity).activityComponent.inject(this)
         setHasOptionsMenu(true)
         menuCoordinator.addMenuHolder(ConfirmMenuHolder {
-            //todo
+            vm.confirmChanges()
         })
     }
 
