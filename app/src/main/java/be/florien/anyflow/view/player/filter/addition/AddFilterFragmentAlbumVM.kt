@@ -24,7 +24,7 @@ class AddFilterFragmentAlbumVM(activity: Activity) : AddFilterFragmentVM<AlbumDi
         })
     }
 
-    override fun getDisplayedValues(): List<FilterItem> = values.map { album -> FilterItem(album.id, "${album.name}\nby\n${album.artistName}", album.art) }
+    override fun getDisplayedValues(): List<FilterItem> = values.map { album -> FilterItem(album.id, "${album.name}\nby ${album.artistName}", album.art) }
 
     override fun onFilterSelected(filterValue: FilterItem) {
         filtersManager.addFilter(Filter.AlbumIs(filterValue.id, filterValue.displayName, filterValue.artUrl))

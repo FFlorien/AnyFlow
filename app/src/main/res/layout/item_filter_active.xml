@@ -12,7 +12,8 @@
         android:id="@+id/filterName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/small_dimen"
-        android:gravity="center"
-        android:padding="@dimen/list_item_padding" />
+        android:minHeight="@dimen/minClickableSize"
+        android:drawablePadding="@dimen/smallDimen"
+        android:gravity="start|center_vertical"
+        android:padding="@dimen/listItemPadding" />
 </layout>

@@ -2,7 +2,10 @@ package be.florien.anyflow.view.player.filter.selectType
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
+import android.support.annotation.DrawableRes
+import android.support.v4.content.res.ResourcesCompat
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +26,7 @@ import be.florien.anyflow.view.player.filter.addition.AddFilterFragment
 @ActivityScope
 @UserScope
 class AddFilterTypeFragment : BaseFilterFragment() {
+    override fun getTitle(): String = "Add a filter"
     override val baseVm: BaseFilterVM
         get() = vm
     lateinit var vm: AddFilterTypeFragmentVM
@@ -40,8 +44,12 @@ class AddFilterTypeFragment : BaseFilterFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentAddFilterBinding.inflate(inflater, container, false)
-        fragmentBinding.filterList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        fragmentBinding.filterList.layoutManager = GridLayoutManager(activity, 2, GridLayoutManager.VERTICAL, false)
         fragmentBinding.filterList.adapter = FilterListAdapter()
+        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
+            fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
+            fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL).apply { setDrawable(it) })
+        }
         return fragmentBinding.root
     }
 
@@ -50,7 +58,7 @@ class AddFilterTypeFragment : BaseFilterFragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterTypeViewHolder = FilterTypeViewHolder()
 
         override fun onBindViewHolder(holder: FilterTypeViewHolder, position: Int) {
-            holder.bind(vm.filtersNames[position])
+            holder.bind(vm.filtersNames[position], vm.filtersImages[position])
         }
 
         override fun getItemCount(): Int = vm.filtersNames.size
@@ -60,8 +68,9 @@ class AddFilterTypeFragment : BaseFilterFragment() {
             private val itemFilterTypeBinding: ItemAddFilterTypeBinding = ItemAddFilterTypeBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
     ) : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
 
-        fun bind(type: String) {
+        fun bind(type: String, @DrawableRes drawableRes: Int) {
             itemFilterTypeBinding.filterName.text = type
+            itemFilterTypeBinding.imageView.setImageResource(drawableRes)
             itemView.setOnClickListener {
                 (activity as PlayerActivity).supportFragmentManager
                         .beginTransaction()

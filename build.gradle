@@ -2,11 +2,11 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
         maven {
             url 'https://maven.fabric.io/public'
         }
+        jcenter()
     }
     ext.kotlin_version = '1.2.60'
     ext.gradle_version = '3.1.2'
@@ -24,10 +24,10 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
         maven {
             url 'https://maven.google.com/'
         }
+        jcenter()
     }
 }
 

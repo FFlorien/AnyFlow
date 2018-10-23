@@ -29,7 +29,7 @@
             app:shouldShowBuffering="@{vm.shouldShowBuffering}"
             app:totalDuration="@{vm.totalDuration}"
             app:currentDuration="@{vm.currentDuration}"
-            app:smallestButtonWidth="@dimen/playerControlSize"
+            app:smallestButtonWidth="@dimen/minClickableSize"
             app:changeTrackAnimDuration="350"
             app:progressAnimDuration="10000"
             app:actionListener="@{vm}"

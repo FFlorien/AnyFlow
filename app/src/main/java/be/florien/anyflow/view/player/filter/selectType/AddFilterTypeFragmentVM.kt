@@ -1,6 +1,7 @@
 package be.florien.anyflow.view.player.filter.selectType
 
 import android.app.Activity
+import be.florien.anyflow.R
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterVM
@@ -17,7 +18,6 @@ const val SEARCH_NAME = "Search"
 class AddFilterTypeFragmentVM(activity: Activity) : BaseFilterVM() {
 
     init {
-
         (activity as PlayerActivity).activityComponent.inject(this)
     }
 
@@ -26,4 +26,10 @@ class AddFilterTypeFragmentVM(activity: Activity) : BaseFilterVM() {
             ARTIST_NAME,
             ALBUM_NAME,
             SEARCH_NAME)
+
+    val filtersImages = listOf(
+            R.drawable.ic_genre,
+            R.drawable.ic_artist,
+            R.drawable.ic_album,
+            R.drawable.ic_song)
 }

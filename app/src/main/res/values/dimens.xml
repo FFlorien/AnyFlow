@@ -1,16 +1,14 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="small_dimen">8dp</dimen>
-    <dimen name="medium_dimen">16dp</dimen>
-    <dimen name="large_dimen">32dp</dimen>
-    <dimen name="x_large_dimen">48dp</dimen>
+    <dimen name="smallDimen">8dp</dimen>
+    <dimen name="mediumDimen">16dp</dimen>
+    <dimen name="largeDimen">32dp</dimen>
+    <dimen name="xLargeDimen">48dp</dimen>
+    <dimen name="xxLargeDimen">64dp</dimen>
 
-
-    <dimen name="list_item_padding">@dimen/small_dimen</dimen>
-
-
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="playerControlSize">64dp</dimen>
     <dimen name="imageSize">90dp</dimen>
+
+    <dimen name="listItemPadding">@dimen/smallDimen</dimen>
+    <dimen name="activity_horizontal_margin">@dimen/mediumDimen</dimen>
+    <dimen name="minClickableSize">@dimen/xxLargeDimen</dimen>
 </resources>

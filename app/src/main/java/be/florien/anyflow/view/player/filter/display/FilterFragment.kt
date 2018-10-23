@@ -3,17 +3,21 @@ package be.florien.anyflow.view.player.filter.display
 import android.content.Context
 import android.databinding.Observable
 import android.graphics.Bitmap
+import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentFilterBinding
@@ -30,6 +34,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 
 class FilterFragment : BaseFilterFragment() {
+    override fun getTitle(): String = getString(R.string.menu_filters)
     override val baseVm: BaseFilterVM
         get() = vm
     lateinit var vm: FilterFragmentVM
@@ -52,6 +57,9 @@ class FilterFragment : BaseFilterFragment() {
         binding.vm = vm
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
         binding.filterList.adapter = filterListAdapter
+        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
+            binding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
+        }
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (propertyId == BR.currentFilters) {
@@ -96,8 +104,8 @@ class FilterFragment : BaseFilterFragment() {
             val binding: ItemFilterActiveBinding = ItemFilterActiveBinding.inflate(layoutInflater, parent, false))
         : RecyclerView.ViewHolder(binding.root) {
 
-        private val leftDrawableSize = resources.getDimensionPixelSize(R.dimen.x_large_dimen)
-        private val paddingSize = resources.getDimensionPixelSize(R.dimen.list_item_padding)
+        private val leftDrawableSize = resources.getDimensionPixelSize(R.dimen.xLargeDimen)
+        private val paddingSize = resources.getDimensionPixelSize(R.dimen.listItemPadding)
 
         fun bind(filter: Filter<*>) {
             val charSequence: CharSequence = when (filter) {
@@ -133,7 +141,16 @@ class FilterFragment : BaseFilterFragment() {
                         })
                         .submit()
             } else {
-                binding.filterName.setPadding(leftDrawableSize + paddingSize, paddingSize, paddingSize, paddingSize)
+                when (filter) {
+                    is Filter.AlbumArtistIs,
+                    is Filter.ArtistIs -> setCompoundDrawableFromResources(R.drawable.ic_artist)
+                    is Filter.GenreIs -> setCompoundDrawableFromResources(R.drawable.ic_genre)
+                    is Filter.AlbumIs -> setCompoundDrawableFromResources(R.drawable.ic_album)
+                    is Filter.Search,
+                    is Filter.TitleIs,
+                    is Filter.TitleContain,
+                    is Filter.SongIs -> setCompoundDrawableFromResources(R.drawable.ic_song)
+                }
             }
         }
 
@@ -143,6 +160,14 @@ class FilterFragment : BaseFilterFragment() {
             val drawable = ResourcesCompat.getDrawable(resources, icon, requireActivity().theme)
             drawable?.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
             binding.filterName.setCompoundDrawables(drawable, null, null, null)
+        }
+
+        private fun setCompoundDrawableFromResources(resId: Int) {
+            ResourcesCompat.getDrawable(resources, resId, requireActivity().theme)?.apply {
+                setColorFilter(ResourcesCompat.getColor(resources, R.color.primaryDark, requireActivity().theme), PorterDuff.Mode.SRC_IN)
+                bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
+                binding.filterName.setCompoundDrawables(this, null, null, null)
+            }
         }
     }
 }

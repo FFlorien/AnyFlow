@@ -19,14 +19,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="@{() -> vm.onFilterSelected(item)}"
-        android:padding="@dimen/list_item_padding">
+        android:padding="@dimen/listItemPadding">
 
         <ImageView
             android:id="@+id/imageView"
             coverImageUrl="@{item.artUrl}"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
-            android:layout_marginBottom="@dimen/list_item_padding"
+            android:layout_marginBottom="@dimen/listItemPadding"
             android:contentDescription="@null"
             android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -37,8 +37,9 @@
             android:id="@+id/filterName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:gravity="center_horizontal|top"
             android:text="@{item.displayName}"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

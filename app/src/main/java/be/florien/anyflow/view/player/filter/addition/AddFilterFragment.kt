@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.databinding.Observable
 import android.os.Bundle
+import android.support.v4.content.res.ResourcesCompat
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -11,8 +13,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import be.florien.anyflow.BR
+import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentAddFilterBinding
-import be.florien.anyflow.databinding.ItemAddFilterBinding
+import be.florien.anyflow.databinding.ItemAddFilterListBinding
 import be.florien.anyflow.databinding.ItemAddFilterGridBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
@@ -27,6 +30,12 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 @UserScope
 class AddFilterFragment @SuppressLint("ValidFragment")
 constructor(private var filterType: String) : BaseFilterFragment() {
+    override fun getTitle(): String = when (filterType) {
+        ALBUM_NAME -> "Add an album"
+        ARTIST_NAME -> "Add an artist"
+        GENRE_NAME -> "Add a genre"
+        else -> "Add a filter"
+    }
     override val baseVm: BaseFilterVM
         get() = vm
 
@@ -68,6 +77,12 @@ constructor(private var filterType: String) : BaseFilterFragment() {
             GridLayoutManager(activity, 3)
         }
         fragmentBinding.filterList.adapter = FilterListAdapter()
+        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
+            fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
+            if (vm.itemDisplayType == AddFilterFragmentVM.ITEM_GRID) {
+                fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL).apply { setDrawable(it) })
+            }
+        }
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
@@ -94,8 +109,8 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         abstract fun bind(filter: AddFilterFragmentVM.FilterItem)
     }
 
-    inner class FilterListViewHolder(private val itemFilterTypeBinding: ItemAddFilterBinding
-                                     = ItemAddFilterBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
+    inner class FilterListViewHolder(private val itemFilterTypeBinding: ItemAddFilterListBinding
+                                     = ItemAddFilterListBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
         : FilterViewHolder(itemFilterTypeBinding.root) {
 
         override fun bind(filter: AddFilterFragmentVM.FilterItem) {

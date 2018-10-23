@@ -18,6 +18,7 @@ import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.connect.ConnectActivity
 import be.florien.anyflow.view.menu.FilterMenuHolder
 import be.florien.anyflow.view.menu.MenuCoordinator
@@ -39,8 +40,6 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var snackbar: Snackbar
 
-    private var fragmentDisplayed = DISPLAYED_SONG_LIST
-
     private val menuCoordinator = MenuCoordinator()
     private lateinit var filterMenu: FilterMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
@@ -51,7 +50,12 @@ class PlayerActivity : AppCompatActivity() {
         snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_app)
-        supportFragmentManager.addOnBackStackChangedListener { updateMenuItemVisibility() }
+        supportFragmentManager.addOnBackStackChangedListener {
+            updateMenuItemVisibility()
+            (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
+                title = it
+            }
+        }
 
         val component = anyFlowApp.userComponent
                 ?.playerComponentBuilder()
@@ -69,11 +73,7 @@ class PlayerActivity : AppCompatActivity() {
             bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
             filterMenu = FilterMenuHolder(vm.isUnfiltered, this) {
-                if (fragmentDisplayed == DISPLAYED_SONG_LIST) {
-                    displayFilters()
-                } else {
-                    displaySongList()
-                }
+                displayFilters()
             }
             orderMenu = OrderMenuHolder(vm.isOrdered, this) {
                 if (vm.isOrdered) {
@@ -134,11 +134,16 @@ class PlayerActivity : AppCompatActivity() {
         vm.destroy()
     }
 
-    private fun displaySongList() {
-        val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName)
-                ?: SongListFragment()
-        supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).commit()
-        fragmentDisplayed = DISPLAYED_SONG_LIST
+    private var songListTransactionId = -1
+
+    fun displaySongList() {
+        if (songListTransactionId >= 0) {
+            supportFragmentManager.popBackStack(songListTransactionId, 0)
+        } else {
+            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName)
+                    ?: SongListFragment()
+            songListTransactionId = supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).addToBackStack(null).commit()
+        }
     }
 
     private fun displayFilters() {
@@ -150,17 +155,14 @@ class PlayerActivity : AppCompatActivity() {
                 .setTransition(R.anim.slide_in_top)
                 .addToBackStack(null)
                 .commit()
-        fragmentDisplayed = DISPLAYED_FILTERS
     }
 
     private fun updateMenuItemVisibility() {
-        val isSongListVisible = supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
+        val isSongListVisible = isSongListVisible()
         filterMenu.isVisible = isSongListVisible
         orderMenu.isVisible = isSongListVisible
     }
 
-    companion object {
-        const val DISPLAYED_SONG_LIST = 0
-        const val DISPLAYED_FILTERS = 1
-    }
+    private fun isSongListVisible() =
+            supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
 }

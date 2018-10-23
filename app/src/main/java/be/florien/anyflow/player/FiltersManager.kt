@@ -42,25 +42,29 @@ class FiltersManager
     fun addFilter(filter: Filter<*>) {
         unCommittedFilters.add(filter)
         filtersInEditionUpdater.onNext(unCommittedFilters)
+        areFiltersChanged = true
     }
 
     fun removeFilter(filter: Filter<*>) {
         unCommittedFilters.remove(filter)
         filtersInEditionUpdater.onNext(unCommittedFilters)
+        areFiltersChanged = true
     }
 
     fun clearFilters() {
         unCommittedFilters.clear()
         filtersInEditionUpdater.onNext(unCommittedFilters)
+        areFiltersChanged = true
     }
 
     fun commitChanges(): Completable {
-        return libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }) //todo make it cleaner and make them listen
+        return libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }).doOnComplete { areFiltersChanged = false } //todo make it cleaner and make them listen
     }
 
     fun abandonChanges() {
         clearFilters()
         unCommittedFilters.addAll(currentFilters)
+        areFiltersChanged = false
     }
 
     fun destroy() {//todo

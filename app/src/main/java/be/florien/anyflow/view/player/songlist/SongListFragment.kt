@@ -10,12 +10,14 @@ import android.os.Build
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
-import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
@@ -23,6 +25,7 @@ import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.player.PlayerActivity
 import javax.inject.Inject
 
@@ -30,7 +33,8 @@ import javax.inject.Inject
  * Display a list of accounts and play it upon selection.
  */
 @ActivityScope
-class SongListFragment : Fragment() {
+class SongListFragment : BaseFragment() {
+    override fun getTitle(): String = "Now playing"
 
     @Inject
     lateinit var vm: SongListFragmentVm
@@ -94,7 +98,7 @@ class SongListFragment : Fragment() {
         }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            binding?.currentSongDisplay?.root?.elevation = resources.getDimension(R.dimen.small_dimen)
+            binding?.currentSongDisplay?.root?.elevation = resources.getDimension(R.dimen.smallDimen)
         }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
