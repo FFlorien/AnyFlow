@@ -122,6 +122,8 @@ class FilterFragment : BaseFilterFragment() {
             val stylizedText = SpannableString(charSequence)
             stylizedText.setSpan(StyleSpan(android.graphics.Typeface.BOLD), valueStart, charSequence.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
             binding.filterName.text = stylizedText
+            binding.vm = vm
+            binding.filter = filter
             if (filter.displayImage != null) {
                 binding.filterName.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
                 GlideApp.with(requireActivity())
@@ -155,6 +157,8 @@ class FilterFragment : BaseFilterFragment() {
         }
 
         fun bind(text: String, @DrawableRes icon: Int) {
+            binding.filter = null
+            binding.vm = null
             binding.filterName.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
             binding.filterName.text = text
             val drawable = ResourcesCompat.getDrawable(resources, icon, requireActivity().theme)
