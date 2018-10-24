@@ -8,7 +8,7 @@ import be.florien.anyflow.view.player.filter.BaseFilterVM
 import com.android.databinding.library.baseAdapters.BR
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-class FilterFragmentVM(activity: Activity) : BaseFilterVM() {
+class DisplayFilterFragmentVM(activity: Activity) : BaseFilterVM() {
 
     init {
         (activity as PlayerActivity).activityComponent.inject(this)
@@ -28,5 +28,9 @@ class FilterFragmentVM(activity: Activity) : BaseFilterVM() {
 
     fun deleteFilter(filter: Filter<*>) {
         filtersManager.removeFilter(filter)
+    }
+
+    fun resetFilterChanges() {
+        filtersManager.abandonChanges()
     }
 }

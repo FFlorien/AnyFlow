@@ -18,15 +18,15 @@ import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
-import be.florien.anyflow.view.player.filter.addition.AddFilterFragment
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragment
 
 /**
  * Created by FlamentF on 08-Jan-18.
  */
 @ActivityScope
 @UserScope
-class AddFilterTypeFragment : BaseFilterFragment() {
-    override fun getTitle(): String = "Add a filter"
+class SelectFilterTypeFragment : BaseFilterFragment() {
+    override fun getTitle(): String = "Select filters"
     override val baseVm: BaseFilterVM
         get() = vm
     lateinit var vm: AddFilterTypeFragmentVM
@@ -74,7 +74,7 @@ class AddFilterTypeFragment : BaseFilterFragment() {
             itemView.setOnClickListener {
                 (activity as PlayerActivity).supportFragmentManager
                         .beginTransaction()
-                        .replace(R.id.container, AddFilterFragment(type), AddFilterFragment::class.java.simpleName)
+                        .replace(R.id.container, SelectFilterFragment(type), SelectFilterFragment::class.java.simpleName)
                         .addToBackStack(null)
                         .commit()
             }

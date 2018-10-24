@@ -1,4 +1,4 @@
-package be.florien.anyflow.view.player.filter.addition
+package be.florien.anyflow.view.player.filter.selection
 
 import android.app.Activity
 import be.florien.anyflow.BR
@@ -9,7 +9,7 @@ import be.florien.anyflow.view.player.PlayerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class AddFilterFragmentArtistVM(activity: Activity) : AddFilterFragmentVM<ArtistDisplay>() {
+class SelectFilterFragmentArtistVM(activity: Activity) : SelectFilterFragmentVM<ArtistDisplay>() {
     override val itemDisplayType = ITEM_LIST
 
     @Inject lateinit var library: LibraryDatabase

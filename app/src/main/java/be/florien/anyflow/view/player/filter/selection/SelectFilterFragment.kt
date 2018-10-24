@@ -1,4 +1,4 @@
-package be.florien.anyflow.view.player.filter.addition
+package be.florien.anyflow.view.player.filter.selection
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -28,13 +28,13 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
 @UserScope
-class AddFilterFragment @SuppressLint("ValidFragment")
+class SelectFilterFragment @SuppressLint("ValidFragment")
 constructor(private var filterType: String) : BaseFilterFragment() {
     override fun getTitle(): String = when (filterType) {
-        ALBUM_NAME -> "Add an album"
-        ARTIST_NAME -> "Add an artist"
-        GENRE_NAME -> "Add a genre"
-        else -> "Add a filter"
+        ALBUM_NAME -> "Select albums"
+        ARTIST_NAME -> "Select artists"
+        GENRE_NAME -> "Select genres"
+        else -> "Select filters"
     }
     override val baseVm: BaseFilterVM
         get() = vm
@@ -43,7 +43,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         private const val FILTER_TYPE = "TYPE"
     }
 
-    lateinit var vm: AddFilterFragmentVM<*>
+    lateinit var vm: SelectFilterFragmentVM<*>
     private lateinit var fragmentBinding: FragmentAddFilterBinding
 
     constructor() : this(GENRE_NAME)
@@ -62,16 +62,16 @@ constructor(private var filterType: String) : BaseFilterFragment() {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         vm = when (filterType) {
-            ALBUM_NAME -> AddFilterFragmentAlbumVM(requireActivity())
-            ARTIST_NAME -> AddFilterFragmentArtistVM(requireActivity())
-            else -> AddFilterFragmentGenreVM(requireActivity())
+            ALBUM_NAME -> SelectFilterFragmentAlbumVM(requireActivity())
+            ARTIST_NAME -> SelectFilterFragmentArtistVM(requireActivity())
+            else -> SelectFilterFragmentGenreVM(requireActivity())
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentAddFilterBinding.inflate(inflater, container, false)
         fragmentBinding.vm = vm
-        fragmentBinding.filterList.layoutManager = if (vm.itemDisplayType == AddFilterFragmentVM.ITEM_LIST) {
+        fragmentBinding.filterList.layoutManager = if (vm.itemDisplayType == SelectFilterFragmentVM.ITEM_LIST) {
             LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         } else {
             GridLayoutManager(activity, 3)
@@ -79,7 +79,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         fragmentBinding.filterList.adapter = FilterListAdapter()
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
             fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
-            if (vm.itemDisplayType == AddFilterFragmentVM.ITEM_GRID) {
+            if (vm.itemDisplayType == SelectFilterFragmentVM.ITEM_GRID) {
                 fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL).apply { setDrawable(it) })
             }
         }
@@ -94,7 +94,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = if (vm.itemDisplayType == AddFilterFragmentVM.ITEM_LIST) FilterListViewHolder() else FilterGridViewHolder()
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = if (vm.itemDisplayType == SelectFilterFragmentVM.ITEM_LIST) FilterListViewHolder() else FilterGridViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             holder.bind(vm.getDisplayedValues()[position])
@@ -106,9 +106,9 @@ constructor(private var filterType: String) : BaseFilterFragment() {
     }
 
     abstract inner class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        abstract fun bind(filter: AddFilterFragmentVM.FilterItem)
+        abstract fun bind(filter: SelectFilterFragmentVM.FilterItem)
 
-        protected fun setBackground(view: View, filter: AddFilterFragmentVM.FilterItem) {
+        protected fun setBackground(view: View, filter: SelectFilterFragmentVM.FilterItem) {
             view.setBackgroundColor(ResourcesCompat.getColor(resources, if (filter.isSelected) R.color.selected else R.color.unselected, requireActivity().theme))
         }
     }
@@ -117,7 +117,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
                                      = ItemAddFilterListBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
         : FilterViewHolder(itemFilterTypeBinding.root) {
 
-        override fun bind(filter: AddFilterFragmentVM.FilterItem) {
+        override fun bind(filter: SelectFilterFragmentVM.FilterItem) {
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.item = filter
             setBackground(itemFilterTypeBinding.root, filter)
@@ -132,7 +132,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
                                      = ItemAddFilterGridBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
         : FilterViewHolder(itemFilterTypeBinding.root) {
 
-        override fun bind(filter: AddFilterFragmentVM.FilterItem) {
+        override fun bind(filter: SelectFilterFragmentVM.FilterItem) {
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.item = filter
             setBackground(itemFilterTypeBinding.root, filter)

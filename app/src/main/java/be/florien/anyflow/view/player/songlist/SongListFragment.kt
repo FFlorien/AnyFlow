@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -114,6 +115,7 @@ class SongListFragment : BaseFragment() {
             }
         })
         updateCurrentSongDisplay(false)
+        ViewCompat.setTranslationZ(binding?.root, 0.8f)
         return view
     }
 

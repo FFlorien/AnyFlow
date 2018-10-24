@@ -6,10 +6,9 @@
     android:viewportWidth="400"
     android:viewportHeight="400">
     <path
-        android:name="path"
-        android:pathData="M 30 225 L 125 335 M 125 335 L 370 65"
-        android:strokeColor="#FFF"
-        android:strokeWidth="60"
+        android:name="cross"
+        android:pathData="M 50 50 L 350 350 M 350 50 L 50 350"
+        android:strokeColor="@color/onPrimaryText"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"/>
+        android:strokeWidth="60"/>
 </vector>

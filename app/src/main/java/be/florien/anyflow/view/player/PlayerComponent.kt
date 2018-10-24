@@ -3,12 +3,12 @@ package be.florien.anyflow.view.player
 import android.app.Activity
 import android.view.View
 import be.florien.anyflow.di.ActivityScope
-import be.florien.anyflow.view.player.filter.addition.AddFilterFragmentAlbumVM
-import be.florien.anyflow.view.player.filter.addition.AddFilterFragmentArtistVM
-import be.florien.anyflow.view.player.filter.addition.AddFilterFragmentGenreVM
-import be.florien.anyflow.view.player.filter.display.FilterFragment
-import be.florien.anyflow.view.player.filter.display.FilterFragmentVM
-import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragment
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentAlbumVM
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentArtistVM
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentGenreVM
+import be.florien.anyflow.view.player.filter.display.DisplayFilterFragment
+import be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM
+import be.florien.anyflow.view.player.filter.selectType.SelectFilterTypeFragment
 import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragmentVM
 import be.florien.anyflow.view.player.songlist.SongListFragment
 import dagger.BindsInstance
@@ -20,12 +20,12 @@ interface PlayerComponent {
 
     fun inject(playerActivity: PlayerActivity)
     fun inject(songListFragment: SongListFragment)
-    fun inject(filterFragment: FilterFragment)
-    fun inject(addFilterFragmentGenreVM: AddFilterFragmentGenreVM)
-    fun inject(addFilterFragmentArtistVM: AddFilterFragmentArtistVM)
-    fun inject(addFilterFragmentAlbumVM: AddFilterFragmentAlbumVM)
-    fun inject(addFilterTypeFragment: AddFilterTypeFragment)
-    fun inject(filterFragmentVM: FilterFragmentVM)
+    fun inject(displayFilterFragment: DisplayFilterFragment)
+    fun inject(addFilterFragmentGenreVM: SelectFilterFragmentGenreVM)
+    fun inject(addFilterFragmentArtistVM: SelectFilterFragmentArtistVM)
+    fun inject(addFilterFragmentAlbumVM: SelectFilterFragmentAlbumVM)
+    fun inject(selectFilterTypeFragment: SelectFilterTypeFragment)
+    fun inject(filterFragmentVM: DisplayFilterFragmentVM)
     fun inject(addFilterTypeFragmentVM: AddFilterTypeFragmentVM)
 
     @Subcomponent.Builder

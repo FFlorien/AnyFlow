@@ -6,6 +6,7 @@ import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.FragmentManager
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -23,7 +24,7 @@ import be.florien.anyflow.view.connect.ConnectActivity
 import be.florien.anyflow.view.menu.FilterMenuHolder
 import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.menu.OrderMenuHolder
-import be.florien.anyflow.view.player.filter.display.FilterFragment
+import be.florien.anyflow.view.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.view.player.songlist.SongListFragment
 import javax.inject.Inject
 
@@ -87,7 +88,9 @@ class PlayerActivity : AppCompatActivity() {
             menuCoordinator.addMenuHolder(orderMenu)
 
             if (savedInstanceState == null) {
-                displaySongList()
+                supportFragmentManager.beginTransaction()
+                        .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
+                        .commit()
             }
 
             vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
@@ -134,26 +137,18 @@ class PlayerActivity : AppCompatActivity() {
         vm.destroy()
     }
 
-    private var songListTransactionId = -1
-
     fun displaySongList() {
-        if (songListTransactionId >= 0) {
-            supportFragmentManager.popBackStack(songListTransactionId, 0)
-        } else {
-            val fragment = supportFragmentManager.findFragmentByTag(SongListFragment::class.java.simpleName)
-                    ?: SongListFragment()
-            songListTransactionId = supportFragmentManager.beginTransaction().replace(R.id.container, fragment, SongListFragment::class.java.simpleName).addToBackStack(null).commit()
-        }
+        supportFragmentManager.popBackStack("filters", FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     private fun displayFilters() {
-        val fragment = supportFragmentManager.findFragmentByTag(FilterFragment::class.java.simpleName)
-                ?: FilterFragment()
+        val fragment = supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
+                ?: DisplayFilterFragment()
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.container, fragment, FilterFragment::class.java.simpleName)
-                .setTransition(R.anim.slide_in_top)
-                .addToBackStack(null)
+                .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
+                .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
+                .addToBackStack("filters")
                 .commit()
     }
 

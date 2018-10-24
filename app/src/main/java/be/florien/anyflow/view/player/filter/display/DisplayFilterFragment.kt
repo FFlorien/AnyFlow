@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -27,29 +28,30 @@ import be.florien.anyflow.player.Filter
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
-import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragment
+import be.florien.anyflow.view.player.filter.selectType.SelectFilterTypeFragment
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 
-class FilterFragment : BaseFilterFragment() {
+class DisplayFilterFragment : BaseFilterFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
     override val baseVm: BaseFilterVM
         get() = vm
-    lateinit var vm: FilterFragmentVM
+    lateinit var vm: DisplayFilterFragmentVM
 
     private lateinit var binding: FragmentFilterBinding
     private val filterListAdapter = FilterListAdapter()
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        vm = FilterFragmentVM(requireActivity())
+        vm = DisplayFilterFragmentVM(requireActivity())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
+        vm.resetFilterChanges()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,10 +74,11 @@ class FilterFragment : BaseFilterFragment() {
             requireActivity()
                     .supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.container, AddFilterTypeFragment(), AddFilterTypeFragment::class.java.simpleName)
+                    .replace(R.id.container, SelectFilterTypeFragment(), SelectFilterTypeFragment::class.java.simpleName)
                     .addToBackStack(null)
                     .commit()
         }
+        ViewCompat.setTranslationZ(binding.root, 1f)
         return binding.root
     }
 
@@ -86,7 +89,7 @@ class FilterFragment : BaseFilterFragment() {
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             when (position) {
                 0 -> {
-                    holder.bind(getString(R.string.action_filter_clear), R.drawable.ic_clear)
+                    holder.bind(getString(R.string.action_filter_clear), R.drawable.ic_delete)
                     holder.itemView.setOnClickListener { vm.clearFilters() }
                 }
                 else -> {
@@ -161,9 +164,7 @@ class FilterFragment : BaseFilterFragment() {
             binding.vm = null
             binding.filterName.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
             binding.filterName.text = text
-            val drawable = ResourcesCompat.getDrawable(resources, icon, requireActivity().theme)
-            drawable?.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
-            binding.filterName.setCompoundDrawables(drawable, null, null, null)
+            setCompoundDrawableFromResources(icon)
         }
 
         private fun setCompoundDrawableFromResources(resId: Int) {

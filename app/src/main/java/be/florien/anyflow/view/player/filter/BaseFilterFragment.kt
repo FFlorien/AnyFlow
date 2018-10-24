@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import be.florien.anyflow.BR
 import be.florien.anyflow.view.BaseFragment
+import be.florien.anyflow.view.menu.CancelMenuHolder
 import be.florien.anyflow.view.menu.ConfirmMenuHolder
 import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.player.PlayerActivity
@@ -21,6 +22,9 @@ abstract class BaseFilterFragment: BaseFragment() {
         setHasOptionsMenu(true)
         menuCoordinator.addMenuHolder(ConfirmMenuHolder {
             baseVm.confirmChanges()
+        })
+        menuCoordinator.addMenuHolder(CancelMenuHolder{
+            baseVm.cancelChanges()
         })
     }
 

@@ -6,7 +6,7 @@ import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.view.BaseVM
 import javax.inject.Inject
 
-open class BaseFilterVM: BaseVM() {
+open class BaseFilterVM : BaseVM() {
     @Inject
     lateinit var filtersManager: FiltersManager
 
@@ -21,5 +21,11 @@ open class BaseFilterVM: BaseVM() {
                     notifyPropertyChanged(BR.areFiltersInEdition)
                 }
         )
+    }
+
+    fun cancelChanges() {
+        filtersManager.abandonChanges()
+        areFiltersInEdition = false
+        notifyPropertyChanged(BR.areFiltersInEdition)
     }
 }

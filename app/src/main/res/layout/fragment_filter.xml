@@ -5,12 +5,13 @@
 
         <variable
             name="vm"
-            type="be.florien.anyflow.view.player.filter.display.FilterFragmentVM" />
+            type="be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM" />
     </data>
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/unselected">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/filterList"
@@ -22,8 +23,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@drawable/ic_add"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_add" />
     </android.support.constraint.ConstraintLayout>
 </layout>

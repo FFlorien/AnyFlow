@@ -6,11 +6,11 @@
 
         <variable
             name="item"
-            type="be.florien.anyflow.view.player.filter.addition.AddFilterFragmentVM.FilterItem" />
+            type="be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentVM.FilterItem" />
 
         <variable
             name="vm"
-            type="be.florien.anyflow.view.player.filter.addition.AddFilterFragmentVM" />
+            type="be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentVM" />
 
         <import type="android.view.View" />
     </data>
