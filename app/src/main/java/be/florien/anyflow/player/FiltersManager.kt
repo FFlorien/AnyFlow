@@ -58,7 +58,7 @@ class FiltersManager
     }
 
     fun commitChanges(): Completable {
-        return libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }).doOnComplete { areFiltersChanged = false } //todo make it cleaner and make them listen
+        return libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }).doOnComplete { areFiltersChanged = false }
     }
 
     fun abandonChanges() {
@@ -66,6 +66,8 @@ class FiltersManager
         unCommittedFilters.addAll(currentFilters)
         areFiltersChanged = false
     }
+
+    fun isFilterInEdition(filter: Filter<*>): Boolean = unCommittedFilters.contains(filter)
 
     fun destroy() {//todo
         subscribe?.dispose()

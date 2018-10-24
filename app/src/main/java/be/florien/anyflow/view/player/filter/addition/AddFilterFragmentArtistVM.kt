@@ -5,7 +5,6 @@ import be.florien.anyflow.BR
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.persistence.local.model.ArtistDisplay
 import be.florien.anyflow.player.Filter
-import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.view.player.PlayerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
@@ -24,9 +23,7 @@ class AddFilterFragmentArtistVM(activity: Activity) : AddFilterFragmentVM<Artist
         })
     }
 
-    override fun getDisplayedValues(): List<FilterItem> = values.map{ artist -> FilterItem(artist.id, artist.name) }
+    override fun getDisplayedValues(): List<FilterItem> = values.map{ artist -> FilterItem(artist.id, artist.name, isSelected = filtersManager.isFilterInEdition(Filter.ArtistIs(artist.id, artist.name))) }
 
-    override fun onFilterSelected(filterValue: FilterItem) {
-        filtersManager.addFilter(Filter.ArtistIs(filterValue.id, filterValue.displayName))
-    }
+    override fun getFilter(filterValue: FilterItem) = Filter.ArtistIs(filterValue.id, filterValue.displayName)
 }

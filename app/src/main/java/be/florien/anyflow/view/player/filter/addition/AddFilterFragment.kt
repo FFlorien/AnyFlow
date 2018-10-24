@@ -105,8 +105,12 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         override fun getSectionName(position: Int): String = vm.getDisplayedValues()[position].displayName.first().toUpperCase().toString()
     }
 
-    abstract class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    abstract inner class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun bind(filter: AddFilterFragmentVM.FilterItem)
+
+        protected fun setBackground(view: View, filter: AddFilterFragmentVM.FilterItem) {
+            view.setBackgroundColor(ResourcesCompat.getColor(resources, if (filter.isSelected) R.color.selected else R.color.unselected, requireActivity().theme))
+        }
     }
 
     inner class FilterListViewHolder(private val itemFilterTypeBinding: ItemAddFilterListBinding
@@ -116,6 +120,11 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         override fun bind(filter: AddFilterFragmentVM.FilterItem) {
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.item = filter
+            setBackground(itemFilterTypeBinding.root, filter)
+            itemFilterTypeBinding.root.setOnClickListener {
+                vm.changeFilterSelection(filter)
+                setBackground(itemFilterTypeBinding.root, filter)
+            }
         }
     }
 
@@ -126,6 +135,11 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         override fun bind(filter: AddFilterFragmentVM.FilterItem) {
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.item = filter
+            setBackground(itemFilterTypeBinding.root, filter)
+            itemFilterTypeBinding.root.setOnClickListener {
+                vm.changeFilterSelection(filter)
+                setBackground(itemFilterTypeBinding.root, filter)
+            }
         }
     }
 }
