@@ -18,6 +18,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.util.*
 
 
@@ -51,9 +52,9 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters
      */
 
-    fun getSongAtPosition(position: Int): Maybe<Song> = getSongDao().forPositionInQueue(position).subscribeOn(Schedulers.io())
+    fun getSongAtPosition(position: Int): Maybe<Song> = getSongDao().forPositionInQueue(position).doOnError { Timber.e(it, "Error while querying getSongAtPosition") }.subscribeOn(Schedulers.io())
 
-    fun getPositionForSong(song: Song): Maybe<Int> = getSongDao().findPositionInQueue(song.id).subscribeOn(Schedulers.io())
+    fun getPositionForSong(song: Song): Maybe<Int> = getSongDao().findPositionInQueue(song.id).doOnError { Timber.e(it, "Error while querying getPositionForSong") }.subscribeOn(Schedulers.io())
 
     fun getSongsInQueueOrder(): Flowable<PagedList<SongDisplay>> {
         val dataSourceFactory = getSongDao().inQueueOrder()
@@ -61,14 +62,14 @@ abstract class LibraryDatabase : RoomDatabase() {
                 .setEnablePlaceholders(true)
                 .setPageSize(100)
                 .build()
-        return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).subscribeOn(Schedulers.io())
+        return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).doOnError { Timber.e(it, "Error while querying getSongsInQueueOrder") }.subscribeOn(Schedulers.io())
     }
 
-    fun getGenres(): Flowable<List<String>> = getSongDao().genreOrderByGenre().subscribeOn(Schedulers.io())
+    fun getGenres(): Flowable<List<String>> = getSongDao().genreOrderByGenre().doOnError { Timber.e(it, "Error while querying getGenres") }.subscribeOn(Schedulers.io())
 
-    fun getArtists(): Flowable<List<ArtistDisplay>> = getArtistDao().orderByName().subscribeOn(Schedulers.io())
+    fun getArtists(): Flowable<List<ArtistDisplay>> = getArtistDao().orderByName().doOnError { Timber.e(it, "Error while querying getArtists") }.subscribeOn(Schedulers.io())
 
-    fun getAlbums(): Flowable<List<AlbumDisplay>> = getAlbumDao().orderByName().subscribeOn(Schedulers.io())
+    fun getAlbums(): Flowable<List<AlbumDisplay>> = getAlbumDao().orderByName().doOnError { Timber.e(it, "Error while querying getAlbums") }.subscribeOn(Schedulers.io())
 
     fun getFilters(): Flowable<List<Filter<*>>> = getFilterDao().all().map { filterList ->
         val typedList = mutableListOf<Filter<*>>()
@@ -76,38 +77,38 @@ abstract class LibraryDatabase : RoomDatabase() {
             typedList.add(Filter.toTypedFilter(it))
         }
         typedList as List<Filter<*>>
-    }.subscribeOn(Schedulers.io())
+    }.doOnError { Timber.e(it, "Error while querying getFilters") }.subscribeOn(Schedulers.io())
 
-    fun getOrder() = getOrderDao().all()
+    fun getOrder(): Flowable<List<DbOrder>> = getOrderDao().all().doOnError { Timber.e(it, "Error while querying getOrder") }.subscribeOn(Schedulers.io())
 
     /**
      * Setters
      */
 
-    fun addSongs(songs: List<Song>): Completable = asyncCompletable { getSongDao().insert(songs) }
+    fun addSongs(songs: List<Song>): Completable = asyncCompletable { getSongDao().insert(songs) }.doOnError { Timber.e(it, "Error while addSongs") }
 
-    fun addArtists(artists: List<Artist>): Completable = asyncCompletable { getArtistDao().insert(artists) }
+    fun addArtists(artists: List<Artist>): Completable = asyncCompletable { getArtistDao().insert(artists) }.doOnError { Timber.e(it, "Error while addArtists") }
 
-    fun addAlbums(albums: List<Album>): Completable = asyncCompletable { getAlbumDao().insert(albums) }
+    fun addAlbums(albums: List<Album>): Completable = asyncCompletable { getAlbumDao().insert(albums) }.doOnError { Timber.e(it, "Error while addAlbums") }
 
-    fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable { getPlaylistDao().insert(playlists) }
+    fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable { getPlaylistDao().insert(playlists) }.doOnError { Timber.e(it, "Error while addPlayLists") }
 
-    fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable { getFilterDao().insert(filters.toList()) }
+    fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable { getFilterDao().insert(filters.toList()) }.doOnError { Timber.e(it, "Error while addFilters") }
 
-    fun deleteFilter(filter: DbFilter): Completable = asyncCompletable { getFilterDao().delete(filter) }
+    fun deleteFilter(filter: DbFilter): Completable = asyncCompletable { getFilterDao().delete(filter) }.doOnError { Timber.e(it, "Error while deleteFilter") }
 
-    fun clearFilters(): Completable = asyncCompletable { getFilterDao().deleteAll() }
+    fun clearFilters(): Completable = asyncCompletable { getFilterDao().deleteAll() }.doOnError { Timber.e(it, "Error while clearFilters") }
 
-    fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable { getFilterDao().replaceBy(filters) }
+    fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable { getFilterDao().replaceBy(filters) }.doOnError { Timber.e(it, "Error while setFilters") }
 
-    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable { getOrderDao().replaceBy(orders) }
+    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable { getOrderDao().replaceBy(orders) }.doOnError { Timber.e(it, "Error while setOrders") }
 
     fun setOrdersSubject(orders: List<Subject>): Completable = asyncCompletable {
         val dbOrders = orders.mapIndexed { index, order ->
             Order(index, order, Order.ASCENDING).toDbOrder()
         }
         getOrderDao().replaceBy(dbOrders)
-    }
+    }.doOnError { Timber.e(it, "Error while setOrdersSubject") }
 
 
     /**
@@ -128,6 +129,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                     .flatMap {
                         getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
                     }
+                    .doOnError { Timber.e(it, "Error while querying getPlaylistFromFilter") }
 
     private fun getPlaylistFromOrder(): Flowable<List<Long>> =
             getOrderDao()
@@ -141,6 +143,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                     .flatMap {
                         getSongDao().forCurrentFilters(SimpleSQLiteQuery(it))
                     }
+                    .doOnError { Timber.e(it, "Error while querying getPlaylistFromOrder") }
 
     private fun retrieveRandomness(dbOrders: List<DbOrder>) {
         val orderList = dbOrders.map { Order.toOrder(it) }
@@ -228,7 +231,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         it.forEachIndexed { index, songId ->
             queueOrder.add(QueueOrder(index, songId))
         }
-        asyncCompletable { getQueueOrderDao().setOrder(queueOrder) }.subscribe()
+        asyncCompletable { getQueueOrderDao().setOrder(queueOrder) }.doOnError { Timber.e(it, "Error while saveOrder") }.subscribe()
     }
 
     private fun asyncCompletable(action: () -> Unit): Completable = Completable.defer { Completable.fromAction(action) }.subscribeOn(Schedulers.io())
@@ -236,7 +239,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var instance: LibraryDatabase? = null
-        private const val DB_NAME = "ampacheDatabase.db"
+        private const val DB_NAME = "ampacheDatabase.db" //todo before release, more generic name
 
         fun getInstance(context: Context): LibraryDatabase {
             if (instance == null) {
