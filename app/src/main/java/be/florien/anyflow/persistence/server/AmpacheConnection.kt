@@ -120,12 +120,12 @@ open class AmpacheConnection
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
             return if (authPersistence.authToken.first.isNotBlank()) {
-                ping(authPersistence.authToken.first).flatMap {
-                    if (it.error.code == 0) {
+                ping(authPersistence.authToken.first).flatMap { pingResponse ->
+                    if (pingResponse.error.code == 0) {
                         request
                     } else {
-                        authenticate(authPersistence.user.first, authPersistence.password.first).flatMap {
-                            if (it.error.code == 0) {
+                        authenticate(authPersistence.user.first, authPersistence.password.first).flatMap { authResponse ->
+                            if (authResponse.error.code == 0) {
                                 request
                             } else {
                                 throw SessionExpiredException("Can't reconnect")
@@ -165,6 +165,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
+                    Timber.e(it, "Error while getSongs")
                     when (it) {
                         is TimeoutException -> {
                         }
@@ -172,7 +173,7 @@ open class AmpacheConnection
                         }
                         else -> {
                         }
-                    //todo inform user and let him try later
+                        //todo inform user and let him try later
 
                     }
                 }
@@ -192,6 +193,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
+                    Timber.e(it, "Error while getArtists")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
@@ -212,6 +214,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
+                    Timber.e(it, "Error while getAlbums")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
@@ -232,6 +235,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
+                    Timber.e(it, "Error while getTags")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
@@ -252,6 +256,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
+                    Timber.e(it, "Error while getPlaylists")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
