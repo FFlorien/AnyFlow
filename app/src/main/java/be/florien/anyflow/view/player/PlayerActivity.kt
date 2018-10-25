@@ -90,7 +90,8 @@ class PlayerActivity : AppCompatActivity() {
         menuCoordinator.addMenuHolder(orderMenu)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                    .beginTransaction()
                     .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
                     .commit()
         }
