@@ -35,7 +35,20 @@ import javax.inject.Inject
 @UserScope
 class PlayerActivity : AppCompatActivity() {
 
-    lateinit var activityComponent: PlayerComponent
+    val activityComponent: PlayerComponent by lazy {
+        val component = anyFlowApp.userComponent
+                ?.playerComponentBuilder()
+                ?.activity(this)
+                ?.view(binding.root)
+                ?.build()
+        if (component != null) {
+            component
+        } else {
+            startActivity(ConnectActivity::class)
+            finish()
+            throw IllegalStateException("No PlayerComponent available")
+        }
+    }
     @Inject
     lateinit var vm: PlayerActivityVM
     private lateinit var binding: ActivityPlayerBinding
@@ -58,60 +71,49 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
 
-        val component = anyFlowApp.userComponent
-                ?.playerComponentBuilder()
-                ?.activity(this)
-                ?.view(binding.root)
-                ?.build()
+        activityComponent.inject(this)
+        binding.vm = vm
+        bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
-        if (component == null) {
-            startActivity(ConnectActivity::class)
-            finish()
-        } else {
-            activityComponent = component
-            activityComponent.inject(this)
-            binding.vm = vm
-            bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
-
-            filterMenu = FilterMenuHolder(vm.isUnfiltered, this) {
-                displayFilters()
+        filterMenu = FilterMenuHolder(vm.isUnfiltered, this) {
+            displayFilters()
+        }
+        orderMenu = OrderMenuHolder(vm.isOrdered, this) {
+            if (vm.isOrdered) {
+                vm.randomOrder()
+            } else {
+                vm.classicOrder()
             }
-            orderMenu = OrderMenuHolder(vm.isOrdered, this) {
-                if (vm.isOrdered) {
-                    vm.randomOrder()
-                } else {
-                    vm.classicOrder()
-                }
-            }
+        }
 
-            menuCoordinator.addMenuHolder(filterMenu)
-            menuCoordinator.addMenuHolder(orderMenu)
+        menuCoordinator.addMenuHolder(filterMenu)
+        menuCoordinator.addMenuHolder(orderMenu)
 
-            if (savedInstanceState == null) {
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
-                        .commit()
-            }
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
+                    .commit()
+        }
 
-            vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                    when (propertyId) {
-                        BR.isOrdered -> {
-                            orderMenu.changeState(vm.isOrdered)
-                        }
-                        BR.isUnfiltered -> {
-                            filterMenu.changeState(vm.isUnfiltered)
-                        }
-                        BR.playerState -> {
-                            when (vm.playerState) {
-                                PlayerController.State.RECONNECT -> snackbar.setText(R.string.display_reconnecting).show()
-                                else -> snackbar.dismiss()
-                            }
+        vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                when (propertyId) {
+                    BR.isOrdered -> {
+                        orderMenu.changeState(vm.isOrdered)
+                    }
+                    BR.isUnfiltered -> {
+                        filterMenu.changeState(vm.isUnfiltered)
+                    }
+                    BR.playerState -> {
+                        when (vm.playerState) {
+                            PlayerController.State.RECONNECT -> snackbar.setText(R.string.display_reconnecting).show()
+                            else -> snackbar.dismiss()
                         }
                     }
                 }
-            })
-        }
+            }
+        })
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
