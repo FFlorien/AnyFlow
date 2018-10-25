@@ -158,7 +158,7 @@ class AuthPersistence
                 Timber.e(exception, "Error while trying to retrieve a secured data")
                 val file = File(dataDirectoryPath + filename)
                 if (file.exists()) {
-                    //todo reactivate this when the mysterious error disappear -> file.delete()
+                    file.delete()
                 }
                 return ""
             }
