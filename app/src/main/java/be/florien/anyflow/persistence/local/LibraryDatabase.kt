@@ -18,6 +18,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
 import java.util.*
 
@@ -33,6 +34,11 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getOrderDao(): OrderDao
     private var randomOrderingSeed = 2
+    private val _changeUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
+    val changeUpdater = _changeUpdater.toFlowable(BackpressureStrategy.BUFFER)
+            .share()
+            .publish()
+            .autoConnect()
 
     init {
         getPlaylist()
@@ -85,25 +91,25 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Setters
      */
 
-    fun addSongs(songs: List<Song>): Completable = asyncCompletable { getSongDao().insert(songs) }.doOnError { Timber.e(it, "Error while addSongs") }
+    fun addSongs(songs: List<Song>): Completable = asyncCompletable(CHANGE_SONGS) { getSongDao().insert(songs) }.doOnError { Timber.e(it, "Error while addSongs") }
 
-    fun addArtists(artists: List<Artist>): Completable = asyncCompletable { getArtistDao().insert(artists) }.doOnError { Timber.e(it, "Error while addArtists") }
+    fun addArtists(artists: List<Artist>): Completable = asyncCompletable(CHANGE_ARTISTS) { getArtistDao().insert(artists) }.doOnError { Timber.e(it, "Error while addArtists") }
 
-    fun addAlbums(albums: List<Album>): Completable = asyncCompletable { getAlbumDao().insert(albums) }.doOnError { Timber.e(it, "Error while addAlbums") }
+    fun addAlbums(albums: List<Album>): Completable = asyncCompletable(CHANGE_ALBUMS) { getAlbumDao().insert(albums) }.doOnError { Timber.e(it, "Error while addAlbums") }
 
-    fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable { getPlaylistDao().insert(playlists) }.doOnError { Timber.e(it, "Error while addPlayLists") }
+    fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable(CHANGE_PLAYLISTS) { getPlaylistDao().insert(playlists) }.doOnError { Timber.e(it, "Error while addPlayLists") }
 
-    fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable { getFilterDao().insert(filters.toList()) }.doOnError { Timber.e(it, "Error while addFilters") }
+    fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().insert(filters.toList()) }.doOnError { Timber.e(it, "Error while addFilters") }
 
-    fun deleteFilter(filter: DbFilter): Completable = asyncCompletable { getFilterDao().delete(filter) }.doOnError { Timber.e(it, "Error while deleteFilter") }
+    fun deleteFilter(filter: DbFilter): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().delete(filter) }.doOnError { Timber.e(it, "Error while deleteFilter") }
 
-    fun clearFilters(): Completable = asyncCompletable { getFilterDao().deleteAll() }.doOnError { Timber.e(it, "Error while clearFilters") }
+    fun clearFilters(): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().deleteAll() }.doOnError { Timber.e(it, "Error while clearFilters") }
 
-    fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable { getFilterDao().replaceBy(filters) }.doOnError { Timber.e(it, "Error while setFilters") }
+    fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().replaceBy(filters) }.doOnError { Timber.e(it, "Error while setFilters") }
 
-    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable { getOrderDao().replaceBy(orders) }.doOnError { Timber.e(it, "Error while setOrders") }
+    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }.doOnError { Timber.e(it, "Error while setOrders") }
 
-    fun setOrdersSubject(orders: List<Subject>): Completable = asyncCompletable {
+    fun setOrdersSubject(orders: List<Subject>): Completable = asyncCompletable(CHANGE_ORDER) {
         val dbOrders = orders.mapIndexed { index, order ->
             Order(index, order, Order.ASCENDING).toDbOrder()
         }
@@ -231,12 +237,23 @@ abstract class LibraryDatabase : RoomDatabase() {
         it.forEachIndexed { index, songId ->
             queueOrder.add(QueueOrder(index, songId))
         }
-        asyncCompletable { getQueueOrderDao().setOrder(queueOrder) }.doOnError { Timber.e(it, "Error while saveOrder") }.subscribe()
+        asyncCompletable(CHANGE_QUEUE) { getQueueOrderDao().setOrder(queueOrder) }.doOnError { Timber.e(it, "Error while saveOrder") }.subscribe()
     }
 
-    private fun asyncCompletable(action: () -> Unit): Completable = Completable.defer { Completable.fromAction(action) }.subscribeOn(Schedulers.io())
+    private fun asyncCompletable(changeSubject: Int, action: () -> Unit): Completable {
+        _changeUpdater.onNext(changeSubject)
+        return Completable.defer { Completable.fromAction(action) }.subscribeOn(Schedulers.io())
+    }
 
     companion object {
+        const val CHANGE_SONGS = 0
+        const val CHANGE_ALBUMS = 1
+        const val CHANGE_ARTISTS = 2
+        const val CHANGE_PLAYLISTS = 3
+        const val CHANGE_ORDER = 4
+        const val CHANGE_FILTERS = 5
+        const val CHANGE_QUEUE = 6
+
         @Volatile
         private var instance: LibraryDatabase? = null
         private const val DB_NAME = "ampacheDatabase.db" //todo before release, more generic name

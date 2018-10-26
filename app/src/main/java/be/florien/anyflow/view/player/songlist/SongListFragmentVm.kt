@@ -66,6 +66,10 @@ class SongListFragmentVm
                 onError = {
                     Timber.e(it, "Error while updating currentSong")
                 })
+        subscribe(playingQueue.queueChangeUpdater,
+                onNext = {
+                    upToDate = false
+                })
     }
 
     /**
@@ -73,12 +77,23 @@ class SongListFragmentVm
      */
     @Bindable
     var pagedAudioQueue: PagedList<SongDisplay>? = null
+        set(value) {
+            field = value
+            upToDate = true
+        }
 
     @Bindable
     var currentSong: SongDisplay? = null
 
     @Bindable
     var listPosition = 0
+
+    @Bindable
+    var upToDate = true
+        set(value) {
+            field = value
+            notifyPropertyChanged(BR.upToDate)
+        }
 
     fun refreshSongs() {
         isLoadingAll = playingQueue.itemsCount == 0

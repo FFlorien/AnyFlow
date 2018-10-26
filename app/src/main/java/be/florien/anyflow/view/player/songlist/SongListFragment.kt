@@ -1,9 +1,9 @@
 package be.florien.anyflow.view.player.songlist
 
+import android.animation.ObjectAnimator
 import android.arch.paging.PagedListAdapter
 import android.content.Context
 import android.content.Intent
-import android.databinding.DataBindingUtil
 import android.databinding.Observable
 import android.net.Uri
 import android.os.Build
@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.support.v4.content.res.ResourcesCompat
-import android.support.v4.view.ViewCompat
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -19,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
@@ -28,6 +28,7 @@ import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.player.PlayerActivity
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -41,23 +42,27 @@ class SongListFragment : BaseFragment() {
     lateinit var vm: SongListFragmentVm
 
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private var binding: FragmentSongListBinding? = null
+    private lateinit var binding: FragmentSongListBinding
     private var isListFollowingCurrentSong = true
-    private var isUserScroll = false
+    private var shouldUpdateLoading = false
 
     private val topSet by lazy {
         ConstraintSet().apply {
-            clone(binding?.root as ConstraintLayout)
+            clone(binding.root as ConstraintLayout)
             clear(R.id.currentSongDisplay, ConstraintSet.BOTTOM)
             connect(R.id.currentSongDisplay, ConstraintSet.TOP, R.id.songList, ConstraintSet.TOP)
         }
     }
     private val bottomSet by lazy {
         ConstraintSet().apply {
-            clone(binding?.root as ConstraintLayout)
+            clone(binding.root as ConstraintLayout)
             clear(R.id.currentSongDisplay, ConstraintSet.TOP)
             connect(R.id.currentSongDisplay, ConstraintSet.BOTTOM, R.id.songList, ConstraintSet.BOTTOM)
         }
+    }
+
+    init {
+        Timber.tag(SongListFragment::class.java.simpleName)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,53 +75,73 @@ class SongListFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_song_list, container, false)
-        binding = DataBindingUtil.bind(view)
+        binding = FragmentSongListBinding.inflate(inflater, container, false)
         (activity as PlayerActivity).activityComponent.inject(this)
-        binding?.vm = vm
+        binding.vm = vm
         vm.refreshSongs() //todo communication between service and VM
-        binding?.songList?.adapter = SongAdapter().apply {
+        binding.songList.adapter = SongAdapter().apply {
             submitList(vm.pagedAudioQueue)
         }
+
         linearLayoutManager = LinearLayoutManager(activity)
-        binding?.songList?.layoutManager = linearLayoutManager
-        binding?.songList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        binding.songList.layoutManager = linearLayoutManager
+        binding.songList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                updateCurrentSongDisplay(true)
+                updateCurrentSongDisplay()
+
+                if (shouldUpdateLoading) {
+                    Timber.v("should update loading from scroll")
+                    updateLoadingVisibility()
+                }
             }
         })
-        binding?.songList?.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
+        binding.songList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?): Boolean {
-                isUserScroll = true
+                isListFollowingCurrentSong = vm.listPosition in linearLayoutManager.findFirstCompletelyVisibleItemPosition()..linearLayoutManager.findLastCompletelyVisibleItemPosition()
                 return false
             }
         })
-        binding?.currentSongDisplay?.root?.setBackgroundResource(R.color.selected)
-        binding?.currentSongDisplay?.root?.setOnClickListener {
+
+        binding.currentSongDisplay.root.setBackgroundResource(R.color.selected)
+        binding.currentSongDisplay.root.setOnClickListener {
             isListFollowingCurrentSong = true
-            binding?.songList?.stopScroll()
+            binding.songList.stopScroll()
             linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
+            vm.pagedAudioQueue?.loadAround(vm.listPosition)
         }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            binding?.currentSongDisplay?.root?.elevation = resources.getDimension(R.dimen.smallDimen)
+            binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
         }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
-                    BR.pagedAudioQueue -> (binding?.songList?.adapter as SongAdapter).submitList(vm.pagedAudioQueue)
+                    BR.pagedAudioQueue -> {
+                        isListFollowingCurrentSong = true
+                        (binding.songList.adapter as SongAdapter).submitList(vm.pagedAudioQueue)
+                    }
                     BR.listPosition -> {
-                        val songAdapter = binding?.songList?.adapter as? SongAdapter
-                        songAdapter?.setSelectedPosition(vm.listPosition)
-                        updateCurrentSongDisplay(false)
+                        val songAdapter = binding.songList.adapter as SongAdapter
+                        songAdapter.setSelectedPosition(vm.listPosition)
+                        updateCurrentSongDisplay()
+                        updateScrollPosition()
+                    }
+                    BR.upToDate -> {
+                        shouldUpdateLoading = true
+                        Timber.v("loading: uptodate updated to ${vm.upToDate}")
+
+                        if (!vm.upToDate) {
+                            Timber.v("should update loading from vm")
+                            updateLoadingVisibility()
+                        }
                     }
                 }
             }
         })
-        updateCurrentSongDisplay(false)
-        ViewCompat.setTranslationZ(binding?.root, 0.8f)
-        return view
+        updateCurrentSongDisplay()
+        updateScrollPosition()
+        return binding.root
     }
 
     override fun onDestroy() {
@@ -125,32 +150,46 @@ class SongListFragment : BaseFragment() {
         requireActivity().unbindService(vm.connection)
     }
 
-    private fun updateCurrentSongDisplay(isFromScrollListener: Boolean) {
+    private fun updateCurrentSongDisplay() {
         val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
         val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
         if (vm.listPosition in firstVisibleItemPosition..lastVisibleItemPosition) {
-            binding?.currentSongDisplay?.root?.visibility = View.GONE
+            binding.currentSongDisplay.root.visibility = View.GONE
+            isListFollowingCurrentSong = true
         } else {
-            if (isUserScroll) {
-                isListFollowingCurrentSong = false
+
+            if (binding.currentSongDisplay.root.visibility != View.VISIBLE) {
+                binding.currentSongDisplay.root.visibility = View.VISIBLE
             }
 
-            if (binding?.currentSongDisplay?.root?.visibility != View.VISIBLE) {
-                binding?.currentSongDisplay?.root?.visibility = View.VISIBLE
-
-                if (vm.listPosition < firstVisibleItemPosition) {
-                    topSet.applyTo(binding?.root as ConstraintLayout?)
-                } else if (vm.listPosition > lastVisibleItemPosition) {
-                    bottomSet.applyTo(binding?.root as ConstraintLayout?)
-                }
+            if (vm.listPosition < firstVisibleItemPosition) {
+                topSet.applyTo(binding.root as ConstraintLayout?)
+            } else if (vm.listPosition > lastVisibleItemPosition) {
+                bottomSet.applyTo(binding.root as ConstraintLayout?)
             }
         }
+    }
 
-        if (isListFollowingCurrentSong and !isFromScrollListener) {
+    private fun updateScrollPosition() {
+        if (isListFollowingCurrentSong) {
             linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
+            vm.pagedAudioQueue?.loadAround(vm.listPosition)
         }
+    }
 
-        isUserScroll = false
+    private fun updateLoadingVisibility() {
+        val startValue = if (vm.upToDate) 1f else 0f
+        val endValue = if (vm.upToDate) 0f else 1f
+
+        Timber.v("loading current alpha: ${binding.loadingText.alpha} and desired: $endValue")
+        if (binding.loadingText.alpha != endValue) {
+            Timber.v("loading alpha: $endValue")
+            ObjectAnimator.ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
+                duration = 300
+                interpolator = AccelerateDecelerateInterpolator()
+            }.start()
+        }
+            shouldUpdateLoading = false
     }
 
 
@@ -160,16 +199,6 @@ class SongListFragment : BaseFragment() {
         override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
 
     }) {
-
-        init {
-            registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-                    if (lastPosition in fromPosition..(fromPosition + itemCount)) {
-                        setSelectedPosition(lastPosition + (fromPosition - toPosition))
-                    }
-                }
-            })
-        }
 
         private var lastPosition = 0
 

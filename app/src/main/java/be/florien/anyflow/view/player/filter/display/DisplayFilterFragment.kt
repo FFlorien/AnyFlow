@@ -108,7 +108,6 @@ class DisplayFilterFragment : BaseFilterFragment() {
         : RecyclerView.ViewHolder(binding.root) {
 
         private val leftDrawableSize = resources.getDimensionPixelSize(R.dimen.xLargeDimen)
-        private val paddingSize = resources.getDimensionPixelSize(R.dimen.listItemPadding)
 
         fun bind(filter: Filter<*>) {
             val charSequence: CharSequence = when (filter) {
@@ -128,7 +127,6 @@ class DisplayFilterFragment : BaseFilterFragment() {
             binding.vm = vm
             binding.filter = filter
             if (filter.displayImage != null) {
-                binding.filterName.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
                 GlideApp.with(requireActivity())
                         .asBitmap()
                         .load(filter.displayImage)
@@ -162,7 +160,6 @@ class DisplayFilterFragment : BaseFilterFragment() {
         fun bind(text: String, @DrawableRes icon: Int) {
             binding.filter = null
             binding.vm = null
-            binding.filterName.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
             binding.filterName.text = text
             setCompoundDrawableFromResources(icon)
         }

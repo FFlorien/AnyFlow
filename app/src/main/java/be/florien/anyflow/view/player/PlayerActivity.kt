@@ -59,8 +59,8 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var orderMenu: OrderMenuHolder
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
+        super.onCreate(savedInstanceState)
         snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_app)

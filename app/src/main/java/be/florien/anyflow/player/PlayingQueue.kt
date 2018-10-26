@@ -64,6 +64,8 @@ class PlayingQueue
                         orderList.all { Order.toOrder(it).isRandom }
                     }
 
+    val queueChangeUpdater: Flowable<Int> = libraryDatabase.changeUpdater.filter { it == LibraryDatabase.CHANGE_ORDER || it == LibraryDatabase.CHANGE_FILTERS }
+
 
     init {
         keepPlayingQueueCoherent()

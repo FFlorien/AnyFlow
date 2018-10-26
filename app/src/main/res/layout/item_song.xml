@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -21,10 +22,12 @@
             android:layout_height="@dimen/imageSize"
             android:contentDescription="@null"
             android:scaleType="fitXY"
-            app:coverImageUrl="@{song.art}" />
+            app:coverImageUrl="@{song.art}"
+            tools:src="@drawable/cover_placeholder" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingLeft="@dimen/smallDimen">
@@ -32,19 +35,22 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{song.title}" />
+                android:text="@{song.title}"
+                tools:text="This song's title" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{song.artistName}"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="This artist's name" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{song.albumName}"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="This album's name" />
         </LinearLayout>
     </LinearLayout>
 </layout>

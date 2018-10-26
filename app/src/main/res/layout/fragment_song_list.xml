@@ -19,37 +19,33 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/songList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_song" />
 
         <include
             android:id="@+id/currentSongDisplay"
             layout="@layout/item_song"
-            app:song="@{vm.currentSong}"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:song="@{vm.currentSong}" />
 
         <TextView
             android:id="@+id/loadingText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_height="match_parent"
+            android:background="@color/accent"
+            android:elevation="5dp"
             android:gravity="center"
             android:text="@string/general_loading_label"
-            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/progressBar"
-            tools:layout_editor_absoluteY="297dp" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:targetApi="lollipop" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
