@@ -7,14 +7,14 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.model.SongDisplay
-import be.florien.anyflow.player.PlayingQueue
 import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.player.PlayingQueue
 import be.florien.anyflow.view.BaseVM
 import io.reactivex.android.schedulers.AndroidSchedulers
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -27,28 +27,55 @@ class SongListFragmentVm
         private val playingQueue: PlayingQueue
 ) : BaseVM() {
 
+    internal var connection: PlayerConnection = PlayerConnection()
+    private var player: PlayerController = IdlePlayerController()
+    private val pagedListListener = object : PagedList.Callback() {
+        override fun onChanged(position: Int, count: Int) {
+            if (listPosition in position..position + count) {
+                notifyPropertyChanged(BR.listPositionLoaded)
+            }
+        }
+
+        override fun onInserted(position: Int, count: Int) {}
+
+        override fun onRemoved(position: Int, count: Int) {}
+    }
+
     @get:Bindable
     var isLoadingAll: Boolean = false
         set(value) {
             notifyPropertyChanged(BR.loadingAll)
             field = value
         }
+    @Bindable
+    var pagedAudioQueue: PagedList<SongDisplay>? = null
+        set(value) {
+            field?.removeWeakCallback(pagedListListener)
+            field = value
+            field?.addWeakCallback(null, pagedListListener)
+        }
+    @Bindable
+    var currentSong: SongDisplay? = null
 
-    var player: PlayerController = IdlePlayerController()
-    internal var connection: PlayerConnection = PlayerConnection()
+    @Bindable
+    var listPosition = 0
+
+    @get:Bindable
+    val listPositionLoaded
+        get() = (pagedAudioQueue?.size
+                ?: 0) > listPosition && pagedAudioQueue?.get(listPosition) != null
 
     /**
      * Constructor
      */
     init {
-        Timber.tag(this.javaClass.simpleName)
         subscribe(playingQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     listPosition = it
                     notifyPropertyChanged(BR.listPosition)
                 },
                 onError = {
-                    Timber.e(it, "Error while updating position")
+                    this@SongListFragmentVm.eLog(it, "Error while updating position")
                 })
         subscribe(playingQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
@@ -56,7 +83,7 @@ class SongListFragmentVm
                     notifyPropertyChanged(BR.pagedAudioQueue)
                 },
                 onError = {
-                    Timber.e(it, "Error while updating songList")
+                    this@SongListFragmentVm.eLog(it, "Error while updating songList")
                 })
         subscribe(playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = { maybeSong ->
@@ -64,36 +91,18 @@ class SongListFragmentVm
                     notifyPropertyChanged(BR.currentSong)
                 },
                 onError = {
-                    Timber.e(it, "Error while updating currentSong")
+                    this@SongListFragmentVm.eLog(it, "Error while updating currentSong")
                 })
         subscribe(playingQueue.queueChangeUpdater,
                 onNext = {
-                    upToDate = false
+                    pagedAudioQueue = null
+                    notifyPropertyChanged(BR.pagedAudioQueue)
                 })
     }
 
     /**
      * Public methods
      */
-    @Bindable
-    var pagedAudioQueue: PagedList<SongDisplay>? = null
-        set(value) {
-            field = value
-            upToDate = true
-        }
-
-    @Bindable
-    var currentSong: SongDisplay? = null
-
-    @Bindable
-    var listPosition = 0
-
-    @Bindable
-    var upToDate = true
-        set(value) {
-            field = value
-            notifyPropertyChanged(BR.upToDate)
-        }
 
     fun refreshSongs() {
         isLoadingAll = playingQueue.itemsCount == 0

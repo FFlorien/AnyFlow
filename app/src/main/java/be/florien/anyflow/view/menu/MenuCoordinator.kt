@@ -16,7 +16,7 @@ class MenuCoordinator {
     fun removeMenuHolder(menuHolder: MenuHolder) {
         menuHolders.remove(menuHolder.menuId)
         val currentCount = menuResourcesCount[menuHolder.menuResource] ?: 0
-        if (currentCount > 1 ) {
+        if (currentCount > 1) {
             menuResourcesCount[menuHolder.menuResource] = currentCount - 1
         } else {
             menuResourcesCount.remove(menuHolder.menuResource)

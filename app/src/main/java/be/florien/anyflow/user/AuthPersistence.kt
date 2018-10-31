@@ -8,7 +8,7 @@ import android.security.KeyPairGeneratorSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import be.florien.anyflow.extension.applyPutLong
-import timber.log.Timber
+import be.florien.anyflow.extension.eLog
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -155,7 +155,7 @@ class AuthPersistence
                 val decryptedSecret = cipher.doFinal(encryptedSecret, 0, bytesRead)
                 return String(decryptedSecret)
             } catch (exception: Exception) {
-                Timber.e(exception, "Error while trying to retrieve a secured data")
+                this@AuthPersistence.eLog(exception, "Error while trying to retrieve a secured data")
                 val file = File(dataDirectoryPath + filename)
                 if (file.exists()) {
                     file.delete()

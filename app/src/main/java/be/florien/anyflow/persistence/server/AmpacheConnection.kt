@@ -6,13 +6,13 @@ import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.exception.SessionExpiredException
 import be.florien.anyflow.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.applyPutLong
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.server.model.*
 import be.florien.anyflow.user.AuthPersistence
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.math.BigInteger
 import java.net.ConnectException
 import java.security.MessageDigest
@@ -59,10 +59,6 @@ open class AmpacheConnection
             (context.applicationContext as AnyFlowApp).userComponent = value
         }
 
-    init {
-        Timber.tag(this.javaClass.simpleName)
-    }
-
     /**
      * Ampache connection handling
      */
@@ -104,7 +100,7 @@ open class AmpacheConnection
                         0 -> authPersistence.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
                     }
                 }
-                .doOnError { Timber.e(it, "Error while authenticating") }
+                .doOnError { this@AmpacheConnection.eLog(it, "Error while authenticating") }
     }
 
     //todo it's already too late by now, we should ping more often
@@ -112,7 +108,7 @@ open class AmpacheConnection
             ampacheApi
                     .ping(auth = authToken)
                     .doOnNext { result -> authPersistence.setNewAuthExpiration(result.sessionExpire) }
-                    .doOnError { Timber.e(it, "Error while ping") }
+                    .doOnError { this@AmpacheConnection.eLog(it, "Error while ping") }
                     .subscribeOn(Schedulers.io())
 
     fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverurl from authpersistence if NoServerException. Or look before
@@ -165,7 +161,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    Timber.e(it, "Error while getSongs")
+                    this@AmpacheConnection.eLog(it, "Error while getSongs")
                     when (it) {
                         is TimeoutException -> {
                         }
@@ -193,7 +189,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    Timber.e(it, "Error while getArtists")
+                    this@AmpacheConnection.eLog(it, "Error while getArtists")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
@@ -214,7 +210,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    Timber.e(it, "Error while getAlbums")
+                    this@AmpacheConnection.eLog(it, "Error while getAlbums")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
@@ -235,7 +231,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    Timber.e(it, "Error while getTags")
+                    this@AmpacheConnection.eLog(it, "Error while getTags")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }
@@ -256,7 +252,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    Timber.e(it, "Error while getPlaylists")
+                    this@AmpacheConnection.eLog(it, "Error while getPlaylists")
                     if (it is TimeoutException) {
                         //todo inform user and let him try later
                     }

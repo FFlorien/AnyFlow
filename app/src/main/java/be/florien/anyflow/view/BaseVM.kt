@@ -1,12 +1,12 @@
 package be.florien.anyflow.view
 
 import android.databinding.BaseObservable
+import be.florien.anyflow.extension.eLog
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import timber.log.Timber
 
 open class BaseVM : BaseObservable() {
 
@@ -18,15 +18,15 @@ open class BaseVM : BaseObservable() {
         }
     }
 
-    fun <T> subscribe(observable: Observable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
+    fun <T> subscribe(observable: Observable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::logOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
         getContainer(containerKey).add(observable.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext, onError, onComplete))
     }
 
-    fun subscribe(completable: Completable, onError: (Throwable) -> Unit = this::timberLogOnError, onComplete: () -> Unit = this::doNothingOnComplete, containerKey: String = "Default") {
+    fun subscribe(completable: Completable, onError: (Throwable) -> Unit = this::logOnError, onComplete: () -> Unit = this::doNothingOnComplete, containerKey: String = "Default") {
         getContainer(containerKey).add(completable.observeOn(AndroidSchedulers.mainThread()).subscribe(onComplete, onError))
     }
 
-    fun <T> subscribe(flowable: Flowable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::timberLogOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
+    fun <T> subscribe(flowable: Flowable<T>, onNext: ((T) -> Unit), onError: ((Throwable) -> Unit) = this::logOnError, onComplete: (() -> Unit) = this::doNothingOnComplete, containerKey: String = "Default") {
         getContainer(containerKey).add(flowable.observeOn(AndroidSchedulers.mainThread()).doOnNext(onNext).doOnError(onError).doOnComplete(onComplete).subscribe())
     }
 
@@ -48,7 +48,7 @@ open class BaseVM : BaseObservable() {
     private fun doNothingOnComplete() {
     }
 
-    private fun timberLogOnError(throwable: Throwable) {
-        Timber.e(throwable, "Standard error message from a ViewModel")
+    private fun logOnError(throwable: Throwable) {
+        eLog(throwable, "Standard error message from a ViewModel")
     }
 }

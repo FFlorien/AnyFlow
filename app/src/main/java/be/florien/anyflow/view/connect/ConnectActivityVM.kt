@@ -4,12 +4,12 @@ import android.databinding.Bindable
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.exception.WrongIdentificationPairException
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.view.BaseVM
 import be.florien.anyflow.view.DisplayHelper
 import be.florien.anyflow.view.Navigator
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -52,13 +52,6 @@ open class ConnectActivityVM
         }
 
     /**
-     * Constructor
-     */
-    init {
-        Timber.tag(this.javaClass.simpleName)
-    }
-
-    /**
      * Buttons calls
      */
     fun connect() {
@@ -75,7 +68,7 @@ open class ConnectActivityVM
                     },
                     {
                         isLoading = false
-                        Timber.e(it, "Error while extending session")
+                        this@ConnectActivityVM.eLog(it, "Error while extending session")
                     })
         } else {
             subscribe(
@@ -91,7 +84,7 @@ open class ConnectActivityVM
                         isLoading = false
                         when (it) {
                             is WrongIdentificationPairException -> {
-                                Timber.e(it, "Wrong username/password")
+                                this@ConnectActivityVM.eLog(it, "Wrong username/password")
                                 displayHelper.notifyUserAboutError("Impossible de se connecter avec les informations données")
                             }
                         }

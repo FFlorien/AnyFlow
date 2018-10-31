@@ -11,7 +11,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import be.florien.anyflow.R
-import timber.log.Timber
 import kotlin.math.absoluteValue
 
 
@@ -191,7 +190,6 @@ class PlayerControls
      * Constructor
      */
     init {
-        Timber.tag(this.javaClass.simpleName)
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PlayerControls)
             currentDuration = typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)

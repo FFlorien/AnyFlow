@@ -5,8 +5,9 @@ import android.content.Intent
 import be.florien.anyflow.exception.NoServerException
 import be.florien.anyflow.exception.SessionExpiredException
 import be.florien.anyflow.exception.WrongIdentificationPairException
+import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.extension.iLog
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -34,19 +35,19 @@ class UpdateService
                         .doOnError { throwable ->
                             when (throwable) {
                                 is SessionExpiredException -> {
-                                    Timber.i(throwable, "The session token is expired")
+                                    this@UpdateService.iLog(throwable, "The session token is expired")
 //                                    navigator.goToConnection()
                                 }
                                 is WrongIdentificationPairException -> {
-                                    Timber.i(throwable, "Couldn't reconnect the user: wrong user/pwd")
+                                    this@UpdateService.iLog(throwable, "Couldn't reconnect the user: wrong user/pwd")
 //                                    navigator.goToConnection()
                                 }
                                 is SocketTimeoutException, is NoServerException -> {
-                                    Timber.e(throwable, "Couldn't connect to the webservice")
+                                    this@UpdateService.eLog(throwable, "Couldn't connect to the webservice")
 //                                    displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
                                 }
                                 else -> {
-                                    Timber.e(throwable, "Unknown error")
+                                    this@UpdateService.eLog(throwable, "Unknown error")
 //                                    displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
 //                                    navigator.goToConnection()
                                 }

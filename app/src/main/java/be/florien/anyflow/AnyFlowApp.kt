@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.os.Build
 import android.support.multidex.MultiDexApplication
 import be.florien.anyflow.di.DaggerApplicationComponent
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.server.AmpacheApi
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.user.UserComponent
@@ -40,7 +41,7 @@ open class AnyFlowApp : MultiDexApplication() {
         initApplicationComponent()
         ampacheConnection.ensureConnection()
         createNotificationChannel()
-        Thread.setDefaultUncaughtExceptionHandler { _, e -> Timber.e(e, "Unexpected error") }
+        Thread.setDefaultUncaughtExceptionHandler { _, e -> this@AnyFlowApp.eLog(e, "Unexpected error") }
     }
 
     protected open fun initApplicationComponent() {

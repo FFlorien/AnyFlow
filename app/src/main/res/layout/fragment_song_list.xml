@@ -8,8 +8,6 @@
         <variable
             name="vm"
             type="be.florien.anyflow.view.player.songlist.SongListFragmentVm" />
-
-        <import type="android.view.View" />
     </data>
 
     <android.support.constraint.ConstraintLayout
@@ -33,13 +31,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/accent"
-            android:elevation="5dp"
             android:gravity="center"
             android:text="@string/general_loading_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:targetApi="lollipop" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
             android:id="@+id/progressBar"

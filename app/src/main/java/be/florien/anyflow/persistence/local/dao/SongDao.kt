@@ -19,7 +19,7 @@ interface SongDao : BaseDao<Song> {
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     fun forPositionInQueue(position: Int): Maybe<Song>
 
-    @Query("SELECT `order` FROM queueorder JOIN song ON song.id = queueorder.songId WHERE queueorder.songId = :songId")
+    @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
     fun findPositionInQueue(songId: Long): Maybe<Int>
 
     @RawQuery(observedEntities = [Song::class])

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.net.Uri
+import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import com.google.android.exoplayer2.*
@@ -28,7 +29,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -158,7 +158,7 @@ class ExoPlayerController
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
-        Timber.i(error, "Error while playback")
+        iLog(error, "Error while playback")
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
                 stateChangePublisher.onNext(PlayerController.State.RECONNECT)

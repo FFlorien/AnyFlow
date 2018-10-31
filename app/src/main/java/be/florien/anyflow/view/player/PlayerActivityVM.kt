@@ -6,12 +6,12 @@ import android.databinding.Bindable
 import android.os.IBinder
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.player.*
 import be.florien.anyflow.view.BaseVM
 import be.florien.anyflow.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 
@@ -72,7 +72,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                         notifyPropertyChanged(BR.shouldShowBuffering)
                     },
                     onError = {
-                        Timber.e(it, "error while retrieving the state")
+                        this@PlayerActivityVM.eLog(it, "error while retrieving the state")
                     },
                     containerKey = PLAYER_CONTROLLER_CONTAINER)
             subscribe(
@@ -83,7 +83,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                         notifyPropertyChanged(BR.currentDuration)
                     },
                     onError = {
-                        Timber.e(it, "error while retrieving the playtime")
+                        this@PlayerActivityVM.eLog(it, "error while retrieving the playtime")
                     },
                     containerKey = PLAYER_CONTROLLER_CONTAINER)
         }
@@ -92,7 +92,6 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
      * Constructor
      */
     init {
-        Timber.tag(this.javaClass.simpleName)
         subscribe(
                 flowable = playingQueue.orderingUpdater,
                 onNext = {

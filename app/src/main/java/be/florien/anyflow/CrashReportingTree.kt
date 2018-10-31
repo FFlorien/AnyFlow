@@ -11,7 +11,6 @@ class CrashReportingTree : Timber.Tree() {
      */
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
-        Log.println(priority, tag, message)
         if (message.isNotBlank()) {
             Crashlytics.log(priority, tag, message)
         }
