@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="vm"
+            type="be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/unselected">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/filterList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{vm.currentFilters.empty ? View.GONE : View.VISIBLE}" />
+
+        <TextView
+            android:id="@+id/empty_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="NO FILTER SET"
+            android:textSize="@dimen/textLarge"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/filterList"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.3" />
+
+        <TextView
+            android:id="@+id/empty_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/mediumDimen"
+            android:gravity="center_horizontal"
+            android:text="You can add more with the button below"
+            app:layout_constraintTop_toBottomOf="@+id/empty_title" />
+
+        <android.support.constraint.Group
+            android:id="@+id/empty_views"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{vm.currentFilters.empty ? View.VISIBLE : View.GONE}"
+            app:constraint_referenced_ids="empty_title,empty_description" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_add" />
+    </android.support.constraint.ConstraintLayout>
+</layout>

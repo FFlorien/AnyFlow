@@ -8,6 +8,9 @@
 
     <dimen name="imageSize">90dp</dimen>
 
+    <dimen name="textSmall">12sp</dimen>
+    <dimen name="textLarge">18sp</dimen>
+
     <dimen name="listItemPadding">@dimen/smallDimen</dimen>
     <dimen name="activity_horizontal_margin">@dimen/mediumDimen</dimen>
     <dimen name="minClickableSize">@dimen/xxLargeDimen</dimen>

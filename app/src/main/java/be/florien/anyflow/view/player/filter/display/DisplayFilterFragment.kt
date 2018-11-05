@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
-import be.florien.anyflow.databinding.FragmentFilterBinding
+import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.player.Filter
@@ -40,7 +40,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
         get() = vm
     lateinit var vm: DisplayFilterFragmentVM
 
-    private lateinit var binding: FragmentFilterBinding
+    private lateinit var binding: FragmentDisplayFilterBinding
     private val filterListAdapter = FilterListAdapter()
 
     override fun onAttach(context: Context?) {
@@ -55,7 +55,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentFilterBinding.inflate(inflater, container, false)
+        binding = FragmentDisplayFilterBinding.inflate(inflater, container, false)
         binding.vm = vm
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
         binding.filterList.adapter = filterListAdapter
