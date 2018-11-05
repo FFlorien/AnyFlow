@@ -13,6 +13,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -78,6 +79,25 @@ class PlayingQueue
                     currentSong = it
                 }
                 .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+
+        libraryDatabase.
+                getPlaylist()
+                .doOnNext {
+                    val listToSave = if (libraryDatabase.randomOrderingSeed >= 0) {
+                        val randomList = it.shuffled(Random(libraryDatabase.randomOrderingSeed.toLong())).toMutableList()
+                        currentSong?.id?.let {currentSongId ->
+                            if (randomList.remove(currentSongId)) {
+                                randomList.add(0, currentSongId)
+                            }
+                        }
+                        randomList
+                    } else {
+                        it.toMutableList()
+                    }
+                    libraryDatabase.saveOrder(listToSave)
+                }
+                .subscribeOn(Schedulers.io())
                 .subscribe()
     }
 

@@ -30,26 +30,12 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getSongDao(): SongDao
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getOrderDao(): OrderDao
-    private var randomOrderingSeed = 2
+    var randomOrderingSeed = 2
     private val _changeUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
     val changeUpdater = _changeUpdater.toFlowable(BackpressureStrategy.BUFFER)
             .share()
             .publish()
             .autoConnect()
-
-    init {
-        getPlaylist()
-                .doOnNext {
-                    val listToSave = if (randomOrderingSeed >= 0) {
-                        it.shuffled(Random(randomOrderingSeed.toLong()))
-                    } else {
-                        it
-                    }
-                    saveOrder(listToSave)
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-    }
 
     /**
      * Getters
@@ -117,7 +103,7 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Private methods
      */
 
-    private fun getPlaylist(): Flowable<List<Long>> =
+    fun getPlaylist(): Flowable<List<Long>> =
             Flowable.merge(getPlaylistFromFilter(), getPlaylistFromOrder())
 
     private fun getPlaylistFromFilter(): Flowable<List<Long>> =
@@ -228,7 +214,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         return "SELECT id FROM song" + constructWhereStatement() + constructOrderStatement()
     }
 
-    private fun saveOrder(it: List<Long>) {
+    fun saveOrder(it: List<Long>) {
         val queueOrder = mutableListOf<QueueOrder>()
         it.forEachIndexed { index, songId ->
             queueOrder.add(QueueOrder(index, songId))
