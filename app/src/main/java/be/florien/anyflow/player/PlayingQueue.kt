@@ -9,7 +9,7 @@ import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -68,36 +68,29 @@ class PlayingQueue
 
 
     init {
-        keepPlayingQueueCoherent()
-    }
-
-    private fun keepPlayingQueueCoherent() {
-        songListUpdater
-                .doOnNext {
-                    itemsCount = it.size
-                }
-                .flatMapMaybe {
-                    val nullSafeSong = currentSong
-                    if (nullSafeSong != null) {
-                        libraryDatabase.getPositionForSong(nullSafeSong)
-                    } else {
-                        listPosition = 0
-                        if (itemsCount == 0) {
-                            Maybe.empty()
-                        } else {
-                            Maybe.just(listPosition)
-                        }
-                    }
-                }
-                .doOnNext {
-                    listPosition = it
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
+        songListUpdater.doOnNext {
+            itemsCount = it.size
+            keepPositionCoherent()
+        }.subscribe()
 
         currentSongUpdater
                 .doOnNext {
                     currentSong = it
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+    }
+
+    private fun keepPositionCoherent() {
+        val nullSafeSong = currentSong
+        val single = if (nullSafeSong != null) {
+            libraryDatabase.getPositionForSong(nullSafeSong)
+        } else {
+            Single.just(0)
+        }
+        single.onErrorReturnItem(0)
+                .doOnSuccess {
+                    listPosition = it
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()

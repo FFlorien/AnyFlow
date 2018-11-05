@@ -9,6 +9,7 @@ import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface SongDao : BaseDao<Song> {
@@ -20,7 +21,7 @@ interface SongDao : BaseDao<Song> {
     fun forPositionInQueue(position: Int): Maybe<Song>
 
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
-    fun findPositionInQueue(songId: Long): Maybe<Int>
+    fun findPositionInQueue(songId: Long): Single<Int>
 
     @RawQuery(observedEntities = [Song::class])
     fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>
