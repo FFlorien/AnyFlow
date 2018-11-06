@@ -17,7 +17,6 @@ import io.reactivex.*
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import java.util.*
 
 
 @Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 1)
@@ -53,11 +52,29 @@ abstract class LibraryDatabase : RoomDatabase() {
         return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getSongsInQueueOrder") }.subscribeOn(Schedulers.io())
     }
 
-    fun getGenres(): Flowable<List<String>> = getSongDao().genreOrderByGenre().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getGenres") }.subscribeOn(Schedulers.io())
+    fun <T> getGenres(mapping: (String) -> T): Flowable<PagedList<T>> {
+        val dataSourceFactory = getSongDao().genreOrderByGenre().map(mapping)
+        val pagedListConfig = PagedList.Config.Builder()
+                .setPageSize(100)
+                .build()
+        return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getGenres") }.subscribeOn(Schedulers.io())
+    }
 
-    fun getArtists(): Flowable<List<ArtistDisplay>> = getArtistDao().orderByName().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getArtists") }.subscribeOn(Schedulers.io())
+    fun <T> getArtists(mapping: (ArtistDisplay) -> T): Flowable<PagedList<T>> {
+        val dataSourceFactory = getArtistDao().orderByName().map(mapping)
+        val pagedListConfig = PagedList.Config.Builder()
+                .setPageSize(100)
+                .build()
+        return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getArtists") }.subscribeOn(Schedulers.io())
+    }
 
-    fun getAlbums(): Flowable<List<AlbumDisplay>> = getAlbumDao().orderByName().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getAlbums") }.subscribeOn(Schedulers.io())
+    fun <T> getAlbums(mapping: (AlbumDisplay) -> T): Flowable<PagedList<T>> {
+        val dataSourceFactory = getAlbumDao().orderByName().map(mapping)
+        val pagedListConfig = PagedList.Config.Builder()
+                .setPageSize(100)
+                .build()
+        return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getAlbums") }.subscribeOn(Schedulers.io())
+    }
 
     fun getFilters(): Flowable<List<Filter<*>>> = getFilterDao().all().map { filterList ->
         val typedList = mutableListOf<Filter<*>>()

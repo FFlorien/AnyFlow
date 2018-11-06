@@ -3,7 +3,6 @@ package be.florien.anyflow.persistence.local.model
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.Relation
 import be.florien.anyflow.persistence.server.model.AmpacheAlbum
 
 @Entity(indices = [Index("artistId"), Index("name")])

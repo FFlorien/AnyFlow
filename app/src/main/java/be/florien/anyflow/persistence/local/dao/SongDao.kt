@@ -27,5 +27,5 @@ interface SongDao : BaseDao<Song> {
     fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>
 
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
-    fun genreOrderByGenre(): Flowable<List<String>>
+    fun genreOrderByGenre(): DataSource.Factory<Int, String>
 }

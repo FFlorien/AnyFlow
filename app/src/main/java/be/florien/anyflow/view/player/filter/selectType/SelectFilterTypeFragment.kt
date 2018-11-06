@@ -11,8 +11,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import be.florien.anyflow.R
-import be.florien.anyflow.databinding.FragmentAddFilterBinding
-import be.florien.anyflow.databinding.ItemAddFilterTypeBinding
+import be.florien.anyflow.databinding.FragmentSelectFilterBinding
+import be.florien.anyflow.databinding.ItemSelectFilterTypeBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.view.player.PlayerActivity
@@ -30,7 +30,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
     override val baseVm: BaseFilterVM
         get() = vm
     lateinit var vm: AddFilterTypeFragmentVM
-    private lateinit var fragmentBinding: FragmentAddFilterBinding
+    private lateinit var fragmentBinding: FragmentSelectFilterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +43,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentBinding = FragmentAddFilterBinding.inflate(inflater, container, false)
+        fragmentBinding = FragmentSelectFilterBinding.inflate(inflater, container, false)
         fragmentBinding.filterList.layoutManager = GridLayoutManager(activity, 2, GridLayoutManager.VERTICAL, false)
         fragmentBinding.filterList.adapter = FilterListAdapter()
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
@@ -65,7 +65,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
     }
 
     inner class FilterTypeViewHolder(
-            private val itemFilterTypeBinding: ItemAddFilterTypeBinding = ItemAddFilterTypeBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
+            private val itemFilterTypeBinding: ItemSelectFilterTypeBinding = ItemSelectFilterTypeBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
     ) : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
 
         fun bind(type: String, @DrawableRes drawableRes: Int) {

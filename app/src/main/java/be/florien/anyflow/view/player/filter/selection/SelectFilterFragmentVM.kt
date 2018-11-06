@@ -1,17 +1,16 @@
 package be.florien.anyflow.view.player.filter.selection
 
+import android.arch.paging.PagedList
 import android.databinding.Bindable
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.view.player.filter.BaseFilterVM
 
 @ActivityScope
-abstract class SelectFilterFragmentVM<T> : BaseFilterVM() {
-    protected val values: MutableList<T> = mutableListOf()
-    abstract val itemDisplayType: Int
-
+abstract class SelectFilterFragmentVM : BaseFilterVM() {
     @Bindable
-    abstract fun getDisplayedValues(): List<FilterItem>
+    var values: PagedList<FilterItem>? = null
+    abstract val itemDisplayType: Int
 
     protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
 
