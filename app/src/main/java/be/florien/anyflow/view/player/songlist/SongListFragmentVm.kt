@@ -75,7 +75,7 @@ class SongListFragmentVm
                     notifyPropertyChanged(BR.listPosition)
                 },
                 onError = {
-                    this@SongListFragmentVm.eLog(it, "Error while updating position")
+                    this@SongListFragmentVm.eLog(it, "Error while updating argument")
                 })
         subscribe(playingQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {

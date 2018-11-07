@@ -12,7 +12,6 @@ import be.florien.anyflow.persistence.local.dao.*
 import be.florien.anyflow.persistence.local.model.*
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.player.Order
-import be.florien.anyflow.player.Subject
 import io.reactivex.*
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -30,6 +29,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getOrderDao(): OrderDao
     var randomOrderingSeed = 2
+    var precisePosition = listOf<Order>()
     private val _changeUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
     val changeUpdater = _changeUpdater.toFlowable(BackpressureStrategy.BUFFER)
             .share()
@@ -108,7 +108,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }.doOnError { this@LibraryDatabase.eLog(it, "Error while setOrders") }
 
-    fun setOrdersSubject(orders: List<Subject>): Completable = asyncCompletable(CHANGE_ORDER) {
+    fun setOrdersSubject(orders: List<Long>): Completable = asyncCompletable(CHANGE_ORDER) {
         val dbOrders = orders.mapIndexed { index, order ->
             Order(index, order, Order.ASCENDING).toDbOrder()
         }
@@ -152,7 +152,8 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     private fun retrieveRandomness(dbOrders: List<DbOrder>) {
         val orderList = dbOrders.map { Order.toOrder(it) }
-        randomOrderingSeed = orderList.firstOrNull { it.isRandom }?.ordering ?: -1
+        randomOrderingSeed = orderList.firstOrNull { it.orderingType == Order.Ordering.RANDOM }?.argument ?: -1
+        precisePosition = orderList.filter { it.orderingType == Order.Ordering.PRECISE_POSITION }
     }
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {
@@ -193,8 +194,9 @@ abstract class LibraryDatabase : RoomDatabase() {
             dbOrders.forEach {
                 orderList.add(Order.toOrder(it))
             }
+            val filteredOrderedList = orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
 
-            val isSorted = orderList.isNotEmpty() && orderList.all { !it.isRandom }
+            val isSorted = filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Order.Ordering.RANDOM }
 
             var orderStatement = if (isSorted) {
                 " ORDER BY"
@@ -203,23 +205,23 @@ abstract class LibraryDatabase : RoomDatabase() {
             }
 
             if (isSorted) {
-                orderList.forEachIndexed { index, order ->
-                    orderStatement += when (order.subject) {
-                        Subject.ALL -> " song.id"
-                        Subject.ARTIST -> " song.artistName"
-                        Subject.ALBUM_ARTIST -> " song.albumArtistName"
-                        Subject.ALBUM -> " song.albumName"
-                        Subject.YEAR -> " song.year"
-                        Subject.GENRE -> " song.genre"
-                        Subject.TRACK -> " song.track"
-                        Subject.TITLE -> " song.title"
+                filteredOrderedList.forEachIndexed { index, order ->
+                    orderStatement += when (order.orderingSubject) {
+                        Order.Subject.ALL -> " song.id"
+                        Order.Subject.ARTIST -> " song.artistName"
+                        Order.Subject.ALBUM_ARTIST -> " song.albumArtistName"
+                        Order.Subject.ALBUM -> " song.albumName"
+                        Order.Subject.YEAR -> " song.year"
+                        Order.Subject.GENRE -> " song.genre"
+                        Order.Subject.TRACK -> " song.track"
+                        Order.Subject.TITLE -> " song.title"
                     }
-                    orderStatement += when (order.ordering) {
-                        Order.ASCENDING -> " ASC"
-                        Order.DESCENDING -> " DESC"
+                    orderStatement += when (order.orderingType) {
+                        Order.Ordering.ASCENDING -> " ASC"
+                        Order.Ordering.DESCENDING -> " DESC"
                         else -> ""
                     }
-                    if (index < orderList.size - 1) {
+                    if (index < filteredOrderedList.size - 1 && orderStatement.last() != ',') {
                         orderStatement += ","
                     }
                 }

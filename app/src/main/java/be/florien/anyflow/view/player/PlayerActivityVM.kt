@@ -9,6 +9,12 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.player.*
+import be.florien.anyflow.player.Order.Companion.SUBJECT_ALBUM
+import be.florien.anyflow.player.Order.Companion.SUBJECT_ALBUM_ARTIST
+import be.florien.anyflow.player.Order.Companion.SUBJECT_ALL
+import be.florien.anyflow.player.Order.Companion.SUBJECT_TITLE
+import be.florien.anyflow.player.Order.Companion.SUBJECT_TRACK
+import be.florien.anyflow.player.Order.Companion.SUBJECT_YEAR
 import be.florien.anyflow.view.BaseVM
 import be.florien.anyflow.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -93,9 +99,9 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
      */
     init {
         subscribe(
-                flowable = playingQueue.orderingUpdater,
-                onNext = {
-                    isOrdered = !it
+                flowable = playingQueue.isRandomUpdater,
+                onNext = { isRandom ->
+                    isOrdered = !isRandom
                     notifyPropertyChanged(BR.isOrdered)
                 },
                 containerKey = PLAYING_QUEUE_CONTAINER)
@@ -156,11 +162,15 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     }
 
     fun randomOrder() {
-        subscribe(libraryDatabase.setOrders(listOf(Order(0, Subject.ALL).toDbOrder())))
+        val orders = mutableListOf(Order(0, SUBJECT_ALL).toDbOrder())
+        playingQueue.currentSong?.let { song ->
+            orders.add(Order(0, song).toDbOrder())
+        }
+        subscribe(libraryDatabase.setOrders(orders))
     }
 
     fun classicOrder() {
-        subscribe(libraryDatabase.setOrdersSubject(listOf(Subject.ALBUM_ARTIST, Subject.YEAR, Subject.ALBUM, Subject.TRACK, Subject.TITLE)))
+        subscribe(libraryDatabase.setOrdersSubject(listOf(SUBJECT_ALBUM_ARTIST, SUBJECT_YEAR, SUBJECT_ALBUM, SUBJECT_TRACK, SUBJECT_TITLE)))
     }
 
     /**

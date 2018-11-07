@@ -7,5 +7,6 @@ import android.arch.persistence.room.PrimaryKey
 data class DbOrder(
         @PrimaryKey
         val priority: Int,
-        val subject: String,
-        val ordering: Int)
+        val subject: Long,
+        val orderingType: Int,
+        val orderingArgument: Int)

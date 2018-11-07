@@ -58,11 +58,11 @@ class PlayingQueue
                 .autoConnect()
 
     val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
-    val orderingUpdater: Flowable<Boolean> =
+    val isRandomUpdater: Flowable<Boolean> =
             libraryDatabase
                     .getOrder()
                     .map { orderList ->
-                        orderList.all { Order.toOrder(it).isRandom }
+                        orderList.any { Order.toOrder(it).orderingType == Order.Ordering.RANDOM }
                     }
 
     val queueChangeUpdater: Flowable<Int> = libraryDatabase.changeUpdater.filter { it == LibraryDatabase.CHANGE_ORDER || it == LibraryDatabase.CHANGE_FILTERS }
@@ -86,9 +86,9 @@ class PlayingQueue
                 .doOnNext {
                     val listToSave = if (libraryDatabase.randomOrderingSeed >= 0) {
                         val randomList = it.shuffled(Random(libraryDatabase.randomOrderingSeed.toLong())).toMutableList()
-                        currentSong?.id?.let {currentSongId ->
-                            if (randomList.remove(currentSongId)) {
-                                randomList.add(0, currentSongId)
+                        libraryDatabase.precisePosition.forEach { preciseOrder ->
+                            if (randomList.remove(preciseOrder.subject)) {
+                                randomList.add(preciseOrder.argument, preciseOrder.subject)
                             }
                         }
                         randomList

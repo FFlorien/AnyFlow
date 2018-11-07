@@ -25,6 +25,12 @@ import be.florien.anyflow.view.menu.FilterMenuHolder
 import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.menu.OrderMenuHolder
 import be.florien.anyflow.view.player.filter.display.DisplayFilterFragment
+import be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM
+import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragmentVM
+import be.florien.anyflow.view.player.filter.selectType.SelectFilterTypeFragment
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentAlbumVM
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentArtistVM
+import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentGenreVM
 import be.florien.anyflow.view.player.songlist.SongListFragment
 import javax.inject.Inject
 
@@ -34,6 +40,18 @@ import javax.inject.Inject
 @ActivityScope
 @UserScope
 class PlayerActivity : AppCompatActivity() {
+
+    private val fakeComponent = object : PlayerComponent {
+        override fun inject(playerActivity: PlayerActivity) {}
+        override fun inject(songListFragment: SongListFragment) {}
+        override fun inject(displayFilterFragment: DisplayFilterFragment) {}
+        override fun inject(addFilterFragmentGenreVM: SelectFilterFragmentGenreVM) {}
+        override fun inject(addFilterFragmentArtistVM: SelectFilterFragmentArtistVM) {}
+        override fun inject(addFilterFragmentAlbumVM: SelectFilterFragmentAlbumVM) {}
+        override fun inject(selectFilterTypeFragment: SelectFilterTypeFragment) {}
+        override fun inject(filterFragmentVM: DisplayFilterFragmentVM) {}
+        override fun inject(addFilterTypeFragmentVM: AddFilterTypeFragmentVM) {}
+    }
 
     val activityComponent: PlayerComponent by lazy {
         val component = anyFlowApp.userComponent
@@ -46,7 +64,7 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             startActivity(ConnectActivity::class)
             finish()
-            throw IllegalStateException("No PlayerComponent available")
+            fakeComponent
         }
     }
     @Inject
@@ -72,6 +90,9 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         activityComponent.inject(this)
+        if (activityComponent == fakeComponent) {
+            return
+        }
         binding.vm = vm
         bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
