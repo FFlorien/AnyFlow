@@ -24,7 +24,7 @@
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
                 android:valueFrom="m0,0L400,0L376,30L50,30L50,30L358,20L358,20L384,20L240,200L220,400L180,400L160,200Z"
-                android:valueTo="m0,0L400,0L376,30L50,30L110,100L290,100L358,20L384,20L240,200L220,400L180,400L160,200Z"
+                android:valueTo="m0,0L400,0L368,40L80,40L130,100L270,100L338,20L384,20L240,200L220,400L180,400L160,200Z"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>
