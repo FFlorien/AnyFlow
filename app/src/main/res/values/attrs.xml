@@ -6,5 +6,6 @@
         <attr name="smallestButtonWidth" format="dimension"/>
         <attr name="currentDuration" format="integer"/>
         <attr name="totalDuration" format="integer"/>
+        <attr name="playing" format="boolean"/>
     </declare-styleable>
 </resources>

@@ -48,6 +48,9 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
 
     @Bindable
+    var playing: Boolean = false
+
+    @Bindable
     var isOrdered: Boolean = true
 
     @Bindable
@@ -74,8 +77,10 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                     onNext = {
                         playerState = it
                         shouldShowBuffering = it == PlayerController.State.BUFFER
+                        playing = it == PlayerController.State.PLAY
                         notifyPropertyChanged(BR.playerState)
                         notifyPropertyChanged(BR.shouldShowBuffering)
+                        notifyPropertyChanged(BR.playing)
                     },
                     onError = {
                         this@PlayerActivityVM.eLog(it, "error while retrieving the state")
