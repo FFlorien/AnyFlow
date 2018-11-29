@@ -37,6 +37,7 @@ open class AmpacheConnection
         private const val OFFSET_ALBUM = "albumOffset"
         private const val OFFSET_TAG = "tagOffset"
         private const val OFFSET_PLAYLIST = "playlistOffset"
+        private const val RECONNECT_LIMIT = 3
     }
 
     private val subscriptions: CompositeDisposable = CompositeDisposable() //todo
@@ -52,6 +53,8 @@ open class AmpacheConnection
     private var albumOffset: Int = sharedPreferences.getLong(OFFSET_ALBUM, 0).toInt()
     private var tagOffset: Int = sharedPreferences.getLong(OFFSET_TAG, 0).toInt()
     private var playlistOffset: Int = sharedPreferences.getLong(OFFSET_PLAYLIST, 0).toInt()
+    private var reconnectByPing = 0
+    private var reconnectByUserPassword = 0
 
     private var userComponent
         get() = (context.applicationContext as AnyFlowApp).userComponent
@@ -80,6 +83,11 @@ open class AmpacheConnection
                 openConnection(savedServerUrl)
             }
         }
+    }
+
+    fun resetReconnectionCount() {
+        reconnectByUserPassword = 0
+        reconnectByUserPassword = 0
     }
 
     /**
@@ -115,7 +123,15 @@ open class AmpacheConnection
         if (!authPersistence.hasConnectionInfo()) {
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
+            if (reconnectByPing >= RECONNECT_LIMIT) {
+                reconnectByPing = 0
+                authPersistence.revokeAuthToken()
+            }
+            if (reconnectByUserPassword >= RECONNECT_LIMIT) {
+                //todo stop trying and inform the user
+            }
             return if (authPersistence.authToken.first.isNotBlank()) {
+                reconnectByPing++
                 ping(authPersistence.authToken.first).flatMap { pingResponse ->
                     if (pingResponse.error.code == 0) {
                         request
@@ -130,6 +146,7 @@ open class AmpacheConnection
                     }
                 }
             } else if (authPersistence.user.first.isNotBlank() && authPersistence.password.first.isNotBlank()) {
+                reconnectByUserPassword++
                 authenticate(authPersistence.user.first, authPersistence.password.first).flatMap {
                     if (it.error.code == 0) {
                         request

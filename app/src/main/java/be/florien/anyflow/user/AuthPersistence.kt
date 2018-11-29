@@ -97,6 +97,10 @@ class AuthPersistence
         }
     }
 
+    fun revokeAuthToken() {
+        this.authToken = "" to Calendar.getInstance().apply { add(Calendar.YEAR, -1) }.timeInMillis
+    }
+
     /**
      * Private methods
      */

@@ -193,7 +193,10 @@ class ExoPlayerController
                 playingQueue.listPosition += 1
                 lastPosition = 0
             }
-            Player.STATE_BUFFERING -> stateChangePublisher.onNext(PlayerController.State.BUFFER)
+            Player.STATE_BUFFERING -> {
+                ampacheConnection.resetReconnectionCount()
+                stateChangePublisher.onNext(PlayerController.State.BUFFER)
+            }
             Player.STATE_IDLE -> stateChangePublisher.onNext(PlayerController.State.NO_MEDIA)
             Player.STATE_READY -> stateChangePublisher.onNext(if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE)
         }
