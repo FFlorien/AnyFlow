@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:fastScrollPopupBgColor="@color/accent"
-            app:fastScrollPopupTextColor="@android:color/primary_text_light"
+            app:fastScrollPopupTextColor="@color/onSecondaryText"
             app:fastScrollThumbColor="@color/accent" />
     </android.support.constraint.ConstraintLayout>
 </layout>

@@ -96,7 +96,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.vm = vm
         bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
-        filterMenu = FilterMenuHolder(vm.isUnfiltered, this) {
+        filterMenu = FilterMenuHolder {
             displayFilters()
         }
         orderMenu = OrderMenuHolder(vm.isOrdered, this) {
@@ -122,9 +122,6 @@ class PlayerActivity : AppCompatActivity() {
                 when (propertyId) {
                     BR.isOrdered -> {
                         orderMenu.changeState(vm.isOrdered)
-                    }
-                    BR.isUnfiltered -> {
-                        filterMenu.changeState(vm.isUnfiltered)
                     }
                     BR.playerState -> {
                         when (vm.playerState) {

@@ -10,5 +10,5 @@
         android:pathData="M 50 50 L 350 350 M 350 50 L 50 350"
         android:strokeColor="@color/primaryDark"
         android:strokeLineCap="round"
-        android:strokeWidth="60"/>
+        android:strokeWidth="50"/>
 </vector>

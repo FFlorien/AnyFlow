@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="NewApi">
     <aapt:attr name="android:drawable">
-        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        <vector
             android:width="32dp"
             android:height="32dp"
             android:viewportWidth="400"
@@ -11,10 +11,13 @@
             <path
                 android:name="path"
                 android:fillAlpha="1"
-                android:fillColor="#FFF"
-                android:pathData="m0,0L400,0L368,40L80,40L130,100L270,100L338,20L384,20L240,200L220,400L180,400L160,200Z"
-                android:strokeWidth="0"
-                android:strokeAlpha="1" />
+                android:fillColor="@color/iconInApp"
+                android:strokeColor="@color/iconInApp"
+                android:pathData="M25,25L25,375ZM25,200L200,25L200,375ZM200,200L375,25L375,375Z"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"/>
         </vector>
     </aapt:attr>
     <target android:name="path">
@@ -23,8 +26,8 @@
                 android:duration="300"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="m0,0L400,0L368,40L80,40L130,100L270,100L338,20L384,20L240,200L220,400L180,400L160,200Z"
-                android:valueTo="m0,0L400,0L376,30L50,30L50,30L358,20L358,20L384,20L240,200L220,400L180,400L160,200Z"
+                android:valueFrom="M25,25L25,375ZM25,200L200,25L200,375ZM200,200L375,25L375,375Z"
+                android:valueTo="M25,25L25,375ZM25,200L200,25L200,375ZM200,200L375,25L375,375Z"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>

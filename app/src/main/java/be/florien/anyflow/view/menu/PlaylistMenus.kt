@@ -4,16 +4,12 @@ import android.content.Context
 import be.florien.anyflow.R
 
 
-class FilterMenuHolder(isUnfiltered: Boolean, context: Context, action: () -> Unit): AnimatedMenuHolder(
+class FilterMenuHolder(action: () -> Unit) : MenuHolder(
         R.menu.menu_player,
         R.id.menu_filters,
-        R.drawable.ic_filter_all,
-        R.drawable.ic_filter_part,
-        isUnfiltered,
-        context,
         action)
 
-class OrderMenuHolder(isOrdered: Boolean, context: Context, action: () -> Unit): AnimatedMenuHolder(
+class OrderMenuHolder(isOrdered: Boolean, context: Context, action: () -> Unit) : AnimatedMenuHolder(
         R.menu.menu_player,
         R.id.menu_order,
         R.drawable.ic_order_ordered,

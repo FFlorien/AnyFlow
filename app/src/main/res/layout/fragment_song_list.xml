@@ -33,6 +33,7 @@
             android:background="@color/accent"
             android:gravity="center"
             android:text="@string/general_loading_label"
+            android:textColor="@color/onSecondaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

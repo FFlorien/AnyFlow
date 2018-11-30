@@ -11,20 +11,23 @@
             <path
                 android:name="path"
                 android:fillAlpha="1"
-                android:fillColor="#000"
-                android:pathData="M65,0L160,0L160,400L65,400ZM240,0L335,0L335,400L240,400z"
-                android:strokeWidth="0"
-                android:strokeAlpha="1" />
+                android:fillColor="@color/iconInApp"
+                android:strokeColor="@color/iconInApp"
+                android:pathData="M65,25L150,25L150,375L65,375ZM250,25L335,25L335,375L250,375Z"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"/>
         </vector>
     </aapt:attr>
     <target android:name="path">
         <aapt:attr name="android:animation">
             <objectAnimator
-                android:duration="300"
+                android:duration="150"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M65,0L160,0L160,400L65,400ZM240,0L335,0L335,400L240,400Z"
-                android:valueTo="M0,0L200,100L200,300L0,400ZM200,100L400,200L400,200L200,300Z"
+                android:valueFrom="M65,25L150,25L150,375L65,375ZM250,25L335,25L335,375L250,375Z"
+                android:valueTo="M25,25L200,115L200,285L25,370ZM200,115L370,200L370,200L200,285Z"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>

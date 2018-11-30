@@ -8,7 +8,7 @@
     <path
         android:name="cross"
         android:pathData="M 50 50 L 350 350 M 350 50 L 50 350"
-        android:strokeColor="@color/onPrimaryText"
+        android:strokeColor="@color/iconInApp"
         android:strokeLineCap="round"
-        android:strokeWidth="60"/>
+        android:strokeWidth="50"/>
 </vector>

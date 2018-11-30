@@ -7,9 +7,9 @@
     android:viewportHeight="400">
     <path
         android:name="path"
-        android:pathData="M 30 225 L 125 335 M 125 335 L 370 65"
-        android:strokeColor="#FFF"
-        android:strokeWidth="60"
+        android:pathData="M 25 225 L 125 335 M 125 335 L 375 65"
+        android:strokeColor="@color/iconInApp"
+        android:strokeWidth="50"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"/>
 </vector>

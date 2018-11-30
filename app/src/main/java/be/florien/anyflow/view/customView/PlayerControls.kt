@@ -4,9 +4,9 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.Rect
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -68,7 +68,7 @@ class PlayerControls
     var playing = false
         set(value) {
             if (field != value && !playPauseIcon.isRunning) {
-                playPauseIcon = if (value) getPauseIcon(context) else getPlayIcon(context)
+                playPauseIcon = if (value) getAnimatedIcon(R.drawable.ic_pause, playPausePosition) else getAnimatedIcon(R.drawable.ic_play, playPausePosition)
             }
             field = value
         }
@@ -80,78 +80,39 @@ class PlayerControls
 
     // Paints
     private val textPaint = Paint().apply {
-        setARGB(255, 65, 65, 65)
+        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        setColor(color)
         textAlign = Paint.Align.CENTER
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
         strokeWidth = 2f
     }
 
     private val textScrollingPaint = Paint().apply {
-        setARGB(255, 5, 5, 65)
+        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        setColor(color)
         textAlign = Paint.Align.CENTER
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
         strokeWidth = 2f
     }
     private val timelinePaint = Paint().apply {
-        setARGB(255, 65, 65, 65)
+        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        setColor(color)
         strokeWidth = 2f
     }
     private val fixedTimelinePaint = Paint().apply {
-        setARGB(255, 65, 65, 65)
+        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        setColor(color)
         strokeWidth = 2f
     }
-    private val buttonPaint = Paint().apply {
-        setARGB(255, 45, 25, 0)
-        strokeWidth = 2f
-    }
+    private val backgroundColor = ContextCompat.getColor(context, R.color.primary)
 
     // Paths
     private var playPauseIcon: AnimatedVectorDrawableCompat
+    private var previousIcon: AnimatedVectorDrawableCompat
+    private var nextIcon: AnimatedVectorDrawableCompat
     private val playPausePosition = Rect()
-    private val nextIconPath: Path by lazy {
-        Path().apply {
-            val margin = smallestButtonWidth / 4
-            val iconHeight = smallestButtonWidth / 2
-            val arrowsWidth = iconHeight - (iconHeight / 10)
-            val startX = (width - smallestButtonWidth + margin).toFloat()
-            val startY = margin.toFloat()
-            val midIconHeight = iconHeight / 2
-            val midArrowsWidth = arrowsWidth / 2
-            val verticalCenter = startY + midIconHeight
-            val horizontalCenter = startX + midArrowsWidth
-            moveTo(startX, startY)
-            lineTo(horizontalCenter, verticalCenter)
-            lineTo(horizontalCenter, startY)
-            lineTo(startX + arrowsWidth, verticalCenter)
-            lineTo(horizontalCenter, startY + iconHeight)
-            lineTo(horizontalCenter, verticalCenter)
-            lineTo(startX, startY + iconHeight)
-            lineTo(startX, startY)
-            addRect(startX + arrowsWidth, startY, startX + (smallestButtonWidth / 2).toFloat(), startY + iconHeight, Path.Direction.CW)
-        }
-    }
-    private val prevIconPath: Path by lazy {
-        Path().apply {
-            val margin = smallestButtonWidth / 4
-            val iconHeight = smallestButtonWidth / 2
-            val arrowsWidth = iconHeight - (iconHeight / 10)
-            val startX = margin.toFloat() + iconHeight
-            val startY = margin.toFloat()
-            val midIconHeight = iconHeight / 2
-            val midArrowsWidth = (arrowsWidth / 2)
-            val centerY = startY + midIconHeight
-            val centerX = startX - midArrowsWidth
-            moveTo(startX, startY)
-            lineTo(centerX, centerY)
-            lineTo(centerX, startY)
-            lineTo(startX - arrowsWidth, centerY)
-            lineTo(centerX, startY + iconHeight)
-            lineTo(centerX, centerY)
-            lineTo(startX, startY + iconHeight)
-            lineTo(startX, startY)
-            addRect(margin.toFloat(), startY, startX - arrowsWidth, startY + iconHeight, Path.Direction.CW)
-        }
-    }
+    private val previousIconPosition: Rect = Rect()
+    private val nextIconPosition: Rect = Rect()
 
     // Calculations
     private var informationBaseline: Int = 0
@@ -204,7 +165,9 @@ class PlayerControls
                         currentDuration = it.animatedValue as Int
                     }
                 }
-        playPauseIcon = if (playing) getPauseIcon(context) else getPlayIcon(context)
+        playPauseIcon = if (playing) getAnimatedIcon(R.drawable.ic_pause, playPausePosition) else getAnimatedIcon(R.drawable.ic_play, playPausePosition)
+        previousIcon = getAnimatedIcon(R.drawable.ic_previous, previousIconPosition)
+        nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
     }
 
 
@@ -245,28 +208,39 @@ class PlayerControls
         informationBaseline = (height - 10f).toInt()
         val margin = smallestButtonWidth / 4
         val iconSize = smallestButtonWidth / 2
-        val startX = (((desiredWidth - smallestButtonWidth) / 2) + margin).toFloat()
-        val startY = margin.toFloat()
-        playPausePosition.left = startX.toInt()
-        playPausePosition.top = startY.toInt()
-        playPausePosition.right = (startX + iconSize).toInt()
-        playPausePosition.bottom = (startY + iconSize).toInt()
+        val startX = (((desiredWidth - smallestButtonWidth) / 2) + margin)
+        playPausePosition.left = startX
+        playPausePosition.top = margin
+        playPausePosition.right = (startX + iconSize)
+        playPausePosition.bottom = (margin + iconSize)
         playPauseIcon.bounds = playPausePosition
+        previousIconPosition.left = margin
+        previousIconPosition.top = margin
+        previousIconPosition.right = (margin + iconSize)
+        previousIconPosition.bottom = (margin + iconSize)
+        previousIcon.bounds = previousIconPosition
+        val nextStartX = (desiredWidth - smallestButtonWidth + margin)
+        nextIconPosition.left = nextStartX
+        nextIconPosition.top = margin
+        nextIconPosition.right = (nextStartX + iconSize)
+        nextIconPosition.bottom = margin + iconSize
+        nextIcon.bounds = nextIconPosition
 
     }
 
     override fun onDraw(canvas: Canvas) {
+        canvas.drawColor(backgroundColor)
         canvas.drawLine(timelineLeftBound.toFloat(), informationBaseline.toFloat(), timelineRightBound.toFloat(), informationBaseline.toFloat(), timelinePaint)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, fixedTimelinePaint)
         playPauseIcon.draw(canvas)
+        previousIcon.draw(canvas)
+        nextIcon.draw(canvas)
         nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelinePaint) }
         val selectedTextPaint = if (durationOnScroll == -1) textPaint else textScrollingPaint
         canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), selectedTextPaint)
         canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), informationBaseline.toFloat(), selectedTextPaint)
         canvas.drawLine(prevButtonRightBound.toFloat(), 0f, prevButtonRightBound.toFloat(), height.toFloat(), fixedTimelinePaint)
-        canvas.drawPath(prevIconPath, buttonPaint)
         canvas.drawLine(nextButtonLeftBound.toFloat(), 0f, nextButtonLeftBound.toFloat(), height.toFloat(), fixedTimelinePaint)
-        canvas.drawPath(nextIconPath, buttonPaint)
         canvas.drawLine(bonusButtonBarX.toFloat(), 0f, bonusButtonBarX.toFloat(), height.toFloat(), fixedTimelinePaint)
     }
 
@@ -443,20 +417,12 @@ class PlayerControls
         }
     }
 
-    private fun getPauseIcon(context: Context): AnimatedVectorDrawableCompat {
-        val playIcon = AnimatedVectorDrawableCompat.create(context, R.drawable.ic_pause)
-                ?: throw IllegalArgumentException("Play icon wasn't found !")
-        playIcon.bounds = playPausePosition
-        playIcon.start()
-        return playIcon
-    }
-
-    private fun getPlayIcon(context: Context): AnimatedVectorDrawableCompat {
-        val pauseIcon = AnimatedVectorDrawableCompat.create(context, R.drawable.ic_play)
-                ?: throw IllegalArgumentException("Pause icon wasn't found !")
-        pauseIcon.bounds = playPausePosition
-        pauseIcon.start()
-        return pauseIcon
+    private fun getAnimatedIcon(animIconRes: Int, bounds: Rect): AnimatedVectorDrawableCompat {
+        val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
+                ?: throw IllegalArgumentException("Icon wasn't found !")
+        icon.bounds = bounds
+        icon.start()
+        return icon
     }
 
     private fun computeTicks() {

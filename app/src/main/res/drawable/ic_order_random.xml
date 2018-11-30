@@ -12,14 +12,21 @@
             <path
                 android:name="triangle"
                 android:fillColor="#FFF"
-                android:pathData="M 210 324 L 270 400 L 330 324 L 210 324 Z M 70 324 L 129 400 L 190 324 L 70 324 Z"
-                android:strokeWidth="1" />
+                android:pathData=" M 70,324 L 110,375 L 150,324ZM 250,324 L 290,375 L 330,324Z"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeColor="#FFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
             <path
                 android:name="curved_lines"
                 android:fillColor="#FFF"
-                android:pathData="M 130 -1 C 133.808 186.717 270 189.745 270 327 M 270 -1 C 265.247 186.717 131.072 189.745 132.01 327"
-                android:strokeWidth="60"
-                android:strokeColor="#FFF" />
+                android:pathData="M 110 25 C 133.808 186.717 269.952 189.745 290 327 M 290 25 C 265.247 186.717 131.072 189.745 110 327"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeColor="#FFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
         </vector>
     </aapt:attr>
     <target android:name="curved_lines">
@@ -28,8 +35,8 @@
                 android:duration="300"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M 130 -1 C 133.808 186.717 270.952 189.745 270 327 M 270 -1 C 265.247 186.717 131.072 189.745 132.01 327"
-                android:valueTo="M 130 -2 C 130 107 130 216 130 325 M 270 -2 C 270 107 270 216 270 325"
+                android:valueFrom="M 110 25 C 133.808 186.717 269.952 189.745 290 327 M 290 25 C 265.247 186.717 131.072 189.745 110 327"
+                android:valueTo="M 110 25 C 110 107 110 216 110 325 M 290 25 C 290 107 290 216 290 325"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>
@@ -39,8 +46,8 @@
                 android:duration="300"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M 210 324 L 270 400 L 330 324 L 210 324 Z M 70 324 L 129 400 L 190 324 L 70 324 Z"
-                android:valueTo="M 70 324 L 129 400 L 190 324 L 70 324 Z M 210 324 L 270 400 L 330 324 L 210 324 Z"
+                android:valueFrom=" M 70,324 L 110,375 L 150,324ZM 250,324 L 290,375 L 330,324Z"
+                android:valueTo="M 250,324 L 290,375 L 330,324Z M 70,324 L 110,375 L 150,324Z"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>
