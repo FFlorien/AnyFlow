@@ -13,5 +13,5 @@
     <color name="selected">#e3f2fd</color>
     <color name="unselected">#fafafa</color>
     <color name="disabled">#9e9e9e</color>
-    <color name="iconInApp">#FFFFFF</color>
+    <color name="iconInApp">@color/selected</color>
 </resources>

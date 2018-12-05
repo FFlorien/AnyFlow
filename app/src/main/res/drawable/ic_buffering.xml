@@ -1,0 +1,40 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="NewApi">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="400"
+            android:viewportHeight="400">
+            <group
+                android:name="buffer"
+                android:pivotX="200"
+                android:pivotY="200">
+                <path
+                    android:name="path"
+                    android:fillAlpha="0"
+                    android:fillColor="@color/iconInApp"
+                    android:pathData="M285.5,38ZM375,200ZM285.5,362ZM112.5,362ZM25,200ZM112.5,38Z"
+                    android:strokeWidth="50"
+                    android:strokeAlpha="1"
+                    android:strokeColor="@color/iconInApp"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round" />
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="buffer">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="50"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:repeatCount="infinite"
+                android:repeatMode="restart"
+                android:valueFrom="0"
+                android:valueTo="60" />
+        </aapt:attr>
+    </target>
+</animated-vector>

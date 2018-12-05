@@ -94,9 +94,6 @@ class ExoPlayerController
         subscription = playingQueue.currentSongUpdater.subscribe { song ->
             song?.let { prepare(it) }
             lastPosition = NO_VALUE
-            if (song != null && isPlaying()) {
-                play()
-            }
         }
     }
 

@@ -65,13 +65,14 @@ class PlayerControls
             invalidate()
         }
         get() = _currentDuration
-    var playing = false
+    var state = STATE_PAUSE
         set(value) {
-            if (field != value && !playPauseIcon.isRunning) {
-                playPauseIcon = if (value) getAnimatedIcon(R.drawable.ic_pause, playPausePosition) else getAnimatedIcon(R.drawable.ic_play, playPausePosition)
+            if (field != value && (!playPauseIcon.isRunning || isPlayPauseAnimationInfinite)) {
+                playPauseIcon = getPlayPauseIcon(value, field)
             }
             field = value
         }
+
     var actionListener: OnActionListener? = null
     var totalDuration: Int = 0
     var progressAnimDuration: Int = 10000
@@ -132,6 +133,7 @@ class PlayerControls
     private var durationOnScroll = -1
     private var currentScrollOffset = 0
 
+    private var isPlayPauseAnimationInfinite = false
     private var isAnimatingPreviousTrack = false
     private var isAnimatingNextTrack = false
     private val changeTrackAnimator: ValueAnimator
@@ -152,7 +154,7 @@ class PlayerControls
             progressAnimDuration = typedArray.getInt(R.styleable.PlayerControls_progressAnimDuration, progressAnimDuration)
             changeTrackAnimDuration = typedArray.getInt(R.styleable.PlayerControls_changeTrackAnimDuration, changeTrackAnimDuration)
             smallestButtonWidth = typedArray.getDimensionPixelSize(R.styleable.PlayerControls_smallestButtonWidth, smallestButtonWidth)
-            playing = typedArray.getBoolean(R.styleable.PlayerControls_playing, false)
+            state = typedArray.getInteger(R.styleable.PlayerControls_state, STATE_PAUSE)
             typedArray.recycle()
         }
         changeTrackAnimator = ValueAnimator
@@ -165,7 +167,7 @@ class PlayerControls
                         currentDuration = it.animatedValue as Int
                     }
                 }
-        playPauseIcon = if (playing) getAnimatedIcon(R.drawable.ic_pause, playPausePosition) else getAnimatedIcon(R.drawable.ic_play, playPausePosition)
+        playPauseIcon = getPlayPauseIcon(state)
         previousIcon = getAnimatedIcon(R.drawable.ic_previous, previousIconPosition)
         nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
     }
@@ -404,6 +406,33 @@ class PlayerControls
         }
     }
 
+    private fun getPlayPauseIcon(newValue: Int, oldValue: Int = newValue): AnimatedVectorDrawableCompat {
+        val resource = if (oldValue == STATE_BUFFER && newValue == STATE_PLAY) {
+            isPlayPauseAnimationInfinite = false
+            R.drawable.ic_buffer_to_pause
+        } else if (oldValue == STATE_BUFFER && newValue == STATE_PAUSE) {
+            isPlayPauseAnimationInfinite = false
+            R.drawable.ic_buffer_to_play
+        } else if (oldValue == STATE_PLAY && newValue == STATE_BUFFER) {
+            isPlayPauseAnimationInfinite = true
+            R.drawable.ic_pause_to_buffer
+        } else if (oldValue == STATE_PLAY && newValue == STATE_PAUSE) {
+            isPlayPauseAnimationInfinite = false
+            R.drawable.ic_pause_to_play
+        } else if (oldValue == STATE_PAUSE && newValue == STATE_BUFFER) {
+            isPlayPauseAnimationInfinite = true
+            R.drawable.ic_play_to_buffer
+        } else if (oldValue == STATE_PAUSE && newValue == STATE_PLAY) {
+            isPlayPauseAnimationInfinite = false
+            R.drawable.ic_play_to_pause
+        } else {
+            isPlayPauseAnimationInfinite = true
+            R.drawable.ic_buffering
+        }
+
+        return getAnimatedIcon(resource, playPausePosition)
+    }
+
     private fun computeBonusButtonX() {
         bonusButtonBarX = if (isAnimatingPreviousTrack && durationToDisplay < changeTrackAnimDuration) {
             val animPercentage = durationToDisplay.toFloat() / changeTrackAnimDuration.toFloat()
@@ -448,5 +477,11 @@ class PlayerControls
         fun onNextClicked()
         fun onPlayPauseClicked()
         fun onCurrentDurationChanged(newDuration: Long)
+    }
+
+    companion object {
+        const val STATE_PLAY = 0
+        const val STATE_PAUSE = 1
+        const val STATE_BUFFER = 2
     }
 }

@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:gravity="center_horizontal"
-            app:playing="@{vm.playing}"
+            app:state="@{vm.state}"
             app:shouldShowBuffering="@{vm.shouldShowBuffering}"
             app:totalDuration="@{vm.totalDuration}"
             app:currentDuration="@{vm.currentDuration}"

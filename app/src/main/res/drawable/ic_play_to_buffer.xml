@@ -1,0 +1,51 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="NewApi">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="400"
+            android:viewportHeight="400">
+            <group
+                android:name="buffer"
+                android:pivotX="200"
+                android:pivotY="200">
+                <path
+                    android:name="path"
+                    android:fillAlpha="1"
+                    android:fillColor="@color/iconInApp"
+                    android:pathData="M25,25L200,115L200,285L25,375ZM200,115L375,200L375,200L200,285Z"
+                    android:strokeWidth="50"
+                    android:strokeAlpha="1"
+                    android:strokeColor="@color/iconInApp"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round" />
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="150"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:valueFrom="M200,115L375,200L300,200Z M200,115L300,200L200,375Z M375,200L200,285L300,200Z M25,200L200,285L25,375Z M25,200L200,115L200,285Z M25,25L200,115L25,200Z"
+                android:valueTo="M285.5,38 L 285.5,38 L 285.5,38 Z M375,200 L 375,200 L 375,200Z M285.5,362 L 285.5,362 L 285.5,362 Z M112.5,362 L 112.5,362 L 112.5,362Z M25,200 L 25,200 L 25,200Z M112.5,38 L 112.5,38 L 112.5,38Z"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+    <target android:name="buffer">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="150"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="rotation"
+                android:repeatCount="infinite"
+                android:repeatMode="restart"
+                android:valueFrom="0"
+                android:valueTo="60" />
+        </aapt:attr>
+    </target>
+</animated-vector>
