@@ -11,5 +11,10 @@
             <enum name="pause" value="1"/>
             <enum name="buffer" value="2"/>
         </attr>
+        <attr name="iconColor" format="color"/>
+        <attr name="outLineColor" format="color"/>
+        <attr name="progressBackgroundColor" format="color"/>
+        <attr name="previousBackgroundColor" format="color"/>
+        <attr name="nextBackgroundColor" format="color"/>
     </declare-styleable>
 </resources>

@@ -2,9 +2,7 @@ package be.florien.anyflow.view.customView
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
@@ -80,32 +78,31 @@ class PlayerControls
     var smallestButtonWidth: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, resources.displayMetrics).toInt()
 
     // Paints
-    private val textPaint = Paint().apply {
+    private val textAndOutlineColor = Paint().apply {
         val color = ContextCompat.getColor(context, R.color.iconInApp)
         setColor(color)
         textAlign = Paint.Align.CENTER
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
         strokeWidth = 2f
     }
-
-    private val textScrollingPaint = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
-        setColor(color)
-        textAlign = Paint.Align.CENTER
-        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
-        strokeWidth = 2f
-    }
-    private val timelinePaint = Paint().apply {
+    private val timelineOutlineColor = Paint().apply {
         val color = ContextCompat.getColor(context, R.color.iconInApp)
         setColor(color)
         strokeWidth = 2f
     }
-    private val fixedTimelinePaint = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
+    private val backgroundColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primary)
         setColor(color)
-        strokeWidth = 2f
     }
-    private val backgroundColor = ContextCompat.getColor(context, R.color.primary)
+    private val previousBackgroundColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primaryDark)
+        setColor(color)
+    }
+    private val nextBackgroundColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primaryDark)
+        setColor(color)
+    }
+    private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
 
     // Paths
     private var playPauseIcon: AnimatedVectorDrawableCompat
@@ -155,6 +152,22 @@ class PlayerControls
             changeTrackAnimDuration = typedArray.getInt(R.styleable.PlayerControls_changeTrackAnimDuration, changeTrackAnimDuration)
             smallestButtonWidth = typedArray.getDimensionPixelSize(R.styleable.PlayerControls_smallestButtonWidth, smallestButtonWidth)
             state = typedArray.getInteger(R.styleable.PlayerControls_state, STATE_PAUSE)
+            typedArray.getColor(R.styleable.PlayerControls_iconColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                iconColor = it
+            }
+            typedArray.getColor(R.styleable.PlayerControls_outLineColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                textAndOutlineColor.color = it
+                timelineOutlineColor.color = it
+            }
+            typedArray.getColor(R.styleable.PlayerControls_previousBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                previousBackgroundColor.color = it
+            }
+            typedArray.getColor(R.styleable.PlayerControls_nextBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                nextBackgroundColor.color = it
+            }
+            typedArray.getColor(R.styleable.PlayerControls_progressBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                backgroundColor.color = it
+            }
             typedArray.recycle()
         }
         changeTrackAnimator = ValueAnimator
@@ -231,19 +244,20 @@ class PlayerControls
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawColor(backgroundColor)
-        canvas.drawLine(timelineLeftBound.toFloat(), informationBaseline.toFloat(), timelineRightBound.toFloat(), informationBaseline.toFloat(), timelinePaint)
-        canvas.drawLine(0f, 0f, width.toFloat(), 0f, fixedTimelinePaint)
+        canvas.drawRect(0f, 0f, timelineLeftBound.toFloat(), height.toFloat(), previousBackgroundColor)
+        canvas.drawRect(timelineLeftBound.toFloat(), 0f, timelineRightBound.toFloat(), height.toFloat(), backgroundColor)
+        canvas.drawRect(timelineRightBound.toFloat(), 0f, width.toFloat(), height.toFloat(), nextBackgroundColor)
+        canvas.drawLine(timelineLeftBound.toFloat(), informationBaseline.toFloat(), timelineRightBound.toFloat(), informationBaseline.toFloat(), timelineOutlineColor)
+        canvas.drawLine(0f, 0f, width.toFloat(), 0f, textAndOutlineColor)
         playPauseIcon.draw(canvas)
         previousIcon.draw(canvas)
         nextIcon.draw(canvas)
-        nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelinePaint) }
-        val selectedTextPaint = if (durationOnScroll == -1) textPaint else textScrollingPaint
-        canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), selectedTextPaint)
-        canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), informationBaseline.toFloat(), selectedTextPaint)
-        canvas.drawLine(prevButtonRightBound.toFloat(), 0f, prevButtonRightBound.toFloat(), height.toFloat(), fixedTimelinePaint)
-        canvas.drawLine(nextButtonLeftBound.toFloat(), 0f, nextButtonLeftBound.toFloat(), height.toFloat(), fixedTimelinePaint)
-        canvas.drawLine(bonusButtonBarX.toFloat(), 0f, bonusButtonBarX.toFloat(), height.toFloat(), fixedTimelinePaint)
+        nextTicksX.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelineOutlineColor) }
+        canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
+        canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
+        canvas.drawLine(prevButtonRightBound.toFloat(), 0f, prevButtonRightBound.toFloat(), height.toFloat(), textAndOutlineColor)
+        canvas.drawLine(nextButtonLeftBound.toFloat(), 0f, nextButtonLeftBound.toFloat(), height.toFloat(), textAndOutlineColor)
+        canvas.drawLine(bonusButtonBarX.toFloat(), 0f, bonusButtonBarX.toFloat(), height.toFloat(), textAndOutlineColor)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -290,13 +304,6 @@ class PlayerControls
      */
 
     private fun computeInformationBaseline() {
-//        informationBaseline = if (isAnimatingPreviousTrack || isAnimatingNextTrack && durationToDisplay < changeTrackAnimDuration) {
-//            val animPercentage = durationToDisplay.toFloat() / changeTrackAnimDuration.toFloat()
-//            val offset = 20 * (1 - animPercentage)
-//            (height - 10 + offset).toInt()
-//        } else {
-//            height - 10
-//        }
         informationBaseline = height - 10
     }
 
@@ -397,7 +404,7 @@ class PlayerControls
         } else {
             nextButtonLeftBound
         }
-        timelinePaint.alpha = if ((isAnimatingPreviousTrack || isAnimatingNextTrack) && animPercentage < 0.5) {
+        timelineOutlineColor.alpha = if ((isAnimatingPreviousTrack || isAnimatingNextTrack) && animPercentage < 0.5) {
             (255 - (255 * (animPercentage * 2))).toInt()
         } else if (isAnimatingPreviousTrack || isAnimatingNextTrack) {
             (255 * ((animPercentage - 0.5) * 2)).toInt()
@@ -450,6 +457,7 @@ class PlayerControls
         val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
                 ?: throw IllegalArgumentException("Icon wasn't found !")
         icon.bounds = bounds
+        icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
         icon.start()
         return icon
     }
@@ -483,5 +491,6 @@ class PlayerControls
         const val STATE_PLAY = 0
         const val STATE_PAUSE = 1
         const val STATE_BUFFER = 2
+        private const val NO_VALUE = -15
     }
 }

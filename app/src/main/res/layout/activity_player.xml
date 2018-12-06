@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+
     <data>
 
-        <import type="be.florien.anyflow.player.PlayerController.State"/>
+        <import type="be.florien.anyflow.player.PlayerController.State" />
 
         <variable
             name="vm"
@@ -19,22 +20,27 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
 
         <be.florien.anyflow.view.customView.PlayerControls
             android:id="@+id/playerControls"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:gravity="center_horizontal"
-            app:state="@{vm.state}"
-            app:shouldShowBuffering="@{vm.shouldShowBuffering}"
-            app:totalDuration="@{vm.totalDuration}"
-            app:currentDuration="@{vm.currentDuration}"
-            app:smallestButtonWidth="@dimen/minClickableSize"
-            app:changeTrackAnimDuration="350"
-            app:progressAnimDuration="10000"
             app:actionListener="@{vm}"
+            app:changeTrackAnimDuration="350"
+            app:currentDuration="@{vm.currentDuration}"
+            app:hasNext="@{vm.isNextPossible}"
             app:hasPrevious="@{vm.isPreviousPossible}"
-            app:hasNext="@{vm.isNextPossible}" />
+            app:iconColor="@color/iconInApp"
+            app:nextBackgroundColor="@color/primary"
+            app:outLineColor="@color/selected"
+            app:previousBackgroundColor="@color/primary"
+            app:progressAnimDuration="10000"
+            app:progressBackgroundColor="@color/primary"
+            app:shouldShowBuffering="@{vm.shouldShowBuffering}"
+            app:smallestButtonWidth="@dimen/minClickableSize"
+            app:state="@{vm.state}"
+            app:totalDuration="@{vm.totalDuration}" />
     </LinearLayout>
 </layout>
