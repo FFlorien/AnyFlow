@@ -2,7 +2,10 @@ package be.florien.anyflow.view.customView
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
@@ -40,6 +43,7 @@ class PlayerControls
     private var _currentDuration: Int = 0
     var currentDuration: Int
         set(value) {
+            val oldValue = _currentDuration
             if ((isAnimatingNextTrack || isAnimatingPreviousTrack) && value > changeTrackAnimDuration && value < totalDuration - 100) {
                 isAnimatingPreviousTrack = false
                 isAnimatingNextTrack = false
@@ -52,6 +56,10 @@ class PlayerControls
 
             if (!isAnimatingNextTrack && !isAnimatingPreviousTrack) {
                 _currentDuration = value
+            }
+
+            if (progressAnimDuration in oldValue..value || progressAnimDuration in value..oldValue || value < oldValue) {
+                previousIcon = getPreviousIcon()
             }
 
             computeInformationBaseline()
@@ -181,7 +189,7 @@ class PlayerControls
                     }
                 }
         playPauseIcon = getPlayPauseIcon(state)
-        previousIcon = getAnimatedIcon(R.drawable.ic_previous, previousIconPosition)
+        previousIcon = getPreviousIcon()
         nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
     }
 
@@ -438,6 +446,14 @@ class PlayerControls
         }
 
         return getAnimatedIcon(resource, playPausePosition)
+    }
+
+    private fun getPreviousIcon(): AnimatedVectorDrawableCompat {
+        return if (_currentDuration > progressAnimDuration) {
+            getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
+        } else {
+            getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition)
+        }
     }
 
     private fun computeBonusButtonX() {
