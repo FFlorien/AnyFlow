@@ -112,8 +112,9 @@ class PlayerControls
     }
     private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
 
-    // Paths
+    // Drawables
     private var playPauseIcon: AnimatedVectorDrawableCompat
+    private var isPreviousIconPrevious = false
     private var previousIcon: AnimatedVectorDrawableCompat
     private var nextIcon: AnimatedVectorDrawableCompat
     private val playPausePosition = Rect()
@@ -449,10 +450,14 @@ class PlayerControls
     }
 
     private fun getPreviousIcon(): AnimatedVectorDrawableCompat {
-        return if (_currentDuration > progressAnimDuration) {
+        return if (_currentDuration > progressAnimDuration && isPreviousIconPrevious) {
+            isPreviousIconPrevious = false
             getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
-        } else {
+        } else if (!isPreviousIconPrevious) {
+            isPreviousIconPrevious = true
             getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition)
+        } else {
+            previousIcon
         }
     }
 
