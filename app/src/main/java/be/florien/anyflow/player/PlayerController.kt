@@ -1,6 +1,5 @@
 package be.florien.anyflow.player
 
-import be.florien.anyflow.persistence.local.model.Song
 import io.reactivex.Flowable
 import io.reactivex.Observable
 
@@ -11,9 +10,9 @@ interface PlayerController {
     val playTimeNotifier: Observable<Long>
     val stateChangeNotifier: Flowable<State>
 
-    fun isPlaying() : Boolean
+    fun isPlaying(): Boolean
     fun play()
-    fun prepare(song: Song)
+    fun prepare(songsUrl: List<String>)
     fun stop()
     fun pause()
     fun resume()

@@ -45,12 +45,14 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getPositionForSong(song: Song): Single<Int> = getSongDao().findPositionInQueue(song.id).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getPositionForSong") }.subscribeOn(Schedulers.io())
 
     fun getSongsInQueueOrder(): Flowable<PagedList<SongDisplay>> {
-        val dataSourceFactory = getSongDao().inQueueOrder()
+        val dataSourceFactory = getSongDao().displayInQueueOrder()
         val pagedListConfig = PagedList.Config.Builder()
                 .setPageSize(100)
                 .build()
         return RxPagedListBuilder(dataSourceFactory, pagedListConfig).buildFlowable(BackpressureStrategy.LATEST).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getSongsInQueueOrder") }.subscribeOn(Schedulers.io())
     }
+
+    fun getSongsUrlInQueueOrder(): Flowable<List<String>> = getSongDao().urlInQueueOrder()
 
     fun <T> getGenres(mapping: (String) -> T): Flowable<PagedList<T>> {
         val dataSourceFactory = getSongDao().genreOrderByGenre().map(mapping)

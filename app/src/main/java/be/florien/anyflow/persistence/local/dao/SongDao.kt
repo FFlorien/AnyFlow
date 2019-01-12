@@ -15,7 +15,10 @@ import io.reactivex.Single
 interface SongDao : BaseDao<Song> {
 
     @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun inQueueOrder(): DataSource.Factory<Int, SongDisplay>
+    fun displayInQueueOrder(): DataSource.Factory<Int, SongDisplay>
+
+    @Query("SELECT url FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    fun urlInQueueOrder(): Flowable<List<String>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     fun forPositionInQueue(position: Int): Maybe<Song>

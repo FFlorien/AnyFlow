@@ -1,6 +1,5 @@
 package be.florien.anyflow.player
 
-import be.florien.anyflow.persistence.local.model.Song
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,7 +25,7 @@ class IdlePlayerController : PlayerController {
 
     override fun play() {}
 
-    override fun prepare(song: Song) {}
+    override fun prepare(songsUrl: List<String>) {}
 
     override fun stop() {}
 

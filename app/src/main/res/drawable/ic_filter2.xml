@@ -1,0 +1,68 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="NewApi">
+    <aapt:attr name="android:drawable">
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="400"
+            android:viewportHeight="400">
+            <path
+                android:name="check_top"
+                android:pathData="M30,30 L120,120Z M120,30 L30,120"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeColor="#FFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
+            <path
+                android:name="line_top"
+                android:pathData="M220,75L220,75 M295,75L295,75 M370,75L370,75"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeColor="#FFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="miter" />
+            <path
+                android:name="check_bottom"
+                android:pathData="M30,330 L75,370 L130,290"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeColor="#FFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
+            <path
+                android:name="line_bottom"
+                android:pathData="M220,330L370,330"
+                android:strokeWidth="50"
+                android:strokeAlpha="1"
+                android:strokeColor="#FFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="miter" />
+        </vector>
+    </aapt:attr>
+    <target android:name="line_top">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:valueFrom="M220,75L220,75 M295,75L295,75 M370,75L370,75"
+                android:valueTo="M220,75L270,75 M270,75L320,75 M320,75L370,75"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+    <target android:name="check_top">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:valueFrom="M30,30 L120,120Z M120,30 L30,120"
+                android:valueTo="M30,75 L75,110Z M75,110 L130,30"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+</animated-vector>
+

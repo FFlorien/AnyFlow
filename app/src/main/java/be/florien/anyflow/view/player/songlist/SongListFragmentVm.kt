@@ -77,7 +77,7 @@ class SongListFragmentVm
                 onError = {
                     this@SongListFragmentVm.eLog(it, "Error while updating argument")
                 })
-        subscribe(playingQueue.songListUpdater.observeOn(AndroidSchedulers.mainThread()),
+        subscribe(playingQueue.songDisplayListUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     pagedAudioQueue = it
                     notifyPropertyChanged(BR.pagedAudioQueue)

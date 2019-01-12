@@ -57,7 +57,8 @@ class PlayingQueue
                 .publish()
                 .autoConnect()
 
-    val songListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
+    val songUrlListUpdater: Flowable<List<String>> = libraryDatabase.getSongsUrlInQueueOrder().replay(1).refCount()
+    val songDisplayListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
     val isRandomUpdater: Flowable<Boolean> =
             libraryDatabase
                     .getOrder()
@@ -69,7 +70,7 @@ class PlayingQueue
 
 
     init {
-        songListUpdater.doOnNext {
+        songDisplayListUpdater.doOnNext {
             itemsCount = it.size
             keepPositionCoherent()
         }.subscribe()

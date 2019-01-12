@@ -91,9 +91,9 @@ class ExoPlayerController
         val bandwidthMeter = DefaultBandwidthMeter()
         val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
-        extractorsFactory = DefaultExtractorsFactory()
-        subscription = playingQueue.currentSongUpdater.subscribe { song ->
-            song?.let { prepare(it) }
+        subscription.add(playingQueue.songUrlListUpdater.subscribe { songs ->
+            this.songsUrls = songs
+            songs?.let { prepare(it) }
             lastPosition = NO_VALUE
         })
         subscription.add(playingQueue.positionUpdater.subscribe { if (it != mediaPlayer.currentWindowIndex) mediaPlayer.seekTo(it, 0) })
@@ -106,11 +106,15 @@ class ExoPlayerController
         resume()
     }
 
-    override fun prepare(song: Song) {
-        val audioSource = ExtractorMediaSource.Factory(dataSourceFactory)
-                .setExtractorsFactory(extractorsFactory)
-                .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song)))
-        mediaPlayer.prepare(audioSource)
+    override fun prepare(songsUrl: List<String>) {
+        val mediaSources = arrayOfNulls<MediaSource>(songsUrl.size)
+        songsUrl.forEachIndexed { index, url ->
+            mediaSources[index] = ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(url)))
+        }
+        val audioSource = ConcatenatingMediaSource(*mediaSources)
+        mediaPlayer.seekTo(0, 0)
+        mediaPlayer.prepare(audioSource, true, false)
     }
 
     override fun stop() {
@@ -162,7 +166,8 @@ class ExoPlayerController
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
                 stateChangePublisher.onNext(PlayerController.State.RECONNECT)
-                ampacheConnection.reconnect(Observable.fromCallable { playingQueue.currentSong?.let { prepare(it) } }).subscribeOn(Schedulers.io()).subscribe() //todo unsubscribe + on complete/next/error
+                ampacheConnection.reconnect(Observable.fromCallable { prepare(songsUrls) }).subscribeOn(Schedulers.io()).subscribe()
+                // todo unsubscribe + on complete/next/error
             }
         }
     }
