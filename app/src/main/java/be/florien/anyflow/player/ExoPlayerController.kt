@@ -7,12 +7,12 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.net.Uri
 import be.florien.anyflow.extension.iLog
-import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
@@ -25,7 +25,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
@@ -59,12 +59,11 @@ class ExoPlayerController
             .publish()
             .autoConnect()
 
-    private var subscription: Disposable?
+    private var subscription = CompositeDisposable()
 
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Long = NO_VALUE
     private var dataSourceFactory: DefaultDataSourceFactory
-    private var extractorsFactory: DefaultExtractorsFactory
 
     private var isReceiverRegistered: Boolean = false
     private val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -77,6 +76,8 @@ class ExoPlayerController
             }
         }
     }
+
+    private var songsUrls: List<String> = arrayListOf()
 
     /**
      * Constructor
@@ -94,7 +95,8 @@ class ExoPlayerController
         subscription = playingQueue.currentSongUpdater.subscribe { song ->
             song?.let { prepare(it) }
             lastPosition = NO_VALUE
-        }
+        })
+        subscription.add(playingQueue.positionUpdater.subscribe { if (it != mediaPlayer.currentWindowIndex) mediaPlayer.seekTo(it, 0) })
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
@@ -137,21 +139,22 @@ class ExoPlayerController
     }
 
     override fun onDestroy() {
-        subscription?.dispose()
+        subscription.dispose()
     }
 
     /**
      * Listener implementation
      */
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-//        TODO("not implemented")
+        iLog("onPlaybackParametersChanged")
     }
 
     override fun onSeekProcessed() {
-//        TODO("not implemented")
+        iLog("onSeekProcessed")
     }
 
     override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+        playingQueue.listPosition = mediaPlayer.currentWindowIndex
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
@@ -165,23 +168,23 @@ class ExoPlayerController
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-//        TODO("not implemented")
+        iLog("onLoadingChanged")
     }
 
     override fun onPositionDiscontinuity(reason: Int) {
-//        TODO("not implemented")
+        iLog("onPositionDiscontinuity")
     }
 
     override fun onRepeatModeChanged(repeatMode: Int) {
-//        TODO("not implemented")
+        iLog("onRepeatModeChanged")
     }
 
     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-//        TODO("not implemented")
+        iLog("onShuffleModeEnabledChanged")
     }
 
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-//        TODO("not implemented")
+        iLog("onTimelineChanged")
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {

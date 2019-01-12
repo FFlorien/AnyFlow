@@ -7,7 +7,6 @@ import be.florien.anyflow.exception.SessionExpiredException
 import be.florien.anyflow.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.server.model.*
 import be.florien.anyflow.user.AuthPersistence
 import io.reactivex.Observable
@@ -277,9 +276,9 @@ open class AmpacheConnection
                 .subscribe()
     }
 
-    fun getSongUrl(song: Song): String {
-        val ssidStart = song.url.indexOf("ssid=") + 5
-        return song.url.replaceRange(ssidStart, song.url.indexOf('&', ssidStart), authPersistence.authToken.first)
+    fun getSongUrl(url: String): String {
+        val ssidStart = url.indexOf("ssid=") + 5
+        return url.replaceRange(ssidStart, url.indexOf('&', ssidStart), authPersistence.authToken.first)
     }
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
