@@ -113,8 +113,8 @@ class ExoPlayerController
                     .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(url)))
         }
         val audioSource = ConcatenatingMediaSource(*mediaSources)
-        mediaPlayer.seekTo(0, 0)
-        mediaPlayer.prepare(audioSource, true, false)
+        mediaPlayer.seekTo(playingQueue.listPosition, 0)
+        mediaPlayer.prepare(audioSource, false, false)
     }
 
     override fun stop() {
@@ -173,7 +173,7 @@ class ExoPlayerController
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-        iLog("onLoadingChanged")
+        iLog("onLoadingChanged: $isLoading")
     }
 
     override fun onPositionDiscontinuity(reason: Int) {
