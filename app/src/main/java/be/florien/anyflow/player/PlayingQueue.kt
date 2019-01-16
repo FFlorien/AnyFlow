@@ -4,6 +4,7 @@ import android.arch.paging.PagedList
 import android.content.SharedPreferences
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.extension.applyPutInt
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
@@ -13,6 +14,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
 
@@ -42,6 +44,9 @@ class PlayingQueue
                 value in 0 until itemsCount -> value
                 value < 0 -> 0
                 else -> itemsCount - 1
+            }
+            if (value == 0) {
+                this@PlayingQueue.eLog(IllegalArgumentException("The new position may result from a faulty reset."))
             }
             positionUpdater.onNext(field)
             sharedPreferences.applyPutInt(POSITION_PREF, field)

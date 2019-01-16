@@ -33,7 +33,21 @@ class PlayerControls
     // Variable changing due to usage
     var shouldShowBuffering: Boolean = false
     var hasPrevious: Boolean = false
+        set(value) {
+            if (value) {
+                previousIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+            } else {
+                previousIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+            }
+        }
     var hasNext: Boolean = false
+        set(value) {
+            if (value) {
+                nextIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+            } else {
+                nextIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+            }
+        }
     private var elapsedDurationText = ""
     private var remainingDurationText = ""
 
@@ -43,7 +57,7 @@ class PlayerControls
         set(value) {
             val oldValue = _currentDuration
 
-                _currentDuration = value
+            _currentDuration = value
 
             if (progressAnimDuration in oldValue..value || progressAnimDuration in value..oldValue || value < oldValue) {
                 previousIcon = getPreviousIcon()
@@ -95,6 +109,7 @@ class PlayerControls
         setColor(color)
     }
     private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+    private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
 
     // Drawables
     private var playPauseIcon: AnimatedVectorDrawableCompat
@@ -154,11 +169,17 @@ class PlayerControls
             typedArray.getColor(R.styleable.PlayerControls_progressBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
                 backgroundColor.color = it
             }
+            typedArray.getColor(R.styleable.PlayerControls_disabledColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                disabledColor = it
+            }
             typedArray.recycle()
         }
         playPauseIcon = getPlayPauseIcon(state)
         previousIcon = getPreviousIcon()
         nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
+        if (!hasNext) {
+            nextIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+        }
     }
 
 
@@ -365,7 +386,11 @@ class PlayerControls
     private fun getPreviousIcon(): AnimatedVectorDrawableCompat {
         return if (_currentDuration > progressAnimDuration && isPreviousIconPrevious) {
             isPreviousIconPrevious = false
-            getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
+            getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition).apply {
+                if (!hasPrevious) {
+                    setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+                }
+            }
         } else if (!isPreviousIconPrevious) {
             isPreviousIconPrevious = true
             getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition)

@@ -35,6 +35,7 @@
             app:iconColor="@color/iconInApp"
             app:nextBackgroundColor="@color/primary"
             app:outLineColor="@color/selected"
+            app:disabledColor="@color/disabled"
             app:previousBackgroundColor="@color/primary"
             app:progressAnimDuration="10000"
             app:progressBackgroundColor="@color/primary"
