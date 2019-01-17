@@ -34,14 +34,16 @@ class PlayerControls
     var shouldShowBuffering: Boolean = false
     var hasPrevious: Boolean = false
         set(value) {
+            field = value
             if (value) {
                 previousIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-            } else {
+            } else if (_currentDuration < progressAnimDuration) {
                 previousIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
             }
         }
     var hasNext: Boolean = false
         set(value) {
+            field = value
             if (value) {
                 nextIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
             } else {
@@ -80,6 +82,7 @@ class PlayerControls
 
     var actionListener: OnActionListener? = null
     var totalDuration: Int = 0
+        get() = if (field == 0) Int.MAX_VALUE else field
     var progressAnimDuration: Int = 10000
     var smallestButtonWidth: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, resources.displayMetrics).toInt()
 
@@ -338,7 +341,7 @@ class PlayerControls
         val playBackTimeInSeconds = (totalDuration - durationToDisplay) / 1000
         val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
         val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
-        remainingDurationText = "-$minutesDisplay:$secondsDisplay"
+        remainingDurationText = if (totalDuration == Int.MAX_VALUE) "Unknown" else "-$minutesDisplay:$secondsDisplay"
     }
 
     private fun getProgressRightPosition(mostRightNextLeft: Int): Int {
@@ -386,14 +389,14 @@ class PlayerControls
     private fun getPreviousIcon(): AnimatedVectorDrawableCompat {
         return if (_currentDuration > progressAnimDuration && isPreviousIconPrevious) {
             isPreviousIconPrevious = false
-            getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition).apply {
+            getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
+        } else if (!isPreviousIconPrevious) {
+            isPreviousIconPrevious = true
+            getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition).apply {
                 if (!hasPrevious) {
                     setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
                 }
             }
-        } else if (!isPreviousIconPrevious) {
-            isPreviousIconPrevious = true
-            getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition)
         } else {
             previousIcon
         }
