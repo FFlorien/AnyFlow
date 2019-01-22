@@ -23,9 +23,9 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
-import be.florien.anyflow.view.player.filter.selectType.ALBUM_NAME
-import be.florien.anyflow.view.player.filter.selectType.ARTIST_NAME
-import be.florien.anyflow.view.player.filter.selectType.GENRE_NAME
+import be.florien.anyflow.view.player.filter.selectType.ALBUM_ID
+import be.florien.anyflow.view.player.filter.selectType.ARTIST_ID
+import be.florien.anyflow.view.player.filter.selectType.GENRE_ID
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
@@ -33,10 +33,10 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 class SelectFilterFragment @SuppressLint("ValidFragment")
 constructor(private var filterType: String) : BaseFilterFragment() {
     override fun getTitle(): String = when (filterType) {
-        ALBUM_NAME -> "Select albums"
-        ARTIST_NAME -> "Select artists"
-        GENRE_NAME -> "Select genres"
-        else -> "Select filters"
+        ALBUM_ID -> getString(R.string.filter_title_album)
+        ARTIST_ID -> getString(R.string.filter_title_artist)
+        GENRE_ID -> getString(R.string.filter_title_genre)
+        else -> getString(R.string.filter_title_main)
     }
 
     override val baseVm: BaseFilterVM
@@ -49,11 +49,11 @@ constructor(private var filterType: String) : BaseFilterFragment() {
     lateinit var vm: SelectFilterFragmentVM
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
 
-    constructor() : this(GENRE_NAME)
+    constructor() : this(GENRE_ID)
 
     init {
         arguments?.let {
-            filterType = it.getString(FILTER_TYPE)
+            filterType = it.getString(FILTER_TYPE, GENRE_ID)
         }
         if (arguments == null) {
             arguments = Bundle().apply {
@@ -65,8 +65,8 @@ constructor(private var filterType: String) : BaseFilterFragment() {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         vm = when (filterType) {
-            ALBUM_NAME -> SelectFilterFragmentAlbumVM(requireActivity())
-            ARTIST_NAME -> SelectFilterFragmentArtistVM(requireActivity())
+            ALBUM_ID -> SelectFilterFragmentAlbumVM(requireActivity())
+            ARTIST_ID -> SelectFilterFragmentArtistVM(requireActivity())
             else -> SelectFilterFragmentGenreVM(requireActivity())
         }
     }

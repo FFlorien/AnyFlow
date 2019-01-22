@@ -159,7 +159,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     fun displaySongList() {
-        supportFragmentManager.popBackStack("filters", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.popBackStack(FILTER_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     private fun displayFilters() {
@@ -169,7 +169,7 @@ class PlayerActivity : AppCompatActivity() {
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
                 .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
-                .addToBackStack("filters")
+                .addToBackStack(FILTER_STACK_NAME)
                 .commit()
     }
 
@@ -181,4 +181,8 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun isSongListVisible() =
             supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
+
+    companion object {
+        private const val FILTER_STACK_NAME = "filters"
+    }
 }

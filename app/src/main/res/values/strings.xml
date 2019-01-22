@@ -5,9 +5,7 @@
     <string name="connect_password_hint">Password</string>
     <string name="connect_connect_action">Connect</string>
     <string name="connect_wait_label">Connection, please wait…</string>
-    <string name="general_loading_label">Loading, please wait…</string>
-    <string name="action_filter_clear">Clear filters</string>
-    <string name="action_filter_add">Add filters</string>
+    <string name="connect_error_extends">Cannot extend the session</string>
     <string name="filter_display_title_is">Song title is\n%s</string>
     <string name="filter_display_genre_is">Genre is\n%s</string>
     <string name="filter_display_search">Anything contain\n%s</string>
@@ -16,9 +14,26 @@
     <string name="filter_display_album_artist_is">Album artist is\n%s</string>
     <string name="filter_display_album_is">Album is\n%s</string>
     <string name="filter_display_title_contain">Song title contain\n%s</string>
+    <string name="filter_title_main">Select filters</string>
+    <string name="filter_type_genre">Genre</string>
+    <string name="filter_type_artist">Artist</string>
+    <string name="filter_type_album">Album</string>
+    <string name="filter_type_search">Search</string>
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
+    <string name="general_loading_label">Loading, please wait…</string>
+    <string name="action_filter_clear">Clear filters</string>
+    <string name="action_filter_add">Add filters</string>
+    <string name="notification_title_artist">%1$s by %2$s</string>
     <string name="display_reconnecting">Reconnecting</string>
     <string name="confirm">Confirm</string>
+    <string name="connect_error_credentials">Cannot log in with provided credentials</string>
+    <string name="player_controls_unknown">Unknown</string>
+    <string name="player_playing_now">Now playing</string>
+    <string name="filter_empty">NO FILTER SET</string>
+    <string name="filter_add_explanation">You can add more with the button below</string>
+    <string name="filter_title_album">Select albums</string>
+    <string name="filter_title_artist">Select artists</string>
+    <string name="filter_title_genre">Select genres</string>
 </resources>

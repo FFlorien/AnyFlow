@@ -94,7 +94,7 @@ class PlayerService : Service() {
     override fun onCreate() {
         super.onCreate()
         (application as AnyFlowApp).userComponent?.inject(this)
-        mediaSession = MediaSessionCompat(this, "AnyFlow").apply {
+        mediaSession = MediaSessionCompat(this, MEDIA_SESSION_NAME).apply {
             setSessionActivity(pendingIntent)
             setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
             setCallback(object : MediaSessionCompat.Callback() {
@@ -193,8 +193,8 @@ class PlayerService : Service() {
     }
 
     private fun updateNotification(song: Song, albumArt: Bitmap? = null) {
-        val notificationBuilder = NotificationCompat.Builder(this, "AnyFlow")
-                .setContentTitle("${song.title} by ${song.artistName}")
+        val notificationBuilder = NotificationCompat.Builder(this, MEDIA_SESSION_NAME)
+                .setContentTitle(getString(R.string.notification_title_artist, song.title, song.artistName))
                 .setContentText(song.albumName)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
@@ -233,5 +233,9 @@ class PlayerService : Service() {
         } else {
             NotificationManagerCompat.from(this).notify(1, notification)
         }
+    }
+
+    companion object {
+        private const val MEDIA_SESSION_NAME = "AnyFlow"
     }
 }

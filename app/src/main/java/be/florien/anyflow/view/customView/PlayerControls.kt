@@ -341,7 +341,7 @@ class PlayerControls
         val playBackTimeInSeconds = (totalDuration - durationToDisplay) / 1000
         val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
         val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
-        remainingDurationText = if (totalDuration == Int.MAX_VALUE) "Unknown" else "-$minutesDisplay:$secondsDisplay"
+        remainingDurationText = if (totalDuration == Int.MAX_VALUE) context.getString(R.string.player_controls_unknown) else "-$minutesDisplay:$secondsDisplay"
     }
 
     private fun getProgressRightPosition(mostRightNextLeft: Int): Int {

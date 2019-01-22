@@ -2,6 +2,7 @@ package be.florien.anyflow.view.connect
 
 import android.databinding.Bindable
 import be.florien.anyflow.BR
+import be.florien.anyflow.R
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
@@ -63,7 +64,7 @@ open class ConnectActivityVM
                         isLoading = false
                         when (it.error.code) {
                             0 -> navigator.goToPlayer()
-                            else -> displayHelper.notifyUserAboutError("Impossible de prolonger la session")
+                            else -> displayHelper.notifyUserAboutError(R.string.connect_error_extends)
                         }
                     },
                     {
@@ -77,7 +78,7 @@ open class ConnectActivityVM
                         isLoading = false
                         when (it.error.code) {
                             0 -> navigator.goToPlayer() //todo finish activity
-                            else -> displayHelper.notifyUserAboutError("Impossible de se connecter avec les informations données")
+                            else -> displayHelper.notifyUserAboutError(R.string.connect_error_credentials)
                         }
                     },
                     {
@@ -85,7 +86,7 @@ open class ConnectActivityVM
                         when (it) {
                             is WrongIdentificationPairException -> {
                                 this@ConnectActivityVM.eLog(it, "Wrong username/password")
-                                displayHelper.notifyUserAboutError("Impossible de se connecter avec les informations données")
+                                displayHelper.notifyUserAboutError(R.string.connect_error_credentials)
                             }
                         }
 

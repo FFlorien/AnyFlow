@@ -36,7 +36,7 @@ import javax.inject.Inject
  */
 @ActivityScope
 class SongListFragment : BaseFragment() {
-    override fun getTitle(): String = "Now playing"
+    override fun getTitle(): String = getString(R.string.player_playing_now)
 
     @Inject
     lateinit var vm: SongListFragmentVm

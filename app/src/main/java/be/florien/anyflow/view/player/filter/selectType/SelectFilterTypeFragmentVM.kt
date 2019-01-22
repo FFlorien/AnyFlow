@@ -6,26 +6,36 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterVM
 
-const val GENRE_NAME = "Genre"
-const val ARTIST_NAME = "Artist"
-const val ALBUM_NAME = "Album"
-const val SEARCH_NAME = "Search"
+const val GENRE_ID = "Genre"
+const val ARTIST_ID = "Artist"
+const val ALBUM_ID = "Album"
+const val SEARCH_ID = "Search"
 
 /**
  * Created by FlamentF on 08-Jan-18.
  */
 @ActivityScope
 class AddFilterTypeFragmentVM(activity: Activity) : BaseFilterVM() {
+    private val genreName = activity.getString(R.string.filter_type_genre)
+    private val artistName = activity.getString(R.string.filter_type_artist)
+    private val albumName = activity.getString(R.string.filter_type_album)
+    private val searchName = activity.getString(R.string.filter_type_search)
 
     init {
         (activity as PlayerActivity).activityComponent.inject(this)
     }
 
+    val filtersIds = listOf(
+            GENRE_ID,
+            ARTIST_ID,
+            ALBUM_ID,
+            SEARCH_ID)
+
     val filtersNames = listOf(
-            GENRE_NAME,
-            ARTIST_NAME,
-            ALBUM_NAME,
-            SEARCH_NAME)
+            genreName,
+            artistName,
+            albumName,
+            searchName)
 
     val filtersImages = listOf(
             R.drawable.ic_genre,

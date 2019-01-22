@@ -26,7 +26,7 @@ import be.florien.anyflow.view.player.filter.selection.SelectFilterFragment
 @ActivityScope
 @UserScope
 class SelectFilterTypeFragment : BaseFilterFragment() {
-    override fun getTitle(): String = "Select filters"
+    override fun getTitle(): String = getString(R.string.filter_title_main)
     override val baseVm: BaseFilterVM
         get() = vm
     lateinit var vm: AddFilterTypeFragmentVM
@@ -58,18 +58,18 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterTypeViewHolder = FilterTypeViewHolder()
 
         override fun onBindViewHolder(holder: FilterTypeViewHolder, position: Int) {
-            holder.bind(vm.filtersNames[position], vm.filtersImages[position])
+            holder.bind(vm.filtersIds[position], vm.filtersNames[position], vm.filtersImages[position])
         }
 
-        override fun getItemCount(): Int = vm.filtersNames.size
+        override fun getItemCount(): Int = vm.filtersIds.size
     }
 
     inner class FilterTypeViewHolder(
             private val itemFilterTypeBinding: ItemSelectFilterTypeBinding = ItemSelectFilterTypeBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
     ) : RecyclerView.ViewHolder(itemFilterTypeBinding.root) {
 
-        fun bind(type: String, @DrawableRes drawableRes: Int) {
-            itemFilterTypeBinding.filterName.text = type
+        fun bind(type: String, name: String, @DrawableRes drawableRes: Int) {
+            itemFilterTypeBinding.filterName.text = name
             itemFilterTypeBinding.imageView.setImageResource(drawableRes)
             itemView.setOnClickListener {
                 (activity as PlayerActivity).supportFragmentManager
