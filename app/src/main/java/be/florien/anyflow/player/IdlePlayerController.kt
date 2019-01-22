@@ -21,6 +21,8 @@ class IdlePlayerController : PlayerController {
             .publish()
             .autoConnect()
 
+    override fun initialize() {}
+
     override fun isPlaying(): Boolean = false
 
     override fun play() {}
@@ -35,5 +37,5 @@ class IdlePlayerController : PlayerController {
 
     override fun seekTo(duration: Long) {}
 
-    override fun onDestroy() {}
+    override fun release() {}
 }

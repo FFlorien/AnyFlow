@@ -113,7 +113,6 @@ class SongListFragment : BaseFragment() {
             binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
             binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         }
-        requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
@@ -162,10 +161,19 @@ class SongListFragment : BaseFragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unbindService(vm.connection)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         vm.destroy()
-        requireActivity().unbindService(vm.connection)
     }
 
     private fun updateCurrentSongDisplay() {

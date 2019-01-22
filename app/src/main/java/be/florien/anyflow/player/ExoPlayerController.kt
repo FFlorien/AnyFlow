@@ -61,7 +61,7 @@ class ExoPlayerController
 
     private var subscription = CompositeDisposable()
 
-    private val mediaPlayer: ExoPlayer
+    private lateinit var mediaPlayer: ExoPlayer
     private var lastPosition: Long = NO_VALUE
     private var dataSourceFactory: DefaultDataSourceFactory
 
@@ -84,19 +84,23 @@ class ExoPlayerController
      */
 
     init {
+        val bandwidthMeter = DefaultBandwidthMeter()
+        val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
+        dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
+    }
+
+    override fun initialize() {
         val trackSelector: TrackSelector = DefaultTrackSelector()
         mediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector).apply {
             addListener(this@ExoPlayerController)
         }
-        val bandwidthMeter = DefaultBandwidthMeter()
-        val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
-        dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
         subscription.add(playingQueue.songUrlListUpdater.subscribe { songs ->
             this.songsUrls = songs
             songs?.let { prepare(it) }
             lastPosition = NO_VALUE
         })
         subscription.add(playingQueue.positionUpdater.subscribe { if (it != mediaPlayer.currentWindowIndex) mediaPlayer.seekTo(it, 0) })
+
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
@@ -142,7 +146,8 @@ class ExoPlayerController
         mediaPlayer.seekTo(duration)
     }
 
-    override fun onDestroy() {
+    override fun release() {
+        mediaPlayer.release()
         subscription.dispose()
     }
 

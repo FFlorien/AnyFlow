@@ -10,6 +10,7 @@ interface PlayerController {
     val playTimeNotifier: Observable<Long>
     val stateChangeNotifier: Flowable<State>
 
+    fun initialize()
     fun isPlaying(): Boolean
     fun play()
     fun prepare(songsUrl: List<String>)
@@ -17,7 +18,7 @@ interface PlayerController {
     fun pause()
     fun resume()
     fun seekTo(duration: Long)
-    fun onDestroy()
+    fun release()
 
     enum class State {
         BUFFER,

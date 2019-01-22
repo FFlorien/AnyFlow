@@ -94,7 +94,6 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
         binding.vm = vm
-        bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
 
         filterMenu = FilterMenuHolder {
             displayFilters()
@@ -135,6 +134,11 @@ class PlayerActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuCoordinator.inflateMenus(menu, menuInflater)
         return true
@@ -149,12 +153,16 @@ class PlayerActivity : AppCompatActivity() {
         return menuCoordinator.handleMenuClick(item.itemId)
     }
 
+    override fun onPause() {
+        super.onPause()
+        unbindService(vm.connection)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (anyFlowApp.userComponent == null) {
             return
         }
-        unbindService(vm.connection)
         vm.destroy()
     }
 

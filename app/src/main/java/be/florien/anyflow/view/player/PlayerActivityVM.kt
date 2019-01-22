@@ -180,6 +180,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            player
             player = IdlePlayerController()
         }
     }

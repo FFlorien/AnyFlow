@@ -3,19 +3,16 @@ package be.florien.anyflow.player
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.R
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.persistence.local.model.Song
 import com.bumptech.glide.request.target.SimpleTarget
@@ -47,11 +44,12 @@ class PlayerService : Service() {
      */
 
     private val iBinder = LocalBinder()
-    private val pendingIntent: PendingIntent by lazy {
+    private val startingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@PlayerService, 0, intent, 0)
     }
     private lateinit var mediaSession: MediaSessionCompat
+    private lateinit var playerNotificationBuilder: PlayerNotificationBuilder
 
     private var lastSong: Song? = null
 
@@ -60,32 +58,24 @@ class PlayerService : Service() {
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
                     PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             )
-    private val skipToPreviousAction by lazy {
-        NotificationCompat.Action(
-                android.R.drawable.ic_media_previous,
-                this.getString(R.string.app_name),
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS))
-    }
-    private val playAction by lazy {
-        NotificationCompat.Action(
-                android.R.drawable.ic_media_play,
-                this.getString(R.string.app_name),
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY_PAUSE))
-    }
-    private val pauseAction by lazy {
-        NotificationCompat.Action(
-                android.R.drawable.ic_media_pause,
-                this.getString(R.string.app_name),
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY_PAUSE))
-    }
-    private val skipToNextAction by lazy {
-        NotificationCompat.Action(
-                android.R.drawable.ic_media_next,
-                this.getString(R.string.app_name),
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT))
-    }
 
     private var subscription: Disposable? = null
+    private var isAnyClientBound = false
+        set(value) {
+            field = value
+            stopSelfIfUnused()
+        }
+    private var canStopSelf = false
+        set(value) {
+            field = value
+            stopSelfIfUnused()
+        }
+
+    private val handler = Handler()
+    private val stopServiceDelayed = {
+        canStopSelf = true
+    }
+
 
     /**
      * Lifecycle
@@ -94,8 +84,10 @@ class PlayerService : Service() {
     override fun onCreate() {
         super.onCreate()
         (application as AnyFlowApp).userComponent?.inject(this)
+        startService(Intent(this,PlayerService::class.java))
+        playerController.initialize()
         mediaSession = MediaSessionCompat(this, "AnyFlow").apply {
-            setSessionActivity(pendingIntent)
+            setSessionActivity(startingIntent)
             setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onSeekTo(pos: Long) {
@@ -120,7 +112,12 @@ class PlayerService : Service() {
             })
             isActive = true
         }
+        playerNotificationBuilder = PlayerNotificationBuilder(this, mediaSession, startingIntent)
         setPlaybackState(PlaybackStateCompat.STATE_NONE, 0L)
+        val shutdownWaitingIntent = Intent(this, PlayerService::class.java)
+        shutdownWaitingIntent.action = SHUTDOWN
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(SHUTDOWN)
 
         subscription = Flowable.combineLatest<PlayerController.State, Song?, Pair<PlayerController.State, Song?>>(
                 playerController.stateChangeNotifier,
@@ -132,7 +129,10 @@ class PlayerService : Service() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
                     if (!playerController.isPlaying()) {
-                        stopForeground(false)
+                        handler.postDelayed(stopServiceDelayed, 10 * 1000)
+                    } else {
+                        handler.removeCallbacks(stopServiceDelayed)
+                        canStopSelf = false
                     }
                     val playbackState = when (it.first) {
                         PlayerController.State.BUFFER -> PlaybackStateCompat.STATE_BUFFERING
@@ -161,11 +161,22 @@ class PlayerService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onBind(intent: Intent): IBinder? = iBinder
+    override fun onBind(intent: Intent): IBinder? {
+        isAnyClientBound = true
+        return iBinder
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        isAnyClientBound = false
+        return super.onUnbind(intent)
+    }
 
     override fun onDestroy() {
         super.onDestroy()
         subscription?.dispose()
+        playerController.release()
+        mediaSession.release()
+        NotificationManagerCompat.from(this).cancelAll()
     }
 
     /**
@@ -187,51 +198,30 @@ class PlayerService : Service() {
      * Private Methods
      */
 
+    private fun stopSelfIfUnused() {
+        if (canStopSelf && !isAnyClientBound) {
+            stopSelf()
+        }
+    }
+
     private fun setPlaybackState(playbackState: Int, position: Long) {
         playBackStateBuilder.setState(playbackState, position, 1.0f)
         mediaSession.setPlaybackState(playBackStateBuilder.build())
     }
 
     private fun updateNotification(song: Song, albumArt: Bitmap? = null) {
-        val notificationBuilder = NotificationCompat.Builder(this, "AnyFlow")
-                .setContentTitle("${song.title} by ${song.artistName}")
-                .setContentText(song.albumName)
-                .setContentIntent(pendingIntent)
-                .setOnlyAlertOnce(true)
-                .setSmallIcon(R.drawable.notif)
-                .setColor(ContextCompat.getColor(this, R.color.primary))
-
-        var playPauseIndex = 0
-        if (playingQueue.listPosition > 0) {
-            notificationBuilder.addAction(skipToPreviousAction)
-            ++playPauseIndex
-        }
-        notificationBuilder.addAction(if (playerController.isPlaying()) pauseAction else playAction)
-        if (playingQueue.listPosition < playingQueue.itemsCount - 1) {
-            notificationBuilder.addAction(skipToNextAction)
-        }
-        notificationBuilder.setStyle(MediaStyle()
-                .setMediaSession(mediaSession.sessionToken)
-                .setShowActionsInCompactView(playPauseIndex))
-
-        val metadataBuilder = MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artistName)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, song.albumArtistName)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.time.toLong())
-                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, song.genre)
-
-        if (albumArt != null) {
-            notificationBuilder.setLargeIcon(albumArt)
-            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
-        }
-        mediaSession.setMetadata(metadataBuilder.build())
-        val notification = notificationBuilder.build()
+        val isFirstInPlaylist = playingQueue.listPosition == 0
+        val isLastInPlaylist = playingQueue.listPosition < playingQueue.itemsCount - 1
+        val notification = playerNotificationBuilder.getUpdatedNotification(this, song, playerController.isPlaying(), isFirstInPlaylist, isLastInPlaylist, albumArt)
         if (playerController.isPlaying()) {
             startForeground(1, notification)
         } else {
+            stopForeground(false)
             NotificationManagerCompat.from(this).notify(1, notification)
         }
+    }
+
+    companion object {
+        private const val SHUTDOWN = "SHUTDOWN"
     }
 }
