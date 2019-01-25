@@ -3,11 +3,11 @@ package be.florien.anyflow.view.menu
 import android.content.Context
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
-import android.support.annotation.DrawableRes
-import android.support.annotation.IdRes
-import android.support.annotation.MenuRes
-import android.support.graphics.drawable.Animatable2Compat
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat
+import androidx.annotation.DrawableRes
+import androidx.annotation.IdRes
+import androidx.annotation.MenuRes
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import android.view.Menu
 
 abstract class AnimatedMenuHolder(

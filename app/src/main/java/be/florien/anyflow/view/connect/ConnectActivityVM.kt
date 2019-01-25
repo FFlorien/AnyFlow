@@ -1,6 +1,6 @@
 package be.florien.anyflow.view.connect
 
-import android.databinding.Bindable
+import androidx.databinding.Bindable
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.di.ActivityScope

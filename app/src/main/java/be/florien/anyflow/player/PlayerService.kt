@@ -5,9 +5,9 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.persistence.local.model.Song
 import io.reactivex.Flowable

@@ -2,7 +2,7 @@ package be.florien.anyflow.view.player
 
 import android.content.ComponentName
 import android.content.ServiceConnection
-import android.databinding.Bindable
+import androidx.databinding.Bindable
 import android.os.IBinder
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope

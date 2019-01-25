@@ -3,22 +3,20 @@ package be.florien.anyflow.player
 import android.app.PendingIntent
 import android.app.Service
 import android.graphics.Bitmap
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.R
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.persistence.local.model.Song
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.Transition
 
 class PlayerNotificationBuilder(
         private val service: Service,
@@ -79,7 +77,7 @@ class PlayerNotificationBuilder(
         if (hasNext) {
             notificationBuilder.addAction(skipToNextAction)
         }
-        notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
+        notificationBuilder.setStyle(androidx.media.app.NotificationCompat.MediaStyle()
                 .setMediaSession(mediaSession.sessionToken)
                 .setShowActionsInCompactView(playPauseIndex))
 

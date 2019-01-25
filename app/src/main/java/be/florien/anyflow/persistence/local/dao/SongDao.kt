@@ -1,10 +1,10 @@
 package be.florien.anyflow.persistence.local.dao
 
-import android.arch.paging.DataSource
-import android.arch.persistence.db.SupportSQLiteQuery
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.RawQuery
+import androidx.paging.DataSource
+import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.RawQuery
 import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import io.reactivex.Flowable

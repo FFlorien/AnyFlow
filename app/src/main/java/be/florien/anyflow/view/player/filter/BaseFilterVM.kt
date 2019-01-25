@@ -1,6 +1,6 @@
 package be.florien.anyflow.view.player.filter
 
-import android.databinding.Bindable
+import androidx.databinding.Bindable
 import be.florien.anyflow.BR
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.view.BaseVM

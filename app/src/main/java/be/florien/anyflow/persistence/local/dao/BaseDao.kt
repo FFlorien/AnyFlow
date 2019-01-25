@@ -1,7 +1,6 @@
 package be.florien.anyflow.persistence.local.dao
 
-import android.arch.persistence.room.*
-import be.florien.anyflow.persistence.local.model.QueueOrder
+import androidx.room.*
 
 @Dao
 interface BaseDao<T> {

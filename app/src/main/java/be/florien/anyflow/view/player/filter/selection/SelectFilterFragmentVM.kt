@@ -1,7 +1,7 @@
 package be.florien.anyflow.view.player.filter.selection
 
-import android.arch.paging.PagedList
-import android.databinding.Bindable
+import androidx.paging.PagedList
+import androidx.databinding.Bindable
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.view.player.filter.BaseFilterVM

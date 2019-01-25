@@ -12,7 +12,7 @@
         <import type="android.view.View" />
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/loading_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,38 +20,38 @@
         android:orientation="vertical"
         tools:context="be.florien.anyflow.view.connect.ConnectActivityBase">
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_server"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_server"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/connect_server_hint"
                 android:text="@={vm.server}" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintTop_toBottomOf="@+id/input_layout_server">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/connect_username_hint"
                 android:text="@={vm.username}" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
             android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintTop_toBottomOf="@+id/input_layout_username">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
                 android:inputType="textPassword"
                 android:text="@={vm.password}" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/info"
@@ -134,5 +134,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loadingProgress"
             app:layout_constraintVertical_bias="0.24" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

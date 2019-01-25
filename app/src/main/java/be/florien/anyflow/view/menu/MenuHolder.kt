@@ -1,7 +1,7 @@
 package be.florien.anyflow.view.menu
 
-import android.support.annotation.IdRes
-import android.support.annotation.MenuRes
+import androidx.annotation.IdRes
+import androidx.annotation.MenuRes
 import android.view.Menu
 import android.view.MenuItem
 

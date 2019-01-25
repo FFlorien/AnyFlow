@@ -1,6 +1,6 @@
 package be.florien.anyflow.view
 
-import android.databinding.BaseObservable
+import androidx.databinding.BaseObservable
 import be.florien.anyflow.extension.eLog
 import io.reactivex.Completable
 import io.reactivex.Flowable

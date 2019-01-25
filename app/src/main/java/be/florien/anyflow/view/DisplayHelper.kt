@@ -1,7 +1,7 @@
 package be.florien.anyflow.view
 
-import android.support.annotation.StringRes
-import android.support.design.widget.Snackbar
+import androidx.annotation.StringRes
+import com.google.android.material.snackbar.Snackbar
 import android.view.View
 import be.florien.anyflow.di.ActivityScope
 import javax.inject.Inject

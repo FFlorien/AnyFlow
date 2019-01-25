@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import android.support.multidex.MultiDexApplication
+import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.di.DaggerApplicationComponent
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.server.AmpacheApi

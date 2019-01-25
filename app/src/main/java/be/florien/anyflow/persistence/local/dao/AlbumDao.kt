@@ -1,8 +1,8 @@
 package be.florien.anyflow.persistence.local.dao
 
-import android.arch.paging.DataSource
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Query
+import androidx.paging.DataSource
+import androidx.room.Dao
+import androidx.room.Query
 import be.florien.anyflow.persistence.local.model.Album
 import be.florien.anyflow.persistence.local.model.AlbumDisplay
 

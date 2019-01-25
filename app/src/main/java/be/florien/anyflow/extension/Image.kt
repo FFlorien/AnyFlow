@@ -1,6 +1,6 @@
 package be.florien.anyflow.extension
 
-import android.databinding.BindingAdapter
+import androidx.databinding.BindingAdapter
 import android.widget.ImageView
 import be.florien.anyflow.R
 import com.bumptech.glide.annotation.GlideModule

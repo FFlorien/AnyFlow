@@ -1,19 +1,15 @@
 package be.florien.anyflow.view.player.filter.selection
 
 import android.annotation.SuppressLint
-import android.arch.paging.PagedListAdapter
 import android.content.Context
-import android.databinding.Observable
 import android.os.Bundle
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
+import androidx.databinding.Observable
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.*
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
@@ -62,7 +58,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         vm = when (filterType) {
             ALBUM_ID -> SelectFilterFragmentAlbumVM(requireActivity())
@@ -75,7 +71,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         fragmentBinding = FragmentSelectFilterBinding.inflate(inflater, container, false)
         fragmentBinding.vm = vm
         fragmentBinding.filterList.layoutManager = if (vm.itemDisplayType == SelectFilterFragmentVM.ITEM_LIST) {
-            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+            LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         } else {
             GridLayoutManager(activity, 3)
         }

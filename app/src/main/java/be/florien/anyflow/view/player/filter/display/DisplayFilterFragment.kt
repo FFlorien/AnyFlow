@@ -1,18 +1,18 @@
 package be.florien.anyflow.view.player.filter.display
 
 import android.content.Context
-import android.databinding.Observable
+import androidx.databinding.Observable
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.support.annotation.DrawableRes
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.annotation.DrawableRes
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
@@ -43,7 +43,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
     private lateinit var binding: FragmentDisplayFilterBinding
     private val filterListAdapter = FilterListAdapter()
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         vm = DisplayFilterFragmentVM(requireActivity())
     }

@@ -1,25 +1,25 @@
 package be.florien.anyflow.view.player.songlist
 
 import android.animation.ObjectAnimator
-import android.arch.paging.PagedListAdapter
 import android.content.Context
 import android.content.Intent
-import android.databinding.Observable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.constraint.ConstraintLayout
-import android.support.constraint.ConstraintSet
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.res.ResourcesCompat
+import androidx.databinding.Observable
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
@@ -96,7 +96,7 @@ class SongListFragment : BaseFragment() {
             }
         })
         binding.songList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?): Boolean {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 isListFollowingCurrentSong = vm.listPosition in linearLayoutManager.findFirstCompletelyVisibleItemPosition()..linearLayoutManager.findLastCompletelyVisibleItemPosition()
                 return false
             }
@@ -137,10 +137,11 @@ class SongListFragment : BaseFragment() {
                                 linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
                             } else {
                                 val listener = object : RecyclerView.OnChildAttachStateChangeListener {
-                                    override fun onChildViewDetachedFromWindow(view: View?) {
+
+                                    override fun onChildViewDetachedFromWindow(view: View) {
                                     }
 
-                                    override fun onChildViewAttachedToWindow(view: View?) {
+                                    override fun onChildViewAttachedToWindow(view: View) {
                                         binding.songList.removeOnChildAttachStateChangeListener(this)
                                         shouldHideLoading = true
                                         linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)

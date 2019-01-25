@@ -1,6 +1,6 @@
 package be.florien.anyflow.player
 
-import android.arch.paging.PagedList
+import androidx.paging.PagedList
 import android.content.SharedPreferences
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.extension.applyPutInt

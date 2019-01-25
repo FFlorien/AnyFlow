@@ -1,11 +1,11 @@
 package be.florien.anyflow.view.player.filter.display
 
 import android.app.Activity
-import android.databinding.Bindable
+import androidx.databinding.Bindable
+import be.florien.anyflow.BR
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterVM
-import com.android.databinding.library.baseAdapters.BR
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class DisplayFilterFragmentVM(activity: Activity) : BaseFilterVM() {

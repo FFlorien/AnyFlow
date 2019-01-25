@@ -1,6 +1,6 @@
 package be.florien.anyflow.view.player.filter
 
-import android.databinding.Observable
+import androidx.databinding.Observable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater

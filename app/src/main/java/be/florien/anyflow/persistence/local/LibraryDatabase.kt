@@ -1,11 +1,11 @@
 package be.florien.anyflow.persistence.local
 
-import android.arch.paging.PagedList
-import android.arch.paging.RxPagedListBuilder
-import android.arch.persistence.db.SimpleSQLiteQuery
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
+import androidx.paging.PagedList
+import androidx.paging.RxPagedListBuilder
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import android.content.Context
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.dao.*

@@ -8,7 +8,7 @@
             type="be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentVM" />
     </data>
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -19,5 +19,5 @@
             app:fastScrollPopupBgColor="@color/accent"
             app:fastScrollPopupTextColor="@color/onSecondaryText"
             app:fastScrollThumbColor="@color/accent" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
