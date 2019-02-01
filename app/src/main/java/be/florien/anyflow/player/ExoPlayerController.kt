@@ -96,7 +96,7 @@ class ExoPlayerController
             songs?.let { prepare(it) }
             lastPosition = NO_VALUE
         })
-        subscription.add(playingQueue.positionUpdater.subscribe { if (it != mediaPlayer.currentWindowIndex) mediaPlayer.seekTo(it, 0) })
+        subscription.add(playingQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()).subscribe { if (it != mediaPlayer.currentWindowIndex) mediaPlayer.seekTo(it, C.TIME_UNSET) })
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady

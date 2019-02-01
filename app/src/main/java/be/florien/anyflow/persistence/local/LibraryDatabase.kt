@@ -42,7 +42,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getSongAtPosition(position: Int): Maybe<Song> = getSongDao().forPositionInQueue(position).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getSongAtPosition") }.subscribeOn(Schedulers.io())
 
-    fun getPositionForSong(song: Song): Single<Int> = getSongDao().findPositionInQueue(song.id).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getPositionForSong") }.subscribeOn(Schedulers.io())
+    fun getPositionForSong(song: Song): Maybe<Int> = getSongDao().findPositionInQueue(song.id).doOnError { this@LibraryDatabase.eLog(it, "Error while querying getPositionForSong") }.subscribeOn(Schedulers.io())
 
     fun getSongsInQueueOrder(): Flowable<PagedList<SongDisplay>> {
         val dataSourceFactory = getSongDao().displayInQueueOrder()

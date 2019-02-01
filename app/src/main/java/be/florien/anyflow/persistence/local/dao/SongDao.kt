@@ -24,7 +24,7 @@ interface SongDao : BaseDao<Song> {
     fun forPositionInQueue(position: Int): Maybe<Song>
 
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
-    fun findPositionInQueue(songId: Long): Single<Int>
+    fun findPositionInQueue(songId: Long): Maybe<Int>
 
     @RawQuery(observedEntities = [Song::class])
     fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>

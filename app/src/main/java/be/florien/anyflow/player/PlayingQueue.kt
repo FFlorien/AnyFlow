@@ -1,7 +1,7 @@
 package be.florien.anyflow.player
 
-import androidx.paging.PagedList
 import android.content.SharedPreferences
+import androidx.paging.PagedList
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
@@ -10,11 +10,10 @@ import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Single
+import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
 
@@ -87,8 +86,7 @@ class PlayingQueue
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
 
-        libraryDatabase.
-                getPlaylist()
+        libraryDatabase.getPlaylist()
                 .doOnNext {
                     val listToSave = if (libraryDatabase.randomOrderingSeed >= 0) {
                         val randomList = it.shuffled(Random(libraryDatabase.randomOrderingSeed.toLong())).toMutableList()
@@ -109,14 +107,17 @@ class PlayingQueue
 
     private fun keepPositionCoherent() {
         val nullSafeSong = currentSong
-        val single = if (nullSafeSong != null) {
+        val maybe = if (nullSafeSong != null) {
             libraryDatabase.getPositionForSong(nullSafeSong)
         } else {
-            Single.just(0)
+            Maybe.just(0)
         }
-        single.onErrorReturnItem(0)
+        maybe
                 .doOnSuccess {
                     listPosition = it
+                }
+                .doOnComplete {
+                    listPosition = 0
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
