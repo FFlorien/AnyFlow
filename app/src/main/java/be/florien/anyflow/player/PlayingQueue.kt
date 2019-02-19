@@ -61,7 +61,6 @@ class PlayingQueue
                 .publish()
                 .autoConnect()
 
-    val songUrlListUpdater: Flowable<List<String>> = libraryDatabase.getSongsUrlInQueueOrder().replay(1).refCount()
     val songDisplayListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
     val isRandomUpdater: Flowable<Boolean> =
             libraryDatabase

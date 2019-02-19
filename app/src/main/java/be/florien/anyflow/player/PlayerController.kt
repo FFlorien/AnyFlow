@@ -12,7 +12,6 @@ interface PlayerController {
 
     fun isPlaying(): Boolean
     fun play()
-    fun prepare(songsUrl: List<String>)
     fun stop()
     fun pause()
     fun resume()

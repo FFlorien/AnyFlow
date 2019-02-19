@@ -25,8 +25,6 @@ class IdlePlayerController : PlayerController {
 
     override fun play() {}
 
-    override fun prepare(songsUrl: List<String>) {}
-
     override fun stop() {}
 
     override fun pause() {}
