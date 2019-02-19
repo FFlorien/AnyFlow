@@ -14,15 +14,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/songList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:fastScrollPopupBgColor="@color/accent"
+            app:fastScrollPopupPosition="center"
+            app:fastScrollPopupTextColor="@color/onSecondaryText"
+            app:fastScrollThumbColor="@color/accent"
             tools:listitem="@layout/item_song" />
 
         <include
             android:id="@+id/currentSongDisplay"
             layout="@layout/item_song"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/smallDimen"
             android:visibility="gone"
             app:song="@{vm.currentSong}" />
 
