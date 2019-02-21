@@ -28,6 +28,7 @@ import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.player.PlayerActivity
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import javax.inject.Inject
 
 /**
@@ -219,7 +220,7 @@ class SongListFragment : BaseFragment() {
 
         override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
 
-    }) {
+    }), FastScrollRecyclerView.SectionedAdapter {
 
         private var lastPosition = 0
 
@@ -235,6 +236,8 @@ class SongListFragment : BaseFragment() {
             notifyItemChanged(position)
             lastPosition = position
         }
+
+        override fun getSectionName(position: Int): String = position.toString()
     }
 
     inner class SongViewHolder(

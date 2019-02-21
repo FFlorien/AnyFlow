@@ -6,13 +6,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.net.Uri
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
 import be.florien.anyflow.extension.iLog
+import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -27,7 +25,6 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
@@ -79,9 +76,6 @@ class ExoPlayerController
         }
     }
 
-    private var currentSongsUrls: List<String> = listOf()
-    private val audioSource = ConcatenatingMediaSource()
-
     /**
      * Constructor
      */
@@ -94,16 +88,10 @@ class ExoPlayerController
         val bandwidthMeter = DefaultBandwidthMeter()
         val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
-        subscription.add(playingQueue.songUrlListUpdater
-                .withLatestFrom(
-                        playingQueue.positionUpdater.toFlowable(BackpressureStrategy.LATEST),
-                        BiFunction { songUrls: List<String>, position: Int ->
-                            val topIndex = position + 10
-                            songUrls.subList(position, if (topIndex > songUrls.size) songUrls.size else topIndex)
-                        })
+        subscription.add(playingQueue.currentSongUpdater
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    prepare(it)
+                .subscribe { song ->
+                    song?.let { prepare(it) }
                 }
 
         )
@@ -116,10 +104,8 @@ class ExoPlayerController
         resume()
     }
 
-    override fun prepare(songsUrl: List<String>) {
-        val diffResult = DiffUtil.calculateDiff(DiffCallback(currentSongsUrls, songsUrl))
-        currentSongsUrls = songsUrl
-        diffResult.dispatchUpdatesTo(DiffUpdate())
+    fun prepare(song: Song) {
+        mediaPlayer.prepare(ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song.url))))
         mediaPlayer.seekTo(0, C.TIME_UNSET)
     }
 
@@ -164,7 +150,7 @@ class ExoPlayerController
     }
 
     override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-        playingQueue.listPosition = mediaPlayer.currentWindowIndex
+        iLog("onTrackChanged")
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
@@ -172,7 +158,7 @@ class ExoPlayerController
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
                 stateChangePublisher.onNext(PlayerController.State.RECONNECT)
-                ampacheConnection.reconnect(Observable.fromCallable { prepare(currentSongsUrls) }).subscribeOn(Schedulers.io()).subscribe()
+                ampacheConnection.reconnect(Observable.fromCallable { playingQueue.currentSong?.let { prepare(it) } }).subscribeOn(Schedulers.io()).subscribe()
                 // todo unsubscribe + on complete/next/error
             }
         }
@@ -218,39 +204,4 @@ class ExoPlayerController
             context.unregisterReceiver(myNoisyAudioStreamReceiver)
         }
     }
-
-
-
-    inner class DiffCallback(private val oldList: List<String>, private val newList: List<String>):  DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition] == newList[newItemPosition]
-
-        override fun getOldListSize() = oldList.size
-
-        override fun getNewListSize() = newList.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) = areItemsTheSame(oldItemPosition, newItemPosition)
-    }
-    inner class DiffUpdate: ListUpdateCallback {
-        override fun onChanged(position: Int, count: Int, payload: Any?) {
-            onRemoved(position, count)
-            onInserted(position, count)
-        }
-
-        override fun onMoved(fromPosition: Int, toPosition: Int) {
-            audioSource.moveMediaSource(fromPosition, toPosition)
-        }
-
-        override fun onInserted(position: Int, count: Int) {
-            currentSongsUrls.subList(position, position + count).forEachIndexed { index, url ->
-                audioSource.addMediaSource(position + index , ExtractorMediaSource.Factory(dataSourceFactory)
-                        .createMediaSource(Uri.parse(ampacheConnection.getSongUrl(url))))
-            }
-        }
-
-        override fun onRemoved(position: Int, count: Int) {
-            audioSource.removeMediaSourceRange(position, position + count)
-        }
-
-    }
-
 }

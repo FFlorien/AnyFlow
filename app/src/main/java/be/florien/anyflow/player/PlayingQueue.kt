@@ -44,11 +44,11 @@ class PlayingQueue
                 value < 0 -> 0
                 else -> itemsCount - 1
             }
+            positionUpdater.onNext(field)
+            sharedPreferences.applyPutInt(POSITION_PREF, field)
             if (value != 0 && field == 0) {
                 this@PlayingQueue.eLog(IllegalArgumentException("The new position may result from a faulty reset."))
             }
-            positionUpdater.onNext(field)
-            sharedPreferences.applyPutInt(POSITION_PREF, field)
         }
     val positionUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
     val currentSongUpdater: Flowable<Song?>
@@ -61,7 +61,6 @@ class PlayingQueue
                 .publish()
                 .autoConnect()
 
-    val songUrlListUpdater: Flowable<List<String>> = libraryDatabase.getSongsUrlInQueueOrder().replay(1).refCount()
     val songDisplayListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
     val isRandomUpdater: Flowable<Boolean> =
             libraryDatabase
