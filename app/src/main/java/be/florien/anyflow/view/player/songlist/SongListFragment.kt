@@ -3,7 +3,6 @@ package be.florien.anyflow.view.player.songlist
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -69,9 +68,6 @@ class SongListFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
         setHasOptionsMenu(true)
-        val intent = Intent(requireContext(), be.florien.anyflow.persistence.UpdateService::class.java)//todo : in activity ?
-        intent.data = Uri.parse(be.florien.anyflow.persistence.UpdateService.UPDATE_ALL)
-        requireActivity().startService(intent)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

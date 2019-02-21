@@ -1,15 +1,17 @@
 package be.florien.anyflow.view.player
 
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.Observable
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.fragment.app.FragmentManager
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
+import androidx.fragment.app.FragmentManager
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ActivityPlayerBinding
@@ -17,6 +19,7 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
+import be.florien.anyflow.persistence.UpdateService
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
@@ -32,6 +35,7 @@ import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentAlbum
 import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentArtistVM
 import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentGenreVM
 import be.florien.anyflow.view.player.songlist.SongListFragment
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
 /**
@@ -79,6 +83,13 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         super.onCreate(savedInstanceState)
+
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobInfo = JobInfo.Builder(5, ComponentName(this, UpdateService::class.java))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .build()
+        jobScheduler.schedule(jobInfo)
+
         snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_app)

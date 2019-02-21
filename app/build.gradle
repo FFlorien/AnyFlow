@@ -4,14 +4,6 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 
 android {
-//    signingConfigs {
-//        Debug {
-//            keyAlias 'androiddebugkey'
-//            keyPassword 'android'
-////            storeFile file('/home/florien/.android/debug.keystore')
-//            storePassword 'android'
-//        }
-//    }
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     compileOptions {
@@ -21,7 +13,7 @@ android {
     defaultConfig {
         applicationId "be.florien.anyflow"
         multiDexEnabled true
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 2
         versionName "0.0.0"

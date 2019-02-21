@@ -44,7 +44,7 @@ class PlayingQueue
                 value < 0 -> 0
                 else -> itemsCount - 1
             }
-            if (value == 0) {
+            if (value != 0 && field == 0) {
                 this@PlayingQueue.eLog(IllegalArgumentException("The new position may result from a faulty reset."))
             }
             positionUpdater.onNext(field)

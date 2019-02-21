@@ -1,10 +1,10 @@
 package be.florien.anyflow.view.player.songlist
 
-import androidx.paging.PagedList
 import android.content.ComponentName
 import android.content.ServiceConnection
-import androidx.databinding.Bindable
 import android.os.IBinder
+import androidx.databinding.Bindable
+import androidx.paging.PagedList
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.extension.eLog

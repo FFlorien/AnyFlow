@@ -118,7 +118,7 @@ open class AmpacheConnection
                     .doOnError { this@AmpacheConnection.eLog(it, "Error while ping") }
                     .subscribeOn(Schedulers.io())
 
-    fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverurl from authpersistence if NoServerException. Or look before
+    fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverUrl from authPersistence if NoServerException. Or look before
         if (!authPersistence.hasConnectionInfo()) {
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
@@ -129,7 +129,7 @@ open class AmpacheConnection
             if (reconnectByUserPassword >= RECONNECT_LIMIT) {
                 //todo stop trying and inform the user
             }
-            return if (authPersistence.authToken.first.isNotBlank()) {
+            val reconnectionObservable = if (authPersistence.authToken.first.isNotBlank()) {
                 reconnectByPing++
                 ping(authPersistence.authToken.first).flatMap { pingResponse ->
                     if (pingResponse.error.code == 0) {
@@ -156,6 +156,7 @@ open class AmpacheConnection
             } else {
                 Observable.error { throw SessionExpiredException("Can't reconnect") }
             }
+            return reconnectionObservable.subscribeOn(Schedulers.io())
         }
     }
 
