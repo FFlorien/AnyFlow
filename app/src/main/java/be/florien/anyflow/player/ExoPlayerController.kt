@@ -20,8 +20,6 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.util.Util
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -39,12 +37,8 @@ class ExoPlayerController
         okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
 
     private val stateChangePublisher: BehaviorSubject<PlayerController.State> = BehaviorSubject.create()
-    override val stateChangeNotifier: Flowable<PlayerController.State> =
-            stateChangePublisher
-                    .toFlowable(BackpressureStrategy.LATEST)
-                    .share()
-                    .publish()
-                    .autoConnect()
+    override val stateChangeNotifier: Observable<PlayerController.State>
+        get() = stateChangePublisher
 
     companion object {
         private const val NO_VALUE = -3L
@@ -104,7 +98,7 @@ class ExoPlayerController
         resume()
     }
 
-    fun prepare(song: Song) {
+    private fun prepare(song: Song) {
         mediaPlayer.prepare(ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song.url))))
         mediaPlayer.seekTo(0, C.TIME_UNSET)
     }

@@ -1,6 +1,5 @@
 package be.florien.anyflow.player
 
-import io.reactivex.Flowable
 import io.reactivex.Observable
 
 /**
@@ -8,7 +7,7 @@ import io.reactivex.Observable
  */
 interface PlayerController {
     val playTimeNotifier: Observable<Long>
-    val stateChangeNotifier: Flowable<State>
+    val stateChangeNotifier: Observable<State>
 
     fun isPlaying(): Boolean
     fun play()

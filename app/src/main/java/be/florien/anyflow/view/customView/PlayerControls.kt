@@ -5,12 +5,12 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.Rect
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
 import kotlin.math.absoluteValue
 
@@ -52,6 +52,7 @@ class PlayerControls
         }
     private var elapsedDurationText = ""
     private var remainingDurationText = ""
+    private var isScrolling = false
 
     // Variables that can be configured by XML attributes
     private var _currentDuration: Int = 0
@@ -264,23 +265,26 @@ class PlayerControls
             MotionEvent.ACTION_DOWN -> {
                 lastDownEventX = event.x
                 durationOnScroll = currentDuration
+                isScrolling = false
             }
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
                     val durationOffset = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
                     actionListener?.onCurrentDurationChanged((durationOnScroll - durationOffset).toLong())
                     currentScrollOffset = 0
-                } else if (lastDownEventX in 0..prevButtonRightBound && event.x in 0..prevButtonRightBound) {
+                } else if (!isScrolling && lastDownEventX.toInt() in 0..prevButtonRightBound && event.x.toInt() in 0..prevButtonRightBound) {
                     actionListener?.onPreviousClicked()
                     prevButtonRightBoundAtAnimStart = prevButtonRightBound
                     nextButtonLeftBoundAtAnimStart = nextButtonLeftBound
-                } else if (lastDownEventX in nextButtonLeftBound..width && event.x in nextButtonLeftBound..width) {
+                } else if (!isScrolling && lastDownEventX.toInt() in nextButtonLeftBound..width && event.x.toInt() in nextButtonLeftBound..width) {
                     actionListener?.onNextClicked()
                     prevButtonRightBoundAtAnimStart = prevButtonRightBound
                     nextButtonLeftBoundAtAnimStart = nextButtonLeftBound
-                } else if (lastDownEventX in prevButtonRightBound..nextButtonLeftBound && event.x in prevButtonRightBound..nextButtonLeftBound) {
+                } else if (!isScrolling && lastDownEventX.toInt() in prevButtonRightBound..nextButtonLeftBound && event.x.toInt() in prevButtonRightBound..nextButtonLeftBound) {
                     actionListener?.onPlayPauseClicked()
                 } else {
+                    lastDownEventX = 0f
+                    durationOnScroll = -1
                     return super.onTouchEvent(event)
                 }
                 lastDownEventX = 0f
@@ -288,6 +292,9 @@ class PlayerControls
             }
             MotionEvent.ACTION_MOVE -> {
                 currentScrollOffset = (event.x - lastDownEventX).toInt()
+                if (!isScrolling && currentScrollOffset.absoluteValue > smallestButtonWidth) {
+                    isScrolling = true
+                }
             }
             else -> return super.onTouchEvent(event)
         }
@@ -359,28 +366,53 @@ class PlayerControls
         }
     }
 
-    private fun getPlayPauseIcon(newValue: Int, oldValue: Int = newValue): AnimatedVectorDrawableCompat {
-        val resource = if (oldValue == STATE_BUFFER && newValue == STATE_PLAY) {
-            isPlayPauseAnimationInfinite = false
-            R.drawable.ic_buffer_to_pause
-        } else if (oldValue == STATE_BUFFER && newValue == STATE_PAUSE) {
-            isPlayPauseAnimationInfinite = false
-            R.drawable.ic_buffer_to_play
-        } else if (oldValue == STATE_PLAY && newValue == STATE_BUFFER) {
-            isPlayPauseAnimationInfinite = true
-            R.drawable.ic_pause_to_buffer
-        } else if (oldValue == STATE_PLAY && newValue == STATE_PAUSE) {
-            isPlayPauseAnimationInfinite = false
-            R.drawable.ic_pause_to_play
-        } else if (oldValue == STATE_PAUSE && newValue == STATE_BUFFER) {
-            isPlayPauseAnimationInfinite = true
-            R.drawable.ic_play_to_buffer
-        } else if (oldValue == STATE_PAUSE && newValue == STATE_PLAY) {
-            isPlayPauseAnimationInfinite = false
-            R.drawable.ic_play_to_pause
+    private fun getPlayPauseIcon(newState: Int, oldState: Int = newState): AnimatedVectorDrawableCompat {
+        val resource = if (newState != oldState) {
+            when {
+                oldState == STATE_BUFFER && newState == STATE_PLAY -> {
+                    isPlayPauseAnimationInfinite = false
+                    R.drawable.ic_buffer_to_pause
+                }
+                oldState == STATE_BUFFER && newState == STATE_PAUSE -> {
+                    isPlayPauseAnimationInfinite = false
+                    R.drawable.ic_buffer_to_play
+                }
+                oldState == STATE_PLAY && newState == STATE_BUFFER -> {
+                    isPlayPauseAnimationInfinite = true
+                    R.drawable.ic_pause_to_buffer
+                }
+                oldState == STATE_PLAY && newState == STATE_PAUSE -> {
+                    isPlayPauseAnimationInfinite = false
+                    R.drawable.ic_pause_to_play
+                }
+                oldState == STATE_PAUSE && newState == STATE_BUFFER -> {
+                    isPlayPauseAnimationInfinite = true
+                    R.drawable.ic_play_to_buffer
+                }
+                oldState == STATE_PAUSE && newState == STATE_PLAY -> {
+                    isPlayPauseAnimationInfinite = false
+                    R.drawable.ic_play_to_pause
+                }
+                else -> {
+                    isPlayPauseAnimationInfinite = true
+                    R.drawable.ic_buffering
+                }
+            }
         } else {
-            isPlayPauseAnimationInfinite = true
-            R.drawable.ic_buffering
+            when (newState) {
+                STATE_PAUSE -> {
+                    isPlayPauseAnimationInfinite = false
+                    R.drawable.ic_buffer_to_pause
+                }
+                STATE_PLAY -> {
+                    isPlayPauseAnimationInfinite = false
+                    R.drawable.ic_buffer_to_play
+                }
+                else -> {
+                    isPlayPauseAnimationInfinite = true
+                    R.drawable.ic_buffering
+                }
+            }
         }
 
         return getAnimatedIcon(resource, playPausePosition)
@@ -419,7 +451,7 @@ class PlayerControls
 
         for (i in 0 until 6) {
             val maybeTickX = firstTickX + (tickOffset * i)
-            nextTicksX[i] = when (maybeTickX) {
+            nextTicksX[i] = when (maybeTickX.toInt()) {
                 in prevButtonRightBound..nextButtonLeftBound -> maybeTickX
                 else -> -1f
             }

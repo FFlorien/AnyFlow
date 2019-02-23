@@ -1,6 +1,5 @@
 package be.florien.anyflow.player
 
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
@@ -10,9 +9,8 @@ import java.util.concurrent.TimeUnit
  */
 class IdlePlayerController : PlayerController {
 
-    override val stateChangeNotifier: Flowable<PlayerController.State> = Flowable
+    override val stateChangeNotifier: Observable<PlayerController.State> = Observable
             .just(PlayerController.State.NO_MEDIA)
-            .onBackpressureLatest()
             .publish()
             .autoConnect()
 

@@ -10,6 +10,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.persistence.local.model.Song
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -98,7 +99,7 @@ class PlayerService : Service() {
         notificationBuilder = PlayerNotificationBuilder(this, pendingIntent, mediaSession)
 
         subscription = Flowable.combineLatest<PlayerController.State, Song?, Pair<PlayerController.State, Song?>>(
-                playerController.stateChangeNotifier,
+                playerController.stateChangeNotifier.toFlowable(BackpressureStrategy.LATEST),
                 playingQueue.currentSongUpdater,
                 BiFunction { state, song ->
                     Pair(state, song)
