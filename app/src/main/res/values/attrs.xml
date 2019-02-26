@@ -3,7 +3,6 @@
     <declare-styleable name="PlayerControls">
         <attr name="progressAnimDuration" format="integer"/>
         <attr name="changeTrackAnimDuration" format="integer"/>
-        <attr name="smallestButtonWidth" format="dimension"/>
         <attr name="currentDuration" format="integer"/>
         <attr name="totalDuration" format="integer"/>
         <attr name="state" format="enum">

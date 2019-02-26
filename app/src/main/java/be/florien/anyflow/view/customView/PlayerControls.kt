@@ -1,6 +1,7 @@
 package be.florien.anyflow.view.customView
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -9,7 +10,6 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
-import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
@@ -32,10 +32,9 @@ class PlayerControls
     /**
      * Attributes
      */
-    abstract class ValuesComputer {
+    abstract class PlayerPainter(val context: Context) {
         var duration = 0
             set(value) {
-
                 if (progressAnimDuration in field..value || progressAnimDuration in value..field || value < field) {
                     computePreviousIcon()
                 }
@@ -48,40 +47,28 @@ class PlayerControls
                 computeTicks()
                 onValuesComputed()
             }
-
-        var onValuesComputed: () -> Unit = {}
-
         var totalDuration: Int = 0
-        var shouldShowBuffering: Boolean = false
-        var elapsedDurationText: String = ""
-            protected set
-        var remainingDurationText: String = ""
-            protected set
-        protected var oldState: Int = STATE_PAUSE
         var currentState: Int = STATE_PAUSE
             set(value) {
                 oldState = field
                 field = value
                 computePlayPauseIcon()
             }
-        val progressAnimDuration: Int = 10000
-        var playButtonLeftBound: Int = 0
-            protected set
-        var playButtonRightBound: Int = 0
-            protected set
-        val ticks: FloatArray = FloatArray(6)
+        protected var oldState: Int = STATE_PAUSE
 
-        // Drawables
-        @DrawableRes
-        var playPauseIcon: Int? = null
-            protected set
-        @DrawableRes
-        var previousIcon: Int? = null
-            protected set
-        @DrawableRes
-        var nextIcon: Int? = null
-            protected set
+        protected var shouldShowBuffering: Boolean = false
+        protected var elapsedDurationText: String = ""
+        protected var remainingDurationText: String = ""
+        var playButtonMaxWidthOffset = 0 //todo privatize this
+        protected val progressAnimDuration: Int = 10000
+        var playButtonLeftBound: Int = 0 //todo privatize this
+        var playButtonRightBound: Int = 0 //todo privatize this
+        protected val ticks: FloatArray = FloatArray(6)
+        var onValuesComputed: () -> Unit = {}
 
+        abstract fun retrieveLayoutProperties(values: TypedArray)
+        abstract fun measure(width: Int, height: Int)
+        abstract fun draw(canvas: Canvas, width: Int, height: Int)
         protected abstract fun computeElapsedDurationText()
         protected abstract fun computeRemainingDurationText()
         protected abstract fun computePlayButtonLeftBound()
@@ -90,16 +77,146 @@ class PlayerControls
 
         protected abstract fun computePreviousIcon()
         protected abstract fun computePlayPauseIcon()
-
+        abstract var hasPrevious: Boolean
+        abstract var hasNext: Boolean
     }
 
-    private abstract class DurationValuesComputer(val context: Context) : ValuesComputer() {
-        var smallestButtonWidth = 0
-        var playButtonMaxWidthOffset = 0
-        var centerLeftX = 0
-        var centerRightX = 0
+    private abstract class DurationPlayerPainter(context: Context) : PlayerPainter(context) {
+        private var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
+        private var centerLeftX = 0
+        private var centerRightX = 0
+        private var width = 0
+        private var height = 0
+
+        // Drawables
+        protected lateinit var playPauseIcon: AnimatedVectorDrawableCompat
+        protected lateinit var previousIcon: AnimatedVectorDrawableCompat
+        protected lateinit var nextIcon: AnimatedVectorDrawableCompat
+        protected val playPausePosition = Rect()
+        protected val previousIconPosition: Rect = Rect()
+        protected val nextIconPosition: Rect = Rect()
+
+        // Paints
+        private val textAndOutlineColor = Paint().apply {
+            val color = ContextCompat.getColor(context, R.color.iconInApp)
+            setColor(color)
+            textAlign = Paint.Align.CENTER
+            textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, context.resources.displayMetrics)
+            strokeWidth = 2f
+        }
+        private val timelineOutlineColor = Paint().apply {
+            val color = ContextCompat.getColor(context, R.color.iconInApp)
+            setColor(color)
+            strokeWidth = 2f
+        }
+        private val backgroundColor = Paint().apply {
+            val color = ContextCompat.getColor(context, R.color.primary)
+            setColor(color)
+        }
+        private val previousBackgroundColor = Paint().apply {
+            val color = ContextCompat.getColor(context, R.color.primaryDark)
+            setColor(color)
+        }
+        private val nextBackgroundColor = Paint().apply {
+            val color = ContextCompat.getColor(context, R.color.primaryDark)
+            setColor(color)
+        }
+        private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+        private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
 
         private var isPreviousIconPrevious = false
+        private var informationBaseline: Int = 0
+        override var hasPrevious: Boolean = false
+            set(value) {
+                field = value
+                if (value) {
+                    previousIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                } else if (duration < progressAnimDuration) {
+                    previousIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+                }
+            }
+        override var hasNext: Boolean = false
+            set(value) {
+                field = value
+                if (value) {
+                    nextIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                } else {
+                    nextIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+                }
+            }
+
+        override fun retrieveLayoutProperties(values: TypedArray) {
+            values.getColor(R.styleable.PlayerControls_iconColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                iconColor = it
+            }
+            values.getColor(R.styleable.PlayerControls_outLineColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                textAndOutlineColor.color = it
+                timelineOutlineColor.color = it
+            }
+            values.getColor(R.styleable.PlayerControls_previousBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                previousBackgroundColor.color = it
+            }
+            values.getColor(R.styleable.PlayerControls_nextBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                nextBackgroundColor.color = it
+            }
+            values.getColor(R.styleable.PlayerControls_progressBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                backgroundColor.color = it
+            }
+            values.getColor(R.styleable.PlayerControls_disabledColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
+                disabledColor = it
+            }
+            computePlayPauseIcon()
+            computePreviousIcon()
+            nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
+        }
+
+        override fun measure(width: Int, height: Int) {
+            if (width < (smallestButtonWidth * 3)) {
+                smallestButtonWidth = width / 3
+            }
+            centerLeftX = ((width - smallestButtonWidth).toFloat() / 2).toInt()
+            centerRightX = centerLeftX + smallestButtonWidth
+            playButtonMaxWidthOffset = centerLeftX - smallestButtonWidth
+            val margin = smallestButtonWidth / 4
+            val iconSize = smallestButtonWidth / 2
+            val startX = (((width - smallestButtonWidth) / 2) + margin)
+            playPausePosition.left = startX
+            playPausePosition.top = margin
+            playPausePosition.right = (startX + iconSize)
+            playPausePosition.bottom = (margin + iconSize)
+            previousIconPosition.left = margin
+            previousIconPosition.top = margin
+            previousIconPosition.right = (margin + iconSize)
+            previousIconPosition.bottom = (margin + iconSize)
+            val nextStartX = (width - smallestButtonWidth + margin)
+            nextIconPosition.left = nextStartX
+            nextIconPosition.top = margin
+            nextIconPosition.right = (nextStartX + iconSize)
+            nextIconPosition.bottom = margin + iconSize
+            playPauseIcon.bounds = playPausePosition
+            previousIcon.bounds = previousIconPosition
+            nextIcon.bounds = nextIconPosition
+            informationBaseline = (height - 10f).toInt()
+            this.width = width
+            this.height = height
+        }
+
+        override fun draw(canvas: Canvas, width: Int, height: Int) {
+            canvas.drawRect(0f, 0f, playButtonLeftBound.toFloat(), height.toFloat(), previousBackgroundColor)
+            canvas.drawRect(playButtonLeftBound.toFloat(), 0f, playButtonRightBound.toFloat(), height.toFloat(), backgroundColor)
+            canvas.drawRect(playButtonRightBound.toFloat(), 0f, width.toFloat(), height.toFloat(), nextBackgroundColor)
+            canvas.drawLine(playButtonLeftBound.toFloat(), informationBaseline.toFloat(), playButtonRightBound.toFloat(), informationBaseline.toFloat(), timelineOutlineColor)
+            canvas.drawLine(0f, 0f, width.toFloat(), 0f, textAndOutlineColor)
+            playPauseIcon.draw(canvas)
+            previousIcon.draw(canvas)
+            nextIcon.draw(canvas)
+            ticks.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelineOutlineColor) }
+            canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
+            canvas.drawText(remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
+            canvas.drawLine(playButtonLeftBound.toFloat(), 0f, playButtonLeftBound.toFloat(), height.toFloat(), textAndOutlineColor)
+            canvas.drawLine(playButtonRightBound.toFloat(), 0f, playButtonRightBound.toFloat(), height.toFloat(), textAndOutlineColor)
+
+        }
 
         override fun computeElapsedDurationText() {
             val playBackTimeInSeconds = duration / 1000
@@ -116,14 +233,12 @@ class PlayerControls
         }
 
         override fun computePreviousIcon() {
-            return if (duration > progressAnimDuration && isPreviousIconPrevious) {
+            if (duration > progressAnimDuration && isPreviousIconPrevious) {
                 isPreviousIconPrevious = false
-                previousIcon = R.drawable.ic_previous_to_start
+                previousIcon = getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
             } else if (!isPreviousIconPrevious) {
                 isPreviousIconPrevious = true
-                previousIcon = R.drawable.ic_start_to_previous
-            } else {
-                previousIcon = null
+                previousIcon = getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition)
             }
         }
 
@@ -147,7 +262,7 @@ class PlayerControls
         }
 
         override fun computePlayButtonRightBound() {
-            val mostRightNextLeft = - smallestButtonWidth
+            val mostRightNextLeft = width -smallestButtonWidth
             playButtonRightBound = if (duration > totalDuration - progressAnimDuration) {
                 val percentageOfEndProgress = (totalDuration - duration).toFloat() / progressAnimDuration.toFloat()
                 val offsetOfPlayButton = (percentageOfEndProgress * playButtonMaxWidthOffset).toInt()
@@ -170,7 +285,7 @@ class PlayerControls
             val tickOffset = playButtonMaxWidthOffset.toFloat() / 2
             val nextTickInDuration = 5000 - (duration % 5000)
             val percentageOfDuration = nextTickInDuration.toFloat() / 10000f
-            val firstTickX = (centerLeftX + (smallestButtonWidth /2)) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2)
+            val firstTickX = (centerLeftX + (smallestButtonWidth / 2)) + (percentageOfDuration * playButtonMaxWidthOffset) - playButtonMaxWidthOffset - (smallestButtonWidth / 2)
 
             for (i in 0 until 6) {
                 val maybeTickX = firstTickX + (tickOffset * i)
@@ -180,101 +295,108 @@ class PlayerControls
                 }
             }
         }
+
+        protected fun getAnimatedIcon(animIconRes: Int, bounds: Rect): AnimatedVectorDrawableCompat {
+            val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
+                    ?: throw IllegalArgumentException("Icon wasn't found !")
+            icon.bounds = bounds
+            icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+            icon.start()
+            return icon
+        }
     }
 
 
-    private class PlayValuesComputer(context: Context) : DurationValuesComputer(context) {
+    private class PlayPlayerPainter(context: Context) : DurationPlayerPainter(context) {
+
+        private var isFirstTime = true
         override fun computePlayPauseIcon() {
             playPauseIcon = if (currentState != oldState) {
                 when {
                     oldState == STATE_BUFFER && currentState == STATE_PLAY -> {
                         //isPlayPauseAnimationInfinite = false
-                        R.drawable.ic_buffer_to_pause
+                        getAnimatedIcon(R.drawable.ic_buffer_to_pause, playPausePosition)
                     }
                     oldState == STATE_BUFFER && currentState == STATE_PAUSE -> {
                         //isPlayPauseAnimationInfinite = false
-                        R.drawable.ic_buffer_to_play
+                        getAnimatedIcon(R.drawable.ic_buffer_to_play, playPausePosition)
                     }
                     oldState == STATE_PLAY && currentState == STATE_BUFFER -> {
                         //isPlayPauseAnimationInfinite = true
-                        R.drawable.ic_pause_to_buffer
+                        getAnimatedIcon(R.drawable.ic_pause_to_buffer, playPausePosition)
                     }
                     oldState == STATE_PLAY && currentState == STATE_PAUSE -> {
                         //isPlayPauseAnimationInfinite = false
-                        R.drawable.ic_pause_to_play
+                        getAnimatedIcon(R.drawable.ic_pause_to_play, playPausePosition)
                     }
                     oldState == STATE_PAUSE && currentState == STATE_BUFFER -> {
                         //isPlayPauseAnimationInfinite = true
-                        R.drawable.ic_play_to_buffer
+                        getAnimatedIcon(R.drawable.ic_play_to_buffer, playPausePosition)
                     }
                     oldState == STATE_PAUSE && currentState == STATE_PLAY -> {
                         //isPlayPauseAnimationInfinite = false
-                        R.drawable.ic_play_to_pause
+                        getAnimatedIcon(R.drawable.ic_play_to_pause, playPausePosition)
                     }
                     else -> {
                         //isPlayPauseAnimationInfinite = true
-                        R.drawable.ic_buffering
+                        getAnimatedIcon(R.drawable.ic_buffering, playPausePosition)
                     }
                 }
             } else {
-                null
+                if (isFirstTime) {
+                    isFirstTime = false
+                    getAnimatedIcon(R.drawable.ic_buffer_to_play, playPausePosition)
+                } else {
+                    playPauseIcon
+                }
             }
         }
     }
 
-    private class ScrollValuesComputer(context: Context) : DurationValuesComputer(context) {
+    private class ScrollPlayerPainter(context: Context) : DurationPlayerPainter(context) {
         override fun computePlayPauseIcon() {
-            playPauseIcon = R.drawable.ic_buffering
+            playPauseIcon = getAnimatedIcon(R.drawable.ic_buffering, playPausePosition)
         }
     }
 
-    private val playValuesComputer: PlayValuesComputer = PlayValuesComputer(context)
-    private val scrollValuesComputer: ScrollValuesComputer = ScrollValuesComputer(context)
-    private var currentValuesComputer: ValuesComputer = playValuesComputer
+    private val playPlayerPainter: PlayPlayerPainter = PlayPlayerPainter(context)
+    private val scrollPlayerPainter: ScrollPlayerPainter = ScrollPlayerPainter(context)
+    private var currentPlayerPainter: PlayerPainter = playPlayerPainter
         set(value) {
             field.onValuesComputed = {}
-            field = value
-            field.onValuesComputed = {
-                playPauseIcon = getMaybeAnimatedIcon(field.playPauseIcon, playPausePosition)
-                        ?: playPauseIcon
-                nextIcon = getMaybeAnimatedIcon(field.nextIcon, playPausePosition) ?: nextIcon
-                previousIcon = getMaybeAnimatedIcon(field.previousIcon, playPausePosition)
-                        ?: previousIcon
+            value.onValuesComputed = {
                 invalidate()
             }
+            field = value
         }
+
+    private var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
+
 
     // Variable changing due to usage
     var shouldShowBuffering: Boolean = false
-    var hasPrevious: Boolean = false
+    var hasPrevious: Boolean
+        get() = currentPlayerPainter.hasPrevious
         set(value) {
-            field = value
-            if (value) {
-                previousIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-            } else if (_currentDuration < progressAnimDuration) {
-                previousIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
-            }
+            playPlayerPainter.hasPrevious = value
+            scrollPlayerPainter.hasPrevious = value
         }
-    var hasNext: Boolean = false
+    var hasNext: Boolean
+        get() = currentPlayerPainter.hasNext
         set(value) {
-            field = value
-            if (value) {
-                nextIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-            } else {
-                nextIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
-            }
+            playPlayerPainter.hasNext = value
+            scrollPlayerPainter.hasNext = value
         }
 
     // Variables that can be configured by XML attributes
-    private var _currentDuration: Int = 0
     var currentDuration: Int
         set(value) {
-            playValuesComputer.duration = value
+            playPlayerPainter.duration = value
         }
-        get() = currentValuesComputer.duration
+        get() = playPlayerPainter.duration
     var state = STATE_PAUSE
         set(value) {
-            currentValuesComputer.currentState = value
+            currentPlayerPainter.currentState = value
             field = value
         }
 
@@ -282,73 +404,12 @@ class PlayerControls
     var totalDuration: Int = 0
         set(value) {
             field = if (value == 0) Int.MAX_VALUE else value
-            scrollValuesComputer.totalDuration = field
-            playValuesComputer.totalDuration = field
+            scrollPlayerPainter.totalDuration = field
+            playPlayerPainter.totalDuration = field
         }
     var progressAnimDuration: Int = 10000
-    var smallestButtonWidth: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, resources.displayMetrics).toInt()
-        set(value) {
-            playValuesComputer.smallestButtonWidth = value
-            scrollValuesComputer.smallestButtonWidth = value
-            field = value
-        }
-
-    // Paints
-    private val textAndOutlineColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
-        setColor(color)
-        textAlign = Paint.Align.CENTER
-        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, resources.displayMetrics)
-        strokeWidth = 2f
-    }
-    private val timelineOutlineColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
-        setColor(color)
-        strokeWidth = 2f
-    }
-    private val backgroundColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.primary)
-        setColor(color)
-    }
-    private val previousBackgroundColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.primaryDark)
-        setColor(color)
-    }
-    private val nextBackgroundColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.primaryDark)
-        setColor(color)
-    }
-    private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
-    private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
-
-    // Drawables
-    private var playPauseIcon: AnimatedVectorDrawableCompat
-    private var previousIcon: AnimatedVectorDrawableCompat
-    private var nextIcon: AnimatedVectorDrawableCompat
-    private val playPausePosition = Rect()
-    private val previousIconPosition: Rect = Rect()
-    private val nextIconPosition: Rect = Rect()
 
     // Calculations
-    private var informationBaseline: Int = 0
-    private var playButtonMaxWidthOffset: Int
-        get() = playValuesComputer.playButtonMaxWidthOffset
-        set(value) {
-            playValuesComputer.playButtonMaxWidthOffset = value
-            scrollValuesComputer.playButtonMaxWidthOffset = value
-        }
-    private var centerLeftX: Int
-        get() = playValuesComputer.centerLeftX
-        set(value) {
-            playValuesComputer.centerLeftX = value
-            scrollValuesComputer.centerLeftX = value
-        }
-    private var centerRightX: Int
-        get() = playValuesComputer.centerRightX
-        set(value) {
-            playValuesComputer.centerRightX = value
-            scrollValuesComputer.centerRightX = value
-        }
     private var lastDownEventX = 0f
     private var durationOnScroll = -1
     private var currentScrollOffset = 0
@@ -362,34 +423,10 @@ class PlayerControls
             currentDuration = typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
             totalDuration = typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
             progressAnimDuration = typedArray.getInt(R.styleable.PlayerControls_progressAnimDuration, progressAnimDuration)
-            smallestButtonWidth = typedArray.getDimensionPixelSize(R.styleable.PlayerControls_smallestButtonWidth, smallestButtonWidth)
             state = typedArray.getInteger(R.styleable.PlayerControls_state, STATE_PAUSE)
-            typedArray.getColor(R.styleable.PlayerControls_iconColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
-                iconColor = it
-            }
-            typedArray.getColor(R.styleable.PlayerControls_outLineColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
-                textAndOutlineColor.color = it
-                timelineOutlineColor.color = it
-            }
-            typedArray.getColor(R.styleable.PlayerControls_previousBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
-                previousBackgroundColor.color = it
-            }
-            typedArray.getColor(R.styleable.PlayerControls_nextBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
-                nextBackgroundColor.color = it
-            }
-            typedArray.getColor(R.styleable.PlayerControls_progressBackgroundColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
-                backgroundColor.color = it
-            }
-            typedArray.getColor(R.styleable.PlayerControls_disabledColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
-                disabledColor = it
-            }
+            playPlayerPainter.retrieveLayoutProperties(typedArray)
+            scrollPlayerPainter.retrieveLayoutProperties(typedArray)
             typedArray.recycle()
-        }
-        playPauseIcon = getAnimatedIcon(R.drawable.ic_play_to_buffer, playPausePosition)
-        previousIcon = getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
-        nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
-        if (!hasNext) {
-            nextIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
         }
     }
 
@@ -420,49 +457,12 @@ class PlayerControls
         }
 
         setMeasuredDimension(desiredWidth, desiredHeight)
-
-        if (desiredWidth < (smallestButtonWidth * 3)) {
-            smallestButtonWidth = desiredWidth / 3
-        }
-        centerLeftX = ((desiredWidth - smallestButtonWidth).toFloat() / 2).toInt()
-        centerRightX = centerLeftX + smallestButtonWidth
-        playButtonMaxWidthOffset = centerLeftX - smallestButtonWidth
-        informationBaseline = (height - 10f).toInt()
-        val margin = smallestButtonWidth / 4
-        val iconSize = smallestButtonWidth / 2
-        val startX = (((desiredWidth - smallestButtonWidth) / 2) + margin)
-        playPausePosition.left = startX
-        playPausePosition.top = margin
-        playPausePosition.right = (startX + iconSize)
-        playPausePosition.bottom = (margin + iconSize)
-        playPauseIcon.bounds = playPausePosition
-        previousIconPosition.left = margin
-        previousIconPosition.top = margin
-        previousIconPosition.right = (margin + iconSize)
-        previousIconPosition.bottom = (margin + iconSize)
-        previousIcon.bounds = previousIconPosition
-        val nextStartX = (desiredWidth - smallestButtonWidth + margin)
-        nextIconPosition.left = nextStartX
-        nextIconPosition.top = margin
-        nextIconPosition.right = (nextStartX + iconSize)
-        nextIconPosition.bottom = margin + iconSize
-        nextIcon.bounds = nextIconPosition
+        playPlayerPainter.measure(desiredWidth, desiredHeight)
+        scrollPlayerPainter.measure(desiredWidth, desiredHeight)
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawRect(0f, 0f, currentValuesComputer.playButtonLeftBound.toFloat(), height.toFloat(), previousBackgroundColor)
-        canvas.drawRect(currentValuesComputer.playButtonLeftBound.toFloat(), 0f, width - currentValuesComputer.playButtonRightBound.toFloat(), height.toFloat(), backgroundColor)
-        canvas.drawRect(width - currentValuesComputer.playButtonRightBound.toFloat(), 0f, width.toFloat(), height.toFloat(), nextBackgroundColor)
-        canvas.drawLine(currentValuesComputer.playButtonLeftBound.toFloat(), informationBaseline.toFloat(), width - currentValuesComputer.playButtonRightBound.toFloat(), informationBaseline.toFloat(), timelineOutlineColor)
-        canvas.drawLine(0f, 0f, width.toFloat(), 0f, textAndOutlineColor)
-        playPauseIcon.draw(canvas)
-        previousIcon.draw(canvas)
-        nextIcon.draw(canvas)
-        currentValuesComputer.ticks.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelineOutlineColor) }
-        canvas.drawText(currentValuesComputer.elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
-        canvas.drawText(currentValuesComputer.remainingDurationText, (width - (smallestButtonWidth / 2)).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
-        canvas.drawLine(currentValuesComputer.playButtonLeftBound.toFloat(), 0f, currentValuesComputer.playButtonLeftBound.toFloat(), height.toFloat(), textAndOutlineColor)
-        canvas.drawLine(width - currentValuesComputer.playButtonRightBound.toFloat(), 0f, width - currentValuesComputer.playButtonRightBound.toFloat(), height.toFloat(), textAndOutlineColor)
+        currentPlayerPainter.draw(canvas, width, height)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -473,14 +473,14 @@ class PlayerControls
             }
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
-                    val durationOffset = (currentScrollOffset.toFloat() / (playButtonMaxWidthOffset.toFloat() / 2)) * 5000
+                    val durationOffset = (currentScrollOffset.toFloat() / (currentPlayerPainter.playButtonMaxWidthOffset.toFloat() / 2)) * 5000
                     actionListener?.onCurrentDurationChanged((durationOnScroll - durationOffset).toLong())
                     currentScrollOffset = 0
-                } else if (lastDownEventX.toInt() in 0..currentValuesComputer.playButtonLeftBound && event.x.toInt() in 0..currentValuesComputer.playButtonLeftBound) {
+                } else if (lastDownEventX.toInt() in 0..currentPlayerPainter.playButtonLeftBound && event.x.toInt() in 0..currentPlayerPainter.playButtonLeftBound) {
                     actionListener?.onPreviousClicked()
-                } else if (lastDownEventX.toInt() in currentValuesComputer.playButtonRightBound..width && event.x.toInt() in currentValuesComputer.playButtonRightBound..width) {
+                } else if (lastDownEventX.toInt() in currentPlayerPainter.playButtonRightBound..width && event.x.toInt() in currentPlayerPainter.playButtonRightBound..width) {
                     actionListener?.onNextClicked()
-                } else if (lastDownEventX.toInt() in currentValuesComputer.playButtonLeftBound..currentValuesComputer.playButtonRightBound && event.x.toInt() in currentValuesComputer.playButtonLeftBound..currentValuesComputer.playButtonRightBound) {
+                } else if (lastDownEventX.toInt() in currentPlayerPainter.playButtonLeftBound..currentPlayerPainter.playButtonRightBound && event.x.toInt() in currentPlayerPainter.playButtonLeftBound..currentPlayerPainter.playButtonRightBound) {
                     actionListener?.onPlayPauseClicked()
                 } else {
                     lastDownEventX = 0f
@@ -489,37 +489,17 @@ class PlayerControls
                 }
                 lastDownEventX = 0f
                 durationOnScroll = -1
-                currentValuesComputer = playValuesComputer
+                currentPlayerPainter = playPlayerPainter
             }
             MotionEvent.ACTION_MOVE -> {
                 currentScrollOffset = (event.x - lastDownEventX).toInt()
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth) {
-                    currentValuesComputer = scrollValuesComputer
+                    currentPlayerPainter = scrollPlayerPainter
                 }
             }
             else -> return super.onTouchEvent(event)
         }
         return true
-    }
-
-    /**
-     * Private methods
-     */
-
-    private fun getMaybeAnimatedIcon(animIconRes: Int?, bounds: Rect): AnimatedVectorDrawableCompat? {
-        if (animIconRes == null) {
-            return null
-        }
-        return getAnimatedIcon(animIconRes, bounds)
-    }
-
-    private fun getAnimatedIcon(animIconRes: Int, bounds: Rect): AnimatedVectorDrawableCompat {
-        val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
-                ?: throw IllegalArgumentException("Icon wasn't found !")
-        icon.bounds = bounds
-        icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-        icon.start()
-        return icon
     }
 
     /**
