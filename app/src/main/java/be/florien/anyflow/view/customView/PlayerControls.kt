@@ -306,7 +306,6 @@ class PlayerControls
         }
     }
 
-
     private class PlayPlayerPainter(context: Context) : DurationPlayerPainter(context) {
 
         private var isFirstTime = true
@@ -473,8 +472,7 @@ class PlayerControls
             }
             MotionEvent.ACTION_UP -> {
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
-                    val durationOffset = (currentScrollOffset.toFloat() / (currentPlayerPainter.playButtonMaxWidthOffset.toFloat() / 2)) * 5000
-                    actionListener?.onCurrentDurationChanged((durationOnScroll - durationOffset).toLong())
+                    actionListener?.onCurrentDurationChanged((scrollPlayerPainter.duration).toLong())
                     currentScrollOffset = 0
                 } else if (lastDownEventX.toInt() in 0..currentPlayerPainter.playButtonLeftBound && event.x.toInt() in 0..currentPlayerPainter.playButtonLeftBound) {
                     actionListener?.onPreviousClicked()
@@ -496,6 +494,8 @@ class PlayerControls
                 if (currentScrollOffset.absoluteValue > smallestButtonWidth) {
                     currentPlayerPainter = scrollPlayerPainter
                 }
+                val durationOffset = (currentScrollOffset.toFloat() / (currentPlayerPainter.playButtonMaxWidthOffset.toFloat() / 2)) * 5000
+                scrollPlayerPainter.duration = durationOnScroll - durationOffset.toInt()
             }
             else -> return super.onTouchEvent(event)
         }
