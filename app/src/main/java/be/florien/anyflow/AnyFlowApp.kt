@@ -62,7 +62,6 @@ open class AnyFlowApp : MultiDexApplication() {
                 .build()
                 .create(AmpacheApi::class.java)
         userComponent = applicationComponent
-                //todo don't generate a new one if it is the same server
                 .userComponentBuilder()
                 .ampacheApi(ampacheApi)
                 .build()

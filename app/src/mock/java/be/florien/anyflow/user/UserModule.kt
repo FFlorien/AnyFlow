@@ -10,7 +10,7 @@ import dagger.Module
 import dagger.Provides
 
 /**
- * todo
+ * Build fake data controller for fake user
  */
 @Module
 class UserModule {

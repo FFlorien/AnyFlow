@@ -106,7 +106,6 @@ class SongListFragmentVm
 
     fun refreshSongs() {
         isLoadingAll = playingQueue.itemsCount == 0
-
     }
 
     fun play(position: Int) {
