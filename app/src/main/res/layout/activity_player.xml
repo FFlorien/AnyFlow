@@ -40,6 +40,7 @@
             app:progressAnimDuration="10000"
             app:progressBackgroundColor="@color/primary"
             app:shouldShowBuffering="@{vm.shouldShowBuffering}"
+            app:smallestButtonWidth="@dimen/minClickableSize"
             app:state="@{vm.state}"
             app:totalDuration="@{vm.totalDuration}" />
     </LinearLayout>

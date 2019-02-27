@@ -65,6 +65,7 @@ class PlayerControls
         var playButtonRightBound: Int = 0 //todo privatize this
         protected val ticks: FloatArray = FloatArray(6)
         var onValuesComputed: () -> Unit = {}
+        var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt() //todo privatize this
 
         abstract fun retrieveLayoutProperties(values: TypedArray)
         abstract fun measure(width: Int, height: Int)
@@ -82,7 +83,6 @@ class PlayerControls
     }
 
     private abstract class DurationPlayerPainter(context: Context) : PlayerPainter(context) {
-        private var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
         private var centerLeftX = 0
         private var centerRightX = 0
         private var width = 0
@@ -146,6 +146,7 @@ class PlayerControls
             }
 
         override fun retrieveLayoutProperties(values: TypedArray) {
+            smallestButtonWidth = values.getDimensionPixelSize(R.styleable.PlayerControls_smallestButtonWidth, smallestButtonWidth)
             values.getColor(R.styleable.PlayerControls_iconColor, NO_VALUE).takeIf { it != NO_VALUE }?.let {
                 iconColor = it
             }
@@ -369,9 +370,6 @@ class PlayerControls
             field = value
         }
 
-    private var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
-
-
     // Variable changing due to usage
     var shouldShowBuffering: Boolean = false
     var hasPrevious: Boolean
@@ -471,7 +469,7 @@ class PlayerControls
                 durationOnScroll = currentDuration
             }
             MotionEvent.ACTION_UP -> {
-                if (currentScrollOffset.absoluteValue > smallestButtonWidth.absoluteValue) {
+                if (currentScrollOffset.absoluteValue > currentPlayerPainter.smallestButtonWidth.absoluteValue) {
                     actionListener?.onCurrentDurationChanged((scrollPlayerPainter.duration).toLong())
                     currentScrollOffset = 0
                 } else if (lastDownEventX.toInt() in 0..currentPlayerPainter.playButtonLeftBound && event.x.toInt() in 0..currentPlayerPainter.playButtonLeftBound) {
@@ -491,7 +489,7 @@ class PlayerControls
             }
             MotionEvent.ACTION_MOVE -> {
                 currentScrollOffset = (event.x - lastDownEventX).toInt()
-                if (currentScrollOffset.absoluteValue > smallestButtonWidth) {
+                if (currentScrollOffset.absoluteValue > currentPlayerPainter.smallestButtonWidth) {
                     currentPlayerPainter = scrollPlayerPainter
                 }
                 val durationOffset = (currentScrollOffset.toFloat() / (currentPlayerPainter.playButtonMaxWidthOffset.toFloat() / 2)) * 5000
