@@ -17,6 +17,8 @@ internal class ScrollPlayerPainter(context: Context) : DurationPlayerPainter(con
     private val durationOffset
             get() = (scrollOffset/ (playButtonMaxWidthOffset / 2)) * 5000
 
+    private val scrollAnimation = getAnimatedIcon(R.drawable.ic_scrolling, playPausePosition)
+
     private var minimumDurationOffset = 50000
     override fun retrieveLayoutProperties(values: TypedArray) {
         super.retrieveLayoutProperties(values)
@@ -31,6 +33,9 @@ internal class ScrollPlayerPainter(context: Context) : DurationPlayerPainter(con
             }
 
     override fun computePlayPauseIcon() {
-        playPauseIcon = getAnimatedIcon(R.drawable.ic_buffering, playPausePosition)
+        playPauseIcon = scrollAnimation
+        if (!scrollAnimation.isRunning) {
+            scrollAnimation.start()
+        }
     }
 }
