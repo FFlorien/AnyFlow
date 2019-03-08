@@ -6,7 +6,8 @@ import be.florien.anyflow.R
 import kotlin.math.absoluteValue
 
 
-internal class ScrollPlayerPainter(context: Context) : DurationPlayerPainter(context) {
+internal class ScrollPlayerPainter(context: Context, playPauseIconAnimator: PlayPauseIconAnimator)
+    : DurationPlayerPainter(context, playPauseIconAnimator) {
 
     var durationOnScrollStart: Int = 0
     var scrollOffset: Float = 0F
@@ -16,10 +17,12 @@ internal class ScrollPlayerPainter(context: Context) : DurationPlayerPainter(con
         }
     private val durationOffset
             get() = (scrollOffset/ (playButtonMaxWidthOffset / 2)) * 5000
-
-    private val scrollAnimation = getAnimatedIcon(R.drawable.ic_scrolling, playPausePosition)
-
     private var minimumDurationOffset = 50000
+
+    init {
+        currentState = PlayerControls.STATE_SCROLL
+    }
+
     override fun retrieveLayoutProperties(values: TypedArray) {
         super.retrieveLayoutProperties(values)
         minimumDurationOffset = values.getInt(R.styleable.PlayerControls_minimumDurationForSeek, minimumDurationOffset)
@@ -33,9 +36,6 @@ internal class ScrollPlayerPainter(context: Context) : DurationPlayerPainter(con
             }
 
     override fun computePlayPauseIcon() {
-        playPauseIcon = scrollAnimation
-        if (!scrollAnimation.isRunning) {
-            scrollAnimation.start()
-        }
+        playPauseIconAnimator.computeIcon(PlayerControls.STATE_SCROLL, playPausePosition)
     }
 }

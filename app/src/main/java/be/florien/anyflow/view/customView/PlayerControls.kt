@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import be.florien.anyflow.R
+import kotlin.math.absoluteValue
 
 
 /**
@@ -19,8 +20,9 @@ class PlayerControls
      * Attributes
      */
 
-    private val playPlayerPainter: PlayPlayerPainter = PlayPlayerPainter(context)
-    private val scrollPlayerPainter: ScrollPlayerPainter = ScrollPlayerPainter(context)
+    private val playPauseIconAnimator: PlayPauseIconAnimator = PlayPauseIconAnimator(context)
+    private val playPlayerPainter: PlayPlayerPainter = PlayPlayerPainter(context, playPauseIconAnimator)
+    private val scrollPlayerPainter: ScrollPlayerPainter = ScrollPlayerPainter(context, playPauseIconAnimator)
     private var currentPlayerPainter: PlayerPainter = playPlayerPainter
         set(value) {
             field.onValuesComputed = {}
@@ -28,6 +30,7 @@ class PlayerControls
                 invalidate()
             }
             field = value
+            field.currentState = field.currentState
         }
 
     // Variable changing due to usage
@@ -126,7 +129,6 @@ class PlayerControls
             MotionEvent.ACTION_DOWN -> {
                 lastDownEventX = event.x
                 scrollPlayerPainter.durationOnScrollStart = currentDuration
-                currentPlayerPainter = scrollPlayerPainter
             }
             MotionEvent.ACTION_UP -> {
                 if (scrollPlayerPainter.getButtonClicked(lastDownEventX.toInt(), event.x.toInt()) == PlayerPainter.CLICK_SCROLL) {
@@ -147,6 +149,9 @@ class PlayerControls
             }
             MotionEvent.ACTION_MOVE -> {
                 scrollPlayerPainter.scrollOffset = (event.x - lastDownEventX)
+                if (scrollPlayerPainter.scrollOffset.absoluteValue > 50 && currentPlayerPainter != scrollPlayerPainter) {
+                    currentPlayerPainter = scrollPlayerPainter
+                }
             }
             else -> return super.onTouchEvent(event)
         }
@@ -167,6 +172,7 @@ class PlayerControls
         const val STATE_PLAY = 0
         const val STATE_PAUSE = 1
         const val STATE_BUFFER = 2
+        const val STATE_SCROLL = 3
         const val NO_VALUE = -15
     }
 }

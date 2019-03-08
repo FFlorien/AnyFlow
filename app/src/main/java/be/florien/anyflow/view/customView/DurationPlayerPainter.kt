@@ -12,7 +12,7 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
 
 
-internal abstract class DurationPlayerPainter(context: Context) : PlayerPainter(context) {
+internal abstract class DurationPlayerPainter(context: Context, protected val playPauseIconAnimator: PlayPauseIconAnimator) : PlayerPainter(context) {
     // Sizes
     private var centerLeftX = 0
     private var centerRightX = 0
@@ -21,7 +21,6 @@ internal abstract class DurationPlayerPainter(context: Context) : PlayerPainter(
     private var informationBaseline: Int = 0
 
     // Drawables
-    protected lateinit var playPauseIcon: AnimatedVectorDrawableCompat
     private lateinit var previousIcon: AnimatedVectorDrawableCompat
     private lateinit var nextIcon: AnimatedVectorDrawableCompat
     protected val playPausePosition = Rect()
@@ -133,7 +132,6 @@ internal abstract class DurationPlayerPainter(context: Context) : PlayerPainter(
         nextIconPosition.top = margin
         nextIconPosition.right = (nextStartX + iconSize)
         nextIconPosition.bottom = margin + iconSize
-        playPauseIcon.bounds = playPausePosition
         previousIcon.bounds = previousIconPosition
         nextIcon.bounds = nextIconPosition
         informationBaseline = (height - 10f).toInt()
@@ -147,7 +145,7 @@ internal abstract class DurationPlayerPainter(context: Context) : PlayerPainter(
         canvas.drawRect(playButtonRightBound.toFloat(), 0f, width.toFloat(), height.toFloat(), nextBackgroundColor)
         canvas.drawLine(playButtonLeftBound.toFloat(), informationBaseline.toFloat(), playButtonRightBound.toFloat(), informationBaseline.toFloat(), timelineOutlineColor)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, textAndOutlineColor)
-        playPauseIcon.draw(canvas)
+        playPauseIconAnimator.icon.draw(canvas)
         previousIcon.draw(canvas)
         nextIcon.draw(canvas)
         ticks.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelineOutlineColor) }
@@ -240,7 +238,7 @@ internal abstract class DurationPlayerPainter(context: Context) : PlayerPainter(
      * Protected methods
      */
 
-    protected fun getAnimatedIcon(animIconRes: Int, bounds: Rect): AnimatedVectorDrawableCompat {
+    private fun getAnimatedIcon(animIconRes: Int, bounds: Rect): AnimatedVectorDrawableCompat {
         val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
                 ?: throw IllegalArgumentException("Icon wasn't found !")
         icon.bounds = bounds

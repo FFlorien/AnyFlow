@@ -28,9 +28,9 @@
     <target android:name="buffer">
         <aapt:attr name="android:animation">
             <objectAnimator
-                android:duration="50"
+                android:duration="150"
                 android:interpolator="@android:anim/linear_interpolator"
-                android:propertyName="pathData"
+                android:propertyName="rotation"
                 android:repeatCount="infinite"
                 android:repeatMode="restart"
                 android:valueFrom="0"
