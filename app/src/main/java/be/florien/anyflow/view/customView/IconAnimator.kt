@@ -15,32 +15,32 @@ abstract class IconAnimator(val context: Context) {
     lateinit var icon: Drawable
     protected var oldState: Int = -1
     private var oldCallback: Animatable2Compat.AnimationCallback? = null
-    private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+    protected var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
 
-    open fun computeIcon(newState: Int, playPausePosition: Rect) {
+    open fun computeIcon(newState: Int, iconPosition: Rect) {
         val startIcon = getStartAnimation(newState)
         val endIcon = getEndAnimation(newState)
         val fixedIcon = getFixedIcon(newState)
 
         when {
             startIcon != null -> {
-                assignIcon(startIcon, playPausePosition) {
+                assignIcon(startIcon, iconPosition) {
                     if (endIcon != null) {
-                        assignIcon(endIcon, playPausePosition) {
-                            assignIcon(fixedIcon, playPausePosition)
+                        assignIcon(endIcon, iconPosition) {
+                            assignIcon(fixedIcon, iconPosition)
                         }
                     } else {
-                        assignIcon(fixedIcon, playPausePosition)
+                        assignIcon(fixedIcon, iconPosition)
                     }
                 }
             }
             endIcon != null -> {
-                assignIcon(endIcon, playPausePosition) {
-                    assignIcon(fixedIcon, playPausePosition)
+                assignIcon(endIcon, iconPosition) {
+                    assignIcon(fixedIcon, iconPosition)
                 }
             }
             else -> {
-                assignIcon(fixedIcon, playPausePosition)
+                assignIcon(fixedIcon, iconPosition)
             }
         }
         oldState = newState

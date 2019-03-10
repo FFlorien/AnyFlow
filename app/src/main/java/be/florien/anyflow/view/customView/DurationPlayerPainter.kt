@@ -10,9 +10,13 @@ import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
+import be.florien.anyflow.extension.iLog
 
 
-internal abstract class DurationPlayerPainter(context: Context, protected val playPauseIconAnimator: PlayPauseIconAnimator) : PlayerPainter(context) {
+internal abstract class DurationPlayerPainter(
+        context: Context,
+        protected val playPauseIconAnimator: PlayPauseIconAnimator,
+        private val previousIconAnimator: PreviousIconAnimator) : PlayerPainter(context) {
     // Sizes
     private var centerLeftX = 0
     private var centerRightX = 0
@@ -21,7 +25,6 @@ internal abstract class DurationPlayerPainter(context: Context, protected val pl
     private var informationBaseline: Int = 0
 
     // Drawables
-    private lateinit var previousIcon: AnimatedVectorDrawableCompat
     private lateinit var nextIcon: AnimatedVectorDrawableCompat
     protected val playPausePosition = Rect()
     private val previousIconPosition: Rect = Rect()
@@ -56,20 +59,11 @@ internal abstract class DurationPlayerPainter(context: Context, protected val pl
     // Icon related
     private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
     private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
-    private var isPreviousIconPrevious = false
 
     /**
      * Overridden variables
      */
     override var hasPrevious: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                previousIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-            } else if (duration < progressAnimDuration) {
-                previousIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
-            }
-        }
     override var hasNext: Boolean = false
         set(value) {
             field = value
@@ -132,7 +126,6 @@ internal abstract class DurationPlayerPainter(context: Context, protected val pl
         nextIconPosition.top = margin
         nextIconPosition.right = (nextStartX + iconSize)
         nextIconPosition.bottom = margin + iconSize
-        previousIcon.bounds = previousIconPosition
         nextIcon.bounds = nextIconPosition
         informationBaseline = (height - 10f).toInt()
         this.width = width
@@ -146,7 +139,7 @@ internal abstract class DurationPlayerPainter(context: Context, protected val pl
         canvas.drawLine(playButtonLeftBound.toFloat(), informationBaseline.toFloat(), playButtonRightBound.toFloat(), informationBaseline.toFloat(), timelineOutlineColor)
         canvas.drawLine(0f, 0f, width.toFloat(), 0f, textAndOutlineColor)
         playPauseIconAnimator.icon.draw(canvas)
-        previousIcon.draw(canvas)
+        previousIconAnimator.icon.draw(canvas)
         nextIcon.draw(canvas)
         ticks.filter { it > 0 }.forEach { canvas.drawLine(it, informationBaseline.toFloat(), it, (height / 4 * 3).toFloat(), timelineOutlineColor) }
         canvas.drawText(elapsedDurationText, (smallestButtonWidth / 2).toFloat(), informationBaseline.toFloat(), textAndOutlineColor)
@@ -171,13 +164,18 @@ internal abstract class DurationPlayerPainter(context: Context, protected val pl
     }
 
     override fun computePreviousIcon() {
-        if (duration > progressAnimDuration && isPreviousIconPrevious) {
-            isPreviousIconPrevious = false
-            previousIcon = getAnimatedIcon(R.drawable.ic_previous_to_start, previousIconPosition)
-        } else if (!isPreviousIconPrevious) {
-            isPreviousIconPrevious = true
-            previousIcon = getAnimatedIcon(R.drawable.ic_start_to_previous, previousIconPosition)
+        val state = if (!hasPrevious && duration < progressAnimDuration) {
+            iLog("Previous icon state: STATE_PREVIOUS_NO_PREVIOUS with duration : $duration && hasPrevious : $hasPrevious")
+            PlayerControls.STATE_PREVIOUS_NO_PREVIOUS
+        } else if (duration > progressAnimDuration) {
+            iLog("Previous icon state: STATE_PREVIOUS_START with duration : $duration && hasPrevious : $hasPrevious")
+            PlayerControls.STATE_PREVIOUS_START
+        } else {
+            iLog("Previous icon state: STATE_PREVIOUS_PREVIOUS with duration : $duration && hasPrevious : $hasPrevious")
+            PlayerControls.STATE_PREVIOUS_PREVIOUS
         }
+
+        previousIconAnimator.computeIcon(state, previousIconPosition)
     }
 
     override fun computePlayButtonLeftBound() {

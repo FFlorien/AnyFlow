@@ -3,7 +3,10 @@ package be.florien.anyflow.view.customView
 import android.content.Context
 
 
-internal class PlayPlayerPainter(context: Context, playPauseIconAnimator: PlayPauseIconAnimator) : DurationPlayerPainter(context, playPauseIconAnimator) {
+internal class PlayPlayerPainter(
+        context: Context,
+        playPauseIconAnimator: PlayPauseIconAnimator,
+        previousIconAnimator: PreviousIconAnimator) : DurationPlayerPainter(context, playPauseIconAnimator, previousIconAnimator) {
 
     var playingDuration: Int
         get() = duration

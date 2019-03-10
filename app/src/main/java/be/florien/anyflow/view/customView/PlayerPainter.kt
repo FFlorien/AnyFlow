@@ -9,10 +9,11 @@ import android.util.TypedValue
 abstract class PlayerPainter(val context: Context) {
     var duration = 0
         protected set(value) {
-            if (progressAnimDuration in field..value || progressAnimDuration in value..field || value < field) {
+            val oldValue = field
+            field = value
+            if (progressAnimDuration in oldValue..value || progressAnimDuration in value..oldValue || value < oldValue) {
                 computePreviousIcon()
             }
-            field = value
             computeElapsedDurationText()
             computeRemainingDurationText()
 
@@ -22,7 +23,7 @@ abstract class PlayerPainter(val context: Context) {
             onValuesComputed()
         }
     var totalDuration: Int = 0
-    var currentState: Int = PlayerControls.STATE_PAUSE
+    var currentState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
         set(value) {
             oldState = field
             field = value
@@ -32,7 +33,7 @@ abstract class PlayerPainter(val context: Context) {
     var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
     var onValuesComputed: () -> Unit = {}
 
-    protected var oldState: Int = PlayerControls.STATE_PAUSE
+    protected var oldState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
     protected var shouldShowBuffering: Boolean = false
     protected var elapsedDurationText: String = ""
     protected var remainingDurationText: String = ""

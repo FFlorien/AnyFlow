@@ -2,8 +2,8 @@ package be.florien.anyflow.view.player
 
 import android.content.ComponentName
 import android.content.ServiceConnection
-import androidx.databinding.Bindable
 import android.os.IBinder
+import androidx.databinding.Bindable
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.extension.eLog
@@ -16,6 +16,7 @@ import be.florien.anyflow.player.Order.Companion.SUBJECT_TITLE
 import be.florien.anyflow.player.Order.Companion.SUBJECT_TRACK
 import be.florien.anyflow.player.Order.Companion.SUBJECT_YEAR
 import be.florien.anyflow.view.BaseVM
+import be.florien.anyflow.view.customView.PlayPauseIconAnimator
 import be.florien.anyflow.view.customView.PlayerControls
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
@@ -48,7 +49,7 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
 
     @Bindable
-    var state: Int = PlayerControls.STATE_BUFFER
+    var state: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
 
     @Bindable
     var isOrdered: Boolean = true
@@ -74,10 +75,10 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                     onNext = {
                         playerState = it
                         shouldShowBuffering = it == PlayerController.State.BUFFER
-                        state = when(it) {
-                            PlayerController.State.PLAY -> PlayerControls.STATE_PLAY
-                            PlayerController.State.PAUSE -> PlayerControls.STATE_PAUSE
-                            else -> PlayerControls.STATE_BUFFER
+                        state = when (it) {
+                            PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+                            PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+                            else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
                         }
                         notifyPropertyChanged(BR.playerState)
                         notifyPropertyChanged(BR.shouldShowBuffering)

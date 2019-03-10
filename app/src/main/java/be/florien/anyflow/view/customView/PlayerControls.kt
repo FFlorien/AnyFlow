@@ -21,8 +21,9 @@ class PlayerControls
      */
 
     private val playPauseIconAnimator: PlayPauseIconAnimator = PlayPauseIconAnimator(context)
-    private val playPlayerPainter: PlayPlayerPainter = PlayPlayerPainter(context, playPauseIconAnimator)
-    private val scrollPlayerPainter: ScrollPlayerPainter = ScrollPlayerPainter(context, playPauseIconAnimator)
+    private val previousIconAnimator: PreviousIconAnimator = PreviousIconAnimator(context)
+    private val playPlayerPainter: PlayPlayerPainter = PlayPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
+    private val scrollPlayerPainter: ScrollPlayerPainter = ScrollPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
     private var currentPlayerPainter: PlayerPainter = playPlayerPainter
         set(value) {
             field.onValuesComputed = {}
@@ -54,7 +55,7 @@ class PlayerControls
             playPlayerPainter.playingDuration = value
         }
         get() = playPlayerPainter.playingDuration
-    var state = STATE_PAUSE
+    var state = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
         set(value) {
             currentPlayerPainter.currentState = value
             field = value
@@ -81,7 +82,7 @@ class PlayerControls
             currentDuration = typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
             totalDuration = typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
             progressAnimDuration = typedArray.getInt(R.styleable.PlayerControls_progressAnimDuration, progressAnimDuration)
-            state = typedArray.getInteger(R.styleable.PlayerControls_state, STATE_PAUSE)
+            state = typedArray.getInteger(R.styleable.PlayerControls_state, PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE)
             playPlayerPainter.retrieveLayoutProperties(typedArray)
             scrollPlayerPainter.retrieveLayoutProperties(typedArray)
             typedArray.recycle()
@@ -149,7 +150,7 @@ class PlayerControls
             }
             MotionEvent.ACTION_MOVE -> {
                 scrollPlayerPainter.scrollOffset = (event.x - lastDownEventX)
-                if (scrollPlayerPainter.scrollOffset.absoluteValue > 50 && currentPlayerPainter != scrollPlayerPainter) {
+                if (scrollPlayerPainter.scrollOffset.absoluteValue > playPlayerPainter.smallestButtonWidth && currentPlayerPainter != scrollPlayerPainter) {
                     currentPlayerPainter = scrollPlayerPainter
                 }
             }
@@ -169,10 +170,9 @@ class PlayerControls
     }
 
     companion object {
-        const val STATE_PLAY = 0
-        const val STATE_PAUSE = 1
-        const val STATE_BUFFER = 2
-        const val STATE_SCROLL = 3
+        const val STATE_PREVIOUS_NO_PREVIOUS = 0
+        const val STATE_PREVIOUS_PREVIOUS = 1
+        const val STATE_PREVIOUS_START = 2
         const val NO_VALUE = -15
     }
 }
