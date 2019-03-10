@@ -116,6 +116,8 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                 flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     totalDuration = (it?.time ?: 0) * 1000
+                    currentDuration = 0
+                    notifyPropertyChanged(BR.currentDuration)
                     notifyPropertyChanged(BR.totalDuration)
                 },
                 containerKey = PLAYING_QUEUE_CONTAINER)

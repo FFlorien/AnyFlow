@@ -10,7 +10,6 @@ import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
-import be.florien.anyflow.extension.iLog
 
 
 internal abstract class DurationPlayerPainter(
@@ -64,6 +63,10 @@ internal abstract class DurationPlayerPainter(
      * Overridden variables
      */
     override var hasPrevious: Boolean = false
+        set(value) {
+            field = value
+            computePreviousIcon()
+        }
     override var hasNext: Boolean = false
         set(value) {
             field = value
@@ -164,16 +167,9 @@ internal abstract class DurationPlayerPainter(
     }
 
     override fun computePreviousIcon() {
-        val state = if (!hasPrevious && duration < progressAnimDuration) {
-            iLog("Previous icon state: STATE_PREVIOUS_NO_PREVIOUS with duration : $duration && hasPrevious : $hasPrevious")
-            PlayerControls.STATE_PREVIOUS_NO_PREVIOUS
-        } else if (duration > progressAnimDuration) {
-            iLog("Previous icon state: STATE_PREVIOUS_START with duration : $duration && hasPrevious : $hasPrevious")
-            PlayerControls.STATE_PREVIOUS_START
-        } else {
-            iLog("Previous icon state: STATE_PREVIOUS_PREVIOUS with duration : $duration && hasPrevious : $hasPrevious")
-            PlayerControls.STATE_PREVIOUS_PREVIOUS
-        }
+        val state = if (!hasPrevious && duration < progressAnimDuration) PlayerControls.STATE_PREVIOUS_NO_PREVIOUS
+        else if (duration > progressAnimDuration) PlayerControls.STATE_PREVIOUS_START
+        else PlayerControls.STATE_PREVIOUS_PREVIOUS
 
         previousIconAnimator.computeIcon(state, previousIconPosition)
     }
