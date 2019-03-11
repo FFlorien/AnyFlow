@@ -259,7 +259,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
         @Volatile
         private var instance: LibraryDatabase? = null
-        private const val DB_NAME = "ampacheDatabase.db" //todo before release, more generic name
+        private const val DB_NAME = "anyflow.db"
 
         fun getInstance(context: Context): LibraryDatabase {
             if (instance == null) {

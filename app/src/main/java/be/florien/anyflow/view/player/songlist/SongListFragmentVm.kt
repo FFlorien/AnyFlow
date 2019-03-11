@@ -63,7 +63,7 @@ class SongListFragmentVm
     @get:Bindable
     val listPositionLoaded
         get() = (pagedAudioQueue?.size
-                ?: 0) > listPosition && pagedAudioQueue?.get(listPosition) != null
+                ?: 0) > listPosition && listPosition >= 0 && pagedAudioQueue?.get(listPosition) != null
 
     /**
      * Constructor

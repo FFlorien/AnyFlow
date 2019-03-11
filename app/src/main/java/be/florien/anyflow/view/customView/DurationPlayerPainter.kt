@@ -64,8 +64,10 @@ internal abstract class DurationPlayerPainter(
      */
     override var hasPrevious: Boolean = false
         set(value) {
-            field = value
-            computePreviousIcon()
+            if (field != value) {
+                field = value
+                computePreviousIcon()
+            }
         }
     override var hasNext: Boolean = false
         set(value) {

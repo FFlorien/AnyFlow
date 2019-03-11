@@ -13,7 +13,7 @@ import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 /**
- * todo
+ * Provide elements used through all the application state
  */
 @Module
 class ApplicationModule {

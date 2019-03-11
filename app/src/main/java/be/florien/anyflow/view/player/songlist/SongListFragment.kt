@@ -194,7 +194,7 @@ class SongListFragment : BaseFragment() {
             if (vm.listPositionLoaded && vm.pagedAudioQueue != null) {
                 shouldHideLoading = true
                 Handler().postDelayed({linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)}, 100)
-            } else {
+            } else if (vm.listPosition in 0 until (vm.pagedAudioQueue?.size ?: 0)) {
                 vm.pagedAudioQueue?.loadAround(vm.listPosition)
                 shouldScroll = true
             }

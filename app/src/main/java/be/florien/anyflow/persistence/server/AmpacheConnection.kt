@@ -10,7 +10,6 @@ import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.server.model.*
 import be.florien.anyflow.user.AuthPersistence
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.math.BigInteger
 import java.net.ConnectException
@@ -38,8 +37,6 @@ open class AmpacheConnection
         private const val OFFSET_PLAYLIST = "playlistOffset"
         private const val RECONNECT_LIMIT = 3
     }
-
-    private val subscriptions: CompositeDisposable = CompositeDisposable() //todo
 
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 

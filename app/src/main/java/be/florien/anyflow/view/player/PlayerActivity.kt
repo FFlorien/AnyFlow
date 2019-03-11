@@ -19,6 +19,7 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
+import be.florien.anyflow.persistence.PingService
 import be.florien.anyflow.persistence.UpdateService
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
@@ -85,10 +86,16 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        val jobInfo = JobInfo.Builder(5, ComponentName(this, UpdateService::class.java))
+        val updateJobInfo = JobInfo.Builder(5, ComponentName(this, UpdateService::class.java))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(ONE_HOUR)
                 .build()
-        jobScheduler.schedule(jobInfo)
+        val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(HALF_HOUR)
+                .build()
+        jobScheduler.schedule(updateJobInfo)
+        jobScheduler.schedule(pingJobInfo)
 
         snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -166,6 +173,8 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
         unbindService(vm.connection)
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.cancelAll()
         vm.destroy()
     }
 
@@ -195,5 +204,7 @@ class PlayerActivity : AppCompatActivity() {
 
     companion object {
         private const val FILTER_STACK_NAME = "filters"
+        private const val HALF_HOUR = 1800000L
+        private const val ONE_HOUR = 3600000L
     }
 }
