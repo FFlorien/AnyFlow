@@ -36,16 +36,4 @@
                 android:valueType="pathType" />
         </aapt:attr>
     </target>
-    <target android:name="buffer">
-        <aapt:attr name="android:animation">
-            <objectAnimator
-                android:duration="150"
-                android:interpolator="@android:anim/linear_interpolator"
-                android:propertyName="rotation"
-                android:repeatCount="infinite"
-                android:repeatMode="restart"
-                android:valueFrom="0"
-                android:valueTo="60" />
-        </aapt:attr>
-    </target>
 </animated-vector>
