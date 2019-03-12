@@ -1,12 +1,16 @@
 <!--?xml version="1.0" encoding="UTF-8"?-->
 <resources>
     <color name="ic_launcher_background">@color/primary</color>
-    <color name="primary">#2196f3</color>
-    <color name="primaryLight">#6ec6ff</color>
-    <color name="primaryDark">#0069c0</color>
-    <color name="accent">#ffd600</color>
-    <color name="accentLight">#ffff52</color>
-    <color name="accentDark">#c7a500</color>
+    <color name="primary">#0072E0</color>
+    <color name="primaryLightPlus">#99CDFE</color>
+    <color name="primaryLight">#77BCFF</color>
+    <color name="primaryDark">#005CB4</color>
+    <color name="primaryDarkPlus">#005CB4</color>
+    <color name="accent">#FFCA40</color>
+    <color name="accentLightPlus">#FFE5A3</color>
+    <color name="accentLight">#FFDD84</color>
+    <color name="accentDark">#EDAB00</color>
+    <color name="accentDarkPlus">#D89C00</color>
     <color name="iconInApp">@color/accent</color>
     <color name="onPrimaryText">#ffffff</color>
     <color name="onSecondaryText">#000000</color>
