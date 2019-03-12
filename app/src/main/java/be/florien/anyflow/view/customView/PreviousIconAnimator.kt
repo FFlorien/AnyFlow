@@ -15,21 +15,27 @@ class PreviousIconAnimator(context: Context) : IconAnimator(context) {
 
     override fun getEndAnimation(newState: Int): AnimatedVectorDrawableCompat? = when (newState) {
         oldState -> null
-        PlayerControls.STATE_PREVIOUS_NO_PREVIOUS -> getAnimatedIcon(R.drawable.ic_start_to_previous)
-        PlayerControls.STATE_PREVIOUS_START -> getAnimatedIcon(R.drawable.ic_previous_to_start)
+        PreviousIconAnimator.STATE_PREVIOUS_NO_PREVIOUS -> getAnimatedIcon(R.drawable.ic_start_to_previous)
+        PreviousIconAnimator.STATE_PREVIOUS_START -> getAnimatedIcon(R.drawable.ic_previous_to_start)
         else -> getAnimatedIcon(R.drawable.ic_start_to_previous)
     }
 
     override fun getFixedIcon(newState: Int): Drawable {
-        iconColor = if (newState == PlayerControls.STATE_PREVIOUS_NO_PREVIOUS) {
+        iconColor = if (newState == PreviousIconAnimator.STATE_PREVIOUS_NO_PREVIOUS) {
             disabledColor
         } else {
             enabledColor
         }
         return when (newState) {
-            PlayerControls.STATE_PREVIOUS_NO_PREVIOUS -> getIcon(R.drawable.ic_previous)
-            PlayerControls.STATE_PREVIOUS_PREVIOUS -> getIcon(R.drawable.ic_previous)
+            PreviousIconAnimator.STATE_PREVIOUS_NO_PREVIOUS -> getIcon(R.drawable.ic_previous)
+            PreviousIconAnimator.STATE_PREVIOUS_PREVIOUS -> getIcon(R.drawable.ic_previous)
             else -> getIcon(R.drawable.ic_start)
         }
+    }
+
+    companion object {
+        const val STATE_PREVIOUS_NO_PREVIOUS = 0
+        const val STATE_PREVIOUS_PREVIOUS = 1
+        const val STATE_PREVIOUS_START = 2
     }
 }

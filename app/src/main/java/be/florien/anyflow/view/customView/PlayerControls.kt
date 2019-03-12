@@ -121,6 +121,11 @@ class PlayerControls
         scrollPlayerPainter.measure(desiredWidth, desiredHeight)
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        currentPlayerPainter.computePreviousIcon()
+    }
+
     override fun onDraw(canvas: Canvas) {
         currentPlayerPainter.draw(canvas, width, height)
     }
@@ -170,9 +175,6 @@ class PlayerControls
     }
 
     companion object {
-        const val STATE_PREVIOUS_NO_PREVIOUS = 0
-        const val STATE_PREVIOUS_PREVIOUS = 1
-        const val STATE_PREVIOUS_START = 2
         const val NO_VALUE = -15
     }
 }

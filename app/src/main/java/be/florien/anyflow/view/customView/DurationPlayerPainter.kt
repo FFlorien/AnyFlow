@@ -169,9 +169,9 @@ internal abstract class DurationPlayerPainter(
     }
 
     override fun computePreviousIcon() {
-        val state = if (!hasPrevious && duration < progressAnimDuration) PlayerControls.STATE_PREVIOUS_NO_PREVIOUS
-        else if (duration > progressAnimDuration) PlayerControls.STATE_PREVIOUS_START
-        else PlayerControls.STATE_PREVIOUS_PREVIOUS
+        val state = if (!hasPrevious && duration < progressAnimDuration) PreviousIconAnimator.STATE_PREVIOUS_NO_PREVIOUS
+        else if (duration > progressAnimDuration) PreviousIconAnimator.STATE_PREVIOUS_START
+        else PreviousIconAnimator.STATE_PREVIOUS_PREVIOUS
 
         previousIconAnimator.computeIcon(state, previousIconPosition)
     }

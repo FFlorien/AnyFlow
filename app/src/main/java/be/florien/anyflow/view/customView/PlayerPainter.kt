@@ -52,7 +52,7 @@ abstract class PlayerPainter(val context: Context) {
     protected abstract fun computePlayButtonLeftBound()
     protected abstract fun computePlayButtonRightBound()
     protected abstract fun computeTicks()
-    protected abstract fun computePreviousIcon()
+    abstract fun computePreviousIcon()
     protected abstract fun computePlayPauseIcon()
     abstract var hasPrevious: Boolean
     abstract var hasNext: Boolean
