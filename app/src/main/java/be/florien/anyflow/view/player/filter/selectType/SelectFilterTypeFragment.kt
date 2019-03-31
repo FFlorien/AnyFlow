@@ -20,9 +20,6 @@ import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
 import be.florien.anyflow.view.player.filter.selection.SelectFilterFragment
 
-/**
- * Created by FlamentF on 08-Jan-18.
- */
 @ActivityScope
 @UserScope
 class SelectFilterTypeFragment : BaseFilterFragment() {

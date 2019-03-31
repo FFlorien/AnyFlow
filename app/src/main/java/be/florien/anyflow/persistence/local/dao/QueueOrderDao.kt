@@ -15,8 +15,6 @@ abstract class QueueOrderDao : BaseDao<QueueOrder> {
     @Query("DELETE FROM queueorder")
     abstract fun deleteAll()
 
-    fun hasQueue() = getCount() > 0
-
     @Transaction
     open fun setOrder(orderList: List<QueueOrder>) {
         deleteAll()

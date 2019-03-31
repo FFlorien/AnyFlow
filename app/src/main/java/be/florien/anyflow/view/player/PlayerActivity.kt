@@ -103,12 +103,11 @@ class PlayerActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         super.onCreate(savedInstanceState)
 
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setIcon(R.drawable.ic_app)
+        setSupportActionBar(binding.toolbar)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
             (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
-                title = it
+                supportActionBar?.title = it
             }
         }
 
@@ -203,6 +202,9 @@ class PlayerActivity : AppCompatActivity() {
         if (anyFlowApp.userComponent == null) {
             return
         }
+
+        menuCoordinator.removeMenuHolder(filterMenu)
+        menuCoordinator.removeMenuHolder(orderMenu)
         unbindService(vm.playerConnection)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
@@ -284,6 +286,5 @@ class PlayerActivity : AppCompatActivity() {
     companion object {
         private const val FILTER_STACK_NAME = "filters"
         private const val HALF_HOUR = 1800000L
-        private const val ONE_HOUR = 3600000L
     }
 }

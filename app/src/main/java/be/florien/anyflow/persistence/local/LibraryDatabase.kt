@@ -100,12 +100,6 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable(CHANGE_PLAYLISTS) { getPlaylistDao().insert(playlists) }.doOnError { this@LibraryDatabase.eLog(it, "Error while addPlayLists") }
 
-    fun addFilters(vararg filters: DbFilter): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().insert(filters.toList()) }.doOnError { this@LibraryDatabase.eLog(it, "Error while addFilters") }
-
-    fun deleteFilter(filter: DbFilter): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().delete(filter) }.doOnError { this@LibraryDatabase.eLog(it, "Error while deleteFilter") }
-
-    fun clearFilters(): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().deleteAll() }.doOnError { this@LibraryDatabase.eLog(it, "Error while clearFilters") }
-
     fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().replaceBy(filters) }.doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
 
     fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }.doOnError { this@LibraryDatabase.eLog(it, "Error while setOrders") }

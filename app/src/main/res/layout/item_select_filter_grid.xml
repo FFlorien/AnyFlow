@@ -22,12 +22,12 @@
 
         <ImageView
             android:id="@+id/imageView"
-            coverImageUrl="@{item.artUrl}"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
             android:layout_marginBottom="@dimen/listItemPadding"
             android:contentDescription="@null"
             android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
+            app:coverImageUrl="@{item.artUrl}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

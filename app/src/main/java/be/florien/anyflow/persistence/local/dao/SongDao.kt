@@ -1,15 +1,14 @@
 package be.florien.anyflow.persistence.local.dao
 
 import androidx.paging.DataSource
-import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 
 @Dao
 interface SongDao : BaseDao<Song> {

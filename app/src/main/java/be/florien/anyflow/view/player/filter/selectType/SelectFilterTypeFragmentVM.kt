@@ -11,9 +11,6 @@ const val ARTIST_ID = "Artist"
 const val ALBUM_ID = "Album"
 const val SEARCH_ID = "Search"
 
-/**
- * Created by FlamentF on 08-Jan-18.
- */
 @ActivityScope
 class AddFilterTypeFragmentVM(activity: Activity) : BaseFilterVM() {
     private val genreName = activity.getString(R.string.filter_type_genre)

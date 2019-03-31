@@ -22,12 +22,12 @@
 
         <ImageView
             android:id="@+id/imageView"
-            coverImageUrl="@{item.artUrl}"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
             android:layout_margin="8dp"
             android:contentDescription="@null"
             android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
+            app:coverImageUrl="@{item.artUrl}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -38,8 +38,8 @@
             android:layout_height="@dimen/xLargeDimen"
             android:layout_margin="8dp"
             android:gravity="start|center_vertical"
-            android:textStyle="bold"
             android:text="@{item.displayName}"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/imageView"

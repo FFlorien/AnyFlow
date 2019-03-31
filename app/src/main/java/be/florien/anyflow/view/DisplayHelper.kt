@@ -9,9 +9,6 @@ import javax.inject.Inject
 @ActivityScope
 class DisplayHelper
 @Inject constructor(private var rootView: View) {
-    fun notifyUserAboutError(error: String) {
-        Snackbar.make(rootView, error, Snackbar.LENGTH_SHORT).show()
-    }
 
     fun notifyUserAboutError(@StringRes error: Int) {
         Snackbar.make(rootView, error, Snackbar.LENGTH_SHORT).show()

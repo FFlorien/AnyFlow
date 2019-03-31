@@ -17,15 +17,20 @@ abstract class BaseFilterFragment: BaseFragment() {
     private val menuCoordinator = MenuCoordinator()
     protected abstract val baseVm: BaseFilterVM
 
+    private var confirmMenuHolder: ConfirmMenuHolder = ConfirmMenuHolder {
+        baseVm.confirmChanges()
+    }
+
+    private val cancelMenuHolder = CancelMenuHolder {
+        baseVm.cancelChanges()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        menuCoordinator.addMenuHolder(ConfirmMenuHolder {
-            baseVm.confirmChanges()
-        })
-        menuCoordinator.addMenuHolder(CancelMenuHolder{
-            baseVm.cancelChanges()
-        })
+        confirmMenuHolder
+        menuCoordinator.addMenuHolder(confirmMenuHolder)
+        menuCoordinator.addMenuHolder(cancelMenuHolder)
     }
 
     override fun onResume() {
@@ -51,5 +56,11 @@ abstract class BaseFilterFragment: BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return menuCoordinator.handleMenuClick(item.itemId)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        menuCoordinator.removeMenuHolder(confirmMenuHolder)
+        menuCoordinator.removeMenuHolder(cancelMenuHolder)
     }
 }

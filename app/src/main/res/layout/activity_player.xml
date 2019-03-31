@@ -20,6 +20,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:theme="@style/ToolBarStyle"
+            android:background="@color/primary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/xxLargeDimen"
+            android:elevation="@dimen/mediumDimen"/>
+
         <LinearLayout
             android:id="@+id/connectionStateView"
             android:layout_width="match_parent"
@@ -70,6 +78,7 @@
             android:layout_weight="1" />
 
         <be.florien.anyflow.view.customView.PlayerControls
+            android:elevation="@dimen/mediumDimen"
             android:id="@+id/playerControls"
             android:layout_width="match_parent"
             android:layout_height="64dp"
