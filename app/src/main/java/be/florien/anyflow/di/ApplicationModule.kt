@@ -9,6 +9,7 @@ import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -33,6 +34,9 @@ class ApplicationModule {
     @Singleton
     @Provides
     fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection = AmpacheConnection(authPersistence, context, sharedPreferences)
+
+    @Provides
+    fun provideAmpacheConnectionStatus(connection: AmpacheConnection): Observable<AmpacheConnection.ConnectionStatus> = connection.connectionStatusUpdater
 
     @Singleton
     @Provides

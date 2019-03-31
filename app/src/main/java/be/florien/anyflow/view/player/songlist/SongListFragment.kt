@@ -75,7 +75,7 @@ class SongListFragment : BaseFragment() {
         binding = FragmentSongListBinding.inflate(inflater, container, false)
         (activity as PlayerActivity).activityComponent.inject(this)
         binding.vm = vm
-        vm.refreshSongs() //todo communication between service and VM
+        vm.refreshSongs()
         binding.songList.adapter = SongAdapter().apply {
             submitList(vm.pagedAudioQueue)
         }
@@ -193,7 +193,7 @@ class SongListFragment : BaseFragment() {
 
             if (vm.listPositionLoaded && vm.pagedAudioQueue != null) {
                 shouldHideLoading = true
-                Handler().postDelayed({linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)}, 100)
+                Handler().postDelayed({ linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0) }, 100)
             } else if (vm.listPosition in 0 until (vm.pagedAudioQueue?.size ?: 0)) {
                 vm.pagedAudioQueue?.loadAround(vm.listPosition)
                 shouldScroll = true
@@ -218,7 +218,10 @@ class SongListFragment : BaseFragment() {
     inner class SongAdapter : PagedListAdapter<SongDisplay, SongViewHolder>(object : DiffUtil.ItemCallback<SongDisplay>() {
         override fun areItemsTheSame(oldItem: SongDisplay, newItem: SongDisplay) = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean = oldItem.artistName == newItem.artistName && oldItem.albumName == newItem.albumName && oldItem.title == newItem.title
+        override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean =
+                oldItem.artistName == newItem.artistName
+                        && oldItem.albumName == newItem.albumName
+                        && oldItem.title == newItem.title
 
     }), FastScrollRecyclerView.SectionedAdapter {
 

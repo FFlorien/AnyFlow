@@ -60,7 +60,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.18'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.firebase:firebase-core:16.0.7'
+    implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true
     }
@@ -73,7 +73,6 @@ dependencies {
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
-    //todo don't initialize it in main
     implementation 'com.jakewharton.timber:timber:4.7.1'
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"

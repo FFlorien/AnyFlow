@@ -31,8 +31,8 @@
                 android:duration="150"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M200,115L375,200L300,200Z M200,115L300,200L200,375Z M375,200L200,285L300,200Z M25,200L200,285L25,375Z M25,200L200,115L200,285Z M25,25L200,115L25,200Z"
-                android:valueTo="M285.5,38 L 285.5,38 L 285.5,38 Z M375,200 L 375,200 L 375,200Z M285.5,362 L 285.5,362 L 285.5,362 Z M112.5,362 L 112.5,362 L 112.5,362Z M25,200 L 25,200 L 25,200Z M112.5,38 L 112.5,38 L 112.5,38Z"
+                android:valueFrom="M25,25L200,115L200,285L25,375ZM200,115L375,200L375,200L200,285Z"
+                android:valueTo="M200,200L200,200L200,200L200,200ZM200,200L200,200L200,200L200,200Z"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>

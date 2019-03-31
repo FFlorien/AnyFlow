@@ -1,60 +1,77 @@
 package be.florien.anyflow.persistence
 
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import be.florien.anyflow.R
 import be.florien.anyflow.exception.NoServerException
 import be.florien.anyflow.exception.SessionExpiredException
 import be.florien.anyflow.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
+import be.florien.anyflow.player.PlayerService
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class UpdateService
-@Inject constructor() : JobService() {
+@Inject constructor() : Service() {
+    override fun onBind(intent: Intent?): IBinder?  = null
+
     @Inject
     lateinit var persistenceManager: PersistenceManager
-
+    private val pendingIntent: PendingIntent by lazy {
+        val intent = packageManager?.getLaunchIntentForPackage(packageName)
+        PendingIntent.getActivity(this@UpdateService, 0, intent, 0)
+    }
     private var subscription: Disposable? = null
 
-    override fun onStartJob(p0: JobParameters?): Boolean { //todo act upon errors
+    override fun onCreate() {
+        super.onCreate()
         (application as be.florien.anyflow.AnyFlowApp).userComponent?.inject(this)
-        subscription = persistenceManager.updateArtists()
-                .andThen(persistenceManager.updateAlbums())
-                .andThen(persistenceManager.updateSongs())
+        notifyChange(true)
+        subscription = persistenceManager.updateAll()
                 .doOnError { throwable ->
                     when (throwable) {
-                        is SessionExpiredException -> {
+                        is SessionExpiredException ->
                             this@UpdateService.iLog(throwable, "The session token is expired")
-//                                    navigator.goToConnection()
-                        }
-                        is WrongIdentificationPairException -> {
+                        is WrongIdentificationPairException ->
                             this@UpdateService.iLog(throwable, "Couldn't reconnect the user: wrong user/pwd")
-//                                    navigator.goToConnection()
-                        }
-                        is SocketTimeoutException, is NoServerException -> {
+                        is SocketTimeoutException, is NoServerException ->
                             this@UpdateService.eLog(throwable, "Couldn't connect to the webservice")
-//                                    displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
-                        }
-                        else -> {
+                        else ->
                             this@UpdateService.eLog(throwable, "Unknown error")
-//                                    displayHelper.notifyUserAboutError("Couldn't connect to the webservice")
-//                                    navigator.goToConnection()
-                        }
                     }
                 }
                 .doOnComplete {
-                    jobFinished(p0, true)
+                    notifyChange(false)
                 }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
-        return true
     }
 
-    override fun onStopJob(p0: JobParameters?): Boolean {
+    override fun onDestroy() {
+        super.onDestroy()
+        notifyChange(false)
         subscription?.dispose()
-        return true
     }
+
+    private fun notifyChange(isUpdating: Boolean) {
+        if (isUpdating) {
+            val notification = NotificationCompat.Builder(this, PlayerService.MEDIA_SESSION_NAME)
+                    .setContentTitle(getString(R.string.updating_library))
+                    .setContentIntent(pendingIntent)
+                    .setOnlyAlertOnce(true)
+                    .setSmallIcon(R.drawable.notif)
+                    .setColor(ContextCompat.getColor(this, R.color.primary)).build()
+            startForeground(2, notification)
+        } else {
+            stopForeground(true)
+        }
+    }
+
 }

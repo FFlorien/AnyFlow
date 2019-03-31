@@ -7,7 +7,9 @@ import androidx.databinding.Bindable
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.persistence.PersistenceManager
 import be.florien.anyflow.persistence.local.LibraryDatabase
+import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.player.*
 import be.florien.anyflow.player.Order.Companion.SUBJECT_ALBUM
 import be.florien.anyflow.player.Order.Companion.SUBJECT_ALBUM_ARTIST
@@ -18,6 +20,7 @@ import be.florien.anyflow.player.Order.Companion.SUBJECT_YEAR
 import be.florien.anyflow.view.BaseVM
 import be.florien.anyflow.view.customView.PlayPauseIconAnimator
 import be.florien.anyflow.view.customView.PlayerControls
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 import kotlin.math.absoluteValue
@@ -28,14 +31,19 @@ import kotlin.math.absoluteValue
 @ActivityScope
 class PlayerActivityVM
 @Inject
-constructor(private val playingQueue: PlayingQueue, private val libraryDatabase: LibraryDatabase) : BaseVM(), PlayerControls.OnActionListener {
+constructor(
+        private val playingQueue: PlayingQueue,
+        private val libraryDatabase: LibraryDatabase,
+        connectionStatusUpdater: Observable<AmpacheConnection.ConnectionStatus>,
+        updateStatusUpdater: Observable<PersistenceManager.UpdateStatus>) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
         const val PLAYER_CONTROLLER_CONTAINER = "PlayerController"
     }
 
-    internal val connection: PlayerConnection = PlayerConnection()
+    internal val playerConnection: PlayerConnection = PlayerConnection()
+    internal val updateConnection: UpdateConnection = UpdateConnection()
     private var isBackKeyPreviousSong: Boolean = false
 
     /**
@@ -46,7 +54,10 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
     var shouldShowBuffering: Boolean = false
 
     @Bindable
-    var playerState: PlayerController.State = PlayerController.State.NO_MEDIA
+    var connectionStatus: AmpacheConnection.ConnectionStatus = AmpacheConnection.ConnectionStatus.CONNECTED
+
+    @Bindable
+    var isUpdatingLibrary: Boolean = false
 
     @Bindable
     var state: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
@@ -73,14 +84,12 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
             subscribe(
                     field.stateChangeNotifier.subscribeOn(AndroidSchedulers.mainThread()),
                     onNext = {
-                        playerState = it
                         shouldShowBuffering = it == PlayerController.State.BUFFER
                         state = when (it) {
                             PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
                             PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
                             else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
                         }
-                        notifyPropertyChanged(BR.playerState)
                         notifyPropertyChanged(BR.shouldShowBuffering)
                         notifyPropertyChanged(BR.state)
                     },
@@ -129,6 +138,20 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
                     notifyPropertyChanged(BR.currentDuration)
                 },
                 containerKey = PLAYING_QUEUE_CONTAINER)
+        subscribe(
+                observable = connectionStatusUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    connectionStatus = it
+                    notifyPropertyChanged(BR.connectionStatus)
+                }
+        )
+        subscribe(
+                observable = updateStatusUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    isUpdatingLibrary = it == PersistenceManager.UpdateStatus.UPDATING_LIBRARY
+                    notifyPropertyChanged(BR.isUpdatingLibrary)
+                }
+        )
     }
 
     /**
@@ -185,5 +208,11 @@ constructor(private val playingQueue: PlayingQueue, private val libraryDatabase:
         override fun onServiceDisconnected(name: ComponentName?) {
             player = IdlePlayerController()
         }
+    }
+
+    inner class UpdateConnection : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
+
+        override fun onServiceDisconnected(name: ComponentName?) {}
     }
 }

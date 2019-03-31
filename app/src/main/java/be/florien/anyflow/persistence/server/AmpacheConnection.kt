@@ -11,8 +11,8 @@ import be.florien.anyflow.persistence.server.model.*
 import be.florien.anyflow.user.AuthPersistence
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import java.math.BigInteger
-import java.net.ConnectException
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -58,6 +58,9 @@ open class AmpacheConnection
             (context.applicationContext as AnyFlowApp).userComponent = value
         }
 
+    private val _connectionStatusUpdater: BehaviorSubject<ConnectionStatus> = BehaviorSubject.create<ConnectionStatus>()
+    val connectionStatusUpdater: Observable<ConnectionStatus> = _connectionStatusUpdater
+
     /**
      * Ampache connection handling
      */
@@ -98,33 +101,40 @@ open class AmpacheConnection
         val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase()
         return ampacheApi
                 .authenticate(user = user, auth = auth, time = time)
+                .doOnSubscribe {
+                    _connectionStatusUpdater.onNext(ConnectionStatus.CONNEXION)
+                }
                 .doOnNext { result ->
                     when (result.error.code) {
-                        401 -> throw WrongIdentificationPairException(result.error.errorText)
+                        401 -> {
+                            _connectionStatusUpdater.onNext(ConnectionStatus.WRONG_ID_PAIR)
+                            throw WrongIdentificationPairException(result.error.errorText)
+                        }
                         0 -> authPersistence.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
                     }
+                    _connectionStatusUpdater.onNext(ConnectionStatus.CONNECTED)
                 }
                 .doOnError { this@AmpacheConnection.eLog(it, "Error while authenticating") }
     }
 
-    //todo it's already too late by now, we should ping more often
     fun ping(authToken: String = authPersistence.authToken.first): Observable<AmpachePing> =
             ampacheApi
                     .ping(auth = authToken)
-                    .doOnNext { result -> authPersistence.setNewAuthExpiration(result.sessionExpire) }
+                    .doOnSubscribe { _connectionStatusUpdater.onNext(ConnectionStatus.CONNEXION) }
+                    .doOnNext { result ->
+                        authPersistence.setNewAuthExpiration(result.sessionExpire)
+                        _connectionStatusUpdater.onNext(ConnectionStatus.CONNECTED)
+                    }
                     .doOnError { this@AmpacheConnection.eLog(it, "Error while ping") }
                     .subscribeOn(Schedulers.io())
 
-    fun <T> reconnect(request: Observable<T>): Observable<T> {//todo retrieve serverUrl from authPersistence if NoServerException. Or look before
+    fun <T> reconnect(request: Observable<T>): Observable<T> {
         if (!authPersistence.hasConnectionInfo()) {
             return Observable.error { throw SessionExpiredException("Can't reconnect") }
         } else {
             if (reconnectByPing >= RECONNECT_LIMIT) {
                 reconnectByPing = 0
                 authPersistence.revokeAuthToken()
-            }
-            if (reconnectByUserPassword >= RECONNECT_LIMIT) {
-                //todo stop trying and inform the user
             }
             val reconnectionObservable = if (authPersistence.authToken.first.isNotBlank()) {
                 reconnectByPing++
@@ -175,17 +185,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    this@AmpacheConnection.eLog(it, "Error while getSongs")
-                    when (it) {
-                        is TimeoutException -> {
-                        }
-                        is ConnectException -> {
-                        }
-                        else -> {
-                        }
-                        //todo inform user and let him try later
-
-                    }
+                    dispatchError(it, "getSongs")
                 }
                 .subscribe()
     }
@@ -203,10 +203,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    this@AmpacheConnection.eLog(it, "Error while getArtists")
-                    if (it is TimeoutException) {
-                        //todo inform user and let him try later
-                    }
+                    dispatchError(it, "getArtists")
                 }
                 .subscribe()
     }
@@ -224,10 +221,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    this@AmpacheConnection.eLog(it, "Error while getAlbums")
-                    if (it is TimeoutException) {
-                        //todo inform user and let him try later
-                    }
+                    dispatchError(it, "getAlbums")
                 }
                 .subscribe()
     }
@@ -245,10 +239,7 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    this@AmpacheConnection.eLog(it, "Error while getTags")
-                    if (it is TimeoutException) {
-                        //todo inform user and let him try later
-                    }
+                    dispatchError(it, "getTags")
                 }
                 .subscribe()
     }
@@ -266,18 +257,32 @@ open class AmpacheConnection
                     }
                 }
                 .doOnError {
-                    this@AmpacheConnection.eLog(it, "Error while getPlaylists")
-                    if (it is TimeoutException) {
-                        //todo inform user and let him try later
-                    }
+                    dispatchError(it, "getPlaylists")
                 }
                 .subscribe()
     }
 
     fun getSongUrl(url: String): String {
+        if (authPersistence.authToken.first.isBlank()) {
+            _connectionStatusUpdater.onNext(ConnectionStatus.CONNEXION)
+        }
         val ssidStart = url.indexOf("ssid=") + 5
         return url.replaceRange(ssidStart, url.indexOf('&', ssidStart), authPersistence.authToken.first)
     }
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
+
+    private fun dispatchError(it: Throwable, action: String) {
+        this@AmpacheConnection.eLog(it, "Error while $action")
+        if (it is TimeoutException) {
+            _connectionStatusUpdater.onNext(ConnectionStatus.TIMEOUT)
+        }
+    }
+
+    enum class ConnectionStatus {
+        TIMEOUT,
+        WRONG_ID_PAIR,
+        CONNEXION,
+        CONNECTED
+    }
 }

@@ -1,5 +1,7 @@
 package be.florien.anyflow.view.player
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
@@ -8,6 +10,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -21,7 +25,7 @@ import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.persistence.PingService
 import be.florien.anyflow.persistence.UpdateService
-import be.florien.anyflow.player.PlayerController
+import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.connect.ConnectActivity
@@ -36,7 +40,6 @@ import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentAlbum
 import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentArtistVM
 import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentGenreVM
 import be.florien.anyflow.view.player.songlist.SongListFragment
-import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
 /**
@@ -46,17 +49,15 @@ import javax.inject.Inject
 @UserScope
 class PlayerActivity : AppCompatActivity() {
 
-    private val fakeComponent = object : PlayerComponent {
-        override fun inject(playerActivity: PlayerActivity) {}
-        override fun inject(songListFragment: SongListFragment) {}
-        override fun inject(displayFilterFragment: DisplayFilterFragment) {}
-        override fun inject(addFilterFragmentGenreVM: SelectFilterFragmentGenreVM) {}
-        override fun inject(addFilterFragmentArtistVM: SelectFilterFragmentArtistVM) {}
-        override fun inject(addFilterFragmentAlbumVM: SelectFilterFragmentAlbumVM) {}
-        override fun inject(selectFilterTypeFragment: SelectFilterTypeFragment) {}
-        override fun inject(filterFragmentVM: DisplayFilterFragmentVM) {}
-        override fun inject(addFilterTypeFragmentVM: AddFilterTypeFragmentVM) {}
-    }
+    /**
+     * Injection
+     */
+    @Inject
+    lateinit var vm: PlayerActivityVM
+
+    /**
+     * Public properties
+     */
 
     val activityComponent: PlayerComponent by lazy {
         val component = anyFlowApp.userComponent
@@ -72,32 +73,36 @@ class PlayerActivity : AppCompatActivity() {
             fakeComponent
         }
     }
-    @Inject
-    lateinit var vm: PlayerActivityVM
+
+    /**
+     * Private properties
+     */
+
+    private val fakeComponent = object : PlayerComponent {
+        override fun inject(playerActivity: PlayerActivity) {}
+        override fun inject(songListFragment: SongListFragment) {}
+        override fun inject(displayFilterFragment: DisplayFilterFragment) {}
+        override fun inject(addFilterFragmentGenreVM: SelectFilterFragmentGenreVM) {}
+        override fun inject(addFilterFragmentArtistVM: SelectFilterFragmentArtistVM) {}
+        override fun inject(addFilterFragmentAlbumVM: SelectFilterFragmentAlbumVM) {}
+        override fun inject(selectFilterTypeFragment: SelectFilterTypeFragment) {}
+        override fun inject(filterFragmentVM: DisplayFilterFragmentVM) {}
+        override fun inject(addFilterTypeFragmentVM: AddFilterTypeFragmentVM) {}
+    }
     private lateinit var binding: ActivityPlayerBinding
-    private lateinit var snackbar: Snackbar
 
     private val menuCoordinator = MenuCoordinator()
     private lateinit var filterMenu: FilterMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
 
+    /**
+     * Lifecycle methods
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         super.onCreate(savedInstanceState)
 
-        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        val updateJobInfo = JobInfo.Builder(5, ComponentName(this, UpdateService::class.java))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(ONE_HOUR)
-                .build()
-        val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(HALF_HOUR)
-                .build()
-        jobScheduler.schedule(updateJobInfo)
-        jobScheduler.schedule(pingJobInfo)
-
-        snackbar = Snackbar.make(binding.container, "", Snackbar.LENGTH_INDEFINITE)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setIcon(R.drawable.ic_app)
         supportFragmentManager.addOnBackStackChangedListener {
@@ -111,8 +116,17 @@ class PlayerActivity : AppCompatActivity() {
         if (activityComponent == fakeComponent) {
             return
         }
+
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        bindService(Intent(this, UpdateService::class.java), vm.updateConnection, Context.BIND_AUTO_CREATE)
+        val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(HALF_HOUR)
+                .build()
+        jobScheduler.schedule(pingJobInfo)
+
         binding.vm = vm
-        bindService(Intent(this, PlayerService::class.java), vm.connection, Context.BIND_AUTO_CREATE)
+        bindService(Intent(this, PlayerService::class.java), vm.playerConnection, Context.BIND_AUTO_CREATE)
 
         filterMenu = FilterMenuHolder {
             displayFilters()
@@ -141,10 +155,27 @@ class PlayerActivity : AppCompatActivity() {
                     BR.isOrdered -> {
                         orderMenu.changeState(vm.isOrdered)
                     }
-                    BR.playerState -> {
-                        when (vm.playerState) {
-                            PlayerController.State.RECONNECT -> snackbar.setText(R.string.display_reconnecting).show()
-                            else -> snackbar.dismiss()
+                    BR.connectionStatus -> {
+                        when (vm.connectionStatus) {
+                            AmpacheConnection.ConnectionStatus.WRONG_ID_PAIR -> {
+                                startActivity(ConnectActivity::class)
+                                finish()
+                            }
+                            AmpacheConnection.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
+                            AmpacheConnection.ConnectionStatus.CONNECTED -> animateDisappearance(binding.connectionStateView)
+                            AmpacheConnection.ConnectionStatus.TIMEOUT -> AlertDialog
+                                    .Builder(this@PlayerActivity)
+                                    .setMessage(R.string.connect_error_timeout)
+                                    .setNeutralButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
+                                    .create()
+                                    .show()
+                        }
+                    }
+                    BR.isUpdatingLibrary -> {
+                        if (vm.isUpdatingLibrary) {
+                            animateAppearance(binding.updatingStateView)
+                        } else {
+                            animateDisappearance(binding.updatingStateView)
                         }
                     }
                 }
@@ -172,15 +203,23 @@ class PlayerActivity : AppCompatActivity() {
         if (anyFlowApp.userComponent == null) {
             return
         }
-        unbindService(vm.connection)
+        unbindService(vm.playerConnection)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
         vm.destroy()
     }
 
+    /**
+     * Public method
+     */
+
     fun displaySongList() {
         supportFragmentManager.popBackStack(FILTER_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
+
+    /**
+     * Private methods
+     */
 
     private fun displayFilters() {
         val fragment = supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
@@ -201,6 +240,46 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun isSongListVisible() =
             supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
+
+    private fun animateAppearance(view: View) {
+        val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
+        ValueAnimator.ofInt(0, maxHeight).apply {
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(p0: Animator?) {}
+
+                override fun onAnimationEnd(p0: Animator?) {}
+
+                override fun onAnimationCancel(p0: Animator?) {}
+
+                override fun onAnimationStart(p0: Animator?) {
+                    view.visibility = View.VISIBLE
+                }
+
+            })
+            addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
+            duration = 150
+        }.start()
+    }
+
+    private fun animateDisappearance(view: View) {
+        val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
+        ValueAnimator.ofInt(maxHeight, 0).apply {
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(p0: Animator?) {}
+
+                override fun onAnimationEnd(p0: Animator?) {
+                    view.visibility = View.GONE
+                }
+
+                override fun onAnimationCancel(p0: Animator?) {}
+
+                override fun onAnimationStart(p0: Animator?) {}
+
+            })
+            addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
+            duration = 150
+        }.start()
+    }
 
     companion object {
         private const val FILTER_STACK_NAME = "filters"

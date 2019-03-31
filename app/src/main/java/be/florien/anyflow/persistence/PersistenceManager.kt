@@ -15,6 +15,7 @@ import be.florien.anyflow.persistence.server.model.AmpacheError
 import be.florien.anyflow.persistence.server.model.AmpacheSongList
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 import javax.inject.Inject
 
@@ -36,27 +37,43 @@ class PersistenceManager
         roll(Calendar.DAY_OF_YEAR, false)
     }
 
+    private val _updateStatusUpdater = BehaviorSubject.create<UpdateStatus>()
+    val updateStatusUpdater: Observable<UpdateStatus> = _updateStatusUpdater
+
     /**
      * Getter with server updates
      */
 
-    fun updateSongs(): Completable = getUpToDateList(
+    fun updateAll(): Completable = updateArtists()
+            .andThen(updateAlbums())
+            .andThen(updateSongs())
+            .doOnComplete {
+                _updateStatusUpdater.onNext(UpdateStatus.NONE)
+            }
+
+    private fun updateSongs(): Completable = getUpToDateList(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             AmpacheSongList::error
-    ) { libraryDatabase.addSongs(it.songs.map(::Song)) }
+    ) {
+        libraryDatabase.addSongs(it.songs.map(::Song))
+    }
 
-    fun updateArtists(): Completable = getUpToDateList(
+    private fun updateArtists(): Completable = getUpToDateList(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             AmpacheArtistList::error
-    ) { libraryDatabase.addArtists(it.artists.map(::Artist)) }
+    ) {
+        libraryDatabase.addArtists(it.artists.map(::Artist))
+    }
 
-    fun updateAlbums(): Completable = getUpToDateList(
+    private fun updateAlbums(): Completable = getUpToDateList(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             AmpacheAlbumList::error
-    ) { libraryDatabase.addAlbums(it.albums.map(::Album)) }
+    ) {
+        libraryDatabase.addAlbums(it.albums.map(::Album))
+    }
 
     /**
      * Private Method
@@ -71,7 +88,9 @@ class PersistenceManager
         val nowDate = Calendar.getInstance()
         val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
         val lastAcceptableUpdate = lastAcceptableUpdate()
+
         return if (lastUpdate.before(lastAcceptableUpdate)) {
+            _updateStatusUpdater.onNext(UpdateStatus.UPDATING_LIBRARY)
             songServerConnection
                     .getListOnServer(lastUpdate)
                     .flatMapCompletable { result ->
@@ -87,5 +106,10 @@ class PersistenceManager
         } else {
             Completable.complete()
         }
+    }
+
+    enum class UpdateStatus {
+        UPDATING_LIBRARY,
+        NONE
     }
 }

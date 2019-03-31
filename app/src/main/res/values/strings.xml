@@ -19,9 +19,15 @@
     <string name="filter_type_artist">Artist</string>
     <string name="filter_type_album">Album</string>
     <string name="filter_type_search">Search</string>
+    <string name="filter_empty">NO FILTER SET</string>
+    <string name="filter_add_explanation">You can add more with the button below</string>
+    <string name="filter_title_album">Select albums</string>
+    <string name="filter_title_artist">Select artists</string>
+    <string name="filter_title_genre">Select genres</string>
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
+    <string name="updating_library">Updating library</string>
     <string name="general_loading_label">Loading, please wait…</string>
     <string name="action_filter_clear">Clear filters</string>
     <string name="action_filter_add">Add filters</string>
@@ -29,11 +35,8 @@
     <string name="display_reconnecting">Reconnecting</string>
     <string name="confirm">Confirm</string>
     <string name="connect_error_credentials">Cannot log in with provided credentials</string>
+    <string name="connect_error_timeout">Cannot connect to the server, please try again later</string>
     <string name="player_controls_unknown">Unknown</string>
     <string name="player_playing_now">Now playing</string>
-    <string name="filter_empty">NO FILTER SET</string>
-    <string name="filter_add_explanation">You can add more with the button below</string>
-    <string name="filter_title_album">Select albums</string>
-    <string name="filter_title_artist">Select artists</string>
-    <string name="filter_title_genre">Select genres</string>
+    <string name="ok">OK</string>
 </resources>

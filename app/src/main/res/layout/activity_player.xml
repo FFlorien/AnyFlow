@@ -5,6 +5,10 @@
 
         <import type="be.florien.anyflow.player.PlayerController.State" />
 
+        <import type="be.florien.anyflow.R" />
+
+        <import type="android.view.View" />
+
         <variable
             name="vm"
             type="be.florien.anyflow.view.player.PlayerActivityVM" />
@@ -15,6 +19,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/connectionStateView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/error"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/largeDimen" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/display_reconnecting"
+                android:textColor="@color/onPrimaryText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/updatingStateView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primaryDark"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/largeDimen" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/updating_library"
+                android:textColor="@color/onPrimaryText" />
+        </LinearLayout>
+
 
         <FrameLayout
             android:id="@+id/container"
@@ -30,19 +77,19 @@
             app:actionListener="@{vm}"
             app:changeTrackAnimDuration="350"
             app:currentDuration="@{vm.currentDuration}"
+            app:disabledColor="@color/disabled"
             app:hasNext="@{vm.isNextPossible}"
             app:hasPrevious="@{vm.isPreviousPossible}"
             app:iconColor="@color/iconInApp"
+            app:minimumDurationForSeek="3000"
             app:nextBackgroundColor="@color/primary"
             app:outLineColor="@color/selected"
-            app:disabledColor="@color/disabled"
             app:previousBackgroundColor="@color/primary"
             app:progressAnimDuration="10000"
             app:progressBackgroundColor="@color/primary"
             app:shouldShowBuffering="@{vm.shouldShowBuffering}"
             app:smallestButtonWidth="@dimen/minClickableSize"
             app:state="@{vm.state}"
-            app:totalDuration="@{vm.totalDuration}"
-            app:minimumDurationForSeek="3000"/>
+            app:totalDuration="@{vm.totalDuration}" />
     </LinearLayout>
 </layout>
