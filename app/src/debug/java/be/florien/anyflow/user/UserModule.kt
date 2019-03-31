@@ -13,7 +13,7 @@ import io.reactivex.Observable
 import okhttp3.OkHttpClient
 
 /**
- * todo
+ * Module for dependencies available only when a user is logged in.
  */
 @Module
 class UserModule {

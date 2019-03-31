@@ -52,7 +52,7 @@ class ExoPlayerController
             .publish()
             .autoConnect()
 
-    private var subscription = CompositeDisposable()
+    private var subscriptions = CompositeDisposable()
 
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Long = NO_VALUE
@@ -82,7 +82,7 @@ class ExoPlayerController
         val bandwidthMeter = DefaultBandwidthMeter()
         val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
         dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
-        subscription.add(playingQueue.currentSongUpdater
+        subscriptions.add(playingQueue.currentSongUpdater
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe { song ->
                     song?.let { prepare(it) }
@@ -129,7 +129,7 @@ class ExoPlayerController
     }
 
     override fun onDestroy() {
-        subscription.dispose()
+        subscriptions.dispose()
     }
 
     /**
@@ -152,8 +152,7 @@ class ExoPlayerController
         if (error.cause is HttpDataSource.InvalidResponseCodeException) {
             if ((error.cause as HttpDataSource.InvalidResponseCodeException).responseCode == 403) {
                 stateChangePublisher.onNext(PlayerController.State.RECONNECT)
-                ampacheConnection.reconnect(Observable.fromCallable { playingQueue.currentSong?.let { prepare(it) } }).subscribeOn(Schedulers.io()).subscribe()
-                // todo unsubscribe + on complete/next/error
+                subscriptions.add(ampacheConnection.reconnect(Observable.fromCallable { playingQueue.currentSong?.let { prepare(it) } }).subscribeOn(Schedulers.io()).subscribe())
             }
         }
     }

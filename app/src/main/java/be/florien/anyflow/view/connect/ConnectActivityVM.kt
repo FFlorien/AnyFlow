@@ -77,7 +77,7 @@ open class ConnectActivityVM
                     {
                         isLoading = false
                         when (it.error.code) {
-                            0 -> navigator.goToPlayer() //todo finish activity
+                            0 -> navigator.goToPlayer()
                             else -> displayHelper.notifyUserAboutError(R.string.connect_error_credentials)
                         }
                     },

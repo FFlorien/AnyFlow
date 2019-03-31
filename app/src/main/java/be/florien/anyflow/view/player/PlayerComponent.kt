@@ -14,7 +14,7 @@ import be.florien.anyflow.view.player.songlist.SongListFragment
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent()
+@Subcomponent
 @ActivityScope
 interface PlayerComponent {
 

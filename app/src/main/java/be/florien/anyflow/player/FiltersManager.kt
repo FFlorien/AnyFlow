@@ -5,7 +5,6 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,11 +18,8 @@ class FiltersManager
     private var areFiltersChanged = false
     val filtersInEdition: Flowable<Set<Filter<*>>> = filtersInEditionUpdater.toFlowable(BackpressureStrategy.LATEST)
 
-
-    private var subscribe: Disposable?
-
     init {
-        subscribe = libraryDatabase
+        libraryDatabase
                 .getFilters()
                 .doOnNext {
                     currentFilters.clear()
@@ -68,8 +64,4 @@ class FiltersManager
     }
 
     fun isFilterInEdition(filter: Filter<*>): Boolean = unCommittedFilters.contains(filter)
-
-    fun destroy() {//todo
-        subscribe?.dispose()
-    }
 }
