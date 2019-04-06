@@ -106,9 +106,7 @@ class PlayerActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
-            (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
-                supportActionBar?.title = it
-            }
+            changeToolbarTitle()
         }
 
         activityComponent.inject(this)
@@ -145,6 +143,9 @@ class PlayerActivity : AppCompatActivity() {
             supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
+                    .runOnCommit {
+                        changeToolbarTitle()
+                    }
                     .commit()
         }
 
@@ -181,6 +182,12 @@ class PlayerActivity : AppCompatActivity() {
             }
         })
 
+    }
+
+    private fun changeToolbarTitle() {
+        (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
+            supportActionBar?.title = it
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
