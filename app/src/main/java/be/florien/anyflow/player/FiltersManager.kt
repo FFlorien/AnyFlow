@@ -54,8 +54,14 @@ class FiltersManager
     }
 
     fun commitChanges(): Completable {
-        return libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }).doOnComplete { areFiltersChanged = false }
+        return if (isFiltersTheSame()) {
+            Completable.complete()
+        } else {
+            libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }).doOnComplete { areFiltersChanged = false }
+        }
     }
+
+    private fun isFiltersTheSame() = unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(unCommittedFilters)
 
     fun abandonChanges() {
         clearFilters()

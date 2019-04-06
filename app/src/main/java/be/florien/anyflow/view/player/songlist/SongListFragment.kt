@@ -88,15 +88,19 @@ class SongListFragment : BaseFragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 updateCurrentSongDisplay()
 
-                if (shouldHideLoading) {
-                    updateLoadingVisibility(false)
-                    shouldHideLoading = false
+                if (isListFollowingCurrentSong && linearLayoutManager.findFirstVisibleItemPosition() != vm.listPosition) {
+                    updateScrollPosition()
+                } else {
+                    if (shouldHideLoading) {
+                        updateLoadingVisibility(false)
+                        shouldHideLoading = false
+                    }
                 }
             }
         })
         binding.songList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                isListFollowingCurrentSong = vm.listPosition in linearLayoutManager.findFirstCompletelyVisibleItemPosition()..linearLayoutManager.findLastCompletelyVisibleItemPosition()
+                isListFollowingCurrentSong = if (e.action == MotionEvent.ACTION_MOVE) false else isListFollowingCurrentSong
                 return false
             }
         })
@@ -127,7 +131,9 @@ class SongListFragment : BaseFragment() {
                     }
                     BR.listPosition -> {
                         (binding.songList.adapter as SongAdapter).setSelectedPosition(vm.listPosition)
-                        updateScrollPosition()
+                        if (vm.listPositionLoaded) {
+                            updateScrollPosition()
+                        }
                     }
                     BR.listPositionLoaded -> {
                         if (vm.pagedAudioQueue != null && vm.listPositionLoaded && shouldScroll) {
@@ -175,7 +181,6 @@ class SongListFragment : BaseFragment() {
 
         if (vm.listPosition in firstVisibleItemPosition..lastVisibleItemPosition) {
             binding.currentSongDisplay.root.visibility = View.GONE
-            isListFollowingCurrentSong = true
         } else {
 
             if (binding.currentSongDisplay.root.visibility != View.VISIBLE) {

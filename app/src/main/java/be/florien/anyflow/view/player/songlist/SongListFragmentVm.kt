@@ -51,8 +51,9 @@ class SongListFragmentVm
     var pagedAudioQueue: PagedList<SongDisplay>? = null
         set(value) {
             field?.removeWeakCallback(pagedListListener)
+            val previousSnapshot = field?.snapshot()
             field = value
-            field?.addWeakCallback(null, pagedListListener)
+            field?.addWeakCallback(previousSnapshot, pagedListListener)
         }
     @Bindable
     var currentSong: SongDisplay? = null
