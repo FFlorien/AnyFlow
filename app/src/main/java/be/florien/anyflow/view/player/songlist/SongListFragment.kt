@@ -1,5 +1,6 @@
 package be.florien.anyflow.view.player.songlist
 
+import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
@@ -47,7 +48,8 @@ class SongListFragment : BaseFragment() {
     private var isFirstScroll = true
     private var shouldScroll = false
     private var shouldHideLoading = false
-    private var isLoadingVisible = true
+    private val isLoadingVisible
+        get() = binding.loadingText.visibility == View.VISIBLE
     private val mainThreadHandler = Handler()
 
     private val topSet: ConstraintSet
@@ -147,6 +149,7 @@ class SongListFragment : BaseFragment() {
                                 binding.songList.addOnChildAttachStateChangeListener(listener)
                                 mainThreadHandler.postDelayed({
                                     binding.songList.removeOnChildAttachStateChangeListener(listener)
+                                    shouldHideLoading = true
                                     linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
                                 }, 500)
                                 shouldScroll = false
@@ -203,14 +206,29 @@ class SongListFragment : BaseFragment() {
 
     private fun updateLoadingVisibility(shouldLoadingBeVisible: Boolean) {
         if (shouldLoadingBeVisible != isLoadingVisible) {
-            isLoadingVisible = shouldLoadingBeVisible
             val startValue = if (shouldLoadingBeVisible) 0f else 1f
             val endValue = if (shouldLoadingBeVisible) 1f else 0f
 
-            ObjectAnimator.ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
-                duration = 300
-                interpolator = AccelerateDecelerateInterpolator()
-            }.start()
+            ObjectAnimator
+                    .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
+                        duration = 300
+                        interpolator = AccelerateDecelerateInterpolator()
+                    }.apply {
+                        addListener(object : Animator.AnimatorListener {
+                            override fun onAnimationRepeat(animation: Animator?) {}
+
+                            override fun onAnimationEnd(animation: Animator?) {
+                                binding.loadingText.visibility = if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
+                            }
+
+                            override fun onAnimationCancel(animation: Animator?) {}
+
+                            override fun onAnimationStart(animation: Animator?) {
+                                binding.loadingText.visibility = View.VISIBLE
+                            }
+                        })
+                    }
+                    .start()
         }
     }
 

@@ -2,14 +2,14 @@ package be.florien.anyflow.view.player.filter.selectType
 
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.DrawableRes
-import androidx.core.content.res.ResourcesCompat
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
+import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
 import be.florien.anyflow.databinding.ItemSelectFilterTypeBinding
@@ -41,7 +41,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentSelectFilterBinding.inflate(inflater, container, false)
-        fragmentBinding.filterList.layoutManager = GridLayoutManager(activity, 2, RecyclerView.VERTICAL, false)
+        fragmentBinding.filterList.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         fragmentBinding.filterList.adapter = FilterListAdapter()
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
             fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
