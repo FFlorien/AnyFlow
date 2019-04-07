@@ -61,6 +61,13 @@ open class AmpacheConnection
     private val _connectionStatusUpdater: BehaviorSubject<ConnectionStatus> = BehaviorSubject.create<ConnectionStatus>()
     val connectionStatusUpdater: Observable<ConnectionStatus> = _connectionStatusUpdater
 
+    private val _songsPercentageUpdater = BehaviorSubject.create<Int>()
+    val songsPercentageUpdater: Observable<Int> = _songsPercentageUpdater
+    private val _artistsPercentageUpdater = BehaviorSubject.create<Int>()
+    val artistsPercentageUpdater: Observable<Int> = _artistsPercentageUpdater
+    private val _albumsPercentageUpdater = BehaviorSubject.create<Int>()
+    val albumsPercentageUpdater: Observable<Int> = _albumsPercentageUpdater
+
     /**
      * Ampache connection handling
      */
@@ -176,9 +183,12 @@ open class AmpacheConnection
                 .getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
                 .doOnNext {
                     if (it.songs.isEmpty()) {
+                        _songsPercentageUpdater.onNext(100)
                         emitter.onComplete()
                         sharedPreferences.edit().remove(OFFSET_SONG).apply()
                     } else {
+                        val percentage = songOffset / it.total_count * 100
+                        _songsPercentageUpdater.onNext(percentage)
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
                         songOffset += itemLimit
@@ -194,9 +204,12 @@ open class AmpacheConnection
         ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
                 .doOnNext {
                     if (it.artists.isEmpty()) {
+                        _artistsPercentageUpdater.onNext(100)
                         emitter.onComplete()
                         sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                     } else {
+                        val percentage = artistOffset / it.total_count * 100
+                        _artistsPercentageUpdater.onNext(percentage)
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
                         artistOffset += itemLimit
@@ -212,9 +225,12 @@ open class AmpacheConnection
         ampacheApi.getAlbums(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
                 .doOnNext {
                     if (it.albums.isEmpty()) {
+                        _albumsPercentageUpdater.onNext(100)
                         emitter.onComplete()
                         sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
                     } else {
+                        val percentage = albumOffset / it.total_count * 100
+                        _albumsPercentageUpdater.onNext(percentage)
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
                         albumOffset += itemLimit

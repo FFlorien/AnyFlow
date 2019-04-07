@@ -15,7 +15,6 @@ import be.florien.anyflow.persistence.server.model.AmpacheError
 import be.florien.anyflow.persistence.server.model.AmpacheSongList
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 import javax.inject.Inject
 
@@ -37,9 +36,6 @@ class PersistenceManager
         roll(Calendar.DAY_OF_YEAR, false)
     }
 
-    private val _updateStatusUpdater = BehaviorSubject.create<UpdateStatus>()
-    val updateStatusUpdater: Observable<UpdateStatus> = _updateStatusUpdater
-
     /**
      * Getter with server updates
      */
@@ -47,9 +43,6 @@ class PersistenceManager
     fun updateAll(): Completable = updateArtists()
             .andThen(updateAlbums())
             .andThen(updateSongs())
-            .doOnComplete {
-                _updateStatusUpdater.onNext(UpdateStatus.NONE)
-            }
 
     private fun updateSongs(): Completable = getUpToDateList(
             LAST_SONG_UPDATE,
@@ -90,7 +83,6 @@ class PersistenceManager
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         return if (lastUpdate.before(lastAcceptableUpdate)) {
-            _updateStatusUpdater.onNext(UpdateStatus.UPDATING_LIBRARY)
             songServerConnection
                     .getListOnServer(lastUpdate)
                     .flatMapCompletable { result ->
@@ -106,10 +98,5 @@ class PersistenceManager
         } else {
             Completable.complete()
         }
-    }
-
-    enum class UpdateStatus {
-        UPDATING_LIBRARY,
-        NONE
     }
 }

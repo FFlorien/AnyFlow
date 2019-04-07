@@ -7,7 +7,6 @@ import androidx.databinding.Bindable
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.persistence.PersistenceManager
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.player.*
@@ -23,6 +22,7 @@ import be.florien.anyflow.view.customView.PlayerControls
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.math.absoluteValue
 
 /**
@@ -35,7 +35,12 @@ constructor(
         private val playingQueue: PlayingQueue,
         private val libraryDatabase: LibraryDatabase,
         connectionStatusUpdater: Observable<AmpacheConnection.ConnectionStatus>,
-        updateStatusUpdater: Observable<PersistenceManager.UpdateStatus>) : BaseVM(), PlayerControls.OnActionListener {
+        @Named("Songs")
+        songsPercentageUpdater: Observable<Int>,
+        @Named("Albums")
+        albumsPercentageUpdater: Observable<Int>,
+        @Named("Artists")
+        artistsPercentageUpdater: Observable<Int>) : BaseVM(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
@@ -57,7 +62,13 @@ constructor(
     var connectionStatus: AmpacheConnection.ConnectionStatus = AmpacheConnection.ConnectionStatus.CONNECTED
 
     @Bindable
-    var isUpdatingLibrary: Boolean = false
+    var songsUpdatePercentage: Int = 0
+
+    @Bindable
+    var artistsUpdatePercentage: Int = 0
+
+    @Bindable
+    var albumsUpdatePercentage: Int = 0
 
     @Bindable
     var state: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
@@ -146,9 +157,23 @@ constructor(
                 }
         )
         subscribe(
-                observable = updateStatusUpdater.observeOn(AndroidSchedulers.mainThread()),
+                observable = songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
-                    isUpdatingLibrary = it == PersistenceManager.UpdateStatus.UPDATING_LIBRARY
+                    songsUpdatePercentage = it
+                    notifyPropertyChanged(BR.isUpdatingLibrary)
+                }
+        )
+        subscribe(
+                observable = artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    artistsUpdatePercentage = it
+                    notifyPropertyChanged(BR.isUpdatingLibrary)
+                }
+        )
+        subscribe(
+                observable = albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    albumsUpdatePercentage = it
                     notifyPropertyChanged(BR.isUpdatingLibrary)
                 }
         )

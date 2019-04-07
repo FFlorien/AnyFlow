@@ -171,8 +171,23 @@ class PlayerActivity : AppCompatActivity() {
                                     .show()
                         }
                     }
-                    BR.isUpdatingLibrary -> {
-                        if (vm.isUpdatingLibrary) {
+                    BR.songsUpdatePercentage -> {
+                        if (vm.songsUpdatePercentage < 100) {
+                            binding.updatingText.setText()
+                            animateAppearance(binding.updatingStateView)
+                        } else {
+                            animateDisappearance(binding.updatingStateView)
+                        }
+                    }
+                    BR.albumsUpdatePercentage -> {
+                        if (vm.albumsUpdatePercentage < 100) {
+                            animateAppearance(binding.updatingStateView)
+                        } else {
+                            animateDisappearance(binding.updatingStateView)
+                        }
+                    }
+                    BR.artistsUpdatePercentage -> {
+                        if (vm.artistsUpdatePercentage < 100) {
                             animateAppearance(binding.updatingStateView)
                         } else {
                             animateDisappearance(binding.updatingStateView)
@@ -251,43 +266,47 @@ class PlayerActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
 
     private fun animateAppearance(view: View) {
-        val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
-        ValueAnimator.ofInt(0, maxHeight).apply {
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(p0: Animator?) {}
+        if (view.visibility != View.VISIBLE) {
+            val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
+            ValueAnimator.ofInt(0, maxHeight).apply {
+                addListener(object : Animator.AnimatorListener {
+                    override fun onAnimationRepeat(p0: Animator?) {}
 
-                override fun onAnimationEnd(p0: Animator?) {}
+                    override fun onAnimationEnd(p0: Animator?) {}
 
-                override fun onAnimationCancel(p0: Animator?) {}
+                    override fun onAnimationCancel(p0: Animator?) {}
 
-                override fun onAnimationStart(p0: Animator?) {
-                    view.visibility = View.VISIBLE
-                }
+                    override fun onAnimationStart(p0: Animator?) {
+                        view.visibility = View.VISIBLE
+                    }
 
-            })
-            addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
-            duration = 150
-        }.start()
+                })
+                addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
+                duration = 150
+            }.start()
+        }
     }
 
     private fun animateDisappearance(view: View) {
-        val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
-        ValueAnimator.ofInt(maxHeight, 0).apply {
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(p0: Animator?) {}
+        if (view.visibility != View.GONE) {
+            val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
+            ValueAnimator.ofInt(maxHeight, 0).apply {
+                addListener(object : Animator.AnimatorListener {
+                    override fun onAnimationRepeat(p0: Animator?) {}
 
-                override fun onAnimationEnd(p0: Animator?) {
-                    view.visibility = View.GONE
-                }
+                    override fun onAnimationEnd(p0: Animator?) {
+                        view.visibility = View.GONE
+                    }
 
-                override fun onAnimationCancel(p0: Animator?) {}
+                    override fun onAnimationCancel(p0: Animator?) {}
 
-                override fun onAnimationStart(p0: Animator?) {}
+                    override fun onAnimationStart(p0: Animator?) {}
 
-            })
-            addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
-            duration = 150
-        }.start()
+                })
+                addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
+                duration = 150
+            }.start()
+        }
     }
 
     companion object {
