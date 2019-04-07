@@ -9,13 +9,9 @@ import timber.log.Timber
 
 class AnyFlowAppRelease : AnyFlowApp() {
 
-    override fun initLibrariesForBuildType() {
+    override fun onCreate() {
+        super.onCreate()
         Stetho.initializeWithDefaults(this)
         Timber.plant(Timber.DebugTree())
-        applicationComponent = DaggerApplicationComponent
-                .builder()
-                .application(this)
-                .applicationModule(ApplicationModule())
-                .build()
     }
 }
