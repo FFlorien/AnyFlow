@@ -160,21 +160,21 @@ constructor(
                 observable = songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     songsUpdatePercentage = it
-                    notifyPropertyChanged(BR.isUpdatingLibrary)
+                    notifyPropertyChanged(BR.songsUpdatePercentage)
                 }
         )
         subscribe(
                 observable = artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     artistsUpdatePercentage = it
-                    notifyPropertyChanged(BR.isUpdatingLibrary)
+                    notifyPropertyChanged(BR.artistsUpdatePercentage)
                 }
         )
         subscribe(
                 observable = albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = {
                     albumsUpdatePercentage = it
-                    notifyPropertyChanged(BR.isUpdatingLibrary)
+                    notifyPropertyChanged(BR.albumsUpdatePercentage)
                 }
         )
     }

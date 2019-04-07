@@ -67,7 +67,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/updating_library"
                 android:textColor="@color/onPrimaryText" />
         </LinearLayout>
 

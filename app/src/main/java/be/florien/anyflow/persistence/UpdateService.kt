@@ -13,28 +13,39 @@ import be.florien.anyflow.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.player.PlayerService
-import io.reactivex.disposables.Disposable
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.net.SocketTimeoutException
 import javax.inject.Inject
+import javax.inject.Named
 
 class UpdateService
 @Inject constructor() : Service() {
-    override fun onBind(intent: Intent?): IBinder?  = null
+    override fun onBind(intent: Intent?): IBinder? = null
 
     @Inject
     lateinit var persistenceManager: PersistenceManager
+    @Inject
+    @field:Named("Songs")
+    lateinit var songsPercentageUpdater: Observable<Int>
+    @Inject
+    @field:Named("Albums")
+    lateinit var albumsPercentageUpdater: Observable<Int>
+    @Inject
+    @field:Named("Artists")
+    lateinit var artistsPercentageUpdater: Observable<Int>
     private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@UpdateService, 0, intent, 0)
     }
-    private var subscription: Disposable? = null
+    private var subscriptions: CompositeDisposable = CompositeDisposable()
 
     override fun onCreate() {
         super.onCreate()
         (application as be.florien.anyflow.AnyFlowApp).userComponent?.inject(this)
-        notifyChange(true)
-        subscription = persistenceManager.updateAll()
+        subscriptions.add(persistenceManager.updateAll()
                 .doOnError { throwable ->
                     when (throwable) {
                         is SessionExpiredException ->
@@ -48,22 +59,40 @@ class UpdateService
                     }
                 }
                 .doOnComplete {
-                    notifyChange(false)
+                    notifyChange(false, "")
                 }
                 .subscribeOn(Schedulers.io())
+                .subscribe())
+        subscriptions.add(songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
+                .doOnNext {
+                    notifyChange(true, getString(R.string.update_songs, it))
+                }
                 .subscribe()
+        )
+        subscriptions.add(artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
+                .doOnNext {
+                    notifyChange(true, getString(R.string.update_artists, it))
+                }
+                .subscribe()
+        )
+        subscriptions.add(albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
+                .doOnNext {
+                    notifyChange(true, getString(R.string.update_albums, it))
+                }
+                .subscribe()
+        )
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        notifyChange(false)
-        subscription?.dispose()
+        notifyChange(false, "")
+        subscriptions.dispose()
     }
 
-    private fun notifyChange(isUpdating: Boolean) {
+    private fun notifyChange(isUpdating: Boolean, message: String) {
         if (isUpdating) {
             val notification = NotificationCompat.Builder(this, PlayerService.MEDIA_SESSION_NAME)
-                    .setContentTitle(getString(R.string.updating_library))
+                    .setContentTitle(message)
                     .setContentIntent(pendingIntent)
                     .setOnlyAlertOnce(true)
                     .setSmallIcon(R.drawable.notif)

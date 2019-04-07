@@ -37,7 +37,9 @@
     <string name="display_reconnecting">Reconnexion</string>
     <string name="confirm">Confirmer</string>
     <string name="connect_error_credentials">Impossible de se connecter avec ces informations de connexion</string>
-    <string name="updating_library">Mise à jour de la bibliothèque</string>
     <string name="connect_error_timeout">Impossible de se connecter au serveur, veuillez réessayer plus tard</string>
     <string name="ok">OK</string>
+    <string name="update_songs">Mise à jour des chansons: %02d %%</string>
+    <string name="update_artists">Mise à jour des artistes: %02d %%</string>
+    <string name="update_albums">Mise à jour des albums: %02d %%</string>
 </resources>

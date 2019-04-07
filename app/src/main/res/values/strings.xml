@@ -27,7 +27,6 @@
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
-    <string name="updating_library">Updating library</string>
     <string name="general_loading_label">Loading, please wait…</string>
     <string name="action_filter_clear">Clear filters</string>
     <string name="action_filter_add">Add filters</string>
@@ -39,4 +38,7 @@
     <string name="player_controls_unknown">Unknown</string>
     <string name="player_playing_now">Now playing</string>
     <string name="ok">OK</string>
+    <string name="update_songs">Updating songs: %02d %%</string>
+    <string name="update_artists">Updating artists: %02d %%</string>
+    <string name="update_albums">Updating albums: %02d %%</string>
 </resources>

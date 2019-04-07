@@ -187,7 +187,7 @@ open class AmpacheConnection
                         emitter.onComplete()
                         sharedPreferences.edit().remove(OFFSET_SONG).apply()
                     } else {
-                        val percentage = songOffset / it.total_count * 100
+                        val percentage = (songOffset * 100) / it.total_count
                         _songsPercentageUpdater.onNext(percentage)
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
@@ -208,7 +208,7 @@ open class AmpacheConnection
                         emitter.onComplete()
                         sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                     } else {
-                        val percentage = artistOffset / it.total_count * 100
+                        val percentage = (artistOffset * 100) / it.total_count
                         _artistsPercentageUpdater.onNext(percentage)
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
@@ -229,7 +229,7 @@ open class AmpacheConnection
                         emitter.onComplete()
                         sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
                     } else {
-                        val percentage = albumOffset / it.total_count * 100
+                        val percentage = (albumOffset * 100) / it.total_count
                         _albumsPercentageUpdater.onNext(percentage)
                         emitter.onNext(it)
                         sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
