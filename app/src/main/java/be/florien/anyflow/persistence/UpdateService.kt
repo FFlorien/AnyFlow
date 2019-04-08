@@ -59,25 +59,37 @@ class UpdateService
                     }
                 }
                 .doOnComplete {
-                    notifyChange(false, "")
+                    stopForeground(true)
                 }
                 .subscribeOn(Schedulers.io())
                 .subscribe())
         subscriptions.add(songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    notifyChange(true, getString(R.string.update_songs, it))
+                    if (it < 100) {
+                        notifyChange(getString(R.string.update_songs, it))
+                    } else {
+                        stopForeground(true)
+                    }
                 }
                 .subscribe()
         )
         subscriptions.add(artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    notifyChange(true, getString(R.string.update_artists, it))
+                    if (it < 100) {
+                        notifyChange(getString(R.string.update_artists, it))
+                    } else {
+                        stopForeground(true)
+                    }
                 }
                 .subscribe()
         )
         subscriptions.add(albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    notifyChange(true, getString(R.string.update_albums, it))
+                    if (it < 100) {
+                        notifyChange(getString(R.string.update_albums, it))
+                    } else {
+                        stopForeground(true)
+                    }
                 }
                 .subscribe()
         )
@@ -85,22 +97,18 @@ class UpdateService
 
     override fun onDestroy() {
         super.onDestroy()
-        notifyChange(false, "")
+        stopForeground(true)
         subscriptions.dispose()
     }
 
-    private fun notifyChange(isUpdating: Boolean, message: String) {
-        if (isUpdating) {
-            val notification = NotificationCompat.Builder(this, PlayerService.MEDIA_SESSION_NAME)
-                    .setContentTitle(message)
-                    .setContentIntent(pendingIntent)
-                    .setOnlyAlertOnce(true)
-                    .setSmallIcon(R.drawable.notif)
-                    .setColor(ContextCompat.getColor(this, R.color.primary)).build()
-            startForeground(2, notification)
-        } else {
-            stopForeground(true)
-        }
+    private fun notifyChange(message: String) {
+        val notification = NotificationCompat.Builder(this, PlayerService.MEDIA_SESSION_NAME)
+                .setContentTitle(message)
+                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .setSmallIcon(R.drawable.notif)
+                .setColor(ContextCompat.getColor(this, R.color.primary)).build()
+        startForeground(2, notification)
     }
 
 }
