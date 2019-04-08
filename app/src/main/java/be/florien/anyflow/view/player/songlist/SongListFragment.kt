@@ -121,8 +121,6 @@ class SongListFragment : BaseFragment() {
             override fun onPropertyChanged(observable: Observable, id: Int) {
                 when (id) {
                     BR.pagedAudioQueue -> {
-                        isListFollowingCurrentSong = true
-
                         if (vm.pagedAudioQueue != null) {
                             (binding.songList.adapter as SongAdapter).submitList(vm.pagedAudioQueue)
                         } else {
@@ -130,6 +128,7 @@ class SongListFragment : BaseFragment() {
                         }
                     }
                     BR.listPosition -> {
+                        updateCurrentSongDisplay()
                         (binding.songList.adapter as SongAdapter).setSelectedPosition(vm.listPosition)
                         if (vm.listPositionLoaded) {
                             updateScrollPosition()
@@ -252,7 +251,7 @@ class SongListFragment : BaseFragment() {
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.listPosition
-            holder.bind(getItem(position), position)
+            holder.bind(getItem(position))
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(parent)
@@ -271,14 +270,11 @@ class SongListFragment : BaseFragment() {
             private val binding: ItemSongBinding = ItemSongBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         : RecyclerView.ViewHolder(binding.root) {
 
-        private var songPosition: Int = 0
-
         init {
-            binding.root.setOnClickListener { vm.play(songPosition) }
+            binding.root.setOnClickListener { vm.play(adapterPosition) }
         }
 
-        fun bind(song: SongDisplay?, position: Int) {
-            this.songPosition = position
+        fun bind(song: SongDisplay?) {
             binding.song = song
         }
 
