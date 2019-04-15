@@ -41,8 +41,8 @@ class PersistenceManager
      */
 
     fun updateAll(): Completable = updateArtists()
-            .andThen(updateAlbums())
-            .andThen(updateSongs())
+            .concatWith(updateAlbums())
+            .concatWith(updateSongs())
 
     private fun updateSongs(): Completable = getUpToDateList(
             LAST_SONG_UPDATE,

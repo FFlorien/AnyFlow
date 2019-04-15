@@ -43,7 +43,7 @@ open class AmpacheConnection
     private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    private val itemLimit: Int = 50
+    private val itemLimit: Int = 150
     private var songOffset: Int = sharedPreferences.getLong(OFFSET_SONG, 0).toInt()
     private var artistOffset: Int = sharedPreferences.getLong(OFFSET_ARTIST, 0).toInt()
     private var albumOffset: Int = sharedPreferences.getLong(OFFSET_ALBUM, 0).toInt()
