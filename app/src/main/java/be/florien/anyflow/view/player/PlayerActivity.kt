@@ -172,7 +172,7 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                     BR.songsUpdatePercentage -> {
-                        if (vm.songsUpdatePercentage < 100) {
+                        if (vm.songsUpdatePercentage in 0..100) {
                             binding.updatingText.text = getString(R.string.update_songs, vm.songsUpdatePercentage)
                             animateAppearance(binding.updatingStateView)
                         } else {
@@ -180,7 +180,7 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                     BR.albumsUpdatePercentage -> {
-                        if (vm.albumsUpdatePercentage < 100) {
+                        if (vm.albumsUpdatePercentage in 0..100) {
                             binding.updatingText.text = getString(R.string.update_albums, vm.albumsUpdatePercentage)
                             animateAppearance(binding.updatingStateView)
                         } else {
@@ -188,7 +188,7 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                     BR.artistsUpdatePercentage -> {
-                        if (vm.artistsUpdatePercentage < 100) {
+                        if (vm.artistsUpdatePercentage in 0..100) {
                             binding.updatingText.text = getString(R.string.update_artists, vm.artistsUpdatePercentage)
                             animateAppearance(binding.updatingStateView)
                         } else {

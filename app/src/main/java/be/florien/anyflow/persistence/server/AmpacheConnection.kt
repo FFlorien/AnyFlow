@@ -181,101 +181,106 @@ open class AmpacheConnection
     fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
         ampacheApi
                 .getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
-                .doOnNext {
-                    if (it.songs.isEmpty()) {
-                        _songsPercentageUpdater.onNext(100)
-                        emitter.onComplete()
-                        sharedPreferences.edit().remove(OFFSET_SONG).apply()
-                    } else {
-                        val percentage = (songOffset * 100) / it.total_count
-                        _songsPercentageUpdater.onNext(percentage)
-                        emitter.onNext(it)
-                        sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
-                        songOffset += itemLimit
-                    }
-                }
-                .doOnError {
-                    dispatchError(it, "getSongs")
-                }
-                .subscribe()
+                .subscribe(
+                        {
+                            if (it.songs.isEmpty()) {
+                                _songsPercentageUpdater.onNext(100)
+                                emitter.onComplete()
+                                sharedPreferences.edit().remove(OFFSET_SONG).apply()
+                            } else {
+                                val percentage = (songOffset * 100) / it.total_count
+                                _songsPercentageUpdater.onNext(percentage)
+                                emitter.onNext(it)
+                                sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
+                                songOffset += itemLimit
+                            }
+                        },
+                        {
+                            dispatchError(_songsPercentageUpdater, it, "getSongs")
+                            emitter.onError(it)
+                        })
     }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = Observable.generate { emitter ->
         ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
-                .doOnNext {
-                    if (it.artists.isEmpty()) {
-                        _artistsPercentageUpdater.onNext(100)
-                        emitter.onComplete()
-                        sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
-                    } else {
-                        val percentage = (artistOffset * 100) / it.total_count
-                        _artistsPercentageUpdater.onNext(percentage)
-                        emitter.onNext(it)
-                        sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
-                        artistOffset += itemLimit
-                    }
-                }
-                .doOnError {
-                    dispatchError(it, "getArtists")
-                }
-                .subscribe()
+                .subscribe(
+                        {
+                            if (it.artists.isEmpty()) {
+                                _artistsPercentageUpdater.onNext(100)
+                                emitter.onComplete()
+                                sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
+                            } else {
+                                val percentage = (artistOffset * 100) / it.total_count
+                                _artistsPercentageUpdater.onNext(percentage)
+                                emitter.onNext(it)
+                                sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
+                                artistOffset += itemLimit
+                            }
+                        },
+                        {
+                            dispatchError(_artistsPercentageUpdater, it, "getArtists")
+                            emitter.onError(it)
+                        })
     }
 
     fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = Observable.generate { emitter ->
         ampacheApi.getAlbums(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
-                .doOnNext {
-                    if (it.albums.isEmpty()) {
-                        _albumsPercentageUpdater.onNext(100)
-                        emitter.onComplete()
-                        sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
-                    } else {
-                        val percentage = (albumOffset * 100) / it.total_count
-                        _albumsPercentageUpdater.onNext(percentage)
-                        emitter.onNext(it)
-                        sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
-                        albumOffset += itemLimit
-                    }
-                }
-                .doOnError {
-                    dispatchError(it, "getAlbums")
-                }
-                .subscribe()
+                .subscribe(
+                        {
+                            if (it.albums.isEmpty()) {
+                                _albumsPercentageUpdater.onNext(100)
+                                emitter.onComplete()
+                                sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
+                            } else {
+                                val percentage = (albumOffset * 100) / it.total_count
+                                _albumsPercentageUpdater.onNext(percentage)
+                                emitter.onNext(it)
+                                sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
+                                albumOffset += itemLimit
+                            }
+                        },
+                        {
+                            dispatchError(_albumsPercentageUpdater, it, "getAlbums")
+                            emitter.onError(it)
+                        })
     }
 
     fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = Observable.generate { emitter ->
         ampacheApi.getTags(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
-                .doOnNext {
-                    if (it.tags.isEmpty()) {
-                        emitter.onComplete()
-                        sharedPreferences.edit().remove(OFFSET_TAG).apply()
-                    } else {
-                        emitter.onNext(it)
-                        sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
-                        tagOffset += itemLimit
-                    }
-                }
-                .doOnError {
-                    dispatchError(it, "getTags")
-                }
-                .subscribe()
+                .subscribe(
+                        {
+                            if (it.tags.isEmpty()) {
+                                emitter.onComplete()
+                                sharedPreferences.edit().remove(OFFSET_TAG).apply()
+                            } else {
+                                emitter.onNext(it)
+                                sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
+                                tagOffset += itemLimit
+                            }
+                        },
+                        {
+                            dispatchError(null, it, "getTags")
+                            emitter.onError(it)
+                        })
     }
 
     fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = Observable.generate { emitter ->
         ampacheApi.getPlaylists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
-                .doOnNext {
-                    if (it.playlists.isEmpty()) {
-                        emitter.onComplete()
-                        sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
-                    } else {
-                        emitter.onNext(it)
-                        sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
-                        playlistOffset += itemLimit
-                    }
-                }
-                .doOnError {
-                    dispatchError(it, "getPlaylists")
-                }
-                .subscribe()
+                .subscribe(
+                        {
+                            if (it.playlists.isEmpty()) {
+                                emitter.onComplete()
+                                sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
+                            } else {
+                                emitter.onNext(it)
+                                sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
+                                playlistOffset += itemLimit
+                            }
+                        },
+                        {
+                            dispatchError(null, it, "getPlaylists")
+                            emitter.onError(it)
+                        })
     }
 
     fun getSongUrl(url: String): String {
@@ -288,7 +293,8 @@ open class AmpacheConnection
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 
-    private fun dispatchError(it: Throwable, action: String) {
+    private fun dispatchError(updater: BehaviorSubject<Int>?, it: Throwable, action: String) {
+        updater?.onNext(-1)
         this@AmpacheConnection.eLog(it, "Error while $action")
         if (it is TimeoutException) {
             _connectionStatusUpdater.onNext(ConnectionStatus.TIMEOUT)

@@ -46,7 +46,7 @@ class AmpacheSong {
     @field:Element(name = "replaygain_album_peak", required = false) var replaygain_album_peak: Double = 0.0
     @field:Element(name = "replaygain_track_gain", required = false) var replaygain_track_gain: Double = 0.0
     @field:Element(name = "replaygain_track_peak", required = false) var replaygain_track_peak: Double = 0.0
-    @field:Element(name = "genre", required = false) var genre: String = ""
+    @field:ElementList(entry = "genre", inline = true, required = false) var genre: List<String> = mutableListOf()
 }
 @Root(name = "root", strict = false)
 class AmpacheSongList {

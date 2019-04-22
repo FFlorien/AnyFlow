@@ -65,7 +65,7 @@ class UpdateService
                 .subscribe())
         subscriptions.add(songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    if (it < 100) {
+                    if (it in 0..100) {
                         notifyChange(getString(R.string.update_songs, it))
                     } else {
                         stopForeground(true)
@@ -75,7 +75,7 @@ class UpdateService
         )
         subscriptions.add(artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    if (it < 100) {
+                    if (it in 0..100) {
                         notifyChange(getString(R.string.update_artists, it))
                     } else {
                         stopForeground(true)
@@ -85,7 +85,7 @@ class UpdateService
         )
         subscriptions.add(albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
-                    if (it < 100) {
+                    if (it in 0..100) {
                         notifyChange(getString(R.string.update_albums, it))
                     } else {
                         stopForeground(true)

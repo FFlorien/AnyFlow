@@ -64,7 +64,7 @@ data class Song(
             fromServer.comment,
             fromServer.publisher,
             fromServer.language,
-            fromServer.genre)
+            fromServer.genre.joinToString(","))
 }
 
 data class SongDisplay(

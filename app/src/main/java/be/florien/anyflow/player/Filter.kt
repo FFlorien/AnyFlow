@@ -47,7 +47,7 @@ sealed class Filter<T>(
         private const val TITLE_IS = "title ="
         private const val TITLE_CONTAIN = "title LIKE"
         private const val SEARCH = "title AND genre AND artistName AND albumName LIKE"
-        private const val GENRE_IS = "song.genre ="
+        private const val GENRE_IS = "song.genre CONTAINS"
         private const val SONG_ID = "song.id ="
         private const val ARTIST_ID = "song.artistId ="
         private const val ALBUM_ARTIST_ID = "song.albumArtistId ="
