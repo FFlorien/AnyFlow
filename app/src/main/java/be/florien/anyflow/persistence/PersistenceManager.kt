@@ -19,7 +19,8 @@ import java.util.*
 import javax.inject.Inject
 
 private const val LAST_SONG_UPDATE = "LAST_SONG_UPDATE"
-private const val LAST_ARTIST_UPDATE = "LAST_ARTIST_UPDATE"
+// updated because the art was added , see LibraryDatabase migration 1->2
+private const val LAST_ARTIST_UPDATE = "LAST_ARTIST_UPDATE_v1"
 private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
 
 /**

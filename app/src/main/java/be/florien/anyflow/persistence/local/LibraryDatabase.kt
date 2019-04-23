@@ -6,7 +6,9 @@ import androidx.paging.RxPagedListBuilder
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.dao.*
 import be.florien.anyflow.persistence.local.model.*
@@ -21,7 +23,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
 
-@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 1)
+@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 2)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -290,7 +292,14 @@ abstract class LibraryDatabase : RoomDatabase() {
 
         @Synchronized
         private fun create(context: Context): LibraryDatabase {
-            return Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME).build()
+            return Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
+                    .addMigrations(object : Migration(1, 2) {
+                        override fun migrate(database: SupportSQLiteDatabase) {
+                            database.execSQL("ALTER TABLE Artist ADD COLUMN art TEXT NOT NULL DEFAULT ''")
+                        }
+
+                    })
+                    .build()
         }
 
     }

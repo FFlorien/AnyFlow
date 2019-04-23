@@ -16,12 +16,12 @@ class SelectFilterFragmentArtistVM(activity: Activity) : SelectFilterFragmentVM(
     init {
         (activity as PlayerActivity).activityComponent.inject(this)
         subscribe(library
-                .getArtists{ artist -> FilterItem(artist.id, artist.name, isSelected = filtersManager.isFilterInEdition(Filter.ArtistIs(artist.id, artist.name))) }
+                .getArtists{ artist -> FilterItem(artist.id, artist.name, artist.art, filtersManager.isFilterInEdition(Filter.ArtistIs(artist.id, artist.name, artist.art))) }
                 .observeOn(AndroidSchedulers.mainThread()), onNext = { artists ->
             values = artists
             notifyPropertyChanged(BR.values)
         })
     }
 
-    override fun getFilter(filterValue: FilterItem) = Filter.ArtistIs(filterValue.id, filterValue.displayName)
+    override fun getFilter(filterValue: FilterItem) = Filter.ArtistIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
 }
