@@ -198,7 +198,11 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         })
+    }
 
+    override fun onResume() {
+        super.onResume()
+        updateMenuItemVisibility()
     }
 
     private fun changeToolbarTitle() {
