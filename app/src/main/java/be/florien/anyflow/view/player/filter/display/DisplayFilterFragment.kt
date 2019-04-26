@@ -1,24 +1,24 @@
 package be.florien.anyflow.view.player.filter.display
 
 import android.content.Context
-import androidx.databinding.Observable
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import androidx.annotation.DrawableRes
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.ViewCompat
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.databinding.Observable
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
@@ -31,11 +31,13 @@ import be.florien.anyflow.view.player.filter.BaseFilterVM
 import be.florien.anyflow.view.player.filter.selectType.SelectFilterTypeFragment
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.FutureTarget
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 
 class DisplayFilterFragment : BaseFilterFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
+    private val targets: MutableList<FutureTarget<Bitmap>> = mutableListOf()
     override val baseVm: BaseFilterVM
         get() = vm
     lateinit var vm: DisplayFilterFragmentVM
@@ -60,7 +62,9 @@ class DisplayFilterFragment : BaseFilterFragment() {
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
         binding.filterList.adapter = filterListAdapter
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
-            binding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
+            binding
+                    .filterList
+                    .addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
         }
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -80,6 +84,13 @@ class DisplayFilterFragment : BaseFilterFragment() {
         }
         ViewCompat.setTranslationZ(binding.root, 1f)
         return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        targets.forEach {
+            it.cancel(false)
+        }
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {
@@ -122,27 +133,39 @@ class DisplayFilterFragment : BaseFilterFragment() {
             }
             val valueStart = charSequence.lastIndexOf(filter.displayText)
             val stylizedText = SpannableString(charSequence)
-            stylizedText.setSpan(StyleSpan(android.graphics.Typeface.BOLD), valueStart, charSequence.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            stylizedText.setSpan(
+                    StyleSpan(android.graphics.Typeface.BOLD),
+                    valueStart,
+                    charSequence.length,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE)
             binding.filterName.text = stylizedText
             binding.vm = vm
             binding.filter = filter
             if (filter.displayImage != null) {
-                GlideApp.with(requireActivity())
+                targets.add(
+                        GlideApp.with(requireActivity())
                         .asBitmap()
                         .load(filter.displayImage)
                         .listener(object : RequestListener<Bitmap> {
-                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                            override fun onLoadFailed(e: GlideException?,
+                                                      model: Any?,
+                                                      target: Target<Bitmap>?,
+                                                      isFirstResource: Boolean): Boolean {
                                 return true
                             }
 
-                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                            override fun onResourceReady(resource: Bitmap?,
+                                                         model: Any?,
+                                                         target: Target<Bitmap>?,
+                                                         dataSource: DataSource?,
+                                                         isFirstResource: Boolean): Boolean {
                                 val drawable = BitmapDrawable(resources, resource)
                                 drawable.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
                                 binding.filterName.setCompoundDrawables(drawable, null, null, null)
                                 return true
                             }
                         })
-                        .submit()
+                        .submit())
             } else {
                 when (filter) {
                     is Filter.AlbumArtistIs,

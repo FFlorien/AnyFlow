@@ -25,6 +25,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.di.ActivityScope
+import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
@@ -48,8 +49,7 @@ class SongListFragment : BaseFragment() {
     private var isFirstScroll = true
     private var shouldScroll = false
     private var shouldHideLoading = false
-    private val isLoadingVisible
-        get() = binding.loadingText.visibility == View.VISIBLE
+    private var isLoadingVisible = false
     private val mainThreadHandler = Handler()
 
     private val topSet: ConstraintSet
@@ -90,11 +90,6 @@ class SongListFragment : BaseFragment() {
 
                 if (isListFollowingCurrentSong && linearLayoutManager.findFirstVisibleItemPosition() != vm.listPosition) {
                     updateScrollPosition()
-                } else {
-                    if (shouldHideLoading) {
-                        updateLoadingVisibility(false)
-                        shouldHideLoading = false
-                    }
                 }
             }
         })
@@ -123,12 +118,14 @@ class SongListFragment : BaseFragment() {
                     BR.pagedAudioQueue -> {
                         if (vm.pagedAudioQueue != null) {
                             (binding.songList.adapter as SongAdapter).submitList(vm.pagedAudioQueue)
+                            if (vm.listPositionLoaded) {
+                                updateLoadingVisibility(false)
+                            }
                         } else {
                             updateLoadingVisibility(true)
                         }
                     }
                     BR.listPosition -> {
-                        updateCurrentSongDisplay()
                         (binding.songList.adapter as SongAdapter).setSelectedPosition(vm.listPosition)
                         if (vm.listPositionLoaded) {
                             updateScrollPosition()
@@ -136,6 +133,7 @@ class SongListFragment : BaseFragment() {
                     }
                     BR.listPositionLoaded -> {
                         if (vm.pagedAudioQueue != null && vm.listPositionLoaded && shouldScroll) {
+                            updateLoadingVisibility(false)
                             if (isFirstScroll) {
                                 isFirstScroll = false
                                 linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0)
@@ -200,7 +198,7 @@ class SongListFragment : BaseFragment() {
 
             if (vm.listPositionLoaded && vm.pagedAudioQueue != null) {
                 shouldHideLoading = true
-                Handler().postDelayed({ linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0) }, 100)
+                mainThreadHandler.postDelayed({ linearLayoutManager.scrollToPositionWithOffset(vm.listPosition, 0) }, 100)
             } else if (vm.listPosition in 0 until (vm.pagedAudioQueue?.size ?: 0)) {
                 vm.pagedAudioQueue?.loadAround(vm.listPosition)
                 shouldScroll = true
@@ -210,6 +208,7 @@ class SongListFragment : BaseFragment() {
 
     private fun updateLoadingVisibility(shouldLoadingBeVisible: Boolean) {
         if (shouldLoadingBeVisible != isLoadingVisible) {
+            isLoadingVisible = shouldLoadingBeVisible
             val startValue = if (shouldLoadingBeVisible) 0f else 1f
             val endValue = if (shouldLoadingBeVisible) 1f else 0f
 
@@ -219,6 +218,10 @@ class SongListFragment : BaseFragment() {
                         interpolator = AccelerateDecelerateInterpolator()
                     }.apply {
                         addListener(object : Animator.AnimatorListener {
+
+                            override fun onAnimationStart(animation: Animator?) {
+                                binding.loadingText.visibility = View.VISIBLE
+                            }
                             override fun onAnimationRepeat(animation: Animator?) {}
 
                             override fun onAnimationEnd(animation: Animator?) {
@@ -226,10 +229,6 @@ class SongListFragment : BaseFragment() {
                             }
 
                             override fun onAnimationCancel(animation: Animator?) {}
-
-                            override fun onAnimationStart(animation: Animator?) {
-                                binding.loadingText.visibility = View.VISIBLE
-                            }
                         })
                     }
                     .start()
@@ -267,7 +266,8 @@ class SongListFragment : BaseFragment() {
 
     inner class SongViewHolder(
             parent: ViewGroup,
-            private val binding: ItemSongBinding = ItemSongBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            private val binding: ItemSongBinding = ItemSongBinding
+                    .inflate(LayoutInflater.from(parent.context), parent, false))
         : RecyclerView.ViewHolder(binding.root) {
 
         init {
