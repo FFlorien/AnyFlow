@@ -14,7 +14,7 @@ import be.florien.anyflow.view.player.PlayerActivity
 
 abstract class BaseFilterFragment: BaseFragment() {
 
-    private val menuCoordinator = MenuCoordinator()
+    protected val menuCoordinator = MenuCoordinator()
     protected abstract val baseVm: BaseFilterVM
 
     private var confirmMenuHolder: ConfirmMenuHolder = ConfirmMenuHolder {

@@ -1,13 +1,20 @@
 package be.florien.anyflow.persistence.local.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity
-data class DbFilter (
+@Entity(foreignKeys = [
+        ForeignKey(
+                entity = FilterGroup::class,
+                parentColumns = arrayOf("id"),
+                childColumns = arrayOf("filterGroup"),
+                onDelete = ForeignKey.CASCADE)])
+data class DbFilter(
         @PrimaryKey(autoGenerate = true)
-    val id: Long,
+        val id: Int,
         val clause: String,
         val argument: String,
         val displayText: String,
-        val displayImage: String?)
+        val displayImage: String?,
+        val filterGroup: Long)

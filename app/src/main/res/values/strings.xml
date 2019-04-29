@@ -41,4 +41,5 @@
     <string name="update_songs">Updating songs: %02d %%</string>
     <string name="update_artists">Updating artists: %02d %%</string>
     <string name="update_albums">Updating albums: %02d %%</string>
+    <string name="cancel">Cancel</string>
 </resources>

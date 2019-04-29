@@ -1,6 +1,7 @@
 package be.florien.anyflow.view.player.filter.display
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.Rect
@@ -12,7 +13,9 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.databinding.Observable
@@ -25,6 +28,7 @@ import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.player.Filter
+import be.florien.anyflow.view.menu.SaveFilterGroupMenuHolder
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
@@ -44,6 +48,18 @@ class DisplayFilterFragment : BaseFilterFragment() {
 
     private lateinit var binding: FragmentDisplayFilterBinding
     private val filterListAdapter = FilterListAdapter()
+    private val saveMenuHolder = SaveFilterGroupMenuHolder {
+        val editText = EditText(requireActivity())
+        AlertDialog.Builder(requireActivity())
+                .setView(editText)
+                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                    vm.saveFilterGroup(editText.text.toString())
+                }
+                .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+                    dialog.cancel()
+                }
+                .show()
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -54,6 +70,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
         super.onCreate(savedInstanceState)
         (activity as PlayerActivity).activityComponent.inject(this)
         vm.resetFilterChanges()
+        menuCoordinator.addMenuHolder(saveMenuHolder)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

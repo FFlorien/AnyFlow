@@ -23,7 +23,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
 
-@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, DbOrder::class], version = 2)
+@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, FilterGroup::class, DbOrder::class], version = 3)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -32,6 +32,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getQueueOrderDao(): QueueOrderDao
     protected abstract fun getSongDao(): SongDao
     protected abstract fun getFilterDao(): FilterDao
+    protected abstract fun getFilterGroupDao(): FilterGroupDao
     protected abstract fun getOrderDao(): OrderDao
     var randomOrderingSeed = 2
     var precisePosition = listOf<Order>()
@@ -98,14 +99,28 @@ abstract class LibraryDatabase : RoomDatabase() {
                 .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getAlbums") }.subscribeOn(Schedulers.io())
     }
 
-    fun getFilters(): Flowable<List<Filter<*>>> = getFilterDao().all().map { filterList ->
-        val typedList = mutableListOf<Filter<*>>()
-        filterList.forEach {
-            typedList.add(Filter.toTypedFilter(it))
-        }
-        typedList as List<Filter<*>>
-    }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getFilters") }.subscribeOn(Schedulers.io())
+    fun getCurrentFilters(): Flowable<List<Filter<*>>> = getFilterDao()
+            .currentFilters()
+            .convertToFilters()
+            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getCurrentFilters") }.subscribeOn(Schedulers.io())
+
+    fun getFiltersForGroup(group: FilterGroup): Flowable<List<Filter<*>>> = getFilterDao()
+            .filterForGroup(group.id)
+            .convertToFilters()
+            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying filtersForGroup") }.subscribeOn(Schedulers.io())
+
+    fun getFilterGroups(): Flowable<List<FilterGroup>> = getFilterGroupDao()
+            .allSavedFilterGroup()
+            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getFilterGroups") }.subscribeOn(Schedulers.io())
+
+    private fun Flowable<List<DbFilter>>.convertToFilters(): Flowable<List<Filter<*>>> =
+            map { filterList ->
+                val typedList = mutableListOf<Filter<*>>()
+                filterList.forEach {
+                    typedList.add(Filter.toTypedFilter(it))
+                }
+                typedList as List<Filter<*>>
+            }
 
     fun getOrder(): Flowable<List<DbOrder>> = getOrderDao().all().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getOrder") }.subscribeOn(Schedulers.io())
 
@@ -125,8 +140,25 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun addPlayLists(playlists: List<Playlist>): Completable = asyncCompletable(CHANGE_PLAYLISTS) { getPlaylistDao().insert(playlists) }
             .doOnError { this@LibraryDatabase.eLog(it, "Error while addPlayLists") }
 
-    fun setFilters(filters: List<DbFilter>): Completable = asyncCompletable(CHANGE_FILTERS) { getFilterDao().replaceBy(filters) }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
+    fun setCurrentFilters(filters: List<Filter<*>>): Completable =
+            asyncCompletable(CHANGE_FILTER_GROUP) {
+                getFilterDao().deleteCurrentFilters()
+                val currentFilterGroup = FilterGroup(1, "Current Filters")
+                val dbFilters = filters.map { it.toDbFilter(currentFilterGroup) }
+                getFilterDao().insert(dbFilters)
+            }
+                    .doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
+
+    fun createFilterGroup(filters: List<Filter<*>>, name: String):
+            Completable =
+            asyncCompletable(CHANGE_FILTER_GROUP) {
+                val filterGroup = FilterGroup(0, name)
+                val newId = getFilterGroupDao().insertSingle(filterGroup)
+                val filterGroupUpdated = FilterGroup(newId, name)
+                val filtersUpdated = filters.map { it.toDbFilter(filterGroupUpdated) }
+                getFilterDao().insert(filtersUpdated)
+            }
+                    .doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
 
     fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }
             .doOnError { this@LibraryDatabase.eLog(it, "Error while setOrders") }
@@ -148,7 +180,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     private fun getPlaylistFromFilter(): Flowable<List<Long>> =
             getFilterDao()
-                    .all()
+                    .currentFilters()
                     .withLatestFrom(
                             getOrderDao().all(),
                             BiFunction { dbFilters: List<DbFilter>, dbOrders: List<DbOrder> ->
@@ -164,7 +196,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                     .all()
                     .doOnNext { retrieveRandomness(it) }
                     .withLatestFrom(
-                            getFilterDao().all(),
+                            getFilterDao().currentFilters(),
                             BiFunction { dbOrders: List<DbOrder>, dbFilters: List<DbFilter> ->
                                 getQueryForSongs(dbFilters, dbOrders)
                             })
@@ -278,6 +310,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         const val CHANGE_ORDER = 4
         const val CHANGE_FILTERS = 5
         const val CHANGE_QUEUE = 6
+        const val CHANGE_FILTER_GROUP = 7
 
         @Volatile
         private var instance: LibraryDatabase? = null
@@ -293,12 +326,20 @@ abstract class LibraryDatabase : RoomDatabase() {
         @Synchronized
         private fun create(context: Context): LibraryDatabase {
             return Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
-                    .addMigrations(object : Migration(1, 2) {
-                        override fun migrate(database: SupportSQLiteDatabase) {
-                            database.execSQL("ALTER TABLE Artist ADD COLUMN art TEXT NOT NULL DEFAULT ''")
-                        }
+                    .addMigrations(
+                            object : Migration(1, 2) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("ALTER TABLE Artist ADD COLUMN art TEXT NOT NULL DEFAULT ''")
+                                }
 
-                    })
+                            },
+                            object : Migration(2, 3) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("CREATE TABLE FilterGroup (id INTEGER NOT NULL, name TEXT NOT NULL, PRIMARY KEY(id))")
+                                    database.execSQL("ALTER TABLE DbFilter ADD COLUMN filterGroup INTEGER NOT NULL DEFAULT 0 REFERENCES FilterGroup(id) ON DELETE CASCADE")
+                                }
+
+                            })
                     .build()
         }
 

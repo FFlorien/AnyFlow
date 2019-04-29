@@ -1,6 +1,7 @@
 package be.florien.anyflow.player
 
 import be.florien.anyflow.persistence.local.model.DbFilter
+import be.florien.anyflow.persistence.local.model.FilterGroup
 
 sealed class Filter<T>(
         val clause: String,
@@ -8,7 +9,7 @@ sealed class Filter<T>(
         val displayText: String,
         val displayImage: String? = null) {
 
-    fun toDbFilter(): DbFilter = DbFilter(0, clause, argument.toString(), displayText, displayImage)
+    fun toDbFilter(group: FilterGroup): DbFilter = DbFilter(0, clause, argument.toString(), displayText, displayImage, group.id)
 
     override fun equals(other: Any?): Boolean {
         return other is Filter<*> && clause == other.clause && argument == other.argument

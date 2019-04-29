@@ -33,4 +33,8 @@ class DisplayFilterFragmentVM(activity: Activity) : BaseFilterVM() {
     fun resetFilterChanges() {
         filtersManager.abandonChanges()
     }
+
+    fun saveFilterGroup(name: String) {
+        filtersManager.saveCurrentFilterGroup(name).subscribe()
+    }
 }

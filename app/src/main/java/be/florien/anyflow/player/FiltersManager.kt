@@ -20,7 +20,7 @@ class FiltersManager
 
     init {
         libraryDatabase
-                .getFilters()
+                .getCurrentFilters()
                 .doOnNext {
                     currentFilters.clear()
                     currentFilters.addAll(it)
@@ -57,9 +57,11 @@ class FiltersManager
         return if (isFiltersTheSame()) {
             Completable.complete()
         } else {
-            libraryDatabase.setFilters(unCommittedFilters.map { it.toDbFilter() }).doOnComplete { areFiltersChanged = false }
+            libraryDatabase.setCurrentFilters(unCommittedFilters.toList()).doOnComplete { areFiltersChanged = false }
         }
     }
+
+    fun saveCurrentFilterGroup(name: String): Completable = libraryDatabase.createFilterGroup(unCommittedFilters.toList(), name)
 
     private fun isFiltersTheSame() = unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(unCommittedFilters)
 

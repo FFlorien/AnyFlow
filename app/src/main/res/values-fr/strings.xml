@@ -42,4 +42,5 @@
     <string name="update_songs">Mise à jour des chansons: %02d %%</string>
     <string name="update_artists">Mise à jour des artistes: %02d %%</string>
     <string name="update_albums">Mise à jour des albums: %02d %%</string>
+    <string name="cancel">Annuler</string>
 </resources>
