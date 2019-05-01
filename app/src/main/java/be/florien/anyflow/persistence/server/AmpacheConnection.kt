@@ -184,7 +184,7 @@ open class AmpacheConnection
                 .subscribe(
                         {
                             if (it.songs.isEmpty()) {
-                                _songsPercentageUpdater.onNext(100)
+                                _songsPercentageUpdater.onNext(-1)
                                 emitter.onComplete()
                                 sharedPreferences.edit().remove(OFFSET_SONG).apply()
                             } else {
@@ -206,7 +206,7 @@ open class AmpacheConnection
                 .subscribe(
                         {
                             if (it.artists.isEmpty()) {
-                                _artistsPercentageUpdater.onNext(100)
+                                _artistsPercentageUpdater.onNext(-1)
                                 emitter.onComplete()
                                 sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                             } else {
@@ -228,7 +228,7 @@ open class AmpacheConnection
                 .subscribe(
                         {
                             if (it.albums.isEmpty()) {
-                                _albumsPercentageUpdater.onNext(100)
+                                _albumsPercentageUpdater.onNext(-1)
                                 emitter.onComplete()
                                 sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
                             } else {

@@ -104,9 +104,10 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
-            changeToolbarTitle()
+            adaptToolbarToCurrentFragment()
         }
 
         activityComponent.inject(this)
@@ -144,7 +145,7 @@ class PlayerActivity : AppCompatActivity() {
                     .beginTransaction()
                     .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
                     .runOnCommit {
-                        changeToolbarTitle()
+                        adaptToolbarToCurrentFragment()
                     }
                     .commit()
         }
@@ -203,12 +204,7 @@ class PlayerActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateMenuItemVisibility()
-    }
-
-    private fun changeToolbarTitle() {
-        (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
-            supportActionBar?.title = it
-        }
+        adaptToolbarToCurrentFragment()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -266,6 +262,13 @@ class PlayerActivity : AppCompatActivity() {
         val isSongListVisible = isSongListVisible()
         filterMenu.isVisible = isSongListVisible
         orderMenu.isVisible = isSongListVisible
+    }
+
+    private fun adaptToolbarToCurrentFragment() {
+        (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
+            supportActionBar?.title = it
+        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(supportFragmentManager.findFragmentById(R.id.container) !is SongListFragment)
     }
 
     private fun isSongListVisible() =
