@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AnyFlow</string>
+    <string name="app_name" translatable="false">AnyFlow</string>
     <string name="connect_server_hint">Server</string>
     <string name="connect_username_hint">Username</string>
     <string name="connect_password_hint">Password</string>
@@ -19,11 +19,10 @@
     <string name="filter_type_artist">Artist</string>
     <string name="filter_type_album">Album</string>
     <string name="filter_type_search">Search</string>
-    <string name="filter_empty">NO FILTER SET</string>
-    <string name="filter_add_explanation">You can add more with the button below</string>
     <string name="filter_title_album">Select albums</string>
     <string name="filter_title_artist">Select artists</string>
     <string name="filter_title_genre">Select genres</string>
+    <string name="filter_title_saved">Saved filters</string>
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>

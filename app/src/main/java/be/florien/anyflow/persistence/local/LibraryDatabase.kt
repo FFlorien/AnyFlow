@@ -14,10 +14,7 @@ import be.florien.anyflow.persistence.local.dao.*
 import be.florien.anyflow.persistence.local.model.*
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.player.Order
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
+import io.reactivex.*
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -103,11 +100,6 @@ abstract class LibraryDatabase : RoomDatabase() {
             .currentFilters()
             .convertToFilters()
             .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getCurrentFilters") }.subscribeOn(Schedulers.io())
-
-    fun getFiltersForGroup(group: FilterGroup): Flowable<List<Filter<*>>> = getFilterDao()
-            .filterForGroup(group.id)
-            .convertToFilters()
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying filtersForGroup") }.subscribeOn(Schedulers.io())
 
     fun getFilterGroups(): Flowable<List<FilterGroup>> = getFilterGroupDao()
             .allSavedFilterGroup()
@@ -205,6 +197,12 @@ abstract class LibraryDatabase : RoomDatabase() {
                     }
                     .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getPlaylistFromOrder") }
 
+    fun getAlbumArtsForFilterGroup(): Flowable<List<List<String>>> = getFilterGroupDao()
+            .allSavedFilterGroup()
+            .map { groups -> groups.map { group -> getFilterDao().filterForGroup(group.id) } }
+            .map { filters -> filters.map { getSongDao().artForFilters(SimpleSQLiteQuery(getQueryForFiltersArt(it))) } }
+            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying filtersForGroup") }.subscribeOn(Schedulers.io())
+
     private fun retrieveRandomness(dbOrders: List<DbOrder>) {
         val orderList = dbOrders.map { Order.toOrder(it) }
         randomOrderingSeed = orderList.firstOrNull { it.orderingType == Order.Ordering.RANDOM }?.argument
@@ -213,37 +211,6 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, dbOrders: List<DbOrder>): String {
-
-        fun constructWhereStatement(): String {
-            val typedFilterList = mutableListOf<Filter<*>>()
-            dbFilters.forEach {
-                typedFilterList.add(Filter.toTypedFilter(it))
-            }
-
-            var whereStatement = if (typedFilterList.isNotEmpty()) {
-                " WHERE"
-            } else {
-                ""
-            }
-
-            typedFilterList.forEachIndexed { index, filter ->
-                whereStatement += when (filter) {
-                    is Filter.TitleIs,
-                    is Filter.TitleContain,
-                    is Filter.Search,
-                    is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
-                    is Filter.SongIs,
-                    is Filter.ArtistIs,
-                    is Filter.AlbumArtistIs,
-                    is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
-                }
-                if (index < typedFilterList.size - 1) {
-                    whereStatement += " OR"
-                }
-            }
-
-            return whereStatement
-        }
 
         fun constructOrderStatement(): String {
             val orderList = mutableListOf<Order>()
@@ -286,7 +253,40 @@ abstract class LibraryDatabase : RoomDatabase() {
             return orderStatement
         }
 
-        return "SELECT id FROM song" + constructWhereStatement() + constructOrderStatement()
+        return "SELECT id FROM song" + constructWhereStatement(dbFilters) + constructOrderStatement()
+    }
+
+    private fun getQueryForFiltersArt(dbFilters: List<DbFilter>) = "SELECT DISTINCT art FROM song" + constructWhereStatement(dbFilters)
+
+    private fun constructWhereStatement(dbFilters: List<DbFilter>): String {
+        val typedFilterList = mutableListOf<Filter<*>>()
+        dbFilters.forEach {
+            typedFilterList.add(Filter.toTypedFilter(it))
+        }
+
+        var whereStatement = if (typedFilterList.isNotEmpty()) {
+            " WHERE"
+        } else {
+            ""
+        }
+
+        typedFilterList.forEachIndexed { index, filter ->
+            whereStatement += when (filter) {
+                is Filter.TitleIs,
+                is Filter.TitleContain,
+                is Filter.Search,
+                is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
+                is Filter.SongIs,
+                is Filter.ArtistIs,
+                is Filter.AlbumArtistIs,
+                is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
+            }
+            if (index < typedFilterList.size - 1) {
+                whereStatement += " OR"
+            }
+        }
+
+        return whereStatement
     }
 
     fun saveOrder(it: List<Long>) {

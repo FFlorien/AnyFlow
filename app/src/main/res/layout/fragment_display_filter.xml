@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -10,7 +11,7 @@
             type="be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/unselected">
@@ -18,39 +19,10 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/filterList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="@{vm.currentFilters.empty ? View.GONE : View.VISIBLE}" />
-
-        <TextView
-            android:id="@+id/empty_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/filter_empty"
-            android:textSize="@dimen/textLarge"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/filterList"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.3" />
-
-        <TextView
-            android:id="@+id/empty_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/mediumDimen"
-            android:gravity="center_horizontal"
-            android:text="@string/filter_add_explanation"
-            app:layout_constraintTop_toBottomOf="@+id/empty_title" />
-
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/empty_views"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="@{vm.currentFilters.empty ? View.VISIBLE : View.GONE}"
-            app:constraint_referenced_ids="empty_title,empty_description" />
+            android:layout_height="match_parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add"
+            android:id="@+id/fab_saved_filter_groups"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"

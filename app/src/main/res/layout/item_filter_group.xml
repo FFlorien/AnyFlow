@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="filterGroup"
+            type="be.florien.anyflow.persistence.local.model.FilterGroup" />
+
+        <variable
+            name="cover1Url"
+            type="String" />
+
+        <variable
+            name="cover2Url"
+            type="String" />
+
+        <variable
+            name="cover3Url"
+            type="String" />
+
+        <variable
+            name="cover4Url"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/listItemPadding">
+
+        <ImageView
+            android:id="@+id/cover1"
+            android:layout_width="@dimen/smallImageSize"
+            android:layout_height="@dimen/smallImageSize"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            app:coverImageUrl="@{cover1Url}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/cover2"
+            android:layout_width="@dimen/smallImageSize"
+            android:layout_height="@dimen/smallImageSize"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            app:coverImageUrl="@{cover2Url}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cover1" />
+
+        <ImageView
+            android:id="@+id/cover3"
+            android:layout_width="@dimen/smallImageSize"
+            android:layout_height="@dimen/smallImageSize"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            app:coverImageUrl="@{cover3Url}"
+            app:layout_constraintLeft_toRightOf="@id/cover1"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/cover4"
+            android:layout_width="@dimen/smallImageSize"
+            android:layout_height="@dimen/smallImageSize"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            app:coverImageUrl="@{cover4Url}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/cover1"
+            app:layout_constraintTop_toBottomOf="@id/cover3" />
+
+        <TextView
+            android:id="@+id/groupName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/accent"
+            android:gravity="clip_vertical"
+            android:orientation="vertical"
+            android:padding="@dimen/smallDimen"
+            android:text="@{filterGroup.name}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

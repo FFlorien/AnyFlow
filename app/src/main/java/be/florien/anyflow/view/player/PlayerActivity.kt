@@ -34,6 +34,7 @@ import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.menu.OrderMenuHolder
 import be.florien.anyflow.view.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM
+import be.florien.anyflow.view.player.filter.saved.SavedFilterGroupVM
 import be.florien.anyflow.view.player.filter.selectType.AddFilterTypeFragmentVM
 import be.florien.anyflow.view.player.filter.selectType.SelectFilterTypeFragment
 import be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentAlbumVM
@@ -82,6 +83,7 @@ class PlayerActivity : AppCompatActivity() {
         override fun inject(playerActivity: PlayerActivity) {}
         override fun inject(songListFragment: SongListFragment) {}
         override fun inject(displayFilterFragment: DisplayFilterFragment) {}
+        override fun inject(savedFilterGroupVM: SavedFilterGroupVM) {}
         override fun inject(addFilterFragmentGenreVM: SelectFilterFragmentGenreVM) {}
         override fun inject(addFilterFragmentArtistVM: SelectFilterFragmentArtistVM) {}
         override fun inject(addFilterFragmentAlbumVM: SelectFilterFragmentAlbumVM) {}

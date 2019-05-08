@@ -32,6 +32,7 @@ import be.florien.anyflow.view.menu.SaveFilterGroupMenuHolder
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
+import be.florien.anyflow.view.player.filter.saved.SavedFilterGroupFragment
 import be.florien.anyflow.view.player.filter.selectType.SelectFilterTypeFragment
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -91,11 +92,11 @@ class DisplayFilterFragment : BaseFilterFragment() {
             }
 
         })
-        binding.fabAdd.setOnClickListener {
+        binding.fabSavedFilterGroups.setOnClickListener {
             requireActivity()
                     .supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.container, SelectFilterTypeFragment(), SelectFilterTypeFragment::class.java.simpleName)
+                    .replace(R.id.container, SavedFilterGroupFragment(), SavedFilterGroupFragment::class.java.simpleName)
                     .addToBackStack(null)
                     .commit()
         }
@@ -117,17 +118,28 @@ class DisplayFilterFragment : BaseFilterFragment() {
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             when (position) {
                 0 -> {
+                    holder.bind(getString(R.string.action_filter_add), R.drawable.ic_add)
+                    holder.itemView.setOnClickListener {
+                        requireActivity()
+                                .supportFragmentManager
+                                .beginTransaction()
+                                .replace(R.id.container, SelectFilterTypeFragment(), SelectFilterTypeFragment::class.java.simpleName)
+                                .addToBackStack(null)
+                                .commit()
+                    }
+                }
+                1 -> {
                     holder.bind(getString(R.string.action_filter_clear), R.drawable.ic_delete)
                     holder.itemView.setOnClickListener { vm.clearFilters() }
                 }
                 else -> {
-                    holder.bind(vm.currentFilters[position - 1])
+                    holder.bind(vm.currentFilters[position - 2])
                     holder.itemView.setOnClickListener(null)
                 }
             }
         }
 
-        override fun getItemCount(): Int = vm.currentFilters.size + (if (vm.currentFilters.size > 0) 1 else 0)
+        override fun getItemCount(): Int = vm.currentFilters.size + (if (vm.currentFilters.size > 0) 2 else 1)
     }
 
     inner class FilterViewHolder(
@@ -161,28 +173,28 @@ class DisplayFilterFragment : BaseFilterFragment() {
             if (filter.displayImage != null) {
                 targets.add(
                         GlideApp.with(requireActivity())
-                        .asBitmap()
-                        .load(filter.displayImage)
-                        .listener(object : RequestListener<Bitmap> {
-                            override fun onLoadFailed(e: GlideException?,
-                                                      model: Any?,
-                                                      target: Target<Bitmap>?,
-                                                      isFirstResource: Boolean): Boolean {
-                                return true
-                            }
+                                .asBitmap()
+                                .load(filter.displayImage)
+                                .listener(object : RequestListener<Bitmap> {
+                                    override fun onLoadFailed(e: GlideException?,
+                                                              model: Any?,
+                                                              target: Target<Bitmap>?,
+                                                              isFirstResource: Boolean): Boolean {
+                                        return true
+                                    }
 
-                            override fun onResourceReady(resource: Bitmap?,
-                                                         model: Any?,
-                                                         target: Target<Bitmap>?,
-                                                         dataSource: DataSource?,
-                                                         isFirstResource: Boolean): Boolean {
-                                val drawable = BitmapDrawable(resources, resource)
-                                drawable.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
-                                binding.filterName.setCompoundDrawables(drawable, null, null, null)
-                                return true
-                            }
-                        })
-                        .submit())
+                                    override fun onResourceReady(resource: Bitmap?,
+                                                                 model: Any?,
+                                                                 target: Target<Bitmap>?,
+                                                                 dataSource: DataSource?,
+                                                                 isFirstResource: Boolean): Boolean {
+                                        val drawable = BitmapDrawable(resources, resource)
+                                        drawable.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
+                                        binding.filterName.setCompoundDrawables(drawable, null, null, null)
+                                        return true
+                                    }
+                                })
+                                .submit())
             } else {
                 when (filter) {
                     is Filter.AlbumArtistIs,

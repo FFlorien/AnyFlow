@@ -11,7 +11,7 @@ abstract class FilterDao : BaseDao<DbFilter> {
     abstract fun currentFilters(): Flowable<List<DbFilter>>
 
     @Query("SELECT * FROM dbfilter WHERE filterGroup = :groupId")
-    abstract fun filterForGroup(groupId: Long): Flowable<List<DbFilter>>
+    abstract fun filterForGroup(groupId: Long): List<DbFilter>
 
     @Query("DELETE FROM dbfilter WHERE filterGroup = 1")
     abstract fun deleteCurrentFilters()

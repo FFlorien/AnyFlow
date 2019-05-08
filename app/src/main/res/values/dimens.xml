@@ -7,6 +7,7 @@
     <dimen name="xxLargeDimen">64dp</dimen>
 
     <dimen name="imageSize">90dp</dimen>
+    <dimen name="smallImageSize">60dp</dimen>
 
     <dimen name="textSmall">12sp</dimen>
     <dimen name="textLarge">18sp</dimen>

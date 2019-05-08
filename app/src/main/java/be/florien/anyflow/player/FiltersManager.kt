@@ -17,6 +17,8 @@ class FiltersManager
     private val filtersInEditionUpdater: BehaviorSubject<Set<Filter<*>>> = BehaviorSubject.create()
     private var areFiltersChanged = false
     val filtersInEdition: Flowable<Set<Filter<*>>> = filtersInEditionUpdater.toFlowable(BackpressureStrategy.LATEST)
+    val filterGroups = libraryDatabase.getFilterGroups()
+    val artsForFilter = libraryDatabase.getAlbumArtsForFilterGroup()
 
     init {
         libraryDatabase
