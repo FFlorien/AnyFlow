@@ -49,6 +49,12 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
             private val binding: ItemFilterGroupBinding = ItemFilterGroupBinding.inflate(LayoutInflater.from(container.context), container, false))
         : RecyclerView.ViewHolder(binding.root) {
 
+        init {
+            binding.root.setOnClickListener {
+                vm.changeForSavedGroup(adapterPosition)
+            }
+        }
+
         fun bind(filterGroup: FilterGroup, coverUrls: List<String>) {
             binding.filterGroup = filterGroup
             binding.cover1Url = coverUrls[0]
@@ -65,7 +71,6 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
 
         override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
             holder.bind(vm.filterGroups[position], vm.imageForGroups[position])
-
         }
 
     }

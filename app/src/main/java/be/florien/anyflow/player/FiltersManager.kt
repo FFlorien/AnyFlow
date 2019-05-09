@@ -1,6 +1,7 @@
 package be.florien.anyflow.player
 
 import be.florien.anyflow.persistence.local.LibraryDatabase
+import be.florien.anyflow.persistence.local.model.FilterGroup
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -64,6 +65,8 @@ class FiltersManager
     }
 
     fun saveCurrentFilterGroup(name: String): Completable = libraryDatabase.createFilterGroup(unCommittedFilters.toList(), name)
+
+    fun loadSavedGroup(filterGroup: FilterGroup): Completable = libraryDatabase.setCurrentFiltersOfSavedGroup(filterGroup)
 
     private fun isFiltersTheSame() = unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(unCommittedFilters)
 

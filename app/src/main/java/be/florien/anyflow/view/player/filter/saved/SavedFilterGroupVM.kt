@@ -6,6 +6,8 @@ import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.model.FilterGroup
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterVM
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class SavedFilterGroupVM(activity: PlayerActivity) : BaseFilterVM() {
 
@@ -21,7 +23,7 @@ class SavedFilterGroupVM(activity: PlayerActivity) : BaseFilterVM() {
                 onNext = {
                     filterGroups = it
                     if (imageForGroups.isEmpty()) {
-                        imageForGroups = List(filterGroups.size) { List(4) {""} }
+                        imageForGroups = List(filterGroups.size) { List(4) { "" } }
                     }
                     notifyPropertyChanged(BR.filterGroups)
                 },
@@ -33,5 +35,14 @@ class SavedFilterGroupVM(activity: PlayerActivity) : BaseFilterVM() {
                     imageForGroups = it
                     notifyPropertyChanged(BR.imageForGroups)
                 })
+    }
+
+    fun changeForSavedGroup(savedGroupPosition: Int) {
+        subscribe(filtersManager.loadSavedGroup(filterGroups[savedGroupPosition]).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread()),
+                onComplete = {
+                    areFiltersInEdition = false
+                    notifyPropertyChanged(BR.areFiltersInEdition)
+                }
+        )
     }
 }
