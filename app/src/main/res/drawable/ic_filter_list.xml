@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="800"
+    android:viewportHeight="800">
+    <path
+        android:name="path"
+        android:fillAlpha="1"
+        android:fillColor="@color/iconInApp"
+        android:pathData="m50,50L350,50L240,200L210,375L190,375L160,200ZM500,50L750,50ZM500,200L750,200ZM500,350L750,350ZM50,500L750,500ZM50,650L750,650Z"
+        android:strokeWidth="100"
+        android:strokeAlpha="1"
+        android:strokeColor="@color/iconInApp"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

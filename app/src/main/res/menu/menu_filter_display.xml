@@ -4,7 +4,8 @@
 
     <item
         android:id="@+id/menu_save"
-        android:icon="@drawable/ic_add"
+        android:icon="@drawable/ic_save"
+        android:iconTint="@color/accent"
         android:title="@string/action_filter_add"
         app:showAsAction="always"/>
 
