@@ -7,7 +7,7 @@
     android:viewportHeight="400">
     <path
         android:name="cross"
-        android:pathData="M125,125L275,125L300,185L100,185ZM120,185L145,375L255,375L280,185Z"
+        android:pathData="M175,25L225,25M50,50L350,50ZM75,115L90,375L310,375L325,115ZM160,175L165,315ZM240,175L235,315Z"
         android:strokeColor="@color/primaryDark"
         android:strokeLineCap="round"
         android:strokeWidth="50"
