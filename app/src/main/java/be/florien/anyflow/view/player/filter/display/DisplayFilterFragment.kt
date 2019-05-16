@@ -13,6 +13,7 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
@@ -51,8 +52,10 @@ class DisplayFilterFragment : BaseFilterFragment() {
     private val filterListAdapter = FilterListAdapter()
     private val saveMenuHolder = SaveFilterGroupMenuHolder {
         val editText = EditText(requireActivity())
+        editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
         AlertDialog.Builder(requireActivity())
                 .setView(editText)
+                .setTitle(R.string.filter_group_name)
                 .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
                     vm.saveFilterGroup(editText.text.toString())
                 }
@@ -90,7 +93,6 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     filterListAdapter.notifyDataSetChanged()
                 }
             }
-
         })
         binding.fabSavedFilterGroups.setOnClickListener {
             requireActivity()

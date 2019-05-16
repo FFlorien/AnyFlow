@@ -8,7 +8,7 @@
         android:fillAlpha="1"
         android:fillColor="#FFF"
         android:pathData="M125,25L125,375ZM125,200L300,25L300,375ZM300,200L300,200L300,200Z"
-        android:strokeWidth="50"
+        android:strokeWidth="35"
         android:strokeAlpha="1"
         android:strokeColor="#FFF"
         android:strokeLineCap="round"

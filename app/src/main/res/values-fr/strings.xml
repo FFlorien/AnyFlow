@@ -41,4 +41,5 @@
     <string name="update_albums">Mise à jour des albums: %02d %%</string>
     <string name="cancel">Annuler</string>
     <string name="filter_title_saved">Filtres enregistrés</string>
+    <string name="filter_group_name">Nom du groupe de filtres</string>
 </resources>

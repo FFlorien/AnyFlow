@@ -10,6 +10,6 @@
         android:pathData="M175,25L225,25M50,50L350,50ZM75,115L90,375L310,375L325,115ZM160,175L165,315ZM240,175L235,315Z"
         android:strokeColor="@color/primaryDark"
         android:strokeLineCap="round"
-        android:strokeWidth="50"
+        android:strokeWidth="35"
         android:strokeLineJoin="round"/>
 </vector>

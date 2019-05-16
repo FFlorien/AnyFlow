@@ -10,7 +10,7 @@
         android:fillAlpha="1"
         android:fillColor="@color/iconInApp"
         android:pathData="M65,25L150,25L150,375L65,375ZM250,25L335,25L335,375L250,375Z"
-        android:strokeWidth="50"
+        android:strokeWidth="35"
         android:strokeAlpha="1"
         android:strokeColor="@color/iconInApp"
         android:strokeLineCap="round"

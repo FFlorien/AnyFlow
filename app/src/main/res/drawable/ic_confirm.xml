@@ -9,7 +9,7 @@
         android:name="path"
         android:pathData="M 25 225 L 125 335 M 125 335 L 375 65"
         android:strokeColor="@color/iconInApp"
-        android:strokeWidth="50"
+        android:strokeWidth="35"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"/>
 </vector>

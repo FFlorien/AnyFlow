@@ -13,7 +13,7 @@
                 android:fillAlpha="1"
                 android:fillColor="@color/iconInApp"
                 android:pathData="M 285.5,38 Z M 375,200 Z M 285.5,362 Z M 112.5,362 Z M 25,200 Z M 112.5,38 Z"
-                android:strokeWidth="50"
+                android:strokeWidth="35"
                 android:strokeAlpha="1"
                 android:strokeColor="@color/iconInApp"
                 android:strokeLineCap="round"
