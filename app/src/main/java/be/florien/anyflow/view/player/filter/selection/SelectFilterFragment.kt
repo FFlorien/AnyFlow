@@ -17,8 +17,7 @@ import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
-import be.florien.anyflow.view.player.filter.BaseFilterFragment
-import be.florien.anyflow.view.player.filter.BaseFilterVM
+import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.player.filter.selectType.ALBUM_ID
 import be.florien.anyflow.view.player.filter.selectType.ARTIST_ID
 import be.florien.anyflow.view.player.filter.selectType.GENRE_ID
@@ -27,16 +26,13 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 @ActivityScope
 @UserScope
 class SelectFilterFragment @SuppressLint("ValidFragment")
-constructor(private var filterType: String) : BaseFilterFragment() {
+constructor(private var filterType: String) : BaseFragment() {
     override fun getTitle(): String = when (filterType) {
         ALBUM_ID -> getString(R.string.filter_title_album)
         ARTIST_ID -> getString(R.string.filter_title_artist)
         GENRE_ID -> getString(R.string.filter_title_genre)
         else -> getString(R.string.filter_title_main)
     }
-
-    override val baseVm: BaseFilterVM
-        get() = vm
 
     companion object {
         private const val FILTER_TYPE = "TYPE"

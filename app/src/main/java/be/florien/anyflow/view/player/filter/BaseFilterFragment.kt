@@ -1,15 +1,14 @@
 package be.florien.anyflow.view.player.filter
 
-import androidx.databinding.Observable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.databinding.Observable
 import be.florien.anyflow.BR
 import be.florien.anyflow.view.BaseFragment
-import be.florien.anyflow.view.menu.CancelMenuHolder
-import be.florien.anyflow.view.menu.ConfirmMenuHolder
 import be.florien.anyflow.view.menu.MenuCoordinator
+import be.florien.anyflow.view.menu.RollbackMenuHolder
 import be.florien.anyflow.view.player.PlayerActivity
 
 abstract class BaseFilterFragment: BaseFragment() {
@@ -17,19 +16,13 @@ abstract class BaseFilterFragment: BaseFragment() {
     protected val menuCoordinator = MenuCoordinator()
     protected abstract val baseVm: BaseFilterVM
 
-    private var confirmMenuHolder: ConfirmMenuHolder = ConfirmMenuHolder {
-        baseVm.confirmChanges()
-    }
-
-    private val cancelMenuHolder = CancelMenuHolder {
+    private val cancelMenuHolder = RollbackMenuHolder {
         baseVm.cancelChanges()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        confirmMenuHolder
-        menuCoordinator.addMenuHolder(confirmMenuHolder)
         menuCoordinator.addMenuHolder(cancelMenuHolder)
     }
 
@@ -60,7 +53,6 @@ abstract class BaseFilterFragment: BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        menuCoordinator.removeMenuHolder(confirmMenuHolder)
         menuCoordinator.removeMenuHolder(cancelMenuHolder)
     }
 }

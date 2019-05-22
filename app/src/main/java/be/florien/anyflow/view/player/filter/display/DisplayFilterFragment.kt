@@ -106,11 +106,17 @@ class DisplayFilterFragment : BaseFilterFragment() {
         return binding.root
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        vm.confirmChanges()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         targets.forEach {
             it.cancel(false)
         }
+        menuCoordinator.removeMenuHolder(saveMenuHolder)
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {
