@@ -8,7 +8,6 @@ import androidx.databinding.Observable
 import be.florien.anyflow.BR
 import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.menu.MenuCoordinator
-import be.florien.anyflow.view.menu.RollbackMenuHolder
 import be.florien.anyflow.view.player.PlayerActivity
 
 abstract class BaseFilterFragment: BaseFragment() {
@@ -16,14 +15,9 @@ abstract class BaseFilterFragment: BaseFragment() {
     protected val menuCoordinator = MenuCoordinator()
     protected abstract val baseVm: BaseFilterVM
 
-    private val cancelMenuHolder = RollbackMenuHolder {
-        baseVm.cancelChanges()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        menuCoordinator.addMenuHolder(cancelMenuHolder)
     }
 
     override fun onResume() {
@@ -49,10 +43,5 @@ abstract class BaseFilterFragment: BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return menuCoordinator.handleMenuClick(item.itemId)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        menuCoordinator.removeMenuHolder(cancelMenuHolder)
     }
 }

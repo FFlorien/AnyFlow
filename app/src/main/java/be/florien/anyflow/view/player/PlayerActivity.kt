@@ -270,7 +270,6 @@ class PlayerActivity : AppCompatActivity() {
         (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
             supportActionBar?.title = it
         }
-        supportActionBar?.setDisplayHomeAsUpEnabled(supportFragmentManager.findFragmentById(R.id.container) !is SongListFragment)
     }
 
     private fun isSongListVisible() =

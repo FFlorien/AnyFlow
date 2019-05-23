@@ -29,6 +29,7 @@ import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.player.Filter
+import be.florien.anyflow.view.menu.RollbackMenuHolder
 import be.florien.anyflow.view.menu.SaveFilterGroupMenuHolder
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
@@ -65,6 +66,10 @@ class DisplayFilterFragment : BaseFilterFragment() {
                 .show()
     }
 
+    private val cancelMenuHolder = RollbackMenuHolder {
+        baseVm.cancelChanges()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         vm = DisplayFilterFragmentVM(requireActivity())
@@ -75,6 +80,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
         (activity as PlayerActivity).activityComponent.inject(this)
         vm.resetFilterChanges()
         menuCoordinator.addMenuHolder(saveMenuHolder)
+        menuCoordinator.addMenuHolder(cancelMenuHolder)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -87,10 +93,14 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     .filterList
                     .addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
         }
+        cancelMenuHolder.isVisible = vm.hasChangeFromCurrentFilters
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (propertyId == BR.currentFilters) {
                     filterListAdapter.notifyDataSetChanged()
+                    saveMenuHolder.isVisible = vm.currentFilters.isNotEmpty()
+                } else if (propertyId == BR.hasChangeFromCurrentFilters) {
+                    cancelMenuHolder.isVisible = vm.hasChangeFromCurrentFilters
                 }
             }
         })
@@ -117,6 +127,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
             it.cancel(false)
         }
         menuCoordinator.removeMenuHolder(saveMenuHolder)
+        menuCoordinator.removeMenuHolder(cancelMenuHolder)
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {

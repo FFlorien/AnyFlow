@@ -17,10 +17,26 @@ class DisplayFilterFragmentVM(activity: Activity) : BaseFilterVM() {
             currentFilters.addAll(it)
             notifyPropertyChanged(BR.currentFilters)
         })
+        subscribe(filtersManager.filterGroups.map { it.isNotEmpty() },
+                onNext = {
+                    areFilterGroupExisting = it
+                    notifyPropertyChanged(BR.areFilterGroupExisting)
+                })
+        subscribe(filtersManager.hasChange.observeOn(AndroidSchedulers.mainThread()),
+                onNext = {
+                    hasChangeFromCurrentFilters = it
+                    notifyPropertyChanged(BR.hasChangeFromCurrentFilters)
+                })
     }
 
     @Bindable
     val currentFilters = mutableListOf<Filter<*>>()
+
+    @Bindable
+    var areFilterGroupExisting = false
+
+    @Bindable
+    var hasChangeFromCurrentFilters = false
 
     fun clearFilters() {
         filtersManager.clearFilters()

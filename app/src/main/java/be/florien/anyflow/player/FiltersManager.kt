@@ -1,11 +1,13 @@
 package be.florien.anyflow.player
 
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.persistence.local.model.FilterGroup
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,6 +22,14 @@ class FiltersManager
     val filtersInEdition: Flowable<Set<Filter<*>>> = filtersInEditionUpdater.toFlowable(BackpressureStrategy.LATEST)
     val filterGroups = libraryDatabase.getFilterGroups()
     val artsForFilter = libraryDatabase.getAlbumArtsForFilterGroup()
+    val hasChange: Flowable<Boolean> =
+            filtersInEdition.map {it.toList() }
+                    .withLatestFrom(
+                            libraryDatabase.getCurrentFilters(),
+                            BiFunction { currentFilters: List<Filter<*>>, filterInEdition: List<Filter<*>> ->
+                                !currentFilters.toTypedArray().contentEquals(filterInEdition.toTypedArray())
+                            })
+                    .doOnError { this@FiltersManager.eLog(it, "Error while querying hasChange") }
 
     init {
         libraryDatabase

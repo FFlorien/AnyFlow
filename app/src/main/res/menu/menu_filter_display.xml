@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_rollback"
+        android:icon="@drawable/ic_cancel"
+        android:iconTint="@color/accent"
+        android:title="@string/action_filter_clear"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/menu_save"
         android:icon="@drawable/ic_save"
         android:iconTint="@color/accent"

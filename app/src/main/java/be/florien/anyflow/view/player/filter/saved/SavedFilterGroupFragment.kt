@@ -29,7 +29,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             val inflater: MenuInflater = mode.menuInflater
-            inflater.inflate(R.menu.menu_filter, menu)
+            inflater.inflate(R.menu.menu_filter_display, menu)
             return true
         }
 
