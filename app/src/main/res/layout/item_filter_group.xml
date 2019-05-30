@@ -37,6 +37,13 @@
         android:orientation="horizontal"
         android:padding="@dimen/listItemPadding">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
         <ImageView
             android:id="@+id/cover1"
             android:layout_width="@dimen/smallImageSize"
@@ -44,7 +51,7 @@
             android:contentDescription="@null"
             android:scaleType="fitXY"
             app:coverImageUrl="@{cover1Url}"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="@id/guideline"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -55,7 +62,7 @@
             android:scaleType="fitXY"
             app:coverImageUrl="@{cover2Url}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="@id/guideline"
             app:layout_constraintTop_toBottomOf="@id/cover1" />
 
         <ImageView
@@ -85,9 +92,11 @@
             android:background="@color/accent"
             android:visibility="@{isSelected ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
         <TextView
             android:id="@+id/groupName"
@@ -99,8 +108,8 @@
             android:padding="@dimen/smallDimen"
             android:text="@{filterGroup.name}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/cover1"
+            app:layout_constraintRight_toRightOf="@id/cover4"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
