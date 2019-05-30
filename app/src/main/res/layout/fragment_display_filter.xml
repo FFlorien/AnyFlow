@@ -11,7 +11,7 @@
             type="be.florien.anyflow.view.player.filter.display.DisplayFilterFragmentVM" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/unselected">
@@ -28,8 +28,9 @@
             android:layout_margin="@dimen/activity_horizontal_margin"
             android:tint="@color/primary"
             android:visibility="@{vm.areFilterGroupExisting ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_anchor="@id/filterList"
+            app:layout_behavior="be.florien.anyflow.view.customView.ScrollAwareFabBehavior"
+            app:layout_anchorGravity="bottom|right|end"
             app:srcCompat="@drawable/ic_filter_list" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
