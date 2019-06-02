@@ -2,6 +2,8 @@ package be.florien.anyflow.user
 
 import android.content.Context
 import be.florien.anyflow.di.UserScope
+import be.florien.anyflow.local.DownloadHelper
+import be.florien.anyflow.persistence.local.LibraryDatabase
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import be.florien.anyflow.player.ExoPlayerController
 import be.florien.anyflow.player.PlayerController
@@ -21,6 +23,11 @@ class UserModule {
     @Provides
     @UserScope
     fun providePlayerController(context: Context, playingQueue: PlayingQueue, ampacheConnection: AmpacheConnection, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(playingQueue, ampacheConnection, context, okHttpClient)
+
+    @Provides
+    @UserScope
+    fun provideDownloadHelper(libraryDatabase: LibraryDatabase, ampacheConnection: AmpacheConnection, context: Context): DownloadHelper
+            = DownloadHelper(libraryDatabase, ampacheConnection, context)
 
     @Provides
     @Named("Songs")

@@ -42,4 +42,7 @@
     <string name="cancel">Annuler</string>
     <string name="filter_title_saved">Filtres enregistrés</string>
     <string name="filter_group_name">Nom du groupe de filtres</string>
+    <string name="refuse">Refuser</string>
+    <string name="accord">Accorder</string>
+    <string name="write_permission_explanation">Nous avons besoin de votre permission pour enregistrer votre musique sur votre téléphone</string>
 </resources>

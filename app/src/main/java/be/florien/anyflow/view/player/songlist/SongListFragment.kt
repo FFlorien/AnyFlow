@@ -1,9 +1,11 @@
 package be.florien.anyflow.view.player.songlist
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,8 +14,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.Observable
 import androidx.paging.PagedListAdapter
@@ -25,7 +30,6 @@ import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.di.ActivityScope
-import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
@@ -51,6 +55,7 @@ class SongListFragment : BaseFragment() {
     private var shouldHideLoading = false
     private var isLoadingVisible = false
     private val mainThreadHandler = Handler()
+    private var songWaitingToBeDownloaded: SongDisplay? = null
 
     private val topSet: ConstraintSet
         get() =
@@ -106,6 +111,7 @@ class SongListFragment : BaseFragment() {
             binding.songList.stopScroll()
             updateScrollPosition()
         }
+        binding.currentSongDisplay.options.visibility = View.GONE
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
@@ -166,6 +172,13 @@ class SongListFragment : BaseFragment() {
         return binding.root
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_WRITING && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            songWaitingToBeDownloaded?.let { vm.askForDownload(it) }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         vm.destroy()
@@ -222,6 +235,7 @@ class SongListFragment : BaseFragment() {
                             override fun onAnimationStart(animation: Animator?) {
                                 binding.loadingText.visibility = View.VISIBLE
                             }
+
                             override fun onAnimationRepeat(animation: Animator?) {}
 
                             override fun onAnimationEnd(animation: Animator?) {
@@ -250,7 +264,10 @@ class SongListFragment : BaseFragment() {
 
         override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
             holder.isCurrentSong = position == vm.listPosition
-            holder.bind(getItem(position))
+            val song = getItem(position)
+            if (song != null) {
+                holder.bind(song)
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SongViewHolder(parent)
@@ -272,10 +289,38 @@ class SongListFragment : BaseFragment() {
 
         init {
             binding.root.setOnClickListener { vm.play(adapterPosition) }
+            binding.options.setOnCheckedChangeListener { _, isChecked ->
+                binding.optionsIds.visibility = if (isChecked) View.VISIBLE else View.GONE
+            }
+            binding.download.setOnClickListener {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    songWaitingToBeDownloaded = binding.song
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        AlertDialog.Builder(requireContext())
+                                .setNegativeButton(R.string.refuse) { dialog, _ ->
+                                    dialog.dismiss()
+                                }
+                                .setPositiveButton(R.string.accord) { _, _ ->
+                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITING)
+                                }
+                                .setMessage(R.string.write_permission_explanation)
+                                .show()
+
+                    } else {
+                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITING)
+                    }
+                } else {
+                    binding.song?.let { vm.askForDownload(it) }
+                    binding.download.isEnabled = false
+                }
+            }
         }
 
-        fun bind(song: SongDisplay?) {
+        fun bind(song: SongDisplay) {
             binding.song = song
+            binding.optionsIds.visibility = View.GONE
+            binding.options.isChecked = false
+            binding.download.isEnabled = !vm.fileExist(song)
         }
 
         var isCurrentSong: Boolean = false
@@ -284,5 +329,9 @@ class SongListFragment : BaseFragment() {
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(resources, backgroundColor, null))
             }
+    }
+
+    companion object {
+        private const val REQUEST_WRITING = 5
     }
 }

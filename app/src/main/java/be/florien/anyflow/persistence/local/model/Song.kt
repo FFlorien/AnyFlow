@@ -36,7 +36,9 @@ data class Song(
         val comment: String,
         val publisher: String,
         val language: String,
-        val genre: String) {
+        val genre: String,
+        val localFileName: String?,
+        val downloadStatus: Int) {
 
     constructor(fromServer: AmpacheSong) : this(
             fromServer.id,
@@ -64,7 +66,15 @@ data class Song(
             fromServer.comment,
             fromServer.publisher,
             fromServer.language,
-            fromServer.genre.joinToString(","))
+            fromServer.genre.joinToString(","),
+            null,
+            DOWNLOAD_STATUS_NO)
+
+    companion object {
+        const val DOWNLOAD_STATUS_NO = 0
+        const val DOWNLOAD_STATUS_PENDING = 1
+        const val DOWNLOAD_STATUS_YES = 2
+    }
 }
 
 data class SongDisplay(
@@ -73,6 +83,8 @@ data class SongDisplay(
         val artistName: String,
         val albumName: String,
         val albumArtistName: String,
+        val filename: String,
+        val url: String,
         val time: Int,
         val art: String) {
 
@@ -82,6 +94,8 @@ data class SongDisplay(
             song.artistName,
             song.albumName,
             song.albumArtistName,
+            song.filename,
+            song.url,
             song.time,
             song.art)
 }
