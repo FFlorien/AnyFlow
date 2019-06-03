@@ -109,7 +109,6 @@ abstract class LibraryDatabase : RoomDatabase() {
             .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getFilterGroups") }.subscribeOn(Schedulers.io())
 
 
-
     fun getOrder(): Flowable<List<DbOrder>> = getOrderDao().all().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getOrder") }.subscribeOn(Schedulers.io())
 
     /**
@@ -149,7 +148,7 @@ abstract class LibraryDatabase : RoomDatabase() {
             }
                     .doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
 
-fun setCurrentFiltersOfSavedGroup(filterGroup: FilterGroup): Completable =
+    fun setCurrentFiltersOfSavedGroup(filterGroup: FilterGroup): Completable =
             getFilterDao()
                     .filterForGroupAsync(filterGroup.id)
                     .map { filterList ->
@@ -170,7 +169,9 @@ fun setCurrentFiltersOfSavedGroup(filterGroup: FilterGroup): Completable =
                     typedList.add(Filter.toTypedFilter(it))
                 }
                 typedList as List<Filter<*>>
-            }    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }
+            }
+
+    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }
             .doOnError { this@LibraryDatabase.eLog(it, "Error while setOrders") }
 
     fun setOrdersSubject(orders: List<Long>): Completable = asyncCompletable(CHANGE_ORDER) {
@@ -385,7 +386,7 @@ fun setCurrentFiltersOfSavedGroup(filterGroup: FilterGroup): Completable =
                                 }
 
                             },
-                            object : Migration(4,5) {
+                            object : Migration(4, 5) {
                                 override fun migrate(database: SupportSQLiteDatabase) {
                                     database.execSQL("ALTER TABLE song ADD COLUMN downloadStatus INTEGER NOT NULL DEFAULT 0")
                                 }
