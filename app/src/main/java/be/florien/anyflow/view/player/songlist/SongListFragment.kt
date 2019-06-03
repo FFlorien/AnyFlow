@@ -128,6 +128,7 @@ class SongListFragment : BaseFragment() {
                     BR.listPosition -> {
                         (binding.songList.adapter as SongAdapter).setSelectedPosition(vm.listPosition)
                         if (vm.listPositionLoaded) {
+                            updateCurrentSongDisplay()
                             updateScrollPosition()
                         }
                     }

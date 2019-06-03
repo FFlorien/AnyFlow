@@ -17,6 +17,11 @@ class SavedFilterGroupVM(activity: PlayerActivity) : BaseFilterVM() {
     @Bindable
     var imageForGroups: List<List<String>> = listOf()
 
+    private val _selectionList = mutableListOf<FilterGroup>()
+
+    @Bindable
+    val selectionList: List<FilterGroup> = _selectionList
+
     init {
         activity.activityComponent.inject(this)
         subscribe(filtersManager.filterGroups,
@@ -44,5 +49,30 @@ class SavedFilterGroupVM(activity: PlayerActivity) : BaseFilterVM() {
                     notifyPropertyChanged(BR.areFiltersInEdition)
                 }
         )
+    }
+
+    fun toggleGroupSelection(position: Int) {
+        if (!_selectionList.remove(filterGroups[position])) {
+            _selectionList.add(filterGroups[position])
+        }
+        notifyPropertyChanged(BR.selectionList)
+    }
+
+    fun isGroupSelected(position: Int) = _selectionList.contains(filterGroups[position])
+
+    fun resetSelection() {
+        _selectionList.clear()
+        notifyPropertyChanged(BR.selectionList)
+    }
+
+    fun deleteSelection() {
+        subscribe(filtersManager.deleteFilterGroups(_selectionList.toList()))
+    }
+
+    fun changeSelectedGroupName(newName: String) {
+        subscribe(filtersManager.changeGroupName(_selectionList[0], newName),
+                onComplete = {
+                    resetSelection()
+                })
     }
 }

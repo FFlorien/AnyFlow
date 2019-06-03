@@ -87,4 +87,11 @@ class FiltersManager
     }
 
     fun isFilterInEdition(filter: Filter<*>): Boolean = unCommittedFilters.contains(filter)
+
+    fun deleteFilterGroups(groupsToDelete: List<FilterGroup>) = libraryDatabase.deleteFilterGroups(groupsToDelete)
+
+    fun changeGroupName(filterGroup: FilterGroup, newName: String): Completable {
+        val newFilterGroup = FilterGroup(filterGroup.id, newName)
+        return libraryDatabase.updateFilterGroup(newFilterGroup)
+    }
 }

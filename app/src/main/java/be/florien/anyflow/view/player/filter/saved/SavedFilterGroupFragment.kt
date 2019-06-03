@@ -1,49 +1,77 @@
 package be.florien.anyflow.view.player.filter.saved
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.databinding.Observable
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.databinding.ItemFilterGroupBinding
 import be.florien.anyflow.persistence.local.model.FilterGroup
+import be.florien.anyflow.view.menu.DeleteMenuHolder
+import be.florien.anyflow.view.menu.EditMenuHolder
+import be.florien.anyflow.view.menu.MenuCoordinator
 import be.florien.anyflow.view.player.PlayerActivity
 import be.florien.anyflow.view.player.filter.BaseFilterFragment
 import be.florien.anyflow.view.player.filter.BaseFilterVM
 
-class SavedFilterGroupFragment : BaseFilterFragment() {
+class SavedFilterGroupFragment : BaseFilterFragment(), ActionMode.Callback {
 
-    private var singleActionMode: ActionMode? = null
+    private var actionMode: ActionMode? = null
     private lateinit var vm: SavedFilterGroupVM
+    private val contextualMenuCoordinator  = MenuCoordinator()
+    private val deleteMenuHolder = DeleteMenuHolder{
+        vm.deleteSelection()
+        vm.resetSelection()
+    }
+    private val editMenuHolder = EditMenuHolder {
+        val editText = EditText(requireActivity())
+        editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
+        AlertDialog.Builder(requireActivity())
+                .setView(editText)
+                .setTitle(R.string.filter_group_name)
+                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                    vm.changeSelectedGroupName(editText.text.toString())
+                }
+                .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+                    dialog.cancel()
+                }
+                .show()
+    }
     override val baseVm: BaseFilterVM
         get() = vm
 
     private lateinit var binding: FragmentSavedFilterGroupBinding
-    private var selectedList = mutableListOf<Int>() //todo selection in vm ?
 
-    private val actionModeCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val inflater: MenuInflater = mode.menuInflater
-            inflater.inflate(R.menu.menu_filter_display, menu)
-            return true
-        }
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+        val inflater: MenuInflater = mode.menuInflater
+        contextualMenuCoordinator.addMenuHolder(deleteMenuHolder)
+        contextualMenuCoordinator.addMenuHolder(editMenuHolder)
+        contextualMenuCoordinator.inflateMenus(menu, inflater)
+        return true
+    }
 
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                else -> false
-            }
-        }
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+        return contextualMenuCoordinator.handleMenuClick(item.itemId)
+    }
 
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu) : Boolean {
+        contextualMenuCoordinator.prepareMenus(menu)
+        return false
+    }
 
-        override fun onDestroyActionMode(mode: ActionMode) {
-            singleActionMode = null
-        }
+    override fun onDestroyActionMode(mode: ActionMode) {
+        contextualMenuCoordinator.removeAllMenuHolder()
+        vm.resetSelection()
     }
 
     override fun getTitle(): String = getString(R.string.filter_title_saved)
@@ -59,7 +87,20 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
         binding.savedList.adapter = FilterGroupAdapter()
         vm.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                binding.savedList.adapter?.notifyDataSetChanged()
+                when (propertyId) {
+                    BR.filterGroups,
+                    BR.imageForGroups -> binding.savedList.adapter?.notifyDataSetChanged()
+                    BR.selectionList -> {
+                        if (vm.selectionList.isNotEmpty() && actionMode == null) {
+                            actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(this@SavedFilterGroupFragment)
+                        }else if (vm.selectionList.isNotEmpty()) {
+                            editMenuHolder.isVisible = vm.selectionList.size == 1
+                        } else if (vm.selectionList.isEmpty()) {
+                            actionMode?.finish()
+                            actionMode = null
+                        }
+                    }
+                }
             }
 
         })
@@ -73,25 +114,18 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
 
         init {
             itemBinding.root.setOnClickListener {
-                if (selectedList.isEmpty()) {
+                if (vm.selectionList.isEmpty()) {
                     vm.changeForSavedGroup(adapterPosition)
                 } else toggleSelection()
             }
             itemBinding.root.setOnLongClickListener {
-                if (singleActionMode != null) {
-                    toggleSelection()
-                } else {
-                    singleActionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(actionModeCallback)
-                    toggleSelection()
-                }
+                toggleSelection()
                 true
             }
         }
 
         private fun toggleSelection() {
-            if (!selectedList.remove(adapterPosition)) {
-                selectedList.add(adapterPosition)
-            }
+            vm.toggleGroupSelection(adapterPosition)
             binding.savedList.adapter?.notifyItemChanged(adapterPosition)
         }
 
@@ -111,7 +145,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
         override fun getItemCount(): Int = vm.filterGroups.size
 
         override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
-            holder.bind(vm.filterGroups[position], vm.imageForGroups[position], selectedList.contains(position)) // todo don't change images, only selection
+            holder.bind(vm.filterGroups[position], vm.imageForGroups[position], vm.isGroupSelected(position)) // todo don't change images, only selection
         }
 
     }

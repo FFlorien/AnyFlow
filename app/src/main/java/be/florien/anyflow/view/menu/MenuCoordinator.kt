@@ -39,4 +39,10 @@ class MenuCoordinator {
         menuHolders[menuItemId]?.action?.invoke() ?: return false
         return true
     }
+
+    fun removeAllMenuHolder() {
+        menuHolders.values.toList().forEach {
+            removeMenuHolder(it)
+        }
+    }
 }

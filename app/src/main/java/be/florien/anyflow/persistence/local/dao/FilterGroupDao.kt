@@ -14,7 +14,7 @@ abstract class FilterGroupDao : BaseDao<FilterGroup> {
     abstract fun allSavedFilterGroup(): Flowable<List<FilterGroup>>
 
     @Query("DELETE FROM filtergroup WHERE id = :id")
-    abstract fun deleteGroup(id: Int)
+    abstract fun deleteGroup(id: Long)
 
     @Query("DELETE FROM filtergroup")
     abstract fun deleteAll()
