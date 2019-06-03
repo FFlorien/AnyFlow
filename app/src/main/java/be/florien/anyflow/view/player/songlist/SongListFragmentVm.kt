@@ -8,6 +8,7 @@ import androidx.paging.PagedList
 import be.florien.anyflow.BR
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.local.DownloadHelper
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
@@ -24,7 +25,8 @@ import javax.inject.Inject
 @ActivityScope
 class SongListFragmentVm
 @Inject constructor(
-        private val playingQueue: PlayingQueue
+        private val playingQueue: PlayingQueue,
+        private val downloadHelper: DownloadHelper
 ) : BaseVM() {
 
     internal var connection: PlayerConnection = PlayerConnection()
@@ -112,6 +114,12 @@ class SongListFragmentVm
         playingQueue.listPosition = position
         player.play()
     }
+
+    fun askForDownload(song: SongDisplay) {
+        downloadHelper.addDownload(song)
+    }
+
+    fun fileExist(song: SongDisplay) = downloadHelper.isFileExisting(song)
 
     /**
      * Inner class

@@ -1,0 +1,17 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:drawable="@drawable/ic_options_unchecked"
+    tools:ignore="NewApi">
+    <target android:name="vector">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="pathData"
+                android:valueFrom="M20,20L380,20L200,380Z"
+                android:valueTo="M20,380L380,380L200,20Z"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
+</animated-vector>

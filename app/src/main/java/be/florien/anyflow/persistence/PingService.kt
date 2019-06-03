@@ -7,8 +7,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
-class PingService
-@Inject constructor() : JobService() {
+class PingService : JobService() {
 
     @Inject
     lateinit var ampacheConnection: AmpacheConnection

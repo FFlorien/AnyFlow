@@ -23,7 +23,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
 
-@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, FilterGroup::class, DbOrder::class], version = 3)
+@Database(entities = [Album::class, Artist::class, Playlist::class, QueueOrder::class, Song::class, DbFilter::class, FilterGroup::class, DbOrder::class], version = 5)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -108,28 +108,7 @@ abstract class LibraryDatabase : RoomDatabase() {
             .allSavedFilterGroup()
             .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getFilterGroups") }.subscribeOn(Schedulers.io())
 
-    fun setCurrentFiltersOfSavedGroup(filterGroup: FilterGroup): Completable =
-            getFilterDao()
-                    .filterForGroupAsync(filterGroup.id)
-                    .map { filterList ->
-                        val typedList = mutableListOf<Filter<*>>()
-                        filterList.forEach {
-                            typedList.add(Filter.toTypedFilter(it))
-                        }
-                        typedList as List<Filter<*>>
-                    }
-                    .flatMapCompletable {
-                        setCurrentFilters(it)
-                    }
 
-    private fun Flowable<List<DbFilter>>.convertToFilters(): Flowable<List<Filter<*>>> =
-            map { filterList ->
-                val typedList = mutableListOf<Filter<*>>()
-                filterList.forEach {
-                    typedList.add(Filter.toTypedFilter(it))
-                }
-                typedList as List<Filter<*>>
-            }
 
     fun getOrder(): Flowable<List<DbOrder>> = getOrderDao().all().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getOrder") }.subscribeOn(Schedulers.io())
 
@@ -170,7 +149,28 @@ abstract class LibraryDatabase : RoomDatabase() {
             }
                     .doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
 
-    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }
+fun setCurrentFiltersOfSavedGroup(filterGroup: FilterGroup): Completable =
+            getFilterDao()
+                    .filterForGroupAsync(filterGroup.id)
+                    .map { filterList ->
+                        val typedList = mutableListOf<Filter<*>>()
+                        filterList.forEach {
+                            typedList.add(Filter.toTypedFilter(it))
+                        }
+                        typedList as List<Filter<*>>
+                    }
+                    .flatMapCompletable {
+                        setCurrentFilters(it)
+                    }
+
+    private fun Flowable<List<DbFilter>>.convertToFilters(): Flowable<List<Filter<*>>> =
+            map { filterList ->
+                val typedList = mutableListOf<Filter<*>>()
+                filterList.forEach {
+                    typedList.add(Filter.toTypedFilter(it))
+                }
+                typedList as List<Filter<*>>
+            }    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }
             .doOnError { this@LibraryDatabase.eLog(it, "Error while setOrders") }
 
     fun setOrdersSubject(orders: List<Long>): Completable = asyncCompletable(CHANGE_ORDER) {
@@ -179,6 +179,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         }
         getOrderDao().replaceBy(dbOrders)
     }.doOnError { this@LibraryDatabase.eLog(it, "Error while setOrdersSubject") }
+
+    fun updateWithLocalFilename(id: Long, localFileName: String): Completable = asyncCompletable(DOWNLOAD) {
+        getSongDao().updateWithLocalFilename(id, localFileName)
+    }.doOnError { this@LibraryDatabase.eLog(it, "Error while updateWithLocalFilename") }
 
 
     /**
@@ -345,6 +349,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         const val CHANGE_FILTERS = 5
         const val CHANGE_QUEUE = 6
         const val CHANGE_FILTER_GROUP = 7
+        const val DOWNLOAD = 8
 
         @Volatile
         private var instance: LibraryDatabase? = null
@@ -373,6 +378,17 @@ abstract class LibraryDatabase : RoomDatabase() {
                                     database.execSQL("ALTER TABLE DbFilter ADD COLUMN filterGroup INTEGER NOT NULL DEFAULT 0 REFERENCES FilterGroup(id) ON DELETE CASCADE")
                                 }
 
+                            },
+                            object : Migration(3, 4) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("ALTER TABLE Song ADD COLUMN localFileName TEXT DEFAULT NULL")
+                                }
+
+                            },
+                            object : Migration(4,5) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("ALTER TABLE song ADD COLUMN downloadStatus INTEGER NOT NULL DEFAULT 0")
+                                }
                             })
                     .build()
         }

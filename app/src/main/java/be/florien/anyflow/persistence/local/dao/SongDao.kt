@@ -13,7 +13,7 @@ import io.reactivex.Maybe
 @Dao
 interface SongDao : BaseDao<Song> {
 
-    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, filename, url,  time, art FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     fun displayInQueueOrder(): DataSource.Factory<Int, SongDisplay>
 
     @Query("SELECT url FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
@@ -33,4 +33,7 @@ interface SongDao : BaseDao<Song> {
 
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenre(): DataSource.Factory<Int, String>
+
+    @Query("UPDATE song SET localFileName = :localFileName, downloadStatus = " + Song.DOWNLOAD_STATUS_PENDING + " WHERE song.id = :id")
+    fun updateWithLocalFilename(id: Long, localFileName: String)
 }

@@ -43,4 +43,7 @@
     <string name="cancel">Cancel</string>
     <string name="filter_group_name">Filter group name</string>
     <string name="delete">Delete</string>
+    <string name="refuse">Refuse</string>
+    <string name="accord">Accord</string>
+    <string name="write_permission_explanation">We need your permission in order to save music on your phone</string>
 </resources>
