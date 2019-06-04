@@ -31,14 +31,14 @@ internal abstract class DurationPlayerPainter(
 
     // Paints
     private val textAndOutlineColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        val color = ContextCompat.getColor(context, R.color.toolbarItem)
         setColor(color)
         textAlign = Paint.Align.CENTER
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, VISIBLE_TEXT_SP, context.resources.displayMetrics)
         strokeWidth = 2f
     }
     private val timelineOutlineColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        val color = ContextCompat.getColor(context, R.color.toolbarItem)
         setColor(color)
         strokeWidth = 2f
     }
@@ -56,7 +56,7 @@ internal abstract class DurationPlayerPainter(
     }
 
     // Icon related
-    private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+    private var iconColor = ContextCompat.getColor(context, R.color.toolbarItem)
     private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
 
     /**

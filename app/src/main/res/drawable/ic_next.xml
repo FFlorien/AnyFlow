@@ -11,8 +11,8 @@
             <path
                 android:name="path"
                 android:fillAlpha="1"
-                android:fillColor="@color/iconInApp"
-                android:strokeColor="@color/iconInApp"
+                android:fillColor="@color/toolbarItem"
+                android:strokeColor="@color/toolbarItem"
                 android:pathData="M25,25L200,200L200,200L25,375ZM200,25L375,200L200,375ZM375,25L375,375Z"
                 android:strokeWidth="35"
                 android:strokeAlpha="1"

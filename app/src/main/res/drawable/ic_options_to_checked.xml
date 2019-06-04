@@ -9,8 +9,8 @@
                 android:duration="200"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
-                android:valueFrom="M20,20L380,20L200,380Z"
-                android:valueTo="M20,380L380,380L200,20Z"
+                android:valueFrom="M20,120L200,280L380,120"
+                android:valueTo="M20,280L200,120L380,280"
                 android:valueType="pathType" />
         </aapt:attr>
     </target>

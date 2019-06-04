@@ -89,7 +89,7 @@
             app:disabledColor="@color/disabled"
             app:hasNext="@{vm.isNextPossible}"
             app:hasPrevious="@{vm.isPreviousPossible}"
-            app:iconColor="@color/iconInApp"
+            app:iconColor="@color/toolbarItem"
             app:minimumDurationForSeek="3000"
             app:nextBackgroundColor="@color/primary"
             app:outLineColor="@color/selected"

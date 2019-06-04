@@ -11,7 +11,7 @@
     <color name="accentLight">#FFDD84</color>
     <color name="accentDark">#EDAB00</color>
     <color name="accentDarkPlus">#D89C00</color>
-    <color name="iconInApp">@color/accent</color>
+    <color name="toolbarItem">@color/accent</color>
     <color name="onPrimaryText">#ffffff</color>
     <color name="onSecondaryText">#000000</color>
     <color name="error">#880205</color>

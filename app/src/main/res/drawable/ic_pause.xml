@@ -8,11 +8,11 @@
     <path
         android:name="path"
         android:fillAlpha="1"
-        android:fillColor="@color/iconInApp"
+        android:fillColor="@color/toolbarItem"
         android:pathData="M65,25L150,25L150,375L65,375ZM250,25L335,25L335,375L250,375Z"
         android:strokeWidth="35"
         android:strokeAlpha="1"
-        android:strokeColor="@color/iconInApp"
+        android:strokeColor="@color/toolbarItem"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
 </vector>

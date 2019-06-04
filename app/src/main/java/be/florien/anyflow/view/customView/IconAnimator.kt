@@ -15,7 +15,7 @@ abstract class IconAnimator(val context: Context) {
     lateinit var icon: Drawable
     protected var oldState: Int = -1
     private var oldCallback: Animatable2Compat.AnimationCallback? = null
-    protected var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+    protected var iconColor = ContextCompat.getColor(context, R.color.toolbarItem)
 
     open fun computeIcon(newState: Int, iconPosition: Rect) {
         val startIcon = getStartAnimation(newState)

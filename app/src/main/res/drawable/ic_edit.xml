@@ -5,7 +5,7 @@
     android:viewportHeight="400">
     <path
         android:fillColor="#00000000"
-        android:pathData="M25,25L25,375L375,375L375,100L300,25ZM125,25L125,100L275,100L275,25ZM100,375L100,175L300,175L300,375Z"
+        android:pathData="M20,380L20,250L250,20L380,150L150,380ZM20,250L150,380M50,370L30,350"
         android:strokeWidth="35"
         android:strokeColor="@color/toolbarItem"
         android:strokeLineCap="round"

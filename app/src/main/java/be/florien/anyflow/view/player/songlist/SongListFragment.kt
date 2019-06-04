@@ -14,6 +14,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AnticipateOvershootInterpolator
+import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -25,6 +27,8 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
@@ -112,6 +116,7 @@ class SongListFragment : BaseFragment() {
             updateScrollPosition()
         }
         binding.currentSongDisplay.options.visibility = View.GONE
+        binding.currentSongDisplay.optionsContainer.visibility = View.GONE
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
@@ -250,7 +255,6 @@ class SongListFragment : BaseFragment() {
         }
     }
 
-
     inner class SongAdapter : PagedListAdapter<SongDisplay, SongViewHolder>(object : DiffUtil.ItemCallback<SongDisplay>() {
         override fun areItemsTheSame(oldItem: SongDisplay, newItem: SongDisplay) = oldItem.id == newItem.id
 
@@ -291,20 +295,34 @@ class SongListFragment : BaseFragment() {
         init {
             binding.root.setOnClickListener { vm.play(adapterPosition) }
             binding.options.setOnCheckedChangeListener { _, isChecked ->
-                binding.optionsIds.visibility = if (isChecked) View.VISIBLE else View.GONE
+
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(requireContext(), R.layout.item_song)
+
+                val connectionToDelete = if (isChecked) ConstraintSet.BOTTOM else ConstraintSet.TOP
+                val connectionToAdd = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
+                constraintSet.clear(R.id.optionsContainer, connectionToDelete)
+                constraintSet.connect(R.id.optionsContainer, connectionToAdd, R.id.infoContainer, ConstraintSet.BOTTOM)
+
+                val transition = ChangeBounds()
+                transition.interpolator = AccelerateDecelerateInterpolator()
+                transition.duration = 300
+
+                TransitionManager.beginDelayedTransition(binding.rootContainer, transition)
+                constraintSet.applyTo(binding.rootContainer)
             }
             binding.download.setOnClickListener {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     songWaitingToBeDownloaded = binding.song
                     if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                         AlertDialog.Builder(requireContext())
+                                .setMessage(R.string.write_permission_explanation)
                                 .setNegativeButton(R.string.refuse) { dialog, _ ->
                                     dialog.dismiss()
                                 }
                                 .setPositiveButton(R.string.accord) { _, _ ->
                                     requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITING)
                                 }
-                                .setMessage(R.string.write_permission_explanation)
                                 .show()
 
                     } else {
@@ -319,7 +337,6 @@ class SongListFragment : BaseFragment() {
 
         fun bind(song: SongDisplay) {
             binding.song = song
-            binding.optionsIds.visibility = View.GONE
             binding.options.isChecked = false
             binding.download.isEnabled = !vm.fileExist(song)
         }
@@ -328,7 +345,7 @@ class SongListFragment : BaseFragment() {
             set(value) {
                 field = value
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
-                binding.root.setBackgroundColor(ResourcesCompat.getColor(resources, backgroundColor, null))
+                binding.infoContainer.setBackgroundColor(ResourcesCompat.getColor(resources, backgroundColor, null))
             }
     }
 

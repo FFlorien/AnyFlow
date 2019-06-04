@@ -11,76 +11,88 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/listItemPadding">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/cover"
-            android:layout_width="@dimen/imageSize"
-            android:layout_height="@dimen/imageSize"
-            android:contentDescription="@null"
-            android:scaleType="fitXY"
-            app:coverImageUrl="@{song.art}"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/cover_placeholder" />
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/optionsContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/smallDimen"
-            android:text="@{song.title}"
-            app:layout_constraintLeft_toRightOf="@+id/cover"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="This song's title" />
+            android:gravity="end"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/infoContainer">
 
-        <TextView
-            android:id="@+id/artist"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/smallDimen"
-            android:text="@{song.artistName}"
-            android:textStyle="bold"
-            app:layout_constraintLeft_toRightOf="@+id/cover"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            tools:text="This artist's name" />
+            <ImageView
+                android:id="@+id/download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/mediumDimen"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/options"
+                app:srcCompat="@drawable/ic_download_selector" />
 
-        <TextView
-            android:id="@+id/album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/smallDimen"
-            android:text="@{song.albumName}"
-            android:textStyle="italic"
-            app:layout_constraintLeft_toRightOf="@+id/cover"
-            app:layout_constraintTop_toBottomOf="@+id/artist"
-            tools:text="This album's name" />
+        </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/options"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/infoContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:button="@drawable/ic_options_selector"
-            android:padding="@dimen/smallDimen"
-            app:layout_constraintBottom_toBottomOf="@id/cover"
-            app:layout_constraintRight_toRightOf="parent" />
+            android:elevation="8dp"
+            android:padding="@dimen/listItemPadding"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/download"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/mediumDimen"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/options"
-            app:srcCompat="@drawable/ic_download_selector" />
+            <ImageView
+                android:id="@+id/cover"
+                android:layout_width="@dimen/imageSize"
+                android:layout_height="@dimen/imageSize"
+                android:contentDescription="@null"
+                android:scaleType="fitXY"
+                app:coverImageUrl="@{song.art}"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/cover_placeholder" />
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/optionsIds"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="download"/>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/smallDimen"
+                android:text="@{song.title}"
+                app:layout_constraintLeft_toRightOf="@+id/cover"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="This song's title" />
+
+            <TextView
+                android:id="@+id/artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/smallDimen"
+                android:text="@{song.artistName}"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toRightOf="@+id/cover"
+                app:layout_constraintTop_toBottomOf="@+id/title"
+                tools:text="This artist's name" />
+
+            <TextView
+                android:id="@+id/album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/smallDimen"
+                android:text="@{song.albumName}"
+                android:textStyle="italic"
+                app:layout_constraintLeft_toRightOf="@+id/cover"
+                app:layout_constraintTop_toBottomOf="@+id/artist"
+                tools:text="This album's name" />
+
+            <CheckBox
+                android:id="@+id/options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/ic_options_selector"
+                android:padding="@dimen/smallDimen"
+                app:layout_constraintBottom_toBottomOf="@id/cover"
+                app:layout_constraintRight_toRightOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

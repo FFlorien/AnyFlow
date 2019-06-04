@@ -7,8 +7,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
 import androidx.databinding.Observable
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,24 +26,28 @@ class SavedFilterGroupFragment : BaseFilterFragment(), ActionMode.Callback {
 
     private var actionMode: ActionMode? = null
     private lateinit var vm: SavedFilterGroupVM
-    private val contextualMenuCoordinator  = MenuCoordinator()
-    private val deleteMenuHolder = DeleteMenuHolder{
+    private val contextualMenuCoordinator = MenuCoordinator()
+    private val deleteMenuHolder = DeleteMenuHolder {
         vm.deleteSelection()
         vm.resetSelection()
     }
     private val editMenuHolder = EditMenuHolder {
-        val editText = EditText(requireActivity())
-        editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
-        AlertDialog.Builder(requireActivity())
-                .setView(editText)
-                .setTitle(R.string.filter_group_name)
-                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                    vm.changeSelectedGroupName(editText.text.toString())
-                }
-                .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
-                    dialog.cancel()
-                }
-                .show()
+        if (vm.selectionList.size == 1) {
+            val (_, name) = vm.selectionList[0]
+            val editText = EditText(requireActivity())
+            editText.setText(name)
+            editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
+            AlertDialog.Builder(requireActivity())
+                    .setView(editText)
+                    .setTitle(R.string.filter_group_name)
+                    .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                        vm.changeSelectedGroupName(editText.text.toString())
+                    }
+                    .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+                        dialog.cancel()
+                    }
+                    .show()
+        }
     }
     override val baseVm: BaseFilterVM
         get() = vm
@@ -64,7 +66,7 @@ class SavedFilterGroupFragment : BaseFilterFragment(), ActionMode.Callback {
         return contextualMenuCoordinator.handleMenuClick(item.itemId)
     }
 
-    override fun onPrepareActionMode(mode: ActionMode, menu: Menu) : Boolean {
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
         contextualMenuCoordinator.prepareMenus(menu)
         return false
     }
@@ -92,10 +94,11 @@ class SavedFilterGroupFragment : BaseFilterFragment(), ActionMode.Callback {
                     BR.imageForGroups -> binding.savedList.adapter?.notifyDataSetChanged()
                     BR.selectionList -> {
                         if (vm.selectionList.isNotEmpty() && actionMode == null) {
-                            actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(this@SavedFilterGroupFragment)
-                        }else if (vm.selectionList.isNotEmpty()) {
+                            actionMode = (requireActivity() as PlayerActivity).toolbar.startActionMode(this@SavedFilterGroupFragment)
+                        } else if (vm.selectionList.isNotEmpty()) {
                             editMenuHolder.isVisible = vm.selectionList.size == 1
                         } else if (vm.selectionList.isEmpty()) {
+                            binding.savedList.adapter?.notifyDataSetChanged()
                             actionMode?.finish()
                             actionMode = null
                         }
@@ -130,11 +133,15 @@ class SavedFilterGroupFragment : BaseFilterFragment(), ActionMode.Callback {
         }
 
         fun bind(filterGroup: FilterGroup, coverUrls: List<String>, isSelected: Boolean) {
-            itemBinding.filterGroup = filterGroup
-            itemBinding.cover1Url = coverUrls[0]
-            itemBinding.cover2Url = coverUrls[1]
-            itemBinding.cover3Url = coverUrls[2]
-            itemBinding.cover4Url = coverUrls[3]
+            if (itemBinding.filterGroup != filterGroup) {
+                itemBinding.filterGroup = filterGroup
+            }
+            if (itemBinding.cover1Url != coverUrls[0] || itemBinding.cover2Url != coverUrls[1] || itemBinding.cover3Url != coverUrls[2] || itemBinding.cover4Url != coverUrls[3]) {
+                itemBinding.cover1Url = coverUrls[0]
+                itemBinding.cover2Url = coverUrls[1]
+                itemBinding.cover3Url = coverUrls[2]
+                itemBinding.cover4Url = coverUrls[3]
+            }
             itemBinding.isSelected = isSelected
         }
     }
@@ -145,7 +152,7 @@ class SavedFilterGroupFragment : BaseFilterFragment(), ActionMode.Callback {
         override fun getItemCount(): Int = vm.filterGroups.size
 
         override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
-            holder.bind(vm.filterGroups[position], vm.imageForGroups[position], vm.isGroupSelected(position)) // todo don't change images, only selection
+            holder.bind(vm.filterGroups[position], vm.imageForGroups[position], vm.isGroupSelected(position))
         }
 
     }

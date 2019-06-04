@@ -2,8 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/edit"
-        android:icon="@drawable/ic_save"
-        android:title="@string/filter_title_saved"/>
+        android:icon="@drawable/ic_edit"
+        android:iconTint="@color/toolbarItem"
+        android:title="@string/filter_title_saved" />
 
     <item
         android:id="@+id/delete"

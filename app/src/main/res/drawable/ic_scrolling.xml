@@ -14,11 +14,11 @@
                 android:pivotY="200">
                 <path
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M25,250Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>
@@ -28,11 +28,11 @@
                 android:pivotY="200">
                 <path
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M95,250Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>
@@ -42,11 +42,11 @@
                 android:pivotY="200">
                 <path
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M165,250Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>
@@ -56,11 +56,11 @@
                 android:pivotY="200">
                 <path
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M235,250Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>
@@ -70,11 +70,11 @@
                 android:pivotY="200">
                 <path
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M305,250Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>
@@ -84,11 +84,11 @@
                 android:pivotY="200">
                 <path
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M375,250Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>

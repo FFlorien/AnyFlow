@@ -15,11 +15,11 @@
                 <path
                     android:name="path"
                     android:fillAlpha="0"
-                    android:fillColor="@color/iconInApp"
+                    android:fillColor="@color/toolbarItem"
                     android:pathData="M285.5,38ZM375,200ZM285.5,362ZM112.5,362ZM25,200ZM112.5,38Z"
                     android:strokeWidth="35"
                     android:strokeAlpha="1"
-                    android:strokeColor="@color/iconInApp"
+                    android:strokeColor="@color/toolbarItem"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round" />
             </group>

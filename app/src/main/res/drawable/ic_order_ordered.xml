@@ -11,19 +11,19 @@
             android:viewportHeight="400">
             <path
                 android:name="triangle"
-                android:fillColor="@color/iconInApp"
+                android:fillColor="@color/toolbarItem"
                 android:pathData="M 250,324 L 290,375 L 330,324Z M 70,324 L 110,375 L 150,324Z"
                 android:strokeWidth="35"
                 android:strokeAlpha="1"
-                android:strokeColor="@color/iconInApp"
+                android:strokeColor="@color/toolbarItem"
                 android:strokeLineCap="round"
                 android:strokeLineJoin="round" />
             <path
                 android:name="straight_lines"
-                android:fillColor="@color/iconInApp"
+                android:fillColor="@color/toolbarItem"
                 android:pathData="M 110 25 C 110 107 110 216 110 325 M 290 25 C 290 107 290 216 290 325"
                 android:strokeWidth="35"
-                android:strokeColor="@color/iconInApp"
+                android:strokeColor="@color/toolbarItem"
                 android:strokeLineCap="round"
                 android:strokeLineJoin="round" />
         </vector>

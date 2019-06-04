@@ -8,7 +8,7 @@ import be.florien.anyflow.R
 
 
 class PreviousIconAnimator(context: Context) : IconAnimator(context) {
-    private var enabledColor = ContextCompat.getColor(context, R.color.iconInApp)
+    private var enabledColor = ContextCompat.getColor(context, R.color.toolbarItem)
     private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
 
     override fun getStartAnimation(newState: Int): AnimatedVectorDrawableCompat? = null
