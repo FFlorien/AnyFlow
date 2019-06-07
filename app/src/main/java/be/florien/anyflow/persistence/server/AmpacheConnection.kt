@@ -180,7 +180,7 @@ open class AmpacheConnection
 
     fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
         ampacheApi
-                .getSongs(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
+                .getSongs(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
                 .subscribe(
                         {
                             if (it.songs.isEmpty()) {
@@ -202,7 +202,7 @@ open class AmpacheConnection
     }
 
     fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = Observable.generate { emitter ->
-        ampacheApi.getArtists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
+        ampacheApi.getArtists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
                 .subscribe(
                         {
                             if (it.artists.isEmpty()) {
@@ -224,7 +224,7 @@ open class AmpacheConnection
     }
 
     fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = Observable.generate { emitter ->
-        ampacheApi.getAlbums(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
+        ampacheApi.getAlbums(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
                 .subscribe(
                         {
                             if (it.albums.isEmpty()) {
@@ -246,7 +246,7 @@ open class AmpacheConnection
     }
 
     fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = Observable.generate { emitter ->
-        ampacheApi.getTags(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
+        ampacheApi.getTags(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
                 .subscribe(
                         {
                             if (it.tags.isEmpty()) {
@@ -265,7 +265,7 @@ open class AmpacheConnection
     }
 
     fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = Observable.generate { emitter ->
-        ampacheApi.getPlaylists(auth = authPersistence.authToken.first, update = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
+        ampacheApi.getPlaylists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
                 .subscribe(
                         {
                             if (it.playlists.isEmpty()) {

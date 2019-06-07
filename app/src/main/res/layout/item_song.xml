@@ -23,16 +23,24 @@
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@id/infoContainer">
 
-            <ImageView
+            <CheckBox
                 android:id="@+id/download"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/mediumDimen"
+                android:button="@drawable/ic_download_selector"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/options"
-                app:srcCompat="@drawable/ic_download_selector" />
+                app:layout_constraintTop_toBottomOf="@+id/options" />
 
         </LinearLayout>
+
+        <View
+            android:id="@+id/bottomShadow"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/smallDimen"
+            android:elevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/optionsContainer" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/infoContainer"

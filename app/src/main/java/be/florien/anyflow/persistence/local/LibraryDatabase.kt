@@ -14,10 +14,7 @@ import be.florien.anyflow.persistence.local.dao.*
 import be.florien.anyflow.persistence.local.model.*
 import be.florien.anyflow.player.Filter
 import be.florien.anyflow.player.Order
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
+import io.reactivex.*
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -68,6 +65,10 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     fun getSongsUrlInQueueOrder(): Flowable<List<String>> = getSongDao().urlInQueueOrder()
+
+    fun getSongsWithPendingDownloadStatus(): Single<List<SongDisplay>> = getSongDao()
+            .forDownloadStatus(Song.DOWNLOAD_STATUS_PENDING)
+            .subscribeOn(Schedulers.io())
 
     fun <T> getGenres(mapping: (String) -> T): Flowable<PagedList<T>> {
         val dataSourceFactory = getSongDao().genreOrderByGenre().map(mapping)
@@ -182,8 +183,14 @@ abstract class LibraryDatabase : RoomDatabase() {
     }.doOnError { this@LibraryDatabase.eLog(it, "Error while setOrdersSubject") }
 
     fun updateWithLocalFilename(id: Long, localFileName: String): Completable = asyncCompletable(DOWNLOAD) {
-        getSongDao().updateWithLocalFilename(id, localFileName)
+        getSongDao().updateWithLocalFilename(id, localFileName, Song.DOWNLOAD_STATUS_PENDING)
     }.doOnError { this@LibraryDatabase.eLog(it, "Error while updateWithLocalFilename") }
+
+    fun updateDownloaded(songs: List<SongDisplay>): Completable = asyncCompletable(DOWNLOAD) {
+        songs.forEach {
+            getSongDao().updateDownloadedStatus(it.id, Song.DOWNLOAD_STATUS_YES)
+        }
+    }.doOnError { this@LibraryDatabase.eLog(it, "Error while updateDownloadedStatus") }
 
 
     /**

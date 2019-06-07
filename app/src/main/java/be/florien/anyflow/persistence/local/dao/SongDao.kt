@@ -9,6 +9,7 @@ import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface SongDao : BaseDao<Song> {
@@ -34,6 +35,12 @@ interface SongDao : BaseDao<Song> {
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenre(): DataSource.Factory<Int, String>
 
-    @Query("UPDATE song SET localFileName = :localFileName, downloadStatus = " + Song.DOWNLOAD_STATUS_PENDING + " WHERE song.id = :id")
-    fun updateWithLocalFilename(id: Long, localFileName: String)
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, filename, url,  time, art FROM song WHERE downloadStatus = :downloadStatus")
+    fun forDownloadStatus(downloadStatus: Int): Single<List<SongDisplay>>
+
+    @Query("UPDATE song SET localFileName = :localFileName, downloadStatus = :newStatus WHERE song.id = :id")
+    fun updateWithLocalFilename(id: Long, localFileName: String, newStatus: Int)
+
+    @Query("UPDATE song SET downloadStatus = :newStatus WHERE song.id = :id")
+    fun updateDownloadedStatus(id: Long, newStatus: Int)
 }

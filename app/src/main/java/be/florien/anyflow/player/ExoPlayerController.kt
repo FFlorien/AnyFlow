@@ -11,14 +11,13 @@ import be.florien.anyflow.persistence.local.model.Song
 import be.florien.anyflow.persistence.server.AmpacheConnection
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.trackselection.TrackSelector
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.HttpDataSource
+import com.google.android.exoplayer2.upstream.*
 import com.google.android.exoplayer2.util.Util
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,6 +25,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
+import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -99,7 +99,24 @@ class ExoPlayerController
     }
 
     private fun prepare(song: Song) {
-        mediaPlayer.prepare(ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song.url))))
+        if (song.downloadStatus == Song.DOWNLOAD_STATUS_YES) {
+            val dataSpec = DataSpec(Uri.fromFile(File(song.localFileName)))
+            val fileDataSource = FileDataSource()
+            try {
+                fileDataSource.open(dataSpec)
+            } catch (ex: FileDataSource.FileDataSourceException) {
+                //todo
+            }
+
+            val factory = DataSource.Factory {
+                fileDataSource
+            }
+            val audioSource = ExtractorMediaSource(fileDataSource.uri, factory, DefaultExtractorsFactory(), null, null)
+
+            mediaPlayer.prepare(audioSource)
+        } else {
+            mediaPlayer.prepare(ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song.url))))
+        }
         mediaPlayer.seekTo(0, C.TIME_UNSET)
     }
 

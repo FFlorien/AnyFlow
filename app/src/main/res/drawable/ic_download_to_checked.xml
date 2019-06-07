@@ -1,0 +1,39 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:drawable="@drawable/ic_download_unchecked"
+    tools:ignore="NewApi">
+    <target android:name="vector">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="fillColor"
+                android:valueFrom="#0000"
+                android:valueTo="@color/primaryDark"
+                android:valueType="intType" />
+        </aapt:attr>
+    </target>
+    <target android:name="wait">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="trimPathEnd"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType" />
+        </aapt:attr>
+    </target>
+    <target android:name="waitShadow">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:interpolator="@android:anim/linear_interpolator"
+                android:propertyName="trimPathEnd"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType" />
+        </aapt:attr>
+    </target>
+</animated-vector>

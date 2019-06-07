@@ -14,7 +14,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AnticipateOvershootInterpolator
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -60,6 +59,7 @@ class SongListFragment : BaseFragment() {
     private var isLoadingVisible = false
     private val mainThreadHandler = Handler()
     private var songWaitingToBeDownloaded: SongDisplay? = null
+    internal var animDuration: Long = 200L
 
     private val topSet: ConstraintSet
         get() =
@@ -108,6 +108,7 @@ class SongListFragment : BaseFragment() {
                 return false
             }
         })
+        animDuration = binding.songList.itemAnimator?.changeDuration ?: animDuration
 
         binding.currentSongDisplay.root.setBackgroundResource(R.color.selected)
         binding.currentSongDisplay.root.setOnClickListener {
@@ -305,8 +306,8 @@ class SongListFragment : BaseFragment() {
                 constraintSet.connect(R.id.optionsContainer, connectionToAdd, R.id.infoContainer, ConstraintSet.BOTTOM)
 
                 val transition = ChangeBounds()
-                transition.interpolator = AccelerateDecelerateInterpolator()
-                transition.duration = 300
+                transition.interpolator = LinearInterpolator()
+                transition.duration = animDuration
 
                 TransitionManager.beginDelayedTransition(binding.rootContainer, transition)
                 constraintSet.applyTo(binding.rootContainer)
@@ -345,7 +346,9 @@ class SongListFragment : BaseFragment() {
             set(value) {
                 field = value
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
-                binding.infoContainer.setBackgroundColor(ResourcesCompat.getColor(resources, backgroundColor, null))
+                val color = ResourcesCompat.getColor(resources, backgroundColor, null)
+                binding.infoContainer.setBackgroundColor(color)
+                binding.bottomShadow.setBackgroundColor(color)
             }
     }
 

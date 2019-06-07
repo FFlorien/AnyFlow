@@ -24,6 +24,7 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
+import be.florien.anyflow.persistence.DownloadStatusService
 import be.florien.anyflow.persistence.PingService
 import be.florien.anyflow.persistence.UpdateService
 import be.florien.anyflow.persistence.server.AmpacheConnection
@@ -121,13 +122,17 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
 
-        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         bindService(Intent(this, UpdateService::class.java), vm.updateConnection, Context.BIND_AUTO_CREATE)
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPeriodic(HALF_HOUR)
                 .build()
+        val downloadJobInfo = JobInfo.Builder(7, ComponentName(this, DownloadStatusService::class.java))
+                .setPeriodic(HALF_HOUR)
+                .build()
         jobScheduler.schedule(pingJobInfo)
+        jobScheduler.schedule(downloadJobInfo)
 
         binding.vm = vm
         bindService(Intent(this, PlayerService::class.java), vm.playerConnection, Context.BIND_AUTO_CREATE)

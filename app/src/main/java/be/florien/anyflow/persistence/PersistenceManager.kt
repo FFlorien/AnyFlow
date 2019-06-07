@@ -34,7 +34,7 @@ class PersistenceManager
         private val sharedPreferences: SharedPreferences) {
 
     private fun lastAcceptableUpdate() = Calendar.getInstance().apply {
-        roll(Calendar.DAY_OF_YEAR, false)
+        roll(Calendar.MINUTE, false)
     }
 
     /**

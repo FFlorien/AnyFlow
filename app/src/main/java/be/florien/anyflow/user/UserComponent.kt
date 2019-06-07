@@ -1,6 +1,7 @@
 package be.florien.anyflow.user
 
 import be.florien.anyflow.di.UserScope
+import be.florien.anyflow.persistence.DownloadStatusService
 import be.florien.anyflow.persistence.PingService
 import be.florien.anyflow.persistence.UpdateService
 import be.florien.anyflow.persistence.server.AmpacheApi
@@ -19,6 +20,7 @@ interface UserComponent {
     fun inject(playerService: PlayerService)
     fun inject(updateService: UpdateService)
     fun inject(pingService: PingService)
+    fun inject(downloadStatusService: DownloadStatusService)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
 
