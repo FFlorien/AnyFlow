@@ -14,6 +14,7 @@
 
     <dimen name="listItemPadding">@dimen/smallDimen</dimen>
     <dimen name="activity_horizontal_margin">@dimen/mediumDimen</dimen>
-    <dimen name="minClickableSize">@dimen/xxLargeDimen</dimen>
+    <dimen name="minClickableSize">@dimen/largeDimen</dimen>
+    <dimen name="standardClickableSize">@dimen/xxLargeDimen</dimen>
     <dimen name="infoTextViewHeight">@dimen/largeDimen</dimen>
 </resources>

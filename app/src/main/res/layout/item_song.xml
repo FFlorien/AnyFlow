@@ -59,40 +59,35 @@
             app:layout_constraintTop_toBottomOf="@+id/artist"
             tools:text="This album's name" />
 
-        <CheckBox
-            android:foregroundGravity="center"
+        <be.florien.anyflow.view.customView.ImageCheckBox
             android:id="@+id/options"
             android:layout_width="@dimen/minClickableSize"
             android:layout_height="@dimen/minClickableSize"
             android:layout_marginEnd="@dimen/smallDimen"
-            android:button="@drawable/ic_options_selector"
             android:elevation="8dp"
             android:padding="@dimen/smallDimen"
+            android:src="@drawable/ic_options_selector"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
         <LinearLayout
             android:id="@+id/optionsContainer"
             android:layout_width="0dp"
-            android:layout_height="@dimen/minClickableSize"
+            android:layout_height="0dp"
             android:elevation="8dp"
             android:gravity="end"
             android:orientation="horizontal"
-            android:textOff="@null"
-            android:textOn="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/options"
             app:layout_constraintTop_toBottomOf="@id/options">
 
-            <CheckBox
-                android:foregroundGravity="center"
+            <be.florien.anyflow.view.customView.ImageCheckBox
                 android:id="@+id/download"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@drawable/ic_download_selector"
-                android:padding="@dimen/mediumDimen"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/options" />
+                android:layout_width="@dimen/minClickableSize"
+                android:layout_height="match_parent"
+                android:padding="@dimen/smallDimen"
+                android:src="@drawable/ic_download_selector" />
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,6 +28,7 @@ import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
 import be.florien.anyflow.local.DownloadHelper
 import be.florien.anyflow.view.BaseFragment
+import be.florien.anyflow.view.customView.ImageCheckBox
 import be.florien.anyflow.view.player.filter.selectType.ALBUM_ID
 import be.florien.anyflow.view.player.filter.selectType.ARTIST_ID
 import be.florien.anyflow.view.player.filter.selectType.GENRE_ID
@@ -81,7 +82,7 @@ constructor(private var filterType: String) : BaseFragment() {
         fragmentBinding.filterList.layoutManager = if (vm.itemDisplayType == SelectFilterFragmentVM.ITEM_LIST) {
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         } else {
-            GridLayoutManager(activity, 3)
+            GridLayoutManager(activity, 2)
         }
         fragmentBinding.filterList.adapter = FilterListAdapter()
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
@@ -148,28 +149,29 @@ constructor(private var filterType: String) : BaseFragment() {
         override fun bind(filter: SelectFilterFragmentVM.FilterItem?) {
             itemFilterTypeBinding.vm = vm
             itemFilterTypeBinding.item = filter
-            setBackground(itemFilterTypeBinding.root, filter)
+            changeBackground(filter)
             filter?.let {
                 itemFilterTypeBinding.root.setOnClickListener {
                     vm.changeFilterSelection(filter)
-                    setBackground(itemFilterTypeBinding.root, filter)
+                    changeBackground(filter)
                 }
-                itemFilterTypeBinding.options.setOnCheckedChangeListener { _, isChecked ->
+                itemFilterTypeBinding.options.onCheckedChangeListener = object : ImageCheckBox.OnCheckedChangeListener {
+                    override fun onCheckedChanged(buttonView: ImageCheckBox, isChecked: Boolean) {
 
-                    val constraintSet = ConstraintSet()
-                    constraintSet.clone(requireContext(), R.layout.item_select_filter_grid)
+                        val constraintSet = ConstraintSet()
+                        constraintSet.clone(requireContext(), R.layout.item_select_filter_grid)
 
-                    val connectionToDelete = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
-                    val connectionToAdd = if (isChecked) ConstraintSet.BOTTOM else ConstraintSet.TOP
-                    constraintSet.clear(R.id.optionsContainer, connectionToDelete)
-                    constraintSet.connect(R.id.optionsContainer, connectionToAdd, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                        val newConnection = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
+                        constraintSet.clear(R.id.optionsContainer, ConstraintSet.TOP)
+                        constraintSet.connect(R.id.optionsContainer, ConstraintSet.TOP, R.id.options, newConnection)
 
-                    val transition = ChangeBounds()
-                    transition.interpolator = LinearInterpolator()
-                    transition.duration = animDuration
+                        val transition = ChangeBounds()
+                        transition.interpolator = LinearInterpolator()
+                        transition.duration = animDuration
 
-                    TransitionManager.beginDelayedTransition(itemFilterTypeBinding.rootContainer, transition)
-                    constraintSet.applyTo(itemFilterTypeBinding.rootContainer)
+                        TransitionManager.beginDelayedTransition(itemFilterTypeBinding.rootContainer, transition)
+                        constraintSet.applyTo(itemFilterTypeBinding.rootContainer)
+                    }
                 }
                 itemFilterTypeBinding.download.setOnClickListener {
                     if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -194,6 +196,12 @@ constructor(private var filterType: String) : BaseFragment() {
                     }
                 }
             }
+        }
+
+        private fun changeBackground(filter: SelectFilterFragmentVM.FilterItem?) {
+            setBackground(itemFilterTypeBinding.root, filter)
+            setBackground(itemFilterTypeBinding.options, filter)
+            setBackground(itemFilterTypeBinding.optionsContainer, filter)
         }
     }
 }

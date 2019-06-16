@@ -37,6 +37,7 @@ import be.florien.anyflow.local.DownloadHelper
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
+import be.florien.anyflow.view.customView.ImageCheckBox
 import be.florien.anyflow.view.player.PlayerActivity
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import javax.inject.Inject
@@ -296,22 +297,23 @@ class SongListFragment : BaseFragment() {
 
         init {
             binding.root.setOnClickListener { vm.play(adapterPosition) }
-            binding.options.setOnCheckedChangeListener { _, isChecked ->
+            binding.options.onCheckedChangeListener = object : ImageCheckBox.OnCheckedChangeListener {
+                override fun onCheckedChanged(buttonView: ImageCheckBox, isChecked: Boolean) {
 
-                val constraintSet = ConstraintSet()
-                constraintSet.clone(requireContext(), R.layout.item_song)
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(requireContext(), R.layout.item_song)
 
-                val connectionToDelete = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
-                val connectionToAdd = if (isChecked) ConstraintSet.BOTTOM else ConstraintSet.TOP
-                constraintSet.clear(R.id.optionsContainer, connectionToDelete)
-                constraintSet.connect(R.id.optionsContainer, connectionToAdd, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                    val newConnection = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
+                    constraintSet.clear(R.id.optionsContainer, ConstraintSet.TOP)
+                    constraintSet.connect(R.id.optionsContainer, ConstraintSet.TOP, R.id.options, newConnection)
 
-                val transition = ChangeBounds()
-                transition.interpolator = LinearInterpolator()
-                transition.duration = animDuration
+                    val transition = ChangeBounds()
+                    transition.interpolator = LinearInterpolator()
+                    transition.duration = animDuration
 
-                TransitionManager.beginDelayedTransition(binding.rootContainer, transition)
-                constraintSet.applyTo(binding.rootContainer)
+                    TransitionManager.beginDelayedTransition(binding.rootContainer, transition)
+                    constraintSet.applyTo(binding.rootContainer)
+                }
             }
             binding.download.setOnClickListener {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
