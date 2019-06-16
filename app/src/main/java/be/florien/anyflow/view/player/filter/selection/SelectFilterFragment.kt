@@ -1,15 +1,24 @@
 package be.florien.anyflow.view.player.filter.selection
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
+import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.Observable
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.*
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import be.florien.anyflow.BR
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
@@ -17,10 +26,12 @@ import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
+import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.player.filter.selectType.ALBUM_ID
 import be.florien.anyflow.view.player.filter.selectType.ARTIST_ID
 import be.florien.anyflow.view.player.filter.selectType.GENRE_ID
+import be.florien.anyflow.view.player.songlist.SongListFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
@@ -40,6 +51,7 @@ constructor(private var filterType: String) : BaseFragment() {
 
     lateinit var vm: SelectFilterFragmentVM
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
+    internal var animDuration: Long = 200L
 
     constructor() : this(GENRE_ID)
 
@@ -141,6 +153,43 @@ constructor(private var filterType: String) : BaseFragment() {
                 itemFilterTypeBinding.root.setOnClickListener {
                     vm.changeFilterSelection(filter)
                     setBackground(itemFilterTypeBinding.root, filter)
+                }
+                itemFilterTypeBinding.options.setOnCheckedChangeListener { _, isChecked ->
+
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(requireContext(), R.layout.item_select_filter_grid)
+
+                    val connectionToDelete = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
+                    val connectionToAdd = if (isChecked) ConstraintSet.BOTTOM else ConstraintSet.TOP
+                    constraintSet.clear(R.id.optionsContainer, connectionToDelete)
+                    constraintSet.connect(R.id.optionsContainer, connectionToAdd, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+
+                    val transition = ChangeBounds()
+                    transition.interpolator = LinearInterpolator()
+                    transition.duration = animDuration
+
+                    TransitionManager.beginDelayedTransition(itemFilterTypeBinding.rootContainer, transition)
+                    constraintSet.applyTo(itemFilterTypeBinding.rootContainer)
+                }
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    songWaitingToBeDownloaded = itemFilterTypeBinding.item
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        AlertDialog.Builder(requireContext())
+                                .setMessage(R.string.write_permission_explanation)
+                                .setNegativeButton(R.string.refuse) { dialog, _ ->
+                                    dialog.dismiss()
+                                }
+                                .setPositiveButton(R.string.accord) { _, _ ->
+                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SongListFragment.REQUEST_WRITING)
+                                }
+                                .show()
+
+                    } else {
+                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SongListFragment.REQUEST_WRITING)
+                    }
+                } else {
+                    binding.song?.let { vm.askForDownload(it) }
+                    binding.download.isEnabled = false
                 }
             }
         }

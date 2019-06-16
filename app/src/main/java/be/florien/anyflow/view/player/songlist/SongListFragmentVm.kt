@@ -116,7 +116,7 @@ class SongListFragmentVm
     }
 
     fun askForDownload(song: SongDisplay) {
-        downloadHelper.addDownload(song)
+        downloadHelper.addSongDownload(song)
     }
 
     fun fileExist(song: SongDisplay) = downloadHelper.isFileExisting(song)

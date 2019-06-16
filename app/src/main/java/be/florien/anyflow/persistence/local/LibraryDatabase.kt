@@ -348,6 +348,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         getFilterGroupDao().update(newFilterGroup)
     }.subscribeOn(Schedulers.io())
 
+    fun getSongsForAlbum(albumId: Long): Single<List<SongDisplay>> = getSongDao()
+            .getSongsForAlbum(albumId)
+            .subscribeOn(Schedulers.io())
+
     companion object {
         const val CHANGE_SONGS = 0
         const val CHANGE_ALBUMS = 1

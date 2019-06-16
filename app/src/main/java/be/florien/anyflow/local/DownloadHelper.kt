@@ -22,7 +22,7 @@ class DownloadHelper @Inject constructor(private val libraryDatabase: LibraryDat
     private val downloadManager: DownloadManager = ContextCompat.getSystemService(context, DownloadManager::class.java)
             ?: throw IllegalStateException("Can't access the downloadManager")
 
-    fun addDownload(song: SongDisplay) {
+    fun addSongDownload(song: SongDisplay) {
         if (isFileExisting(song)) {
             return
         }
@@ -38,6 +38,17 @@ class DownloadHelper @Inject constructor(private val libraryDatabase: LibraryDat
 
         downloadManager.enqueue(request)
         libraryDatabase.updateWithLocalFilename(song.id, getFile(song).absolutePath).subscribe()
+    }
+
+    fun addAlbumDownload(albumId: Long) {
+        libraryDatabase.getSongsForAlbum(albumId)
+                .doOnSuccess { list ->
+                    list.forEach {song ->
+                        addSongDownload(song)
+                    }
+                }
+                .subscribe()
+
     }
 
     fun isFileExisting(song: SongDisplay) = getFile(song).exists()

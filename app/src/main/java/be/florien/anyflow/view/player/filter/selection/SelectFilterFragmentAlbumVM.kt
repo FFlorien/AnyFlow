@@ -25,4 +25,8 @@ class SelectFilterFragmentAlbumVM(activity: Activity) : SelectFilterFragmentVM()
     }
 
     override fun getFilter(filterValue: FilterItem) = Filter.AlbumIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
+
+    override fun downloadItem(id: Long) {
+        downloadHelper.addAlbumDownload(id)
+    }
 }

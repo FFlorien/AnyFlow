@@ -43,4 +43,7 @@ interface SongDao : BaseDao<Song> {
 
     @Query("UPDATE song SET downloadStatus = :newStatus WHERE song.id = :id")
     fun updateDownloadedStatus(id: Long, newStatus: Int)
+
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, filename, url,  time, art FROM song WHERE albumId = :albumId")
+    fun getSongsForAlbum(albumId: Long): Single<List<SongDisplay>>
 }
