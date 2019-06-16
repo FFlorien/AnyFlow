@@ -51,6 +51,28 @@ class DownloadHelper @Inject constructor(private val libraryDatabase: LibraryDat
 
     }
 
+    fun addArtistDownload(artistId: Long) {
+        libraryDatabase.getSongsForArtist(artistId)
+                .doOnSuccess { list ->
+                    list.forEach {song ->
+                        addSongDownload(song)
+                    }
+                }
+                .subscribe()
+
+    }
+
+    fun addGenreDownload(genre: String) {
+        libraryDatabase.getSongsForGenre(genre)
+                .doOnSuccess { list ->
+                    list.forEach {song ->
+                        addSongDownload(song)
+                    }
+                }
+                .subscribe()
+
+    }
+
     fun isFileExisting(song: SongDisplay) = getFile(song).exists()
 
     private fun getFile(song: SongDisplay) =
@@ -60,4 +82,8 @@ class DownloadHelper @Inject constructor(private val libraryDatabase: LibraryDat
             song.albumArtistName.toValidFileName() + "/" + song.albumName.toValidFileName() + "/" + song.filename.substringAfterLast("/").toValidFileName()
 
     private fun String.toValidFileName() = replace(Regex("[^a-zA-Z0-9 \\.\\-]"), "_")
+
+    companion object {
+        const val REQUEST_WRITING = 5
+    }
 }

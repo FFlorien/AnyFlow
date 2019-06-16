@@ -46,4 +46,10 @@ interface SongDao : BaseDao<Song> {
 
     @Query("SELECT id, title, artistName, albumName, albumArtistName, filename, url,  time, art FROM song WHERE albumId = :albumId")
     fun getSongsForAlbum(albumId: Long): Single<List<SongDisplay>>
+
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, filename, url,  time, art FROM song WHERE artistId = :artistId")
+    fun getSongsForArtist(artistId: Long): Single<List<SongDisplay>>
+
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, filename, url,  time, art FROM song WHERE genre like :genre")
+    fun getSongsForGenre(genre: String): Single<List<SongDisplay>>
 }

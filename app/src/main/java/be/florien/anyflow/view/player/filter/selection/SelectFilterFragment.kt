@@ -26,12 +26,11 @@ import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.di.ActivityScope
 import be.florien.anyflow.di.UserScope
-import be.florien.anyflow.persistence.local.model.SongDisplay
+import be.florien.anyflow.local.DownloadHelper
 import be.florien.anyflow.view.BaseFragment
 import be.florien.anyflow.view.player.filter.selectType.ALBUM_ID
 import be.florien.anyflow.view.player.filter.selectType.ARTIST_ID
 import be.florien.anyflow.view.player.filter.selectType.GENRE_ID
-import be.florien.anyflow.view.player.songlist.SongListFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
@@ -49,6 +48,7 @@ constructor(private var filterType: String) : BaseFragment() {
         private const val FILTER_TYPE = "TYPE"
     }
 
+    private var itemWaitingToBeDownloaded: SelectFilterFragmentVM.FilterItem? = null
     lateinit var vm: SelectFilterFragmentVM
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
     internal var animDuration: Long = 200L
@@ -171,25 +171,27 @@ constructor(private var filterType: String) : BaseFragment() {
                     TransitionManager.beginDelayedTransition(itemFilterTypeBinding.rootContainer, transition)
                     constraintSet.applyTo(itemFilterTypeBinding.rootContainer)
                 }
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    songWaitingToBeDownloaded = itemFilterTypeBinding.item
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        AlertDialog.Builder(requireContext())
-                                .setMessage(R.string.write_permission_explanation)
-                                .setNegativeButton(R.string.refuse) { dialog, _ ->
-                                    dialog.dismiss()
-                                }
-                                .setPositiveButton(R.string.accord) { _, _ ->
-                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SongListFragment.REQUEST_WRITING)
-                                }
-                                .show()
+                itemFilterTypeBinding.download.setOnClickListener {
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        itemWaitingToBeDownloaded = itemFilterTypeBinding.item
+                        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            AlertDialog.Builder(requireContext())
+                                    .setMessage(R.string.write_permission_explanation)
+                                    .setNegativeButton(R.string.refuse) { dialog, _ ->
+                                        dialog.dismiss()
+                                    }
+                                    .setPositiveButton(R.string.accord) { _, _ ->
+                                        requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), DownloadHelper.REQUEST_WRITING)
+                                    }
+                                    .show()
 
+                        } else {
+                            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), DownloadHelper.REQUEST_WRITING)
+                        }
                     } else {
-                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), SongListFragment.REQUEST_WRITING)
+                        itemFilterTypeBinding.item?.let { vm.downloadItem(it.id) }
+                        itemFilterTypeBinding.download.isEnabled = false
                     }
-                } else {
-                    binding.song?.let { vm.askForDownload(it) }
-                    binding.download.isEnabled = false
                 }
             }
         }

@@ -33,6 +33,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.di.ActivityScope
+import be.florien.anyflow.local.DownloadHelper
 import be.florien.anyflow.persistence.local.model.SongDisplay
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.view.BaseFragment
@@ -181,7 +182,7 @@ class SongListFragment : BaseFragment() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_WRITING && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == DownloadHelper.REQUEST_WRITING && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             songWaitingToBeDownloaded?.let { vm.askForDownload(it) }
         }
     }
@@ -300,10 +301,10 @@ class SongListFragment : BaseFragment() {
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(requireContext(), R.layout.item_song)
 
-                val connectionToDelete = if (isChecked) ConstraintSet.BOTTOM else ConstraintSet.TOP
-                val connectionToAdd = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
+                val connectionToDelete = if (isChecked) ConstraintSet.TOP else ConstraintSet.BOTTOM
+                val connectionToAdd = if (isChecked) ConstraintSet.BOTTOM else ConstraintSet.TOP
                 constraintSet.clear(R.id.optionsContainer, connectionToDelete)
-                constraintSet.connect(R.id.optionsContainer, connectionToAdd, R.id.infoContainer, ConstraintSet.BOTTOM)
+                constraintSet.connect(R.id.optionsContainer, connectionToAdd, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
 
                 val transition = ChangeBounds()
                 transition.interpolator = LinearInterpolator()
@@ -322,12 +323,12 @@ class SongListFragment : BaseFragment() {
                                     dialog.dismiss()
                                 }
                                 .setPositiveButton(R.string.accord) { _, _ ->
-                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITING)
+                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), DownloadHelper.REQUEST_WRITING)
                                 }
                                 .show()
 
                     } else {
-                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITING)
+                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), DownloadHelper.REQUEST_WRITING)
                     }
                 } else {
                     binding.song?.let { vm.askForDownload(it) }
@@ -347,12 +348,9 @@ class SongListFragment : BaseFragment() {
                 field = value
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
                 val color = ResourcesCompat.getColor(resources, backgroundColor, null)
-                binding.infoContainer.setBackgroundColor(color)
-                binding.bottomShadow.setBackgroundColor(color)
+                binding.rootContainer.setBackgroundColor(color)
+                binding.options.setBackgroundColor(color)
+                binding.optionsContainer.setBackgroundColor(color)
             }
-    }
-
-    companion object {
-        private const val REQUEST_WRITING = 5
     }
 }

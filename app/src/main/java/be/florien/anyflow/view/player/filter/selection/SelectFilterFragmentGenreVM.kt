@@ -28,4 +28,8 @@ class SelectFilterFragmentGenreVM(activity: Activity) : SelectFilterFragmentVM()
 
     override fun getFilter(filterValue: FilterItem) = Filter.GenreIs(values?.get(filterValue.id.toInt())?.displayName
             ?: "")
+
+    override fun downloadItem(id: Long) {
+        values?.get(id.toInt())?.let {downloadHelper.addGenreDownload(it.displayName)}
+    }
 }

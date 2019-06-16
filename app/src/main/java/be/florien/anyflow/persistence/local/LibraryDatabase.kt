@@ -352,6 +352,14 @@ abstract class LibraryDatabase : RoomDatabase() {
             .getSongsForAlbum(albumId)
             .subscribeOn(Schedulers.io())
 
+    fun getSongsForArtist(artistId: Long): Single<List<SongDisplay>> = getSongDao()
+            .getSongsForArtist(artistId)
+            .subscribeOn(Schedulers.io())
+
+    fun getSongsForGenre(genre: String): Single<List<SongDisplay>> = getSongDao()
+            .getSongsForGenre(genre)
+            .subscribeOn(Schedulers.io())
+
     companion object {
         const val CHANGE_SONGS = 0
         const val CHANGE_ALBUMS = 1

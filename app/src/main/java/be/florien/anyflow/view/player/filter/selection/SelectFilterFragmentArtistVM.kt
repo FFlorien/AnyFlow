@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 class SelectFilterFragmentArtistVM(activity: Activity) : SelectFilterFragmentVM() {
+
     override val itemDisplayType = ITEM_LIST
 
     @Inject lateinit var library: LibraryDatabase
@@ -24,4 +25,8 @@ class SelectFilterFragmentArtistVM(activity: Activity) : SelectFilterFragmentVM(
     }
 
     override fun getFilter(filterValue: FilterItem) = Filter.ArtistIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
+
+    override fun downloadItem(id: Long) {
+        downloadHelper.addArtistDownload(id)
+    }
 }
