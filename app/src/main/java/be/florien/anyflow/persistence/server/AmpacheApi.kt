@@ -27,7 +27,7 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getSongs(
             @Query("action") action: String = "songs",
-            @Query("update") update: String = "1970-01-01",
+            @Query("add") add: String = "1970-01-01",
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
@@ -36,7 +36,7 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getArtists(
             @Query("action") action: String = "artists",
-            @Query("update") update: String = "1970-01-01",
+            @Query("add") add: String = "1970-01-01",
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
@@ -45,7 +45,7 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getAlbums(
             @Query("action") action: String = "albums",
-            @Query("update") update: String = "1970-01-01",
+            @Query("add") add: String = "1970-01-01",
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
@@ -54,7 +54,7 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getTags(
             @Query("action") action: String = "tags",
-            @Query("update") update: String = "1970-01-01",
+            @Query("add") add: String = "1970-01-01",
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
@@ -63,7 +63,7 @@ interface AmpacheApi {
     @GET("server/xml.server.php")
     fun getPlaylists(
             @Query("action") action: String = "playlists",
-            @Query("update") update: String = "1970-01-01",
+            @Query("add") add: String = "1970-01-01",
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
