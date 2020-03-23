@@ -5,19 +5,20 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
-import be.florien.anyflow.di.DaggerApplicationComponent
+import be.florien.anyflow.data.server.AmpacheApi
+import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.persistence.server.AmpacheApi
-import be.florien.anyflow.persistence.server.AmpacheConnection
-import be.florien.anyflow.user.UserComponent
+import be.florien.anyflow.injection.ApplicationComponent
+import be.florien.anyflow.injection.DaggerApplicationComponent
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
-import com.crashlytics.android.Crashlytics
-import io.fabric.sdk.android.Fabric
 
 
 /**
@@ -25,7 +26,7 @@ import io.fabric.sdk.android.Fabric
  */
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication() {
-    lateinit var applicationComponent: be.florien.anyflow.di.ApplicationComponent
+    lateinit var applicationComponent: ApplicationComponent
         protected set
     var userComponent: UserComponent? = null
 

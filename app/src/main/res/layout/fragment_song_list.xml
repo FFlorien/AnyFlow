@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="vm"
-            type="be.florien.anyflow.view.player.songlist.SongListFragmentVm" />
+            name="viewModel"
+            type="be.florien.anyflow.feature.player.songlist.SongListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/smallDimen"
             android:visibility="gone"
-            app:song="@{vm.currentSong}" />
+            app:song="@{viewModel.currentSong}" />
 
         <TextView
             android:id="@+id/loadingText"

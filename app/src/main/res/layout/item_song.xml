@@ -7,7 +7,7 @@
 
         <variable
             name="song"
-            type="be.florien.anyflow.persistence.local.model.SongDisplay" />
+            type="be.florien.anyflow.data.local.model.SongDisplay" />
     </data>
 
     <LinearLayout

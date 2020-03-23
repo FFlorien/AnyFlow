@@ -1,8 +1,8 @@
 package be.florien.anyflow.player
 
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.persistence.local.LibraryDatabase
-import be.florien.anyflow.persistence.local.model.FilterGroup
+import be.florien.anyflow.data.local.LibraryDatabase
+import be.florien.anyflow.data.local.model.FilterGroup
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable

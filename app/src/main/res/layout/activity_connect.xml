@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="vm"
-            type="be.florien.anyflow.view.connect.ConnectActivityVM" />
+            name="viewModel"
+            type="be.florien.anyflow.feature.connect.ConnectViewModel" />
 
         <import type="android.view.View" />
     </data>
@@ -18,13 +18,13 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        tools:context="be.florien.anyflow.view.connect.ConnectActivityBase">
+        tools:context="be.florien.anyflow.feature.connect.ConnectActivityBase">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_server"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/connect_server_hint"
-                android:text="@={vm.server}" />
+                android:text="@={viewModel.server}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -42,7 +42,7 @@
             android:id="@+id/input_layout_username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_layout_server">
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/connect_username_hint"
-                android:text="@={vm.username}" />
+                android:text="@={viewModel.username}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -61,7 +61,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_layout_username">
@@ -72,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/connect_password_hint"
                 android:inputType="textPassword"
-                android:text="@={vm.password}" />
+                android:text="@={viewModel.password}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,7 +81,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_layout_password" />
@@ -92,9 +92,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:onClick="@{(view) ->vm.connect()}"
+            android:onClick="@{(view) ->viewModel.connect()}"
             android:text="@string/connect_connect_action"
-            android:visibility="@{vm.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/info" />
@@ -122,7 +122,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:visibility="@{vm.loading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -137,7 +137,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:text="@string/connect_wait_label"
-            android:visibility="@{vm.loading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

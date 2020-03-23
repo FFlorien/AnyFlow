@@ -1,7 +1,7 @@
 package be.florien.anyflow.player
 
-import be.florien.anyflow.persistence.local.model.DbFilter
-import be.florien.anyflow.persistence.local.model.FilterGroup
+import be.florien.anyflow.data.local.model.DbFilter
+import be.florien.anyflow.data.local.model.FilterGroup
 
 sealed class Filter<T>(
         val clause: String,

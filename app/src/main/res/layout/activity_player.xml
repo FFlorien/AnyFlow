@@ -10,8 +10,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="vm"
-            type="be.florien.anyflow.view.player.PlayerActivityVM" />
+            name="viewModel"
+            type="be.florien.anyflow.feature.player.PlayerViewModel" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -77,18 +77,18 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <be.florien.anyflow.view.customView.PlayerControls
+        <be.florien.anyflow.feature.customView.PlayerControls
             android:elevation="@dimen/mediumDimen"
             android:id="@+id/playerControls"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:gravity="center_horizontal"
-            app:actionListener="@{vm}"
+            app:actionListener="@{viewModel}"
             app:changeTrackAnimDuration="350"
-            app:currentDuration="@{vm.currentDuration}"
+            app:currentDuration="@{viewModel.currentDuration}"
             app:disabledColor="@color/disabled"
-            app:hasNext="@{vm.isNextPossible}"
-            app:hasPrevious="@{vm.isPreviousPossible}"
+            app:hasNext="@{viewModel.isNextPossible}"
+            app:hasPrevious="@{viewModel.isPreviousPossible}"
             app:iconColor="@color/iconInApp"
             app:minimumDurationForSeek="3000"
             app:nextBackgroundColor="@color/primary"
@@ -96,9 +96,9 @@
             app:previousBackgroundColor="@color/primary"
             app:progressAnimDuration="10000"
             app:progressBackgroundColor="@color/primary"
-            app:shouldShowBuffering="@{vm.shouldShowBuffering}"
+            app:shouldShowBuffering="@{viewModel.shouldShowBuffering}"
             app:smallestButtonWidth="@dimen/minClickableSize"
-            app:state="@{vm.state}"
-            app:totalDuration="@{vm.totalDuration}" />
+            app:state="@{viewModel.state}"
+            app:totalDuration="@{viewModel.totalDuration}" />
     </LinearLayout>
 </layout>

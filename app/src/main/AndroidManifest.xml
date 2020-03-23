@@ -18,7 +18,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".view.player.PlayerActivity"
+            android:name=".feature.player.PlayerActivity"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.connect.ConnectActivity" />
+        <activity android:name=".feature.connect.ConnectActivity" />
 
         <service android:name=".player.PlayerService">
             <intent-filter>
@@ -36,12 +36,12 @@
         </service>
 
         <service
-            android:name=".persistence.UpdateService"
+            android:name=".data.UpdateService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
-            android:name=".persistence.PingService"
+            android:name=".data.PingService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

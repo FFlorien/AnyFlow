@@ -2,12 +2,12 @@ package be.florien.anyflow.player
 
 import android.content.SharedPreferences
 import androidx.paging.PagedList
-import be.florien.anyflow.di.UserScope
+import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.persistence.local.LibraryDatabase
-import be.florien.anyflow.persistence.local.model.Song
-import be.florien.anyflow.persistence.local.model.SongDisplay
+import be.florien.anyflow.data.local.LibraryDatabase
+import be.florien.anyflow.data.local.model.Song
+import be.florien.anyflow.data.local.model.SongDisplay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -62,11 +62,11 @@ class PlayingQueue
                 .autoConnect()
 
     val songDisplayListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
-    val isRandomUpdater: Flowable<Boolean> =
+    val isOrderedUpdater: Flowable<Boolean> =
             libraryDatabase
                     .getOrder()
                     .map { orderList ->
-                        orderList.any { Order.toOrder(it).orderingType == Order.Ordering.RANDOM }
+                        orderList.none { Order.toOrder(it).orderingType == Order.Ordering.RANDOM }
                     }
 
     val queueChangeUpdater: Flowable<Int> = libraryDatabase.changeUpdater.filter { it == LibraryDatabase.CHANGE_ORDER || it == LibraryDatabase.CHANGE_FILTERS }

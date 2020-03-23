@@ -9,7 +9,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.persistence.local.model.Song
+import be.florien.anyflow.data.local.model.Song
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers

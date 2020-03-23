@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="vm"
-            type="be.florien.anyflow.view.player.filter.selection.SelectFilterFragmentVM" />
+            name="viewModel"
+            type="be.florien.anyflow.feature.player.filter.selection.SelectFilterViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

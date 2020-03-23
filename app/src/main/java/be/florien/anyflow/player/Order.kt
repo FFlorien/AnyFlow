@@ -1,7 +1,7 @@
 package be.florien.anyflow.player
 
-import be.florien.anyflow.persistence.local.model.DbOrder
-import be.florien.anyflow.persistence.local.model.Song
+import be.florien.anyflow.data.local.model.DbOrder
+import be.florien.anyflow.data.local.model.Song
 
 class Order(private val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
     constructor(priority: Int, subject: Long) : this(priority, subject, RANDOM, Math.random().times(RANDOM_MULTIPLIER).toInt())
