@@ -40,7 +40,7 @@ sealed class Filter<T>(
 
     class ArtistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(ARTIST_ID, argument, displayValue, displayImage)
 
-    class AlbumArtistIs(argument: Long, displayValue: String) : Filter<Long>(ALBUM_ARTIST_ID, argument, displayValue)
+    class AlbumArtistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(ALBUM_ARTIST_ID, argument, displayValue, displayImage)
 
     class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(ALBUM_ID, argument, displayValue, displayImage)
 
@@ -61,7 +61,7 @@ sealed class Filter<T>(
                 GENRE_IS -> GenreIs(fromDb.argument)
                 SONG_ID -> SongIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
                 ARTIST_ID -> ArtistIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
-                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong(), fromDb.displayText)
+                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
                 ALBUM_ID -> AlbumIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
                 else -> TitleIs("")
             }

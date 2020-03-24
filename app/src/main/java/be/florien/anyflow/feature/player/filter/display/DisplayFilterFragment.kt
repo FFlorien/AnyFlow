@@ -3,7 +3,6 @@ package be.florien.anyflow.feature.player.filter.display
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -19,6 +18,8 @@ import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -228,7 +229,8 @@ class DisplayFilterFragment : BaseFilterFragment() {
 
         private fun setCompoundDrawableFromResources(resId: Int) {
             ResourcesCompat.getDrawable(resources, resId, requireActivity().theme)?.apply {
-                setColorFilter(ResourcesCompat.getColor(resources, R.color.primaryDark, requireActivity().theme), PorterDuff.Mode.SRC_IN)
+                val color = ResourcesCompat.getColor(resources, R.color.primaryDark, requireActivity().theme)
+                colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_IN)
                 bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
                 binding.filterName.setCompoundDrawables(this, null, null, null)
             }

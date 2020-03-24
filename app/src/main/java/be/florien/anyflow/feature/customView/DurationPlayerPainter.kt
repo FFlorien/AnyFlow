@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.util.TypedValue
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
 
@@ -73,9 +74,9 @@ internal abstract class DurationPlayerPainter(
         set(value) {
             field = value
             if (value) {
-                nextIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                nextIcon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
             } else {
-                nextIcon.setColorFilter(disabledColor, PorterDuff.Mode.SRC_IN)
+                nextIcon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(disabledColor, BlendModeCompat.SRC_IN)
             }
         }
 
@@ -105,7 +106,7 @@ internal abstract class DurationPlayerPainter(
         }
         computePlayPauseIcon()
         computePreviousIcon()
-        nextIcon = getAnimatedIcon(R.drawable.ic_next, nextIconPosition)
+        nextIcon = getNextIcon(nextIconPosition)
     }
 
     override fun measure(width: Int, height: Int) {
@@ -234,11 +235,11 @@ internal abstract class DurationPlayerPainter(
      * Protected methods
      */
 
-    private fun getAnimatedIcon(animIconRes: Int, bounds: Rect): AnimatedVectorDrawableCompat {
-        val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
+    private fun getNextIcon(bounds: Rect): AnimatedVectorDrawableCompat {
+        val icon = AnimatedVectorDrawableCompat.create(context, R.drawable.ic_next)
                 ?: throw IllegalArgumentException("Icon wasn't found !")
         icon.bounds = bounds
-        icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+        icon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
         icon.start()
         return icon
     }

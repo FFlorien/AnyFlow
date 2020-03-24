@@ -28,16 +28,14 @@ open class ConnectViewModel
     var password = MutableLiveData("")
     val isLoading: LiveData<Boolean> = MutableValueLiveData(false)
     val isConnected: ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val errorMessage: LiveData<Int> = MutableLiveData<Int>(null)
+    val errorMessage: LiveData<Int> = MutableLiveData(null)
 
     /**
      * Buttons calls
      */
     fun connect() {
         isLoading.mutable.value = true
-        val serverUrl = server.value
-                ?: //todo warn user
-                return
+        val serverUrl = server.value ?: return //todo warn user
         ampacheConnection.openConnection(serverUrl)
         if (username.value?.isBlank() == true) {
             subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()),

@@ -34,7 +34,7 @@ class DataRepository
         private val sharedPreferences: SharedPreferences) {
 
     private fun lastAcceptableUpdate() = Calendar.getInstance().apply {
-        roll(Calendar.HOUR, false)
+        add(Calendar.HOUR, -1)
     }
 
     /**
@@ -50,7 +50,10 @@ class DataRepository
             AmpacheConnection::getSongs,
             AmpacheSongList::error
     ) {
-        libraryDatabase.addSongs(it.songs.map(::Song))
+        val songs = it.songs.map(::Song)
+        libraryDatabase
+                .addSongs(songs)
+                .concatWith(libraryDatabase.correctAlbumArtist(songs))
     }
 
     private fun updateArtists(): Completable = getUpToDateList(

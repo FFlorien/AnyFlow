@@ -27,4 +27,4 @@ data class Artist(
 data class ArtistDisplay(
         val id: Long,
         val name: String,
-        val art: String)
+        val art: String?)

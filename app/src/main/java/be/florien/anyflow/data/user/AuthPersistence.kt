@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package be.florien.anyflow.data.user
 
 import android.annotation.TargetApi
@@ -37,7 +39,6 @@ class AuthPersistence
         private var preference: SharedPreferences,
         private var context: Context) {
     companion object {
-        private const val ALGORITHM_NAME = "RSA"
         private const val KEYSTORE_NAME = "AndroidKeyStore"
         private const val SERVER_FILENAME = "server"
         private const val USER_FILENAME = "user"
@@ -47,7 +48,6 @@ class AuthPersistence
         private const val SERVER_ALIAS = "ServerUrl"
         private const val USER_ALIAS = USER_FILENAME
         private const val AUTH_ALIAS = "authData"
-        private const val RSA_CIPHER = "RSA/ECB/PKCS1Padding"
         private const val AES_CIPHER = "AES/GCM/NoPadding"
         private const val FIXED_IV = "turlutututut"
     }
@@ -83,13 +83,13 @@ class AuthPersistence
         oneYearDate.add(Calendar.YEAR, 1)
         this.user = user to oneYearDate.timeInMillis
         this.password = password to oneYearDate.timeInMillis
-        this.authToken = authToken to dateFormatter.parse(expirationDate).time
+        this.authToken = authToken to (dateFormatter.parse(expirationDate)?.time ?: 0L)
     }
 
     fun setNewAuthExpiration(expirationDate: String) { // I don't remember how the hell this is supposed to work
         if (keyStore.containsAlias(AUTH_ALIAS)) {
             val newExpiration = try {
-                dateFormatter.parse(expirationDate).time
+                dateFormatter.parse(expirationDate)?.time ?: 0L
             } catch (exception: ParseException) {
                 preference.getLong(AUTH_ALIAS, 0)
             }

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class SelectFilterTypeViewModel @Inject constructor(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {
     private val genreName = R.string.filter_type_genre
-    private val artistName = R.string.filter_type_artist
+    private val artistName = R.string.filter_type_album_artist
     private val albumName = R.string.filter_type_album
 
     val filtersIds = listOf(

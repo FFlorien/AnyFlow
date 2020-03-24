@@ -1,10 +1,11 @@
 package be.florien.anyflow.feature.customView
 
 import android.content.Context
-import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -70,14 +71,14 @@ abstract class IconAnimator(val context: Context) {
     protected fun getIcon(animIconRes: Int): VectorDrawableCompat {
         val icon = VectorDrawableCompat.create(context.resources, animIconRes, context.theme)
                 ?: throw IllegalArgumentException("Icon wasn't found !")
-        icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+        icon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
         return icon
     }
 
     protected fun getAnimatedIcon(animIconRes: Int): AnimatedVectorDrawableCompat {
         val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
                 ?: throw IllegalArgumentException("Icon wasn't found !")
-        icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+        icon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
         return icon
     }
 

@@ -8,6 +8,6 @@ import be.florien.anyflow.data.local.model.ArtistDisplay
 
 @Dao
 interface ArtistDao : BaseDao<Artist> {
-    @Query("SELECT * FROM artist ORDER BY name COLLATE UNICODE")
+    @Query("SELECT DISTINCT song.albumArtistId AS id, song.albumArtistName AS name, artist.art AS art FROM song LEFT JOIN artist ON song.albumArtistId = artist.id ORDER BY albumArtistName COLLATE UNICODE")
     fun orderByName(): DataSource.Factory<Int, ArtistDisplay>
 }

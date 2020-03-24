@@ -30,7 +30,7 @@ class SelectFilterFragment @SuppressLint("ValidFragment")
 constructor(private var filterType: String) : BaseFragment() {
     override fun getTitle(): String = when (filterType) {
         ALBUM_ID -> getString(R.string.filter_title_album)
-        ARTIST_ID -> getString(R.string.filter_title_artist)
+        ARTIST_ID -> getString(R.string.filter_title_album_artist)
         GENRE_ID -> getString(R.string.filter_title_genre)
         else -> getString(R.string.filter_title_main)
     }

@@ -16,11 +16,11 @@
     <string name="filter_display_title_contain">Song title contain\n%s</string>
     <string name="filter_title_main">Select filters</string>
     <string name="filter_type_genre">Genre</string>
-    <string name="filter_type_artist">Artist</string>
+    <string name="filter_type_album_artist">Album’s artist</string>
     <string name="filter_type_album">Album</string>
     <string name="filter_type_search">Search</string>
     <string name="filter_title_album">Select albums</string>
-    <string name="filter_title_artist">Select artists</string>
+    <string name="filter_title_album_artist">Select album artists</string>
     <string name="filter_title_genre">Select genres</string>
     <string name="filter_title_saved">Saved filters</string>
     <string name="menu_filters">Filters</string>
