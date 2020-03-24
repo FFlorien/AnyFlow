@@ -37,7 +37,7 @@ import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupFragment
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeFragment
-import be.florien.anyflow.player.Filter
+import be.florien.anyflow.data.view.Filter
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition

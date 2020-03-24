@@ -8,7 +8,7 @@
 
         <variable
             name="filter"
-            type="be.florien.anyflow.player.Filter" />
+            type="be.florien.anyflow.data.view.Filter" />
 
         <variable
             name="vm"

@@ -2,12 +2,14 @@ package be.florien.anyflow.player
 
 import android.content.SharedPreferences
 import androidx.paging.PagedList
-import be.florien.anyflow.injection.UserScope
+import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_FILTERS
+import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_ORDER
+import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.local.model.Song
-import be.florien.anyflow.data.local.model.SongDisplay
+import be.florien.anyflow.injection.UserScope
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -22,7 +24,7 @@ import javax.inject.Inject
  */
 @UserScope
 class PlayingQueue
-@Inject constructor(private val libraryDatabase: LibraryDatabase, private val sharedPreferences: SharedPreferences) {
+@Inject constructor(private val dataRepository: DataRepository, private val sharedPreferences: SharedPreferences) {
     companion object {
         private const val POSITION_NOT_SET = -5
         private const val POSITION_PREF = "POSITION_PREF"
@@ -53,7 +55,7 @@ class PlayingQueue
     val positionUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
     val currentSongUpdater: Flowable<Song?>
         get() = positionUpdater
-                .flatMapMaybe { libraryDatabase.getSongAtPosition(it) }
+                .flatMapMaybe { dataRepository.getSongAtPosition(it) }
                 .toFlowable(BackpressureStrategy.LATEST)
                 .distinctUntilChanged { song -> song.id }
                 .subscribeOn(Schedulers.io())
@@ -61,15 +63,15 @@ class PlayingQueue
                 .publish()
                 .autoConnect()
 
-    val songDisplayListUpdater: Flowable<PagedList<SongDisplay>> = libraryDatabase.getSongsInQueueOrder().replay(1).refCount()
+    val songDisplayListUpdater: Flowable<PagedList<Song>> = dataRepository.getSongsInQueueOrder().replay(1).refCount()
     val isOrderedUpdater: Flowable<Boolean> =
-            libraryDatabase
-                    .getOrder()
+            dataRepository
+                    .getOrders()
                     .map { orderList ->
-                        orderList.none { Order.toOrder(it).orderingType == Order.Ordering.RANDOM }
+                        orderList.none { it.orderingType == Order.Ordering.RANDOM }
                     }
 
-    val queueChangeUpdater: Flowable<Int> = libraryDatabase.changeUpdater.filter { it == LibraryDatabase.CHANGE_ORDER || it == LibraryDatabase.CHANGE_FILTERS }
+    val queueChangeUpdater: Flowable<Int> = dataRepository.changeUpdater.filter { it == CHANGE_ORDER || it == CHANGE_FILTERS }
 
 
     init {
@@ -85,11 +87,11 @@ class PlayingQueue
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
 
-        libraryDatabase.getPlaylist()
+        dataRepository.getOrderlessQueue()
                 .doOnNext {
-                    val listToSave = if (libraryDatabase.randomOrderingSeed >= 0) {
-                        val randomList = it.shuffled(Random(libraryDatabase.randomOrderingSeed.toLong())).toMutableList()
-                        libraryDatabase.precisePosition.forEach { preciseOrder ->
+                    val listToSave = if (dataRepository.randomOrderingSeed >= 0) {
+                        val randomList = it.shuffled(Random(dataRepository.randomOrderingSeed.toLong())).toMutableList()
+                        dataRepository.precisePosition.forEach { preciseOrder ->
                             if (randomList.remove(preciseOrder.subject)) {
                                 randomList.add(preciseOrder.argument, preciseOrder.subject)
                             }
@@ -98,7 +100,7 @@ class PlayingQueue
                     } else {
                         it.toMutableList()
                     }
-                    libraryDatabase.saveOrder(listToSave)
+                    dataRepository.saveQueueOrder(listToSave)
                 }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
@@ -107,12 +109,11 @@ class PlayingQueue
     private fun keepPositionCoherent() {
         val nullSafeSong = currentSong
         val maybe = if (nullSafeSong != null) {
-            libraryDatabase.getPositionForSong(nullSafeSong)
+            dataRepository.getPositionForSong(nullSafeSong)
         } else {
             Maybe.just(0)
         }
-        maybe
-                .doOnSuccess {
+        maybe.doOnSuccess {
                     listPosition = it
                 }
                 .doOnComplete {

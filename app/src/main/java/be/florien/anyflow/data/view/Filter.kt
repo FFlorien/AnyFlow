@@ -1,15 +1,10 @@
-package be.florien.anyflow.player
-
-import be.florien.anyflow.data.local.model.DbFilter
-import be.florien.anyflow.data.local.model.FilterGroup
+package be.florien.anyflow.data.view
 
 sealed class Filter<T>(
         val clause: String,
         val argument: T,
         val displayText: String,
         val displayImage: String? = null) {
-
-    fun toDbFilter(group: FilterGroup): DbFilter = DbFilter(0, clause, argument.toString(), displayText, displayImage, group.id)
 
     override fun equals(other: Any?): Boolean {
         return other is Filter<*> && clause == other.clause && argument == other.argument
@@ -45,26 +40,13 @@ sealed class Filter<T>(
     class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(ALBUM_ID, argument, displayValue, displayImage)
 
     companion object {
-        private const val TITLE_IS = "title ="
-        private const val TITLE_CONTAIN = "title LIKE"
-        private const val SEARCH = "title AND genre AND artistName AND albumName LIKE"
-        private const val GENRE_IS = "song.genre LIKE"
-        private const val SONG_ID = "song.id ="
-        private const val ARTIST_ID = "song.artistId ="
-        private const val ALBUM_ARTIST_ID = "song.albumArtistId ="
-        private const val ALBUM_ID = "song.albumId ="
-
-        fun toTypedFilter(fromDb: DbFilter): Filter<*> {
-            return when (fromDb.clause) {
-                TITLE_IS -> TitleIs(fromDb.argument)
-                TITLE_CONTAIN -> TitleContain(fromDb.argument)
-                GENRE_IS -> GenreIs(fromDb.argument)
-                SONG_ID -> SongIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
-                ARTIST_ID -> ArtistIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
-                ALBUM_ARTIST_ID -> AlbumArtistIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
-                ALBUM_ID -> AlbumIs(fromDb.argument.toLong(), fromDb.displayText, fromDb.displayImage)
-                else -> TitleIs("")
-            }
-        }
+        const val TITLE_IS = "title ="
+        const val TITLE_CONTAIN = "title LIKE"
+        const val SEARCH = "title AND genre AND artistName AND albumName LIKE"
+        const val GENRE_IS = "song.genre LIKE"
+        const val SONG_ID = "song.id ="
+        const val ARTIST_ID = "song.artistId ="
+        const val ALBUM_ARTIST_ID = "song.albumArtistId ="
+        const val ALBUM_ID = "song.albumId ="
     }
 }

@@ -3,8 +3,9 @@ package be.florien.anyflow.feature.player
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
-import be.florien.anyflow.data.local.LibraryDatabase
+import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.MutableValueLiveData
@@ -12,12 +13,12 @@ import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
 import be.florien.anyflow.feature.customView.PlayerControls
 import be.florien.anyflow.player.*
-import be.florien.anyflow.player.Order.Companion.SUBJECT_ALBUM
-import be.florien.anyflow.player.Order.Companion.SUBJECT_ALBUM_ARTIST
-import be.florien.anyflow.player.Order.Companion.SUBJECT_ALL
-import be.florien.anyflow.player.Order.Companion.SUBJECT_TITLE
-import be.florien.anyflow.player.Order.Companion.SUBJECT_TRACK
-import be.florien.anyflow.player.Order.Companion.SUBJECT_YEAR
+import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALBUM
+import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALBUM_ARTIST
+import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALL
+import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TITLE
+import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TRACK
+import be.florien.anyflow.data.view.Order.Companion.SUBJECT_YEAR
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
@@ -31,7 +32,7 @@ class PlayerViewModel
 @Inject
 constructor(
         private val playingQueue: PlayingQueue,
-        private val libraryDatabase: LibraryDatabase,
+        private val dataRepository: DataRepository,
         connectionStatusUpdater: Observable<AmpacheConnection.ConnectionStatus>,
         @Named("Songs")
         songsPercentageUpdater: Observable<Int>,
@@ -177,15 +178,15 @@ constructor(
     }
 
     fun randomOrder() {
-        val orders = mutableListOf(Order(0, SUBJECT_ALL).toDbOrder())
+        val orders = mutableListOf(Order(0, SUBJECT_ALL))
         playingQueue.currentSong?.let { song ->
-            orders.add(Order(0, song).toDbOrder())
+            orders.add(Order(0, song))
         }
-        subscribe(libraryDatabase.setOrders(orders))
+        subscribe(dataRepository.setOrders(orders))
     }
 
     fun classicOrder() {
-        subscribe(libraryDatabase.setOrdersSubject(listOf(SUBJECT_ALBUM_ARTIST, SUBJECT_YEAR, SUBJECT_ALBUM, SUBJECT_TRACK, SUBJECT_TITLE)))
+        subscribe(dataRepository.setOrdersSubject(listOf(SUBJECT_ALBUM_ARTIST, SUBJECT_YEAR, SUBJECT_ALBUM, SUBJECT_TRACK, SUBJECT_TITLE)))
     }
 
     /**

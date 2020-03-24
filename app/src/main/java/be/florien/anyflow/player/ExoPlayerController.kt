@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.net.Uri
 import be.florien.anyflow.extension.iLog
-import be.florien.anyflow.data.local.model.Song
+import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.data.server.AmpacheConnection
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory

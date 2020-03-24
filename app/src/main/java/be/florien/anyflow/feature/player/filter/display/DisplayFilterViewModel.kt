@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.player.filter.display
 import be.florien.anyflow.feature.MutableValueLiveData
 import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
-import be.florien.anyflow.player.Filter
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject

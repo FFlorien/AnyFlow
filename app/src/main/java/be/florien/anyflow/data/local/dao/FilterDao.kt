@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import be.florien.anyflow.data.local.model.DbFilter
-import be.florien.anyflow.data.local.model.FilterGroup
+import be.florien.anyflow.data.local.model.DbFilterGroup
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -23,7 +23,7 @@ abstract class FilterDao : BaseDao<DbFilter> {
     abstract fun filterForGroupAsync(groupId: Long): Single<List<DbFilter>>
 
     @Transaction
-    open fun updateGroup(group: FilterGroup, filters: List<DbFilter>) {
+    open fun updateGroup(group: DbFilterGroup, filters: List<DbFilter>) {
         deleteGroupSync(group.id)
         insert(filters)
     }

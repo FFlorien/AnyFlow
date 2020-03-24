@@ -5,8 +5,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import be.florien.anyflow.data.server.model.AmpacheAlbum
 
-@Entity(indices = [Index("artistId"), Index("name")])
-data class Album(
+@Entity(tableName = "Album", indices = [Index("artistId"), Index("name")])
+data class DbAlbum(
         @PrimaryKey
         val id: Long,
         val name: String,
@@ -17,22 +17,9 @@ data class Album(
         val disk: Int,
         val art: String,
         val preciserating: Int,
-        val rating: Double) {
+        val rating: Double)
 
-    constructor(fromServer: AmpacheAlbum) : this(
-            fromServer.id,
-            fromServer.name,
-            fromServer.artist.name,
-            fromServer.artist.id,
-            fromServer.year,
-            fromServer.tracks,
-            fromServer.disk,
-            fromServer.art,
-            fromServer.preciserating,
-            fromServer.rating)
-}
-
-data class AlbumDisplay(
+data class DbAlbumDisplay(
         val id: Long,
         val name: String,
         val artistName: String,

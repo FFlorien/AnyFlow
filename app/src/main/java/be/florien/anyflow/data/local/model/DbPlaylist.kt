@@ -8,15 +8,9 @@ import be.florien.anyflow.data.server.model.AmpachePlayList
  * Database structure that represents to playlist
  */
 
-@Entity
-open class Playlist(
+@Entity(tableName = "Playlist")
+open class DbPlaylist(
         @PrimaryKey
         val id: Long,
         val name: String,
-        val owner: String) {
-
-    constructor(fromServer: AmpachePlayList) : this(
-            fromServer.id,
-            fromServer.name,
-            fromServer.owner)
-}
+        val owner: String)

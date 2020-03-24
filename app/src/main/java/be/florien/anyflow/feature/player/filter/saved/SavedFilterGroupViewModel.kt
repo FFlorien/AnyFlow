@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.player.filter.saved
 
-import be.florien.anyflow.data.local.model.FilterGroup
+import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.MutableValueLiveData
 import be.florien.anyflow.feature.ValueLiveData

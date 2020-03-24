@@ -1,13 +1,8 @@
-package be.florien.anyflow.player
+package be.florien.anyflow.data.view
 
-import be.florien.anyflow.data.local.model.DbOrder
-import be.florien.anyflow.data.local.model.Song
-
-class Order(private val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
+class Order(val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
     constructor(priority: Int, subject: Long) : this(priority, subject, RANDOM, Math.random().times(RANDOM_MULTIPLIER).toInt())
     constructor(precisePosition: Int, song: Song) : this(PRIORITY_LAST, song.id, PRECISE_POSITION, precisePosition)
-
-    fun toDbOrder() = DbOrder(priority, subject, ordering, argument)
 
     val orderingType
         get() = when (ordering) {
@@ -32,11 +27,6 @@ class Order(private val priority: Int, val subject: Long, val ordering: Int, val
         }
 
     companion object {
-        fun toOrder(order: DbOrder) = Order(
-                order.priority,
-                order.subject,
-                order.orderingType,
-                order.orderingArgument)
 
         const val PRIORITY_LAST = 20
         const val ASCENDING = 1

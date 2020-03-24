@@ -15,9 +15,10 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-open class ConnectViewModel
-@Inject constructor(
-        private val ampacheConnection: AmpacheConnection) : BaseViewModel() {
+open class ConnectViewModel : BaseViewModel() {
+
+    @Inject
+    lateinit var ampacheConnection: AmpacheConnection
 
     /**
      * Fields
@@ -26,7 +27,7 @@ open class ConnectViewModel
     var server = MutableLiveData("")
     var username = MutableLiveData("")
     var password = MutableLiveData("")
-    val isLoading: LiveData<Boolean> = MutableValueLiveData(false)
+    val isLoading: ValueLiveData<Boolean> = MutableValueLiveData(false)
     val isConnected: ValueLiveData<Boolean> = MutableValueLiveData(false)
     val errorMessage: LiveData<Int> = MutableLiveData(null)
 

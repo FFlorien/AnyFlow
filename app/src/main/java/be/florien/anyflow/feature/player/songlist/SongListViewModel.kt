@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
-import be.florien.anyflow.data.local.model.SongDisplay
+import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.MutableValueLiveData
@@ -43,8 +43,8 @@ class SongListViewModel
     }
 
     private val isLoadingAll: ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val pagedAudioQueue: LiveData<PagedList<SongDisplay>> = MutableLiveData()
-    val currentSong: LiveData<SongDisplay> = MutableLiveData()
+    val pagedAudioQueue: LiveData<PagedList<Song>> = MutableLiveData()
+    val currentSong: LiveData<Song> = MutableLiveData()
 
     val listPosition: ValueLiveData<Int> = MutableValueLiveData(0)
     val listPositionLoaded: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
@@ -86,7 +86,7 @@ class SongListViewModel
                 })
         subscribe(playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
                 onNext = { maybeSong ->
-                    currentSong.mutable.value = maybeSong?.let { SongDisplay(it) }
+                    currentSong.mutable.value = maybeSong
                 },
                 onError = {
                     this@SongListViewModel.eLog(it, "Error while updating currentSong")

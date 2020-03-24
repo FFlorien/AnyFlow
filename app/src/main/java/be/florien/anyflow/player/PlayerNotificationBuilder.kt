@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.R
 import be.florien.anyflow.extension.GlideApp
-import be.florien.anyflow.data.local.model.Song
+import be.florien.anyflow.data.view.Song
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener

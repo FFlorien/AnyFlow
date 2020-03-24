@@ -19,10 +19,6 @@ import kotlin.reflect.KClass
 
 @Module
 abstract class ViewModelModule {
-    @Binds
-    @IntoMap
-    @ViewModelKey(ConnectViewModel::class)
-    abstract fun bindsConnectActivityVM(viewModel: ConnectViewModel): ViewModel
 
     @Binds
     @IntoMap

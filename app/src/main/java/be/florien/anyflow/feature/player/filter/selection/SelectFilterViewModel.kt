@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
-import be.florien.anyflow.player.Filter
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {

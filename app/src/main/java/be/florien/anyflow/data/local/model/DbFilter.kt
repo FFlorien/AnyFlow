@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(foreignKeys = [
         ForeignKey(
-                entity = FilterGroup::class,
+                entity = DbFilterGroup::class,
                 parentColumns = arrayOf("id"),
                 childColumns = arrayOf("filterGroup"),
                 onDelete = ForeignKey.CASCADE)])

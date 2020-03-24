@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.local.model.FilterGroup
+import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.databinding.ItemFilterGroupBinding
 import be.florien.anyflow.extension.viewModelFactory
@@ -65,6 +65,17 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
         return binding.root
     }
 
+    inner class FilterGroupAdapter : RecyclerView.Adapter<FilterGroupViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterGroupViewHolder = FilterGroupViewHolder(parent)
+
+        override fun getItemCount(): Int = viewModel.filterGroups.value.size
+
+        override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
+            holder.bind(viewModel.filterGroups.value[position], viewModel.imageForGroups[position], selectedList.contains(position)) // todo don't change images, only selection
+        }
+
+    }
+
     inner class FilterGroupViewHolder(
             container: ViewGroup,
             private val itemBinding: ItemFilterGroupBinding = ItemFilterGroupBinding.inflate(LayoutInflater.from(container.context), container, false))
@@ -103,16 +114,5 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
             itemBinding.cover4Url = coverUrls[3]
             itemBinding.isSelected = isSelected
         }
-    }
-
-    inner class FilterGroupAdapter : RecyclerView.Adapter<FilterGroupViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterGroupViewHolder = FilterGroupViewHolder(parent)
-
-        override fun getItemCount(): Int = viewModel.filterGroups.value.size
-
-        override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
-            holder.bind(viewModel.filterGroups.value[position], viewModel.imageForGroups[position], selectedList.contains(position)) // todo don't change images, only selection
-        }
-
     }
 }
