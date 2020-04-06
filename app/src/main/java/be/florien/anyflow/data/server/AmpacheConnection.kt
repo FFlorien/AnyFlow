@@ -5,13 +5,13 @@ import android.content.SharedPreferences
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
-import be.florien.anyflow.extension.applyPutLong
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
+import be.florien.anyflow.extension.applyPutLong
+import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.feature.MutableValueLiveData
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -58,15 +58,11 @@ open class AmpacheConnection
             (context.applicationContext as AnyFlowApp).userComponent = value
         }
 
-    private val _connectionStatusUpdater: BehaviorSubject<ConnectionStatus> = BehaviorSubject.create<ConnectionStatus>()
-    val connectionStatusUpdater: Observable<ConnectionStatus> = _connectionStatusUpdater
+    val connectionStatusUpdater = MutableValueLiveData(ConnectionStatus.CONNEXION)
 
-    private val _songsPercentageUpdater = BehaviorSubject.create<Int>()
-    val songsPercentageUpdater: Observable<Int> = _songsPercentageUpdater
-    private val _artistsPercentageUpdater = BehaviorSubject.create<Int>()
-    val artistsPercentageUpdater: Observable<Int> = _artistsPercentageUpdater
-    private val _albumsPercentageUpdater = BehaviorSubject.create<Int>()
-    val albumsPercentageUpdater: Observable<Int> = _albumsPercentageUpdater
+    val songsPercentageUpdater = MutableValueLiveData(-1)
+    val artistsPercentageUpdater = MutableValueLiveData(-1)
+    val albumsPercentageUpdater = MutableValueLiveData(-1)
 
     /**
      * Ampache connection handling
@@ -109,17 +105,17 @@ open class AmpacheConnection
         return ampacheApi
                 .authenticate(user = user, auth = auth, time = time)
                 .doOnSubscribe {
-                    _connectionStatusUpdater.onNext(ConnectionStatus.CONNEXION)
+                    connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
                 }
                 .doOnNext { result ->
                     when (result.error.code) {
                         401 -> {
-                            _connectionStatusUpdater.onNext(ConnectionStatus.WRONG_ID_PAIR)
+                            connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
                             throw WrongIdentificationPairException(result.error.errorText)
                         }
                         0 -> authPersistence.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
                     }
-                    _connectionStatusUpdater.onNext(ConnectionStatus.CONNECTED)
+                    connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
                 }
                 .doOnError { this@AmpacheConnection.eLog(it, "Error while authenticating") }
     }
@@ -127,10 +123,10 @@ open class AmpacheConnection
     fun ping(authToken: String = authPersistence.authToken.first): Observable<AmpachePing> =
             ampacheApi
                     .ping(auth = authToken)
-                    .doOnSubscribe { _connectionStatusUpdater.onNext(ConnectionStatus.CONNEXION) }
+                    .doOnSubscribe { connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION) }
                     .doOnNext { result ->
                         authPersistence.setNewAuthExpiration(result.sessionExpire)
-                        _connectionStatusUpdater.onNext(ConnectionStatus.CONNECTED)
+                        connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
                     }
                     .doOnError { this@AmpacheConnection.eLog(it, "Error while ping") }
                     .subscribeOn(Schedulers.io())
@@ -184,19 +180,19 @@ open class AmpacheConnection
                 .subscribe(
                         {
                             if (it.songs.isEmpty()) {
-                                _songsPercentageUpdater.onNext(-1)
+                                songsPercentageUpdater.postValue(-1)
                                 emitter.onComplete()
                                 sharedPreferences.edit().remove(OFFSET_SONG).apply()
                             } else {
                                 val percentage = (songOffset * 100) / it.total_count
-                                _songsPercentageUpdater.onNext(percentage)
+                                songsPercentageUpdater.postValue(percentage)
                                 emitter.onNext(it)
                                 sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
                                 songOffset += itemLimit
                             }
                         },
                         {
-                            dispatchError(_songsPercentageUpdater, it, "getSongs")
+                            dispatchError(songsPercentageUpdater, it, "getSongs")
                             emitter.onError(it)
                         })
     }
@@ -206,19 +202,19 @@ open class AmpacheConnection
                 .subscribe(
                         {
                             if (it.artists.isEmpty()) {
-                                _artistsPercentageUpdater.onNext(-1)
+                                artistsPercentageUpdater.postValue(-1)
                                 emitter.onComplete()
                                 sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                             } else {
                                 val percentage = (artistOffset * 100) / it.total_count
-                                _artistsPercentageUpdater.onNext(percentage)
+                                artistsPercentageUpdater.postValue(percentage)
                                 emitter.onNext(it)
                                 sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
                                 artistOffset += itemLimit
                             }
                         },
                         {
-                            dispatchError(_artistsPercentageUpdater, it, "getArtists")
+                            dispatchError(artistsPercentageUpdater, it, "getArtists")
                             emitter.onError(it)
                         })
     }
@@ -228,19 +224,19 @@ open class AmpacheConnection
                 .subscribe(
                         {
                             if (it.albums.isEmpty()) {
-                                _albumsPercentageUpdater.onNext(-1)
+                                albumsPercentageUpdater.postValue(-1)
                                 emitter.onComplete()
                                 sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
                             } else {
                                 val percentage = (albumOffset * 100) / it.total_count
-                                _albumsPercentageUpdater.onNext(percentage)
+                                albumsPercentageUpdater.postValue(percentage)
                                 emitter.onNext(it)
                                 sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
                                 albumOffset += itemLimit
                             }
                         },
                         {
-                            dispatchError(_albumsPercentageUpdater, it, "getAlbums")
+                            dispatchError(albumsPercentageUpdater, it, "getAlbums")
                             emitter.onError(it)
                         })
     }
@@ -285,7 +281,7 @@ open class AmpacheConnection
 
     fun getSongUrl(url: String): String {
         if (authPersistence.authToken.first.isBlank()) {
-            _connectionStatusUpdater.onNext(ConnectionStatus.CONNEXION)
+            connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         }
         val ssidStart = url.indexOf("ssid=") + 5
         return url.replaceRange(ssidStart, url.indexOf('&', ssidStart), authPersistence.authToken.first)
@@ -293,11 +289,11 @@ open class AmpacheConnection
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 
-    private fun dispatchError(updater: BehaviorSubject<Int>?, it: Throwable, action: String) {
-        updater?.onNext(-1)
+    private fun dispatchError(updater: MutableValueLiveData<Int>?, it: Throwable, action: String) {
+        updater?.postValue(-1)
         this@AmpacheConnection.eLog(it, "Error while $action")
         if (it is TimeoutException) {
-            _connectionStatusUpdater.onNext(ConnectionStatus.TIMEOUT)
+            connectionStatusUpdater.postValue(ConnectionStatus.TIMEOUT)
         }
     }
 

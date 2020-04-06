@@ -6,20 +6,22 @@ import android.os.IBinder
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Order
-import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.MutableValueLiveData
-import be.florien.anyflow.feature.ValueLiveData
-import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
-import be.florien.anyflow.feature.customView.PlayerControls
-import be.florien.anyflow.player.*
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALBUM
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALBUM_ARTIST
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALL
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TITLE
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TRACK
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_YEAR
-import io.reactivex.Observable
+import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.MutableValueLiveData
+import be.florien.anyflow.feature.ValueLiveData
+import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
+import be.florien.anyflow.feature.customView.PlayerControls
+import be.florien.anyflow.player.IdlePlayerController
+import be.florien.anyflow.player.PlayerController
+import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.player.PlayingQueue
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 import javax.inject.Named
@@ -33,13 +35,13 @@ class PlayerViewModel
 constructor(
         private val playingQueue: PlayingQueue,
         private val dataRepository: DataRepository,
-        connectionStatusUpdater: Observable<AmpacheConnection.ConnectionStatus>,
+        val connectionStatus: ValueLiveData<AmpacheConnection.ConnectionStatus>,
         @Named("Songs")
-        songsPercentageUpdater: Observable<Int>,
+        val songsUpdatePercentage: ValueLiveData<Int>,
         @Named("Albums")
-        albumsPercentageUpdater: Observable<Int>,
+        val albumsUpdatePercentage: ValueLiveData<Int>,
         @Named("Artists")
-        artistsPercentageUpdater: Observable<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
+        val artistsUpdatePercentage: ValueLiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
 
     companion object {
         const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
@@ -53,11 +55,7 @@ constructor(
     /**
      * Bindables
      */
-    val connectionStatus : ValueLiveData<AmpacheConnection.ConnectionStatus> = MutableValueLiveData(AmpacheConnection.ConnectionStatus.CONNECTED)
     val shouldShowBuffering : ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val songsUpdatePercentage : ValueLiveData<Int> = MutableValueLiveData(-1)
-    val artistsUpdatePercentage : ValueLiveData<Int> = MutableValueLiveData(-1)
-    val albumsUpdatePercentage : ValueLiveData<Int> = MutableValueLiveData(-1)
     val state : ValueLiveData<Int> = MutableValueLiveData(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
     val isOrdered : ValueLiveData<Boolean> = MutableValueLiveData(true)
     val currentDuration : ValueLiveData<Int> = MutableValueLiveData(0)
@@ -113,30 +111,6 @@ constructor(
                     currentDuration.mutable.value = 0
                 },
                 containerKey = PLAYING_QUEUE_CONTAINER)
-        subscribe(
-                observable = connectionStatusUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    connectionStatus.mutable.value = it
-                }
-        )
-        subscribe(
-                observable = songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    songsUpdatePercentage.mutable.value = it
-                }
-        )
-        subscribe(
-                observable = artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    artistsUpdatePercentage.mutable.value = it
-                }
-        )
-        subscribe(
-                observable = albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    albumsUpdatePercentage.mutable.value = it
-                }
-        )
         subscribe(
                 playingQueue.positionUpdater,
                 onNext = {

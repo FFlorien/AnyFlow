@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.connect
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
@@ -10,6 +11,7 @@ import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.MutableValueLiveData
 import be.florien.anyflow.feature.ValueLiveData
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -39,6 +41,9 @@ open class ConnectViewModel : BaseViewModel() {
         val serverUrl = server.value ?: return //todo warn user
         ampacheConnection.openConnection(serverUrl)
         if (username.value?.isBlank() == true) {
+            viewModelScope.launch {
+
+            }
             subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()),
                     {
                         isLoading.mutable.value = false

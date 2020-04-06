@@ -2,9 +2,11 @@ package be.florien.anyflow.injection
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.AuthPersistence
+import be.florien.anyflow.feature.ValueLiveData
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
@@ -36,7 +38,7 @@ class ApplicationModule {
     fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection = AmpacheConnection(authPersistence, context, sharedPreferences)
 
     @Provides
-    fun provideAmpacheConnectionStatus(connection: AmpacheConnection): Observable<AmpacheConnection.ConnectionStatus> = connection.connectionStatusUpdater
+    fun provideAmpacheConnectionStatus(connection: AmpacheConnection): ValueLiveData<AmpacheConnection.ConnectionStatus> = connection.connectionStatusUpdater
 
     @Singleton
     @Provides

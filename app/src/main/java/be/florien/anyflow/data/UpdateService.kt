@@ -1,20 +1,20 @@
 package be.florien.anyflow.data
 
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.Observer
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
+import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.player.PlayerService
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.net.SocketTimeoutException
@@ -22,20 +22,23 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class UpdateService
-@Inject constructor() : Service() {
-    override fun onBind(intent: Intent?): IBinder? = null
+@Inject constructor() : LifecycleService() {
+    override fun onBind(intent: Intent): IBinder?{
+        super.onBind(intent)
+        return null
+    }
 
     @Inject
     lateinit var dataRepository: DataRepository
     @Inject
     @field:Named("Songs")
-    lateinit var songsPercentageUpdater: Observable<Int>
+    lateinit var songsPercentageUpdater: ValueLiveData<Int>
     @Inject
     @field:Named("Albums")
-    lateinit var albumsPercentageUpdater: Observable<Int>
+    lateinit var albumsPercentageUpdater: ValueLiveData<Int>
     @Inject
     @field:Named("Artists")
-    lateinit var artistsPercentageUpdater: Observable<Int>
+    lateinit var artistsPercentageUpdater: ValueLiveData<Int>
     private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@UpdateService, 0, intent, 0)
@@ -63,35 +66,29 @@ class UpdateService
                 }
                 .subscribeOn(Schedulers.io())
                 .subscribe())
-        subscriptions.add(songsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
-                .doOnNext {
-                    if (it in 0..100) {
-                        notifyChange(getString(R.string.update_songs, it))
-                    } else {
-                        stopForeground(true)
-                    }
-                }
-                .subscribe()
-        )
-        subscriptions.add(artistsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
-                .doOnNext {
+        songsPercentageUpdater.observe(this, Observer {
+            if (it in 0..100) {
+                notifyChange(getString(R.string.update_songs, it))
+            } else {
+                stopForeground(true)
+            }
+
+        })
+        artistsPercentageUpdater.observe(this, Observer {
                     if (it in 0..100) {
                         notifyChange(getString(R.string.update_artists, it))
                     } else {
                         stopForeground(true)
                     }
                 }
-                .subscribe()
         )
-        subscriptions.add(albumsPercentageUpdater.observeOn(AndroidSchedulers.mainThread())
-                .doOnNext {
+        albumsPercentageUpdater.observe(this, Observer {
                     if (it in 0..100) {
                         notifyChange(getString(R.string.update_albums, it))
                     } else {
                         stopForeground(true)
                     }
                 }
-                .subscribe()
         )
     }
 

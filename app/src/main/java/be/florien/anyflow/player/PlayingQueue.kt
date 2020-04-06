@@ -114,13 +114,10 @@ class PlayingQueue
             Maybe.just(0)
         }
         maybe.doOnSuccess {
-                    listPosition = it
-                }
-                .doOnComplete {
-                    listPosition = 0
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
+            listPosition = it
+        }.doOnComplete {
+            listPosition = 0
+        }.observeOn(AndroidSchedulers.mainThread()).subscribe()
 
     }
 }
