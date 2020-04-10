@@ -1,23 +1,16 @@
 package be.florien.anyflow.player
 
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import java.util.concurrent.TimeUnit
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 /**
  * Player used to fill the implementation, but that play nothing
  */
 class IdlePlayerController : PlayerController {
 
-    override val stateChangeNotifier: Observable<PlayerController.State> = Observable
-            .just(PlayerController.State.NO_MEDIA)
-            .publish()
-            .autoConnect()
+    override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData(PlayerController.State.NO_MEDIA)
 
-    override val playTimeNotifier: Observable<Long> = Observable
-            .interval(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-            .publish()
-            .autoConnect()
+    override val playTimeNotifier: LiveData<Long> = MutableLiveData(0)
 
     override fun isPlaying(): Boolean = false
 

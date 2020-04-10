@@ -22,22 +22,22 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.menu.ConfirmMenuHolder
 import be.florien.anyflow.feature.menu.SaveFilterGroupMenuHolder
-import be.florien.anyflow.feature.observeValue
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupFragment
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeFragment
-import be.florien.anyflow.data.view.Filter
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
@@ -94,13 +94,13 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     .filterList
                     .addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
         }
-        confirmMenuHolder.isVisible = viewModel.hasChangeFromCurrentFilters.value
-        viewModel.currentFilters.observeValue(viewLifecycleOwner) {
+        confirmMenuHolder.isVisible = viewModel.hasChangeFromCurrentFilters.value == true
+        viewModel.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
-            saveMenuHolder.isVisible = viewModel.currentFilters.value.isNotEmpty()
+            saveMenuHolder.isVisible = viewModel.currentFilters.value?.isNotEmpty() == true
         }
-        viewModel.hasChangeFromCurrentFilters.observeValue(viewLifecycleOwner) {
-            confirmMenuHolder.isVisible = viewModel.hasChangeFromCurrentFilters.value
+        viewModel.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
+            confirmMenuHolder.isVisible = viewModel.hasChangeFromCurrentFilters.value == true
         }
         binding.fabSavedFilterGroups.setOnClickListener {
             requireActivity()
@@ -152,13 +152,17 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     holder.itemView.setOnClickListener { viewModel.clearFilters() }
                 }
                 else -> {
-                    holder.bind(viewModel.currentFilters.value[position - 2])
+                    val filter = viewModel.currentFilters.value?.getOrNull(position - 2) ?: return
+                    holder.bind(filter)
                     holder.itemView.setOnClickListener(null)
                 }
             }
         }
 
-        override fun getItemCount(): Int = viewModel.currentFilters.value.size + (if (viewModel.currentFilters.value.isNotEmpty()) 2 else 1)
+        override fun getItemCount(): Int {
+            val value = viewModel.currentFilters.value ?: return 1
+            return value.size + (if (value.isNotEmpty()) 2 else 1)
+        }
     }
 
     inner class FilterViewHolder(

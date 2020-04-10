@@ -6,6 +6,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
@@ -13,7 +14,6 @@ import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.databinding.ItemFilterGroupBinding
 import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.observeValue
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 
@@ -59,7 +59,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.savedList.layoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
         binding.savedList.adapter = FilterGroupAdapter()
-        viewModel.filterGroups.observeValue(viewLifecycleOwner) {
+        viewModel.filterGroups.observe(viewLifecycleOwner) {
             binding.savedList.adapter?.notifyDataSetChanged()
         }
         return binding.root
@@ -68,12 +68,12 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
     inner class FilterGroupAdapter : RecyclerView.Adapter<FilterGroupViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterGroupViewHolder = FilterGroupViewHolder(parent)
 
-        override fun getItemCount(): Int = viewModel.filterGroups.value.size
+        override fun getItemCount(): Int = viewModel.filterGroups.value?.size ?: 0
 
         override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
-            holder.bind(viewModel.filterGroups.value[position], viewModel.imageForGroups[position], selectedList.contains(position)) // todo don't change images, only selection
+            val group = viewModel.filterGroups.value ?: return
+            holder.bind(group[position], List(4) { "" }, selectedList.contains(position)) // todo don't change images, only selection
         }
-
     }
 
     inner class FilterGroupViewHolder(

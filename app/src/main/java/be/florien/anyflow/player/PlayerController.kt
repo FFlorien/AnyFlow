@@ -1,13 +1,13 @@
 package be.florien.anyflow.player
 
-import io.reactivex.Observable
+import androidx.lifecycle.LiveData
 
 /**
  * Interface used to interact with the player currently used
  */
 interface PlayerController {
-    val playTimeNotifier: Observable<Long>
-    val stateChangeNotifier: Observable<State>
+    val playTimeNotifier: LiveData<Long>
+    val stateChangeNotifier: LiveData<State>
 
     fun isPlaying(): Boolean
     fun play()

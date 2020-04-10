@@ -1,6 +1,8 @@
 package be.florien.anyflow.data.local
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import androidx.room.Database
 import androidx.room.Room
@@ -10,13 +12,8 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.data.local.dao.*
 import be.florien.anyflow.data.local.model.*
-import be.florien.anyflow.extension.eLog
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
 @Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class], version = 3)
@@ -30,29 +27,19 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getFilterGroupDao(): FilterGroupDao
     protected abstract fun getOrderDao(): OrderDao
-    private val _changeUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
-    val changeUpdater = _changeUpdater.toFlowable(BackpressureStrategy.BUFFER)
-            .share()
-            .publish()
-            .autoConnect()
+    val changeUpdater: LiveData<Int> = MutableLiveData()
 
     /**
      * Getters
      */
 
-    fun getSongAtPosition(position: Int): Maybe<DbSong> = getSongDao()
-            .forPositionInQueue(position)
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getSongAtPosition") }
-            .subscribeOn(Schedulers.io())
+    suspend fun getSongAtPosition(position: Int): DbSong? = getSongDao().forPositionInQueue(position)
 
-    fun getPositionForSong(song: DbSongDisplay): Maybe<Int> = getSongDao()
-            .findPositionInQueue(song.id)
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getPositionForSong") }
-            .subscribeOn(Schedulers.io())
+    suspend fun getPositionForSong(song: DbSongDisplay): Int? = getSongDao().findPositionInQueue(song.id)
 
     fun getSongsInQueueOrder() = getSongDao().displayInQueueOrder()
 
-    fun getSongsFromQuery(query: String) = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
+    suspend fun getSongsFromQuery(query: String) = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
 
     fun getGenres() = getSongDao().genreOrderByGenre()
 
@@ -60,74 +47,68 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
 
-    fun getCurrentFilters(): Flowable<List<DbFilter>> = getFilterDao()
-            .currentFilters()
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getCurrentFilters") }.subscribeOn(Schedulers.io())
+    fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters()
 
-    fun getFilterGroups(): Flowable<List<DbFilterGroup>> = getFilterGroupDao()
-            .allSavedFilterGroup()
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while querying getFilterGroups") }.subscribeOn(Schedulers.io())
+    fun getFilterGroups(): LiveData<List<DbFilterGroup>> = getFilterGroupDao().allSavedFilterGroup()
 
-    fun setSavedGroupAsCurrentFilters(filterGroup: DbFilterGroup): Completable =
-            getFilterDao()
-                    .filterForGroupAsync(filterGroup.id)
-                    .flatMapCompletable {
-                        setCurrentFilters(it)
-                    }
+    suspend fun setSavedGroupAsCurrentFilters(filterGroup: DbFilterGroup) {
+        val filterForGroup = getFilterDao().filterForGroup(filterGroup.id)
+        setCurrentFilters(filterForGroup)
+    }
 
-    fun getOrders(): Flowable<List<DbOrder>> = getOrderDao().all().doOnError { this@LibraryDatabase.eLog(it, "Error while querying getOrder") }.subscribeOn(Schedulers.io())
+    fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all()
 
     /**
      * Setters
      */
 
-    fun addSongs(songs: List<DbSong>): Completable = asyncCompletable(CHANGE_SONGS) { getSongDao().insert(songs) }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while addSongs") }
+    suspend fun addSongs(songs: List<DbSong>) = asyncUpdate(CHANGE_SONGS) {
+        getSongDao().insert(songs)
+    }
 
-    fun addArtists(artists: List<DbArtist>): Completable = asyncCompletable(CHANGE_ARTISTS) { getArtistDao().insert(artists) }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while addArtists") }
+    suspend fun addArtists(artists: List<DbArtist>) = asyncUpdate(CHANGE_ARTISTS) {
+        getArtistDao().insert(artists)
+    }
 
-    fun addAlbums(albums: List<DbAlbum>): Completable = asyncCompletable(CHANGE_ALBUMS) { getAlbumDao().insert(albums) }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while addAlbums") }
+    suspend fun addAlbums(albums: List<DbAlbum>) = asyncUpdate(CHANGE_ALBUMS) {
+        getAlbumDao().insert(albums)
+    }
 
-    fun addPlayLists(playlists: List<DbPlaylist>): Completable = asyncCompletable(CHANGE_PLAYLISTS) { getPlaylistDao().insert(playlists) }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while addPlayLists") }
+    suspend fun addPlayLists(playlists: List<DbPlaylist>) = asyncUpdate(CHANGE_PLAYLISTS) {
+        getPlaylistDao().insert(playlists)
+    }
 
-    fun setCurrentFilters(filters: List<DbFilter>): Completable =
-            asyncCompletable(CHANGE_FILTER_GROUP) {
-                val currentFilterGroup = DbFilterGroup(1, "Current Filters")
-                getFilterGroupDao().insertSingle(currentFilterGroup)
-                getFilterDao().updateGroup(currentFilterGroup, filters.map { it.copy(filterGroup = 1) })
-            }
-                    .doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
+    suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTER_GROUP) {
+        val currentFilterGroup = DbFilterGroup(1, "Current Filters")
+        getFilterGroupDao().insertSingle(currentFilterGroup)
+        getFilterDao().updateGroup(currentFilterGroup, filters.map { it.copy(filterGroup = 1) })
+    }
 
-    fun correctAlbumArtist(songs: List<DbSong>): Completable =
-            asyncCompletable(CHANGE_SONGS) {
-                songs.distinctBy { it.albumId }
-                        .forEach { getAlbumDao().updateAlbumArtist(it.albumId, it.albumArtistId, it.albumArtistName) }
-            }
-                    .doOnError { this@LibraryDatabase.eLog(it, "Error while correctAlbumArtist") }
+    suspend fun correctAlbumArtist(songs: List<DbSong>) = asyncUpdate(CHANGE_SONGS) {
+        songs.distinctBy { it.albumId }
+                .forEach { getAlbumDao().updateAlbumArtist(it.albumId, it.albumArtistId, it.albumArtistName) }
+    }
 
-    fun createFilterGroup(filters: List<DbFilter>, name: String): Completable =
-            asyncCompletable(CHANGE_FILTER_GROUP) {
-                val filterGroup = DbFilterGroup(0, name)
-                val newId = getFilterGroupDao().insertSingle(filterGroup)
-                val filtersUpdated = filters.map { it.copy(filterGroup = newId) }
-                getFilterDao().insert(filtersUpdated)
-            }.doOnError { this@LibraryDatabase.eLog(it, "Error while setFilters") }
+    suspend fun createFilterGroup(filters: List<DbFilter>, name: String) = asyncUpdate(CHANGE_FILTER_GROUP) {
+        val filterGroup = DbFilterGroup(0, name)
+        val newId = getFilterGroupDao().insertSingle(filterGroup)
+        val filtersUpdated = filters.map { it.copy(filterGroup = newId) }
+        getFilterDao().insert(filtersUpdated)
+    }
 
-    fun filterForGroupSync(id: Long) = getFilterDao().filterForGroupSync(id)
-    fun artForFilters(whereStatement: String) = getSongDao().artForFilters(SimpleSQLiteQuery(getQueryForFiltersArt(whereStatement)))
+    suspend fun filterForGroupSync(id: Long) = getFilterDao().filterForGroup(id)
+    suspend fun artForFilters(whereStatement: String) = getSongDao().artForFilters(SimpleSQLiteQuery(getQueryForFiltersArt(whereStatement)))
 
-    fun setOrders(orders: List<DbOrder>): Completable = asyncCompletable(CHANGE_ORDER) { getOrderDao().replaceBy(orders) }
-            .doOnError { this@LibraryDatabase.eLog(it, "Error while setOrders") }
+    suspend fun setOrders(orders: List<DbOrder>) = asyncUpdate(CHANGE_ORDER) {
+        getOrderDao().replaceBy(orders)
+    }
 
-    fun saveQueueOrder(it: List<Long>) {
+    suspend fun saveQueueOrder(it: List<Long>) {
         val queueOrder = mutableListOf<DbQueueOrder>()
         it.forEachIndexed { index, songId ->
             queueOrder.add(DbQueueOrder(index, songId))
         }
-        asyncCompletable(CHANGE_QUEUE) { getQueueOrderDao().setOrder(queueOrder) }.doOnError { this@LibraryDatabase.eLog(it, "Error while saveOrder") }.subscribe()
+        asyncUpdate(CHANGE_QUEUE) { getQueueOrderDao().setOrder(queueOrder) }
     }
 
     /**
@@ -136,9 +117,11 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     private fun getQueryForFiltersArt(whereStatement: String) = "SELECT DISTINCT art FROM song$whereStatement"
 
-    private fun asyncCompletable(changeSubject: Int, action: () -> Unit): Completable {
-        _changeUpdater.onNext(changeSubject)
-        return Completable.defer { Completable.fromAction(action) }.subscribeOn(Schedulers.io())
+    private suspend fun asyncUpdate(changeSubject: Int, action: suspend () -> Unit) {
+        MainScope().launch {
+            (changeUpdater as MutableLiveData).value = changeSubject
+        }
+        action()
     }
 
     companion object {

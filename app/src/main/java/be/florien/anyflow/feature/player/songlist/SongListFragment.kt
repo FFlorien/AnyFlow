@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -114,7 +115,7 @@ class SongListFragment : BaseFragment() {
                 updateLoadingVisibility(true)
             }
         }
-        viewModel.listPosition.observeValue(viewLifecycleOwner) {
+        viewModel.listPosition.observe(viewLifecycleOwner) {
             (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
             updateScrollPosition()
         }
@@ -138,7 +139,6 @@ class SongListFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.destroy()
         requireActivity().unbindService(viewModel.connection)
     }
 
@@ -154,9 +154,9 @@ class SongListFragment : BaseFragment() {
                 binding.currentSongDisplay.root.visibility = View.VISIBLE
             }
 
-            if (viewModel.listPosition.value < firstVisibleItemPosition) {
+            if (viewModel.listPosition.value ?: 0 < firstVisibleItemPosition) {
                 topSet.applyTo(binding.root as ConstraintLayout?)
-            } else if (viewModel.listPosition.value > lastVisibleItemPosition) {
+            } else if (viewModel.listPosition.value ?: 0 > lastVisibleItemPosition) {
                 bottomSet.applyTo(binding.root as ConstraintLayout?)
             }
         }
@@ -171,7 +171,7 @@ class SongListFragment : BaseFragment() {
                 Timber.i("Ready to scroll to ${viewModel.listPosition.value}")
                 shouldHideLoading = true
                 mainThreadHandler.postDelayed({
-                    linearLayoutManager.scrollToPositionWithOffset(viewModel.listPosition.value, 0)
+                    linearLayoutManager.scrollToPositionWithOffset(viewModel.listPosition.value?: 0, 0)
                     updateLoadingVisibility(false)
                 }, 300)
             } else {

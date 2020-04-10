@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
@@ -106,7 +107,7 @@ class PlayerActivity : AppCompatActivity() {
                     }
                     .commit()
         }
-        viewModel.isOrdered.observeValue(this) {
+        viewModel.isOrdered.observe(this) {
             orderMenu.changeState(it)
         }
         viewModel.connectionStatus.observeValue(this) {
@@ -182,7 +183,6 @@ class PlayerActivity : AppCompatActivity() {
         unbindService(viewModel.playerConnection)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
-        viewModel.destroy()
     }
 
     /**
@@ -210,8 +210,8 @@ class PlayerActivity : AppCompatActivity() {
         filterMenu = FilterMenuHolder {
             displayFilters()
         }
-        orderMenu = OrderMenuHolder(viewModel.isOrdered.value, this) {
-            if (viewModel.isOrdered.value) {
+        orderMenu = OrderMenuHolder(viewModel.isOrdered.value == true, this) {
+            if (viewModel.isOrdered.value == true) {
                 viewModel.randomOrder()
             } else {
                 viewModel.classicOrder()

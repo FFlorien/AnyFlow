@@ -1,5 +1,6 @@
 package be.florien.anyflow.data.local.dao
 
+import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -7,8 +8,6 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbSongDisplay
-import io.reactivex.Flowable
-import io.reactivex.Maybe
 
 @Dao
 interface SongDao : BaseDao<DbSong> {
@@ -17,19 +16,19 @@ interface SongDao : BaseDao<DbSong> {
     fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @Query("SELECT url FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun urlInQueueOrder(): Flowable<List<String>>
+    fun urlInQueueOrder(): LiveData<List<String>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
-    fun forPositionInQueue(position: Int): Maybe<DbSong>
+    suspend fun forPositionInQueue(position: Int): DbSong?
 
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
-    fun findPositionInQueue(songId: Long): Maybe<Int>
+    suspend fun findPositionInQueue(songId: Long): Int?
 
     @RawQuery(observedEntities = [DbSong::class])
-    fun forCurrentFilters(query: SupportSQLiteQuery): Flowable<List<Long>>
+    suspend fun forCurrentFilters(query: SupportSQLiteQuery): List<Long>
 
     @RawQuery
-    fun artForFilters(query: SupportSQLiteQuery): List<String>
+    suspend fun artForFilters(query: SupportSQLiteQuery): List<String>
 
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenre(): DataSource.Factory<Int, String>

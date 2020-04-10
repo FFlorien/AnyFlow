@@ -15,7 +15,6 @@ import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
@@ -32,6 +31,7 @@ open class AnyFlowApp : MultiDexApplication() {
 
     @Inject
     lateinit var ampacheConnection: AmpacheConnection
+
     @Inject
     lateinit var okHttpClient: OkHttpClient
 
@@ -58,7 +58,6 @@ open class AnyFlowApp : MultiDexApplication() {
                 .Builder()
                 .baseUrl(serverUrl)
                 .client(okHttpClient)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .build()
                 .create(AmpacheApi::class.java)
@@ -77,7 +76,7 @@ open class AnyFlowApp : MultiDexApplication() {
             val channel = NotificationChannel("AnyFlow", name, importance)
             channel.description = description
             val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
+            notificationManager?.createNotificationChannel(channel)
         }
     }
 }

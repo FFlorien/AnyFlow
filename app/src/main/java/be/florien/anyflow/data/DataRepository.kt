@@ -1,9 +1,11 @@
 package be.florien.anyflow.data
 
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import androidx.paging.DataSource
+import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import androidx.paging.RxPagedListBuilder
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.local.model.DbArtistDisplay
@@ -12,16 +14,14 @@ import be.florien.anyflow.data.server.model.AmpacheAlbumList
 import be.florien.anyflow.data.server.model.AmpacheArtistList
 import be.florien.anyflow.data.server.model.AmpacheError
 import be.florien.anyflow.data.server.model.AmpacheSongList
-import be.florien.anyflow.data.view.*
+import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.data.view.FilterGroup
+import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.applyPutLong
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.getDate
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,8 +39,6 @@ class DataRepository
 
     val changeUpdater
         get() = libraryDatabase.changeUpdater
-    var randomOrderingSeed = 2
-    var precisePosition = listOf<Order>()
 
     private fun lastAcceptableUpdate() = Calendar.getInstance().apply {
         add(Calendar.HOUR, -1)
@@ -50,141 +48,114 @@ class DataRepository
      * Getter with server updates
      */
 
-    fun updateAll(): Completable = updateArtists()
-            .concatWith(updateAlbums())
-            .concatWith(updateSongs())
-
-    fun getSongAtPosition(position: Int) = libraryDatabase.getSongAtPosition(position).map { it.toViewSong() }
-
-    fun getPositionForSong(song: Song) = libraryDatabase.getPositionForSong(song.toDbSongDisplay())
-
-    fun getSongsInQueueOrder() = convertToFlowable(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() }, "songs")
-    fun <T> getAlbums(mapping: (DbAlbumDisplay) -> T): Flowable<PagedList<T>> = convertToFlowable(libraryDatabase.getAlbums().map { mapping(it) }, "albums")
-    fun <T> getArtists(mapping: (DbArtistDisplay) -> T): Flowable<PagedList<T>> = convertToFlowable(libraryDatabase.getArtists().map { mapping(it) }, "artists")
-    fun <T> getGenres(mapping: (String) -> T): Flowable<PagedList<T>> = convertToFlowable(libraryDatabase.getGenres().map { mapping(it) }, "genres")
-
-    fun getOrders() = libraryDatabase.getOrders().map { orderList -> orderList.map { it.toViewOrder() } }
-    fun getOrderlessQueue(): Flowable<List<Long>> = Flowable.merge(getPlaylistFromFilter(), getPlaylistFromOrder())
-    fun setOrders(orders: MutableList<Order>) = libraryDatabase.setOrders(orders.map { it.toDbOrder() })
-    fun setOrdersSubject(orderSubjects: List<Long>): Completable {
-        val dbOrders = orderSubjects.mapIndexed { index, order -> Order(index, order, Order.ASCENDING).toDbOrder() }
-        return libraryDatabase.setOrders(dbOrders)
+    suspend fun updateAll() = withContext(Dispatchers.IO) {
+        updateArtistsAsync()
+        updateAlbumsAsync()
+        updateSongsAsync()
     }
 
-    fun saveQueueOrder(listToSave: MutableList<Long>) {
+    suspend fun getSongAtPosition(position: Int) = withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSong() }
+
+    suspend fun getPositionForSong(song: Song) = withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(song.toDbSongDisplay()) }
+
+    fun getSongsInQueueOrder() = convertToLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
+    fun <T> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbums().map { mapping(it) })
+    fun <T> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getArtists().map { mapping(it) })
+    fun <T> getGenres(mapping: (String) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getGenres().map { mapping(it) })
+
+    fun getOrders() = libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
+    suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> = withContext(Dispatchers.IO) {
+        libraryDatabase.getSongsFromQuery(getQueryForSongs(filterList, orderList))
+    }
+
+    suspend fun setOrders(orders: MutableList<Order>) = withContext(Dispatchers.IO) { libraryDatabase.setOrders(orders.map { it.toDbOrder() }) }
+    suspend fun setOrdersSubject(orderSubjects: List<Long>) = withContext(Dispatchers.IO) {
+        val dbOrders = orderSubjects.mapIndexed { index, order -> Order(index, order, Order.ASCENDING).toDbOrder() }
+        libraryDatabase.setOrders(dbOrders)
+    }
+
+    suspend fun saveQueueOrder(listToSave: MutableList<Long>) {
         libraryDatabase.saveQueueOrder(listToSave)
     }
 
-    fun createFilterGroup(filterList: List<Filter<*>>, name: String) = libraryDatabase.createFilterGroup(filterList.map { it.toDbFilter(-1) }, name)
+    suspend fun createFilterGroup(filterList: List<Filter<*>>, name: String) = withContext(Dispatchers.IO) { libraryDatabase.createFilterGroup(filterList.map { it.toDbFilter(-1) }, name) }
     fun getFilterGroups() = libraryDatabase.getFilterGroups().map { groupList -> groupList.map { it.toViewFilterGroup() } }
-    fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) = libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup())
-    fun getAlbumArtsForFilterGroup() = libraryDatabase.getFilterGroups()
-            .map { groups -> groups.map { group -> libraryDatabase.filterForGroupSync(group.id) } }
-            .map { filters -> filters.map { filterList -> libraryDatabase.artForFilters(constructWhereStatement(filterList.map { it.toViewFilter() })) } }
-            .doOnError { this@DataRepository.eLog(it, "Error while querying filtersForGroup") }.subscribeOn(Schedulers.io())
+    suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) = withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
+    suspend fun getAlbumArtsForFilterGroup(group: FilterGroup): List<String> = withContext(Dispatchers.IO) {
+        val filtersForGroup: List<Filter<*>> = libraryDatabase.filterForGroupSync(group.id).map { dbFilter -> dbFilter.toViewFilter() }
+        libraryDatabase.artForFilters(constructWhereStatement(filtersForGroup))
+    }
 
-    fun getCurrentFilters() = libraryDatabase.getCurrentFilters().map { filterList -> filterList.map { it.toViewFilter() } }
-    fun setCurrentFilters(filterList: List<Filter<*>>) = libraryDatabase.setCurrentFilters(filterList.map { it.toDbFilter(1) })
+    fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters().map { filterList -> filterList.map { it.toViewFilter() } }
+    suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) { libraryDatabase.setCurrentFilters(filterList.map { it.toDbFilter(1) }) }
 
     /**
      * Private Method
      */
 
-    private fun updateSongs(): Completable = getUpToDateList(
+    private suspend fun updateSongsAsync() = updateListAsync(
             LAST_SONG_UPDATE,
             AmpacheConnection::getSongs,
             AmpacheSongList::error
     ) { ampacheSongList ->
-        val songs = ampacheSongList.songs.map { it.toDbSong() }
-        libraryDatabase
-                .addSongs(songs)
-                .concatWith(libraryDatabase.correctAlbumArtist(songs))
+        if (ampacheSongList != null) {
+            val songs = ampacheSongList.songs.map { it.toDbSong() }
+            libraryDatabase.addSongs(songs)
+            libraryDatabase.correctAlbumArtist(songs)
+        }
     }
 
-    private fun updateArtists(): Completable = getUpToDateList(
+    private suspend fun updateArtistsAsync() = updateListAsync(
             LAST_ARTIST_UPDATE,
             AmpacheConnection::getArtists,
             AmpacheArtistList::error
     ) { ampacheArtistList ->
-        libraryDatabase.addArtists(ampacheArtistList.artists.map { it.toDbArtist() })
+        if (ampacheArtistList != null) {
+            libraryDatabase.addArtists(ampacheArtistList.artists.map { it.toDbArtist() })
+        }
     }
 
-    private fun updateAlbums(): Completable = getUpToDateList(
+    private suspend fun updateAlbumsAsync() = updateListAsync(
             LAST_ALBUM_UPDATE,
             AmpacheConnection::getAlbums,
             AmpacheAlbumList::error
     ) { ampacheAlbumList ->
-        libraryDatabase.addAlbums(ampacheAlbumList.albums.map { it.toDbAlbum() })
+        if (ampacheAlbumList != null) {
+            libraryDatabase.addAlbums(ampacheAlbumList.albums.map { it.toDbAlbum() })
+        }
     }
 
-    private fun <SERVER_TYPE> getUpToDateList(
+    private suspend fun <SERVER_TYPE> updateListAsync(
             updatePreferenceName: String,
-            getListOnServer: AmpacheConnection.(Calendar) -> Observable<SERVER_TYPE>,
+            getListOnServer: suspend AmpacheConnection.(Calendar) -> SERVER_TYPE?,
             getError: SERVER_TYPE.() -> AmpacheError,
-            saveToDatabase: (SERVER_TYPE) -> Completable)
-            : Completable {
+            saveToDatabase: suspend (SERVER_TYPE?) -> Unit) {
+
         val nowDate = Calendar.getInstance()
         val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
-        return if (lastUpdate.before(lastAcceptableUpdate)) {
-            songServerConnection
-                    .getListOnServer(lastUpdate)
-                    .flatMapCompletable { result ->
-                        saveToDatabase(result).doFinally {
-                            when (result.getError().code) {
-                                401 -> songServerConnection.reconnect(songServerConnection.getListOnServer(lastUpdate))
-                                else -> Observable.just(result)
-                            }
-                        }
-                    }.doOnComplete {
-                        sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
-                    }
-        } else {
-            Completable.complete()
+        if (lastUpdate.before(lastAcceptableUpdate)) {
+            var listOnServer = songServerConnection.getListOnServer(lastUpdate)
+            while (listOnServer != null) {
+                listOnServer = if (listOnServer.getError().code == 401) {
+                    songServerConnection.reconnect { songServerConnection.getListOnServer(lastUpdate) }
+                } else {
+                    listOnServer
+                }
+                saveToDatabase(listOnServer)
+                listOnServer = songServerConnection.getListOnServer(lastUpdate)
+            }
+            sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
         }
     }
 
-    private fun <T> convertToFlowable(dataSourceFactory: DataSource.Factory<Int, T>, errorName: String): Flowable<PagedList<T>> {
+    private fun <T> convertToLiveData(dataSourceFactory: DataSource.Factory<Int, T>): LiveData<PagedList<T>> {
         val pagedListConfig = PagedList.Config.Builder()
                 .setPageSize(100)
                 .build()
-        return RxPagedListBuilder(dataSourceFactory, pagedListConfig)
-                .buildFlowable(BackpressureStrategy.LATEST)
-                .doOnError { this@DataRepository.eLog(it, "Error while querying $errorName") }
-                .subscribeOn(Schedulers.io())
-    }
-
-    private fun getPlaylistFromFilter(): Flowable<List<Long>> =
-            getCurrentFilters()
-                    .withLatestFrom(
-                            getOrders(),
-                            BiFunction { dbFilters: List<Filter<*>>, dbOrders: List<Order> ->
-                                getQueryForSongs(dbFilters, dbOrders)
-                            })
-                    .flatMap {
-                        libraryDatabase.getSongsFromQuery(it)
-                    }
-                    .doOnError { this@DataRepository.eLog(it, "Error while querying getPlaylistFromFilter") }
-
-    private fun getPlaylistFromOrder(): Flowable<List<Long>> =
-            getOrders()
-                    .doOnNext { retrieveRandomness(it) }
-                    .withLatestFrom(
-                            getCurrentFilters(),
-                            BiFunction { dbOrders: List<Order>, dbFilters: List<Filter<*>> ->
-                                getQueryForSongs(dbFilters, dbOrders)
-                            })
-                    .flatMap {
-                        libraryDatabase.getSongsFromQuery(it)
-                    }
-                    .doOnError { this@DataRepository.eLog(it, "Error while querying getPlaylistFromOrder") }
-
-    private fun retrieveRandomness(orderList: List<Order>) {
-        randomOrderingSeed = orderList
-                .firstOrNull { it.orderingType == Order.Ordering.RANDOM }
-                ?.argument ?: -1
-        precisePosition = orderList.filter { it.orderingType == Order.Ordering.PRECISE_POSITION }
+        return LivePagedListBuilder(dataSourceFactory, pagedListConfig)
+                .build()
     }
 
     private fun getQueryForSongs(dbFilters: List<Filter<*>>, orderList: List<Order>): String {

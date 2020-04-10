@@ -1,21 +1,22 @@
 package be.florien.anyflow.player
 
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import androidx.paging.PagedList
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_FILTERS
 import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_ORDER
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.UserScope
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -30,94 +31,109 @@ class PlayingQueue
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
-    var currentSong: Song? = null
     var itemsCount: Int = 0
     var listPosition: Int = POSITION_NOT_SET
         get() {
             if (field == POSITION_NOT_SET) {
                 field = sharedPreferences.getInt(POSITION_PREF, 0)
-                positionUpdater.onNext(field)
+                positionUpdater.value = field
             }
             return field
         }
         set(value) {
-            field = when {
-                value in 0 until itemsCount -> value
-                value < 0 -> 0
-                else -> itemsCount - 1
+            field = when (value) {
+                in 0 until itemsCount -> value
+                else -> 0
             }
-            positionUpdater.onNext(field)
+            positionUpdater.value = field
             sharedPreferences.applyPutInt(POSITION_PREF, field)
+            MainScope().launch {
+                val songAtPosition = dataRepository.getSongAtPosition(field)
+                if (songAtPosition != currentSong.value) {
+                    (currentSong as MutableLiveData).value = songAtPosition
+                }
+            }
             if (value != 0 && field == 0) {
                 this@PlayingQueue.eLog(IllegalArgumentException("The new position may result from a faulty reset."))
             }
         }
-    val positionUpdater: BehaviorSubject<Int> = BehaviorSubject.create()
-    val currentSongUpdater: Flowable<Song?>
-        get() = positionUpdater
-                .flatMapMaybe { dataRepository.getSongAtPosition(it) }
-                .toFlowable(BackpressureStrategy.LATEST)
-                .distinctUntilChanged { song -> song.id }
-                .subscribeOn(Schedulers.io())
-                .share()
-                .publish()
-                .autoConnect()
+    val positionUpdater = MutableLiveData<Int>()
+    val currentSong: LiveData<Song> = MutableLiveData()
 
-    val songDisplayListUpdater: Flowable<PagedList<Song>> = dataRepository.getSongsInQueueOrder().replay(1).refCount()
-    val isOrderedUpdater: Flowable<Boolean> =
-            dataRepository
-                    .getOrders()
-                    .map { orderList ->
-                        orderList.none { it.orderingType == Order.Ordering.RANDOM }
-                    }
+    val songDisplayListUpdater: LiveData<PagedList<Song>> = dataRepository.getSongsInQueueOrder()
+    val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
+            .map { orderList ->
+                orderList.none { it.orderingType == Order.Ordering.RANDOM }
+            }
+    private var randomOrderingSeed = 2
+    private var precisePosition = listOf<Order>()
 
-    val queueChangeUpdater: Flowable<Int> = dataRepository.changeUpdater.filter { it == CHANGE_ORDER || it == CHANGE_FILTERS }
-
+    val queueChangeUpdater: LiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(dataRepository.changeUpdater) {
+            if (it == CHANGE_ORDER || it == CHANGE_FILTERS) {
+                value = it
+            }
+        }
+    }
 
     init {
-        songDisplayListUpdater.doOnNext {
+        songDisplayListUpdater.observeForever {
             itemsCount = it.size
             keepPositionCoherent()
-        }.subscribe()
+        }
+        val ordersLiveData = dataRepository.getOrders()
+        val filtersLiveData = dataRepository.getCurrentFilters()
 
-        currentSongUpdater
-                .doOnNext {
-                    currentSong = it
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
+        ordersLiveData.observeForever {
+            retrieveRandomness(it)
+            val filterList = filtersLiveData.value
+            if (filterList != null) {
+                saveQueue(filterList, it)
+            }
+        }
 
-        dataRepository.getOrderlessQueue()
-                .doOnNext {
-                    val listToSave = if (dataRepository.randomOrderingSeed >= 0) {
-                        val randomList = it.shuffled(Random(dataRepository.randomOrderingSeed.toLong())).toMutableList()
-                        dataRepository.precisePosition.forEach { preciseOrder ->
-                            if (randomList.remove(preciseOrder.subject)) {
-                                randomList.add(preciseOrder.argument, preciseOrder.subject)
-                            }
-                        }
-                        randomList
-                    } else {
-                        it.toMutableList()
+        filtersLiveData.observeForever { filterList ->
+            val orderList = ordersLiveData.value
+            if (orderList != null) {
+                saveQueue(filterList, orderList)
+            }
+        }
+    }
+
+    private fun retrieveRandomness(orderList: List<Order>) {
+        randomOrderingSeed = orderList
+                .firstOrNull { it.orderingType == Order.Ordering.RANDOM }
+                ?.argument ?: -1
+        precisePosition = orderList.filter { it.orderingType == Order.Ordering.PRECISE_POSITION }
+    }
+
+    private fun saveQueue(filterList: List<Filter<*>>, it: List<Order>) {
+        MainScope().launch {
+            val queue = dataRepository.getOrderlessQueue(filterList, it)
+            val listToSave = if (randomOrderingSeed >= 0) {
+                val randomList = queue.shuffled(Random(randomOrderingSeed.toLong())).toMutableList()
+                precisePosition.forEach { preciseOrder ->
+                    if (randomList.remove(preciseOrder.subject)) {
+                        randomList.add(preciseOrder.argument, preciseOrder.subject)
                     }
-                    dataRepository.saveQueueOrder(listToSave)
                 }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
+                randomList
+            } else {
+                queue.toMutableList()
+            }
+            dataRepository.saveQueueOrder(listToSave)
+        }
     }
 
     private fun keepPositionCoherent() {
-        val nullSafeSong = currentSong
-        val maybe = if (nullSafeSong != null) {
-            dataRepository.getPositionForSong(nullSafeSong)
-        } else {
-            Maybe.just(0)
+        MainScope().launch {
+            val song = currentSong.value
+            val newPosition = if (song != null) {
+                dataRepository.getPositionForSong(song) ?: listPosition
+            } else {
+                listPosition
+            }
+            listPosition = newPosition
         }
-        maybe.doOnSuccess {
-            listPosition = it
-        }.doOnComplete {
-            listPosition = 0
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe()
-
     }
 }

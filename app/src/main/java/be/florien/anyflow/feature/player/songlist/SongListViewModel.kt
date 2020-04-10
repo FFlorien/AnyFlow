@@ -5,10 +5,8 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import be.florien.anyflow.data.view.Song
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.MutableValueLiveData
 import be.florien.anyflow.feature.ValueLiveData
@@ -17,7 +15,6 @@ import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.player.PlayingQueue
-import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 /**
@@ -43,10 +40,26 @@ class SongListViewModel
     }
 
     private val isLoadingAll: ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val pagedAudioQueue: LiveData<PagedList<Song>> = MutableLiveData()
-    val currentSong: LiveData<Song> = MutableLiveData()
+    val pagedAudioQueue: LiveData<PagedList<Song>> = MediatorLiveData<PagedList<Song>>().apply {
 
-    val listPosition: ValueLiveData<Int> = MutableValueLiveData(0)
+        addSource(playingQueue.songDisplayListUpdater) {
+            value?.removeWeakCallback(pagedListListener)
+            value = it
+            it.addWeakCallback(null, pagedListListener)
+            isFollowingCurrentSong.value = true
+        }
+        addSource(playingQueue.queueChangeUpdater) {
+            value = null
+        }
+    }
+    val currentSong: LiveData<Song> = playingQueue.currentSong
+
+    val listPosition: LiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(playingQueue.positionUpdater) {
+            value = it
+            prepareScrollToCurrent()
+        }
+    }
     val listPositionLoaded: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(pagedAudioQueue) {
             value = isListPositionLoaded()
@@ -57,44 +70,11 @@ class SongListViewModel
     }
     val isFollowingCurrentSong = MutableValueLiveData(true)
 
-    private fun isListPositionLoaded() =
-            ((pagedAudioQueue.value?.size ?: 0) > listPosition.value
-                    && listPosition.value >= 0
-                    && pagedAudioQueue.value?.get(listPosition.value) != null)
-
-    /**
-     * Constructor
-     */
-    init {
-        subscribe(playingQueue.positionUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    listPosition.mutable.value = it
-                    prepareScrollToCurrent()
-                },
-                onError = {
-                    this@SongListViewModel.eLog(it, "Error while updating argument")
-                })
-        subscribe(playingQueue.songDisplayListUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    pagedAudioQueue.value?.removeWeakCallback(pagedListListener)
-                    pagedAudioQueue.mutable.value = it
-                    it.addWeakCallback(null, pagedListListener)
-                    isFollowingCurrentSong.value = true
-                },
-                onError = {
-                    this@SongListViewModel.eLog(it, "Error while updating songList")
-                })
-        subscribe(playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = { maybeSong ->
-                    currentSong.mutable.value = maybeSong
-                },
-                onError = {
-                    this@SongListViewModel.eLog(it, "Error while updating currentSong")
-                })
-        subscribe(playingQueue.queueChangeUpdater,
-                onNext = {
-                    pagedAudioQueue.mutable.value = null
-                })
+    private fun isListPositionLoaded(): Boolean {
+        val position = listPosition.value ?: 0
+        return ((pagedAudioQueue.value?.size ?: 0) > position
+                && position >= 0
+                && pagedAudioQueue.value?.get(position) != null)
     }
 
     /**
@@ -111,8 +91,9 @@ class SongListViewModel
     }
 
     fun prepareScrollToCurrent() {
-        if (pagedAudioQueue.value?.get(listPosition.value) == null) {
-            pagedAudioQueue.value?.loadAround(listPosition.value)
+        val position = listPosition.value ?: 0
+        if (pagedAudioQueue.value?.get(position) == null) {
+            pagedAudioQueue.value?.loadAround(position)
         } else {
             listPositionLoaded.mutable.value = true
         }

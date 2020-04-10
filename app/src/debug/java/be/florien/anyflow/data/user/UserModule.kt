@@ -1,16 +1,14 @@
 package be.florien.anyflow.data.user
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.feature.ValueLiveData
+import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.player.ExoPlayerController
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayingQueue
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import javax.inject.Named
 

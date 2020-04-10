@@ -2,7 +2,6 @@ package be.florien.anyflow.injection
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.AuthPersistence
@@ -10,8 +9,6 @@ import be.florien.anyflow.feature.ValueLiveData
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
-import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 

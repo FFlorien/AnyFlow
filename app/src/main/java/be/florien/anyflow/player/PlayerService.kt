@@ -1,28 +1,22 @@
 package be.florien.anyflow.player
 
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.observe
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.data.view.Song
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.BiFunction
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 
 /**
  * Service used to handle the media player.
  */
-class PlayerService : Service() {
+class PlayerService : LifecycleService() {
 
     /**
      * Injection
@@ -30,6 +24,7 @@ class PlayerService : Service() {
 
     @Inject
     internal lateinit var playerController: PlayerController
+
     @Inject
     internal lateinit var playingQueue: PlayingQueue
 
@@ -49,8 +44,6 @@ class PlayerService : Service() {
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
                     PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             )
-
-    private var subscription: Disposable? = null
 
     private val isPlaying
         get() = playerController.isPlaying()
@@ -98,32 +91,24 @@ class PlayerService : Service() {
 
         notificationBuilder = PlayerNotificationBuilder(this, pendingIntent, mediaSession)
 
-        subscription = Flowable.combineLatest<PlayerController.State, Song?, Pair<PlayerController.State, Song?>>(
-                playerController.stateChangeNotifier.toFlowable(BackpressureStrategy.LATEST),
-                playingQueue.currentSongUpdater,
-                BiFunction { state, song ->
-                    Pair(state, song)
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext {
-                    if (!isPlaying) {
-                        stopForeground(false)
-                    }
-                    val playbackState = when (it.first) {
-                        PlayerController.State.BUFFER -> PlaybackStateCompat.STATE_BUFFERING
-                        PlayerController.State.RECONNECT -> PlaybackStateCompat.STATE_BUFFERING
-                        PlayerController.State.PLAY -> PlaybackStateCompat.STATE_PLAYING
-                        PlayerController.State.PAUSE -> PlaybackStateCompat.STATE_PAUSED
-                        else -> PlaybackStateCompat.STATE_NONE
-                    }
+        playerController.stateChangeNotifier.observe(this) {
+            if (!isPlaying) {
+                stopForeground(false)
+            }
+            val playbackState = when (it) {
+                PlayerController.State.BUFFER -> PlaybackStateCompat.STATE_BUFFERING
+                PlayerController.State.RECONNECT -> PlaybackStateCompat.STATE_BUFFERING
+                PlayerController.State.PLAY -> PlaybackStateCompat.STATE_PLAYING
+                PlayerController.State.PAUSE -> PlaybackStateCompat.STATE_PAUSED
+                else -> PlaybackStateCompat.STATE_NONE
+            }
 
-                    setPlaybackState(playbackState, 0)
-                    it.second?.let { song ->
-                        notificationBuilder.updateNotification(song, isPlaying, hasPrevious, hasNext)
-                    }
-                }
-                .subscribe()
+            setPlaybackState(playbackState, 0)
+
+        }
+        playingQueue.currentSong.observe(this) {
+            notificationBuilder.updateNotification(it, isPlaying, hasPrevious, hasNext)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -131,11 +116,9 @@ class PlayerService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onBind(intent: Intent): IBinder? = iBinder
-
-    override fun onDestroy() {
-        super.onDestroy()
-        subscription?.dispose()
+    override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
+        return iBinder
     }
 
     /**

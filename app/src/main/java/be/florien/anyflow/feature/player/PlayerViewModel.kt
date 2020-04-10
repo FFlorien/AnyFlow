@@ -3,6 +3,10 @@ package be.florien.anyflow.feature.player
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Order
@@ -12,7 +16,6 @@ import be.florien.anyflow.data.view.Order.Companion.SUBJECT_ALL
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TITLE
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TRACK
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_YEAR
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.MutableValueLiveData
 import be.florien.anyflow.feature.ValueLiveData
@@ -22,7 +25,7 @@ import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.player.PlayingQueue
-import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.absoluteValue
@@ -43,11 +46,6 @@ constructor(
         @Named("Artists")
         val artistsUpdatePercentage: ValueLiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
 
-    companion object {
-        const val PLAYING_QUEUE_CONTAINER = "PlayingQueue"
-        const val PLAYER_CONTROLLER_CONTAINER = "PlayerController"
-    }
-
     internal val playerConnection: PlayerConnection = PlayerConnection()
     internal val updateConnection: UpdateConnection = UpdateConnection()
     private var isBackKeyPreviousSong: Boolean = false
@@ -55,70 +53,34 @@ constructor(
     /**
      * Bindables
      */
-    val shouldShowBuffering : ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val state : ValueLiveData<Int> = MutableValueLiveData(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
-    val isOrdered : ValueLiveData<Boolean> = MutableValueLiveData(true)
-    val currentDuration : ValueLiveData<Int> = MutableValueLiveData(0)
-    val totalDuration : ValueLiveData<Int> = MutableValueLiveData(0)
+    val shouldShowBuffering: ValueLiveData<Boolean> = MutableValueLiveData(false)
+    val state: LiveData<Int> = MediatorLiveData()
+    val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
 
-    val isNextPossible : ValueLiveData<Boolean> = MutableValueLiveData(true)
-    val isPreviousPossible : ValueLiveData<Boolean> = MutableValueLiveData(true)
+    val currentDuration: LiveData<Int> = MediatorLiveData()
+    val totalDuration: LiveData<Int> = playingQueue.currentSong.map { it.time * 1000 }
+
+    val isNextPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it < playingQueue.itemsCount - 1 }
+    val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
 
     var player: PlayerController = IdlePlayerController()
         set(value) {
-            dispose(PLAYER_CONTROLLER_CONTAINER)
+            (currentDuration as MediatorLiveData).removeSource(field.playTimeNotifier)
+            (state as MediatorLiveData).removeSource(field.stateChangeNotifier)
             field = value
-            subscribe(
-                    field.stateChangeNotifier.subscribeOn(AndroidSchedulers.mainThread()),
-                    onNext = {
-                        shouldShowBuffering.mutable.value = it == PlayerController.State.BUFFER
-                        state.mutable.value = when (it) {
-                            PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
-                            PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
-                            else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
-                        }
-                    },
-                    onError = {
-                        this@PlayerViewModel.eLog(it, "error while retrieving the state")
-                    },
-                    containerKey = PLAYER_CONTROLLER_CONTAINER)
-            subscribe(
-                    observable = player.playTimeNotifier,
-                    onNext = {
-                        isBackKeyPreviousSong = it.toInt() < 10000
-                        currentDuration.mutable.value = it.toInt()
-                    },
-                    onError = {
-                        this@PlayerViewModel.eLog(it, "error while retrieving the playtime")
-                    },
-                    containerKey = PLAYER_CONTROLLER_CONTAINER)
-        }
-
-    /**
-     * Constructor
-     */
-    init {
-        subscribe(
-                flowable = playingQueue.isOrderedUpdater,
-                onNext = { isOrdered ->
-                    this.isOrdered.mutable.value = isOrdered
-                },
-                containerKey = PLAYING_QUEUE_CONTAINER)
-        subscribe(
-                flowable = playingQueue.currentSongUpdater.observeOn(AndroidSchedulers.mainThread()),
-                onNext = {
-                    totalDuration.mutable.value = (it?.time ?: 0) * 1000
-                    currentDuration.mutable.value = 0
-                },
-                containerKey = PLAYING_QUEUE_CONTAINER)
-        subscribe(
-                playingQueue.positionUpdater,
-                onNext = {
-                    isNextPossible.mutable.value = playingQueue.listPosition < playingQueue.itemsCount - 1
-                    isPreviousPossible.mutable.value = playingQueue.listPosition != 0
+            currentDuration.addSource(field.playTimeNotifier) {
+                isBackKeyPreviousSong = it.toInt() < 10000
+                currentDuration.mutable.value = it.toInt()
+            }
+            state.addSource(field.stateChangeNotifier) {
+                shouldShowBuffering.mutable.value = it == PlayerController.State.BUFFER
+                state.mutable.value = when (it) {
+                    PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+                    PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+                    else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
                 }
-        )
-    }
+            }
+        }
 
     /**
      * PlayerControls.OnActionListener methods
@@ -146,21 +108,25 @@ constructor(
     }
 
     override fun onCurrentDurationChanged(newDuration: Long) {
-        if ((currentDuration.value - newDuration).absoluteValue > 1000) {
+        if ((currentDuration.value?.minus(newDuration))?.absoluteValue ?: 0 > 1000) {
             player.seekTo(newDuration)
         }
     }
 
     fun randomOrder() {
-        val orders = mutableListOf(Order(0, SUBJECT_ALL))
-        playingQueue.currentSong?.let { song ->
-            orders.add(Order(0, song))
+        viewModelScope.launch {
+            val orders = mutableListOf(Order(0, SUBJECT_ALL))
+            playingQueue.currentSong.value?.let { song ->
+                orders.add(Order(0, song))
+            }
+            dataRepository.setOrders(orders)
         }
-        subscribe(dataRepository.setOrders(orders))
     }
 
     fun classicOrder() {
-        subscribe(dataRepository.setOrdersSubject(listOf(SUBJECT_ALBUM_ARTIST, SUBJECT_YEAR, SUBJECT_ALBUM, SUBJECT_TRACK, SUBJECT_TITLE)))
+        viewModelScope.launch {
+            dataRepository.setOrdersSubject(listOf(SUBJECT_ALBUM_ARTIST, SUBJECT_YEAR, SUBJECT_ALBUM, SUBJECT_TRACK, SUBJECT_TITLE))
+        }
     }
 
     /**

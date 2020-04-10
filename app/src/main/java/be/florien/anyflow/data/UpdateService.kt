@@ -15,27 +15,34 @@ import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.player.PlayerService
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 
 class UpdateService
 @Inject constructor() : LifecycleService() {
-    override fun onBind(intent: Intent): IBinder?{
+    override fun onBind(intent: Intent): IBinder? {
         super.onBind(intent)
         return null
     }
 
+    private val serviceJob = Job()
+    private val serviceScope = CoroutineScope(serviceJob)
+
     @Inject
     lateinit var dataRepository: DataRepository
+
     @Inject
     @field:Named("Songs")
     lateinit var songsPercentageUpdater: ValueLiveData<Int>
+
     @Inject
     @field:Named("Albums")
     lateinit var albumsPercentageUpdater: ValueLiveData<Int>
+
     @Inject
     @field:Named("Artists")
     lateinit var artistsPercentageUpdater: ValueLiveData<Int>
@@ -43,29 +50,27 @@ class UpdateService
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@UpdateService, 0, intent, 0)
     }
-    private var subscriptions: CompositeDisposable = CompositeDisposable()
 
     override fun onCreate() {
         super.onCreate()
         (application as be.florien.anyflow.AnyFlowApp).userComponent?.inject(this)
-        subscriptions.add(dataRepository.updateAll()
-                .doOnError { throwable ->
-                    when (throwable) {
-                        is SessionExpiredException ->
-                            this@UpdateService.iLog(throwable, "The session token is expired")
-                        is WrongIdentificationPairException ->
-                            this@UpdateService.iLog(throwable, "Couldn't reconnect the user: wrong user/pwd")
-                        is SocketTimeoutException, is NoServerException ->
-                            this@UpdateService.eLog(throwable, "Couldn't connect to the webservice")
-                        else ->
-                            this@UpdateService.eLog(throwable, "Unknown error")
-                    }
+        serviceScope.launch {
+            try {
+                dataRepository.updateAll()
+            } catch (throwable: Throwable) {
+                when (throwable) {
+                    is SessionExpiredException ->
+                        this@UpdateService.iLog(throwable, "The session token is expired")
+                    is WrongIdentificationPairException ->
+                        this@UpdateService.iLog(throwable, "Couldn't reconnect the user: wrong user/pwd")
+                    is SocketTimeoutException, is NoServerException ->
+                        this@UpdateService.eLog(throwable, "Couldn't connect to the webservice")
+                    else ->
+                        this@UpdateService.eLog(throwable, "Unknown error")
                 }
-                .doOnComplete {
-                    stopForeground(true)
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe())
+            }
+            stopForeground(true)
+        }
         songsPercentageUpdater.observe(this, Observer {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_songs, it))
@@ -75,27 +80,24 @@ class UpdateService
 
         })
         artistsPercentageUpdater.observe(this, Observer {
-                    if (it in 0..100) {
-                        notifyChange(getString(R.string.update_artists, it))
-                    } else {
-                        stopForeground(true)
-                    }
-                }
-        )
+            if (it in 0..100) {
+                notifyChange(getString(R.string.update_artists, it))
+            } else {
+                stopForeground(true)
+            }
+        })
         albumsPercentageUpdater.observe(this, Observer {
-                    if (it in 0..100) {
-                        notifyChange(getString(R.string.update_albums, it))
-                    } else {
-                        stopForeground(true)
-                    }
-                }
-        )
+            if (it in 0..100) {
+                notifyChange(getString(R.string.update_albums, it))
+            } else {
+                stopForeground(true)
+            }
+        })
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stopForeground(true)
-        subscriptions.dispose()
     }
 
     private fun notifyChange(message: String) {

@@ -10,6 +10,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
     defaultConfig {
         applicationId "be.florien.anyflow"
         multiDexEnabled true
@@ -61,6 +64,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.firebase:firebase-core:17.3.0'
@@ -88,10 +92,7 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
     implementation("com.squareup.retrofit2:converter-simplexml:$retrofit_version") {
         exclude module: 'stax'
         exclude module: 'stax-api'
@@ -106,7 +107,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:extension-mediasession:2.9.4'
     //Room
     implementation 'androidx.room:room-runtime:2.2.5'
-    implementation 'androidx.room:room-rxjava2:2.2.5'
+    implementation 'androidx.room:room-ktx:2.2.5'
     kapt 'androidx.room:room-compiler:2.2.5'
     //Paging
     implementation 'androidx.paging:paging-runtime:2.1.2'

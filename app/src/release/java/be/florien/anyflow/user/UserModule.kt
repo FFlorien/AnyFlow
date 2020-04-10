@@ -8,7 +8,6 @@ import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayingQueue
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import javax.inject.Named
 

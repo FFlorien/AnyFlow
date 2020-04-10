@@ -1,29 +1,25 @@
 package be.florien.anyflow.data.local.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
-import io.reactivex.Flowable
-import io.reactivex.Single
 
 @Dao
 abstract class FilterDao : BaseDao<DbFilter> {
     @Query("SELECT * FROM dbfilter WHERE filterGroup = 1")
-    abstract fun currentFilters(): Flowable<List<DbFilter>>
+    abstract fun currentFilters(): LiveData<List<DbFilter>>
 
     @Query("SELECT * FROM dbfilter WHERE filterGroup = :groupId")
-    abstract fun filterForGroupSync(groupId: Long): List<DbFilter>
+    abstract suspend fun filterForGroup(groupId: Long): List<DbFilter>
 
     @Query("DELETE FROM dbfilter WHERE filterGroup = :groupId")
-    abstract fun deleteGroupSync(groupId: Long)
-
-    @Query("SELECT * FROM dbfilter WHERE filterGroup = :groupId")
-    abstract fun filterForGroupAsync(groupId: Long): Single<List<DbFilter>>
+    abstract suspend fun deleteGroupSync(groupId: Long)
 
     @Transaction
-    open fun updateGroup(group: DbFilterGroup, filters: List<DbFilter>) {
+    open suspend fun updateGroup(group: DbFilterGroup, filters: List<DbFilter>) {
         deleteGroupSync(group.id)
         insert(filters)
     }

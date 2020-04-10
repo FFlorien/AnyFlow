@@ -8,15 +8,11 @@ import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutLong
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.MutableValueLiveData
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -89,84 +85,79 @@ open class AmpacheConnection
 
     fun resetReconnectionCount() {
         reconnectByUserPassword = 0
-        reconnectByUserPassword = 0
     }
 
     /**
      * API calls : connection
      */
-    fun authenticate(user: String, password: String): Observable<AmpacheAuthentication> {
+    suspend fun authenticate(user: String, password: String): AmpacheAuthentication {
         val time = (Date().time / 1000).toString()
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
-        val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).toLowerCase()
+        val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
         encoder.reset()
-        val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase()
-        return ampacheApi
-                .authenticate(user = user, auth = auth, time = time)
-                .doOnSubscribe {
-                    connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
-                }
-                .doOnNext { result ->
-                    when (result.error.code) {
-                        401 -> {
-                            connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
-                            throw WrongIdentificationPairException(result.error.errorText)
-                        }
-                        0 -> authPersistence.saveConnectionInfo(user, password, result.auth, result.sessionExpire)
-                    }
-                    connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
-                }
-                .doOnError { this@AmpacheConnection.eLog(it, "Error while authenticating") }
+        val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
+        connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
+        val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
+        when (authentication.error.code) {
+            401 -> {
+                connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
+                throw WrongIdentificationPairException(authentication.error.errorText)
+            }
+            0 -> authPersistence.saveConnectionInfo(user, password, authentication.auth, authentication.sessionExpire)
+        }
+        connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
+        return authentication
     }
 
-    fun ping(authToken: String = authPersistence.authToken.first): Observable<AmpachePing> =
-            ampacheApi
-                    .ping(auth = authToken)
-                    .doOnSubscribe { connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION) }
-                    .doOnNext { result ->
-                        authPersistence.setNewAuthExpiration(result.sessionExpire)
-                        connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
-                    }
-                    .doOnError { this@AmpacheConnection.eLog(it, "Error while ping") }
-                    .subscribeOn(Schedulers.io())
+    suspend fun ping(authToken: String = authPersistence.authToken.first): AmpachePing {
+        connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
+        val ping = ampacheApi.ping(auth = authToken)
+        authPersistence.setNewAuthExpiration(ping.sessionExpire)
+        connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
+        return ping
+    }
 
-    fun <T> reconnect(request: Observable<T>): Observable<T> {
+    suspend fun <T> reconnect(request: suspend () -> T): T {
         if (!authPersistence.hasConnectionInfo()) {
-            return Observable.error { throw SessionExpiredException("Can't reconnect") }
+            throw SessionExpiredException("Can't reconnect")
         } else {
             if (reconnectByPing >= RECONNECT_LIMIT) {
                 reconnectByPing = 0
                 authPersistence.revokeAuthToken()
             }
-            val reconnectionObservable = if (authPersistence.authToken.first.isNotBlank()) {
-                reconnectByPing++
-                ping(authPersistence.authToken.first).flatMap { pingResponse ->
-                    if (pingResponse.error.code == 0) {
-                        request
-                    } else {
-                        authenticate(authPersistence.user.first, authPersistence.password.first).flatMap { authResponse ->
-                            if (authResponse.error.code == 0) {
-                                request
-                            } else {
-                                throw SessionExpiredException("Can't reconnect")
-                            }
-                        }
-                    }
-                }
+            return if (authPersistence.authToken.first.isNotBlank()) {
+                reconnectByPing(request)
             } else if (authPersistence.user.first.isNotBlank() && authPersistence.password.first.isNotBlank()) {
-                reconnectByUserPassword++
-                authenticate(authPersistence.user.first, authPersistence.password.first).flatMap {
-                    if (it.error.code == 0) {
-                        request
-                    } else {
-                        throw SessionExpiredException("Can't reconnect")
-                    }
-                }
+                reconnectByUsernamePassword(request)
             } else {
-                Observable.error { throw SessionExpiredException("Can't reconnect") }
+                throw SessionExpiredException("Can't reconnect")
             }
-            return reconnectionObservable.subscribeOn(Schedulers.io())
+        }
+    }
+
+    private suspend fun <T> reconnectByPing(request: suspend () -> T): T {
+        reconnectByPing++
+        val pingResponse = ping(authPersistence.authToken.first)
+        return if (pingResponse.error.code == 0) {
+            request()
+        } else {
+            val authResponse = authenticate(authPersistence.user.first, authPersistence.password.first)
+            if (authResponse.error.code == 0) {
+                request()
+            } else {
+                throw SessionExpiredException("Can't reconnect")
+            }
+        }
+    }
+
+    private suspend fun <T> reconnectByUsernamePassword(request: suspend () -> T): T {
+        reconnectByUserPassword++
+        val it = authenticate(authPersistence.user.first, authPersistence.password.first)
+        return if (it.error.code == 0) {
+            request()
+        } else {
+            throw SessionExpiredException("Can't reconnect")
         }
     }
 
@@ -174,128 +165,82 @@ open class AmpacheConnection
      * API calls : data
      */
 
-    fun getSongs(from: Calendar = oldestDateForRefresh): Observable<AmpacheSongList> = Observable.generate { emitter ->
-        ampacheApi
-                .getSongs(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
-                .subscribe(
-                        {
-                            if (it.songs.isEmpty()) {
-                                songsPercentageUpdater.postValue(-1)
-                                emitter.onComplete()
-                                sharedPreferences.edit().remove(OFFSET_SONG).apply()
-                            } else {
-                                val percentage = (songOffset * 100) / it.total_count
-                                songsPercentageUpdater.postValue(percentage)
-                                emitter.onNext(it)
-                                sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
-                                songOffset += itemLimit
-                            }
-                        },
-                        {
-                            dispatchError(songsPercentageUpdater, it, "getSongs")
-                            emitter.onError(it)
-                        })
+    suspend fun getSongs(from: Calendar = oldestDateForRefresh): AmpacheSongList? {
+        val songList = ampacheApi.getSongs(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
+        return if (songList.songs.isEmpty()) {
+            songsPercentageUpdater.postValue(-1)
+            sharedPreferences.edit().remove(OFFSET_SONG).apply()
+            null
+        } else {
+            val percentage = (songOffset * 100) / songList.total_count
+            songsPercentageUpdater.postValue(percentage)
+            sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
+            songOffset += itemLimit
+            songList
+        }
     }
 
-    fun getArtists(from: Calendar = oldestDateForRefresh): Observable<AmpacheArtistList> = Observable.generate { emitter ->
-        ampacheApi.getArtists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
-                .subscribe(
-                        {
-                            if (it.artists.isEmpty()) {
-                                artistsPercentageUpdater.postValue(-1)
-                                emitter.onComplete()
-                                sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
-                            } else {
-                                val percentage = (artistOffset * 100) / it.total_count
-                                artistsPercentageUpdater.postValue(percentage)
-                                emitter.onNext(it)
-                                sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
-                                artistOffset += itemLimit
-                            }
-                        },
-                        {
-                            dispatchError(artistsPercentageUpdater, it, "getArtists")
-                            emitter.onError(it)
-                        })
+    suspend fun getArtists(from: Calendar = oldestDateForRefresh): AmpacheArtistList? {
+        val artistList = ampacheApi.getArtists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
+
+        return if (artistList.artists.isEmpty()) {
+            artistsPercentageUpdater.postValue(-1)
+            sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
+            null
+        } else {
+            val percentage = (artistOffset * 100) / artistList.total_count
+            artistsPercentageUpdater.postValue(percentage)
+            sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
+            artistOffset += itemLimit
+            artistList
+        }
     }
 
-    fun getAlbums(from: Calendar = oldestDateForRefresh): Observable<AmpacheAlbumList> = Observable.generate { emitter ->
-        ampacheApi.getAlbums(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
-                .subscribe(
-                        {
-                            if (it.albums.isEmpty()) {
-                                albumsPercentageUpdater.postValue(-1)
-                                emitter.onComplete()
-                                sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
-                            } else {
-                                val percentage = (albumOffset * 100) / it.total_count
-                                albumsPercentageUpdater.postValue(percentage)
-                                emitter.onNext(it)
-                                sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
-                                albumOffset += itemLimit
-                            }
-                        },
-                        {
-                            dispatchError(albumsPercentageUpdater, it, "getAlbums")
-                            emitter.onError(it)
-                        })
+    suspend fun getAlbums(from: Calendar = oldestDateForRefresh): AmpacheAlbumList? {
+        val albumList = ampacheApi.getAlbums(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
+        return if (albumList.albums.isEmpty()) {
+            albumsPercentageUpdater.postValue(-1)
+            sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
+            null
+        } else {
+            val percentage = (albumOffset * 100) / albumList.total_count
+            albumsPercentageUpdater.postValue(percentage)
+            sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
+            albumOffset += itemLimit
+            albumList
+        }
     }
 
-    fun getTags(from: Calendar = oldestDateForRefresh): Observable<AmpacheTagList> = Observable.generate { emitter ->
-        ampacheApi.getTags(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
-                .subscribe(
-                        {
-                            if (it.tags.isEmpty()) {
-                                emitter.onComplete()
-                                sharedPreferences.edit().remove(OFFSET_TAG).apply()
-                            } else {
-                                emitter.onNext(it)
-                                sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
-                                tagOffset += itemLimit
-                            }
-                        },
-                        {
-                            dispatchError(null, it, "getTags")
-                            emitter.onError(it)
-                        })
+    suspend fun getTags(from: Calendar = oldestDateForRefresh): AmpacheTagList? {
+        val tagList = ampacheApi.getTags(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
+        return if (tagList.tags.isEmpty()) {
+            sharedPreferences.edit().remove(OFFSET_TAG).apply()
+            null
+        } else {
+            sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
+            tagOffset += itemLimit
+            tagList
+        }
     }
 
-    fun getPlaylists(from: Calendar = oldestDateForRefresh): Observable<AmpachePlayListList> = Observable.generate { emitter ->
-        ampacheApi.getPlaylists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
-                .subscribe(
-                        {
-                            if (it.playlists.isEmpty()) {
-                                emitter.onComplete()
-                                sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
-                            } else {
-                                emitter.onNext(it)
-                                sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
-                                playlistOffset += itemLimit
-                            }
-                        },
-                        {
-                            dispatchError(null, it, "getPlaylists")
-                            emitter.onError(it)
-                        })
+    suspend fun getPlaylists(from: Calendar = oldestDateForRefresh): AmpachePlayListList? {
+        val playlistList = ampacheApi.getPlaylists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
+        return if (playlistList.playlists.isEmpty()) {
+            sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
+            null
+        } else {
+            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
+            playlistOffset += itemLimit
+            playlistList
+        }
     }
 
     fun getSongUrl(url: String): String {
-        if (authPersistence.authToken.first.isBlank()) {
-            connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
-        }
         val ssidStart = url.indexOf("ssid=") + 5
         return url.replaceRange(ssidStart, url.indexOf('&', ssidStart), authPersistence.authToken.first)
     }
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
-
-    private fun dispatchError(updater: MutableValueLiveData<Int>?, it: Throwable, action: String) {
-        updater?.postValue(-1)
-        this@AmpacheConnection.eLog(it, "Error while $action")
-        if (it is TimeoutException) {
-            connectionStatusUpdater.postValue(ConnectionStatus.TIMEOUT)
-        }
-    }
 
     enum class ConnectionStatus {
         TIMEOUT,

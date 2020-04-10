@@ -10,7 +10,6 @@ import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.MutableValueLiveData
 import be.florien.anyflow.feature.ValueLiveData
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,41 +42,41 @@ open class ConnectViewModel : BaseViewModel() {
         if (username.value?.isBlank() == true) {
             viewModelScope.launch {
 
+                try {
+                    val it = ampacheConnection.ping()
+
+                    isLoading.mutable.value = false
+                    when (it.error.code) {
+                        0 -> isConnected.mutable.value = true
+                        else -> errorMessage.mutable.value = R.string.connect_error_extends
+                    }
+                } catch (it: Exception) {
+                    isLoading.mutable.value = false
+                    this@ConnectViewModel.eLog(it, "Error while extending session")
+                }
             }
-            subscribe(ampacheConnection.ping().subscribeOn(Schedulers.io()),
-                    {
-                        isLoading.mutable.value = false
-                        when (it.error.code) {
-                            0 -> isConnected.mutable.value = true
-                            else -> errorMessage.mutable.value = R.string.connect_error_extends
-                        }
-                    },
-                    {
-                        isLoading.mutable.value = false
-                        this@ConnectViewModel.eLog(it, "Error while extending session")
-                    })
         } else {
             val password1 = password.value
             val user = username.value
             if (password1?.isNotBlank() == true && user?.isNotBlank() == true) {
-                subscribe(
-                        ampacheConnection.authenticate(user, password1).subscribeOn(Schedulers.io()),
-                        {
-                            isLoading.mutable.value = false
-                            when (it.error.code) {
-                                0 -> isConnected.mutable.value = true
-                                else -> errorMessage.mutable.value = R.string.connect_error_credentials
+                viewModelScope.launch {
+                    try {
+                        val it = ampacheConnection.authenticate(user, password1)
+                        isLoading.mutable.value = false
+                        when (it.error.code) {
+                            0 -> isConnected.mutable.value = true
+                            else -> errorMessage.mutable.value = R.string.connect_error_credentials
+                        }
+                    } catch (it: Exception) {
+                        isLoading.mutable.value = false
+                        when (it) {
+                            is WrongIdentificationPairException -> {
+                                this@ConnectViewModel.eLog(it, "Wrong username/password")
+                                errorMessage.mutable.value = R.string.connect_error_credentials
                             }
-                        },
-                        {
-                            isLoading.mutable.value = false
-                            when (it) {
-                                is WrongIdentificationPairException -> {
-                                    this@ConnectViewModel.eLog(it, "Wrong username/password")
-                                    errorMessage.mutable.value = R.string.connect_error_credentials
-                                }
-                            }
-                        })
+                        }
+                    }
+                }
             }
         }
     }

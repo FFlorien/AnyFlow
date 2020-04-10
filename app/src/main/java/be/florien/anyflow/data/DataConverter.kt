@@ -84,7 +84,7 @@ fun DbSongDisplay.toViewSong() = Song(
         genre = genre
 )
 
-fun DbFilter.toViewFilter() = when (clause) {
+fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     Filter.TITLE_IS -> Filter.TitleIs(argument)
     Filter.TITLE_CONTAIN -> Filter.TitleContain(argument)
     Filter.GENRE_IS -> Filter.GenreIs(argument)

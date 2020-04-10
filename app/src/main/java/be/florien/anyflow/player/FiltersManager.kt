@@ -1,83 +1,69 @@
 package be.florien.anyflow.player
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Filter
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.BiFunction
-import io.reactivex.subjects.BehaviorSubject
+import be.florien.anyflow.data.view.FilterGroup
+import be.florien.anyflow.feature.MutableValueLiveData
+import be.florien.anyflow.feature.ValueLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class FiltersManager
 @Inject constructor(private val dataRepository: DataRepository) {
-    private var currentFilters: MutableList<Filter<*>> = mutableListOf()
+    private var currentFilters: List<Filter<*>> = listOf()
     private val unCommittedFilters = mutableSetOf<Filter<*>>()
-    private val filtersInEditionUpdater: BehaviorSubject<Set<Filter<*>>> = BehaviorSubject.create()
     private var areFiltersChanged = false
-    val filtersInEdition: Flowable<Set<Filter<*>>> = filtersInEditionUpdater.toFlowable(BackpressureStrategy.LATEST)
+    val filtersInEdition: ValueLiveData<Set<Filter<*>>> = MutableValueLiveData(setOf())
     val filterGroups = dataRepository.getFilterGroups()
-    val artsForFilter = dataRepository.getAlbumArtsForFilterGroup()
-    val hasChange: Flowable<Boolean> =
-            filtersInEdition.map {it.toList() }
-                    .withLatestFrom(
-                            dataRepository.getCurrentFilters(),
-                            BiFunction { currentFilters: List<Filter<*>>, filterInEdition: List<Filter<*>> ->
-                                !currentFilters.toTypedArray().contentEquals(filterInEdition.toTypedArray())
-                            })
-                    .doOnError { this@FiltersManager.eLog(it, "Error while querying hasChange") }
+    val hasChange: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(filtersInEdition) {
+            value = !currentFilters.toTypedArray().contentEquals(it.toTypedArray())
+        }
+    }
 
     init {
-        dataRepository
-                .getCurrentFilters()
-                .doOnNext {
-                    currentFilters.clear()
-                    currentFilters.addAll(it)
+        dataRepository.getCurrentFilters().observeForever() { filters ->
+            currentFilters = filters
 
-                    if (!areFiltersChanged) {
-                        unCommittedFilters.clear()
-                        unCommittedFilters.addAll(it)
-                        filtersInEditionUpdater.onNext(unCommittedFilters)
-                    }
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
+            if (!areFiltersChanged) {
+                unCommittedFilters.clear()
+                unCommittedFilters.addAll(filters)
+                (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
+            }
+        }
     }
 
     fun addFilter(filter: Filter<*>) {
         unCommittedFilters.add(filter)
-        filtersInEditionUpdater.onNext(unCommittedFilters)
+        (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
 
     fun removeFilter(filter: Filter<*>) {
         unCommittedFilters.remove(filter)
-        filtersInEditionUpdater.onNext(unCommittedFilters)
+        (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
 
     fun clearFilters() {
         unCommittedFilters.clear()
-        filtersInEditionUpdater.onNext(unCommittedFilters)
+        (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
 
-    fun commitChanges(): Completable {
-        return if (isFiltersTheSame()) {
-            Completable.complete()
-        } else {
-            dataRepository.setCurrentFilters(unCommittedFilters.toList()).doOnComplete { areFiltersChanged = false }
+    suspend fun commitChanges() {
+        if (!isFiltersTheSame()) {
+            dataRepository.setCurrentFilters(unCommittedFilters.toList())
+            areFiltersChanged = false
         }
     }
 
-    fun saveCurrentFilterGroup(name: String): Completable = dataRepository.createFilterGroup(unCommittedFilters.toList(), name)
+    suspend fun saveCurrentFilterGroup(name: String) = dataRepository.createFilterGroup(unCommittedFilters.toList(), name)
 
-    fun loadSavedGroup(filterGroup: FilterGroup): Completable = dataRepository.setSavedGroupAsCurrentFilters(filterGroup)
+    suspend fun loadSavedGroup(filterGroup: FilterGroup) = dataRepository.setSavedGroupAsCurrentFilters(filterGroup)
 
     private fun isFiltersTheSame() = unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(unCommittedFilters)
 

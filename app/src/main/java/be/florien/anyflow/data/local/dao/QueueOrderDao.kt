@@ -10,13 +10,13 @@ abstract class QueueOrderDao : BaseDao<DbQueueOrder> {
 
 
     @Query("SELECT count(*) FROM queueorder")
-    protected abstract fun getCount(): Int
+    protected abstract suspend fun getCount(): Int
 
     @Query("DELETE FROM queueorder")
-    abstract fun deleteAll()
+    abstract suspend fun deleteAll()
 
     @Transaction
-    open fun setOrder(orderList: List<DbQueueOrder>) {
+    open suspend fun setOrder(orderList: List<DbQueueOrder>) {
         deleteAll()
         insert(orderList)
     }

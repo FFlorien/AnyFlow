@@ -8,7 +8,7 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {
-    val values: LiveData<PagedList<FilterItem>?> = MutableLiveData()
+    abstract val values: LiveData<PagedList<FilterItem>>
     abstract val itemDisplayType: Int
 
     protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
