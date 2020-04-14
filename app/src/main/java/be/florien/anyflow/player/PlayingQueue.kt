@@ -35,8 +35,7 @@ class PlayingQueue
     var listPosition: Int = POSITION_NOT_SET
         get() {
             if (field == POSITION_NOT_SET) {
-                field = sharedPreferences.getInt(POSITION_PREF, 0)
-                positionUpdater.value = field
+                listPosition = sharedPreferences.getInt(POSITION_PREF, 0)
             }
             return field
         }
