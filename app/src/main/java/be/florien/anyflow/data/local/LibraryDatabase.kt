@@ -8,12 +8,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
+import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.data.local.dao.*
 import be.florien.anyflow.data.local.model.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 
 @Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class], version = 3)
@@ -27,7 +29,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getFilterGroupDao(): FilterGroupDao
     protected abstract fun getOrderDao(): OrderDao
-    val changeUpdater: LiveData<Int> = MutableLiveData()
+    val changeUpdater: LiveData<Int?> = MutableLiveData()
 
     /**
      * Getters
@@ -37,13 +39,13 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun getPositionForSong(song: DbSongDisplay): Int? = getSongDao().findPositionInQueue(song.id)
 
-    fun getSongsInQueueOrder() = getSongDao().displayInQueueOrder()
+    fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
 
-    suspend fun getSongsFromQuery(query: String) = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
+    suspend fun getSongsFromQuery(query: String): List<Long> = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
 
-    fun getGenres() = getSongDao().genreOrderByGenre()
+    fun getGenres(): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenre()
 
-    fun getArtists() = getArtistDao().orderByName()
+    fun getAlbumArtists(): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByName()
 
     fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
 
@@ -57,6 +59,19 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all()
+
+    /**
+     * Getters from raw queries
+     */
+
+    suspend fun getSongsFromRawQuery(rawQuery: String) = getSongDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getArtistsFomRawQuery(rawQuery: String) = getArtistDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getAlbumsFomRawQuery(rawQuery: String) = getAlbumDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getPlaylistsFomRawQuery(rawQuery: String) = getPlaylistDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getFilterFomRawQuery(rawQuery: String) = getFilterDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getFilterGroupFomRawQuery(rawQuery: String) = getFilterGroupDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getQueueOrderFromRawQuery(rawQuery: String) = getQueueOrderDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getOrderFromRawQuery(rawQuery: String) = getOrderDao().rawQuery(SimpleSQLiteQuery(rawQuery))
 
     /**
      * Setters
@@ -78,10 +93,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         getPlaylistDao().insert(playlists)
     }
 
-    suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTER_GROUP) {
-        val currentFilterGroup = DbFilterGroup(1, "Current Filters")
-        getFilterGroupDao().insertSingle(currentFilterGroup)
-        getFilterDao().updateGroup(currentFilterGroup, filters.map { it.copy(filterGroup = 1) })
+    suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
+        withTransaction {
+            getFilterDao().updateGroup(DbFilterGroup.currentFilterGroup, filters.map { it.copy(filterGroup = 1) })
+        }
     }
 
     suspend fun correctAlbumArtist(songs: List<DbSong>) = asyncUpdate(CHANGE_SONGS) {
@@ -90,10 +105,14 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     suspend fun createFilterGroup(filters: List<DbFilter>, name: String) = asyncUpdate(CHANGE_FILTER_GROUP) {
-        val filterGroup = DbFilterGroup(0, name)
-        val newId = getFilterGroupDao().insertSingle(filterGroup)
-        val filtersUpdated = filters.map { it.copy(filterGroup = newId) }
-        getFilterDao().insert(filtersUpdated)
+        if (getFilterGroupDao().withNameIgnoreCase(name).isEmpty()) {
+            val filterGroup = DbFilterGroup(0, name)
+            val newId = getFilterGroupDao().insertSingle(filterGroup)
+            val filtersUpdated = filters.map { it.copy(filterGroup = newId) }
+            getFilterDao().insert(filtersUpdated)
+        } else {
+            throw IllegalArgumentException("A filter group with this name already exists")
+        }
     }
 
     suspend fun filterForGroupSync(id: Long) = getFilterDao().filterForGroup(id)
@@ -122,6 +141,9 @@ abstract class LibraryDatabase : RoomDatabase() {
             (changeUpdater as MutableLiveData).value = changeSubject
         }
         action()
+        MainScope().launch {
+            (changeUpdater as MutableLiveData).value = null
+        }
     }
 
     companion object {
@@ -138,16 +160,31 @@ abstract class LibraryDatabase : RoomDatabase() {
         private var instance: LibraryDatabase? = null
         private const val DB_NAME = "anyflow.db"
 
-        fun getInstance(context: Context): LibraryDatabase {
+        fun getInstance(context: Context, isForTests: Boolean = false): LibraryDatabase {
             if (instance == null) {
-                instance = create(context)
+                if (!isForTests) {
+                    instance = create(context, isForTests)
+                } else {
+                    return create(context, isForTests)
+                }
             }
             return instance!!
         }
 
         @Synchronized
-        private fun create(context: Context): LibraryDatabase {
-            return Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
+        private fun create(context: Context, isForTests: Boolean): LibraryDatabase {
+            val databaseBuilder = if (isForTests) {
+                Room.inMemoryDatabaseBuilder(context, LibraryDatabase::class.java).setTransactionExecutor(Executors.newSingleThreadExecutor())
+            } else {
+                Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
+            }
+            return databaseBuilder
+                    .addCallback(object : RoomDatabase.Callback() {
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            val currentFilterGroup = DbFilterGroup.currentFilterGroup
+                            db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
+                        }
+                    })
                     .addMigrations(
                             object : Migration(1, 2) {
                                 override fun migrate(database: SupportSQLiteDatabase) {

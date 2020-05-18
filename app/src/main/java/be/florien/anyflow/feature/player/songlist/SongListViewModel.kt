@@ -92,10 +92,12 @@ class SongListViewModel
 
     fun prepareScrollToCurrent() {
         val position = listPosition.value ?: 0
-        if (pagedAudioQueue.value?.get(position) == null) {
-            pagedAudioQueue.value?.loadAround(position)
-        } else {
-            listPositionLoaded.mutable.value = true
+        if (position in 0 until (pagedAudioQueue.value?.size ?: 0)) {
+            if (pagedAudioQueue.value?.getOrNull(position) == null) {
+                pagedAudioQueue.value?.loadAround(position)
+            } else {
+                listPositionLoaded.mutable.value = true
+            }
         }
     }
 

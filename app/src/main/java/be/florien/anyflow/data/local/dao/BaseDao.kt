@@ -1,6 +1,7 @@
 package be.florien.anyflow.data.local.dao
 
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 
 @Dao
 interface BaseDao<T> {
@@ -15,4 +16,7 @@ interface BaseDao<T> {
 
     @Delete
     suspend fun delete(vararg items: T)
+
+    @RawQuery()
+    suspend fun rawQuery(query: SupportSQLiteQuery): List<T>
 }

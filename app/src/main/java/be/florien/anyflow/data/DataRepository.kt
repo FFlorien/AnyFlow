@@ -9,6 +9,8 @@ import androidx.paging.PagedList
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.local.model.DbArtistDisplay
+import be.florien.anyflow.data.local.model.DbFilter
+import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.server.model.AmpacheAlbumList
 import be.florien.anyflow.data.server.model.AmpacheArtistList
@@ -60,12 +62,12 @@ class DataRepository
 
     fun getSongsInQueueOrder() = convertToLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
     fun <T> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbums().map { mapping(it) })
-    fun <T> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getArtists().map { mapping(it) })
+    fun <T> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
     fun <T> getGenres(mapping: (String) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getGenres().map { mapping(it) })
 
     fun getOrders() = libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
     suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> = withContext(Dispatchers.IO) {
-        libraryDatabase.getSongsFromQuery(getQueryForSongs(filterList, orderList))
+        libraryDatabase.getSongsFromQuery(getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList))
     }
 
     suspend fun setOrders(orders: MutableList<Order>) = withContext(Dispatchers.IO) { libraryDatabase.setOrders(orders.map { it.toDbOrder() }) }
@@ -82,7 +84,7 @@ class DataRepository
     fun getFilterGroups() = libraryDatabase.getFilterGroups().map { groupList -> groupList.map { it.toViewFilterGroup() } }
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) = withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
     suspend fun getAlbumArtsForFilterGroup(group: FilterGroup): List<String> = withContext(Dispatchers.IO) {
-        val filtersForGroup: List<Filter<*>> = libraryDatabase.filterForGroupSync(group.id).map { dbFilter -> dbFilter.toViewFilter() }
+        val filtersForGroup: List<DbFilter> = libraryDatabase.filterForGroupSync(group.id)
         libraryDatabase.artForFilters(constructWhereStatement(filtersForGroup))
     }
 
@@ -158,7 +160,7 @@ class DataRepository
                 .build()
     }
 
-    private fun getQueryForSongs(dbFilters: List<Filter<*>>, orderList: List<Order>): String {
+    private fun getQueryForSongs(dbFilters: List<DbFilter>, orderList: List<Order>): String {
 
         fun constructOrderStatement(): String {
             val filteredOrderedList = orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
@@ -200,7 +202,7 @@ class DataRepository
         return "SELECT id FROM song" + constructWhereStatement(dbFilters) + constructOrderStatement()
     }
 
-    private fun constructWhereStatement(filterList: List<Filter<*>>): String {
+    private fun constructWhereStatement(filterList: List<DbFilter>): String {
         var whereStatement = if (filterList.isNotEmpty()) {
             " WHERE"
         } else {
@@ -208,15 +210,12 @@ class DataRepository
         }
 
         filterList.forEachIndexed { index, filter ->
-            whereStatement += when (filter) {
-                is Filter.TitleIs,
-                is Filter.TitleContain,
-                is Filter.Search,
-                is Filter.GenreIs -> " ${filter.clause} \"${filter.argument}\""
-                is Filter.SongIs,
-                is Filter.ArtistIs,
-                is Filter.AlbumArtistIs,
-                is Filter.AlbumIs -> " ${filter.clause} ${filter.argument}"
+            whereStatement += when (filter.clause) {
+                DbFilter.SONG_ID,
+                DbFilter.ARTIST_ID,
+                DbFilter.ALBUM_ARTIST_ID,
+                DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
+                else -> " ${filter.clause} \"${filter.argument}\""
             }
             if (index < filterList.size - 1) {
                 whereStatement += " OR"

@@ -13,6 +13,9 @@ abstract class FilterGroupDao : BaseDao<DbFilterGroup> {
     @Query("SELECT * FROM filtergroup WHERE id != 1")
     abstract fun allSavedFilterGroup(): LiveData<List<DbFilterGroup>>
 
+    @Query("SELECT * FROM filtergroup WHERE name = :name COLLATE NOCASE")
+    abstract suspend fun withNameIgnoreCase(name: String): List<DbFilterGroup>
+
     @Query("DELETE FROM filtergroup WHERE id = :id")
     abstract suspend fun deleteGroup(id: Int)
 

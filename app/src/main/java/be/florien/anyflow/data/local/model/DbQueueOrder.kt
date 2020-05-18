@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
                 parentColumns = ["id"],
                 childColumns = ["songId"],
                 onDelete = ForeignKey.CASCADE)])
-open class DbQueueOrder(
+data class DbQueueOrder(
         @field:PrimaryKey
         val order: Int,
         val songId: Long)
