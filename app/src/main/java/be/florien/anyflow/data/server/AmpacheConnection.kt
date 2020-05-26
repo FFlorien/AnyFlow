@@ -1,8 +1,7 @@
 package be.florien.anyflow.data.server
 
-import android.content.Context
 import android.content.SharedPreferences
-import be.florien.anyflow.AnyFlowApp
+import be.florien.anyflow.UserComponentContainer
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.data.server.model.*
@@ -23,7 +22,7 @@ import javax.inject.Singleton
 open class AmpacheConnection
 @Inject constructor(
         private var authPersistence: AuthPersistence,
-        private var context: Context,
+        private var userComponentContainer: UserComponentContainer,
         private val sharedPreferences: SharedPreferences) {
     companion object {
         private const val OFFSET_SONG = "songOffset"
@@ -49,9 +48,9 @@ open class AmpacheConnection
     private var reconnectByUserPassword = 0
 
     private var userComponent
-        get() = (context.applicationContext as AnyFlowApp).userComponent
+        get() = userComponentContainer.userComponent
         set(value) {
-            (context.applicationContext as AnyFlowApp).userComponent = value
+            userComponentContainer.userComponent = value
         }
 
     val connectionStatusUpdater = MutableValueLiveData(ConnectionStatus.CONNEXION)
@@ -70,13 +69,13 @@ open class AmpacheConnection
         } else {
             serverUrl
         }
-        ampacheApi = (context.applicationContext as AnyFlowApp).createUserScopeForServer(correctedUrl)
+        ampacheApi = userComponentContainer.createUserScopeForServer(correctedUrl)
         authPersistence.saveServerInfo(correctedUrl)
     }
 
     fun ensureConnection() {
         if (userComponent == null) {
-            val savedServerUrl = authPersistence.serverUrl.first
+            val savedServerUrl = authPersistence.serverUrl.secret
             if (savedServerUrl.isNotBlank()) {
                 openConnection(savedServerUrl)
             }
@@ -110,7 +109,7 @@ open class AmpacheConnection
         return authentication
     }
 
-    suspend fun ping(authToken: String = authPersistence.authToken.first): AmpachePing {
+    suspend fun ping(authToken: String = authPersistence.authToken.secret): AmpachePing {
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         val ping = ampacheApi.ping(auth = authToken)
         authPersistence.setNewAuthExpiration(ping.sessionExpire)
@@ -126,9 +125,9 @@ open class AmpacheConnection
                 reconnectByPing = 0
                 authPersistence.revokeAuthToken()
             }
-            return if (authPersistence.authToken.first.isNotBlank()) {
+            return if (authPersistence.authToken.secret.isNotBlank()) {
                 reconnectByPing(request)
-            } else if (authPersistence.user.first.isNotBlank() && authPersistence.password.first.isNotBlank()) {
+            } else if (authPersistence.user.secret.isNotBlank() && authPersistence.password.secret.isNotBlank()) {
                 reconnectByUsernamePassword(request)
             } else {
                 throw SessionExpiredException("Can't reconnect")
@@ -138,11 +137,11 @@ open class AmpacheConnection
 
     private suspend fun <T> reconnectByPing(request: suspend () -> T): T {
         reconnectByPing++
-        val pingResponse = ping(authPersistence.authToken.first)
+        val pingResponse = ping(authPersistence.authToken.secret)
         return if (pingResponse.error.code == 0) {
             request()
         } else {
-            val authResponse = authenticate(authPersistence.user.first, authPersistence.password.first)
+            val authResponse = authenticate(authPersistence.user.secret, authPersistence.password.secret)
             if (authResponse.error.code == 0) {
                 request()
             } else {
@@ -153,7 +152,7 @@ open class AmpacheConnection
 
     private suspend fun <T> reconnectByUsernamePassword(request: suspend () -> T): T {
         reconnectByUserPassword++
-        val it = authenticate(authPersistence.user.first, authPersistence.password.first)
+        val it = authenticate(authPersistence.user.secret, authPersistence.password.secret)
         return if (it.error.code == 0) {
             request()
         } else {
@@ -166,7 +165,7 @@ open class AmpacheConnection
      */
 
     suspend fun getSongs(from: Calendar = oldestDateForRefresh): AmpacheSongList? {
-        val songList = ampacheApi.getSongs(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
+        val songList = ampacheApi.getSongs(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
         return if (songList.songs.isEmpty()) {
             songsPercentageUpdater.postValue(-1)
             sharedPreferences.edit().remove(OFFSET_SONG).apply()
@@ -181,7 +180,7 @@ open class AmpacheConnection
     }
 
     suspend fun getArtists(from: Calendar = oldestDateForRefresh): AmpacheArtistList? {
-        val artistList = ampacheApi.getArtists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
+        val artistList = ampacheApi.getArtists(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
 
         return if (artistList.artists.isEmpty()) {
             artistsPercentageUpdater.postValue(-1)
@@ -197,7 +196,7 @@ open class AmpacheConnection
     }
 
     suspend fun getAlbums(from: Calendar = oldestDateForRefresh): AmpacheAlbumList? {
-        val albumList = ampacheApi.getAlbums(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
+        val albumList = ampacheApi.getAlbums(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
         return if (albumList.albums.isEmpty()) {
             albumsPercentageUpdater.postValue(-1)
             sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
@@ -212,7 +211,7 @@ open class AmpacheConnection
     }
 
     suspend fun getTags(from: Calendar = oldestDateForRefresh): AmpacheTagList? {
-        val tagList = ampacheApi.getTags(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
+        val tagList = ampacheApi.getTags(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
         return if (tagList.tags.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_TAG).apply()
             null
@@ -224,7 +223,7 @@ open class AmpacheConnection
     }
 
     suspend fun getPlaylists(from: Calendar = oldestDateForRefresh): AmpachePlayListList? {
-        val playlistList = ampacheApi.getPlaylists(auth = authPersistence.authToken.first, add = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
+        val playlistList = ampacheApi.getPlaylists(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
         return if (playlistList.playlists.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
             null
@@ -237,7 +236,7 @@ open class AmpacheConnection
 
     fun getSongUrl(url: String): String {
         val ssidStart = url.indexOf("ssid=") + 5
-        return url.replaceRange(ssidStart, url.indexOf('&', ssidStart), authPersistence.authToken.first)
+        return url.replaceRange(ssidStart, url.indexOf('&', ssidStart), authPersistence.authToken.secret)
     }
 
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+	<auth><![CDATA[3e9c489bdd99c69999c61bccaf66d81e]]></auth>
+	<api><![CDATA[380001]]></api>
+	<session_expire><![CDATA[2020-05-26T17:15:19+02:00]]></session_expire>
+	<update><![CDATA[2020-01-08T08:00:13+01:00]]></update>
+	<add><![CDATA[2020-01-08T14:04:53+01:00]]></add>
+	<clean><![CDATA[2019-12-05T22:39:28+01:00]]></clean>
+	<songs><![CDATA[16337]]></songs>
+	<albums><![CDATA[1184]]></albums>
+	<artists><![CDATA[2130]]></artists>
+	<playlists><![CDATA[1]]></playlists>
+	<videos><![CDATA[0]]></videos>
+	<catalogs><![CDATA[1]]></catalogs>
+
+</root>

@@ -51,6 +51,8 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
         mock.java.srcDirs = ['src/main/java', 'src/mock/java']
+        androidTest.java.srcDirs += "src/sharedTest/java"
+        test.java.srcDirs += "src/sharedTest/java"
     }
     dataBinding {
         enabled = true
@@ -116,6 +118,10 @@ dependencies {
     implementation 'android.arch.paging:rxjava2:1.0.1'
     //Tests
     testImplementation 'junit:junit:4.13'
+    testImplementation "com.squareup.okhttp3:mockwebserver:4.7.2"
+    testImplementation "android.arch.core:core-testing:$lifecycle_version"
+    testImplementation 'com.google.truth:truth:1.0.1'
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:4.7.2"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation('androidx.test.espresso:espresso-core:3.2.0', {

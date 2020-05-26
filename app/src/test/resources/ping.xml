@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <session_expire><![CDATA[2020-05-26T17:15:20+02:00]]></session_expire>
+    <server><![CDATA[3.8.8-develop]]></server>
+    <version><![CDATA[380001]]></version>
+    <compatible><![CDATA[350001]]></compatible>
+
+</root>

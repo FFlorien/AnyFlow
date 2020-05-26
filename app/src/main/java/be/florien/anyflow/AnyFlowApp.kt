@@ -24,10 +24,10 @@ import javax.inject.Inject
  * Application class used for initialization of many libraries
  */
 @SuppressLint("Registered")
-open class AnyFlowApp : MultiDexApplication() {
+open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
     lateinit var applicationComponent: ApplicationComponent
         protected set
-    var userComponent: UserComponent? = null
+    override var userComponent: UserComponent? = null
 
     @Inject
     lateinit var ampacheConnection: AmpacheConnection
@@ -53,7 +53,7 @@ open class AnyFlowApp : MultiDexApplication() {
         applicationComponent.inject(this)
     }
 
-    open fun createUserScopeForServer(serverUrl: String): AmpacheApi {
+    override fun createUserScopeForServer(serverUrl: String): AmpacheApi {
         val ampacheApi = Retrofit
                 .Builder()
                 .baseUrl(serverUrl)

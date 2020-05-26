@@ -1,0 +1,1952 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <total_count>1183</total_count>\n<album id="451">
+    <name><![CDATA[#1]]></name>
+    <artist id="401"><![CDATA[Fischerspooner]]></artist>
+    <year>0</year>
+    <tracks>13</tracks>
+    <disk>0</disk>
+    <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+    <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=451&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+    <preciserating>0</preciserating>
+    <rating>0</rating>
+    <averagerating></averagerating>
+    <mbid></mbid>
+</album>
+    <album id="751">
+        <name><![CDATA[11:11]]></name>
+        <artist id="1036"><![CDATA[Rodrigo y Gabriela]]></artist>
+        <year>2009</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="11" count="1" ><![CDATA[World]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=751&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="399">
+        <name><![CDATA[2 Future 4 U]]></name>
+        <artist id="354"><![CDATA[Armand van Helden]]></artist>
+        <year>1999</year>
+        <tracks>12</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=399&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="422">
+        <name><![CDATA[2 Minutes Du Peuple]]></name>
+        <artist id="378"><![CDATA[François Pérusse]]></artist>
+        <year>0</year>
+        <tracks>524</tracks>
+        <disk>0</disk>
+        <tag id="9" count="1" ><![CDATA[Humour]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=422&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1140">
+        <name><![CDATA[20020220 Music from Final Fantasy]]></name>
+        <artist id="100"><![CDATA[Nobuo Uematsu]]></artist>
+        <year>2002</year>
+        <tracks>8</tracks>
+        <disk>1</disk>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1140&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>c797e461-da90-3267-b947-30dee3f822d4</mbid>
+    </album>
+    <album id="1142">
+        <name><![CDATA[20020220 Music from Final Fantasy]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2002</year>
+        <tracks>8</tracks>
+        <disk>2</disk>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1142&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>c797e461-da90-3267-b947-30dee3f822d4</mbid>
+    </album>
+    <album id="1196">
+        <name><![CDATA[25YEARLEGEND: A Legend of Zelda Indie Game Composer Tribute]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>10</tracks>
+        <disk>1</disk>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1196&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>9cea3b8c-75f4-4311-860f-36a5160cafaa</mbid>
+    </album>
+    <album id="1197">
+        <name><![CDATA[25YEARLEGEND: A Legend of Zelda Indie Game Composer Tribute]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>8</tracks>
+        <disk>2</disk>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1197&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>9cea3b8c-75f4-4311-860f-36a5160cafaa</mbid>
+    </album>
+    <album id="153">
+        <name><![CDATA[2nd Law]]></name>
+        <artist id="139"><![CDATA[Muse]]></artist>
+        <year>2012</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=153&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="325">
+        <name><![CDATA[3]]></name>
+        <artist id="254"><![CDATA[Nouvelle Vague]]></artist>
+        <year>2009</year>
+        <tracks>16</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=325&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="785">
+        <name><![CDATA[8-Bit Ponies]]></name>
+        <artist id="1169"><![CDATA[RainbowCrash88]]></artist>
+        <year>2011</year>
+        <tracks>23</tracks>
+        <disk>0</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=785&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="23">
+        <name><![CDATA[<I°_°I>]]></name>
+        <artist id="26"><![CDATA[Caravan Palace]]></artist>
+        <year>2015</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=23&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="151">
+        <name><![CDATA[Absolution]]></name>
+        <artist id="139"><![CDATA[Muse]]></artist>
+        <year>2003</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=151&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>fdd45566-5c8b-4beb-8ec3-1b5f93a01319</mbid>
+    </album>
+    <album id="152">
+        <name><![CDATA[Absolution]]></name>
+        <artist id="139"><![CDATA[Muse]]></artist>
+        <year>2003</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=152&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="983">
+        <name><![CDATA[Adventure Island]]></name>
+        <artist id="199"><![CDATA[Virt]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=983&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="802">
+        <name><![CDATA[Adventure Time]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2010</year>
+        <tracks>6</tracks>
+        <disk>0</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=802&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="805">
+        <name><![CDATA[Adventure Time]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2010</year>
+        <tracks>13</tracks>
+        <disk>1</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=805&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="803">
+        <name><![CDATA[Adventure Time]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>23</tracks>
+        <disk>2</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=803&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="806">
+        <name><![CDATA[Adventure Time]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>23</tracks>
+        <disk>3</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=806&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="804">
+        <name><![CDATA[Adventure Time]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>15</tracks>
+        <disk>4</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=804&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="801">
+        <name><![CDATA[Adventure Time]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>26</tracks>
+        <disk>5</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=801&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="798">
+        <name><![CDATA[Adventure Time With Finn & Jake]]></name>
+        <artist id="623"><![CDATA[Sim Gretina]]></artist>
+        <year>2012</year>
+        <tracks>4</tracks>
+        <disk>0</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=798&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="771">
+        <name><![CDATA[Adventure Time With Finn & Jake]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=771&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="981">
+        <name><![CDATA[Aeroblasters]]></name>
+        <artist id="199"><![CDATA[Virt]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=981&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="220">
+        <name><![CDATA[Ah ben ouais mais bon]]></name>
+        <artist id="160"><![CDATA[Wriggles]]></artist>
+        <year>2002</year>
+        <tracks>5</tracks>
+        <disk>0</disk>
+        <tag id="5" count="1" ><![CDATA[Français]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=220&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="553">
+        <name><![CDATA[AI]]></name>
+        <artist id="623"><![CDATA[Sim Gretina]]></artist>
+        <year>2013</year>
+        <tracks>6</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=553&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="232">
+        <name><![CDATA[Airbrushed]]></name>
+        <artist id="165"><![CDATA[Anamanaguchi]]></artist>
+        <year>2010</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="6" count="1" ><![CDATA[Chiptune]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=232&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="753">
+        <name><![CDATA[Aivi Tran]]></name>
+        <artist id="1037"><![CDATA[Aivi Tran Feat. Anthony Morgan, Stéphanie Desbourdes]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="12" count="1" ><![CDATA[Classique]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=753&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="734">
+        <name><![CDATA[Akeboshi]]></name>
+        <artist id="1033"><![CDATA[Akeboshi]]></artist>
+        <year>2003</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="11" count="1" ><![CDATA[World]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=734&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="735">
+        <name><![CDATA[Akeboshi]]></name>
+        <artist id="1033"><![CDATA[Akeboshi]]></artist>
+        <year>2005</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="11" count="1" ><![CDATA[World]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=735&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>29b1457f-1db4-450d-b393-4df333176a45</mbid>
+    </album>
+    <album id="657">
+        <name><![CDATA[Akumajo Dracula X: Nocturne In The Moonlight]]></name>
+        <artist id="699"><![CDATA[Tetrimino]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=657&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="37">
+        <name><![CDATA[Aladdin]]></name>
+        <artist id="41"><![CDATA[Alan Menken]]></artist>
+        <year>1993</year>
+        <tracks>21</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=37&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>dee2a2cd-e43c-4959-9c72-4ec9916d2372</mbid>
+    </album>
+    <album id="22">
+        <name><![CDATA[Alive 2007]]></name>
+        <artist id="25"><![CDATA[Daft Punk]]></artist>
+        <year>0</year>
+        <tracks>14</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=22&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="118">
+        <name><![CDATA[All Or Nothing]]></name>
+        <artist id="132"><![CDATA[Subways]]></artist>
+        <year>2008</year>
+        <tracks>20</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=118&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="94">
+        <name><![CDATA[All You Can Eat]]></name>
+        <artist id="128"><![CDATA[Steel Panther]]></artist>
+        <year>2014</year>
+        <tracks>12</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=94&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1199">
+        <name><![CDATA[Always Ascending]]></name>
+        <artist id="135"><![CDATA[Franz Ferdinand]]></artist>
+        <year>2018</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1199&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="229">
+        <name><![CDATA[Anamanaguchi]]></name>
+        <artist id="165"><![CDATA[Anamanaguchi]]></artist>
+        <year>2013</year>
+        <tracks>2</tracks>
+        <disk>0</disk>
+        <tag id="6" count="1" ><![CDATA[Chiptune]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=229&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="515">
+        <name><![CDATA[Angel Milk]]></name>
+        <artist id="583"><![CDATA[Télépopmusik]]></artist>
+        <year>2005</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=515&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1016">
+        <name><![CDATA[Animal Crossing: New Leaf]]></name>
+        <artist id="1739"><![CDATA[Kazumi Totaka, Manaka Kataoka, Atsuko Asahi]]></artist>
+        <year>2012</year>
+        <tracks>120</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1016&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="3">
+        <name><![CDATA[Animal Magic]]></name>
+        <artist id="1"><![CDATA[Bonobo]]></artist>
+        <year>2001</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=3&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>159f6c11-7a28-40c9-8df4-4d22a433b2b1</mbid>
+    </album>
+    <album id="1102">
+        <name><![CDATA[Anno 1404]]></name>
+        <artist id="1933"><![CDATA[Dynamedion]]></artist>
+        <year>0</year>
+        <tracks>84</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1102&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="666">
+        <name><![CDATA[Anodyne]]></name>
+        <artist id="861"><![CDATA[Drakken]]></artist>
+        <year>2015</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=666&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="716">
+        <name><![CDATA[ANSWER - Armored Core Tribute Album -]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=716&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="675">
+        <name><![CDATA[Apex 2015: This Is the Moment]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>8</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=675&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="441">
+        <name><![CDATA[Apocalypso]]></name>
+        <artist id="399"><![CDATA[Presets]]></artist>
+        <year>2008</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=441&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="411">
+        <name><![CDATA[Apollo 440]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>5</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=411&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="403">
+        <name><![CDATA[Arcade]]></name>
+        <artist id="357"><![CDATA[Hyper Crush]]></artist>
+        <year>2008</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=403&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>12f1bc21-bc13-4c5a-b855-05a19cb0c30e</mbid>
+    </album>
+    <album id="710">
+        <name><![CDATA[Arcade Attack!]]></name>
+        <artist id="168"><![CDATA[Joshua Morse]]></artist>
+        <year>2015</year>
+        <tracks>8</tracks>
+        <disk>1</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=710&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="164">
+        <name><![CDATA[Arcade Fire]]></name>
+        <artist id="141"><![CDATA[Arcade Fire]]></artist>
+        <year>2012</year>
+        <tracks>2</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=164&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="169">
+        <name><![CDATA[Arcade Fire [EP]]]></name>
+        <artist id="141"><![CDATA[Arcade Fire]]></artist>
+        <year>2003</year>
+        <tracks>7</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=169&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="395">
+        <name><![CDATA[Armand Van Helden]]></name>
+        <artist id="355"><![CDATA[Armand van Helden feat Dizzee Rascal]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=395&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="52">
+        <name><![CDATA[Astérix et le Coup du Menhir]]></name>
+        <artist id="72"><![CDATA[Michel Colombier]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=52&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="430">
+        <name><![CDATA[Attack Decay Sustain Release]]></name>
+        <artist id="397"><![CDATA[Simian Mobile Disco]]></artist>
+        <year>2007</year>
+        <tracks>12</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=430&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>190edf14-2bb5-425f-a79d-32c7dda4c0af</mbid>
+    </album>
+    <album id="16">
+        <name><![CDATA[Attention Deficit EP]]></name>
+        <artist id="20"><![CDATA[Benjamin Briggs]]></artist>
+        <year>2011</year>
+        <tracks>6</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=16&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="652">
+        <name><![CDATA[Audio Engineering: A Tribute to Cid]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=652&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="581">
+        <name><![CDATA[Audio, Video, Disco]]></name>
+        <artist id="380"><![CDATA[Justice]]></artist>
+        <year>2011</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=581&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="230">
+        <name><![CDATA[Aurora]]></name>
+        <artist id="165"><![CDATA[Anamanaguchi]]></artist>
+        <year>2010</year>
+        <tracks>2</tracks>
+        <disk>0</disk>
+        <tag id="6" count="1" ><![CDATA[Chiptune]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=230&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="43">
+        <name><![CDATA[Avengers]]></name>
+        <artist id="56"><![CDATA[Alan Silvestri]]></artist>
+        <year>2012</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=43&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="314">
+        <name><![CDATA[Awesome Wave]]></name>
+        <artist id="196"><![CDATA[Alt-J]]></artist>
+        <year>2012</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=314&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1194">
+        <name><![CDATA[Baba Is You]]></name>
+        <artist id="2206"><![CDATA[Arvi Teikari]]></artist>
+        <year>2019</year>
+        <tracks>14</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1194&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="186">
+        <name><![CDATA[Back Through Time]]></name>
+        <artist id="146"><![CDATA[Alestorm]]></artist>
+        <year>2011</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=186&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="40">
+        <name><![CDATA[Back To The Future]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>1985</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=40&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="223">
+        <name><![CDATA[Backup]]></name>
+        <artist id="162"><![CDATA[2080]]></artist>
+        <year>0</year>
+        <tracks>4</tracks>
+        <disk>0</disk>
+        <tag id="6" count="1" ><![CDATA[Chiptune]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=223&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="656">
+        <name><![CDATA[BadAss: Boss Themes]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>9</tracks>
+        <disk>1</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=656&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="655">
+        <name><![CDATA[BadAss: Boss Themes]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>9</tracks>
+        <disk>2</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=655&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="718">
+        <name><![CDATA[Bagu and the Riverman]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>7</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=718&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="664">
+        <name><![CDATA[Baldur's Gate]]></name>
+        <artist id="859"><![CDATA[Scott Buckley]]></artist>
+        <year>2013</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=664&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="91">
+        <name><![CDATA[Balls Out]]></name>
+        <artist id="128"><![CDATA[Steel Panther]]></artist>
+        <year>2011</year>
+        <tracks>16</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=91&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="323">
+        <name><![CDATA[Bande A' Part]]></name>
+        <artist id="254"><![CDATA[Nouvelle Vague]]></artist>
+        <year>2006</year>
+        <tracks>18</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=323&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="122">
+        <name><![CDATA[Barely Legal]]></name>
+        <artist id="133"><![CDATA[Hives]]></artist>
+        <year>2001</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=122&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="370">
+        <name><![CDATA[Basement Jaxx Vs. Metropole Orkest]]></name>
+        <artist id="262"><![CDATA[Basement Jaxx Vs. Metropole Orkest]]></artist>
+        <year>2011</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=370&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="646">
+        <name><![CDATA[Bastion]]></name>
+        <artist id="805"><![CDATA[Andrew McLaren, David Lane, Dorothy Hayden, Ryan Billington, Square Law]]></artist>
+        <year>2013</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=646&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1127">
+        <name><![CDATA[Bastion Original Soundtrack]]></name>
+        <artist id="1982"><![CDATA[Darren Korb]]></artist>
+        <year>2011</year>
+        <tracks>22</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1127&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="506">
+        <name><![CDATA[Batbox]]></name>
+        <artist id="564"><![CDATA[Miss Kittin]]></artist>
+        <year>0</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=506&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="648">
+        <name><![CDATA[Batman]]></name>
+        <artist id="806"><![CDATA[Eino Keskitalo, Tuberz McGee]]></artist>
+        <year>2015</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=648&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="808">
+        <name><![CDATA[Batman: The Animated Series]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2008</year>
+        <tracks>36</tracks>
+        <disk>1</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=808&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="807">
+        <name><![CDATA[Batman: The Animated Series]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2008</year>
+        <tracks>36</tracks>
+        <disk>2</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=807&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="788">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>2005</year>
+        <tracks>18</tracks>
+        <disk>1</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=788&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>cfb64169-f6cb-4e2c-9675-dc64c9bb6a5d</mbid>
+    </album>
+    <album id="792">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2005</year>
+        <tracks>12</tracks>
+        <disk>1</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=792&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="789">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>2006</year>
+        <tracks>17</tracks>
+        <disk>2</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=789&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="794">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>2006</year>
+        <tracks>5</tracks>
+        <disk>2</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=794&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>ac1943f0-c169-48a7-ae48-1a99aeeff7b4</mbid>
+    </album>
+    <album id="791">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>2007</year>
+        <tracks>17</tracks>
+        <disk>3</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=791&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>33365e42-0394-48a9-a31f-67ad92d553bb</mbid>
+    </album>
+    <album id="795">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>2007</year>
+        <tracks>4</tracks>
+        <disk>3</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=795&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="790">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>2009</year>
+        <tracks>22</tracks>
+        <disk>4</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=790&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>05c2a1cc-b7cc-441e-bd59-861c316e8fd3</mbid>
+    </album>
+    <album id="793">
+        <name><![CDATA[Battlestar Galactica]]></name>
+        <artist id="1172"><![CDATA[Bear McCreary]]></artist>
+        <year>0</year>
+        <tracks>12</tracks>
+        <disk>4</disk>
+        <tag id="13" count="1" ><![CDATA[Séries]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=793&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="305">
+        <name><![CDATA[Beach Boys]]></name>
+        <artist id="246"><![CDATA[Beach Boys]]></artist>
+        <year>2007</year>
+        <tracks>17</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=305&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="440">
+        <name><![CDATA[Beams]]></name>
+        <artist id="399"><![CDATA[Presets]]></artist>
+        <year>2005</year>
+        <tracks>12</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=440&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="499">
+        <name><![CDATA[Before The Dawn Heals Us]]></name>
+        <artist id="563"><![CDATA[M83]]></artist>
+        <year>2005</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=499&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="293">
+        <name><![CDATA[Begone Dull Care]]></name>
+        <artist id="239"><![CDATA[Junior Boys]]></artist>
+        <year>2009</year>
+        <tracks>16</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=293&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="38">
+        <name><![CDATA[Belle & la Bête]]></name>
+        <artist id="41"><![CDATA[Alan Menken]]></artist>
+        <year>1991</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=38&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="454">
+        <name><![CDATA[Better Living Through Chemistry]]></name>
+        <artist id="402"><![CDATA[FatBoy Slim]]></artist>
+        <year>1996</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=454&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1108">
+        <name><![CDATA[Binding of Isaac]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2011</year>
+        <tracks>40</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1108&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="460">
+        <name><![CDATA[Bird of prey]]></name>
+        <artist id="402"><![CDATA[FatBoy Slim]]></artist>
+        <year>2000</year>
+        <tracks>4</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=460&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1011">
+        <name><![CDATA[BIT.TRIP Presents... Runner2: Future Legend of Rhythm Alien]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2013</year>
+        <tracks>17</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1011&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1010">
+        <name><![CDATA[Bit.Trip Runner]]></name>
+        <artist id="1726"><![CDATA[Gaijin Games]]></artist>
+        <year>0</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1010&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="562">
+        <name><![CDATA[Björk]]></name>
+        <artist id="628"><![CDATA[Björk]]></artist>
+        <year>0</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=562&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="123">
+        <name><![CDATA[Black & White Album]]></name>
+        <artist id="133"><![CDATA[Hives]]></artist>
+        <year>2007</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=123&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>9ea6116f-d7df-4b90-8500-7e9c48ae3ee2</mbid>
+    </album>
+    <album id="225">
+        <name><![CDATA[Black Box]]></name>
+        <artist id="164"><![CDATA[Aivi & Surasshu]]></artist>
+        <year>2013</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="6" count="1" ><![CDATA[Chiptune]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=225&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="154">
+        <name><![CDATA[Black Holes and Revelations]]></name>
+        <artist id="139"><![CDATA[Muse]]></artist>
+        <year>2006</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=154&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>f1458768-777e-4d46-96eb-2d0e6d8cbaa0</mbid>
+    </album>
+    <album id="821">
+        <name><![CDATA[Black Mages]]></name>
+        <artist id="1273"><![CDATA[Black Mages]]></artist>
+        <year>2003</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=821&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="823">
+        <name><![CDATA[Black Mages II - The Skies Above]]></name>
+        <artist id="1273"><![CDATA[Black Mages]]></artist>
+        <year>2004</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=823&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="183">
+        <name><![CDATA[Black Sails At Midnight]]></name>
+        <artist id="146"><![CDATA[Alestorm]]></artist>
+        <year>2009</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=183&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1138">
+        <name><![CDATA[Black Sands]]></name>
+        <artist id="1"><![CDATA[Bonobo]]></artist>
+        <year>2010</year>
+        <tracks>12</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1138&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="111">
+        <name><![CDATA[Black Session]]></name>
+        <artist id="131"><![CDATA[Bloc Party]]></artist>
+        <year>2005</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=111&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="109">
+        <name><![CDATA[Bloc Party]]></name>
+        <artist id="131"><![CDATA[Bloc Party]]></artist>
+        <year>2004</year>
+        <tracks>7</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=109&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1082">
+        <name><![CDATA[Blocks that matter]]></name>
+        <artist id="1018"><![CDATA[Morusque]]></artist>
+        <year>2011</year>
+        <tracks>20</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1082&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>11848827-ec42-46d3-9ff5-57b36b6f5a90</mbid>
+    </album>
+    <album id="137">
+        <name><![CDATA[Blood]]></name>
+        <artist id="135"><![CDATA[Franz Ferdinand]]></artist>
+        <year>2009</year>
+        <tracks>9</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=137&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="628">
+        <name><![CDATA[Bloodborne]]></name>
+        <artist id="690"><![CDATA[RoeTaKa]]></artist>
+        <year>2016</year>
+        <tracks>1</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=628&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="475">
+        <name><![CDATA[Bloody Beetroots]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>9</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=475&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="277">
+        <name><![CDATA[Blue Wonder Power Milk]]></name>
+        <artist id="232"><![CDATA[Hooverphonic]]></artist>
+        <year>0</year>
+        <tracks>13</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=277&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="224">
+        <name><![CDATA[Bluenoise]]></name>
+        <artist id="163"><![CDATA[ProtoDome]]></artist>
+        <year>2011</year>
+        <tracks>7</tracks>
+        <disk>0</disk>
+        <tag id="6" count="1" ><![CDATA[Chiptune]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=224&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="307">
+        <name><![CDATA[Bones of What You Believe]]></name>
+        <artist id="247"><![CDATA[CHVRCHES]]></artist>
+        <year>2013</year>
+        <tracks>16</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=307&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1220">
+        <name><![CDATA[Bones Of What You Believe]]></name>
+        <artist id="247"><![CDATA[CHVRCHES]]></artist>
+        <year>2013</year>
+        <tracks>12</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1220&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="380">
+        <name><![CDATA[Booming Back At You]]></name>
+        <artist id="265"><![CDATA[Junkie XL]]></artist>
+        <year>2008</year>
+        <tracks>11</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=380&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="259">
+        <name><![CDATA[Both Ways Open Jaws]]></name>
+        <artist id="200"><![CDATA[Dø]]></artist>
+        <year>2011</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=259&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="221">
+        <name><![CDATA[Bourvil]]></name>
+        <artist id="161"><![CDATA[Bourvil]]></artist>
+        <year>2005</year>
+        <tracks>2</tracks>
+        <disk>0</disk>
+        <tag id="5" count="1" ><![CDATA[Français]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=221&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="18">
+        <name><![CDATA[Boys Noize]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2007</year>
+        <tracks>2</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=18&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1026">
+        <name><![CDATA[Bravely Default Flying Fairy]]></name>
+        <artist id="1749"><![CDATA[Revo]]></artist>
+        <year>2012</year>
+        <tracks>27</tracks>
+        <disk>1</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1026&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>856227aa-c3bb-4447-b95a-ead013d81846</mbid>
+    </album>
+    <album id="1027">
+        <name><![CDATA[Bravely Default Flying Fairy]]></name>
+        <artist id="1749"><![CDATA[Revo]]></artist>
+        <year>2012</year>
+        <tracks>19</tracks>
+        <disk>2</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1027&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid>856227aa-c3bb-4447-b95a-ead013d81846</mbid>
+    </album>
+    <album id="472">
+        <name><![CDATA[Bring It On]]></name>
+        <artist id="383"><![CDATA[Goose]]></artist>
+        <year>2006</year>
+        <tracks>12</tracks>
+        <disk>1</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=472&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="474">
+        <name><![CDATA[Bring It On - Rarities & Remix]]></name>
+        <artist id="383"><![CDATA[Goose]]></artist>
+        <year>0</year>
+        <tracks>20</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=474&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="36">
+        <name><![CDATA[Bug's Life]]></name>
+        <artist id="38"><![CDATA[Randy Newman]]></artist>
+        <year>2000</year>
+        <tracks>20</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=36&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="302">
+        <name><![CDATA[Business Casual]]></name>
+        <artist id="243"><![CDATA[Chromeo]]></artist>
+        <year>2010</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="7" count="1" ><![CDATA[Pop]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=302&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="387">
+        <name><![CDATA[C'est la vie]]></name>
+        <artist id="328"><![CDATA[Martin Solveig]]></artist>
+        <year>2008</year>
+        <tracks>14</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=387&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="201">
+        <name><![CDATA[Ça m'aurait fait chier d'exploser]]></name>
+        <artist id="149"><![CDATA[Sexy Sushi]]></artist>
+        <year>2006</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=201&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="198">
+        <name><![CDATA[Caca]]></name>
+        <artist id="149"><![CDATA[Sexy Sushi]]></artist>
+        <year>0</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=198&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="107">
+        <name><![CDATA[Can Be Late]]></name>
+        <artist id="130"><![CDATA[Skip The Use]]></artist>
+        <year>2012</year>
+        <tracks>14</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=107&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1106">
+        <name><![CDATA[Canabalt]]></name>
+        <artist id="730"><![CDATA[Danny Baranowsky]]></artist>
+        <year>2010</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1106&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="30">
+        <name><![CDATA[Captain Fantastic]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2016</year>
+        <tracks>25</tracks>
+        <disk>0</disk>
+        <tag id="2" count="1" ><![CDATA[Soundtrack]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=30&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="181">
+        <name><![CDATA[Captain Morgan's Revenge]]></name>
+        <artist id="146"><![CDATA[Alestorm]]></artist>
+        <year>2008</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="4" count="1" ><![CDATA[Rock]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=181&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="25">
+        <name><![CDATA[Caravan Palace]]></name>
+        <artist id="26"><![CDATA[Caravan Palace]]></artist>
+        <year>2008</year>
+        <tracks>30</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=25&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="541">
+        <name><![CDATA[Cashmere Guns]]></name>
+        <artist id="619"><![CDATA[ULYSSE]]></artist>
+        <year>2015</year>
+        <tracks>5</tracks>
+        <disk>0</disk>
+        <tag id="1" count="1" ><![CDATA[Electro]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=541&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="681">
+        <name><![CDATA[Castlevania]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2015</year>
+        <tracks>10</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=681&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="645">
+        <name><![CDATA[Castlevania II: Simon's Quest]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>3</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=645&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="990">
+        <name><![CDATA[Castlevania III]]></name>
+        <artist id="199"><![CDATA[Virt]]></artist>
+        <year>0</year>
+        <tracks>2</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=990&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1083">
+        <name><![CDATA[Castlevania: Order Of Ecclesia Soundtrack]]></name>
+        <artist id="1906"><![CDATA[Michiru Yamane, Yasuhiro Ichihashi]]></artist>
+        <year>2008</year>
+        <tracks>54</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1083&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="651">
+        <name><![CDATA[Castlevania: Sonata Of The Damned]]></name>
+        <artist id="168"><![CDATA[Joshua Morse]]></artist>
+        <year>2009</year>
+        <tracks>7</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=651&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1085">
+        <name><![CDATA[Castlevania: Symphony of the Night]]></name>
+        <artist id="1846"><![CDATA[Michiru Yamane]]></artist>
+        <year>0</year>
+        <tracks>36</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1085&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="689">
+        <name><![CDATA[Castlevania: Symphony of the Night]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>4</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=689&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1086">
+        <name><![CDATA[Castlevania: Symphony of the Night]]></name>
+        <artist id="1846"><![CDATA[Michiru Yamane]]></artist>
+        <year>1987</year>
+        <tracks>14</tracks>
+        <disk>2</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1086&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="809">
+        <name><![CDATA[Castlevania: Symphony of the Night - Resurrection]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2008</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=809&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="393">
+        <name><![CDATA[Caught in the Loop]]></name>
+        <artist id="331"><![CDATA[Goldfish]]></artist>
+        <year>2006</year>
+        <tracks>15</tracks>
+        <disk>0</disk>
+        <tag id="8" count="1" ><![CDATA[House]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=393&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="659">
+        <name><![CDATA[Cave Story]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2010</year>
+        <tracks>4</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=659&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="64">
+        <name><![CDATA[Cave Story]]></name>
+        <artist id="99"><![CDATA[Studio Pixel]]></artist>
+        <year>2004</year>
+        <tracks>42</tracks>
+        <disk>0</disk>
+        <tag id="3" count="1" ><![CDATA[Jeux Chiptunes]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=64&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="826">
+        <name><![CDATA[Cave Story Remix Project]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2006</year>
+        <tracks>11</tracks>
+        <disk>1</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=826&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="825">
+        <name><![CDATA[Cave Story Remix Project]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2006</year>
+        <tracks>11</tracks>
+        <disk>2</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=825&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="824">
+        <name><![CDATA[Cave Story Remix Project]]></name>
+        <artist id="1275"><![CDATA[k-wix]]></artist>
+        <year>2010</year>
+        <tracks>7</tracks>
+        <disk>3</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=824&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1188">
+        <name><![CDATA[Celeste]]></name>
+        <artist id="2186"><![CDATA[Lena Raine]]></artist>
+        <year>2018</year>
+        <tracks>21</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1188&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="1187">
+        <name><![CDATA[Celeste B-Sides]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>2018</year>
+        <tracks>9</tracks>
+        <disk>0</disk>
+        <tag id="14" count="1" ><![CDATA[Jeux Video]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=1187&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+    <album id="944">
+        <name><![CDATA[CEO 2015: Champion]]></name>
+        <artist id="0"><![CDATA[Various]]></artist>
+        <year>0</year>
+        <tracks>14</tracks>
+        <disk>0</disk>
+        <tag id="10" count="1" ><![CDATA[Jeux Remix]]></tag>
+        <art><![CDATA[http://193.70.82.21/ampache/image.php?object_id=944&object_type=album&auth=3e9c489bdd99c69999c61bccaf66d81e]]></art>
+        <preciserating>0</preciserating>
+        <rating>0</rating>
+        <averagerating></averagerating>
+        <mbid></mbid>
+    </album>
+
+</root>
