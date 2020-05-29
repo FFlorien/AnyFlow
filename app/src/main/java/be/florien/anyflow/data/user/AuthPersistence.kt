@@ -10,7 +10,7 @@ abstract class AuthPersistence {
     abstract val user: ExpirationSecret
     abstract val password: ExpirationSecret
 
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US)
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US)
 
     fun hasConnectionInfo() = serverUrl.hasSecret() && (authToken.hasSecret() && authToken.isDataValid()) || (user.hasSecret() && user.isDataValid())
 

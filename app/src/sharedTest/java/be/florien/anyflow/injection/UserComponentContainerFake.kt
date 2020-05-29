@@ -24,9 +24,21 @@ class UserComponentContainerFake : UserComponentContainer {
         val mockWebServer = MockWebServer()
         val dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
+                if (!serverUrl.contains("ampache")) {
+                    return MockResponse().setResponseCode(404)
+                }
                 return when (request.requestUrl?.queryParameter("action")) {
-                    "handshake" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake_success.xml"))
-                    "ping" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
+                    "handshake" -> {
+                        when (request.requestUrl?.queryParameter("user")) {
+                            "admin" -> {
+                                MockResponse().setResponseCode(200).setBody(readFromFile("handshake_success.xml"))
+                            }
+                            else -> {
+                                MockResponse().setResponseCode(200).setBody(readFromFile("handshake_failure.xml"))
+                            }
+                        }
+                    }
+                    "ping" -> MockResponse().setResponseCode(200).setBody(readFromFile("ping.xml"))
                     "songs" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
                     "artists" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
                     "albums" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
@@ -35,16 +47,15 @@ class UserComponentContainerFake : UserComponentContainer {
                     else -> MockResponse().setResponseCode(404)
                 }
             }
-
         }
-        mockWebServer.dispatcher = dispatcher
-        mockWebServer.start()
 
+        mockWebServer.dispatcher = dispatcher
         return Retrofit.Builder()
                 .baseUrl(mockWebServer.url("/"))
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .build()
-                .create(AmpacheApi::class.java)
+                .create(AmpacheApi::
+                class.java)
     }
 
     class UserComponentStub : UserComponent {

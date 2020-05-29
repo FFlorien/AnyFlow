@@ -118,12 +118,6 @@ class PlayerActivity : AppCompatActivity() {
                 }
                 AmpacheConnection.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
                 AmpacheConnection.ConnectionStatus.CONNECTED -> animateDisappearance(binding.connectionStateView)
-                AmpacheConnection.ConnectionStatus.TIMEOUT -> AlertDialog
-                        .Builder(this@PlayerActivity)
-                        .setMessage(R.string.connect_error_timeout)
-                        .setNeutralButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
-                        .create()
-                        .show()
             }
         }
         viewModel.songsUpdatePercentage.observeValue(this) {

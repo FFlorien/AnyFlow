@@ -2,12 +2,17 @@ package be.florien.anyflow.data.server
 
 import android.content.SharedPreferences
 import be.florien.anyflow.UserComponentContainer
+import be.florien.anyflow.data.server.exception.NotAnAmpacheUrlException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
+import be.florien.anyflow.data.server.exception.WrongFormatServerUrlException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutLong
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.MutableValueLiveData
+import okhttp3.HttpUrl
+import retrofit2.HttpException
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -64,13 +69,13 @@ open class AmpacheConnection
      */
 
     fun openConnection(serverUrl: String) {
-        val correctedUrl = if (!serverUrl.endsWith('/')) {
-            "$serverUrl/"
-        } else {
-            serverUrl
+        val url = try {
+            HttpUrl.get(serverUrl)
+        } catch (exception: IllegalArgumentException) {
+            throw WrongFormatServerUrlException("The provided url was not correctly formed", exception)
         }
-        ampacheApi = userComponentContainer.createUserScopeForServer(correctedUrl)
-        authPersistence.saveServerInfo(correctedUrl)
+        ampacheApi = userComponentContainer.createUserScopeForServer(url.toString())
+        authPersistence.saveServerInfo(url.toString())
     }
 
     fun ensureConnection() {
@@ -97,16 +102,25 @@ open class AmpacheConnection
         encoder.reset()
         val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
-        val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
-        when (authentication.error.code) {
-            401 -> {
-                connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
-                throw WrongIdentificationPairException(authentication.error.errorText)
+        try {
+            val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
+            when (authentication.error.code) {
+                401 -> {
+                    connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
+                    throw WrongIdentificationPairException(authentication.error.errorText)
+                }
+                0 -> authPersistence.saveConnectionInfo(user, password, authentication.auth, authentication.sessionExpire)
             }
-            0 -> authPersistence.saveConnectionInfo(user, password, authentication.auth, authentication.sessionExpire)
+            connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
+            return authentication
+        } catch (exception: HttpException) {
+            connectionStatusUpdater.postValue(ConnectionStatus.WRONG_SERVER_URL)
+            ampacheApi = AmpacheApiDisconnected()
+            throw NotAnAmpacheUrlException("The ampache server couldn't be found at provided url")
+        } catch (exception: Exception) {
+            eLog(exception, "Unknown error while trying to login")
+            throw exception
         }
-        connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
-        return authentication
     }
 
     suspend fun ping(authToken: String = authPersistence.authToken.secret): AmpachePing {
@@ -242,7 +256,7 @@ open class AmpacheConnection
     private fun binToHex(data: ByteArray): String = String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 
     enum class ConnectionStatus {
-        TIMEOUT,
+        WRONG_SERVER_URL,
         WRONG_ID_PAIR,
         CONNEXION,
         CONNECTED
