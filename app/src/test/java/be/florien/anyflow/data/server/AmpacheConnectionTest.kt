@@ -36,7 +36,7 @@ class AmpacheConnectionTest {
     fun `With no opened connection - When trying to make a call - Then it throws a NoServerException`() {
         runBlocking {
             try {
-                ampacheConnection.authenticate("admin", "password")
+                ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
             } catch (exception: Exception) {
                 assertThat(exception).isInstanceOf(NoServerException::class.java)
                 return@runBlocking
@@ -61,8 +61,8 @@ class AmpacheConnectionTest {
     @Test
     fun `With no opened connection - When setting a well formed url - Then it can make a call`() {
         runBlocking {
-            ampacheConnection.openConnection("http://ampache")
-            ampacheConnection.authenticate("admin", "password")
+            ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
+            ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
         }
     }
 
@@ -71,11 +71,11 @@ class AmpacheConnectionTest {
         runBlocking {
             ampacheConnection.openConnection("http://ballooneyUrl.com")
             try {
-                ampacheConnection.authenticate("admin", "password")
+                ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
             } catch (exception: Exception) {
                 assertThat(exception).isInstanceOf(NotAnAmpacheUrlException::class.java)
                 try {
-                    ampacheConnection.authenticate("admin", "password")
+                    ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
                 } catch (exception: Exception) {
                     assertThat(exception).isInstanceOf(NoServerException::class.java)
                 }
@@ -90,9 +90,9 @@ class AmpacheConnectionTest {
     @Test
     fun `With a opened connection - When the user_password is wrong - Then a WrongIdentificationException is thrown`() {
         runBlocking {
-            ampacheConnection.openConnection("http://ampache.com")
+            ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
             try {
-                ampacheConnection.authenticate("wrongUser", "password")
+                ampacheConnection.authenticate("wrongUser", AmpacheServerFakeDispatcher.PASSWORD)
             } catch (exception: Exception) {
                 assertThat(exception).isInstanceOf(WrongIdentificationPairException::class.java)
             }
@@ -102,16 +102,34 @@ class AmpacheConnectionTest {
     @Test
     fun `With a opened connection - When using an existing user_password - Then the connection can make more call`() {
         runBlocking {
-            ampacheConnection.openConnection("http://ampache.com")
-            ampacheConnection.authenticate("admin", "password")
+            ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
+            ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
             ampacheConnection.ping()
         }
     }
 
-
     /**
      * ping
      */
+
+    @Test
+    fun `With a connection not opened - When calling ping - Then the call throws a NoServerException`() {
+        runBlocking {
+            try {
+                ampacheConnection.ping()
+            } catch (exception: Exception) {
+                assertThat(exception).isInstanceOf(NoServerException::class.java)
+            }
+        }
+    }
+
+    @Test
+    fun `With a connection not authenticated - When calling ping - Then the call fail`() {
+        runBlocking {
+            ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
+            ampacheConnection.ping() //todo retrieve and return the right data
+        }
+    }
 
     /**
      * reconnect
@@ -141,8 +159,8 @@ class AmpacheConnectionTest {
     fun withStartingConnection_whenConnected_thenItsConnectedStatus() {
         runBlocking {
             ampacheConnection.connectionStatusUpdater.captureValues {
-                ampacheConnection.openConnection("http://ampache.com")
-                ampacheConnection.authenticate("admin", "password")
+                ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
+                ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
                 assertThat(values.last()).isEqualTo(AmpacheConnection.ConnectionStatus.CONNECTED)
             }
         }
@@ -152,9 +170,9 @@ class AmpacheConnectionTest {
     fun withStartingConnection_whenWrongId_thenItsWrongIdStatus() {
         runBlocking {
             ampacheConnection.connectionStatusUpdater.captureValues {
-                ampacheConnection.openConnection("http://ampache.com")
+                ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
                 try {
-                    ampacheConnection.authenticate("wrongUser", "password")
+                    ampacheConnection.authenticate("wrongUser", AmpacheServerFakeDispatcher.PASSWORD)
                 } catch (ignored: Exception) {
                 }
                 assertThat(values.last()).isEqualTo(AmpacheConnection.ConnectionStatus.WRONG_ID_PAIR)
@@ -168,7 +186,7 @@ class AmpacheConnectionTest {
             ampacheConnection.connectionStatusUpdater.captureValues {
                 ampacheConnection.openConnection("http://ballooneyUrl.com")
                 try {
-                    ampacheConnection.authenticate("admin", "password")
+                    ampacheConnection.authenticate(AmpacheServerFakeDispatcher.USER_NAME, AmpacheServerFakeDispatcher.PASSWORD)
                 } catch (ignored: Exception) {
                 }
                 assertThat(values.last()).isEqualTo(AmpacheConnection.ConnectionStatus.WRONG_SERVER_URL)

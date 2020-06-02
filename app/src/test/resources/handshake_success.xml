@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
-	<auth><![CDATA[3e9c489bdd99c69999c61bccaf66d81e]]></auth>
+	<auth><![CDATA[#authToken#]]></auth>
 	<api><![CDATA[380001]]></api>
 	<session_expire><![CDATA[2020-05-26T17:15:19+02:00]]></session_expire>
 	<update><![CDATA[2020-01-08T08:00:13+01:00]]></update>

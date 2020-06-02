@@ -4,6 +4,7 @@ import be.florien.anyflow.UserComponentContainer
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
+import be.florien.anyflow.data.server.AmpacheServerFakeDispatcher
 import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.PlayerComponent
@@ -22,32 +23,7 @@ class UserComponentContainerFake : UserComponentContainer {
 
     override fun createUserScopeForServer(serverUrl: String): AmpacheApi {
         val mockWebServer = MockWebServer()
-        val dispatcher = object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse {
-                if (!serverUrl.contains("ampache")) {
-                    return MockResponse().setResponseCode(404)
-                }
-                return when (request.requestUrl?.queryParameter("action")) {
-                    "handshake" -> {
-                        when (request.requestUrl?.queryParameter("user")) {
-                            "admin" -> {
-                                MockResponse().setResponseCode(200).setBody(readFromFile("handshake_success.xml"))
-                            }
-                            else -> {
-                                MockResponse().setResponseCode(200).setBody(readFromFile("handshake_failure.xml"))
-                            }
-                        }
-                    }
-                    "ping" -> MockResponse().setResponseCode(200).setBody(readFromFile("ping.xml"))
-                    "songs" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
-                    "artists" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
-                    "albums" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
-                    "tags" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
-                    "playlists" -> MockResponse().setResponseCode(200).setBody(readFromFile("handshake"))
-                    else -> MockResponse().setResponseCode(404)
-                }
-            }
-        }
+        val dispatcher = AmpacheServerFakeDispatcher(serverUrl)
 
         mockWebServer.dispatcher = dispatcher
         return Retrofit.Builder()
@@ -82,14 +58,5 @@ class UserComponentContainerFake : UserComponentContainer {
         class Builder : PlayerComponent.Builder {
             override fun build() = PlayerComponentStub()
         }
-    }
-
-    fun readFromFile(filename: String): String {
-        val classLoader = this.javaClass.classLoader
-        val resource = classLoader?.getResourceAsStream(filename)
-        val reader = resource?.reader()
-        val value = reader?.readText() ?: ""
-        reader?.close()
-        return value
     }
 }
