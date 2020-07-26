@@ -1,5 +1,7 @@
 package be.florien.anyflow.data.user
 
+import be.florien.anyflow.data.TimeOperations
+
 class AuthPersistenceFake : AuthPersistence() {
 
     override val serverUrl = InMemorySecret()
@@ -9,6 +11,7 @@ class AuthPersistenceFake : AuthPersistence() {
 
     inner class InMemorySecret() : ExpirationSecret {
         override var secret: String = ""
+            get() = if (TimeOperations.getCurrentDate().after(TimeOperations.getDateFromMillis(expiration))) "" else field
         override var expiration: Long = 0L
 
         override fun setSecretData(secret: String, expiration: Long) {
@@ -17,6 +20,7 @@ class AuthPersistenceFake : AuthPersistence() {
         }
 
         override fun hasSecret(): Boolean = secret.isNotEmpty()
+        override fun isDataValid(): Boolean = TimeOperations.getDateFromMillis(expiration).after(TimeOperations.getCurrentDate())
     }
 
 }

@@ -29,6 +29,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+    buildFeatures {
+        dataBinding = true
+    }
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
@@ -53,9 +56,6 @@ android {
         mock.java.srcDirs = ['src/main/java', 'src/mock/java']
         androidTest.java.srcDirs += "src/sharedTest/java"
         test.java.srcDirs += "src/sharedTest/java"
-    }
-    dataBinding {
-        enabled = true
     }
     kapt {
         generateStubs = true

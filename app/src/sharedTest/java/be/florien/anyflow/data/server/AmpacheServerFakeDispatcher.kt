@@ -1,5 +1,6 @@
 package be.florien.anyflow.data.server
 
+import be.florien.anyflow.data.TimeOperations
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -7,9 +8,10 @@ import java.util.*
 
 class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() {
     private var authConnected: String? = null
-    private var authValidity: Date? = null
+    private var authValidity: Calendar? = null
 
     private var authGenerator = "1"
+
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         if (!serverUrl.contains(GOOD_URL)) {
@@ -19,7 +21,10 @@ class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() 
             ACTION_HANDSHAKE -> {
                 when (request.requestUrl?.queryParameter(QUERY_USER)) {
                     USER_NAME -> {
-                        val response = getResponse("handshake_success.xml") { it.replace(SCHEME_TOKEN, authGenerator) }
+                        val response = getResponse("handshake_success.xml") {
+                            val responseWithToken = it.replace(SCHEME_TOKEN, authGenerator)
+                            replaceExpirationDate(responseWithToken)
+                        }
                         authConnected = authGenerator
                         authGenerator += authGenerator
                         response
@@ -29,7 +34,11 @@ class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() 
                     }
                 }
             }
-            ACTION_PING -> verifyAuthToken(request) { getResponse("ping.xml") }
+            ACTION_PING -> verifyAuthToken(request) {
+                getResponse("ping.xml") {
+                    replaceExpirationDate(it)
+                }
+            }
             ACTION_SONGS -> verifyAuthToken(request) { getResponse("songs.xml") }
             ACTION_ARTISTS -> verifyAuthToken(request) { getResponse("artists.xml") }
             ACTION_ALBUMS -> verifyAuthToken(request) { getResponse("albums.xml") }
@@ -37,6 +46,13 @@ class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() 
             ACTION_PLAYLISTS -> verifyAuthToken(request) { getResponse("playlists.xml") }
             else -> MockResponse().setResponseCode(404)
         }
+    }
+
+    private fun replaceExpirationDate(it: String): String {
+        val newExpiration = TimeOperations.getCurrentDatePlus(Calendar.HOUR, 1)
+        authValidity = newExpiration
+        val newDate = TimeOperations.getAmpacheCompleteFormatted(newExpiration)
+        return it.replace(SCHEME_EXPIRATION, newDate)
     }
 
     private inline fun getResponse(responseFileName: String, transformation: (String) -> String = { it }) =
@@ -52,7 +68,7 @@ class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() 
     }
 
     private inline fun verifyAuthToken(request: RecordedRequest, get200Response: () -> MockResponse): MockResponse {
-        return if (request.requestUrl?.queryParameter(QUERY_AUTH) == authConnected && authValidity?.after(Date()) == true) { // todo verify difference between ping too late and ping not connected
+        return if (request.requestUrl?.queryParameter(QUERY_AUTH) == authConnected && authValidity?.after(TimeOperations.getCurrentDate()) == true) { // todo verify difference between ping too late and ping not connected
             get200Response()
         } else {
             MockResponse().setResponseCode(501) // Todo send it back as it is on ampache server
@@ -68,6 +84,7 @@ class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() 
         const val QUERY_USER = "user"
         const val QUERY_AUTH = "auth"
         const val SCHEME_TOKEN = "#authToken#"
+        const val SCHEME_EXPIRATION = "#expireDate#"
         const val ACTION_HANDSHAKE = "handshake"
         const val ACTION_PING = "ping"
         const val ACTION_SONGS = "songs"

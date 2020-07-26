@@ -9,6 +9,7 @@ import android.os.Build
 import android.security.KeyPairGeneratorSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
 import java.io.File
@@ -17,13 +18,10 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.math.BigInteger
 import java.security.*
-import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.NoSuchPaddingException
 import javax.crypto.spec.GCMParameterSpec
-import javax.inject.Inject
-import javax.inject.Singleton
 import javax.security.auth.x500.X500Principal
 
 
@@ -74,7 +72,7 @@ class AuthPersistenceKeystore(
                 return secretValue
             }
             private set(value) {
-                encryptSecret(value, Date(expiration))
+                encryptSecret(value, TimeOperations.getDateFromMillis(expiration).timeInMillis)
             }
         override var expiration: Long = 0L
             get() = preference.getLong(alias, field)
@@ -88,12 +86,13 @@ class AuthPersistenceKeystore(
         }
 
         override fun hasSecret(): Boolean = keyStore.containsAlias(alias)
+        override fun isDataValid(): Boolean = TimeOperations.getDateFromMillis(expiration).after(TimeOperations.getCurrentDate())
 
         private fun getRsaKey(alias: String): Key? = keyStore.getKey(alias, null)
 
         @TargetApi(Build.VERSION_CODES.M) //todo pre-m
         @Throws(KeyStoreException::class, UnrecoverableEntryException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, NoSuchPaddingException::class, InvalidKeyException::class, IOException::class)
-        private fun encryptSecret(secret: String, expiration: Date) {
+        private fun encryptSecret(secret: String, expiration: Long) {
             ensureRsaKey(expiration)
             val privateKeyEntry = getRsaKey(alias)
             val cipher = Cipher.getInstance(AES_CIPHER)
@@ -128,7 +127,7 @@ class AuthPersistenceKeystore(
             }
         }
 
-        private fun ensureRsaKey(expiration: Date) {
+        private fun ensureRsaKey(expiration: Long) {
             if (!keyStore.containsAlias(alias)) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) { //todo pre-m
                     getSpecFromKeyPairGenerator() //todo pre-m
@@ -138,7 +137,7 @@ class AuthPersistenceKeystore(
                     keyGenerator.generateKey()
                 }
 
-                preference.applyPutLong(alias, expiration.time)
+                preference.applyPutLong(alias, expiration)
             }
         }
 

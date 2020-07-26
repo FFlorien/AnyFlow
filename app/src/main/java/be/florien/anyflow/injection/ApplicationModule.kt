@@ -38,7 +38,8 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection = AmpacheConnection(authPersistence, (context.applicationContext as AnyFlowApp), sharedPreferences)
+    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection =
+            AmpacheConnection(authPersistence, (context.applicationContext as AnyFlowApp), sharedPreferences)
 
     @Provides
     fun provideAmpacheConnectionStatus(connection: AmpacheConnection): ValueLiveData<AmpacheConnection.ConnectionStatus> = connection.connectionStatusUpdater

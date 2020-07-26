@@ -2,7 +2,7 @@
 <root>
 	<auth><![CDATA[#authToken#]]></auth>
 	<api><![CDATA[380001]]></api>
-	<session_expire><![CDATA[2020-05-26T17:15:19+02:00]]></session_expire>
+	<session_expire><![CDATA[#expireDate#]]></session_expire>
 	<update><![CDATA[2020-01-08T08:00:13+01:00]]></update>
 	<add><![CDATA[2020-01-08T14:04:53+01:00]]></add>
 	<clean><![CDATA[2019-12-05T22:39:28+01:00]]></clean>

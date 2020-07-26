@@ -2,6 +2,7 @@ package be.florien.anyflow.data.server
 
 import android.content.SharedPreferences
 import be.florien.anyflow.UserComponentContainer
+import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.server.exception.NotAnAmpacheUrlException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongFormatServerUrlException
@@ -15,7 +16,6 @@ import okhttp3.HttpUrl
 import retrofit2.HttpException
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,8 +40,7 @@ open class AmpacheConnection
 
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
-    private val oldestDateForRefresh = Calendar.getInstance().apply { timeInMillis = 0L }
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val oldestDateForRefresh = TimeOperations.getDateFromMillis(0L)
 
     private val itemLimit: Int = 150
     private var songOffset: Int = sharedPreferences.getLong(OFFSET_SONG, 0).toInt()
@@ -95,7 +94,7 @@ open class AmpacheConnection
      * API calls : connection
      */
     suspend fun authenticate(user: String, password: String): AmpacheAuthentication {
-        val time = (Date().time / 1000).toString()
+        val time = (TimeOperations.getCurrentDate().timeInMillis / 1000).toString()
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
         val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
@@ -109,7 +108,7 @@ open class AmpacheConnection
                     connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
                     throw WrongIdentificationPairException(authentication.error.errorText)
                 }
-                0 -> authPersistence.saveConnectionInfo(user, password, authentication.auth, authentication.sessionExpire)
+                0 -> authPersistence.saveConnectionInfo(user, password, authentication.auth, TimeOperations.getDateFromAmpacheComplete(authentication.sessionExpire).timeInMillis)
             }
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
             return authentication
@@ -126,7 +125,7 @@ open class AmpacheConnection
     suspend fun ping(authToken: String = authPersistence.authToken.secret): AmpachePing {
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         val ping = ampacheApi.ping(auth = authToken)
-        authPersistence.setNewAuthExpiration(ping.sessionExpire)
+        authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.sessionExpire).timeInMillis)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
         return ping
     }
@@ -179,7 +178,7 @@ open class AmpacheConnection
      */
 
     suspend fun getSongs(from: Calendar = oldestDateForRefresh): AmpacheSongList? {
-        val songList = ampacheApi.getSongs(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = songOffset)
+        val songList = ampacheApi.getSongs(auth = authPersistence.authToken.secret, add = TimeOperations.getAmpacheGetFormatted(from), limit = itemLimit, offset = songOffset)
         return if (songList.songs.isEmpty()) {
             songsPercentageUpdater.postValue(-1)
             sharedPreferences.edit().remove(OFFSET_SONG).apply()
@@ -194,7 +193,7 @@ open class AmpacheConnection
     }
 
     suspend fun getArtists(from: Calendar = oldestDateForRefresh): AmpacheArtistList? {
-        val artistList = ampacheApi.getArtists(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = artistOffset)
+        val artistList = ampacheApi.getArtists(auth = authPersistence.authToken.secret, add = TimeOperations.getAmpacheGetFormatted(from), limit = itemLimit, offset = artistOffset)
 
         return if (artistList.artists.isEmpty()) {
             artistsPercentageUpdater.postValue(-1)
@@ -210,7 +209,7 @@ open class AmpacheConnection
     }
 
     suspend fun getAlbums(from: Calendar = oldestDateForRefresh): AmpacheAlbumList? {
-        val albumList = ampacheApi.getAlbums(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = albumOffset)
+        val albumList = ampacheApi.getAlbums(auth = authPersistence.authToken.secret, add = TimeOperations.getAmpacheGetFormatted(from), limit = itemLimit, offset = albumOffset)
         return if (albumList.albums.isEmpty()) {
             albumsPercentageUpdater.postValue(-1)
             sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
@@ -225,7 +224,7 @@ open class AmpacheConnection
     }
 
     suspend fun getTags(from: Calendar = oldestDateForRefresh): AmpacheTagList? {
-        val tagList = ampacheApi.getTags(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = tagOffset)
+        val tagList = ampacheApi.getTags(auth = authPersistence.authToken.secret, add = TimeOperations.getAmpacheGetFormatted(from), limit = itemLimit, offset = tagOffset)
         return if (tagList.tags.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_TAG).apply()
             null
@@ -237,7 +236,7 @@ open class AmpacheConnection
     }
 
     suspend fun getPlaylists(from: Calendar = oldestDateForRefresh): AmpachePlayListList? {
-        val playlistList = ampacheApi.getPlaylists(auth = authPersistence.authToken.secret, add = dateFormatter.format(from.time), limit = itemLimit, offset = playlistOffset)
+        val playlistList = ampacheApi.getPlaylists(auth = authPersistence.authToken.secret, add = TimeOperations.getAmpacheGetFormatted(from), limit = itemLimit, offset = playlistOffset)
         return if (playlistList.playlists.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
             null

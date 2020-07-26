@@ -3,6 +3,8 @@ package be.florien.anyflow.data.server
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import be.florien.anyflow.captureValues
 import be.florien.anyflow.data.InMemorySharedPreference
+import be.florien.anyflow.data.TestingTimeUpdater
+import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.NotAnAmpacheUrlException
 import be.florien.anyflow.data.server.exception.WrongFormatServerUrlException
@@ -10,8 +12,9 @@ import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.data.user.AuthPersistenceFake
 import be.florien.anyflow.injection.UserComponentContainerFake
 import com.google.common.truth.Truth.assertThat
-import junit.framework.Assert.fail
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -21,11 +24,19 @@ class AmpacheConnectionTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var ampacheConnection: AmpacheConnection
+    private val currentTimeUpdater = TestingTimeUpdater()
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
+        TimeOperations.currentTimeUpdater = currentTimeUpdater
         ampacheConnection = AmpacheConnection(AuthPersistenceFake(), UserComponentContainerFake(), InMemorySharedPreference())
+    }
+
+    @After
+    @Throws(Exception::class)
+    fun cleanUp() {
+        currentTimeUpdater.clearAll()
     }
 
     /**
@@ -120,14 +131,6 @@ class AmpacheConnectionTest {
             } catch (exception: Exception) {
                 assertThat(exception).isInstanceOf(NoServerException::class.java)
             }
-        }
-    }
-
-    @Test
-    fun `With a connection not authenticated - When calling ping - Then the call fail`() {
-        runBlocking {
-            ampacheConnection.openConnection(AmpacheServerFakeDispatcher.GOOD_URL)
-            ampacheConnection.ping() //todo retrieve and return the right data
         }
     }
 

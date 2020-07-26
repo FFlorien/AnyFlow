@@ -21,7 +21,6 @@ import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.applyPutLong
-import be.florien.anyflow.extension.getDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -42,9 +41,7 @@ class DataRepository
     val changeUpdater
         get() = libraryDatabase.changeUpdater
 
-    private fun lastAcceptableUpdate() = Calendar.getInstance().apply {
-        add(Calendar.HOUR, -1)
-    }
+    private fun lastAcceptableUpdate() = TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1)
 
     /**
      * Getter with server updates
@@ -133,8 +130,8 @@ class DataRepository
             getError: SERVER_TYPE.() -> AmpacheError,
             saveToDatabase: suspend (SERVER_TYPE?) -> Unit) {
 
-        val nowDate = Calendar.getInstance()
-        val lastUpdate = sharedPreferences.getDate(updatePreferenceName, 0)
+        val nowDate = TimeOperations.getCurrentDate()
+        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {
