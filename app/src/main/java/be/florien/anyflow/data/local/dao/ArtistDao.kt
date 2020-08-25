@@ -10,4 +10,7 @@ import be.florien.anyflow.data.local.model.DbArtistDisplay
 interface ArtistDao : BaseDao<DbArtist> {
     @Query("SELECT DISTINCT song.albumArtistId AS id, song.albumArtistName AS name, artist.art AS art FROM song LEFT JOIN artist ON song.albumArtistId = artist.id ORDER BY albumArtistName COLLATE UNICODE")
     fun orderByName(): DataSource.Factory<Int, DbArtistDisplay>
+
+    @Query("SELECT DISTINCT song.albumArtistId AS id, song.albumArtistName AS name, artist.art AS art FROM song LEFT JOIN artist ON song.albumArtistId = artist.id WHERE song.albumArtistName LIKE :filter ORDER BY albumArtistName COLLATE UNICODE")
+    fun orderByNameFiltered(filter: String): DataSource.Factory<Int, DbArtistDisplay>
 }

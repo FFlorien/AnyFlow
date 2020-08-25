@@ -1,6 +1,8 @@
 package be.florien.anyflow.feature.player.filter.selection
 
+import android.text.TextWatcher
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
@@ -9,6 +11,8 @@ import be.florien.anyflow.player.FiltersManager
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {
     abstract val values: LiveData<PagedList<FilterItem>>
     abstract val itemDisplayType: Int
+    abstract val searchTextWatcher: TextWatcher
+    val searchedText: MutableLiveData<String> = MutableLiveData("")
 
     protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
 

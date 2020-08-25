@@ -61,6 +61,9 @@ class DataRepository
     fun <T> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbums().map { mapping(it) })
     fun <T> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
     fun <T> getGenres(mapping: (String) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getGenres().map { mapping(it) })
+    fun <T> getAlbumsFiltered(filter: String, mapping: (DbAlbumDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumsFiltered("%$filter%").map { mapping(it) })
+    fun <T> getArtistsFiltered(filter: String, mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
+    fun <T> getGenresFiltered(filter: String, mapping: (String) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getGenresFiltered("%$filter%").map { mapping(it) })
 
     fun getOrders() = libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
     suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> = withContext(Dispatchers.IO) {

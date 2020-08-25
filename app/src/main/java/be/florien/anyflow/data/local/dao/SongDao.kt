@@ -32,4 +32,7 @@ interface SongDao : BaseDao<DbSong> {
 
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenre(): DataSource.Factory<Int, String>
+
+    @Query("SELECT DISTINCT genre FROM song WHERE genre LIKE :filter ORDER BY genre COLLATE UNICODE")
+    fun genreOrderByGenreFiltered(filter: String): DataSource.Factory<Int, String>
 }

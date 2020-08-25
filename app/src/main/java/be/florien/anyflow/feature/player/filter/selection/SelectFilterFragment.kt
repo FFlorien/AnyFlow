@@ -3,11 +3,14 @@ package be.florien.anyflow.feature.player.filter.selection
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
@@ -23,6 +26,8 @@ import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewM
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @ActivityScope
 @UserScope
@@ -84,6 +89,24 @@ constructor(private var filterType: String) : BaseFragment() {
         viewModel.values.observeNullable(viewLifecycleOwner) {
             (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(it)
         }
+        fragmentBinding.search.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                lifecycleScope.launch {
+                    delay(200)
+                    viewModel.values.observeNullable(viewLifecycleOwner) {
+                        (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(it)
+                    }
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                viewModel.values.removeObservers(this@SelectFilterFragment)
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+        })
         return fragmentBinding.root
     }
 
@@ -99,7 +122,7 @@ constructor(private var filterType: String) : BaseFragment() {
             holder.bind(getItem(position))
         }
 
-        override fun getSectionName(position: Int): String = viewModel.values.value?.get(position)?.displayName?.first()?.toUpperCase()?.toString()
+        override fun getSectionName(position: Int): String = viewModel.values.value?.get(position)?.displayName?.firstOrNull()?.toUpperCase()?.toString()
                 ?: ""
     }
 

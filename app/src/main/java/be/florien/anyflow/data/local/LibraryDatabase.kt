@@ -44,10 +44,13 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getSongsFromQuery(query: String): List<Long> = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
 
     fun getGenres(): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenre()
+    fun getGenresFiltered(filter: String): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenreFiltered(filter)
 
     fun getAlbumArtists(): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByName()
+    fun getAlbumArtistsFiltered(filter: String): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByNameFiltered(filter)
 
     fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
+    fun getAlbumsFiltered(filter: String): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByNameFiltered(filter)
 
     fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters()
 
