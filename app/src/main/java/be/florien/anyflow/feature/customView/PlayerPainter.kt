@@ -33,7 +33,7 @@ abstract class PlayerPainter(val context: Context) {
     var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
     var onValuesComputed: () -> Unit = {}
 
-    protected var oldState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+    private var oldState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
     protected var shouldShowBuffering: Boolean = false
     protected var elapsedDurationText: String = ""
     protected var remainingDurationText: String = ""

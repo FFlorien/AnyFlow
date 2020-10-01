@@ -12,7 +12,4 @@ open class BaseViewModel : ViewModel() {
 
     protected val <T> LiveData<T>.mutable: MutableLiveData<T>
             get() = this as MutableLiveData<T>
-
-    protected val <T> ValueLiveData<T>.mutable: MutableValueLiveData<T>
-            get() = this as MutableValueLiveData<T>
 }

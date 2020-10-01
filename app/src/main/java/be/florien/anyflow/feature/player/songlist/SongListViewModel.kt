@@ -5,11 +5,10 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.MutableValueLiveData
-import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
@@ -23,9 +22,7 @@ import javax.inject.Inject
 
 @ActivityScope
 class SongListViewModel
-@Inject constructor(
-        private val playingQueue: PlayingQueue
-) : BaseViewModel() {
+@Inject constructor(private val playingQueue: PlayingQueue) : BaseViewModel() {
 
     internal var connection: PlayerConnection = PlayerConnection()
     private var player: PlayerController = IdlePlayerController()
@@ -39,7 +36,7 @@ class SongListViewModel
         override fun onRemoved(position: Int, count: Int) {}
     }
 
-    private val isLoadingAll: ValueLiveData<Boolean> = MutableValueLiveData(false)
+    private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     val pagedAudioQueue: LiveData<PagedList<Song>> = MediatorLiveData<PagedList<Song>>().apply {
 
         addSource(playingQueue.songDisplayListUpdater) {
@@ -68,7 +65,7 @@ class SongListViewModel
             value = isListPositionLoaded()
         }
     }
-    val isFollowingCurrentSong = MutableValueLiveData(true)
+    val isFollowingCurrentSong = MutableLiveData(true)
 
     private fun isListPositionLoaded(): Boolean {
         val position = listPosition.value ?: 0

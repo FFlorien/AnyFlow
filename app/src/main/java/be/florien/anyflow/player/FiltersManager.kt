@@ -2,11 +2,10 @@ package be.florien.anyflow.player
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
-import be.florien.anyflow.feature.MutableValueLiveData
-import be.florien.anyflow.feature.ValueLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,7 +15,7 @@ class FiltersManager
     private var currentFilters: List<Filter<*>> = listOf()
     private val unCommittedFilters = mutableSetOf<Filter<*>>()
     private var areFiltersChanged = false
-    val filtersInEdition: ValueLiveData<Set<Filter<*>>> = MutableValueLiveData(setOf())
+    val filtersInEdition: LiveData<Set<Filter<*>>> = MutableLiveData(setOf())
     val filterGroups = dataRepository.getFilterGroups()
     val hasChange: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(filtersInEdition) {
@@ -25,32 +24,32 @@ class FiltersManager
     }
 
     init {
-        dataRepository.getCurrentFilters().observeForever() { filters ->
+        dataRepository.getCurrentFilters().observeForever { filters ->
             currentFilters = filters
 
             if (!areFiltersChanged) {
                 unCommittedFilters.clear()
                 unCommittedFilters.addAll(filters)
-                (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
+                (filtersInEdition as MutableLiveData).value = unCommittedFilters
             }
         }
     }
 
     fun addFilter(filter: Filter<*>) {
         unCommittedFilters.add(filter)
-        (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
+        (filtersInEdition as MutableLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
 
     fun removeFilter(filter: Filter<*>) {
         unCommittedFilters.remove(filter)
-        (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
+        (filtersInEdition as MutableLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
 
     fun clearFilters() {
         unCommittedFilters.clear()
-        (filtersInEdition as MutableValueLiveData).value = unCommittedFilters
+        (filtersInEdition as MutableLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
 

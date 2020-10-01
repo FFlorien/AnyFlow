@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
@@ -29,7 +28,6 @@ import be.florien.anyflow.feature.connect.ConnectActivity
 import be.florien.anyflow.feature.menu.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.OrderMenuHolder
-import be.florien.anyflow.feature.observeValue
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.injection.ActivityScope
@@ -110,7 +108,7 @@ class PlayerActivity : AppCompatActivity() {
         viewModel.isOrdered.observe(this) {
             orderMenu.changeState(it)
         }
-        viewModel.connectionStatus.observeValue(this) {
+        viewModel.connectionStatus.observe(this) {
             when (it) {
                 AmpacheConnection.ConnectionStatus.WRONG_ID_PAIR -> {
                     startActivity(ConnectActivity::class)
@@ -120,7 +118,7 @@ class PlayerActivity : AppCompatActivity() {
                 AmpacheConnection.ConnectionStatus.CONNECTED -> animateDisappearance(binding.connectionStateView)
             }
         }
-        viewModel.songsUpdatePercentage.observeValue(this) {
+        viewModel.songsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_songs, it)
                 animateAppearance(binding.updatingStateView)
@@ -128,7 +126,7 @@ class PlayerActivity : AppCompatActivity() {
                 animateDisappearance(binding.updatingStateView)
             }
         }
-        viewModel.albumsUpdatePercentage.observeValue(this) {
+        viewModel.albumsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_albums, it)
                 animateAppearance(binding.updatingStateView)
@@ -136,7 +134,7 @@ class PlayerActivity : AppCompatActivity() {
                 animateDisappearance(binding.updatingStateView)
             }
         }
-        viewModel.artistsUpdatePercentage.observeValue(this) {
+        viewModel.artistsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_artists, it)
                 animateAppearance(binding.updatingStateView)

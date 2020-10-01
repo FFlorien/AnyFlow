@@ -3,10 +3,7 @@ package be.florien.anyflow.feature.player
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.map
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Order
@@ -17,8 +14,6 @@ import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TITLE
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_TRACK
 import be.florien.anyflow.data.view.Order.Companion.SUBJECT_YEAR
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.MutableValueLiveData
-import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
 import be.florien.anyflow.feature.customView.PlayerControls
 import be.florien.anyflow.player.IdlePlayerController
@@ -38,13 +33,13 @@ class PlayerViewModel
 constructor(
         private val playingQueue: PlayingQueue,
         private val dataRepository: DataRepository,
-        val connectionStatus: ValueLiveData<AmpacheConnection.ConnectionStatus>,
+        val connectionStatus: LiveData<AmpacheConnection.ConnectionStatus>,
         @Named("Songs")
-        val songsUpdatePercentage: ValueLiveData<Int>,
+        val songsUpdatePercentage: LiveData<Int>,
         @Named("Albums")
-        val albumsUpdatePercentage: ValueLiveData<Int>,
+        val albumsUpdatePercentage: LiveData<Int>,
         @Named("Artists")
-        val artistsUpdatePercentage: ValueLiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
+        val artistsUpdatePercentage: LiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
 
     internal val playerConnection: PlayerConnection = PlayerConnection()
     internal val updateConnection: UpdateConnection = UpdateConnection()
@@ -53,7 +48,7 @@ constructor(
     /**
      * Bindables
      */
-    val shouldShowBuffering: ValueLiveData<Boolean> = MutableValueLiveData(false)
+    val shouldShowBuffering: LiveData<Boolean> = MutableLiveData(false)
     val state: LiveData<Int> = MediatorLiveData()
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
 

@@ -5,12 +5,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ActivityConnectBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
-import be.florien.anyflow.feature.observeNullable
-import be.florien.anyflow.feature.observeValue
 import be.florien.anyflow.feature.player.PlayerActivity
 import com.google.android.material.snackbar.Snackbar
 
@@ -32,14 +31,14 @@ open class ConnectActivityBase : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        viewModel.isConnected.observeValue(this) {
+        viewModel.isConnected.observe(this) {
             if (it) {
                 startActivity(PlayerActivity::class)
                 finish()
             }
         }
-        viewModel.errorMessage.observeNullable(this) {
-            if (it != null) {
+        viewModel.errorMessage.observe(this) {
+            if (it > 0) {
                 Snackbar.make(binding.loadingProgress, it, Snackbar.LENGTH_LONG).show()
             }
         }

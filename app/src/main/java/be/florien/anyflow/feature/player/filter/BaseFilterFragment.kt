@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.lifecycle.observe
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.MenuCoordinator
-import be.florien.anyflow.feature.observeValue
 import be.florien.anyflow.feature.player.PlayerActivity
 
 abstract class BaseFilterFragment : BaseFragment() {
@@ -21,7 +21,7 @@ abstract class BaseFilterFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        baseViewModel.areFiltersInEdition.observeValue(viewLifecycleOwner) {
+        baseViewModel.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
                 (requireActivity() as PlayerActivity).displaySongList()
             }

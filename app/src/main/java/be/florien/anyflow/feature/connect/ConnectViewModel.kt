@@ -8,8 +8,6 @@ import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.MutableValueLiveData
-import be.florien.anyflow.feature.ValueLiveData
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,9 +26,9 @@ open class ConnectViewModel : BaseViewModel() {
     var server = MutableLiveData("")
     var username = MutableLiveData("")
     var password = MutableLiveData("")
-    val isLoading: ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val isConnected: ValueLiveData<Boolean> = MutableValueLiveData(false)
-    val errorMessage: LiveData<Int> = MutableLiveData(null)
+    val isLoading: LiveData<Boolean> = MutableLiveData(false)
+    val isConnected: LiveData<Boolean> = MutableLiveData(false)
+    val errorMessage: LiveData<Int> = MutableLiveData(-1)
 
     /**
      * Buttons calls

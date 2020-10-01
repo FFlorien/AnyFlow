@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import be.florien.anyflow.R
 import kotlin.math.absoluteValue
+import kotlin.math.min
 
 
 /**
@@ -110,7 +111,7 @@ class PlayerControls
         }
 
         val desiredHeight = when (heightMode) {
-            MeasureSpec.AT_MOST -> Math.min(heightSize, idealButtonSize)
+            MeasureSpec.AT_MOST -> min(heightSize, idealButtonSize)
             MeasureSpec.EXACTLY -> heightSize
             MeasureSpec.UNSPECIFIED -> idealButtonSize
             else -> idealButtonSize

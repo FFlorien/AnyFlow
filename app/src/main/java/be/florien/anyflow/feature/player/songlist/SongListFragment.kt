@@ -26,8 +26,6 @@ import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
-import be.florien.anyflow.feature.observeNullable
-import be.florien.anyflow.feature.observeValue
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.PlayerService
@@ -92,7 +90,7 @@ class SongListFragment : BaseFragment() {
         })
         binding.songList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                if (e.action == MotionEvent.ACTION_MOVE && !viewModel.isFollowingCurrentSong.value) {
+                if (e.action == MotionEvent.ACTION_MOVE && viewModel.isFollowingCurrentSong.value == false) {
                     viewModel.isFollowingCurrentSong.value = false
                 }
                 return false
@@ -109,22 +107,20 @@ class SongListFragment : BaseFragment() {
             binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
-        viewModel.pagedAudioQueue.observeNullable(viewLifecycleOwner) {
-            if (it != null) {
-                (binding.songList.adapter as SongAdapter).submitList(it)
-                updateLoadingVisibility(true)
-            }
+        viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
+            (binding.songList.adapter as SongAdapter).submitList(it)
+            updateLoadingVisibility(true)
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
             updateScrollPosition()
         }
-        viewModel.listPositionLoaded.observeNullable(viewLifecycleOwner) {
-            if (viewModel.pagedAudioQueue.value != null && it == true) {
+        viewModel.listPositionLoaded.observe(viewLifecycleOwner) {
+            if (viewModel.pagedAudioQueue.value != null && it) {
                 updateScrollPosition()
             }
         }
-        viewModel.isFollowingCurrentSong.observeValue(viewLifecycleOwner) {
+        viewModel.isFollowingCurrentSong.observe(viewLifecycleOwner) {
             if (it) {
                 updateScrollPosition()
             }
@@ -164,7 +160,7 @@ class SongListFragment : BaseFragment() {
 
     private fun updateScrollPosition() {
         Timber.i("Is considering the need to scroll")
-        if (viewModel.isFollowingCurrentSong.value) {
+        if (viewModel.isFollowingCurrentSong.value == true) {
             binding.songList.stopScroll()
 
             if (viewModel.listPositionLoaded.value == true && viewModel.pagedAudioQueue.value != null) {
