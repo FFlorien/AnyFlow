@@ -18,7 +18,8 @@ import be.florien.anyflow.databinding.FragmentSelectFilterBinding
 import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.feature.player.filter.BaseFilterFragment
+import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ARTIST_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.GENRE_ID
@@ -31,7 +32,7 @@ import kotlinx.coroutines.launch
 @ActivityScope
 @UserScope
 class SelectFilterFragment @SuppressLint("ValidFragment")
-constructor(private var filterType: String) : BaseFragment() {
+constructor(private var filterType: String) : BaseFilterFragment() {
     override fun getTitle(): String = when (filterType) {
         ALBUM_ID -> getString(R.string.filter_title_album)
         ARTIST_ID -> getString(R.string.filter_title_album_artist)
@@ -43,6 +44,8 @@ constructor(private var filterType: String) : BaseFragment() {
         private const val FILTER_TYPE = "TYPE"
     }
 
+    override val baseViewModel: BaseFilterViewModel
+        get() = viewModel
     lateinit var viewModel: SelectFilterViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
 
@@ -62,11 +65,12 @@ constructor(private var filterType: String) : BaseFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(
-                when (filterType) {
-                    ALBUM_ID -> SelectFilterAlbumViewModel::class.java
-                    ARTIST_ID -> SelectFilterArtistViewModel::class.java
-                    else -> SelectFilterGenreViewModel::class.java
-                })
+            when (filterType) {
+                ALBUM_ID -> SelectFilterAlbumViewModel::class.java
+                ARTIST_ID -> SelectFilterArtistViewModel::class.java
+                else -> SelectFilterGenreViewModel::class.java
+            }
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -112,10 +116,12 @@ constructor(private var filterType: String) : BaseFragment() {
     inner class FilterListAdapter : PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object : DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
         override fun areItemsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem) = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem): Boolean = oldItem.isSelected == newItem.isSelected && oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName
+        override fun areContentsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem): Boolean =
+            oldItem.isSelected == newItem.isSelected && oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName
 
     }), FastScrollRecyclerView.SectionedAdapter {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder = if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_LIST) FilterListViewHolder() else FilterGridViewHolder()
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =
+            if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_LIST) FilterListViewHolder() else FilterGridViewHolder()
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             holder.bind(getItem(position))
@@ -134,9 +140,10 @@ constructor(private var filterType: String) : BaseFragment() {
         }
     }
 
-    inner class FilterListViewHolder(private val itemFilterTypeBinding: ItemSelectFilterListBinding
-                                     = ItemSelectFilterListBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
-        : FilterViewHolder(itemFilterTypeBinding.root) {
+    inner class FilterListViewHolder(
+        private val itemFilterTypeBinding: ItemSelectFilterListBinding
+        = ItemSelectFilterListBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
+    ) : FilterViewHolder(itemFilterTypeBinding.root) {
 
         override fun bind(filter: SelectFilterViewModel.FilterItem?) {
             itemFilterTypeBinding.vm = viewModel
@@ -152,9 +159,10 @@ constructor(private var filterType: String) : BaseFragment() {
         }
     }
 
-    inner class FilterGridViewHolder(private val itemFilterTypeBinding: ItemSelectFilterGridBinding
-                                     = ItemSelectFilterGridBinding.inflate(layoutInflater, fragmentBinding.filterList, false))
-        : FilterViewHolder(itemFilterTypeBinding.root) {
+    inner class FilterGridViewHolder(
+        private val itemFilterTypeBinding: ItemSelectFilterGridBinding
+        = ItemSelectFilterGridBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
+    ) : FilterViewHolder(itemFilterTypeBinding.root) {
 
         override fun bind(filter: SelectFilterViewModel.FilterItem?) {
             itemFilterTypeBinding.vm = viewModel

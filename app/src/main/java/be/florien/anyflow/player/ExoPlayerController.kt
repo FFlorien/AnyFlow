@@ -70,7 +70,6 @@ class ExoPlayerController
             this@ExoPlayerController.iLog("New song is $song")
             song?.let {
                 prepare(it)
-                resume()
             }
         }
         GlobalScope.launch(Dispatchers.Default) {

@@ -72,12 +72,7 @@ class SongListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.adapter = SongAdapter().apply {
-            val data = viewModel.pagedAudioQueue.value
-            if (data != null) {
-                submitData(viewLifecycleOwner.lifecycle, data)
-            }
-        }
+        binding.songList.adapter = SongAdapter()
 
         linearLayoutManager = LinearLayoutManager(activity)
         binding.songList.layoutManager = linearLayoutManager

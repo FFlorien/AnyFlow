@@ -182,8 +182,7 @@ class DataRepository
     ) {
 
         val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate = TimeOperations.getDateFromMillis(0)
-//            TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
+        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {

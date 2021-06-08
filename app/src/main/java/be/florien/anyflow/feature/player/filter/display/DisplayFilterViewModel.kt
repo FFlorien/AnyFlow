@@ -11,9 +11,7 @@ import javax.inject.Inject
 
 class DisplayFilterViewModel @Inject constructor(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {
 
-    val currentFilters: LiveData<List<Filter<*>>> = filtersManager.filtersInEdition.map { it.toList() }
     val areFilterGroupExisting: LiveData<Boolean> = filtersManager.filterGroups.map { it.isNotEmpty() }
-    val hasChangeFromCurrentFilters: LiveData<Boolean> = filtersManager.hasChange
 
     fun clearFilters() {
         filtersManager.clearFilters()
@@ -25,11 +23,5 @@ class DisplayFilterViewModel @Inject constructor(filtersManager: FiltersManager)
 
     fun resetFilterChanges() {
         filtersManager.abandonChanges()
-    }
-
-    fun saveFilterGroup(name: String) {
-        viewModelScope.launch {
-            filtersManager.saveCurrentFilterGroup(name)
-        }
     }
 }
