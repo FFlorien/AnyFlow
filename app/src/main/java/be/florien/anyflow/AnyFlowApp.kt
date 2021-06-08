@@ -11,11 +11,9 @@ import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
-import com.crashlytics.android.Crashlytics
-import io.fabric.sdk.android.Fabric
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import retrofit2.converter.jackson.JacksonConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -37,34 +35,38 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
 
     override fun onCreate() {
         super.onCreate()
-        Fabric.with(this, Crashlytics())
         Timber.plant(CrashReportingTree())
         initApplicationComponent()
         ampacheConnection.ensureConnection()
         createNotificationChannel()
-        Thread.setDefaultUncaughtExceptionHandler { _, e -> this@AnyFlowApp.eLog(e, "Unexpected error") }
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+            this@AnyFlowApp.eLog(
+                e,
+                "Unexpected error"
+            )
+        }
     }
 
     protected open fun initApplicationComponent() {
         applicationComponent = DaggerApplicationComponent
-                .builder()
-                .application(this)
-                .build()
+            .builder()
+            .application(this)
+            .build()
         applicationComponent.inject(this)
     }
 
     override fun createUserScopeForServer(serverUrl: String): AmpacheApi {
         val ampacheApi = Retrofit
-                .Builder()
-                .baseUrl(serverUrl)
-                .client(okHttpClient)
-                .addConverterFactory(SimpleXmlConverterFactory.create())
-                .build()
-                .create(AmpacheApi::class.java)
+            .Builder()
+            .baseUrl(serverUrl)
+            .client(okHttpClient)
+            .addConverterFactory(JacksonConverterFactory.create())
+            .build()
+            .create(AmpacheApi::class.java)
         userComponent = applicationComponent
-                .userComponentBuilder()
-                .ampacheApi(ampacheApi)
-                .build()
+            .userComponentBuilder()
+            .ampacheApi(ampacheApi)
+            .build()
         return ampacheApi
     }
 

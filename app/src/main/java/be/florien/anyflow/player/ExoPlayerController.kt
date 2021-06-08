@@ -12,26 +12,21 @@ import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.iLog
 import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.trackselection.TrackSelector
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.HttpDataSource
-import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 class ExoPlayerController
 @Inject constructor(
-        private var playingQueue: PlayingQueue,
-        private var ampacheConnection: AmpacheConnection,
-        private val context: Context,
-        okHttpClient: OkHttpClient) : PlayerController, Player.EventListener {
+    private var playingQueue: PlayingQueue,
+    private var ampacheConnection: AmpacheConnection,
+    private val context: Context,
+    okHttpClient: OkHttpClient
+) : PlayerController, Player.Listener {
 
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
 
@@ -62,16 +57,21 @@ class ExoPlayerController
      */
 
     init {
-        val trackSelector: TrackSelector = DefaultTrackSelector()
-        mediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector).apply {
+        mediaPlayer = SimpleExoPlayer.Builder(context).build().apply {
             addListener(this@ExoPlayerController)
         }
-        val bandwidthMeter = DefaultBandwidthMeter()
-        val userAgent = Util.getUserAgent(context, "anyflowUserAgent")
-        dataSourceFactory = DefaultDataSourceFactory(context, DefaultBandwidthMeter(), OkHttpDataSourceFactory(okHttpClient, userAgent, bandwidthMeter))
+        val bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
+        dataSourceFactory = DefaultDataSourceFactory(
+            context,
+            bandwidthMeter,
+            OkHttpDataSource.Factory(okHttpClient)
+        )
         playingQueue.currentSong.observeForever { song ->
             this@ExoPlayerController.iLog("New song is $song")
-            song?.let { prepare(it) }
+            song?.let {
+                prepare(it)
+                resume()
+            }
         }
         GlobalScope.launch(Dispatchers.Default) {
             while (true) {
@@ -94,8 +94,8 @@ class ExoPlayerController
 
     private fun prepare(song: Song) {
         GlobalScope.launch(Dispatchers.Main) {
-            mediaPlayer.prepare(ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(ampacheConnection.getSongUrl(song.url))))
-            mediaPlayer.seekTo(0, C.TIME_UNSET)
+            mediaPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(ampacheConnection.getSongUrl(song.url))))
+            mediaPlayer.prepare()
         }
     }
 
@@ -131,16 +131,18 @@ class ExoPlayerController
     /**
      * Listener implementation
      */
-    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-        iLog("onPlaybackParametersChanged")
-    }
 
     override fun onSeekProcessed() {
         iLog("onSeekProcessed")
     }
 
-    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-        iLog("onTrackChanged")
+    override fun onEvents(player: Player, events: Player.Events) {
+        if (events.contains(Player.EVENT_PLAYER_ERROR)) {
+            val error = player.playerError
+            if (error != null) {
+//todo
+            }
+        }
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
@@ -169,10 +171,6 @@ class ExoPlayerController
         iLog("onShuffleModeEnabledChanged")
     }
 
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-        iLog("onTimelineChanged")
-    }
-
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
             Player.STATE_ENDED -> {
@@ -183,8 +181,10 @@ class ExoPlayerController
                 ampacheConnection.resetReconnectionCount()
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.BUFFER
             }
-            Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value = PlayerController.State.NO_MEDIA
-            Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value = if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
+            Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value =
+                PlayerController.State.NO_MEDIA
+            Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value =
+                if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
         }
 
         if (playWhenReady && !isReceiverRegistered) {

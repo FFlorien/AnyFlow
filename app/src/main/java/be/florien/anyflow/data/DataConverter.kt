@@ -33,10 +33,7 @@ fun AmpacheSong.toDbSong() = DbSong(
         rating = rating,
         averagerating = averagerating,
         composer = composer,
-        comment = comment,
-        publisher = publisher,
-        language = language,
-        genre = genre.joinToString(","))
+        genre = genre.map { it.name }.joinToString(","))
 
 fun AmpacheArtist.toDbArtist() = DbArtist(
         id = id,

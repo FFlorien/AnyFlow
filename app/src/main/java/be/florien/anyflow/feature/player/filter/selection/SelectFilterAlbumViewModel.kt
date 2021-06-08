@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.player.filter.selection
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.view.Filter
@@ -11,7 +11,7 @@ import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
 class SelectFilterAlbumViewModel @Inject constructor(dataRepository: DataRepository, filtersManager: FiltersManager) : SelectFilterViewModel(filtersManager) {
-    override var values: LiveData<PagedList<FilterItem>> =
+    override var values: LiveData<PagingData<FilterItem>> =
             dataRepository.getAlbums(::convert)
 
     override val itemDisplayType = ITEM_GRID

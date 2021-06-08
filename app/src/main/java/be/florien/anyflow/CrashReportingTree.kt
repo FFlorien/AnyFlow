@@ -1,7 +1,7 @@
 package be.florien.anyflow
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
 class CrashReportingTree : Timber.Tree() {
@@ -11,11 +11,11 @@ class CrashReportingTree : Timber.Tree() {
      */
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
-        if (message.isNotBlank()) {
-            Crashlytics.log(priority, tag, message)
+        if (message.isNotBlank() && priority > Log.DEBUG) {
+            FirebaseCrashlytics.getInstance().log(message)
         }
         if (throwable != null && priority >= Log.ERROR) {
-            Crashlytics.logException(throwable)
+            FirebaseCrashlytics.getInstance().recordException(throwable)
         }
     }
 }

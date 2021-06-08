@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ActivityConnectBinding
 import be.florien.anyflow.extension.anyFlowApp

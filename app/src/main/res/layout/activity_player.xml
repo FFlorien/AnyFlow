@@ -87,7 +87,6 @@
             app:changeTrackAnimDuration="350"
             app:currentDuration="@{viewModel.currentDuration}"
             app:disabledColor="@color/disabled"
-            app:hasNext="@{viewModel.isNextPossible}"
             app:hasPrevious="@{viewModel.isPreviousPossible}"
             app:iconColor="@color/iconInApp"
             app:minimumDurationForSeek="3000"

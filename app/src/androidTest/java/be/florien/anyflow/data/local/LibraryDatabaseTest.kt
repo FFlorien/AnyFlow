@@ -3,7 +3,7 @@ package be.florien.anyflow.data.local
 import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.distinctUntilChanged
-import androidx.paging.LivePagedListBuilder
+import androidx.paging.LivePagingDataBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import be.florien.anyflow.captureValues
@@ -76,8 +76,8 @@ class LibraryDatabaseTest {
             library.addAlbums(albumsToInsert)
 
             // When Querying Album
-            val pagedList = LivePagedListBuilder(library.getAlbums(), 40).build()
-            val albums = pagedList.getValueForTest()
+            val PagingData = LivePagingDataBuilder(library.getAlbums(), 40).build()
+            val albums = PagingData.getValueForTest()
 
             // Then It Is Retrieved
             assertThat(albums).containsExactlyElementsIn(albumsExpected)
@@ -117,8 +117,8 @@ class LibraryDatabaseTest {
             library.addArtists(artistsToInsert)
 
             // When Querying Album Artist
-            val pagedList = LivePagedListBuilder(library.getAlbumArtists(), 40).build()
-            val artists = pagedList.getValueForTest()
+            val PagingData = LivePagingDataBuilder(library.getAlbumArtists(), 40).build()
+            val artists = PagingData.getValueForTest()
 
             // Then It Is Retrieved
             assertThat(artists).containsExactlyElementsIn(artistsToInsert.map { it.toDbArtistDisplay() })
@@ -358,8 +358,8 @@ class LibraryDatabaseTest {
             library.saveQueueOrder(songList.map { it.id })
 
             // When Querying Queue
-            val pagedList = LivePagedListBuilder(library.getSongsInQueueOrder(), 50).build()
-            val songDisplayList = pagedList.getValueForTest()
+            val PagingData = LivePagingDataBuilder(library.getSongsInQueueOrder(), 50).build()
+            val songDisplayList = PagingData.getValueForTest()
 
             // Then It Is Retrieved
             assertThat(songDisplayList)
@@ -380,8 +380,8 @@ class LibraryDatabaseTest {
             library.saveQueueOrder(randomList.map { it.id })
 
             // When Querying Queue
-            val pagedList = LivePagedListBuilder(library.getSongsInQueueOrder(), 50).build()
-            val songDisplayList = pagedList.getValueForTest()
+            val PagingData = LivePagingDataBuilder(library.getSongsInQueueOrder(), 50).build()
+            val songDisplayList = PagingData.getValueForTest()
 
             // Then It Is The Same Order
             assertThat(songDisplayList)
@@ -407,8 +407,8 @@ class LibraryDatabaseTest {
             library.saveQueueOrder(randomListSecond.map { it.id })
 
             // Then The Order Is Changed
-            val pagedList = LivePagedListBuilder(library.getSongsInQueueOrder(), 50).build()
-            val songDisplayList = pagedList.getValueForTest()
+            val PagingData = LivePagingDataBuilder(library.getSongsInQueueOrder(), 50).build()
+            val songDisplayList = PagingData.getValueForTest()
             assertThat(songDisplayList)
                     .isNotNull()
             assertThat(songDisplayList?.toList())
@@ -427,10 +427,10 @@ class LibraryDatabaseTest {
             val songList = songListFirst + songListNext
             library.addSongs(songListFirst)
             library.saveQueueOrder(songListFirst.map { it.id })
-            val pagedList = LivePagedListBuilder(library.getSongsInQueueOrder(), 50).build()
+            val PagingData = LivePagingDataBuilder(library.getSongsInQueueOrder(), 50).build()
 
             // When Adding Songs In Queue
-            pagedList.captureValues {
+            PagingData.captureValues {
                 assertThat(values.first()).containsExactlyElementsIn(songListFirst.map { it.toDbSongDisplay() })
                 library.addSongs(songListNext)
                 library.saveQueueOrder(songList.map { it.id })
@@ -453,9 +453,9 @@ class LibraryDatabaseTest {
             library.saveQueueOrder(songListFirst.map { it.id })
             library.inTransaction()
             val dataSourceFactory = library.getSongsInQueueOrder()
-            val livePagedListBuilder = LivePagedListBuilder(dataSourceFactory, 50)
-            val pagedList = livePagedListBuilder.build().distinctUntilChanged()
-            pagedList.captureValues {
+            val livePagingDataBuilder = LivePagingDataBuilder(dataSourceFactory, 50)
+            val PagingData = livePagingDataBuilder.build().distinctUntilChanged()
+            PagingData.captureValues {
                 assertThat(values.last()).containsExactlyElementsIn(songListFirst.map { it.toDbSongDisplay() })
 
                 // When Adding Songs Not In Queue
@@ -476,10 +476,10 @@ class LibraryDatabaseTest {
             // With Existing Songs And No Queue
 
             // When Subscribing To Queue Change
-            val pagedList = LivePagedListBuilder(library.getSongsInQueueOrder(), 50).build()
+            val PagingData = LivePagingDataBuilder(library.getSongsInQueueOrder(), 50).build()
 
             // Then It Is Notified With No Songs
-            assertThat(pagedList.getValueForTest()).isEmpty()
+            assertThat(PagingData.getValueForTest()).isEmpty()
         }
     }
 
@@ -493,10 +493,10 @@ class LibraryDatabaseTest {
             library.addSongs(songsToInsert)
 
             // When Querying Genre
-            val pagedList = LivePagedListBuilder(library.getGenres(), 40).build()
+            val PagingData = LivePagingDataBuilder(library.getGenres(), 40).build()
 
             // Then It Is Retrieved
-            val genres = pagedList.getValueForTest()
+            val genres = PagingData.getValueForTest()
             assertThat(genres).containsExactlyElementsIn(genresExpected)
         }
     }

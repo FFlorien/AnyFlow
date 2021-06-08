@@ -33,9 +33,6 @@ data class DbSong(
         val rating: Int,
         val averagerating: Double,
         val composer: String,
-        val comment: String,
-        val publisher: String,
-        val language: String,
         val genre: String)
 
 data class DbSongDisplay(

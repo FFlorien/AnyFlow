@@ -67,11 +67,12 @@ open class ConnectViewModel : BaseViewModel() {
                         }
                     } catch (it: Exception) {
                         isLoading.mutable.value = false
+                        this@ConnectViewModel.eLog(it)
                         when (it) {
                             is WrongIdentificationPairException -> {
-                                this@ConnectViewModel.eLog(it, "Wrong username/password")
                                 errorMessage.mutable.value = R.string.connect_error_credentials
                             }
+                            else -> this@ConnectViewModel.eLog(it, "Connection failed")
                         }
                     }
                 }

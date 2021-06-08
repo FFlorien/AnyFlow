@@ -7,7 +7,6 @@ import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.observe
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
 import javax.inject.Inject
@@ -47,9 +46,6 @@ class PlayerService : LifecycleService() {
 
     private val isPlaying
         get() = playerController.isPlaying()
-
-    private val hasNext
-        get() = playingQueue.listPosition < (playingQueue.itemsCount - 1)
 
     private val hasPrevious
         get() = playingQueue.listPosition > 0
@@ -107,7 +103,7 @@ class PlayerService : LifecycleService() {
 
         }
         playingQueue.currentSong.observe(this) {
-            notificationBuilder.updateNotification(it, isPlaying, hasPrevious, hasNext)
+            notificationBuilder.updateNotification(it, isPlaying, hasPrevious, true)
         }
     }
 

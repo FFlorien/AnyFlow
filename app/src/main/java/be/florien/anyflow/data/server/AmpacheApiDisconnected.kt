@@ -13,16 +13,16 @@ class AmpacheApiDisconnected : AmpacheApi {
     override suspend fun ping(action: String, auth: String): AmpachePing =
             throw NoServerException()
 
-    override suspend fun getSongs(action: String, add: String, auth: String, limit: Int, offset: Int): AmpacheSongList =
+    override suspend fun getSongs(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheSong> =
             throw NoServerException()
 
-    override suspend fun getArtists(action: String, add: String, auth: String, limit: Int, offset: Int): AmpacheArtistList =
+    override suspend fun getArtists(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheArtist> =
             throw NoServerException()
 
-    override suspend fun getAlbums(action: String, add: String, auth: String, limit: Int, offset: Int): AmpacheAlbumList =
+    override suspend fun getAlbums(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheAlbum> =
             throw NoServerException()
 
-    override suspend fun getTags(action: String, add: String, auth: String, limit: Int, offset: Int): AmpacheTagList =
+    override suspend fun getTags(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheTag> =
             throw NoServerException()
 
     override suspend fun getPlaylists(action: String, add: String, auth: String, limit: Int, offset: Int): AmpachePlayListList =

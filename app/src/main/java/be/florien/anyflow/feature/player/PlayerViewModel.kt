@@ -55,7 +55,6 @@ constructor(
     val currentDuration: LiveData<Int> = MediatorLiveData()
     val totalDuration: LiveData<Int> = playingQueue.currentSong.map { it.time * 1000 }
 
-    val isNextPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it < playingQueue.itemsCount - 1 }
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
 
     var player: PlayerController = IdlePlayerController()

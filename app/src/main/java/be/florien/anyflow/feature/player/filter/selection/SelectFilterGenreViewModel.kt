@@ -3,14 +3,14 @@ package be.florien.anyflow.feature.player.filter.selection
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
 class SelectFilterGenreViewModel @Inject constructor(private val dataRepository: DataRepository, filtersManager: FiltersManager) : SelectFilterViewModel(filtersManager) {
-    override var values: LiveData<PagedList<FilterItem>> =
+    override var values: LiveData<PagingData<FilterItem>> =
             dataRepository.getGenres(::convert) // todo move this to dataconverter or datarepo
 
     override val itemDisplayType = ITEM_LIST
@@ -31,8 +31,7 @@ class SelectFilterGenreViewModel @Inject constructor(private val dataRepository:
     }
     private var currentId = 0L
 
-    override fun getFilter(filterValue: FilterItem) = Filter.GenreIs(values.value?.first{filterValue.id == it.id}?.displayName
-            ?: "")
+    override fun getFilter(filterValue: FilterItem) = Filter.GenreIs(filterValue.displayName)
 
     private fun convert(genre: String) = FilterItem(currentId++, genre, isSelected = filtersManager.isFilterInEdition(Filter.GenreIs(genre)))
 }

@@ -3,19 +3,13 @@ package be.florien.anyflow.data
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
+import androidx.paging.*
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.local.model.DbArtistDisplay
 import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.data.server.model.AmpacheAlbumList
-import be.florien.anyflow.data.server.model.AmpacheArtistList
-import be.florien.anyflow.data.server.model.AmpacheError
-import be.florien.anyflow.data.server.model.AmpacheSongList
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Order
@@ -34,9 +28,10 @@ import javax.inject.Singleton
 @Singleton
 class DataRepository
 @Inject constructor(
-        private val libraryDatabase: LibraryDatabase,
-        private val songServerConnection: AmpacheConnection,
-        private val sharedPreferences: SharedPreferences) {
+    private val libraryDatabase: LibraryDatabase,
+    private val songServerConnection: AmpacheConnection,
+    private val sharedPreferences: SharedPreferences
+) {
 
     val changeUpdater
         get() = libraryDatabase.changeUpdater
@@ -53,26 +48,65 @@ class DataRepository
         updateSongsAsync()
     }
 
-    suspend fun getSongAtPosition(position: Int) = withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSong() }
+    suspend fun getSongAtPosition(position: Int) =
+        withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSong() }
 
-    suspend fun getPositionForSong(song: Song) = withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(song.toDbSongDisplay()) }
+    suspend fun getPositionForSong(song: Song) =
+        withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(song.toDbSongDisplay()) }
 
-    fun getSongsInQueueOrder() = convertToLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
-    fun <T> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbums().map { mapping(it) })
-    fun <T> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
-    fun <T> getGenres(mapping: (String) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getGenres().map { mapping(it) })
-    fun <T> getAlbumsFiltered(filter: String, mapping: (DbAlbumDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumsFiltered("%$filter%").map { mapping(it) })
-    fun <T> getArtistsFiltered(filter: String, mapping: (DbArtistDisplay) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
-    fun <T> getGenresFiltered(filter: String, mapping: (String) -> T): LiveData<PagedList<T>> = convertToLiveData(libraryDatabase.getGenresFiltered("%$filter%").map { mapping(it) })
+    fun getSongsInQueueOrder() =
+        convertToLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
 
-    fun getOrders() = libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
-    suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> = withContext(Dispatchers.IO) {
-        libraryDatabase.getSongsFromQuery(getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList))
-    }
+    fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagingData<T>> =
+        convertToLiveData(libraryDatabase.getAlbums().map { mapping(it) })
 
-    suspend fun setOrders(orders: MutableList<Order>) = withContext(Dispatchers.IO) { libraryDatabase.setOrders(orders.map { it.toDbOrder() }) }
+    fun <T : Any> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagingData<T>> =
+        convertToLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
+
+    fun <T : Any> getGenres(mapping: (String) -> T): LiveData<PagingData<T>> =
+        convertToLiveData(libraryDatabase.getGenres().map { mapping(it) })
+
+    fun <T : Any> getAlbumsFiltered(
+        filter: String,
+        mapping: (DbAlbumDisplay) -> T
+    ): LiveData<PagingData<T>> =
+        convertToLiveData(libraryDatabase.getAlbumsFiltered("%$filter%").map { mapping(it) })
+
+    fun <T : Any> getArtistsFiltered(
+        filter: String,
+        mapping: (DbArtistDisplay) -> T
+    ): LiveData<PagingData<T>> =
+        convertToLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
+
+    fun <T : Any> getGenresFiltered(
+        filter: String,
+        mapping: (String) -> T
+    ): LiveData<PagingData<T>> =
+        convertToLiveData(libraryDatabase.getGenresFiltered("%$filter%").map { mapping(it) })
+
+    fun getOrders() =
+        libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
+
+    suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> =
+        withContext(Dispatchers.IO) {
+            libraryDatabase.getSongsFromQuery(getQueryForSongs(filterList.map {
+                it.toDbFilter(
+                    DbFilterGroup.CURRENT_FILTER_GROUP_ID
+                )
+            }, orderList))
+        }
+
+    suspend fun setOrders(orders: MutableList<Order>) =
+        withContext(Dispatchers.IO) { libraryDatabase.setOrders(orders.map { it.toDbOrder() }) }
+
     suspend fun setOrdersSubject(orderSubjects: List<Long>) = withContext(Dispatchers.IO) {
-        val dbOrders = orderSubjects.mapIndexed { index, order -> Order(index, order, Order.ASCENDING).toDbOrder() }
+        val dbOrders = orderSubjects.mapIndexed { index, order ->
+            Order(
+                index,
+                order,
+                Order.ASCENDING
+            ).toDbOrder()
+        }
         libraryDatabase.setOrders(dbOrders)
     }
 
@@ -80,71 +114,86 @@ class DataRepository
         libraryDatabase.saveQueueOrder(listToSave)
     }
 
-    suspend fun createFilterGroup(filterList: List<Filter<*>>, name: String) = withContext(Dispatchers.IO) { libraryDatabase.createFilterGroup(filterList.map { it.toDbFilter(-1) }, name) }
-    fun getFilterGroups() = libraryDatabase.getFilterGroups().map { groupList -> groupList.map { it.toViewFilterGroup() } }
-    suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) = withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
-    suspend fun getAlbumArtsForFilterGroup(group: FilterGroup): List<String> = withContext(Dispatchers.IO) {
-        val filtersForGroup: List<DbFilter> = libraryDatabase.filterForGroupSync(group.id)
-        libraryDatabase.artForFilters(constructWhereStatement(filtersForGroup))
-    }
+    suspend fun createFilterGroup(filterList: List<Filter<*>>, name: String) =
+        withContext(Dispatchers.IO) {
+            libraryDatabase.createFilterGroup(filterList.map {
+                it.toDbFilter(-1)
+            }, name)
+        }
 
-    fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters().map { filterList -> filterList.map { it.toViewFilter() } }
-    suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) { libraryDatabase.setCurrentFilters(filterList.map { it.toDbFilter(1) }) }
+    fun getFilterGroups() = libraryDatabase.getFilterGroups()
+        .map { groupList -> groupList.map { it.toViewFilterGroup() } }
+
+    suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
+        withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
+
+    suspend fun getAlbumArtsForFilterGroup(group: FilterGroup): List<String> =
+        withContext(Dispatchers.IO) {
+            val filtersForGroup: List<DbFilter> = libraryDatabase.filterForGroupSync(group.id)
+            libraryDatabase.artForFilters(constructWhereStatement(filtersForGroup))
+        }
+
+    fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters()
+        .map { filterList -> filterList.map { it.toViewFilter() } }
+
+    suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) {
+        libraryDatabase.setCurrentFilters(filterList.map {
+            it.toDbFilter(1)
+        })
+    }
 
     /**
      * Private Method
      */
 
     private suspend fun updateSongsAsync() = updateListAsync(
-            LAST_SONG_UPDATE,
-            AmpacheConnection::getSongs,
-            AmpacheSongList::error
+        LAST_SONG_UPDATE,
+        AmpacheConnection::getSongs,
     ) { ampacheSongList ->
         if (ampacheSongList != null) {
-            val songs = ampacheSongList.songs.map { it.toDbSong() }
+            val songs = ampacheSongList.map { it.toDbSong() }
             libraryDatabase.addSongs(songs)
             libraryDatabase.correctAlbumArtist(songs)
         }
     }
 
     private suspend fun updateArtistsAsync() = updateListAsync(
-            LAST_ARTIST_UPDATE,
-            AmpacheConnection::getArtists,
-            AmpacheArtistList::error
+        LAST_ARTIST_UPDATE,
+        AmpacheConnection::getArtists,
     ) { ampacheArtistList ->
         if (ampacheArtistList != null) {
-            libraryDatabase.addArtists(ampacheArtistList.artists.map { it.toDbArtist() })
+            libraryDatabase.addArtists(ampacheArtistList.map { it.toDbArtist() })
         }
     }
 
     private suspend fun updateAlbumsAsync() = updateListAsync(
-            LAST_ALBUM_UPDATE,
-            AmpacheConnection::getAlbums,
-            AmpacheAlbumList::error
+        LAST_ALBUM_UPDATE,
+        AmpacheConnection::getAlbums,
     ) { ampacheAlbumList ->
         if (ampacheAlbumList != null) {
-            libraryDatabase.addAlbums(ampacheAlbumList.albums.map { it.toDbAlbum() })
+            libraryDatabase.addAlbums(ampacheAlbumList.map { it.toDbAlbum() })
         }
     }
 
     private suspend fun <SERVER_TYPE> updateListAsync(
-            updatePreferenceName: String,
-            getListOnServer: suspend AmpacheConnection.(Calendar) -> SERVER_TYPE?,
-            getError: SERVER_TYPE.() -> AmpacheError,
-            saveToDatabase: suspend (SERVER_TYPE?) -> Unit) {
+        updatePreferenceName: String,
+        getListOnServer: suspend AmpacheConnection.(Calendar) -> List<SERVER_TYPE>?,
+        saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
+    ) {
 
         val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
+        val lastUpdate = TimeOperations.getDateFromMillis(0)
+//            TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {
             var listOnServer = songServerConnection.getListOnServer(lastUpdate)
             while (listOnServer != null) {
-                listOnServer = if (listOnServer.getError().code == 401) {
-                    songServerConnection.reconnect { songServerConnection.getListOnServer(lastUpdate) }
-                } else {
-                    listOnServer
-                }
+//                listOnServer = if (listOnServer.getError().code == 401) {
+//                    songServerConnection.reconnect { songServerConnection.getListOnServer(lastUpdate) }
+//                } else {
+//                    listOnServer
+//                }
                 saveToDatabase(listOnServer)
                 listOnServer = songServerConnection.getListOnServer(lastUpdate)
             }
@@ -152,20 +201,21 @@ class DataRepository
         }
     }
 
-    private fun <T> convertToLiveData(dataSourceFactory: DataSource.Factory<Int, T>): LiveData<PagedList<T>> {
-        val pagedListConfig = PagedList.Config.Builder()
-                .setPageSize(100)
-                .build()
-        return LivePagedListBuilder(dataSourceFactory, pagedListConfig)
-                .build()
-    }
+    private fun <T : Any> convertToLiveData(dataSourceFactory: DataSource.Factory<Int, T>): LiveData<PagingData<T>> =
+        Pager(
+            PagingConfig(100),
+            0,
+            dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
+        ).liveData
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, orderList: List<Order>): String {
 
         fun constructOrderStatement(): String {
-            val filteredOrderedList = orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
+            val filteredOrderedList =
+                orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
 
-            val isSorted = filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Order.Ordering.RANDOM }
+            val isSorted =
+                filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Order.Ordering.RANDOM }
 
             var orderStatement = if (isSorted) {
                 " ORDER BY"

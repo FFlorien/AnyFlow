@@ -1,31 +1,20 @@
 package be.florien.anyflow.data.server.model
 
-import org.simpleframework.xml.*
-
 /**
  * Server-side data structures that relates to tags
  */
-@Root(name = "tag", strict = false)
 class AmpacheTag {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Element(name = "name", required = false) var name: String = ""
-    @field:Element(name = "albums", required = false) var albums: Int = 0
-    @field:Element(name = "artists", required = false) var artists: Int = 0
-    @field:Element(name = "accounts", required = false) var songs: Int = 0
-    @field:Element(name = "video", required = false) var video: Int = 0
-    @field:Element(name = "playlist", required = false) var playlist: Int = 0
-    @field:Element(name = "stream", required = false) var stream: Int = 0
-}
-
-@Root(name = "root", strict = false)
-class AmpacheTagList {
-    @field:Element(name = "total_count", required = false) var total_count: Int = 0
-    @field:ElementList(inline = true, required = false) var tags: List<AmpacheTag> = mutableListOf()
-    @field:Element(name = "error", required = false) var error: AmpacheError = AmpacheError()
+    var id: Long = 0
+    var name: String = ""
+    var albums: Int = 0
+    var artists: Int = 0
+    var songs: Int = 0
+    var video: Int = 0
+    var playlist: Int = 0
+    var stream: Int = 0
 }
 
 class AmpacheTagName {
-    @field:Attribute(name = "id", required = false) var id: Long = 0
-    @field:Text() var value: String = ""
-    @field:Attribute(name = "count", required = false) var count: Int = 0
+    var id: Long = 0
+    var name: String = ""
 }

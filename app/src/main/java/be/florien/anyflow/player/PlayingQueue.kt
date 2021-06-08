@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_FILTERS
 import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_ORDER
@@ -31,7 +31,6 @@ class PlayingQueue
         private const val POSITION_PREF = "POSITION_PREF"
     }
 
-    var itemsCount: Int = 0
     var listPosition: Int = POSITION_NOT_SET
         get() {
             if (field == POSITION_NOT_SET) {
@@ -40,10 +39,7 @@ class PlayingQueue
             return field
         }
         set(value) {
-            field = when (value) {
-                in 0 until itemsCount -> value
-                else -> 0
-            }
+            field = value
             positionUpdater.value = field
             sharedPreferences.applyPutInt(POSITION_PREF, field)
             MainScope().launch {
@@ -59,7 +55,7 @@ class PlayingQueue
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<Song> = MutableLiveData()
 
-    val songDisplayListUpdater: LiveData<PagedList<Song>> = dataRepository.getSongsInQueueOrder()
+    val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
             .map { orderList ->
                 orderList.none { it.orderingType == Order.Ordering.RANDOM }
@@ -77,7 +73,6 @@ class PlayingQueue
 
     init {
         songDisplayListUpdater.observeForever {
-            itemsCount = it.size
             keepPositionCoherent()
         }
         val ordersLiveData = dataRepository.getOrders()

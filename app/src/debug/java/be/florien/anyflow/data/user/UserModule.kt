@@ -1,8 +1,8 @@
 package be.florien.anyflow.data.user
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.player.ExoPlayerController
 import be.florien.anyflow.player.PlayerController
@@ -25,15 +25,15 @@ class UserModule {
     @Provides
     @Named("Songs")
     @UserScope
-    fun provideSongsPercentageUpdater(ampacheConnection: AmpacheConnection): ValueLiveData<Int> = ampacheConnection.songsPercentageUpdater
+    fun provideSongsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.songsPercentageUpdater
 
     @Provides
     @Named("Artists")
     @UserScope
-    fun provideArtistsPercentageUpdater(ampacheConnection: AmpacheConnection): ValueLiveData<Int> = ampacheConnection.artistsPercentageUpdater
+    fun provideArtistsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.artistsPercentageUpdater
 
     @Provides
     @Named("Albums")
     @UserScope
-    fun provideAlbumsPercentageUpdater(ampacheConnection: AmpacheConnection): ValueLiveData<Int> = ampacheConnection.albumsPercentageUpdater
+    fun provideAlbumsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.albumsPercentageUpdater
 }

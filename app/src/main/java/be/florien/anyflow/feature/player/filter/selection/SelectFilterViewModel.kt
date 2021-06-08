@@ -3,13 +3,14 @@ package be.florien.anyflow.feature.player.filter.selection
 import android.text.TextWatcher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.player.FiltersManager
 
-abstract class SelectFilterViewModel(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {
-    abstract val values: LiveData<PagedList<FilterItem>>
+abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
+    BaseFilterViewModel(filtersManager) {
+    abstract val values: LiveData<PagingData<FilterItem>>
     abstract val itemDisplayType: Int
     abstract val searchTextWatcher: TextWatcher
     val searchedText: MutableLiveData<String> = MutableLiveData("")
@@ -27,7 +28,12 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) : BaseFilte
         }
     }
 
-    class FilterItem(val id: Long, val displayName: String, val artUrl: String? = null, var isSelected: Boolean)
+    class FilterItem(
+        val id: Long,
+        val displayName: String,
+        val artUrl: String? = null,
+        var isSelected: Boolean
+    )
 
     companion object {
         const val ITEM_GRID = 0

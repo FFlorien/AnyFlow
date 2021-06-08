@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -16,8 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +27,6 @@ import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.PlayerService
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import timber.log.Timber
 
 /**
  * Display a list of songs and play it upon selection.
@@ -45,7 +41,6 @@ class SongListFragment : BaseFragment() {
     private lateinit var linearLayoutManager: LinearLayoutManager
     private var shouldHideLoading = false
     private var isLoadingVisible = false
-    private val mainThreadHandler = Handler()
 
     private val topSet: ConstraintSet
         get() =
@@ -67,7 +62,7 @@ class SongListFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
         binding = FragmentSongListBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -78,7 +73,10 @@ class SongListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.songList.adapter = SongAdapter().apply {
-            submitList(viewModel.pagedAudioQueue.value)
+            val data = viewModel.pagedAudioQueue.value
+            if (data != null) {
+                submitData(viewLifecycleOwner.lifecycle, data)
+            }
         }
 
         linearLayoutManager = LinearLayoutManager(activity)
@@ -88,19 +86,8 @@ class SongListFragment : BaseFragment() {
                 updateCurrentSongDisplay()
             }
         })
-        binding.songList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                if (e.action == MotionEvent.ACTION_MOVE && viewModel.isFollowingCurrentSong.value == false) {
-                    viewModel.isFollowingCurrentSong.value = false
-                }
-                return false
-            }
-        })
 
         binding.currentSongDisplay.root.setBackgroundResource(R.color.selected)
-        binding.currentSongDisplay.root.setOnClickListener {
-            viewModel.isFollowingCurrentSong.value = true
-        }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
@@ -108,22 +95,12 @@ class SongListFragment : BaseFragment() {
         }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
-            (binding.songList.adapter as SongAdapter).submitList(it)
+            (binding.songList.adapter as SongAdapter).submitData(viewLifecycleOwner.lifecycle, it)
             updateLoadingVisibility(true)
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
-            updateScrollPosition()
-        }
-        viewModel.listPositionLoaded.observe(viewLifecycleOwner) {
-            if (viewModel.pagedAudioQueue.value != null && it) {
-                updateScrollPosition()
-            }
-        }
-        viewModel.isFollowingCurrentSong.observe(viewLifecycleOwner) {
-            if (it) {
-                updateScrollPosition()
-            }
+            updateLoadingVisibility(false)
         }
         shouldHideLoading = true
     }
@@ -158,25 +135,6 @@ class SongListFragment : BaseFragment() {
         }
     }
 
-    private fun updateScrollPosition() {
-        Timber.i("Is considering the need to scroll")
-        if (viewModel.isFollowingCurrentSong.value == true) {
-            binding.songList.stopScroll()
-
-            if (viewModel.listPositionLoaded.value == true && viewModel.pagedAudioQueue.value != null) {
-                Timber.i("Ready to scroll to ${viewModel.listPosition.value}")
-                shouldHideLoading = true
-                mainThreadHandler.postDelayed({
-                    linearLayoutManager.scrollToPositionWithOffset(viewModel.listPosition.value?: 0, 0)
-                    updateLoadingVisibility(false)
-                }, 300)
-            } else {
-                Timber.i("Preparing scroll to ${viewModel.listPosition.value}")
-                viewModel.prepareScrollToCurrent()
-            }
-        }
-    }
-
     private fun updateLoadingVisibility(shouldLoadingBeVisible: Boolean) {
         if (shouldLoadingBeVisible != isLoadingVisible) {
             isLoadingVisible = shouldLoadingBeVisible
@@ -184,39 +142,41 @@ class SongListFragment : BaseFragment() {
             val endValue = if (shouldLoadingBeVisible) 1f else 0f
 
             ObjectAnimator
-                    .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
-                        duration = 300
-                        interpolator = AccelerateDecelerateInterpolator()
-                    }.apply {
-                        addListener(object : Animator.AnimatorListener {
+                .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
+                    duration = 300
+                    interpolator = AccelerateDecelerateInterpolator()
+                }.apply {
+                    addListener(object : Animator.AnimatorListener {
 
-                            override fun onAnimationStart(animation: Animator?) {
-                                binding.loadingText.visibility = View.VISIBLE
-                            }
+                        override fun onAnimationStart(animation: Animator?) {
+                            binding.loadingText.visibility = View.VISIBLE
+                        }
 
-                            override fun onAnimationRepeat(animation: Animator?) {}
+                        override fun onAnimationRepeat(animation: Animator?) {}
 
-                            override fun onAnimationEnd(animation: Animator?) {
-                                binding.loadingText.visibility = if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
-                            }
+                        override fun onAnimationEnd(animation: Animator?) {
+                            binding.loadingText.visibility =
+                                if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
+                        }
 
-                            override fun onAnimationCancel(animation: Animator?) {}
-                        })
-                    }
-                    .start()
+                        override fun onAnimationCancel(animation: Animator?) {}
+                    })
+                }
+                .start()
         }
     }
 
 
-    inner class SongAdapter : PagedListAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
-        override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
+    inner class SongAdapter :
+        PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
+            override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
+            override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
                 oldItem.artistName == newItem.artistName
                         && oldItem.albumName == newItem.albumName
                         && oldItem.title == newItem.title
 
-    }), FastScrollRecyclerView.SectionedAdapter {
+        }), FastScrollRecyclerView.SectionedAdapter {
 
         private var lastPosition = 0
 
@@ -237,13 +197,13 @@ class SongListFragment : BaseFragment() {
     }
 
     inner class SongViewHolder(
-            parent: ViewGroup,
-            private val binding: ItemSongBinding = ItemSongBinding
-                    .inflate(LayoutInflater.from(parent.context), parent, false))
-        : RecyclerView.ViewHolder(binding.root) {
+        parent: ViewGroup,
+        private val binding: ItemSongBinding = ItemSongBinding
+            .inflate(LayoutInflater.from(parent.context), parent, false)
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            binding.root.setOnClickListener { viewModel.play(adapterPosition) }
+            binding.root.setOnClickListener { viewModel.play(absoluteAdapterPosition) }
         }
 
         fun bind(song: Song?) {
@@ -254,7 +214,13 @@ class SongListFragment : BaseFragment() {
             set(value) {
                 field = value
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
-                binding.root.setBackgroundColor(ResourcesCompat.getColor(resources, backgroundColor, null))
+                binding.root.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        backgroundColor,
+                        null
+                    )
+                )
             }
     }
 }

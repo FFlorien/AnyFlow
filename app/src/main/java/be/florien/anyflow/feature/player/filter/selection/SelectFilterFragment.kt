@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
@@ -19,7 +19,6 @@ import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.BaseFragment
-import be.florien.anyflow.feature.observeNullable
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ARTIST_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.GENRE_ID
@@ -70,7 +69,7 @@ constructor(private var filterType: String) : BaseFragment() {
                 })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentBinding = FragmentSelectFilterBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel
@@ -86,15 +85,15 @@ constructor(private var filterType: String) : BaseFragment() {
                 fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL).apply { setDrawable(it) })
             }
         }
-        viewModel.values.observeNullable(viewLifecycleOwner) {
-            (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(it)
+        viewModel.values.observe(viewLifecycleOwner) {
+            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(viewLifecycleOwner.lifecycle, it)
         }
         fragmentBinding.search.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 lifecycleScope.launch {
                     delay(200)
-                    viewModel.values.observeNullable(viewLifecycleOwner) {
-                        (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(it)
+                    viewModel.values.observe(viewLifecycleOwner) {
+                        (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(viewLifecycleOwner.lifecycle, it)
                     }
                 }
             }
@@ -110,7 +109,7 @@ constructor(private var filterType: String) : BaseFragment() {
         return fragmentBinding.root
     }
 
-    inner class FilterListAdapter : PagedListAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object : DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
+    inner class FilterListAdapter : PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object : DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
         override fun areItemsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem): Boolean = oldItem.isSelected == newItem.isSelected && oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName
@@ -122,7 +121,8 @@ constructor(private var filterType: String) : BaseFragment() {
             holder.bind(getItem(position))
         }
 
-        override fun getSectionName(position: Int): String = viewModel.values.value?.get(position)?.displayName?.firstOrNull()?.toUpperCase()?.toString()
+        override fun getSectionName(position: Int): String =
+            snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
                 ?: ""
     }
 

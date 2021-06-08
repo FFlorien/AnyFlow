@@ -6,14 +6,13 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.Observer
+import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
-import be.florien.anyflow.feature.ValueLiveData
 import be.florien.anyflow.player.PlayerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,15 +36,15 @@ class UpdateService
 
     @Inject
     @field:Named("Songs")
-    lateinit var songsPercentageUpdater: ValueLiveData<Int>
+    lateinit var songsPercentageUpdater: LiveData<Int>
 
     @Inject
     @field:Named("Albums")
-    lateinit var albumsPercentageUpdater: ValueLiveData<Int>
+    lateinit var albumsPercentageUpdater: LiveData<Int>
 
     @Inject
     @field:Named("Artists")
-    lateinit var artistsPercentageUpdater: ValueLiveData<Int>
+    lateinit var artistsPercentageUpdater: LiveData<Int>
     private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@UpdateService, 0, intent, 0)
@@ -71,7 +70,7 @@ class UpdateService
             }
             stopForeground(true)
         }
-        songsPercentageUpdater.observe(this, Observer {
+        songsPercentageUpdater.observe(this, {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_songs, it))
             } else {
@@ -79,14 +78,14 @@ class UpdateService
             }
 
         })
-        artistsPercentageUpdater.observe(this, Observer {
+        artistsPercentageUpdater.observe(this, {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_artists, it))
             } else {
                 stopForeground(true)
             }
         })
-        albumsPercentageUpdater.observe(this, Observer {
+        albumsPercentageUpdater.observe(this, {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_albums, it))
             } else {
