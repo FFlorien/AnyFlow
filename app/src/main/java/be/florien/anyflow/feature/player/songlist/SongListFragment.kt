@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +41,7 @@ class SongListFragment : BaseFragment() {
 
     private lateinit var binding: FragmentSongListBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private var shouldScrollToCurrent = false
     private var shouldHideLoading = false
     private var isLoadingVisible = false
 
@@ -83,6 +86,9 @@ class SongListFragment : BaseFragment() {
         })
 
         binding.currentSongDisplay.root.setBackgroundResource(R.color.selected)
+        binding.currentSongDisplay.root.setOnClickListener {
+            scrollToCurrentSong()
+        }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
@@ -90,12 +96,20 @@ class SongListFragment : BaseFragment() {
         }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
-            (binding.songList.adapter as SongAdapter).submitData(viewLifecycleOwner.lifecycle, it)
+            if (it != null) {
+                (binding.songList.adapter as SongAdapter).submitData(viewLifecycleOwner.lifecycle, it)
+                shouldScrollToCurrent = true
+            }
             updateLoadingVisibility(true)
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
             updateLoadingVisibility(false)
+            updateCurrentSongDisplay()
+            if (shouldScrollToCurrent) {
+                scrollToCurrentSong()
+                shouldScrollToCurrent = false
+            }
         }
         shouldHideLoading = true
     }
@@ -137,41 +151,50 @@ class SongListFragment : BaseFragment() {
             val endValue = if (shouldLoadingBeVisible) 1f else 0f
 
             ObjectAnimator
-                .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
-                    duration = 300
-                    interpolator = AccelerateDecelerateInterpolator()
-                }.apply {
-                    addListener(object : Animator.AnimatorListener {
+                    .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
+                        duration = 300
+                        interpolator = AccelerateDecelerateInterpolator()
+                    }.apply {
+                        addListener(object : Animator.AnimatorListener {
 
-                        override fun onAnimationStart(animation: Animator?) {
-                            binding.loadingText.visibility = View.VISIBLE
-                        }
+                            override fun onAnimationStart(animation: Animator?) {
+                                binding.loadingText.visibility = View.VISIBLE
+                            }
 
-                        override fun onAnimationRepeat(animation: Animator?) {}
+                            override fun onAnimationRepeat(animation: Animator?) {}
 
-                        override fun onAnimationEnd(animation: Animator?) {
-                            binding.loadingText.visibility =
-                                if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
-                        }
+                            override fun onAnimationEnd(animation: Animator?) {
+                                binding.loadingText.visibility =
+                                        if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
+                            }
 
-                        override fun onAnimationCancel(animation: Animator?) {}
-                    })
-                }
-                .start()
+                            override fun onAnimationCancel(animation: Animator?) {}
+                        })
+                    }
+                    .start()
         }
     }
 
+    private fun scrollToCurrentSong() {
+        binding.songList.stopScroll()
+
+        shouldHideLoading = true
+        Handler(Looper.getMainLooper()).postDelayed({
+            linearLayoutManager.scrollToPositionWithOffset(viewModel.listPosition.value ?: 0, 0)
+            updateLoadingVisibility(false)
+        }, 300)
+    }
 
     inner class SongAdapter :
-        PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
-            override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
+            PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
+                override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
 
-            override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
-                oldItem.artistName == newItem.artistName
-                        && oldItem.albumName == newItem.albumName
-                        && oldItem.title == newItem.title
+                override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
+                        oldItem.artistName == newItem.artistName
+                                && oldItem.albumName == newItem.albumName
+                                && oldItem.title == newItem.title
 
-        }), FastScrollRecyclerView.SectionedAdapter {
+            }), FastScrollRecyclerView.SectionedAdapter {
 
         private var lastPosition = 0
 
@@ -192,9 +215,9 @@ class SongListFragment : BaseFragment() {
     }
 
     inner class SongViewHolder(
-        parent: ViewGroup,
-        private val binding: ItemSongBinding = ItemSongBinding
-            .inflate(LayoutInflater.from(parent.context), parent, false)
+            parent: ViewGroup,
+            private val binding: ItemSongBinding = ItemSongBinding
+                    .inflate(LayoutInflater.from(parent.context), parent, false)
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -210,11 +233,11 @@ class SongListFragment : BaseFragment() {
                 field = value
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
                 binding.root.setBackgroundColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        backgroundColor,
-                        null
-                    )
+                        ResourcesCompat.getColor(
+                                resources,
+                                backgroundColor,
+                                null
+                        )
                 )
             }
     }

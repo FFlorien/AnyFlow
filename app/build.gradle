@@ -99,6 +99,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
     //ExoPlayer
     implementation 'com.google.android.exoplayer:exoplayer-core:2.14.0'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.14.0'
     implementation 'com.google.android.exoplayer:extension-okhttp:2.14.0'
     implementation 'com.google.android.exoplayer:extension-mediasession:2.14.0'
     //Room
