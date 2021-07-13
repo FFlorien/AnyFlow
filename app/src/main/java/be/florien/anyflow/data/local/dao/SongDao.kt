@@ -35,4 +35,7 @@ interface SongDao : BaseDao<DbSong> {
 
     @Query("SELECT DISTINCT genre FROM song WHERE genre LIKE :filter ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenreFiltered(filter: String): DataSource.Factory<Int, String>
+
+    @Query("SELECT COUNT(*) FROM song JOIN queueorder ON song.id = queueorder.songId ")
+    suspend fun queueSize(): Int?
 }

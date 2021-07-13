@@ -41,6 +41,8 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
 
+    suspend fun getQueueSize(): Int? = getSongDao().queueSize()
+
     suspend fun getSongsFromQuery(query: String): List<Long> = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
 
     fun getGenres(): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenre()

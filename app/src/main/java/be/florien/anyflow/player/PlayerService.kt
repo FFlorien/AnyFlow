@@ -36,30 +36,9 @@ class PlayerService : LifecycleService() {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@PlayerService, 0, intent, 0)
     }
-    private lateinit var mediaSession: MediaSessionCompat
-    private lateinit var notificationBuilder: PlayerNotificationBuilder
-    private val playBackStateBuilder: PlaybackStateCompat.Builder = PlaybackStateCompat.Builder()
-            .setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            )
-
-    private val isPlaying
-        get() = playerController.isPlaying()
-
-    private val hasPrevious
-        get() = playingQueue.listPosition > 0
-
-    /**
-     * Lifecycle
-     */
-
-    override fun onCreate() {
-        super.onCreate()
-        (application as AnyFlowApp).userComponent?.inject(this)
-        mediaSession = MediaSessionCompat(this, MEDIA_SESSION_NAME).apply {
+    private val mediaSession: MediaSessionCompat by lazy {
+        MediaSessionCompat(this, MEDIA_SESSION_NAME).apply {
             setSessionActivity(pendingIntent)
-            setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onSeekTo(pos: Long) {
                     playerController.seekTo(pos)
@@ -83,9 +62,25 @@ class PlayerService : LifecycleService() {
             })
             isActive = true
         }
-        setPlaybackState(PlaybackStateCompat.STATE_NONE, 0L)
+    }
+    private val notificationBuilder: PlayerNotificationBuilder by lazy { PlayerNotificationBuilder(this, mediaSession) }
 
-        notificationBuilder = PlayerNotificationBuilder(this, pendingIntent, mediaSession)
+    private val isPlaying
+        get() = playerController.isPlaying()
+
+    private val hasPrevious
+        get() = playingQueue.listPosition > 0
+
+    private val hasNext
+        get() = playingQueue.listPosition < playingQueue.queueSize - 1
+
+    /**
+     * Lifecycle
+     */
+
+    override fun onCreate() {
+        super.onCreate()
+        (application as AnyFlowApp).userComponent?.inject(this)
 
         playerController.stateChangeNotifier.observe(this) {
             if (!isPlaying) {
@@ -99,11 +94,14 @@ class PlayerService : LifecycleService() {
                 else -> PlaybackStateCompat.STATE_NONE
             }
 
-            setPlaybackState(playbackState, 0)
-
+            notificationBuilder.lastPlaybackState = playbackState
+            notificationBuilder.updateNotification(isPlaying, hasPrevious, hasNext)
+        }
+        playerController.playTimeNotifier.observe(this) {
+            notificationBuilder.lastPosition = it
         }
         playingQueue.currentSong.observe(this) {
-            notificationBuilder.updateNotification(it, isPlaying, hasPrevious, true)
+            notificationBuilder.updateMediaSession(it)
         }
     }
 
@@ -129,11 +127,6 @@ class PlayerService : LifecycleService() {
     /**
      * Private Methods
      */
-
-    private fun setPlaybackState(playbackState: Int, position: Long) {
-        playBackStateBuilder.setState(playbackState, position, 1.0f)
-        mediaSession.setPlaybackState(playBackStateBuilder.build())
-    }
 
     companion object {
         const val MEDIA_SESSION_NAME = "AnyFlow"

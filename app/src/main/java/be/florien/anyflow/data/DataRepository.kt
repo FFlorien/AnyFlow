@@ -57,6 +57,8 @@ class DataRepository
     fun getSongsInQueueOrder() =
         convertToLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
 
+    suspend fun getQueueSize(): Int? = withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
+
     fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagingData<T>> =
         convertToLiveData(libraryDatabase.getAlbums().map { mapping(it) })
 

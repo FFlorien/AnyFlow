@@ -15,8 +15,7 @@ import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.UserScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -52,6 +51,7 @@ class PlayingQueue
                 this@PlayingQueue.eLog(IllegalArgumentException("The new position may result from a faulty reset."))
             }
         }
+    var queueSize: Int = 0
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<Song> = MutableLiveData()
 
@@ -92,6 +92,9 @@ class PlayingQueue
                 saveQueue(filterList, orderList)
             }
         }
+        GlobalScope.launch(Dispatchers.IO) {
+            queueSize = dataRepository.getQueueSize() ?: 0
+        }
     }
 
     private fun retrieveRandomness(orderList: List<Order>) {
@@ -115,6 +118,7 @@ class PlayingQueue
             } else {
                 queue.toMutableList()
             }
+            queueSize = listToSave.size
             dataRepository.saveQueueOrder(listToSave)
         }
     }
