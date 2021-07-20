@@ -56,6 +56,7 @@ class PlayingQueue
     val currentSong: LiveData<Song> = MutableLiveData()
 
     val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder()
+    val songUrlListUpdater: LiveData<List<String>> = dataRepository.getUrlInQueueOrder()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
             .map { orderList ->
                 orderList.none { it.orderingType == Order.Ordering.RANDOM }

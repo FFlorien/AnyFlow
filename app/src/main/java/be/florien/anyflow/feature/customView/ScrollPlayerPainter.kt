@@ -9,15 +9,15 @@ import kotlin.math.absoluteValue
 internal class ScrollPlayerPainter(context: Context, playPauseIconAnimator: PlayPauseIconAnimator, previousIconAnimator: PreviousIconAnimator)
     : DurationPlayerPainter(context, playPauseIconAnimator, previousIconAnimator) {
 
-    var durationOnScrollStart: Int = 0
+    var durationOnTouchStart: Int = 0
     var scrollOffset: Float = 0F
         set(value) {
             field = value
-            duration = (durationOnScrollStart - durationOffset).toInt()
+            duration = (durationOnTouchStart - durationOffset).toInt()
         }
     private val durationOffset
             get() = (scrollOffset/ (playButtonMaxWidthOffset / 2)) * 5000
-    private var minimumDurationOffset = 50000
+    private var minimumDurationOffset = 50
 
     init {
         currentState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_SCROLL

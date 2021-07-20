@@ -13,7 +13,6 @@ import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
-import be.florien.anyflow.player.PlayerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -100,7 +99,7 @@ class UpdateService
     }
 
     private fun notifyChange(message: String) {
-        val notification = NotificationCompat.Builder(this, PlayerService.MEDIA_SESSION_NAME)
+        val notification = NotificationCompat.Builder(this, UPDATE_SESSION_NAME)
                 .setContentTitle(message)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
@@ -109,4 +108,7 @@ class UpdateService
         startForeground(2, notification)
     }
 
+    companion object {
+        const val UPDATE_SESSION_NAME = "AnyFlow updater"
+    }
 }

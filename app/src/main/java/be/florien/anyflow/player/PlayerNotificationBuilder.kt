@@ -33,7 +33,7 @@ class PlayerNotificationBuilder(
         }
     private val notificationBuilder: NotificationCompat.Builder = NotificationCompat.Builder(service, PlayerService.MEDIA_SESSION_NAME)
             .setSmallIcon(R.drawable.notif)
-            .setOnlyAlertOnce(true)
+            .setVibrate(null)
     private val playBackStateBuilder: PlaybackStateCompat.Builder = PlaybackStateCompat.Builder()
             .setActions(PlaybackStateCompat.ACTION_PLAY or
                     PlaybackStateCompat.ACTION_PAUSE or

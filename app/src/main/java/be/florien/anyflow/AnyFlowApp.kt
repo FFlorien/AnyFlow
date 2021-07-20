@@ -5,16 +5,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
+import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
+import be.florien.anyflow.player.PlayerService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import timber.log.Timber
+import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 
 
@@ -38,7 +41,7 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         Timber.plant(CrashReportingTree())
         initApplicationComponent()
         ampacheConnection.ensureConnection()
-        createNotificationChannel()
+        createNotificationChannels()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             this@AnyFlowApp.eLog(
                 e,
@@ -70,15 +73,35 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         return ampacheApi
     }
 
-    private fun createNotificationChannel() {
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Music"
-            val description = "It play music"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("AnyFlow", name, importance)
-            channel.description = description
+            val playerChannel = getPlayerChannel()
+            val updateChannel = getUpdateChannel()
             val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager?.createNotificationChannel(channel)
+            notificationManager?.createNotificationChannel(playerChannel)
+            notificationManager?.createNotificationChannel(updateChannel)
+        }
+    }
+
+    private fun getPlayerChannel(): NotificationChannel {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(PlayerService.MEDIA_SESSION_NAME, "Music", NotificationManager.IMPORTANCE_LOW)
+            channel.description = "It play music"
+            channel.vibrationPattern = null
+            channel.enableVibration(false)
+            return channel
+        } else {
+            throw UnsupportedOperationException("This method shouldn't be called from this api")
+        }
+    }
+
+    private fun getUpdateChannel(): NotificationChannel {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(UpdateService.UPDATE_SESSION_NAME, "Update", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = "It update your music database"
+            return channel
+        } else {
+            throw UnsupportedOperationException("This method shouldn't be called from this api")
         }
     }
 }

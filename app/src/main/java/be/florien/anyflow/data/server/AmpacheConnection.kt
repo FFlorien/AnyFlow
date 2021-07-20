@@ -102,10 +102,10 @@ open class AmpacheConnection
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
         val passwordEncoded =
-            binToHex(encoder.digest(password.toByteArray())).lowercase(Locale.ROOT)
+            binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
         encoder.reset()
         val auth =
-            binToHex(encoder.digest((time + passwordEncoded).toByteArray())).lowercase(Locale.ROOT)
+            binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         try {
             val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
@@ -304,7 +304,7 @@ open class AmpacheConnection
         }
     }
 
-    fun getSongUrl(url: String): String {
+    fun getSongUrl(url: String): String { //todo uri
         val ssidStart = url.indexOf("ssid=") + 5
         return url.replaceRange(
             ssidStart,

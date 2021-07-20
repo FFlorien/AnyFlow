@@ -9,7 +9,6 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.iLog
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
@@ -19,25 +18,27 @@ import com.google.android.exoplayer2.upstream.HttpDataSource
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import kotlin.math.min
 
 class ExoPlayerController
 @Inject constructor(
-    private var playingQueue: PlayingQueue,
-    private var ampacheConnection: AmpacheConnection,
-    private val context: Context,
-    okHttpClient: OkHttpClient
+        private var playingQueue: PlayingQueue,
+        private var ampacheConnection: AmpacheConnection,
+        private val context: Context,
+        okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
-
-    override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
 
     companion object {
         private const val NO_VALUE = -3L
     }
 
+    override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
+
     override val playTimeNotifier: LiveData<Long> = MutableLiveData()
 
     private val mediaPlayer: ExoPlayer
-    private var lastPosition: Long = NO_VALUE
+    private var lastPosition: Int = 0
+    private var lastDuration: Long = NO_VALUE
     private var dataSourceFactory: DefaultDataSourceFactory
 
     private var isReceiverRegistered: Boolean = false
@@ -60,17 +61,36 @@ class ExoPlayerController
         mediaPlayer = SimpleExoPlayer.Builder(context).build().apply {
             addListener(this@ExoPlayerController)
         }
-        val bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
         dataSourceFactory = DefaultDataSourceFactory(
-            context,
-            bandwidthMeter,
-            OkHttpDataSource.Factory(okHttpClient)
+                context,
+                DefaultBandwidthMeter.Builder(context).build(),
+                OkHttpDataSource.Factory(okHttpClient)
         )
-        playingQueue.currentSong.observeForever { song ->
-            this@ExoPlayerController.iLog("New song is $song")
-            song?.let {
-                prepare(it)
+        playingQueue.songUrlListUpdater.observeForever { urls ->
+            setItemsToMediaPlayer(urls)
+            prepare()
+        }
+        playingQueue.positionUpdater.observeForever {
+            val shouldPlay = mediaPlayer.playWhenReady
+            val oldPosition = lastPosition
+            lastPosition = it
+            if (lastPosition != oldPosition) {
+                if (lastPosition == oldPosition + 1) {
+                    mediaPlayer.removeMediaItem(0)
+
+                    val url = playingQueue.songUrlListUpdater.value?.get(lastPosition + 1)
+                    if (url != null) {
+                        mediaPlayer.addMediaItem(urlToMediaItem(url))
+                    }
+                } else {
+                    val urls = playingQueue.songUrlListUpdater.value
+                    if (urls != null) {
+                        setItemsToMediaPlayer(urls)
+                        prepare()
+                    }
+                }
             }
+            mediaPlayer.playWhenReady = shouldPlay
         }
         GlobalScope.launch(Dispatchers.Default) {
             while (true) {
@@ -78,7 +98,7 @@ class ExoPlayerController
                 withContext(Dispatchers.Main) {
                     val contentPosition = mediaPlayer.contentPosition
                     (playTimeNotifier as MutableLiveData).value = contentPosition
-                    lastPosition = contentPosition
+                    lastDuration = contentPosition
                 }
             }
         }
@@ -87,20 +107,19 @@ class ExoPlayerController
     override fun isPlaying() = mediaPlayer.playWhenReady
 
     override fun play() {
-        lastPosition = NO_VALUE
+        lastDuration = NO_VALUE
         resume()
     }
 
-    private fun prepare(song: Song) {
+    private fun prepare() {
         GlobalScope.launch(Dispatchers.Main) {
-            mediaPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(ampacheConnection.getSongUrl(song.url))))
             mediaPlayer.prepare()
         }
     }
 
     override fun stop() {
         mediaPlayer.stop()
-        lastPosition = NO_VALUE
+        lastDuration = NO_VALUE
     }
 
     override fun pause() {
@@ -109,10 +128,10 @@ class ExoPlayerController
     }
 
     override fun resume() {
-        if (lastPosition == NO_VALUE) {
+        if (lastDuration == NO_VALUE) {
             seekTo(0)
         } else {
-            seekTo(lastPosition)
+            seekTo(lastDuration)
         }
 
         mediaPlayer.playWhenReady = true
@@ -131,10 +150,6 @@ class ExoPlayerController
      * Listener implementation
      */
 
-    override fun onSeekProcessed() {
-        iLog("onSeekProcessed")
-    }
-
     override fun onEvents(player: Player, events: Player.Events) {
         if (events.contains(Player.EVENT_PLAYER_ERROR)) {
             val error = player.playerError
@@ -149,41 +164,22 @@ class ExoPlayerController
         if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
-                ampacheConnection.reconnect { playingQueue.currentSong.value?.let { prepare(it) } }
+                ampacheConnection.reconnect { prepare() }
             }
         }
-    }
-
-    override fun onLoadingChanged(isLoading: Boolean) {
-        iLog("onLoadingChanged: $isLoading")
-    }
-
-    override fun onPositionDiscontinuity(reason: Int) {
-        iLog("onPositionDiscontinuity")
-    }
-
-    override fun onRepeatModeChanged(repeatMode: Int) {
-        iLog("onRepeatModeChanged")
-    }
-
-    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-        iLog("onShuffleModeEnabledChanged")
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
             Player.STATE_ENDED -> {
-                playingQueue.listPosition += 1
-                lastPosition = 0
+                lastDuration = 0
             }
             Player.STATE_BUFFERING -> {
                 ampacheConnection.resetReconnectionCount()
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.BUFFER
             }
-            Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value =
-                PlayerController.State.NO_MEDIA
-            Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value =
-                if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
+            Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value = PlayerController.State.NO_MEDIA
+            Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value = if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
         }
 
         if (playWhenReady && !isReceiverRegistered) {
@@ -192,4 +188,26 @@ class ExoPlayerController
             context.unregisterReceiver(myNoisyAudioStreamReceiver)
         }
     }
+
+    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
+            playingQueue.listPosition += 1
+            lastDuration = 0
+        }
+    }
+
+    /**
+     * PRIVATE METHODS
+     */
+
+    private fun setItemsToMediaPlayer(urls: List<String>) {
+        if (playingQueue.listPosition >= playingQueue.queueSize) {
+            return
+        }
+        mediaPlayer.clearMediaItems()
+        val toIndex = min(playingQueue.listPosition + 1, playingQueue.queueSize -1)
+        mediaPlayer.addMediaItems(urls.subList(playingQueue.listPosition, toIndex + 1).map { url -> urlToMediaItem(url) })
+    }
+
+    private fun urlToMediaItem(url: String) = MediaItem.fromUri(Uri.parse(ampacheConnection.getSongUrl(url)))
 }

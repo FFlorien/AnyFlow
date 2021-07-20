@@ -70,6 +70,7 @@ constructor(
                 shouldShowBuffering.mutable.value = it == PlayerController.State.BUFFER
                 state.mutable.value = when (it) {
                     PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+                    PlayerController.State.BUFFER,
                     PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
                     else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
                 }

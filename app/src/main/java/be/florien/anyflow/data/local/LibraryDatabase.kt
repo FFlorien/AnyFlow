@@ -36,10 +36,10 @@ abstract class LibraryDatabase : RoomDatabase() {
      */
 
     suspend fun getSongAtPosition(position: Int): DbSong? = getSongDao().forPositionInQueue(position)
-
     suspend fun getPositionForSong(song: DbSongDisplay): Int? = getSongDao().findPositionInQueue(song.id)
 
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
+    fun getUrlsInQueueOrder(): LiveData<List<String>> = getSongDao().urlInQueueOrder()
 
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 
@@ -121,6 +121,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     suspend fun filterForGroupSync(id: Long) = getFilterDao().filterForGroup(id)
+
     suspend fun artForFilters(whereStatement: String) = getSongDao().artForFilters(SimpleSQLiteQuery(getQueryForFiltersArt(whereStatement)))
 
     suspend fun setOrders(orders: List<DbOrder>) = asyncUpdate(CHANGE_ORDER) {

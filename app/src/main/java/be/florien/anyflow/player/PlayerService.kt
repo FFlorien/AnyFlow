@@ -129,6 +129,6 @@ class PlayerService : LifecycleService() {
      */
 
     companion object {
-        const val MEDIA_SESSION_NAME = "AnyFlow"
+        const val MEDIA_SESSION_NAME = "AnyFlow player"
     }
 }

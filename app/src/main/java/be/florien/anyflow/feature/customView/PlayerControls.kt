@@ -135,30 +135,26 @@ class PlayerControls
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 lastDownEventX = event.x
-                scrollPlayerPainter.durationOnScrollStart = currentDuration
-            }
-            MotionEvent.ACTION_UP -> {
-                if (scrollPlayerPainter.getButtonClicked(lastDownEventX.toInt(), event.x.toInt()) == PlayerPainter.CLICK_SCROLL) {
-                    actionListener?.onCurrentDurationChanged(scrollPlayerPainter.duration.toLong())
-                } else {
-                    when (playPlayerPainter.getButtonClicked(lastDownEventX.toInt(), event.x.toInt())) {
-                        PlayerPainter.CLICK_PREVIOUS -> actionListener?.onPreviousClicked()
-                        PlayerPainter.CLICK_PLAY_PAUSE -> actionListener?.onPlayPauseClicked()
-                        PlayerPainter.CLICK_NEXT -> actionListener?.onNextClicked()
-                        else -> {
-                            lastDownEventX = 0f
-                            return super.onTouchEvent(event)
-                        }
-                    }
-                }
-                lastDownEventX = 0f
-                currentPlayerPainter = playPlayerPainter
+                scrollPlayerPainter.durationOnTouchStart = currentDuration
             }
             MotionEvent.ACTION_MOVE -> {
                 scrollPlayerPainter.scrollOffset = (event.x - lastDownEventX)
                 if (scrollPlayerPainter.scrollOffset.absoluteValue > playPlayerPainter.smallestButtonWidth && currentPlayerPainter != scrollPlayerPainter) {
                     currentPlayerPainter = scrollPlayerPainter
                 }
+            }
+            MotionEvent.ACTION_UP -> {
+                when (currentPlayerPainter.getButtonClicked(lastDownEventX.toInt(), event.x.toInt())) {
+                    PlayerPainter.CLICK_PREVIOUS -> actionListener?.onPreviousClicked()
+                    PlayerPainter.CLICK_PLAY_PAUSE -> actionListener?.onPlayPauseClicked()
+                    PlayerPainter.CLICK_NEXT -> actionListener?.onNextClicked()
+                    else -> {
+                        actionListener?.onCurrentDurationChanged(scrollPlayerPainter.duration.toLong())
+                    }
+                }
+
+                lastDownEventX = 0f
+                currentPlayerPainter = playPlayerPainter
             }
             else -> return super.onTouchEvent(event)
         }
