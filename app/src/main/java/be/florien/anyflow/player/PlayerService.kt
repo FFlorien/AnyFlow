@@ -63,7 +63,7 @@ class PlayerService : LifecycleService() {
             isActive = true
         }
     }
-    private val notificationBuilder: PlayerNotificationBuilder by lazy { PlayerNotificationBuilder(this, mediaSession) }
+    private val notificationBuilder: PlayerNotificationBuilder by lazy { PlayerNotificationBuilder(this, mediaSession, pendingIntent) }
 
     private val isPlaying
         get() = playerController.isPlaying()

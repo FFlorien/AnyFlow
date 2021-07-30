@@ -1,5 +1,6 @@
 package be.florien.anyflow.player
 
+import android.app.PendingIntent
 import android.app.Service
 import android.graphics.Bitmap
 import android.support.v4.media.MediaMetadataCompat
@@ -18,7 +19,8 @@ import com.bumptech.glide.request.target.Target
 
 class PlayerNotificationBuilder(
         private val service: Service,
-        private val mediaSession: MediaSessionCompat) {
+        private val mediaSession: MediaSessionCompat,
+        pendingIntent: PendingIntent) {
 
     private var state: State = State(false, false, false)
     var lastPosition = 0L
@@ -33,6 +35,7 @@ class PlayerNotificationBuilder(
         }
     private val notificationBuilder: NotificationCompat.Builder = NotificationCompat.Builder(service, PlayerService.MEDIA_SESSION_NAME)
             .setSmallIcon(R.drawable.notif)
+            .setContentIntent(pendingIntent)
             .setVibrate(null)
     private val playBackStateBuilder: PlaybackStateCompat.Builder = PlaybackStateCompat.Builder()
             .setActions(PlaybackStateCompat.ACTION_PLAY or
