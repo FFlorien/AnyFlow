@@ -57,7 +57,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/search"
             android:text="Tout sélectionner"
-            android:visibility="@{viewModel.searchedText.empty ? View.GONE : View.VISIBLE}" />
+            android:visibility="@{viewModel.searchedText.empty ? View.GONE : View.VISIBLE}"
+            android:onClick="@{() -> viewModel.selectAllInSelection()}"/>
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/filterList"

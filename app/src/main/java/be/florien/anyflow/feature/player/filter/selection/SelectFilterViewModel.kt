@@ -1,16 +1,14 @@
 package be.florien.anyflow.feature.player.filter.selection
 
 import android.text.TextWatcher
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.paging.PagingData
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.player.FiltersManager
 
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
-    BaseFilterViewModel(filtersManager) {
-    abstract val values: LiveData<PagingData<FilterItem>>
+        BaseFilterViewModel(filtersManager) {
+    abstract val values: MutableLiveData<MutableLiveData<List<FilterItem>>>
     abstract val itemDisplayType: Int
     abstract val searchTextWatcher: TextWatcher
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -37,15 +35,30 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         }
     }
 
+    fun selectAllInSelection() {
+        val changingList = values.value?.value ?: return
+        val newList = mutableListOf<FilterItem>()
+        changingList.forEach {
+            val filter = getFilter(it)
+            val newFilterItem = FilterItem(it.id, it.displayName, it.artUrl, it.isSelected)
+            if (!it.isSelected) {
+                filtersManager.addFilter(filter)
+                newFilterItem.isSelected = true
+            }
+            newList.add(newFilterItem)
+        }
+        values.value?.value = newList
+    }
+
     fun deleteSearch() {
         searchedText.value = ""
     }
 
     class FilterItem(
-        val id: Long,
-        val displayName: String,
-        val artUrl: String? = null,
-        var isSelected: Boolean
+            val id: Long,
+            val displayName: String,
+            val artUrl: String? = null,
+            var isSelected: Boolean
     )
 
     companion object {

@@ -2,16 +2,20 @@ package be.florien.anyflow.feature.player.filter.selection
 
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.LiveData
-import androidx.paging.PagingData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SelectFilterGenreViewModel @Inject constructor(private val dataRepository: DataRepository, filtersManager: FiltersManager) : SelectFilterViewModel(filtersManager) {
-    override var values: LiveData<PagingData<FilterItem>> =
-            dataRepository.getGenres(::convert) // todo move this to dataconverter or datarepo
+    private var searchJob: Job?= null
+    override var values: MutableLiveData<MutableLiveData<List<FilterItem>>> =
+            MutableLiveData(dataRepository.getGenres(::convert).mutable) // todo move this to dataconverter or datarepo
 
     override val itemDisplayType = ITEM_LIST
     override val searchTextWatcher: TextWatcher = object : TextWatcher {
@@ -22,10 +26,14 @@ class SelectFilterGenreViewModel @Inject constructor(private val dataRepository:
         }
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            values = if (s.isEmpty()) {
-                dataRepository.getGenres(::convert)
-            } else {// todo move this to dataconverter or datarepo
-                dataRepository.getGenresFiltered(s.toString(), ::convert)
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
+                delay(300)
+                values.value = if (s.isEmpty()) {
+                    dataRepository.getGenres(::convert).mutable
+                } else {// todo move this to dataconverter or datarepo
+                    dataRepository.getGenresFiltered(s.toString(), ::convert).mutable
+                }
             }
         }
     }

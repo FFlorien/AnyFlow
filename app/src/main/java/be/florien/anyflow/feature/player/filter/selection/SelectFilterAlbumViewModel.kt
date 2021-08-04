@@ -2,17 +2,21 @@ package be.florien.anyflow.feature.player.filter.selection
 
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.LiveData
-import androidx.paging.PagingData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SelectFilterAlbumViewModel @Inject constructor(dataRepository: DataRepository, filtersManager: FiltersManager) : SelectFilterViewModel(filtersManager) {
-    override var values: LiveData<PagingData<FilterItem>> =
-            dataRepository.getAlbums(::convert)
+    private var searchJob: Job? = null
+    override var values: MutableLiveData<MutableLiveData<List<FilterItem>>> =
+            MutableLiveData(dataRepository.getAlbums(::convert).mutable)
 
     override val itemDisplayType = ITEM_GRID
     override val searchTextWatcher: TextWatcher = object : TextWatcher {
@@ -23,10 +27,14 @@ class SelectFilterAlbumViewModel @Inject constructor(dataRepository: DataReposit
         }
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            values = if (s.isEmpty()) {
-                dataRepository.getAlbums(::convert)
-            } else {// todo move this to dataconverter or datarepo
-                dataRepository.getAlbumsFiltered(s.toString(), ::convert)
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
+                delay(300)
+                values.value = if (s.isEmpty()) {
+                    dataRepository.getAlbums(::convert).mutable
+                } else {// todo move this to dataconverter or datarepo
+                    dataRepository.getAlbumsFiltered(s.toString(), ::convert).mutable
+                }
             }
         }
     }

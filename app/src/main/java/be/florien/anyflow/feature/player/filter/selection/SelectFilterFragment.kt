@@ -5,16 +5,14 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
@@ -30,9 +28,6 @@ import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewM
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @ActivityScope
@@ -54,7 +49,11 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         get() = viewModel
     lateinit var viewModel: SelectFilterViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
-    var searchJob: Job? = null
+
+    private var previousLiveData: LiveData<List<SelectFilterViewModel.FilterItem>>? = null
+    private val listObserver = Observer<List<SelectFilterViewModel.FilterItem>> {
+        t -> (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(t)
+    }
 
     constructor() : this(GENRE_ID)
 
@@ -116,31 +115,14 @@ constructor(private var filterType: String) : BaseFilterFragment() {
             }
         }
         viewModel.values.observe(viewLifecycleOwner) {
-            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(viewLifecycleOwner.lifecycle, it)
+            previousLiveData?.removeObserver(listObserver)
+            previousLiveData = it
+            it.observe(viewLifecycleOwner, listObserver)
         }
-        fragmentBinding.search.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                searchJob?.cancel()
-                searchJob = lifecycleScope.launch {
-                    delay(200)
-                    viewModel.values.observe(viewLifecycleOwner) {
-                        (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(viewLifecycleOwner.lifecycle, it)
-                    }
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                viewModel.values.removeObservers(this@SelectFilterFragment)
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-        })
         return fragmentBinding.root
     }
 
-    inner class FilterListAdapter : PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object : DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
+    inner class FilterListAdapter : ListAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object : DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
         override fun areItemsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem): Boolean =
@@ -155,7 +137,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         }
 
         override fun getSectionName(position: Int): String =
-                snapshot()[position]?.displayName?.firstOrNull()?.toUpperCase()?.toString()
+                viewModel.values.value?.value?.get(position)?.displayName?.firstOrNull()?.toUpperCase()?.toString()
                         ?: ""
     }
 

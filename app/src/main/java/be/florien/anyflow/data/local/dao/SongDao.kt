@@ -31,10 +31,10 @@ interface SongDao : BaseDao<DbSong> {
     suspend fun artForFilters(query: SupportSQLiteQuery): List<String>
 
     @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
-    fun genreOrderByGenre(): DataSource.Factory<Int, String>
+    fun genreOrderByGenre(): LiveData<List<String>>
 
     @Query("SELECT DISTINCT genre FROM song WHERE genre LIKE :filter ORDER BY genre COLLATE UNICODE")
-    fun genreOrderByGenreFiltered(filter: String): DataSource.Factory<Int, String>
+    fun genreOrderByGenreFiltered(filter: String): LiveData<List<String>>
 
     @Query("SELECT COUNT(*) FROM song JOIN queueorder ON song.id = queueorder.songId ")
     suspend fun queueSize(): Int?
