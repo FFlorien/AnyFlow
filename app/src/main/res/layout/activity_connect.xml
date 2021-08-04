@@ -18,6 +18,7 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin"
         tools:context="be.florien.anyflow.feature.connect.ConnectActivityBase">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -91,6 +92,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:background="@drawable/bg_dark_blue_button"
+            android:textColor="@android:color/white"
             android:layout_marginEnd="8dp"
             android:onClick="@{(view) ->viewModel.connect()}"
             android:text="@string/connect_connect_action"

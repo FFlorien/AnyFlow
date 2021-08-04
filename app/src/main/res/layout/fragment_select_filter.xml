@@ -40,7 +40,7 @@
             android:id="@+id/search_erase"
             android:src="@drawable/ic_erase"
             app:tint="@color/accent"
-            android:background="@color/primary"
+            android:background="@drawable/bg_blue_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:paddingStart="@dimen/activity_horizontal_margin"
@@ -55,8 +55,10 @@
             android:id="@+id/select_all"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_dark_blue_button"
+            android:textColor="@android:color/white"
             app:layout_constraintTop_toBottomOf="@+id/search"
-            android:text="Tout sélectionner"
+            android:text="@string/generic_select_all"
             android:visibility="@{viewModel.searchedText.empty ? View.GONE : View.VISIBLE}"
             android:onClick="@{() -> viewModel.selectAllInSelection()}"/>
 
