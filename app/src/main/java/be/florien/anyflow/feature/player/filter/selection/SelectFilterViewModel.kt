@@ -13,9 +13,18 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
     abstract val values: LiveData<PagingData<FilterItem>>
     abstract val itemDisplayType: Int
     abstract val searchTextWatcher: TextWatcher
+    val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
 
     protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
+
+    init {
+        isSearching.observeForever {
+            if (!it) {
+                deleteSearch()
+            }
+        }
+    }
 
     fun changeFilterSelection(filterValue: FilterItem) {
         val filter = getFilter(filterValue)
@@ -26,6 +35,10 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
             filtersManager.removeFilter(filter)
             filterValue.isSelected = false
         }
+    }
+
+    fun deleteSearch() {
+        searchedText.value = ""
     }
 
     class FilterItem(

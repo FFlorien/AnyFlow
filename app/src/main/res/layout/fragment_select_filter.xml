@@ -1,32 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <import type="android.view.View"/>
 
         <variable
             name="viewModel"
             type="be.florien.anyflow.feature.player.filter.selection.SelectFilterViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <EditText
             android:id="@+id/search"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:singleLine="true"
+            android:inputType="text"
+            android:background="@color/primary"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/accentLight"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:autofillHints="@string/filter_type_search"
+            android:hint="@string/filter_type_search"
             android:text="@={viewModel.searchedText}"
+            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
             app:addTextChangedListener="@{viewModel.searchTextWatcher}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/search_erase"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/separator"
+        <ImageButton
+            android:id="@+id/search_erase"
+            android:src="@drawable/ic_erase"
+            app:tint="@color/accent"
+            android:background="@color/primary"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.deleteSearch()}"
+            app:layout_constraintStart_toEndOf="@+id/search"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/select_all"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            app:layout_constraintTop_toBottomOf="@id/search"
-            android:background="@color/primaryDark"/>
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/search"
+            android:text="Tout sélectionner"
+            android:visibility="@{viewModel.searchedText.empty ? View.GONE : View.VISIBLE}" />
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/filterList"
@@ -38,6 +69,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/separator" />
+            app:layout_constraintTop_toBottomOf="@+id/select_all" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

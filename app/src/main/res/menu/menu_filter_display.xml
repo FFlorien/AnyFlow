@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_search"
+        android:visible="false"
+        android:icon="@drawable/ic_search"
+        android:title="@string/filter_type_search"
+        android:iconTint="@color/accent"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_confirm"
         android:icon="@drawable/ic_confirm"
         android:iconTint="@color/accent"
