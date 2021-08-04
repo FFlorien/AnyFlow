@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
@@ -56,13 +55,14 @@ class PlayerActivity : AppCompatActivity() {
         override fun inject(playerActivity: PlayerActivity) {}
     }
 
+    val menuCoordinator = MenuCoordinator()
+
     /**
      * Private properties
      */
     lateinit var viewModel: PlayerViewModel
     private lateinit var binding: ActivityPlayerBinding
 
-    private val menuCoordinator = MenuCoordinator()
     private lateinit var filterMenu: FilterMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
 

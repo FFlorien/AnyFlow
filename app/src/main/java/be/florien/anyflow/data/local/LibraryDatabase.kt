@@ -44,6 +44,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 
     suspend fun getSongsFromQuery(query: String): List<Long> = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
+    fun searchSongs(filter: String): LiveData<List<Long>> = getSongDao().searchPositionsWhereFilterPresent(filter)
 
     fun getGenres(): LiveData<List<String>> = getSongDao().genreOrderByGenre()
     fun getGenresFiltered(filter: String): LiveData<List<String>> = getSongDao().genreOrderByGenreFiltered(filter)

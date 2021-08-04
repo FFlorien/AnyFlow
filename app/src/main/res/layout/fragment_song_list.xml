@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="be.florien.anyflow.feature.player.songlist.SongListViewModel" />
@@ -14,10 +16,87 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:singleLine="true"
+            android:inputType="text"
+            android:background="@color/primary"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/accentLight"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:autofillHints="@string/filter_type_search"
+            android:hint="@string/filter_type_search"
+            android:text="@={viewModel.searchedText}"
+            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
+            app:addTextChangedListener="@{viewModel.searchTextWatcher}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/search_erase"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/search_progression"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@+id/search"
+            app:layout_constraintBottom_toBottomOf="@+id/search"
+            app:layout_constraintEnd_toEndOf="@+id/search"
+            android:textColor="@color/accentLight"
+            android:text="@{viewModel.searchProgressionText}" />
+
+        <ImageButton
+            android:id="@+id/search_erase"
+            android:src="@drawable/ic_erase"
+            app:tint="@color/accent"
+            android:background="@drawable/bg_blue_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.deleteSearch()}"
+            app:layout_constraintStart_toEndOf="@+id/search"
+            app:layout_constraintEnd_toStartOf="@+id/search_previous"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/search_previous"
+            android:src="@drawable/ic_previous_occurence"
+            app:tint="@color/accent"
+            android:background="@drawable/bg_blue_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.previousSearchOccurrence()}"
+            app:layout_constraintStart_toEndOf="@+id/search_erase"
+            app:layout_constraintEnd_toStartOf="@+id/search_next"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/search_next"
+            android:src="@drawable/ic_next_occurence"
+            app:tint="@color/accent"
+            android:background="@drawable/bg_blue_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.nextSearchOccurrence()}"
+            app:layout_constraintStart_toEndOf="@+id/search_previous"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/songList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/search"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:fastScrollPopupBgColor="@color/accent"
             app:fastScrollPopupPosition="center"
             app:fastScrollPopupTextColor="@color/onSecondaryText"

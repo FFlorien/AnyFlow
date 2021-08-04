@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
@@ -25,6 +26,7 @@ import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.feature.menu.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.PlayerService
@@ -45,6 +47,11 @@ class SongListFragment : BaseFragment() {
     private var shouldHideLoading = false
     private var isLoadingVisible = false
 
+    private val searchMenuHolder = SearchSongMenuHolder{
+        val currentState = viewModel.isSearching.value == true
+        viewModel.isSearching.value = !currentState
+    }
+
     private val topSet: ConstraintSet
         get() =
             ConstraintSet().apply {
@@ -63,6 +70,7 @@ class SongListFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        (requireActivity() as PlayerActivity).menuCoordinator.addMenuHolder(searchMenuHolder)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -111,6 +119,23 @@ class SongListFragment : BaseFragment() {
                 shouldScrollToCurrent = false
             }
         }
+        viewModel.isSearching.observe(viewLifecycleOwner) {
+            val imm: InputMethodManager? = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            if (it) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    binding.search.requestFocus()
+                    imm?.showSoftInput(binding.search, InputMethodManager.SHOW_IMPLICIT)
+                }, 200)
+            } else {
+                imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+            }
+        }
+        viewModel.searchProgression.observe(viewLifecycleOwner) {
+            if (it >= 0) {
+                linearLayoutManager.scrollToPositionWithOffset(viewModel.searchResults.value?.value?.get(it)?.toInt() ?: it, 0)
+            }
+            updateCurrentSongDisplay()
+        }
         shouldHideLoading = true
     }
 
@@ -122,13 +147,14 @@ class SongListFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         requireActivity().unbindService(viewModel.connection)
+        (requireActivity() as PlayerActivity).menuCoordinator.removeMenuHolder(searchMenuHolder)
     }
 
     private fun updateCurrentSongDisplay() {
         val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
         val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
 
-        if (viewModel.listPosition.value in firstVisibleItemPosition..lastVisibleItemPosition) {
+        if (viewModel.listPosition.value in firstVisibleItemPosition..lastVisibleItemPosition || (viewModel.searchProgression.value ?: -1) >= 0) {
             binding.currentSongDisplay.root.visibility = View.GONE
         } else {
 

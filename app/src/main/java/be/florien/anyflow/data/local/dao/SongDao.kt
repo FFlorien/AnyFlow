@@ -24,6 +24,9 @@ interface SongDao : BaseDao<DbSong> {
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
     suspend fun findPositionInQueue(songId: Long): Int?
 
+    @Query("SELECT queueorder.`order` FROM queueorder JOIN song ON queueorder.songId = song.id WHERE song.title LIKE :filter OR song.artistName LIKE :filter OR song.albumArtistName LIKE :filter OR song.albumName LIKE :filter ORDER BY queueorder.`order` COLLATE UNICODE")
+    fun searchPositionsWhereFilterPresent(filter: String): LiveData<List<Long>>
+
     @RawQuery(observedEntities = [DbSong::class])
     suspend fun forCurrentFilters(query: SupportSQLiteQuery): List<Long>
 
@@ -36,6 +39,6 @@ interface SongDao : BaseDao<DbSong> {
     @Query("SELECT DISTINCT genre FROM song WHERE genre LIKE :filter ORDER BY genre COLLATE UNICODE")
     fun genreOrderByGenreFiltered(filter: String): LiveData<List<String>>
 
-    @Query("SELECT COUNT(*) FROM song JOIN queueorder ON song.id = queueorder.songId ")
+    @Query("SELECT COUNT(*) FROM queueorder")
     suspend fun queueSize(): Int?
 }

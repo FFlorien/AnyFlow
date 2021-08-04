@@ -59,6 +59,8 @@ class DataRepository
 
     fun getUrlInQueueOrder() = libraryDatabase.getUrlsInQueueOrder()
 
+    fun searchSongs(filter: String) = libraryDatabase.searchSongs("%$filter%")
+
     suspend fun getQueueSize(): Int? = withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
 
     fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<List<T>> =
