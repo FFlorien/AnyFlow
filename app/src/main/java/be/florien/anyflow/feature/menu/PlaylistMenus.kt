@@ -11,7 +11,7 @@ class FilterMenuHolder(action: () -> Unit) : MenuHolder(
 
 class SearchSongMenuHolder(action: () -> Unit) : MenuHolder(
         R.menu.menu_player,
-        R.id.menu_search,
+        R.id.menu_search_songs,
         action)
 
 class OrderMenuHolder(isOrdered: Boolean, context: Context, action: () -> Unit) : AnimatedMenuHolder(

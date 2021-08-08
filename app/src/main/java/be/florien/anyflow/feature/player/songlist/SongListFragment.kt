@@ -142,6 +142,12 @@ class SongListFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.refreshSongs()
+        searchMenuHolder.isVisible = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        searchMenuHolder.isVisible = false
     }
 
     override fun onDestroy() {
