@@ -14,36 +14,32 @@ import kotlinx.coroutines.launch
 
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         BaseFilterViewModel(filtersManager) {
+    private var searchJob: Job? = null
+    private var currentPagingData: LiveData<PagingData<FilterItem>>? = null
+
     abstract val itemDisplayType: Int
+
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
-    private var searchJob: Job? = null
-    var values: LiveData<LiveData<PagingData<FilterItem>>> = MediatorLiveData<LiveData<PagingData<FilterItem>>>().apply {
+    var values: LiveData<PagingData<FilterItem>> = MediatorLiveData<PagingData<FilterItem>>().apply {
         addSource(searchedText) {
             searchJob?.cancel()
             searchJob = viewModelScope.launch {
                 delay(300)
-                value = getCurrentPagingList(it)
+                getCurrentPagingList(it)
             }
         }
 
         addSource(filtersManager.filtersInEdition) {
-            value = getCurrentPagingList(searchedText.value)
+            getCurrentPagingList(searchedText.value)
         }
     }
 
-    private fun getCurrentPagingList(search: String?) = if (search.isNullOrEmpty()) {
-        getUnfilteredPagingList()
-    } else {
-        getFilteredPagingList(search)
-    }
-
-
     protected abstract fun getUnfilteredPagingList(): LiveData<PagingData<FilterItem>>
-
-    protected  abstract fun getFilteredPagingList(search: String) :LiveData<PagingData<FilterItem>>
-    protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
+    protected abstract fun getFilteredPagingList(search: String): LiveData<PagingData<FilterItem>>
     protected abstract suspend fun getFoundFilters(search: String): List<FilterItem>
+
+    protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
 
     init {
         isSearching.observeForever {
@@ -75,6 +71,20 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
 
     fun deleteSearch() {
         searchedText.value = ""
+    }
+
+    private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
+        currentPagingData?.let { (values as MediatorLiveData).removeSource(it) }
+        val liveData: LiveData<PagingData<FilterItem>> = if (search.isNullOrEmpty()) {
+            getUnfilteredPagingList()
+        } else {
+            getFilteredPagingList(search)
+        }
+        (values as MediatorLiveData).addSource(liveData) {
+            (values as MediatorLiveData).value = it
+        }
+        currentPagingData = liveData
+        return liveData
     }
 
     class FilterItem(

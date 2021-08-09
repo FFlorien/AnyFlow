@@ -10,10 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.res.ResourcesCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
@@ -31,17 +28,10 @@ import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
-
 @ActivityScope
 @UserScope
 class SelectFilterFragment @SuppressLint("ValidFragment")
 constructor(private var filterType: String) : BaseFilterFragment() {
-    override fun getTitle(): String = when (filterType) {
-        ALBUM_ID -> getString(R.string.filter_title_album)
-        ARTIST_ID -> getString(R.string.filter_title_album_artist)
-        GENRE_ID -> getString(R.string.filter_title_genre)
-        else -> getString(R.string.filter_title_main)
-    }
 
     companion object {
         private const val FILTER_TYPE = "TYPE"
@@ -52,12 +42,14 @@ constructor(private var filterType: String) : BaseFilterFragment() {
     lateinit var viewModel: SelectFilterViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
 
-    private var previousLiveData: LiveData<PagingData<SelectFilterViewModel.FilterItem>>? = null
-    private val listObserver = Observer<PagingData<SelectFilterViewModel.FilterItem>> { t ->
-        (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, t)
-    }
-
     constructor() : this(GENRE_ID)
+
+    override fun getTitle(): String = when (filterType) {
+        ALBUM_ID -> getString(R.string.filter_title_album)
+        ARTIST_ID -> getString(R.string.filter_title_album_artist)
+        GENRE_ID -> getString(R.string.filter_title_genre)
+        else -> getString(R.string.filter_title_main)
+    }
 
     init {
         arguments?.let {
@@ -117,9 +109,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
             }
         }
         viewModel.values.observe(viewLifecycleOwner) {
-            previousLiveData?.removeObserver(listObserver)
-            previousLiveData = it
-            it.observe(viewLifecycleOwner, listObserver)
+            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
         }
         return fragmentBinding.root
     }
@@ -128,7 +118,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         override fun areItemsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem): Boolean =
-                oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName
+                oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
 
     }), FastScrollRecyclerView.SectionedAdapter {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =

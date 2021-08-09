@@ -8,12 +8,12 @@ import javax.inject.Inject
 
 class SelectFilterArtistViewModel @Inject constructor(val dataRepository: DataRepository, filtersManager: FiltersManager) : SelectFilterViewModel(filtersManager) {
     override val itemDisplayType = ITEM_LIST
-    override fun getUnfilteredPagingList() = dataRepository.getArtists(::convert)
 
+    override fun getUnfilteredPagingList() = dataRepository.getArtists(::convert)
     override fun getFilteredPagingList(search: String) = dataRepository.getArtistsFiltered(search, ::convert)
+    override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getArtistsFilteredList(search, ::convert)
 
     override fun getFilter(filterValue: FilterItem) = Filter.ArtistIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
-    override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getArtistsFilteredList(search, ::convert)
 
     private fun convert(artist: DbArtistDisplay) = FilterItem(artist.id, artist.name, artist.art, filtersManager.isFilterInEdition(Filter.ArtistIs(artist.id, artist.name, artist.art)))
 }
