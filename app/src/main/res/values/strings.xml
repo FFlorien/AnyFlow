@@ -18,6 +18,7 @@
     <string name="filter_type_genre">Genre</string>
     <string name="filter_type_album_artist">Album’s artist</string>
     <string name="filter_type_album">Album</string>
+    <string name="filter_type_song">Song</string>
     <string name="filter_type_search">Search</string>
     <string name="filter_title_album">Select albums</string>
     <string name="filter_title_album_artist">Select album artists</string>

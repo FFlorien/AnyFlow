@@ -23,6 +23,7 @@
     <string name="filter_type_genre">Genre</string>
     <string name="filter_type_album_artist">Artiste de l’album</string>
     <string name="filter_type_album">Album</string>
+    <string name="filter_type_song">Chanson</string>
     <string name="filter_type_search">Recherche</string>
     <string name="menu_filters">Filtres</string>
     <string name="menu_order_random">Aléatoire</string>

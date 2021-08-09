@@ -9,25 +9,30 @@ class SelectFilterTypeViewModel @Inject constructor(filtersManager: FiltersManag
     private val genreName = R.string.filter_type_genre
     private val artistName = R.string.filter_type_album_artist
     private val albumName = R.string.filter_type_album
+    private val songName = R.string.filter_type_song
 
     val filtersIds = listOf(
             GENRE_ID,
             ARTIST_ID,
-            ALBUM_ID)
+            ALBUM_ID,
+            SONG_ID)
 
     val filtersNames = listOf(
             genreName,
             artistName,
-            albumName)
+            albumName,
+            songName)
 
     val filtersImages = listOf(
             R.drawable.ic_genre,
             R.drawable.ic_artist,
-            R.drawable.ic_album)
+            R.drawable.ic_album,
+            R.drawable.ic_song)
 
     companion object {
         const val GENRE_ID = "Genre"
         const val ARTIST_ID = "Artist"
         const val ALBUM_ID = "Album"
+        const val SONG_ID = "Song"
     }
 }

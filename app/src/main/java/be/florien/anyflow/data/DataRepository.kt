@@ -5,10 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.*
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.local.model.DbAlbumDisplay
-import be.florien.anyflow.data.local.model.DbArtistDisplay
-import be.florien.anyflow.data.local.model.DbFilter
-import be.florien.anyflow.data.local.model.DbFilterGroup
+import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
@@ -72,6 +69,9 @@ class DataRepository
     fun <T : Any> getGenres(mapping: (String) -> T): LiveData<PagingData<T>> =
             convertToPagingLiveData(libraryDatabase.getGenres().map { mapping(it) })
 
+    fun <T : Any> getSongs(mapping: (DbSongDisplay) -> T): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
+
     fun <T : Any> getAlbumsFiltered(
             filter: String,
             mapping: (DbAlbumDisplay) -> T
@@ -109,6 +109,18 @@ class DataRepository
             mapping: (String) -> T
     ): List<T> =
             libraryDatabase.getGenresFilteredList("%$filter%").map { item -> (mapping(item)) }
+
+    fun <T : Any> getSongsFiltered(
+            filter: String,
+            mapping: (DbSongDisplay) -> T
+    ): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getSongsFiltered("%$filter%").map { mapping(it) })
+
+    suspend fun <T : Any> getSongsFilteredList(
+            filter: String,
+            mapping: (DbSongDisplay) -> T
+    ): List<T> =
+            libraryDatabase.getSongsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     fun getOrders() =
             libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }

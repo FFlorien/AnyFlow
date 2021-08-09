@@ -87,7 +87,8 @@ constructor(private var filterType: String) : BaseFilterFragment() {
                 when (filterType) {
                     ALBUM_ID -> SelectFilterAlbumViewModel::class.java
                     ARTIST_ID -> SelectFilterArtistViewModel::class.java
-                    else -> SelectFilterGenreViewModel::class.java
+                    GENRE_ID -> SelectFilterGenreViewModel::class.java
+                    else -> SelectFilterSongViewModel::class.java
                 }
         )
     }

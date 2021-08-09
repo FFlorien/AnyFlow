@@ -39,7 +39,10 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getPositionForSong(song: DbSongDisplay): Int? = getSongDao().findPositionInQueue(song.id)
 
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
+    fun getSongsInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInAlphabeticalOrder()
     fun getUrlsInQueueOrder(): LiveData<List<String>> = getSongDao().urlInQueueOrder()
+    fun getSongsFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayFiltered(filter)
+    suspend fun getSongsFilteredList(filter: String): List<DbSongDisplay> = getSongDao().displayFilteredList(filter)
 
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 

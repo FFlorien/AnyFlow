@@ -15,6 +15,15 @@ interface SongDao : BaseDao<DbSong> {
     @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song ORDER BY title")
+    fun displayInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay>
+
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song WHERE title LIKE :filter ORDER BY title COLLATE UNICODE")
+    fun displayFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay>
+
+    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song WHERE title LIKE :filter ORDER BY genre COLLATE UNICODE")
+    suspend fun displayFilteredList(filter: String): List<DbSongDisplay>
+
     @Query("SELECT url FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     fun urlInQueueOrder(): LiveData<List<String>>
 
