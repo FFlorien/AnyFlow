@@ -63,32 +63,52 @@ class DataRepository
 
     suspend fun getQueueSize(): Int? = withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
 
-    fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<List<T>> =
-            libraryDatabase.getAlbums().map { list -> list.map { item -> (mapping(item)) } }
+    fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getAlbums().map { mapping(it) })
 
-    fun <T : Any> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<List<T>> =
-            libraryDatabase.getAlbumArtists().map { list -> list.map { item -> (mapping(item)) } }
+    fun <T : Any> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
 
-    fun <T : Any> getGenres(mapping: (String) -> T): LiveData<List<T>> =
-            libraryDatabase.getGenres().map { list -> list.map { item -> (mapping(item)) } }
+    fun <T : Any> getGenres(mapping: (String) -> T): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getGenres().map { mapping(it) })
 
     fun <T : Any> getAlbumsFiltered(
             filter: String,
             mapping: (DbAlbumDisplay) -> T
-    ): LiveData<List<T>> =
-            libraryDatabase.getAlbumsFiltered("%$filter%").map { list -> list.map { item -> (mapping(item)) } }
+    ): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getAlbumsFiltered("%$filter%").map { mapping(it) })
+
+    suspend fun <T : Any> getAlbumsFilteredList(
+            filter: String,
+            mapping: (DbAlbumDisplay) -> T
+    ): List<T> =
+            libraryDatabase.getAlbumsFilteredList("%$filter%").map { item -> (mapping(item)) }
+
 
     fun <T : Any> getArtistsFiltered(
             filter: String,
             mapping: (DbArtistDisplay) -> T
-    ): LiveData<List<T>> =
-            libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { list -> list.map { item -> (mapping(item)) } }
+    ): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
+
+    suspend fun <T : Any> getArtistsFilteredList(
+            filter: String,
+            mapping: (DbArtistDisplay) -> T
+    ): List<T> =
+            libraryDatabase.getAlbumArtistsFilteredList("%$filter%").map { item -> (mapping(item)) }
+
 
     fun <T : Any> getGenresFiltered(
             filter: String,
             mapping: (String) -> T
-    ): LiveData<List<T>> =
-            libraryDatabase.getGenresFiltered("%$filter%").map { list -> list.map { item -> (mapping(item)) } }
+    ): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getGenresFiltered("%$filter%").map { mapping(it) })
+
+    suspend fun <T : Any> getGenresFilteredList(
+            filter: String,
+            mapping: (String) -> T
+    ): List<T> =
+            libraryDatabase.getGenresFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     fun getOrders() =
             libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
@@ -207,11 +227,7 @@ class DataRepository
     }
 
     private fun <T : Any> convertToPagingLiveData(dataSourceFactory: DataSource.Factory<Int, T>): LiveData<PagingData<T>> =
-            Pager(
-                    PagingConfig(100),
-                    0,
-                    dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
-            ).liveData
+            Pager(PagingConfig(100), 0, dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)).liveData
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, orderList: List<Order>): String {
 

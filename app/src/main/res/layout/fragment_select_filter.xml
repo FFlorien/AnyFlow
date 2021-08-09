@@ -31,7 +31,6 @@
             android:hint="@string/filter_type_search"
             android:text="@={viewModel.searchedText}"
             android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
-            app:addTextChangedListener="@{viewModel.searchTextWatcher}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/search_erase"
             app:layout_constraintTop_toTopOf="parent" />

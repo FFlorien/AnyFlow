@@ -46,14 +46,18 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getSongsFromQuery(query: String): List<Long> = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
     fun searchSongs(filter: String): LiveData<List<Long>> = getSongDao().searchPositionsWhereFilterPresent(filter)
 
-    fun getGenres(): LiveData<List<String>> = getSongDao().genreOrderByGenre()
-    fun getGenresFiltered(filter: String): LiveData<List<String>> = getSongDao().genreOrderByGenreFiltered(filter)
+    fun getGenres(): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenre()
+    fun getGenresFiltered(filter: String): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenreFiltered(filter)
+    suspend fun getGenresFilteredList(filter: String): List<String> = getSongDao().genreOrderByGenreFilteredList(filter)
 
-    fun getAlbumArtists(): LiveData<List<DbArtistDisplay>> = getArtistDao().orderByName()
-    fun getAlbumArtistsFiltered(filter: String): LiveData<List<DbArtistDisplay>> = getArtistDao().orderByNameFiltered(filter)
+    fun getAlbumArtists(): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByName()
+    fun getAlbumArtistsFiltered(filter: String): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByNameFiltered(filter)
+    suspend fun getAlbumArtistsFilteredList(filter: String): List<DbArtistDisplay> = getArtistDao().orderByNameFilteredList(filter)
 
-    fun getAlbums(): LiveData<List<DbAlbumDisplay>> = getAlbumDao().orderByName()
-    fun getAlbumsFiltered(filter: String): LiveData<List<DbAlbumDisplay>> = getAlbumDao().orderByNameFiltered(filter)
+    fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
+    fun getAlbumsFiltered(filter: String): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByNameFiltered(filter)
+    suspend fun getAlbumsFilteredList(filter: String): List<DbAlbumDisplay> = getAlbumDao().orderByNameFilteredList(filter)
+
 
     fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters()
 

@@ -1,20 +1,49 @@
 package be.florien.anyflow.feature.player.filter.selection
 
-import android.text.TextWatcher
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.player.FiltersManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         BaseFilterViewModel(filtersManager) {
-    abstract val values: MutableLiveData<MutableLiveData<List<FilterItem>>>
     abstract val itemDisplayType: Int
-    abstract val searchTextWatcher: TextWatcher
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
+    private var searchJob: Job? = null
+    var values: LiveData<LiveData<PagingData<FilterItem>>> = MediatorLiveData<LiveData<PagingData<FilterItem>>>().apply {
+        addSource(searchedText) {
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
+                delay(300)
+                value = getCurrentPagingList(it)
+            }
+        }
 
+        addSource(filtersManager.filtersInEdition) {
+            value = getCurrentPagingList(searchedText.value)
+        }
+    }
+
+    private fun getCurrentPagingList(search: String?) = if (search.isNullOrEmpty()) {
+        getUnfilteredPagingList()
+    } else {
+        getFilteredPagingList(search)
+    }
+
+
+    protected abstract fun getUnfilteredPagingList(): LiveData<PagingData<FilterItem>>
+
+    protected  abstract fun getFilteredPagingList(search: String) :LiveData<PagingData<FilterItem>>
     protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
+    protected abstract suspend fun getFoundFilters(search: String): List<FilterItem>
 
     init {
         isSearching.observeForever {
@@ -26,28 +55,22 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
 
     fun changeFilterSelection(filterValue: FilterItem) {
         val filter = getFilter(filterValue)
-        if (!filterValue.isSelected) {
+        if (!filtersManager.isFilterInEdition(filter)) {
             filtersManager.addFilter(filter)
-            filterValue.isSelected = true
         } else {
             filtersManager.removeFilter(filter)
-            filterValue.isSelected = false
         }
     }
 
     fun selectAllInSelection() {
-        val changingList = values.value?.value ?: return
-        val newList = mutableListOf<FilterItem>()
-        changingList.forEach {
-            val filter = getFilter(it)
-            val newFilterItem = FilterItem(it.id, it.displayName, it.artUrl, it.isSelected)
-            if (!it.isSelected) {
+        viewModelScope.launch {
+            val search = searchedText.value ?: return@launch
+            val changingList = getFoundFilters(search)
+            changingList.forEach {
+                val filter = getFilter(it)
                 filtersManager.addFilter(filter)
-                newFilterItem.isSelected = true
             }
-            newList.add(newFilterItem)
         }
-        values.value?.value = newList
     }
 
     fun deleteSearch() {
@@ -58,7 +81,7 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
             val id: Long,
             val displayName: String,
             val artUrl: String? = null,
-            var isSelected: Boolean
+            val isSelected: Boolean
     )
 
     companion object {
