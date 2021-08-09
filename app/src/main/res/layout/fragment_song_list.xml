@@ -99,18 +99,27 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:fastScrollPopupBgColor="@color/accent"
             app:fastScrollPopupPosition="center"
+            app:fastScrollAutoHide="false"
             app:fastScrollPopupTextColor="@color/onSecondaryText"
             app:fastScrollThumbColor="@color/accent"
             tools:listitem="@layout/item_song" />
 
-        <include
-            android:id="@+id/currentSongDisplay"
-            layout="@layout/item_song"
+        <FrameLayout
+            android:id="@+id/currentSongDisplayContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/smallDimen"
             android:visibility="gone"
-            app:song="@{viewModel.currentSong}" />
+            android:layout_marginEnd="@dimen/smallDimen"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/currentSongDisplay"
+                layout="@layout/item_song"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/largeDimen"
+                android:visibility="gone"
+                app:song="@{viewModel.currentSong}" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/loadingText"

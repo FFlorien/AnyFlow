@@ -57,14 +57,18 @@ class SongListFragment : BaseFragment() {
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
                 clear(R.id.currentSongDisplay, ConstraintSet.BOTTOM)
+                clear(R.id.currentSongDisplayContainer, ConstraintSet.BOTTOM)
                 connect(R.id.currentSongDisplay, ConstraintSet.TOP, R.id.songList, ConstraintSet.TOP)
+                connect(R.id.currentSongDisplayContainer, ConstraintSet.TOP, R.id.songList, ConstraintSet.TOP)
             }
     private val bottomSet: ConstraintSet
         get() =
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
                 clear(R.id.currentSongDisplay, ConstraintSet.TOP)
+                clear(R.id.currentSongDisplayContainer, ConstraintSet.TOP)
                 connect(R.id.currentSongDisplay, ConstraintSet.BOTTOM, R.id.songList, ConstraintSet.BOTTOM)
+                connect(R.id.currentSongDisplayContainer, ConstraintSet.BOTTOM, R.id.songList, ConstraintSet.BOTTOM)
             }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,7 +97,7 @@ class SongListFragment : BaseFragment() {
             }
         })
 
-        binding.currentSongDisplay.root.setBackgroundResource(R.color.selected)
+        binding.currentSongDisplayContainer.setBackgroundResource(R.color.selected)
         binding.currentSongDisplay.root.setOnClickListener {
             scrollToCurrentSong()
         }
@@ -162,10 +166,12 @@ class SongListFragment : BaseFragment() {
 
         if (viewModel.listPosition.value in firstVisibleItemPosition..lastVisibleItemPosition || (viewModel.searchProgression.value ?: -1) >= 0) {
             binding.currentSongDisplay.root.visibility = View.GONE
+            binding.currentSongDisplayContainer.visibility = View.GONE
         } else {
 
             if (binding.currentSongDisplay.root.visibility != View.VISIBLE) {
                 binding.currentSongDisplay.root.visibility = View.VISIBLE
+                binding.currentSongDisplayContainer.visibility = View.VISIBLE
             }
 
             if (viewModel.listPosition.value ?: 0 < firstVisibleItemPosition) {
