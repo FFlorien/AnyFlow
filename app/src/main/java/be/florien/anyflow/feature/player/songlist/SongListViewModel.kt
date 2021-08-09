@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.*
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.feature.BaseViewModel
@@ -33,7 +34,7 @@ class SongListViewModel
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     val pagedAudioQueue: LiveData<PagingData<Song>> = MediatorLiveData<PagingData<Song>>().apply {
 
-        addSource(playingQueue.songDisplayListUpdater) {
+        addSource(playingQueue.songDisplayListUpdater.cachedIn(this@SongListViewModel)) {
             value = it
         }
         addSource(playingQueue.queueChangeUpdater) {
