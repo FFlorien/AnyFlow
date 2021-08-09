@@ -70,8 +70,13 @@ class SongListViewModel
     }
     private var oldLiveData: LiveData<List<Long>>? = null
     private val listObserver = Observer<List<Long>> {
-        searchProgression.value = 0
-        searchProgressionText.value = "0/${it.size}"
+        if (it.isEmpty()) {
+            searchProgression.value = -1
+            searchProgressionText.value = "no results"
+        } else {
+            searchProgression.value = 0
+            searchProgressionText.value = "1/${it.size}"
+        }
     }
 
     init {
