@@ -104,22 +104,22 @@
             app:fastScrollThumbColor="@color/accent"
             tools:listitem="@layout/item_song" />
 
-        <FrameLayout
-            android:id="@+id/currentSongDisplayContainer"
+        <include
+            android:id="@+id/currentSongDisplay"
+            layout="@layout/item_song"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_marginEnd="@dimen/smallDimen"
-            android:layout_height="wrap_content">
+            app:song="@{viewModel.currentSong}" />
 
-            <include
-                android:id="@+id/currentSongDisplay"
-                layout="@layout/item_song"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/largeDimen"
-                android:visibility="gone"
-                app:song="@{viewModel.currentSong}" />
-        </FrameLayout>
+        <View
+            android:id="@+id/currentSongDisplayTouch"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toTopOf="@+id/currentSongDisplay"
+            app:layout_constraintBottom_toBottomOf="@+id/currentSongDisplay"
+            android:layout_height="0dp"
+            android:layout_marginRight="@dimen/largeDimen"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/loadingText"

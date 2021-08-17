@@ -9,7 +9,10 @@ data class Song(
         val time: Int,
         val art: String,
         val url: String,
-        val genre: String)
+        val genre: String) {
+    val timeText: String
+        get() = String.format("%d:%02d", time / 60, time % 60)
+}
 
 data class FilterGroup(
         val id: Long,

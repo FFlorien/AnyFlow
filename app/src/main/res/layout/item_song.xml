@@ -10,47 +10,97 @@
             type="be.florien.anyflow.data.view.Song" />
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="@dimen/listItemPadding">
-
-        <ImageView
-            android:id="@+id/cover"
-            android:layout_width="@dimen/imageSize"
-            android:layout_height="@dimen/imageSize"
-            android:contentDescription="@null"
-            android:scaleType="fitXY"
-            app:coverImageUrl="@{song.art}"
-            tools:src="@drawable/cover_placeholder" />
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/smallDimen">
+            android:id="@+id/songOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/tutu"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_delete" />
+
+            <ImageButton
+                android:id="@+id/info"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_confirm" />
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/songInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/cardview_light_background"
+            android:orientation="horizontal"
+            android:padding="@dimen/listItemPadding"
+            tools:visibility="gone">
+
+            <ImageView
+                android:id="@+id/cover"
+                android:layout_width="@dimen/imageSize"
+                android:layout_height="@dimen/imageSize"
+                android:contentDescription="@null"
+                android:scaleType="fitXY"
+                app:coverImageUrl="@{song.art}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/cover_placeholder" />
+
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/songTitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/smallDimen"
                 android:text="@{song.title}"
+                app:layout_constraintStart_toEndOf="@+id/cover"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="This song's title" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/songArtist"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/smallDimen"
                 android:text="@{song.artistName}"
                 android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@+id/cover"
+                app:layout_constraintTop_toBottomOf="@+id/songTitle"
                 tools:text="This artist's name" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/songAlbum"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/smallDimen"
                 android:text="@{song.albumName}"
                 android:textStyle="italic"
+                app:layout_constraintStart_toEndOf="@+id/cover"
+                app:layout_constraintTop_toBottomOf="@+id/songArtist"
                 tools:text="This album's name" />
-        </LinearLayout>
-    </LinearLayout>
+
+            <TextView
+                android:id="@+id/songDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_corner_radius"
+                android:textColor="@color/onPrimaryText"
+                android:paddingHorizontal="@dimen/smallDimen"
+                android:text="@{song.timeText}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="3:45" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
 </layout>

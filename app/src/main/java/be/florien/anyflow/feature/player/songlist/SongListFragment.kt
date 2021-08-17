@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
@@ -28,9 +29,12 @@ import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.feature.player.songlist.RecyclerTouchListener.OnRowClickListener
+import be.florien.anyflow.feature.player.songlist.RecyclerTouchListener.OnSwipeOptionsClickListener
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.PlayerService
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+
 
 /**
  * Display a list of songs and play it upon selection.
@@ -47,7 +51,7 @@ class SongListFragment : BaseFragment() {
     private var shouldHideLoading = false
     private var isLoadingVisible = false
 
-    private val searchMenuHolder = SearchSongMenuHolder{
+    private val searchMenuHolder = SearchSongMenuHolder {
         val currentState = viewModel.isSearching.value == true
         viewModel.isSearching.value = !currentState
     }
@@ -57,18 +61,14 @@ class SongListFragment : BaseFragment() {
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
                 clear(R.id.currentSongDisplay, ConstraintSet.BOTTOM)
-                clear(R.id.currentSongDisplayContainer, ConstraintSet.BOTTOM)
                 connect(R.id.currentSongDisplay, ConstraintSet.TOP, R.id.songList, ConstraintSet.TOP)
-                connect(R.id.currentSongDisplayContainer, ConstraintSet.TOP, R.id.songList, ConstraintSet.TOP)
             }
     private val bottomSet: ConstraintSet
         get() =
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
                 clear(R.id.currentSongDisplay, ConstraintSet.TOP)
-                clear(R.id.currentSongDisplayContainer, ConstraintSet.TOP)
                 connect(R.id.currentSongDisplay, ConstraintSet.BOTTOM, R.id.songList, ConstraintSet.BOTTOM)
-                connect(R.id.currentSongDisplayContainer, ConstraintSet.BOTTOM, R.id.songList, ConstraintSet.BOTTOM)
             }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,9 +96,40 @@ class SongListFragment : BaseFragment() {
                 updateCurrentSongDisplay()
             }
         })
+        /*val helper = object : SwipeHelper(binding.songList, view.context) {
+            override fun instantiateUnderlayButton(viewHolder: RecyclerView.ViewHolder, underlayButtons: MutableList<UnderlayButton>) {
+                underlayButtons.add(
+                        UnderlayButton("Tutu", ResourcesCompat.getColor(resources, R.color.accent, null), object : UnderlayButtonClickListener {
+                            override fun onClick(pos: Int) {
+                                iLog("click at $pos")
+                            }
+                        })
+                )
+            }
+        }*/
 
-        binding.currentSongDisplayContainer.setBackgroundResource(R.color.selected)
-        binding.currentSongDisplay.root.setOnClickListener {
+        val touchListener = RecyclerTouchListener(this, binding.songList)
+        touchListener
+                .setClickable(object : OnRowClickListener {
+                    override fun onRowClicked(position: Int) {
+                        Toast.makeText(requireContext(), "$position", Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {}
+                })
+                .setSwipeOptionViews(R.id.tutu, R.id.info)
+                .setSwipeable(R.id.songInfo, R.id.songOptions, object : OnSwipeOptionsClickListener {
+                    override fun onSwipeOptionClicked(viewID: Int, position: Int) {
+                        when (viewID) {
+                            R.id.tutu -> Toast.makeText(requireContext(), "Tutu for $position", Toast.LENGTH_SHORT).show()
+                            R.id.info -> Toast.makeText(requireContext(), "Info for $position", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                })
+        binding.songList.addOnItemTouchListener(touchListener)
+
+        binding.currentSongDisplay.songInfo.setBackgroundResource(R.color.selected)
+        binding.currentSongDisplayTouch.setOnClickListener {
             scrollToCurrentSong()
         }
 
@@ -166,12 +197,12 @@ class SongListFragment : BaseFragment() {
 
         if (viewModel.listPosition.value in firstVisibleItemPosition..lastVisibleItemPosition || (viewModel.searchProgression.value ?: -1) >= 0) {
             binding.currentSongDisplay.root.visibility = View.GONE
-            binding.currentSongDisplayContainer.visibility = View.GONE
+            binding.currentSongDisplayTouch.visibility = View.GONE
         } else {
 
             if (binding.currentSongDisplay.root.visibility != View.VISIBLE) {
                 binding.currentSongDisplay.root.visibility = View.VISIBLE
-                binding.currentSongDisplayContainer.visibility = View.VISIBLE
+                binding.currentSongDisplayTouch.visibility = View.VISIBLE
             }
 
             if (viewModel.listPosition.value ?: 0 < firstVisibleItemPosition) {
@@ -270,7 +301,7 @@ class SongListFragment : BaseFragment() {
             set(value) {
                 field = value
                 val backgroundColor = if (field) R.color.selected else R.color.unselected
-                binding.root.setBackgroundColor(
+                binding.songInfo.setBackgroundColor(
                         ResourcesCompat.getColor(
                                 resources,
                                 backgroundColor,
