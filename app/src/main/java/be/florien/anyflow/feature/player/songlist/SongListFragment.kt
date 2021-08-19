@@ -9,9 +9,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -29,11 +31,10 @@ import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
-import be.florien.anyflow.feature.player.songlist.RecyclerTouchListener.OnRowClickListener
-import be.florien.anyflow.feature.player.songlist.RecyclerTouchListener.OnSwipeOptionsClickListener
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.PlayerService
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlin.math.absoluteValue
 
 
 /**
@@ -96,38 +97,63 @@ class SongListFragment : BaseFragment() {
                 updateCurrentSongDisplay()
             }
         })
-        /*val helper = object : SwipeHelper(binding.songList, view.context) {
-            override fun instantiateUnderlayButton(viewHolder: RecyclerView.ViewHolder, underlayButtons: MutableList<UnderlayButton>) {
-                underlayButtons.add(
-                        UnderlayButton("Tutu", ResourcesCompat.getColor(resources, R.color.accent, null), object : UnderlayButtonClickListener {
-                            override fun onClick(pos: Int) {
-                                iLog("click at $pos")
-                            }
-                        })
-                )
+        binding.songList.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+            private var downTouchX: Float = -1f
+            private var downTouchY: Float = -1f
+            private var lastTouchX: Float = -1f
+            private var lastDeltaX: Float = -1f
+            private var hasSwiped: Boolean = false
+
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                when (e.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        downTouchX = e.x
+                        lastTouchX = e.x
+                        downTouchY = e.y
+                        hasSwiped = false
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val deltaX = downTouchX - e.x
+                        val deltaY = downTouchY - e.y
+                        hasSwiped = hasSwiped || deltaX.absoluteValue > deltaY.absoluteValue
+                        lastDeltaX = e.x - lastTouchX
+                        lastTouchX = e.x
+                        return hasSwiped
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        val stopSwipe = hasSwiped
+                        downTouchX = -1f
+                        downTouchY = -1f
+                        lastTouchX = -1f
+                        lastDeltaX = -1f
+                        return stopSwipe
+                    }
+                }
+                return false
             }
-        }*/
 
-        val touchListener = RecyclerTouchListener(this, binding.songList)
-        touchListener
-                .setClickable(object : OnRowClickListener {
-                    override fun onRowClicked(position: Int) {
-                        Toast.makeText(requireContext(), "$position", Toast.LENGTH_SHORT).show()
+            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
+                val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
+                val viewHolder = (rv.findContainingViewHolder(childView) as? SongViewHolder) ?: return
+                when (e.actionMasked) {
+                    MotionEvent.ACTION_MOVE -> {
+                        viewHolder.swipeForMove(e.x - downTouchX)
                     }
-
-                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {}
-                })
-                .setSwipeOptionViews(R.id.tutu, R.id.info)
-                .setSwipeable(R.id.songInfo, R.id.songOptions, object : OnSwipeOptionsClickListener {
-                    override fun onSwipeOptionClicked(viewID: Int, position: Int) {
-                        when (viewID) {
-                            R.id.tutu -> Toast.makeText(requireContext(), "Tutu for $position", Toast.LENGTH_SHORT).show()
-                            R.id.info -> Toast.makeText(requireContext(), "Info for $position", Toast.LENGTH_SHORT).show()
+                    MotionEvent.ACTION_UP -> {
+                        if (lastDeltaX < 0) {
+                            viewHolder.swipeToOpen()
+                        } else {
+                            viewHolder.swipeToClose()
                         }
-                    }
-                })
-        binding.songList.addOnItemTouchListener(touchListener)
 
+                    }
+                }
+            }
+
+            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+            }
+
+        })
         binding.currentSongDisplay.songInfo.setBackgroundResource(R.color.selected)
         binding.currentSongDisplayTouch.setOnClickListener {
             scrollToCurrentSong()
@@ -289,12 +315,23 @@ class SongListFragment : BaseFragment() {
                     .inflate(LayoutInflater.from(parent.context), parent, false)
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        private var startingTranslationX: Float = 1f
+
         init {
-            binding.root.setOnClickListener { viewModel.play(absoluteAdapterPosition) }
+            binding.songInfo.setOnClickListener { viewModel.play(absoluteAdapterPosition) }
+            binding.songInfo.setOnLongClickListener {
+                if (binding.songInfo.translationX == 0f) {
+                    swipeToOpen()
+                } else {
+                    swipeToClose()
+                }
+                return@setOnLongClickListener true
+            }
         }
 
         fun bind(song: Song?) {
             binding.song = song
+            binding.songInfo.translationX = 0F
         }
 
         var isCurrentSong: Boolean = false
@@ -308,6 +345,49 @@ class SongListFragment : BaseFragment() {
                                 null
                         )
                 )
+                binding.info.setOnClickListener {
+                    Toast.makeText(binding.root.context, "Song is ${binding.song?.title}", Toast.LENGTH_LONG).show()
+                }
+                binding.tutu.setOnClickListener {
+                    Toast.makeText(binding.root.context, "artist is ${binding.song?.artistName}", Toast.LENGTH_LONG).show()
+                }
             }
+
+
+        fun swipeToClose() {
+            startingTranslationX = 1f
+            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, 0f).apply {
+                duration = 300L
+                interpolator = DecelerateInterpolator()
+                start()
+            }
+        }
+
+        fun swipeToOpen() {
+            startingTranslationX = 1f
+            val start = linearLayoutManager.findFirstVisibleItemPosition()
+            val stop = linearLayoutManager.findLastVisibleItemPosition()
+            val except = absoluteAdapterPosition
+            for (i in start..stop) {
+                val songViewHolder = this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
+                if (i != except && songViewHolder != null && songViewHolder.binding.songInfo.translationX != 0F) {
+                    songViewHolder.swipeToClose()
+                }
+            }
+            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, (binding.songOptions.left - itemView.width.toFloat())).apply {
+                duration = 100L
+                interpolator = DecelerateInterpolator()
+                start()
+            }
+        }
+
+        fun swipeForMove(translateX: Float) {
+            if (startingTranslationX > 0) {
+                startingTranslationX = binding.songInfo.translationX
+            }
+            val translationToSeeOptions = (binding.songOptions.left - itemView.width).toFloat()
+            val translationToFollowMove = startingTranslationX + translateX
+            binding.songInfo.translationX = maxOf(translationToSeeOptions, translationToFollowMove).coerceAtMost(0f)
+        }
     }
 }

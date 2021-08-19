@@ -16,21 +16,24 @@
 
         <LinearLayout
             android:id="@+id/songOptions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
+            android:layout_width="wrap_content"
+            android:layout_gravity="end"
+            android:padding="@dimen/mediumDimen"
+            android:background="@color/accentLightPlus"
+            android:layout_height="match_parent"
+            android:gravity="end|center_vertical"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/tutu"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="@dimen/minClickableSize"
+                android:layout_height="@dimen/minClickableSize"
                 android:src="@drawable/ic_delete" />
 
             <ImageButton
                 android:id="@+id/info"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="@dimen/minClickableSize"
+                android:layout_height="@dimen/minClickableSize"
                 android:src="@drawable/ic_confirm" />
 
         </LinearLayout>
@@ -41,8 +44,7 @@
             android:layout_height="wrap_content"
             android:background="@color/cardview_light_background"
             android:orientation="horizontal"
-            android:padding="@dimen/listItemPadding"
-            tools:visibility="gone">
+            android:padding="@dimen/listItemPadding">
 
             <ImageView
                 android:id="@+id/cover"
@@ -99,8 +101,6 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="3:45" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </FrameLayout>
 </layout>
