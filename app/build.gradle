@@ -98,16 +98,16 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
     //ExoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.14.0'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.14.0'
-    implementation 'com.google.android.exoplayer:extension-okhttp:2.14.0'
-    implementation 'com.google.android.exoplayer:extension-mediasession:2.14.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.15.0'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.0'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.15.0'
+    implementation 'com.google.android.exoplayer:extension-mediasession:2.15.0'
     //Room
     implementation 'androidx.room:room-runtime:2.3.0'
     implementation 'androidx.room:room-ktx:2.3.0'
     kapt 'androidx.room:room-compiler:2.3.0'
     //Paging
-    implementation 'androidx.paging:paging-runtime-ktx:3.0.0'
+    implementation 'androidx.paging:paging-runtime-ktx:3.0.1'
     //Tests
     testImplementation 'junit:junit:4.13'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.8.0'

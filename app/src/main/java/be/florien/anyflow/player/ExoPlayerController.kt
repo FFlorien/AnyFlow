@@ -12,6 +12,7 @@ import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.extension.iLog
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.HttpDataSource
@@ -39,7 +40,6 @@ class ExoPlayerController
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Int = 0
     private var lastDuration: Long = NO_VALUE
-    private var dataSourceFactory: DefaultDataSourceFactory
 
     private var isReceiverRegistered: Boolean = false
     private val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -58,14 +58,19 @@ class ExoPlayerController
      */
 
     init {
-        mediaPlayer = SimpleExoPlayer.Builder(context).build().apply {
-            addListener(this@ExoPlayerController)
-        }
-        dataSourceFactory = DefaultDataSourceFactory(
+        val dataSourceFactory = DefaultDataSourceFactory(
                 context,
                 DefaultBandwidthMeter.Builder(context).build(),
                 OkHttpDataSource.Factory(okHttpClient)
         )
+        mediaPlayer = SimpleExoPlayer
+                .Builder(context, DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
+                .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
+                .build()
+                .apply {
+                    addListener(this@ExoPlayerController)
+                    //todo apply experimentalSetOffloadSchedulingEnabled(true) when in background
+                }
         playingQueue.songUrlListUpdater.observeForever { urls ->
             setItemsToMediaPlayer(urls)
             prepare()
@@ -159,7 +164,7 @@ class ExoPlayerController
         }
     }
 
-    override fun onPlayerError(error: ExoPlaybackException) {
+    override fun onPlayerError(error: PlaybackException) {
         iLog(error, "Error while playback")
         if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
@@ -205,7 +210,7 @@ class ExoPlayerController
             return
         }
         mediaPlayer.clearMediaItems()
-        val toIndex = min(playingQueue.listPosition + 1, playingQueue.queueSize -1)
+        val toIndex = min(playingQueue.listPosition + 1, playingQueue.queueSize - 1)
         mediaPlayer.addMediaItems(urls.subList(playingQueue.listPosition, toIndex + 1).map { url -> urlToMediaItem(url) })
     }
 

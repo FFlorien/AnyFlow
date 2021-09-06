@@ -22,12 +22,8 @@ class PlayerNotificationBuilder(
         private val mediaSession: MediaSessionCompat,
         pendingIntent: PendingIntent) {
 
-    private var state: State = State(false, false, false)
+    private var state: State = State(isPlaying = false, hasPrevious = false, hasNext = false)
     var lastPosition = 0L
-        set(value) {
-            field = value
-            setPlaybackState()
-        }
     var lastPlaybackState = PlaybackStateCompat.STATE_NONE
         set(value) {
             field = value
@@ -104,7 +100,6 @@ class PlayerNotificationBuilder(
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_GENRE, song.genre)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.time.toLong() * 1000)
         GlideApp
                 .with(service)
                 .asBitmap()
@@ -116,7 +111,7 @@ class PlayerNotificationBuilder(
     }
 
     private fun setPlaybackState() {
-        playBackStateBuilder.setState(lastPlaybackState, lastPosition, 1.0f)
+        playBackStateBuilder.setState(lastPlaybackState, 0L, 1.0f)
         mediaSession.setPlaybackState(playBackStateBuilder.build())
         notifyChange(false)
     }

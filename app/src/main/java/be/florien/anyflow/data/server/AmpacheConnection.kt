@@ -13,6 +13,7 @@ import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.HttpException
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -70,7 +71,7 @@ open class AmpacheConnection
 
     fun openConnection(serverUrl: String) {
         val url = try {
-            HttpUrl.get(serverUrl)
+            serverUrl.toHttpUrl()
         } catch (exception: IllegalArgumentException) {
             throw WrongFormatServerUrlException(
                 "The provided url was not correctly formed",
