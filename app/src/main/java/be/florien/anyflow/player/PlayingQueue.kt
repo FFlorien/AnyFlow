@@ -1,14 +1,10 @@
 package be.florien.anyflow.player
 
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
+import androidx.lifecycle.*
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_FILTERS
-import be.florien.anyflow.data.local.LibraryDatabase.Companion.CHANGE_ORDER
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Song
@@ -55,7 +51,7 @@ class PlayingQueue
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<Song> = MutableLiveData()
 
-    val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder()
+    val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
     val songUrlListUpdater: LiveData<List<String>> = dataRepository.getUrlInQueueOrder()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
             .map { orderList ->
@@ -64,16 +60,8 @@ class PlayingQueue
     private var randomOrderingSeed = 2
     private var precisePosition = listOf<Order>()
 
-    val queueChangeUpdater: LiveData<Int> = MediatorLiveData<Int>().apply {
-        addSource(dataRepository.changeUpdater) {
-            if (it == CHANGE_ORDER || it == CHANGE_FILTERS) {
-                value = it
-            }
-        }
-    }
-
     init {
-        songDisplayListUpdater.observeForever {
+        songUrlListUpdater.observeForever {
             keepPositionCoherent()
         }
         val ordersLiveData = dataRepository.getOrders()
