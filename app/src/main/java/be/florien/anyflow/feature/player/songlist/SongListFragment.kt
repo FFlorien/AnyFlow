@@ -19,6 +19,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +35,8 @@ import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.PlayerService
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 
@@ -89,6 +93,11 @@ class SongListFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.songList.adapter = SongAdapter()
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            (binding.songList.adapter as SongAdapter).loadStateFlow.collectLatest {
+                updateLoadingVisibility(it.refresh is LoadState.Loading)
+            }
+        }
         linearLayoutManager = LinearLayoutManager(activity)
         binding.songList.layoutManager = linearLayoutManager
         binding.songList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -168,11 +177,9 @@ class SongListFragment : BaseFragment() {
                 (binding.songList.adapter as SongAdapter).submitData(viewLifecycleOwner.lifecycle, it)
                 shouldScrollToCurrent = true
             }
-            updateLoadingVisibility(true)
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
-            updateLoadingVisibility(false)
             updateCurrentSongDisplay()
             if (shouldScrollToCurrent) {
                 scrollToCurrentSong()
