@@ -53,4 +53,7 @@ interface SongDao : BaseDao<DbSong> {
 
     @Query("SELECT COUNT(*) FROM queueorder")
     suspend fun queueSize(): Int?
+
+    @Query("SELECT * FROM song WHERE id = :songId")
+    suspend fun findById(songId: Long): DbSong?
 }

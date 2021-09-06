@@ -51,6 +51,9 @@ class DataRepository
     suspend fun getPositionForSong(song: Song) =
             withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(song.toDbSongDisplay()) }
 
+    suspend fun getSongById(songId: Long) =
+            withContext(Dispatchers.IO) { libraryDatabase.getSongById(songId)?.toViewSongInfo() }
+
     fun getSongsInQueueOrder() =
             convertToPagingLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
 

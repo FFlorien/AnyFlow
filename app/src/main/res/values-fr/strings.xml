@@ -45,4 +45,12 @@
     <string name="filter_group_name">Nom du groupe de filtres</string>
     <string name="action_filter_confirm">Confirmer</string>
     <string name="generic_select_all">Tout sélectionner</string>
+    <string name="info_title">Titre</string>
+    <string name="info_duration">Durée</string>
+    <string name="info_artist">Artiste</string>
+    <string name="info_track">Piste</string>
+    <string name="info_album">Album</string>
+    <string name="info_year">Année</string>
+    <string name="info_album_artist">Artiste de l\'album</string>
+    <string name="info_genre">Genre</string>
 </resources>

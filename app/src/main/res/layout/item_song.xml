@@ -25,16 +25,10 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/tutu"
-                android:layout_width="@dimen/minClickableSize"
-                android:layout_height="@dimen/minClickableSize"
-                android:src="@drawable/ic_delete" />
-
-            <ImageButton
                 android:id="@+id/info"
                 android:layout_width="@dimen/minClickableSize"
                 android:layout_height="@dimen/minClickableSize"
-                android:src="@drawable/ic_confirm" />
+                android:src="@drawable/ic_info" />
 
         </LinearLayout>
 

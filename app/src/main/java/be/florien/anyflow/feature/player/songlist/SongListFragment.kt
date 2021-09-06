@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
@@ -332,6 +331,13 @@ class SongListFragment : BaseFragment() {
         fun bind(song: Song?) {
             binding.song = song
             binding.songInfo.translationX = 0F
+            binding.info.setOnClickListener {
+                if (song == null) {
+                    return@setOnClickListener
+                }
+                InfoFragment(song).show(childFragmentManager, "info")
+                swipeToClose()
+            }
         }
 
         var isCurrentSong: Boolean = false
@@ -345,12 +351,6 @@ class SongListFragment : BaseFragment() {
                                 null
                         )
                 )
-                binding.info.setOnClickListener {
-                    Toast.makeText(binding.root.context, "Song is ${binding.song?.title}", Toast.LENGTH_LONG).show()
-                }
-                binding.tutu.setOnClickListener {
-                    Toast.makeText(binding.root.context, "artist is ${binding.song?.artistName}", Toast.LENGTH_LONG).show()
-                }
             }
 
 

@@ -69,6 +69,22 @@ fun DbSong.toViewSong() = Song(
         art = art,
         genre = genre)
 
+fun DbSong.toViewSongInfo() = SongInfo(
+        id = id,
+        track = track,
+        title = title,
+        artistName = artistName,
+        artistId = artistId,
+        albumName = albumName,
+        albumId = albumId,
+        albumArtistName = albumArtistName,
+        albumArtistId = albumArtistId,
+        time = time,
+        url = url,
+        art = art,
+        year = year,
+        genre = genre)
+
 fun DbSongDisplay.toViewSong() = Song(
         id = id,
         title = title,

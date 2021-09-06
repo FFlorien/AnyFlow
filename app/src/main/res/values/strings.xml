@@ -45,4 +45,12 @@
     <string name="cancel">Cancel</string>
     <string name="filter_group_name">Filter group name</string>
     <string name="generic_select_all">Select all</string>
+    <string name="info_title">Title</string>
+    <string name="info_duration">Duration</string>
+    <string name="info_artist">Artist</string>
+    <string name="info_track">Track</string>
+    <string name="info_album">Album</string>
+    <string name="info_year">Year</string>
+    <string name="info_album_artist">Album\'s artist</string>
+    <string name="info_genre">Genre</string>
 </resources>

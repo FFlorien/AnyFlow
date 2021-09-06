@@ -2,7 +2,6 @@ package be.florien.anyflow.injection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.feature.connect.ConnectViewModel
 import be.florien.anyflow.feature.player.PlayerViewModel
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterViewModel
 import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupViewModel
@@ -11,6 +10,7 @@ import be.florien.anyflow.feature.player.filter.selection.SelectFilterAlbumViewM
 import be.florien.anyflow.feature.player.filter.selection.SelectFilterArtistViewModel
 import be.florien.anyflow.feature.player.filter.selection.SelectFilterGenreViewModel
 import be.florien.anyflow.feature.player.filter.selection.SelectFilterSongViewModel
+import be.florien.anyflow.feature.player.songlist.InfoViewModel
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import dagger.Binds
 import dagger.MapKey
@@ -67,13 +67,18 @@ abstract class ViewModelModule {
     abstract fun bindsDisplayFilterFragmentVM(viewModel: DisplayFilterViewModel): ViewModel
 
     @Binds
+    @IntoMap
+    @ViewModelKey(InfoViewModel::class)
+    abstract fun bindsInfoFragmentVM(viewModel: InfoViewModel): ViewModel
+
+    @Binds
     abstract fun bindsViewModelFactory(factory: AnyFlowViewModelFactory): ViewModelProvider.Factory
 }
 
 @Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.RUNTIME)
 @MapKey
