@@ -35,9 +35,9 @@ class PlayingQueue
         }
         set(value) {
             field = value
-            positionUpdater.value = field
-            sharedPreferences.applyPutInt(POSITION_PREF, field)
             MainScope().launch {
+                positionUpdater.value = field
+                sharedPreferences.applyPutInt(POSITION_PREF, field)
                 val songAtPosition = dataRepository.getSongAtPosition(field)
                 if (songAtPosition != currentSong.value) {
                     (currentSong as MutableLiveData).value = songAtPosition
@@ -87,15 +87,19 @@ class PlayingQueue
     }
 
     private fun retrieveRandomness(orderList: List<Order>) {
-        randomOrderingSeed = orderList
+        val mutableList = orderList.toMutableList()
+        currentSong.value?.let { song ->
+            mutableList.add(Order(0, song))
+        }
+        randomOrderingSeed = mutableList
                 .firstOrNull { it.orderingType == Order.Ordering.RANDOM }
                 ?.argument ?: -1
-        precisePosition = orderList.filter { it.orderingType == Order.Ordering.PRECISE_POSITION }
+        precisePosition = mutableList.filter { it.orderingType == Order.Ordering.PRECISE_POSITION }
     }
 
-    private fun saveQueue(filterList: List<Filter<*>>, it: List<Order>) {
-        MainScope().launch {
-            val queue = dataRepository.getOrderlessQueue(filterList, it)
+    private fun saveQueue(filterList: List<Filter<*>>, orderList: List<Order>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val queue = dataRepository.getOrderlessQueue(filterList, orderList)
             val listToSave = if (randomOrderingSeed >= 0) {
                 val randomList = queue.shuffled(Random(randomOrderingSeed.toLong())).toMutableList()
                 precisePosition.forEach { preciseOrder ->
@@ -108,6 +112,9 @@ class PlayingQueue
                 queue.toMutableList()
             }
             queueSize = listToSave.size
+            if (!listToSave.contains(currentSong.value?.id)) {
+                listPosition = 0
+            }
             dataRepository.saveQueueOrder(listToSave)
         }
     }
