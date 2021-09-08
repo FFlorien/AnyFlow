@@ -111,9 +111,6 @@ constructor(
     fun randomOrder() {
         viewModelScope.launch {
             val orders = mutableListOf(Order(0, SUBJECT_ALL))
-            playingQueue.currentSong.value?.let { song ->
-                orders.add(Order(0, song))
-            }
             dataRepository.setOrders(orders)
         }
     }

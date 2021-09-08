@@ -130,15 +130,14 @@ class DataRepository
 
     suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> =
             withContext(Dispatchers.IO) {
-                libraryDatabase.getSongsFromQuery(getQueryForSongs(filterList.map {
-                    it.toDbFilter(
-                            DbFilterGroup.CURRENT_FILTER_GROUP_ID
-                    )
-                }, orderList))
+                libraryDatabase.getSongsFromQuery(
+                        getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList))
             }
 
     suspend fun setOrders(orders: MutableList<Order>) =
-            withContext(Dispatchers.IO) { libraryDatabase.setOrders(orders.map { it.toDbOrder() }) }
+            withContext(Dispatchers.IO) {
+                libraryDatabase.setOrders(orders.map { it.toDbOrder() })
+            }
 
     suspend fun setOrdersSubject(orderSubjects: List<Long>) = withContext(Dispatchers.IO) {
         val dbOrders = orderSubjects.mapIndexed { index, order ->
