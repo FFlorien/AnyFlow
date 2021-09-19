@@ -7,8 +7,12 @@ import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.map
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
+import be.florien.anyflow.CrashReportingTree
+import be.florien.anyflow.data.toSong
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -81,7 +85,7 @@ class PlayerService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         (application as AnyFlowApp).userComponent?.inject(this)
-
+        Timber.plant(CrashReportingTree())
         playerController.stateChangeNotifier.observe(this) {
             if (!isPlaying) {
                 stopForeground(false)
@@ -100,7 +104,7 @@ class PlayerService : LifecycleService() {
         playerController.playTimeNotifier.observe(this) {
             notificationBuilder.lastPosition = it
         }
-        playingQueue.currentSong.observe(this) {
+        playingQueue.currentSong.map { it.toSong() }.observe(this) {
             notificationBuilder.updateMediaSession(it)
         }
     }

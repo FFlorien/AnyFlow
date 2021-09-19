@@ -10,10 +10,11 @@ import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.player.FiltersManager
+import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class InfoViewModel @Inject constructor(private val filtersManager: FiltersManager, private val dataRepository: DataRepository) : BaseViewModel() {
+class InfoViewModel @Inject constructor(private val filtersManager: FiltersManager, private val orderComposer: OrderComposer, private val dataRepository: DataRepository) : BaseViewModel() {
     var songId = 0L
         set(value) {
             field = value
@@ -43,12 +44,23 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
         }
     }
 
-    private fun createOptions(fieldType: FieldType): List<SongRow> = listOf(
-            SongRow(R.string.action_filter_add, "Todo", R.drawable.ic_add, ::makeActionTodo, fieldType, ActionType.ADD_TO_FILTER)
-    )
+    private fun createOptions(fieldType: FieldType): List<SongRow> = when (fieldType) {
+        FieldType.TITLE -> listOf(
+                SongRow(R.string.action_filter_add, "Ajouter la chanson à la suite", R.drawable.ic_add, ::playNext, fieldType, ActionType.ADD_NEXT)
+        )
+        else -> listOf(
+                SongRow(R.string.action_filter_add, "Todo", R.drawable.ic_add, ::makeActionTodo, fieldType, ActionType.ADD_TO_FILTER)
+        )
+    }
 
     private fun makeActionTodo(fieldType: FieldType, actionType: ActionType) {
         //TODO("Not yet implemented")
+    }
+
+    private fun playNext(fieldType: FieldType, actionType: ActionType) {
+        viewModelScope.launch {
+            orderComposer.changeSongPositionForNext(songId)
+        }
     }
 
     private fun initSongInfo() {
@@ -65,7 +77,7 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
             return
         }
         (songRows as MutableLiveData).value = listOf(
-                SongRow(R.string.info_title, value.title, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.SONG, ActionType.EXPAND),
+                SongRow(R.string.info_title, value.title, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.TITLE, ActionType.EXPAND),
                 SongRow(R.string.info_duration, value.timeText, 0, null, FieldType.DURATION, ActionType.NONE),
                 SongRow(R.string.info_artist, value.artistName, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.ARTIST, ActionType.EXPAND),
                 SongRow(R.string.info_track, value.track.toString(), 0, null, FieldType.TRACK, ActionType.NONE),
@@ -79,10 +91,10 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
     class SongRow(@StringRes val title: Int, val text: String, @DrawableRes val icon: Int, val action: ((FieldType, ActionType) -> Unit)?, val fieldType: FieldType, val actionType: ActionType)
 
     enum class FieldType {
-        SONG, TRACK, ARTIST, ALBUM, ALBUM_ARTIST, GENRE, YEAR, DURATION
+        TITLE, TRACK, ARTIST, ALBUM, ALBUM_ARTIST, GENRE, YEAR, DURATION
     }
 
     enum class ActionType {
-        NONE, EXPAND, ADD_TO_FILTER
+        NONE, EXPAND, ADD_TO_FILTER, ADD_NEXT
     }
 }

@@ -1,8 +1,9 @@
 package be.florien.anyflow.data.view
 
-class Order(val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
-    constructor(priority: Int, subject: Long) : this(priority, subject, RANDOM, Math.random().times(RANDOM_MULTIPLIER).toInt())
-    constructor(precisePosition: Int, song: Song) : this(PRIORITY_LAST, song.id, PRECISE_POSITION, precisePosition)
+sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
+    class Random(priority: Int, subject: Long, randomSeed: Int) : Order(priority, subject, RANDOM, randomSeed)
+    class Ordered(priority: Int, subject: Long) : Order(priority, subject, ASCENDING)
+    class Precise(precisePosition: Int, songId: Long, priority: Int) : Order(priority, songId, PRECISE_POSITION, precisePosition)
 
     val orderingType
         get() = when (ordering) {
@@ -28,7 +29,7 @@ class Order(val priority: Int, val subject: Long, val ordering: Int, val argumen
 
     companion object {
 
-        const val PRIORITY_LAST = 20
+        const val PRIORITY_PRECISE = 2000
         const val ASCENDING = 1
         const val DESCENDING = -1
         const val PRECISE_POSITION = -2

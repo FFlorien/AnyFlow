@@ -8,6 +8,8 @@ import android.media.AudioManager
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.extension.iLog
 import com.google.android.exoplayer2.*
@@ -19,6 +21,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import kotlin.math.max
 import kotlin.math.min
 
 class ExoPlayerController
@@ -29,17 +32,50 @@ class ExoPlayerController
         okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
 
+    inner class UrlUpdateCallback : ListUpdateCallback {
+        override fun onInserted(position: Int, count: Int) {
+            when {
+                count == mediaPlayer.mediaItemCount -> {
+                    mediaPlayer.addMediaItems(urlList.map { urlToMediaItem(it) })
+                }
+                position == mediaPlayer.mediaItemCount -> {
+                    mediaPlayer.addMediaItems(urlList.takeLast(count).map { urlToMediaItem(it) })
+                }
+                position == 0 -> {
+                    mediaPlayer.addMediaItems(0, urlList.subList(0, count).map { urlToMediaItem(it) })
+                }
+                else -> mediaPlayer.addMediaItems(position, urlList.subList(position, position + count).map { urlToMediaItem(it) })
+            }
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            mediaPlayer.removeMediaItems(position, position + count)
+        }
+
+        override fun onMoved(fromPosition: Int, toPosition: Int) {
+            mediaPlayer.moveMediaItem(fromPosition, toPosition)
+        }
+
+        override fun onChanged(position: Int, count: Int, payload: Any?) {
+            onRemoved(position, count)
+            onInserted(position, count)
+        }
+    }
+
     companion object {
         private const val NO_VALUE = -3L
+        private const val MEDIA_ITEM_BEFORE_CURRENT = 4
+        private const val MEDIA_ITEM_AFTER_CURRENT = 10
     }
 
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
-
     override val playTimeNotifier: LiveData<Long> = MutableLiveData()
 
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Int = 0
     private var lastDuration: Long = NO_VALUE
+    private var urlList: List<String> = listOf()
+    private var offset: Int = 0
 
     private var isReceiverRegistered: Boolean = false
     private val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -71,31 +107,32 @@ class ExoPlayerController
                     addListener(this@ExoPlayerController)
                     //todo apply experimentalSetOffloadSchedulingEnabled(true) when in background
                 }
-        playingQueue.songUrlListUpdater.observeForever { urls ->
-            setItemsToMediaPlayer(urls)
-            prepare()
-        }
-        playingQueue.positionUpdater.observeForever {
-            val shouldPlay = mediaPlayer.playWhenReady
-            val oldPosition = lastPosition
-            lastPosition = it
-            if (lastPosition != oldPosition) {
-                if (lastPosition == oldPosition + 1) {
-                    mediaPlayer.removeMediaItem(0)
+        playingQueue.stateUpdater.observeForever { state ->
+            val currentUrl = urlList.getOrNull(lastPosition - offset)
+            val nextOffset = max(state.position - MEDIA_ITEM_BEFORE_CURRENT, 0)
+            val nextUrlList = state.urls.subList(nextOffset, min(state.position + MEDIA_ITEM_AFTER_CURRENT, state.urls.size))
+            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize() = urlList.size
 
-                    val url = playingQueue.songUrlListUpdater.value?.get(lastPosition + 1)
-                    if (url != null) {
-                        mediaPlayer.addMediaItem(urlToMediaItem(url))
-                    }
-                } else {
-                    val urls = playingQueue.songUrlListUpdater.value
-                    if (urls != null) {
-                        setItemsToMediaPlayer(urls)
-                        prepare()
-                    }
-                }
+                override fun getNewListSize(): Int = nextUrlList.size
+
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                        urlList[oldItemPosition] == nextUrlList[newItemPosition]
+
+                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = areItemsTheSame(oldItemPosition, newItemPosition)
+
+            })
+            urlList = nextUrlList
+            offset = nextOffset
+            lastPosition = state.position
+            val nextUrl = nextUrlList[state.position - nextOffset]
+            diffResult.dispatchUpdatesTo(UrlUpdateCallback())
+            prepare()
+            if (mediaPlayer.currentMediaItem?.mediaId == nextUrl) {
+                return@observeForever
             }
-            mediaPlayer.playWhenReady = shouldPlay
+            val timeToSeekTo = if (currentUrl == nextUrl) C.TIME_UNSET else 0
+            mediaPlayer.seekTo(state.position - offset, timeToSeekTo)
         }
         GlobalScope.launch(Dispatchers.Default) {
             while (true) {
@@ -133,12 +170,6 @@ class ExoPlayerController
     }
 
     override fun resume() {
-        if (lastDuration == NO_VALUE) {
-            seekTo(0)
-        } else {
-            seekTo(lastDuration)
-        }
-
         mediaPlayer.playWhenReady = true
         (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PLAY
     }
@@ -169,7 +200,12 @@ class ExoPlayerController
         if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
-                ampacheConnection.reconnect { prepare() }
+                ampacheConnection.reconnect {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mediaPlayer.setMediaItems(urlList.map { urlToMediaItem(it) })
+                    }
+                    prepare()
+                }
             }
         }
     }
@@ -205,14 +241,5 @@ class ExoPlayerController
      * PRIVATE METHODS
      */
 
-    private fun setItemsToMediaPlayer(urls: List<String>) {
-        if (playingQueue.listPosition >= playingQueue.queueSize) {
-            return
-        }
-        mediaPlayer.clearMediaItems()
-        val toIndex = min(playingQueue.listPosition + 1, playingQueue.queueSize - 1)
-        mediaPlayer.addMediaItems(urls.subList(playingQueue.listPosition, toIndex + 1).map { url -> urlToMediaItem(url) })
-    }
-
-    private fun urlToMediaItem(url: String) = MediaItem.fromUri(Uri.parse(ampacheConnection.getSongUrl(url)))
+    private fun urlToMediaItem(url: String) = MediaItem.Builder().setUri(Uri.parse(ampacheConnection.getSongUrl(url))).setMediaId(url).build()
 }

@@ -113,11 +113,14 @@ fun DbFilterGroup.toViewFilterGroup() = FilterGroup(
         name = name
 )
 
-fun DbOrder.toViewOrder() = Order(
-        priority = priority,
-        subject = subject,
-        ordering = orderingType,
-        argument = orderingArgument)
+fun DbOrder.toViewOrder(): Order {
+    return when (orderingType) {
+        Order.ASCENDING -> Order.Ordered(priority, subject)
+        Order.PRECISE_POSITION -> Order.Precise(orderingArgument, subject, priority)
+        Order.RANDOM -> Order.Random(priority, subject, orderingArgument)
+        else -> Order.Ordered(priority, subject)
+    }
+}
 
 /**
  * View to database
@@ -163,3 +166,9 @@ fun Order.toDbOrder() = DbOrder(
         orderingType = ordering,
         orderingArgument = argument
 )
+
+/**
+ * View to View
+ */
+
+fun SongInfo.toSong() = Song(id = id, title = title, artistName = artistName, albumName = albumName, albumArtistName = albumArtistName, time = time, art = art, url = url, genre = genre)

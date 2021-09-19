@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveData
+import be.florien.anyflow.CrashReportingTree
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
@@ -16,6 +17,7 @@ import be.florien.anyflow.extension.iLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
@@ -52,6 +54,7 @@ class UpdateService
     override fun onCreate() {
         super.onCreate()
         (application as be.florien.anyflow.AnyFlowApp).userComponent?.inject(this)
+        Timber.plant(CrashReportingTree())
         serviceScope.launch {
             try {
                 dataRepository.updateAll()

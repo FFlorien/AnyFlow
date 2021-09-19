@@ -77,10 +77,10 @@ class PlayerNotificationBuilder(
         notificationBuilder.clearActions()
 
         var actionsIndexes = intArrayOf(0)
-        if (hasPrevious) {
+        //if (hasPrevious) {
             notificationBuilder.addAction(skipToPreviousAction)
             actionsIndexes = intArrayOf(*actionsIndexes, 1)
-        }
+        //}
         notificationBuilder.addAction(if (isPlaying) pauseAction else playAction)
         if (hasNext) {
             notificationBuilder.addAction(skipToNextAction)

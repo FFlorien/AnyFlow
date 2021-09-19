@@ -10,7 +10,6 @@ import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Order
-import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.extension.applyPutLong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,9 +29,6 @@ class DataRepository
         private val sharedPreferences: SharedPreferences
 ) {
 
-    val changeUpdater
-        get() = libraryDatabase.changeUpdater
-
     private fun lastAcceptableUpdate() = TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1)
 
     /**
@@ -46,10 +42,10 @@ class DataRepository
     }
 
     suspend fun getSongAtPosition(position: Int) =
-            withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSong() }
+            withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSongInfo() }
 
-    suspend fun getPositionForSong(song: Song) =
-            withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(song.toDbSongDisplay()) }
+    suspend fun getPositionForSong(songId: Long) =
+            withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(songId) }
 
     suspend fun getSongById(songId: Long) =
             withContext(Dispatchers.IO) { libraryDatabase.getSongById(songId)?.toViewSongInfo() }
@@ -74,6 +70,10 @@ class DataRepository
 
     fun <T : Any> getSongs(mapping: (DbSongDisplay) -> T): LiveData<PagingData<T>> =
             convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
+
+    /**
+     * Filtered lists
+     */
 
     fun <T : Any> getAlbumsFiltered(
             filter: String,
@@ -125,6 +125,10 @@ class DataRepository
     ): List<T> =
             libraryDatabase.getSongsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
+    /**
+     * Orders
+     */
+
     fun getOrders() =
             libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
 
@@ -134,25 +138,18 @@ class DataRepository
                         getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList))
             }
 
-    suspend fun setOrders(orders: MutableList<Order>) =
+    suspend fun setOrders(orders: List<Order>) =
             withContext(Dispatchers.IO) {
                 libraryDatabase.setOrders(orders.map { it.toDbOrder() })
             }
 
-    suspend fun setOrdersSubject(orderSubjects: List<Long>) = withContext(Dispatchers.IO) {
-        val dbOrders = orderSubjects.mapIndexed { index, order ->
-            Order(
-                    index,
-                    order,
-                    Order.ASCENDING
-            ).toDbOrder()
-        }
-        libraryDatabase.setOrders(dbOrders)
-    }
-
     suspend fun saveQueueOrder(listToSave: MutableList<Long>) {
         libraryDatabase.saveQueueOrder(listToSave)
     }
+
+    /**
+     * Filter groups
+     */
 
     suspend fun createFilterGroup(filterList: List<Filter<*>>, name: String) =
             withContext(Dispatchers.IO) {

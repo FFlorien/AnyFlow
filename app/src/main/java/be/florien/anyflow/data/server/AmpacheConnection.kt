@@ -12,7 +12,6 @@ import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.HttpException
 import java.math.BigInteger
@@ -27,9 +26,9 @@ import javax.inject.Singleton
 @Singleton
 open class AmpacheConnection
 @Inject constructor(
-    private var authPersistence: AuthPersistence,
-    private var userComponentContainer: UserComponentContainer,
-    private val sharedPreferences: SharedPreferences
+        private var authPersistence: AuthPersistence,
+        private var userComponentContainer: UserComponentContainer,
+        private val sharedPreferences: SharedPreferences
 ) {
     companion object {
         private const val OFFSET_SONG = "songOffset"
@@ -74,8 +73,8 @@ open class AmpacheConnection
             serverUrl.toHttpUrl()
         } catch (exception: IllegalArgumentException) {
             throw WrongFormatServerUrlException(
-                "The provided url was not correctly formed",
-                exception
+                    "The provided url was not correctly formed",
+                    exception
             )
         }
         ampacheApi = userComponentContainer.createUserScopeForServer(url.toString())
@@ -103,10 +102,10 @@ open class AmpacheConnection
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
         val passwordEncoded =
-            binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
+                binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
         encoder.reset()
         val auth =
-            binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
+                binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         try {
             val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
@@ -116,10 +115,10 @@ open class AmpacheConnection
                     throw WrongIdentificationPairException(authentication.error.error_text)
                 }
                 0 -> authPersistence.saveConnectionInfo(
-                    user,
-                    password,
-                    authentication.auth,
-                    TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
+                        user,
+                        password,
+                        authentication.auth,
+                        TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
                 )
             }
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
@@ -138,6 +137,9 @@ open class AmpacheConnection
         try {
             connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
             val ping = ampacheApi.ping(auth = authToken)
+            if (ping.session_expire.isEmpty()) {
+                return ping
+            }
             authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.session_expire).timeInMillis)
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
             return ping
@@ -172,7 +174,7 @@ open class AmpacheConnection
             request()
         } else {
             val authResponse =
-                authenticate(authPersistence.user.secret, authPersistence.password.secret)
+                    authenticate(authPersistence.user.secret, authPersistence.password.secret)
             if (authResponse.error.code == 0) {
                 request()
             } else {
@@ -198,10 +200,10 @@ open class AmpacheConnection
     suspend fun getSongs(from: Calendar = oldestDateForRefresh): List<AmpacheSong>? {
         try {
             val songList = ampacheApi.getSongs(
-                auth = authPersistence.authToken.secret,
-                add = TimeOperations.getAmpacheGetFormatted(from),
-                limit = itemLimit,
-                offset = songOffset
+                    auth = authPersistence.authToken.secret,
+                    add = TimeOperations.getAmpacheGetFormatted(from),
+                    limit = itemLimit,
+                    offset = songOffset
             )
             return if (songList.isEmpty()) {
                 songsPercentageUpdater.postValue(-1)
@@ -223,10 +225,10 @@ open class AmpacheConnection
     suspend fun getArtists(from: Calendar = oldestDateForRefresh): List<AmpacheArtist>? {
         try {
             val artistList = ampacheApi.getArtists(
-                auth = authPersistence.authToken.secret,
-                add = TimeOperations.getAmpacheGetFormatted(from),
-                limit = itemLimit,
-                offset = artistOffset
+                    auth = authPersistence.authToken.secret,
+                    add = TimeOperations.getAmpacheGetFormatted(from),
+                    limit = itemLimit,
+                    offset = artistOffset
             )
 
             return if (artistList.isEmpty()) {
@@ -249,10 +251,10 @@ open class AmpacheConnection
     suspend fun getAlbums(from: Calendar = oldestDateForRefresh): List<AmpacheAlbum>? {
         try {
             val albumList = ampacheApi.getAlbums(
-                auth = authPersistence.authToken.secret,
-                add = TimeOperations.getAmpacheGetFormatted(from),
-                limit = itemLimit,
-                offset = albumOffset
+                    auth = authPersistence.authToken.secret,
+                    add = TimeOperations.getAmpacheGetFormatted(from),
+                    limit = itemLimit,
+                    offset = albumOffset
             )
             return if (albumList.isEmpty()) {
                 albumsPercentageUpdater.postValue(-1)
@@ -273,10 +275,10 @@ open class AmpacheConnection
 
     suspend fun getTags(from: Calendar = oldestDateForRefresh): List<AmpacheTag>? {
         val tagList = ampacheApi.getTags(
-            auth = authPersistence.authToken.secret,
-            add = TimeOperations.getAmpacheGetFormatted(from),
-            limit = itemLimit,
-            offset = tagOffset
+                auth = authPersistence.authToken.secret,
+                add = TimeOperations.getAmpacheGetFormatted(from),
+                limit = itemLimit,
+                offset = tagOffset
         )
         return if (tagList.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_TAG).apply()
@@ -290,10 +292,10 @@ open class AmpacheConnection
 
     suspend fun getPlaylists(from: Calendar = oldestDateForRefresh): AmpachePlayListList? {
         val playlistList = ampacheApi.getPlaylists(
-            auth = authPersistence.authToken.secret,
-            add = TimeOperations.getAmpacheGetFormatted(from),
-            limit = itemLimit,
-            offset = playlistOffset
+                auth = authPersistence.authToken.secret,
+                add = TimeOperations.getAmpacheGetFormatted(from),
+                limit = itemLimit,
+                offset = playlistOffset
         )
         return if (playlistList.playlists.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
@@ -308,14 +310,14 @@ open class AmpacheConnection
     fun getSongUrl(url: String): String { //todo uri
         val ssidStart = url.indexOf("ssid=") + 5
         return url.replaceRange(
-            ssidStart,
-            url.indexOf('&', ssidStart),
-            authPersistence.authToken.secret
+                ssidStart,
+                url.indexOf('&', ssidStart),
+                authPersistence.authToken.secret
         )
     }
 
     private fun binToHex(data: ByteArray): String =
-        String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
+            String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 
     enum class ConnectionStatus {
         WRONG_SERVER_URL,

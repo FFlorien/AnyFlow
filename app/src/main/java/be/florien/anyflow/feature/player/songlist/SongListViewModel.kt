@@ -5,14 +5,13 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.toSong
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
@@ -35,7 +34,7 @@ class SongListViewModel
     private var player: PlayerController = IdlePlayerController()
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     val pagedAudioQueue: LiveData<PagingData<Song>> = playingQueue.songDisplayListUpdater
-    val currentSong: LiveData<Song> = playingQueue.currentSong
+    val currentSong: LiveData<Song> = playingQueue.currentSong.map { it.toSong() }
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)

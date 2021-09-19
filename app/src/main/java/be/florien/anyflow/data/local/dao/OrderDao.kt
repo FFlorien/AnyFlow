@@ -11,6 +11,9 @@ abstract class OrderDao : BaseDao<DbOrder> {
     @Query("SELECT * FROM dborder ORDER BY priority")
     abstract fun all(): LiveData<List<DbOrder>>
 
+    @Query("SELECT * FROM dborder ORDER BY priority")
+    abstract fun list(): List<DbOrder>
+
     @Query("DELETE FROM dborder")
     abstract suspend fun deleteAll()
 

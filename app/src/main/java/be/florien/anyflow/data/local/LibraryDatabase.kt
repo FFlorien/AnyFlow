@@ -1,8 +1,7 @@
 package be.florien.anyflow.data.local
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import androidx.paging.DataSource
 import androidx.room.Database
 import androidx.room.Room
@@ -36,7 +35,7 @@ abstract class LibraryDatabase : RoomDatabase() {
      */
 
     suspend fun getSongAtPosition(position: Int): DbSong? = getSongDao().forPositionInQueue(position)
-    suspend fun getPositionForSong(song: DbSongDisplay): Int? = getSongDao().findPositionInQueue(song.id)
+    suspend fun getPositionForSong(songId: Long): Int? = getSongDao().findPositionInQueue(songId)
     suspend fun getSongById(songId: Long): DbSong? = getSongDao().findById(songId)
 
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
@@ -63,7 +62,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getAlbumsFilteredList(filter: String): List<DbAlbumDisplay> = getAlbumDao().orderByNameFilteredList(filter)
 
 
-    fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters()
+    fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters().distinctUntilChanged()
 
     fun getFilterGroups(): LiveData<List<DbFilterGroup>> = getFilterGroupDao().allSavedFilterGroup()
 
@@ -72,7 +71,8 @@ abstract class LibraryDatabase : RoomDatabase() {
         setCurrentFilters(filterForGroup)
     }
 
-    fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all()
+    fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all().distinctUntilChanged()
+    fun getOrderList(): List<DbOrder> = getOrderDao().list()
 
     /**
      * Getters from raw queries

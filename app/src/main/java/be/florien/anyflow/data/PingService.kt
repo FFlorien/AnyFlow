@@ -2,11 +2,13 @@ package be.florien.anyflow.data
 
 import android.app.job.JobParameters
 import android.app.job.JobService
+import be.florien.anyflow.CrashReportingTree
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class PingService
@@ -20,6 +22,7 @@ class PingService
 
     override fun onStartJob(p0: JobParameters?): Boolean {
         (application as be.florien.anyflow.AnyFlowApp).userComponent?.inject(this)
+        Timber.plant(CrashReportingTree())
         serviceScope.launch {
             try {
                 val it = ampacheConnection.ping()
