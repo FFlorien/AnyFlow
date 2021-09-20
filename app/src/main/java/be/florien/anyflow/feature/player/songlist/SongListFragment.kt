@@ -342,8 +342,11 @@ class SongListFragment : BaseFragment() {
 
                 if (isCurrentSong) {
                     currentSongViewHolder.swipeToOpen()
+                    this@SongListFragment.binding.currentSongDisplayTouch.translationX = this@SongListFragment.binding.currentSongDisplay.songOptions.left - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
                 } else if (!isCurrentSong) {
                     currentSongViewHolder.swipeToClose()
+                    this@SongListFragment.binding.currentSongDisplayTouch.translationX = 0F
+
                 }
             } else {
                 val start = linearLayoutManager.findFirstVisibleItemPosition()
