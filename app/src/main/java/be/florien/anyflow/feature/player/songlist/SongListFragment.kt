@@ -8,10 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
@@ -51,6 +48,7 @@ class SongListFragment : BaseFragment() {
 
     private lateinit var binding: FragmentSongListBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var currentSongViewHolder: SongViewHolder
     private var shouldScrollToCurrent = false
     private var shouldHideLoading = false
     private var isLoadingVisible = false
@@ -86,6 +84,8 @@ class SongListFragment : BaseFragment() {
         binding = FragmentSongListBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        currentSongViewHolder = SongViewHolder(binding.root as ViewGroup, binding.currentSongDisplay)
+        currentSongViewHolder.isCurrentSong = true
         return binding.root
     }
 
@@ -105,70 +105,16 @@ class SongListFragment : BaseFragment() {
                 updateCurrentSongDisplay()
             }
         })
-        binding.songList.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-            private var downTouchX: Float = -1f
-            private var downTouchY: Float = -1f
-            private var lastTouchX: Float = -1f
-            private var lastDeltaX: Float = -1f
-            private var hasSwiped: Boolean = false
-
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                when (e.actionMasked) {
-                    MotionEvent.ACTION_DOWN -> {
-                        downTouchX = e.x
-                        lastTouchX = e.x
-                        downTouchY = e.y
-                        hasSwiped = false
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        val deltaX = downTouchX - e.x
-                        val deltaY = downTouchY - e.y
-                        hasSwiped = hasSwiped || deltaX.absoluteValue > deltaY.absoluteValue
-                        lastDeltaX = e.x - lastTouchX
-                        lastTouchX = e.x
-                        return hasSwiped
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        val stopSwipe = hasSwiped
-                        downTouchX = -1f
-                        downTouchY = -1f
-                        lastTouchX = -1f
-                        lastDeltaX = -1f
-                        return stopSwipe
-                    }
-                }
-                return false
-            }
-
-            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-                val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
-                val viewHolder = (rv.findContainingViewHolder(childView) as? SongViewHolder) ?: return
-                when (e.actionMasked) {
-                    MotionEvent.ACTION_MOVE -> {
-                        viewHolder.swipeForMove(e.x - downTouchX)
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        if (lastDeltaX < 0) {
-                            viewHolder.swipeToOpen()
-                        } else {
-                            viewHolder.swipeToClose()
-                        }
-
-                    }
-                }
-            }
-
-            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-            }
-
-        })
+        binding.songList.addOnItemTouchListener(SongInfoTouchListener())
         binding.currentSongDisplay.songInfo.setBackgroundResource(R.color.selected)
         binding.currentSongDisplayTouch.setOnClickListener {
             scrollToCurrentSong()
         }
+        binding.currentSongDisplayTouch.setOnTouchListener(SongInfoTouchListener())
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
+            binding.currentSongDisplayTouch.elevation = resources.getDimension(R.dimen.mediumDimen)
             binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         }
         requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
@@ -177,6 +123,9 @@ class SongListFragment : BaseFragment() {
                 (binding.songList.adapter as SongAdapter).submitData(viewLifecycleOwner.lifecycle, it)
                 shouldScrollToCurrent = true
             }
+        }
+        viewModel.currentSong.observe(viewLifecycleOwner) {
+            currentSongViewHolder.bind(it)
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
@@ -317,14 +266,21 @@ class SongListFragment : BaseFragment() {
 
     inner class SongViewHolder(
             parent: ViewGroup,
-            private val binding: ItemSongBinding = ItemSongBinding
+            internal val binding: ItemSongBinding = ItemSongBinding
                     .inflate(LayoutInflater.from(parent.context), parent, false)
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private var startingTranslationX: Float = 1f
+        var isCurrentSong: Boolean = false
 
         init {
-            binding.songInfo.setOnClickListener { viewModel.play(absoluteAdapterPosition) }
+            if (parent is RecyclerView) {
+                binding.songInfo.setOnClickListener {
+                    viewModel.play(absoluteAdapterPosition)
+                    binding.songInfo.translationX = 0F
+                    currentSongViewHolder.binding.songInfo.translationX = 0F
+                }
+            }
             binding.songInfo.setOnLongClickListener {
                 if (binding.songInfo.translationX == 0f) {
                     swipeToOpen()
@@ -337,7 +293,19 @@ class SongListFragment : BaseFragment() {
 
         fun bind(song: Song?) {
             binding.song = song
-            binding.songInfo.translationX = 0F
+            binding.songInfo.translationX = if (isCurrentSong) {
+                currentSongViewHolder.binding.songInfo.translationX
+            } else {
+                0F
+            }
+            val backgroundColor = if (isCurrentSong) R.color.selected else R.color.unselected
+            binding.songInfo.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                            resources,
+                            backgroundColor,
+                            null
+                    )
+            )
             binding.info.setOnClickListener {
                 if (song == null) {
                     return@setOnClickListener
@@ -347,20 +315,6 @@ class SongListFragment : BaseFragment() {
             }
         }
 
-        var isCurrentSong: Boolean = false
-            set(value) {
-                field = value
-                val backgroundColor = if (field) R.color.selected else R.color.unselected
-                binding.songInfo.setBackgroundColor(
-                        ResourcesCompat.getColor(
-                                resources,
-                                backgroundColor,
-                                null
-                        )
-                )
-            }
-
-
         fun swipeToClose() {
             startingTranslationX = 1f
             ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, 0f).apply {
@@ -368,17 +322,37 @@ class SongListFragment : BaseFragment() {
                 interpolator = DecelerateInterpolator()
                 start()
             }
+            if (isCurrentSong && this != currentSongViewHolder) {
+                currentSongViewHolder.swipeToClose()
+            }
         }
 
         fun swipeToOpen() {
             startingTranslationX = 1f
-            val start = linearLayoutManager.findFirstVisibleItemPosition()
-            val stop = linearLayoutManager.findLastVisibleItemPosition()
-            val except = absoluteAdapterPosition
-            for (i in start..stop) {
-                val songViewHolder = this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
-                if (i != except && songViewHolder != null && songViewHolder.binding.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToClose()
+            if (this != currentSongViewHolder) {
+                val start = linearLayoutManager.findFirstVisibleItemPosition()
+                val stop = linearLayoutManager.findLastVisibleItemPosition()
+                val except = absoluteAdapterPosition
+                for (i in start..stop) {
+                    val songViewHolder = this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
+                    if (i != except && songViewHolder != null && songViewHolder.binding.songInfo.translationX != 0F) {
+                        songViewHolder.swipeToClose()
+                    }
+                }
+
+                if (isCurrentSong) {
+                    currentSongViewHolder.swipeToOpen()
+                } else if (!isCurrentSong) {
+                    currentSongViewHolder.swipeToClose()
+                }
+            } else {
+                val start = linearLayoutManager.findFirstVisibleItemPosition()
+                val stop = linearLayoutManager.findLastVisibleItemPosition()
+                for (i in start..stop) {
+                    val songViewHolder = this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
+                    if (songViewHolder?.isCurrentSong == false && songViewHolder.binding.songInfo.translationX != 0F) {
+                        songViewHolder.swipeToClose()
+                    }
                 }
             }
             ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, (binding.songOptions.left - itemView.width.toFloat())).apply {
@@ -395,6 +369,92 @@ class SongListFragment : BaseFragment() {
             val translationToSeeOptions = (binding.songOptions.left - itemView.width).toFloat()
             val translationToFollowMove = startingTranslationX + translateX
             binding.songInfo.translationX = maxOf(translationToSeeOptions, translationToFollowMove).coerceAtMost(0f)
+        }
+    }
+
+    inner class SongInfoTouchListener : RecyclerView.OnItemTouchListener, View.OnTouchListener {
+        private var downTouchX: Float = -1f
+        private var downTouchY: Float = -1f
+        private var lastTouchX: Float = -1f
+        private var lastDeltaX: Float = -1f
+        private var hasSwiped: Boolean = false
+
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+            return onInterceptTouchEvent(e)
+        }
+
+        override fun onTouchEvent(rv: RecyclerView, event: MotionEvent) {
+            val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
+            val viewHolder = (rv.findContainingViewHolder(childView) as? SongViewHolder) ?: return
+            onTouch(viewHolder, event)
+        }
+
+        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        }
+
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
+            onTouch(currentSongViewHolder, event)
+            when (event.actionMasked) {
+                MotionEvent.ACTION_UP -> {
+                    if (!hasSwiped) {
+                        v.performClick()
+                    }
+                    if (lastDeltaX < -1.0) {
+                        binding.currentSongDisplayTouch.translationX = binding.currentSongDisplay.songOptions.left - binding.currentSongDisplay.root.width.toFloat()
+                    } else {
+                        binding.currentSongDisplayTouch.translationX = 0F
+                    }
+                    onInterceptTouchEvent(event)
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    onInterceptTouchEvent(event)
+                }
+                else -> onInterceptTouchEvent(event)
+            }
+            return true
+        }
+
+        private fun onTouch(viewHolder: SongViewHolder, event: MotionEvent) {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_MOVE -> {
+                    viewHolder.swipeForMove(event.x - downTouchX)
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (lastDeltaX < -1.0) {
+                        viewHolder.swipeToOpen()
+                    } else {
+                        viewHolder.swipeToClose()
+                    }
+                }
+            }
+        }
+
+        private fun onInterceptTouchEvent(e: MotionEvent): Boolean {
+            when (e.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    downTouchX = e.x
+                    lastTouchX = e.x
+                    downTouchY = e.y
+                    hasSwiped = false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val deltaX = downTouchX - e.x
+                    val deltaY = downTouchY - e.y
+                    hasSwiped = hasSwiped || deltaX.absoluteValue > deltaY.absoluteValue
+                    lastDeltaX = e.x - lastTouchX
+                    lastTouchX = e.x
+                    return hasSwiped
+                }
+                MotionEvent.ACTION_UP -> {
+                    val stopSwipe = hasSwiped
+                    downTouchX = -1f
+                    downTouchY = -1f
+                    lastTouchX = -1f
+                    lastDeltaX = -1f
+                    return stopSwipe
+                }
+            }
+            return false
         }
     }
 }

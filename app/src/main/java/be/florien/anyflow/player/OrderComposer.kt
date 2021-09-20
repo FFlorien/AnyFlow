@@ -39,10 +39,12 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                     currentOrders.toMutableList()
                 }
                 areFirstFilterArrived = true
-                currentSong?.let { songInfo ->
-                    val isCurrentSongInNewFilters = filterList.any { it.contains(songInfo) }
-                    if (isCurrentSongInNewFilters) {
-                        newOrders.add(Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE))
+                if (newOrders.any { it.orderingType == Order.Ordering.RANDOM }) {
+                    currentSong?.let { songInfo ->
+                        val isCurrentSongInNewFilters = filterList.any { it.contains(songInfo) }
+                        if (isCurrentSongInNewFilters) {
+                            newOrders.add(Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE))
+                        }
                     }
                 }
                 if (newOrders.containsAll(currentOrders) && currentOrders.containsAll(newOrders)) {

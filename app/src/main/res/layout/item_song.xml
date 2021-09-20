@@ -54,34 +54,37 @@
 
             <TextView
                 android:id="@+id/songTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="@dimen/smallDimen"
                 android:text="@{song.title}"
                 app:layout_constraintStart_toEndOf="@+id/cover"
+                app:layout_constraintEnd_toEndOf="@id/songInfo"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="This song's title" />
 
             <TextView
                 android:id="@+id/songArtist"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="@dimen/smallDimen"
                 android:text="@{song.artistName}"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@+id/cover"
                 app:layout_constraintTop_toBottomOf="@+id/songTitle"
+                app:layout_constraintEnd_toEndOf="@id/songInfo"
                 tools:text="This artist's name" />
 
             <TextView
                 android:id="@+id/songAlbum"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="@dimen/smallDimen"
                 android:text="@{song.albumName}"
                 android:textStyle="italic"
                 app:layout_constraintStart_toEndOf="@+id/cover"
                 app:layout_constraintTop_toBottomOf="@+id/songArtist"
+                app:layout_constraintEnd_toEndOf="@id/songInfo"
                 tools:text="This album's name" />
 
             <TextView

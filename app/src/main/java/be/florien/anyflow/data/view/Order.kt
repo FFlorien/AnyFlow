@@ -27,6 +27,8 @@ sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val 
             else -> Subject.TRACK
         }
 
+    override fun equals(other: Any?) = other is Order && priority == other.priority && subject == other.subject && ordering == other.ordering && argument == other.argument
+
     companion object {
 
         const val PRIORITY_PRECISE = 2000
