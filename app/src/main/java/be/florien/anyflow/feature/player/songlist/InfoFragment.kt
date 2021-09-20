@@ -86,7 +86,13 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
     class InfoViewHolder(val parent: ViewGroup, val binding: ItemInfoBinding = ItemInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)) : RecyclerView.ViewHolder(binding.root) {
         fun bind(row: InfoViewModel.SongRow) {
             binding.display = row
-            binding.root.setOnClickListener { row.action?.invoke(row.fieldType, row.actionType) }
+            binding.descriptionText = when {
+                row.text == null && row.textRes != null -> parent.context.resources.getString(row.textRes)
+                row.text != null && row.textRes == null -> row.text
+                row.text != null && row.textRes != null -> parent.context.resources.getString(row.textRes, row.text)
+                else -> ""
+            }
+            binding.root.setOnClickListener { row.action?.invoke(row.fieldType) }
             if (row.actionType != InfoViewModel.ActionType.NONE && row.actionType != InfoViewModel.ActionType.EXPAND) {
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.accentLightPlus, parent.context.theme))
             } else {

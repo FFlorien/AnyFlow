@@ -53,4 +53,8 @@
     <string name="info_year">Année</string>
     <string name="info_album_artist">Artiste de l\'album</string>
     <string name="info_genre">Genre</string>
+    <string name="info_option_track_next">Ajouter la chanson à la suite</string>
+    <string name="info_option_next_title">Jouer ensuite</string>
+    <string name="info_option_filter_on">N\'écouter que %1$s</string>
+    <string name="info_option_filter_title">Filtrer</string>
 </resources>

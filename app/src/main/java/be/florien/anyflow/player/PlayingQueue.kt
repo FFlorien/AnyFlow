@@ -65,8 +65,13 @@ class PlayingQueue
     init {
         songUrlListUpdater.observeForever {
             queueSize = it.size
-            val indexOf = it.indexOf(currentSong.value?.url)
-            listPosition = if (indexOf >= 0) indexOf else listPosition
+
+            val indexOf = if (currentSong.value == null) {
+                listPosition
+            } else {
+                it.indexOf(currentSong.value?.url)
+            }
+            listPosition = if (indexOf >= 0) indexOf else 0
         }
         GlobalScope.launch(Dispatchers.IO) {
             queueSize = dataRepository.getQueueSize() ?: 0

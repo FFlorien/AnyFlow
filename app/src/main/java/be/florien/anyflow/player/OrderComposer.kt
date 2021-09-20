@@ -45,7 +45,11 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                         newOrders.add(Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE))
                     }
                 }
-                dataRepository.setOrders(newOrders)
+                if (newOrders.containsAll(currentOrders) && currentOrders.containsAll(newOrders)) {
+                    saveQueue(filterList, newOrders)
+                } else {
+                    dataRepository.setOrders(newOrders)
+                }
             }
         }
     }
