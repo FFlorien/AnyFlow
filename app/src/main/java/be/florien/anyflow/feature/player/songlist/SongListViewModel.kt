@@ -5,21 +5,21 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.map
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.toSong
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.IdlePlayerController
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.player.PlayingQueue
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 /**
@@ -44,6 +44,7 @@ class SongListViewModel
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
+        private val coroutineScope = CoroutineScope(Dispatchers.Main)
         override fun afterTextChanged(s: Editable?) {
         }
 
@@ -52,7 +53,7 @@ class SongListViewModel
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             searchJob?.cancel()
-            searchJob = viewModelScope.launch {
+            searchJob = coroutineScope.launch {
                 delay(300)
                 if (s.isBlank()) {
                     resetSearch()

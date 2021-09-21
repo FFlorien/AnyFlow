@@ -56,5 +56,7 @@
     <string name="info_option_track_next">Play this song next</string>
     <string name="info_option_next_title">Play next</string>
     <string name="info_option_filter_on">Filter on %1$s</string>
+    <string name="info_option_search_on">Search %1$s in current playing list</string>
     <string name="info_option_filter_title">Filter</string>
+    <string name="info_option_search_title">Search</string>
 </resources>

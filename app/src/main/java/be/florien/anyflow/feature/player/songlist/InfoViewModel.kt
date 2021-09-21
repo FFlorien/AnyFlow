@@ -23,7 +23,7 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
         }
 
     val songRows: LiveData<List<SongRow>> = MutableLiveData(listOf())
-
+    val searchTerm: LiveData<String> = MutableLiveData(null)
     val songInfo: LiveData<SongInfo> = MutableLiveData()
 
     private fun toggleExpansion(fieldType: FieldType) {
@@ -48,19 +48,24 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
     private fun createOptions(fieldType: FieldType): List<SongRow> = when (fieldType) {
         FieldType.TITLE -> listOf(
                 SongRow(R.string.info_option_next_title, null, R.string.info_option_track_next, R.drawable.ic_add, ::playNext, fieldType, ActionType.ADD_NEXT),
-                SongRow(R.string.info_option_filter_title, songInfo.value?.title, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER)
+                SongRow(R.string.info_option_filter_title, songInfo.value?.title, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
+                SongRow(R.string.info_option_search_title, songInfo.value?.title, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
         )
         FieldType.ARTIST -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.value?.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER)
+                SongRow(R.string.info_option_filter_title, songInfo.value?.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
+                SongRow(R.string.info_option_search_title, songInfo.value?.artistName, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
         )
         FieldType.ALBUM -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.value?.albumName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER)
+                SongRow(R.string.info_option_filter_title, songInfo.value?.albumName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
+                SongRow(R.string.info_option_search_title, songInfo.value?.albumName, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
         )
         FieldType.ALBUM_ARTIST -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.value?.albumArtistName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER)
+                SongRow(R.string.info_option_filter_title, songInfo.value?.albumArtistName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
+                SongRow(R.string.info_option_search_title, songInfo.value?.albumArtistName, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
         )
         FieldType.GENRE -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.value?.genre, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER)
+                SongRow(R.string.info_option_filter_title, songInfo.value?.genre, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
+                SongRow(R.string.info_option_search_title, songInfo.value?.genre, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
         )
         else -> listOf()
     }
@@ -85,6 +90,18 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
             filtersManager.clearFilters()
             filtersManager.addFilter(filter)
             filtersManager.commitChanges()
+        }
+    }
+
+    private fun closeAndSearch(fieldType: FieldType) {
+        val songInfo = songInfo.value as SongInfo
+        when (fieldType) {
+            FieldType.TITLE -> (searchTerm as MutableLiveData).value = songInfo.title
+            FieldType.ARTIST -> (searchTerm as MutableLiveData).value = songInfo.artistName
+            FieldType.ALBUM -> (searchTerm as MutableLiveData).value = songInfo.albumName
+            FieldType.ALBUM_ARTIST -> (searchTerm as MutableLiveData).value = songInfo.albumArtistName
+            FieldType.GENRE -> (searchTerm as MutableLiveData).value = songInfo.genre
+            else -> throw IllegalArgumentException("This field can't be searched on")
         }
     }
 
@@ -120,6 +137,6 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
     }
 
     enum class ActionType {
-        NONE, EXPAND, ADD_TO_FILTER, ADD_NEXT
+        NONE, EXPAND, ADD_TO_FILTER, ADD_NEXT, SEARCH
     }
 }

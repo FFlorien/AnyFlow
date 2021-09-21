@@ -56,5 +56,7 @@
     <string name="info_option_track_next">Ajouter la chanson à la suite</string>
     <string name="info_option_next_title">Jouer ensuite</string>
     <string name="info_option_filter_on">N\'écouter que %1$s</string>
+    <string name="info_option_search_on">Rechercher %1$s dans la liste de lecture actuelle</string>
     <string name="info_option_filter_title">Filtrer</string>
+    <string name="info_option_search_title">Rechercher</string>
 </resources>

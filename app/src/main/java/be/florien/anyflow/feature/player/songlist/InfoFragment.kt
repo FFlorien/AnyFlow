@@ -24,6 +24,7 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
     }
 
     private lateinit var viewModel: InfoViewModel
+    private lateinit var songListViewModel: SongListViewModel
     private lateinit var binding: FragmentInfoBinding
 
 
@@ -40,6 +41,7 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoViewModel::class.java)
+        songListViewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
         viewModel.songId = song.id
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -55,6 +57,13 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)
         })
+        viewModel.searchTerm.observe(viewLifecycleOwner) {
+            if (it != null) {
+                songListViewModel.isSearching.value = true
+                songListViewModel.searchedText.value = it
+                dismiss()
+            }
+        }
     }
 
     class InfoAdapter : ListAdapter<InfoViewModel.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<InfoViewModel.SongRow>() {
