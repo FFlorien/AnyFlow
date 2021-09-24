@@ -1,11 +1,13 @@
 package be.florien.anyflow.data.server.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
  * Server-side data structures that relates to album
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpacheAlbum {
     var id: Long = 0
     var name: String = ""

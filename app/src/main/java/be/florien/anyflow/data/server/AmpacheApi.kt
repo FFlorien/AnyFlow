@@ -62,9 +62,18 @@ interface AmpacheApi {
     @GET("server/json.server.php")
     suspend fun getPlaylists(
             @Query("action") action: String = "playlists",
-            @Query("add") add: String = "1970-01-01",
+            @Query("auth") auth: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int,
+            @Query("hide_search") hideSearch: Int = 1)
+            : List<AmpachePlayList>
+
+    @GET("server/json.server.php")
+    suspend fun getPlaylistSongs(
+            @Query("action") action: String = "playlist_songs",
+            @Query("filter") filter: String,
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
-            : AmpachePlayListList
+            : List<AmpacheSongId>
 }

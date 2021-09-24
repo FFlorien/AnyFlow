@@ -36,6 +36,7 @@ open class AmpacheConnection
         private const val OFFSET_ALBUM = "albumOffset"
         private const val OFFSET_TAG = "tagOffset"
         private const val OFFSET_PLAYLIST = "playlistOffset"
+        private const val OFFSET_PLAYLIST_SONGS = "playlistSongOffset"
         private const val RECONNECT_LIMIT = 3
     }
 
@@ -212,8 +213,8 @@ open class AmpacheConnection
             } else {
 //            val percentage = (songOffset * 100) / songList.total_count
 //            songsPercentageUpdater.postValue(percentage)
+                songOffset += songList.size
                 sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
-                songOffset += itemLimit
                 songList
             }
         } catch (ex: Exception) {
@@ -238,8 +239,8 @@ open class AmpacheConnection
             } else {
 //                val percentage = (artistOffset * 100) / artistList.size
 //                artistsPercentageUpdater.postValue(percentage)
+                artistOffset += artistList.size
                 sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
-                artistOffset += itemLimit
                 artistList
             }
         } catch (ex: Exception) {
@@ -263,8 +264,8 @@ open class AmpacheConnection
             } else {
 //            val percentage = (albumOffset * 100) / albumList.total_count
 //            albumsPercentageUpdater.postValue(percentage)
+                albumOffset += albumList.size
                 sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
-                albumOffset += itemLimit
                 albumList
             }
         } catch (ex: java.lang.Exception) {
@@ -284,26 +285,45 @@ open class AmpacheConnection
             sharedPreferences.edit().remove(OFFSET_TAG).apply()
             null
         } else {
+            tagOffset += tagList.size
             sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
-            tagOffset += itemLimit
             tagList
         }
     }
 
-    suspend fun getPlaylists(from: Calendar = oldestDateForRefresh): AmpachePlayListList? {
+    suspend fun getPlaylists(): List<AmpachePlayList>? {
+        val offset = playlistOffset
         val playlistList = ampacheApi.getPlaylists(
                 auth = authPersistence.authToken.secret,
-                add = TimeOperations.getAmpacheGetFormatted(from),
                 limit = itemLimit,
-                offset = playlistOffset
+                offset = offset
         )
-        return if (playlistList.playlists.isEmpty()) {
+        return if (playlistList.isEmpty()) {
             sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
             null
         } else {
-            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
-            playlistOffset += itemLimit
+            playlistOffset += playlistList.size
+            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, offset.toLong())
             playlistList
+        }
+    }
+
+    suspend fun getPlaylistsSongs(playlistToQuery: Long): List<AmpacheSongId>? {
+        val prefName = OFFSET_PLAYLIST_SONGS + playlistToQuery
+        var currentPlaylistOffset = sharedPreferences.getLong(prefName, 0).toInt()
+        val playlistSongList = ampacheApi.getPlaylistSongs(
+                auth = authPersistence.authToken.secret,
+                filter = playlistToQuery.toString(),
+                limit = itemLimit,
+                offset = currentPlaylistOffset
+        )
+        return if (playlistSongList.isEmpty()) {
+            sharedPreferences.edit().remove(prefName).apply()
+            null
+        } else {
+            currentPlaylistOffset += playlistSongList.size
+            sharedPreferences.applyPutLong(prefName, currentPlaylistOffset.toLong())
+            playlistSongList
         }
     }
 

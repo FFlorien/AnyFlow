@@ -17,12 +17,13 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
-@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class], version = 3)
+@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class], version = 4)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
     protected abstract fun getArtistDao(): ArtistDao
     protected abstract fun getPlaylistDao(): PlaylistDao
+    protected abstract fun getPlaylistSongsDao(): PlaylistSongDao
     protected abstract fun getQueueOrderDao(): QueueOrderDao
     protected abstract fun getSongDao(): SongDao
     protected abstract fun getFilterDao(): FilterDao
@@ -107,6 +108,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         getPlaylistDao().insert(playlists)
     }
 
+    suspend fun addPlaylistSongs(playlistSongs: List<DbPlaylistSongs>) = asyncUpdate(CHANGE_PLAYLIST_SONG) {
+        getPlaylistSongsDao().insert(playlistSongs)
+    }
+
     suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
         withTransaction {
             getFilterDao().updateGroup(DbFilterGroup.currentFilterGroup, filters.map { it.copy(filterGroup = 1) })
@@ -170,6 +175,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         const val CHANGE_FILTERS = 5
         const val CHANGE_QUEUE = 6
         const val CHANGE_FILTER_GROUP = 7
+        const val CHANGE_PLAYLIST_SONG = 8
 
         @Volatile
         private var instance: LibraryDatabase? = null
@@ -211,6 +217,12 @@ abstract class LibraryDatabase : RoomDatabase() {
                                 override fun migrate(database: SupportSQLiteDatabase) {
                                     database.execSQL("CREATE TABLE FilterGroup (id INTEGER NOT NULL, name TEXT NOT NULL, PRIMARY KEY(id))")
                                     database.execSQL("ALTER TABLE DbFilter ADD COLUMN filterGroup INTEGER NOT NULL DEFAULT 0 REFERENCES FilterGroup(id) ON DELETE CASCADE")
+                                }
+
+                            },
+                            object : Migration(3, 4) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("CREATE TABLE PlaylistSongs (songId INTEGER NOT NULL, playlistId INTEGER NOT NULL, PRIMARY KEY(songId, playlistId))")
                                 }
 
                             })

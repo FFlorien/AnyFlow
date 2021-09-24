@@ -1,12 +1,14 @@
 package be.florien.anyflow.data.server.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
  * Server-side data structures that relates to accounts
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpacheSong {
     var id: Long = 0
     var song: String = ""
@@ -40,4 +42,9 @@ class AmpacheSong {
 
 class AmpacheGenre {
     var name: String = ""
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheSongId {
+    var id: Long = 0
 }

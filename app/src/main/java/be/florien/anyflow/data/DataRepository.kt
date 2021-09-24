@@ -25,7 +25,7 @@ import javax.inject.Singleton
 class DataRepository
 @Inject constructor(
         private val libraryDatabase: LibraryDatabase,
-        private val songServerConnection: AmpacheConnection,
+        private val ampacheConnection: AmpacheConnection,
         private val sharedPreferences: SharedPreferences
 ) {
 
@@ -39,6 +39,7 @@ class DataRepository
         updateArtistsAsync()
         updateAlbumsAsync()
         updateSongsAsync()
+        updatePlaylistAsync()
     }
 
     suspend fun getSongAtPosition(position: Int) =
@@ -223,7 +224,7 @@ class DataRepository
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {
-            var listOnServer = songServerConnection.getListOnServer(lastUpdate)
+            var listOnServer = ampacheConnection.getListOnServer(lastUpdate)
             while (listOnServer != null) {
 //                listOnServer = if (listOnServer.getError().code == 401) {
 //                    songServerConnection.reconnect { songServerConnection.getListOnServer(lastUpdate) }
@@ -231,9 +232,28 @@ class DataRepository
 //                    listOnServer
 //                }
                 saveToDatabase(listOnServer)
-                listOnServer = songServerConnection.getListOnServer(lastUpdate)
+                listOnServer = ampacheConnection.getListOnServer(lastUpdate)
             }
             sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
+        }
+    }
+
+    private suspend fun updatePlaylistAsync() {
+        var listOnServer = ampacheConnection.getPlaylists()
+        while (listOnServer != null) {
+            libraryDatabase.addPlayLists(listOnServer.map { it.toDbPlaylist() })
+            for (playlist in listOnServer) {
+                updatePlaylistSongListAsync(playlist.id)
+            }
+            listOnServer = ampacheConnection.getPlaylists()
+        }
+    }
+
+    private suspend fun updatePlaylistSongListAsync(playlistId: Long) {
+        var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+        while (listOnServer != null) {
+            libraryDatabase.addPlaylistSongs(listOnServer.map { DbPlaylistSongs(it.id, playlistId) })
+            listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
         }
     }
 
@@ -313,5 +333,7 @@ class DataRepository
         // updated because the art was added , see LibraryDatabase migration 1->2
         private const val LAST_ARTIST_UPDATE = "LAST_ARTIST_UPDATE_v1"
         private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
+        private const val LAST_PLAYLIST_UPDATE = "LAST_PLAYLIST_UPDATE"
+        private const val LAST_PLAYLIST_SONGS_UPDATE = "LAST_PLAYLIST_SONGS_UPDATE"
     }
 }

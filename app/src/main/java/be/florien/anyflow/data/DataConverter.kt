@@ -3,6 +3,7 @@ package be.florien.anyflow.data
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.model.AmpacheAlbum
 import be.florien.anyflow.data.server.model.AmpacheArtist
+import be.florien.anyflow.data.server.model.AmpachePlayList
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.view.*
 
@@ -53,6 +54,12 @@ fun AmpacheAlbum.toDbAlbum() = DbAlbum(
         art = art,
         preciserating = preciserating,
         rating = rating)
+
+fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
+        id = id,
+        name = name,
+        owner = owner
+)
 
 /**
  * Database to view
