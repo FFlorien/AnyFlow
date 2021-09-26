@@ -1,11 +1,13 @@
 package be.florien.anyflow.data.view
 
+import be.florien.anyflow.data.DataRepository
+
 sealed class Filter<T>(
         val argument: T,
         val displayText: String,
         val displayImage: String? = null) {
 
-    fun contains(song: SongInfo): Boolean {
+    suspend fun contains(song: SongInfo, dataRepository: DataRepository): Boolean {
         return when (this) {
             is TitleIs -> song.title == argument
             is AlbumArtistIs -> song.albumArtistId == argument
@@ -15,6 +17,7 @@ sealed class Filter<T>(
             is Search -> song.title.contains(argument, ignoreCase = true) || song.artistName.contains(argument, ignoreCase = true) || song.albumName.contains(argument, ignoreCase = true) || song.genre.contains(argument, ignoreCase = true)
             is SongIs -> song.id == argument
             is TitleContain -> song.title.contains(argument, ignoreCase = true)
+            is PlaylistIs -> dataRepository.isPlaylistContainingSong(argument, song.id)
         }
     }
 
@@ -50,4 +53,6 @@ sealed class Filter<T>(
     class AlbumArtistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
 
     class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+
+    class PlaylistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, null)
 }

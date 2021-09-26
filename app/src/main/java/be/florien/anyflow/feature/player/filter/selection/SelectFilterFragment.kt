@@ -24,6 +24,7 @@ import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ARTIST_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.GENRE_ID
+import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.SONG_ID
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -88,7 +89,8 @@ constructor(private var filterType: String) : BaseFilterFragment() {
                     ALBUM_ID -> SelectFilterAlbumViewModel::class.java
                     ARTIST_ID -> SelectFilterArtistViewModel::class.java
                     GENRE_ID -> SelectFilterGenreViewModel::class.java
-                    else -> SelectFilterSongViewModel::class.java
+                    SONG_ID -> SelectFilterSongViewModel::class.java
+                    else -> SelectFilterPlaylistViewModel::class.java
                 }
         )
     }

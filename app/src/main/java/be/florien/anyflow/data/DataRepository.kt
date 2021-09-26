@@ -72,6 +72,9 @@ class DataRepository
     fun <T : Any> getSongs(mapping: (DbSongDisplay) -> T): LiveData<PagingData<T>> =
             convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
 
+    fun <T : Any> getPlaylists(mapping: (DbPlaylist) -> T): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
+
     /**
      * Filtered lists
      */
@@ -126,6 +129,18 @@ class DataRepository
     ): List<T> =
             libraryDatabase.getSongsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
+    fun <T : Any> getPlaylistsFiltered(
+            filter: String,
+            mapping: (DbPlaylist) -> T
+    ): LiveData<PagingData<T>> =
+            convertToPagingLiveData(libraryDatabase.getPlaylistsFiltered("%$filter%").map { mapping(it) })
+
+    suspend fun <T : Any> getPlaylistsFilteredList(
+            filter: String,
+            mapping: (DbPlaylist) -> T
+    ): List<T> =
+            libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
+
     /**
      * Orders
      */
@@ -164,12 +179,6 @@ class DataRepository
 
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
             withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
-
-    suspend fun getAlbumArtsForFilterGroup(group: FilterGroup): List<String> =
-            withContext(Dispatchers.IO) {
-                val filtersForGroup: List<DbFilter> = libraryDatabase.filterForGroupSync(group.id)
-                libraryDatabase.artForFilters(constructWhereStatement(filtersForGroup))
-            }
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters()
             .map { filterList -> filterList.map { it.toViewFilter() } }
@@ -301,7 +310,13 @@ class DataRepository
             return orderStatement
         }
 
-        return "SELECT id FROM song" + constructWhereStatement(dbFilters) + constructOrderStatement()
+        return "SELECT id FROM song" + constructJoinStatement(dbFilters) + constructWhereStatement(dbFilters) + constructOrderStatement()
+    }
+
+    private fun constructJoinStatement(filterList: List<DbFilter>): String {
+        return filterList.filter { !it.joinClause.isNullOrBlank() }.joinToString(separator = " ", prefix = " ", postfix = " ") {
+            it.joinClause!!
+        }
     }
 
     private fun constructWhereStatement(filterList: List<DbFilter>): String {
@@ -316,6 +331,7 @@ class DataRepository
                 DbFilter.SONG_ID,
                 DbFilter.ARTIST_ID,
                 DbFilter.ALBUM_ARTIST_ID,
+                DbFilter.PLAYLIST_ID,
                 DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
                 else -> " ${filter.clause} \"${filter.argument}\""
             }
@@ -326,6 +342,8 @@ class DataRepository
 
         return whereStatement
     }
+
+    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean = libraryDatabase.isPlaylistContainingSong(playlistId, songId)
 
     companion object {
         private const val LAST_SONG_UPDATE = "LAST_SONG_UPDATE"

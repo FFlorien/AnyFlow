@@ -14,11 +14,13 @@
     <string name="filter_display_album_artist_is">Album artist is\n%s</string>
     <string name="filter_display_album_is">Album is\n%s</string>
     <string name="filter_display_title_contain">Song title contain\n%s</string>
+    <string name="filter_display_playlist_is">Song is in playlist\n%s</string>
     <string name="filter_title_main">Select filters</string>
     <string name="filter_type_genre">Genre</string>
     <string name="filter_type_album_artist">Album’s artist</string>
     <string name="filter_type_album">Album</string>
     <string name="filter_type_song">Song</string>
+    <string name="filter_type_playlist">Playlist</string>
     <string name="filter_type_search">Search</string>
     <string name="filter_title_album">Select albums</string>
     <string name="filter_title_album_artist">Select album artists</string>

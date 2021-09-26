@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
-@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class], version = 4)
+@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class], version = 5)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -62,6 +62,11 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getAlbumsFiltered(filter: String): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByNameFiltered(filter)
     suspend fun getAlbumsFilteredList(filter: String): List<DbAlbumDisplay> = getAlbumDao().orderByNameFilteredList(filter)
 
+
+    fun getPlaylists(): DataSource.Factory<Int, DbPlaylist> = getPlaylistDao().orderByName()
+    fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylist> = getPlaylistDao().orderByNameFiltered(filter)
+    suspend fun getPlaylistsFilteredList(filter: String): List<DbPlaylist> = getPlaylistDao().orderByNameFilteredList(filter)
+    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean = getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
 
     fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters().distinctUntilChanged()
 
@@ -223,6 +228,12 @@ abstract class LibraryDatabase : RoomDatabase() {
                             object : Migration(3, 4) {
                                 override fun migrate(database: SupportSQLiteDatabase) {
                                     database.execSQL("CREATE TABLE PlaylistSongs (songId INTEGER NOT NULL, playlistId INTEGER NOT NULL, PRIMARY KEY(songId, playlistId))")
+                                }
+
+                            },
+                            object : Migration(4, 5) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("ALTER TABLE DbFilter ADD COLUMN joinClause TEXT DEFAULT null")
                                 }
 
                             })

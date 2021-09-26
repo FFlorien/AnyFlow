@@ -150,6 +150,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
                 is Filter.ArtistIs -> getString(R.string.filter_display_artist_is, filter.displayText)
                 is Filter.AlbumArtistIs -> getString(R.string.filter_display_album_artist_is, filter.displayText)
                 is Filter.AlbumIs -> getString(R.string.filter_display_album_is, filter.displayText)
+                is Filter.PlaylistIs -> getString(R.string.filter_display_playlist_is, filter.displayText)
             }
             val valueStart = charSequence.lastIndexOf(filter.displayText)
             val stylizedText = SpannableString(charSequence)
@@ -185,6 +186,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     is Filter.ArtistIs -> setCompoundDrawableFromResources(R.drawable.ic_artist)
                     is Filter.GenreIs -> setCompoundDrawableFromResources(R.drawable.ic_genre)
                     is Filter.AlbumIs -> setCompoundDrawableFromResources(R.drawable.ic_album)
+                    is Filter.PlaylistIs -> setCompoundDrawableFromResources(R.drawable.ic_playlist)
                     is Filter.Search,
                     is Filter.TitleIs,
                     is Filter.TitleContain,

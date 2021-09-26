@@ -16,6 +16,7 @@
     <string name="filter_display_album_artist_is">L’artiste de l’album est %s</string>
     <string name="filter_display_album_is">L’album est %s</string>
     <string name="filter_display_title_contain">Le titre de la chanson contient %s</string>
+    <string name="filter_display_playlist_is">La chanson est dans la liste de lecture %s</string>
     <string name="filter_title_main">Selection de filtres</string>
     <string name="filter_title_album">Selection d’albums</string>
     <string name="filter_title_album_artist">Selection d’artistes de l’album</string>
@@ -24,6 +25,7 @@
     <string name="filter_type_album_artist">Artiste de l’album</string>
     <string name="filter_type_album">Album</string>
     <string name="filter_type_song">Chanson</string>
+    <string name="filter_type_playlist">Liste de lecture</string>
     <string name="filter_type_search">Recherche</string>
     <string name="menu_filters">Filtres</string>
     <string name="menu_order_random">Aléatoire</string>

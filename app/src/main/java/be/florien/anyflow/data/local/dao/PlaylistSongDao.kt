@@ -1,12 +1,11 @@
 package be.florien.anyflow.data.local.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.Transaction
-import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.local.model.DbPlaylistSongs
-import be.florien.anyflow.data.local.model.DbPlaylistWithSongs
 
 @Dao
-interface PlaylistSongDao : BaseDao<DbPlaylistSongs>
+interface PlaylistSongDao : BaseDao<DbPlaylistSongs> {
+    @Query("SELECT count(*) FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")
+    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Int
+}

@@ -41,7 +41,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                 areFirstFilterArrived = true
                 if (newOrders.any { it.orderingType == Order.Ordering.RANDOM }) {
                     currentSong?.let { songInfo ->
-                        val isCurrentSongInNewFilters = filterList.any { it.contains(songInfo) }
+                        val isCurrentSongInNewFilters = filterList.any { it.contains(songInfo, dataRepository) }
                         if (isCurrentSongInNewFilters) {
                             newOrders.add(Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE))
                         }
@@ -84,8 +84,6 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
         }
         dataRepository.setOrders(orders)
     }
-
-    //todo don't stop the current song if order change
 
     suspend fun order() {
         val dbOrders = listOf(Order.SUBJECT_ALBUM_ARTIST, Order.SUBJECT_YEAR, Order.SUBJECT_ALBUM, Order.SUBJECT_TRACK, Order.SUBJECT_TITLE)
