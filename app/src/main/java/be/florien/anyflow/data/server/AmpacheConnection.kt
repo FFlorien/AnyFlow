@@ -327,6 +327,10 @@ open class AmpacheConnection
         }
     }
 
+    suspend fun createPlaylist(name: String) {
+        ampacheApi.createPlaylist(auth = authPersistence.authToken.secret, name = name)
+    }
+
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheApi.addToPlaylist(auth = authPersistence.authToken.secret, filter = playlistId, songId = songId)
     }

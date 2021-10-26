@@ -10,13 +10,13 @@
         android:pathData="M500,50L750,50ZM500,200L750,200ZM500,350L750,350ZM50,500L750,500ZM50,650L750,650Z"
         android:strokeWidth="50"
         android:strokeAlpha="1"
-        android:strokeColor="#000"
+        android:strokeColor="@color/accent"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M200,50L200,350M50,200L350,200"
+        android:pathData="M50,200L90,200M95,95L125,125M200,50L200,90M305,100L275,130M350,200L310,200M305,305L275,275M200,350L200,310M95,305L125,275"
         android:strokeWidth="50"
-        android:strokeColor="#000"
+        android:strokeColor="@color/accent"
         android:strokeLineCap="round"/>
 </vector>

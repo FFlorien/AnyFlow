@@ -36,6 +36,16 @@
             app:layout_constraintEnd_toEndOf="@+id/toolbarBackground"
             android:onClick="@{() -> viewModel.confirmChanges(songId)}"/>
 
+        <ImageButton
+            android:id="@+id/newPlaylistButton"
+            android:layout_width="@dimen/xxLargeDimen"
+            android:layout_height="@dimen/xxLargeDimen"
+            android:src="@drawable/ic_new_playlist"
+            android:background="@drawable/bg_blue_button"
+            app:layout_constraintTop_toTopOf="@id/toolbarBackground"
+            app:layout_constraintEnd_toStartOf="@id/confirmButton"
+            android:onClick="@{() -> viewModel.getNewPlaylistName()}"/>
+
         <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
@@ -43,7 +53,7 @@
             app:layout_constraintTop_toTopOf="@+id/toolbarBackground"
             app:layout_constraintBottom_toBottomOf="@id/toolbarBackground"
             app:layout_constraintStart_toStartOf="@id/toolbarBackground"
-            app:layout_constraintEnd_toStartOf="@id/confirmButton"
+            app:layout_constraintEnd_toStartOf="@id/newPlaylistButton"
             android:textColor="@android:color/white"
             android:gravity="center_vertical"
             android:textSize="@dimen/textLarge"

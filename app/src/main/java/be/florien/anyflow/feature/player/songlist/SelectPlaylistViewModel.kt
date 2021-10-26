@@ -16,6 +16,7 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
     val currentSelectionLive: LiveData<Set<SelectionItem>> = MutableLiveData(setOf())
 
     val values: LiveData<PagingData<SelectionItem>> = dataRepository.getPlaylists(::convert)
+    val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
     private fun convert(playlist: DbPlaylist) =
@@ -36,6 +37,16 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
                 dataRepository.addSongToPlaylist(songId, playlistId)
             }
             isFinished.mutable.value = true
+        }
+    }
+
+    fun getNewPlaylistName() {
+        isCreating.mutable.value = true
+    }
+
+    fun createPlaylist(name: String) {
+        viewModelScope.launch {
+            dataRepository.createPlaylist(name)
         }
     }
 

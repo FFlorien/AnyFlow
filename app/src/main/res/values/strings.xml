@@ -58,6 +58,7 @@
     <string name="info_option_track_next">Play this song next</string>
     <string name="info_option_next_title">Play next</string>
     <string name="info_option_add_to_playlist">Add to a playlist</string>
+    <string name="info_option_new_playlist">Playlist\'s name</string>
     <string name="info_option_add_to_playlist_detail">Select one or multiple playlists to add this song to</string>
     <string name="info_option_filter_on">Filter on %1$s</string>
     <string name="info_option_search_on">Search %1$s in current playing list</string>

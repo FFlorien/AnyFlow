@@ -151,6 +151,15 @@ class DataRepository
     }
 
     /**
+     * Create methods
+     */
+
+    suspend fun createPlaylist(name: String) {
+        ampacheConnection.createPlaylist(name)
+        updatePlaylistAsync()
+    }
+
+    /**
      * Orders
      */
 

@@ -78,6 +78,13 @@ interface AmpacheApi {
             : List<AmpacheSongId>
 
     @GET("server/json.server.php")
+    suspend fun createPlaylist(
+            @Query("action") action: String = "playlist_create",
+            @Query("auth") auth: String,
+            @Query("name") name: String,
+            @Query("type") type: String = "private")
+
+    @GET("server/json.server.php")
     suspend fun addToPlaylist(
             @Query("action") action: String = "playlist_add_song",
             @Query("filter") filter: Long,

@@ -1,10 +1,14 @@
 package be.florien.anyflow.feature.player.songlist
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -59,6 +63,22 @@ class SelectPlaylistFragment(private var songId: Long) : DialogFragment() {
         }
         viewModel.currentSelectionLive.observe(viewLifecycleOwner) {
             (fragmentBinding.filterList.adapter as FilterListAdapter).notifyDataSetChanged()
+        }
+        viewModel.isCreating.observe(viewLifecycleOwner) {
+            if (it) {
+                val editText = EditText(requireActivity())
+                editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
+                AlertDialog.Builder(requireActivity())
+                        .setView(editText)
+                        .setTitle(R.string.info_option_new_playlist)
+                        .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                            viewModel.createPlaylist(editText.text.toString())
+                        }
+                        .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+                            dialog.cancel()
+                        }
+                        .show()
+            }
         }
         viewModel.isFinished.observe(viewLifecycleOwner) {
             if (it) {
