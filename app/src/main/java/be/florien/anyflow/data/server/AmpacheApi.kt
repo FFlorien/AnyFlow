@@ -76,4 +76,12 @@ interface AmpacheApi {
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
             : List<AmpacheSongId>
+
+    @GET("server/json.server.php")
+    suspend fun addToPlaylist(
+            @Query("action") action: String = "playlist_add_song",
+            @Query("filter") filter: Long,
+            @Query("auth") auth: String,
+            @Query("song") songId: Long,
+            @Query("check") check: Int = 1)
 }

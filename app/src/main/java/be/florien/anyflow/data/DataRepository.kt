@@ -142,6 +142,15 @@ class DataRepository
             libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     /**
+     * Update methods
+     */
+
+    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
+        ampacheConnection.addSongToPlaylist(songId, playlistId)
+        libraryDatabase.addPlaylistSongs(listOf(DbPlaylistSongs(songId, playlistId)))
+    }
+
+    /**
      * Orders
      */
 

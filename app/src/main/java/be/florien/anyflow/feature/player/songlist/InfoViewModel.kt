@@ -25,6 +25,7 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
     val songRows: LiveData<List<SongRow>> = MutableLiveData(listOf())
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val songInfo: LiveData<SongInfo> = MutableLiveData()
+    val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
 
     private fun toggleExpansion(fieldType: FieldType) {
         val mutableList = (songRows.value as List<SongRow>).toMutableList()
@@ -48,6 +49,7 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
     private fun createOptions(fieldType: FieldType): List<SongRow> = when (fieldType) {
         FieldType.TITLE -> listOf(
                 SongRow(R.string.info_option_next_title, null, R.string.info_option_track_next, R.drawable.ic_add, ::playNext, fieldType, ActionType.ADD_NEXT),
+                SongRow(R.string.info_option_add_to_playlist, null, R.string.info_option_add_to_playlist_detail, R.drawable.ic_add_to_playlist, ::displayPlaylistList, fieldType, ActionType.ADD_NEXT),
                 SongRow(R.string.info_option_filter_title, songInfo.value?.title, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
                 SongRow(R.string.info_option_search_title, songInfo.value?.title, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
         )
@@ -74,6 +76,10 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
         viewModelScope.launch {
             orderComposer.changeSongPositionForNext(songId)
         }
+    }
+
+    private fun displayPlaylistList(fieldType: FieldType) {
+        isPlaylistListDisplayed.mutable.value = true
     }
 
     private fun filterOn(fieldType: FieldType) {

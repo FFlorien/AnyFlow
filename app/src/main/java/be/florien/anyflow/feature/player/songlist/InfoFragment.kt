@@ -64,6 +64,11 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
                 dismiss()
             }
         }
+        viewModel.isPlaylistListDisplayed.observe(viewLifecycleOwner) {
+            if (it) {
+                SelectPlaylistFragment(song.id).show(childFragmentManager, null)
+            }
+        }
     }
 
     class InfoAdapter : ListAdapter<InfoViewModel.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<InfoViewModel.SongRow>() {

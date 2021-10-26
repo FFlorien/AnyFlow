@@ -327,6 +327,10 @@ open class AmpacheConnection
         }
     }
 
+    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
+        ampacheApi.addToPlaylist(auth = authPersistence.authToken.secret, filter = playlistId, songId = songId)
+    }
+
     fun getSongUrl(url: String): String { //todo uri
         val ssidStart = url.indexOf("ssid=") + 5
         return url.replaceRange(

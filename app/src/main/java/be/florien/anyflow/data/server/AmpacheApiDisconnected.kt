@@ -30,4 +30,6 @@ class AmpacheApiDisconnected : AmpacheApi {
 
     override suspend fun getPlaylistSongs(action: String, filter: String, auth: String, limit: Int, offset: Int): List<AmpacheSongId> =
             throw NoServerException()
+
+    override suspend fun addToPlaylist(action: String, filter: Long, auth: String, songId: Long, check: Int) = throw NoServerException()
 }

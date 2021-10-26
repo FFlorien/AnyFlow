@@ -8,6 +8,7 @@ import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel
 import be.florien.anyflow.feature.player.filter.selection.*
 import be.florien.anyflow.feature.player.songlist.InfoViewModel
+import be.florien.anyflow.feature.player.songlist.SelectPlaylistViewModel
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import dagger.Binds
 import dagger.MapKey
@@ -72,6 +73,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(InfoViewModel::class)
     abstract fun bindsInfoFragmentVM(viewModel: InfoViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SelectPlaylistViewModel::class)
+    abstract fun bindsSelectPlaylistFragmentVM(viewModel: SelectPlaylistViewModel): ViewModel
 
     @Binds
     abstract fun bindsViewModelFactory(factory: AnyFlowViewModelFactory): ViewModelProvider.Factory
