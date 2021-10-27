@@ -24,5 +24,7 @@ class IdlePlayerController : PlayerController {
 
     override fun seekTo(duration: Long) {}
 
+    override fun download(url: String) {}
+
     override fun onDestroy() {}
 }

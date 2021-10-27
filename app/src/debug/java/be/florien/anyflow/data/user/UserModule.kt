@@ -7,6 +7,7 @@ import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.player.ExoPlayerController
 import be.florien.anyflow.player.PlayerController
 import be.florien.anyflow.player.PlayingQueue
+import com.google.android.exoplayer2.upstream.cache.Cache
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -20,7 +21,7 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun providePlayerController(context: Context, playingQueue: PlayingQueue, ampacheConnection: AmpacheConnection, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(playingQueue, ampacheConnection, context, okHttpClient)
+    fun providePlayerController(context: Context, playingQueue: PlayingQueue, ampacheConnection: AmpacheConnection, cache: Cache, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(playingQueue, ampacheConnection, context, cache, okHttpClient)
 
     @Provides
     @Named("Songs")

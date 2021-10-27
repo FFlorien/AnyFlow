@@ -10,16 +10,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.extension.iLog
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
+import com.google.android.exoplayer2.offline.DownloadHelper
+import com.google.android.exoplayer2.offline.DownloadService
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.HttpDataSource
+import com.google.android.exoplayer2.upstream.cache.Cache
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource
+import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
+import org.json.JSONObject
+import timber.log.Timber
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
@@ -29,6 +38,7 @@ class ExoPlayerController
         private var playingQueue: PlayingQueue,
         private var ampacheConnection: AmpacheConnection,
         private val context: Context,
+        cache: Cache,
         okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
 
@@ -68,6 +78,7 @@ class ExoPlayerController
         private const val MEDIA_ITEM_AFTER_CURRENT = 10
     }
 
+    private val dataSourceFactory: DataSource.Factory
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
     override val playTimeNotifier: LiveData<Long> = MutableLiveData()
 
@@ -94,11 +105,11 @@ class ExoPlayerController
      */
 
     init {
-        val dataSourceFactory = DefaultDataSourceFactory(
-                context,
-                DefaultBandwidthMeter.Builder(context).build(),
-                OkHttpDataSource.Factory(okHttpClient)
-        )
+        dataSourceFactory = CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
+                .setCacheWriteDataSinkFactory(null) // Disable writing.
+
         mediaPlayer = SimpleExoPlayer
                 .Builder(context, DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
                 .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
@@ -178,6 +189,10 @@ class ExoPlayerController
         mediaPlayer.seekTo(duration)
     }
 
+    override fun download(url: String) {
+        downloadMedia(urlToMediaItem(url))
+    }
+
     override fun onDestroy() {
         //todo
     }
@@ -242,4 +257,23 @@ class ExoPlayerController
      */
 
     private fun urlToMediaItem(url: String) = MediaItem.Builder().setUri(Uri.parse(ampacheConnection.getSongUrl(url))).setMediaId(url).build()
+
+    private fun downloadMedia(media: MediaItem) {
+        val helper = DownloadHelper.forMediaItem(context, media)
+        helper.prepare(object : DownloadHelper.Callback {
+            override fun onPrepared(helper: DownloadHelper) {
+                val json = JSONObject()
+                json.put("title", media.mediaMetadata.title)
+                json.put("artist", media.mediaMetadata.artist)
+                val download = helper.getDownloadRequest(media.mediaId, Util.getUtf8Bytes(json.toString()))
+                //sending the request to the download service
+                DownloadService.sendAddDownload(context, AmpacheDownloadService::class.java, download, true)
+            }
+
+            override fun onPrepareError(helper: DownloadHelper, e: IOException) {
+                Timber.e(e)
+            }
+        })
+
+    }
 }

@@ -1,5 +1,7 @@
 package be.florien.anyflow.feature.player.songlist
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +17,7 @@ import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
 import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.player.PlayerService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
@@ -69,6 +72,12 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
                 SelectPlaylistFragment(song.id).show(childFragmentManager, null)
             }
         }
+        requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().unbindService(viewModel.connection)
     }
 
     class InfoAdapter : ListAdapter<InfoViewModel.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<InfoViewModel.SongRow>() {

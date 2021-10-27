@@ -64,4 +64,6 @@
     <string name="info_option_search_on">Search %1$s in current playing list</string>
     <string name="info_option_filter_title">Filter</string>
     <string name="info_option_search_title">Search</string>
+    <string name="info_option_download">Download</string>
+    <string name="info_option_download_description">This song will be available for offline listening</string>
 </resources>

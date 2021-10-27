@@ -1,5 +1,8 @@
 package be.florien.anyflow.feature.player.songlist
 
+import android.content.ComponentName
+import android.content.ServiceConnection
+import android.os.IBinder
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
@@ -10,12 +13,13 @@ import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.player.FiltersManager
-import be.florien.anyflow.player.OrderComposer
+import be.florien.anyflow.player.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class InfoViewModel @Inject constructor(private val filtersManager: FiltersManager, private val orderComposer: OrderComposer, private val dataRepository: DataRepository) : BaseViewModel() {
+    internal var connection: PlayerConnection = PlayerConnection()
+    private var player: PlayerController = IdlePlayerController()
     var songId = 0L
         set(value) {
             field = value
@@ -51,7 +55,8 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
                 SongRow(R.string.info_option_next_title, null, R.string.info_option_track_next, R.drawable.ic_add, ::playNext, fieldType, ActionType.ADD_NEXT),
                 SongRow(R.string.info_option_add_to_playlist, null, R.string.info_option_add_to_playlist_detail, R.drawable.ic_add_to_playlist, ::displayPlaylistList, fieldType, ActionType.ADD_NEXT),
                 SongRow(R.string.info_option_filter_title, songInfo.value?.title, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
-                SongRow(R.string.info_option_search_title, songInfo.value?.title, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH)
+                SongRow(R.string.info_option_search_title, songInfo.value?.title, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH),
+                SongRow(R.string.info_option_download, null, R.string.info_option_download_description, android.R.drawable.stat_sys_download_done, ::download, fieldType, ActionType.DOWNLOAD)
         )
         FieldType.ARTIST -> listOf(
                 SongRow(R.string.info_option_filter_title, songInfo.value?.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
@@ -111,6 +116,14 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
         }
     }
 
+    private fun download(fieldType: FieldType) {
+        viewModelScope.launch {
+            dataRepository.getSongById(songId)?.url?.let {
+                player.download(it)
+            }
+        }
+    }
+
     private fun initSongInfo() {
         viewModelScope.launch {
             (songInfo as MutableLiveData).value = dataRepository.getSongById(songId) ?: throw IllegalArgumentException("No song for ID")
@@ -143,6 +156,16 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
     }
 
     enum class ActionType {
-        NONE, EXPAND, ADD_TO_FILTER, ADD_NEXT, SEARCH
+        NONE, EXPAND, ADD_TO_FILTER, ADD_NEXT, SEARCH, DOWNLOAD
+    }
+
+    inner class PlayerConnection : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            player = (service as PlayerService.LocalBinder).service
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            player = IdlePlayerController()
+        }
     }
 }

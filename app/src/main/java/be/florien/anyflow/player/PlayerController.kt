@@ -15,6 +15,7 @@ interface PlayerController {
     fun pause()
     fun resume()
     fun seekTo(duration: Long)
+    fun download(url: String)
     fun onDestroy()
 
     enum class State {

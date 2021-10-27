@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
+import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.data.server.AmpacheConnection
@@ -77,9 +78,11 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val playerChannel = getPlayerChannel()
             val updateChannel = getUpdateChannel()
+            val downloadChannel = getDownloadChannel()
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager?.createNotificationChannel(playerChannel)
             notificationManager?.createNotificationChannel(updateChannel)
+            notificationManager?.createNotificationChannel(downloadChannel)
         }
     }
 
@@ -99,6 +102,18 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(UpdateService.UPDATE_SESSION_NAME, "Update", NotificationManager.IMPORTANCE_DEFAULT)
             channel.description = "It update your music database"
+            return channel
+        } else {
+            throw UnsupportedOperationException("This method shouldn't be called from this api")
+        }
+    }
+
+    private fun getDownloadChannel(): NotificationChannel {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(AmpacheDownloadService.DOWNLOAD_CHANNEL, "Download", NotificationManager.IMPORTANCE_LOW)
+            channel.description = "Download music for offline listening"
+            channel.vibrationPattern = null
+            channel.enableVibration(false)
             return channel
         } else {
             throw UnsupportedOperationException("This method shouldn't be called from this api")

@@ -2,6 +2,7 @@ package be.florien.anyflow.injection
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.local.LibraryDatabase
@@ -9,6 +10,10 @@ import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import com.facebook.stetho.okhttp3.StethoInterceptor
+import com.google.android.exoplayer2.database.ExoDatabaseProvider
+import com.google.android.exoplayer2.upstream.cache.Cache
+import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
+import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -47,4 +52,15 @@ class ApplicationModule {
     @Singleton
     @Provides
     fun provideLibrary(context: Context): LibraryDatabase = LibraryDatabase.getInstance(context)
+
+    @Singleton
+    @Provides
+    fun provideCacheDataBaseProvider(context: Context): ExoDatabaseProvider = ExoDatabaseProvider(context)
+
+    @Singleton
+    @Provides
+    fun provideCache(context: Context, dbProvider: ExoDatabaseProvider): Cache = SimpleCache(
+            context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
+            NoOpCacheEvictor(),
+            dbProvider)
 }

@@ -64,4 +64,6 @@
     <string name="info_option_search_on">Rechercher %1$s dans la liste de lecture actuelle</string>
     <string name="info_option_filter_title">Filtrer</string>
     <string name="info_option_search_title">Rechercher</string>
+    <string name="info_option_download">Télécharger</string>
+    <string name="info_option_download_description">Cette chanson sera disponible pour une écoute hors-ligne</string>
 </resources>
