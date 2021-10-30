@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application
         android:allowBackup="true"
@@ -29,6 +30,8 @@
         </activity>
 
         <activity android:name=".feature.connect.ConnectActivity" />
+
+        <activity android:name=".feature.alarms.AlarmActivity" />
 
         <service android:name=".player.PlayerService">
             <intent-filter>

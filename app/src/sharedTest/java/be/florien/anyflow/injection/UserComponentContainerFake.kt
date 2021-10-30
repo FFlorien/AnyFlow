@@ -1,18 +1,15 @@
 package be.florien.anyflow.injection
 
 import be.florien.anyflow.UserComponentContainer
+import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.data.server.AmpacheServerFakeDispatcher
 import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.feature.player.PlayerActivity
-import be.florien.anyflow.feature.player.PlayerComponent
 import be.florien.anyflow.player.PlayerService
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
@@ -45,6 +42,10 @@ class UserComponentContainerFake : UserComponentContainer {
 
         override fun inject(pingService: PingService) {
             // Stub !
+        }
+
+        override fun inject(downloadService: AmpacheDownloadService) {
+            TODO("Not yet implemented")
         }
 
         override fun playerComponentBuilder(): PlayerComponent.Builder = PlayerComponentStub.Builder()

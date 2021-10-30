@@ -1,7 +1,10 @@
 package be.florien.anyflow.extension
 
 import android.widget.ImageView
+import android.widget.TimePicker
 import androidx.databinding.BindingAdapter
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import be.florien.anyflow.R
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
@@ -31,4 +34,22 @@ fun setImageResource(imageView: ImageView, resource: Int) {
     } else {
         imageView.setImageResource(resource)
     }
+}
+
+@BindingAdapter("time")
+fun TimePicker.setTimeBinding(time: Int) {
+    currentHour = time / 60
+    currentMinute = time % 60
+}
+
+@InverseBindingAdapter(attribute = "time")
+fun TimePicker.getHourBinding(): Int {
+    return currentHour * 60 + currentMinute
+}
+@BindingAdapter("app:timeAttrChanged")
+fun setListenersForHour(
+        view: TimePicker,
+        attrChange: InverseBindingListener
+) {
+    view.setOnTimeChangedListener { _, _, _ -> attrChange.onChange() }
 }

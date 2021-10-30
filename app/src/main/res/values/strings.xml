@@ -26,6 +26,7 @@
     <string name="filter_title_album_artist">Select album artists</string>
     <string name="filter_title_genre">Select genres</string>
     <string name="filter_title_saved">Saved filters</string>
+    <string name="menu_alarms">Alarms</string>
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
@@ -66,4 +67,17 @@
     <string name="info_option_search_title">Search</string>
     <string name="info_option_download">Download</string>
     <string name="info_option_download_description">This song will be available for offline listening</string>
+    <string name="alarm_repeat">Repeat</string>
+    <string name="weekday_monday">Monday</string>
+    <string name="weekday_tuesday">Tuesday</string>
+    <string name="weekday_wednesday">Wednesday</string>
+    <string name="weekday_thursday">Thursday</string>
+    <string name="weekday_friday">Friday</string>
+    <string name="weekday_saturday">Saturday</string>
+    <string name="weekday_sunday">Sunday</string>
+    <string name="alarm_add">Add alarm</string>
+    <string name="alarm_list">List of alarms</string>
+    <string name="alarm_permission">Permission</string>
+    <string name="alarm_permission_explanation">Before setting up an alarm, you should give anyflow the permission to wake your device</string>
+    <string name="alarm_give_permission">Give permission</string>
 </resources>

@@ -1,5 +1,6 @@
 package be.florien.anyflow.injection
 
+import android.app.AlarmManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Environment
@@ -9,6 +10,7 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
+import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
 import com.google.android.exoplayer2.upstream.cache.Cache
@@ -63,4 +65,10 @@ class ApplicationModule {
             context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
             NoOpCacheEvictor(),
             dbProvider)
+
+    @Provides
+    fun provideAlarmManager(context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    @Provides
+    fun provideAlarmsSynchronizer(alarmManager: AlarmManager): AlarmsSynchronizer = AlarmsSynchronizer(alarmManager)
 }

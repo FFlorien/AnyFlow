@@ -27,6 +27,7 @@
     <string name="filter_type_song">Chanson</string>
     <string name="filter_type_playlist">Liste de lecture</string>
     <string name="filter_type_search">Recherche</string>
+    <string name="menu_alarms">Alarmes</string>
     <string name="menu_filters">Filtres</string>
     <string name="menu_order_random">Aléatoire</string>
     <string name="menu_order_classic">Classique</string>
@@ -66,4 +67,17 @@
     <string name="info_option_search_title">Rechercher</string>
     <string name="info_option_download">Télécharger</string>
     <string name="info_option_download_description">Cette chanson sera disponible pour une écoute hors-ligne</string>
+    <string name="alarm_repeat">Répétition</string>
+    <string name="weekday_monday">Lundi</string>
+    <string name="weekday_tuesday">Mardi</string>
+    <string name="weekday_wednesday">Mercredi</string>
+    <string name="weekday_thursday">Jeudi</string>
+    <string name="weekday_friday">Vendredi</string>
+    <string name="weekday_saturday">Samedi</string>
+    <string name="weekday_sunday">Dimanche</string>
+    <string name="alarm_add">Ajouter une alarme</string>
+    <string name="alarm_list">Liste des alarmes</string>
+    <string name="alarm_permission">Permission</string>
+    <string name="alarm_permission_explanation">Avant de pouvoir définir une alarme, vous devez accorder la permission à AnyFlow auparavant</string>
+    <string name="alarm_give_permission">Accorder la permission</string>
 </resources>

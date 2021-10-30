@@ -3,6 +3,8 @@ package be.florien.anyflow.injection
 import android.app.Application
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.user.UserComponent
+import be.florien.anyflow.feature.alarms.AlarmViewModel
+import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.connect.ConnectViewModel
 import dagger.BindsInstance
 import dagger.Component
@@ -19,6 +21,9 @@ interface ApplicationComponent  {
     fun inject(anyFlowApp: AnyFlowApp)
 
     fun inject(connectViewModel: ConnectViewModel)
+
+    fun inject(viewModel: AlarmViewModel)
+    fun inject(viewModel: AddAlarmViewModel)
 
     fun userComponentBuilder(): UserComponent.Builder
 

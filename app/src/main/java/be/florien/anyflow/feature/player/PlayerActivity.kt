@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
@@ -23,6 +24,7 @@ import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
 import be.florien.anyflow.feature.menu.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
@@ -31,6 +33,7 @@ import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
+import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.player.PlayerService
 import javax.inject.Inject
@@ -93,6 +96,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.viewModel = viewModel
 
         initToolbar()
+        initDrawer()
         initMenus()
         initPingService()
 
@@ -192,10 +196,26 @@ class PlayerActivity : AppCompatActivity() {
     private fun initToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
             adaptToolbarToCurrentFragment()
         }
+    }
+
+    private fun initDrawer() {
+        val toggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.info_option_download_description, R.string.info_option_download) // todo strings
+        binding.drawerLayout.addDrawerListener(toggle)
+        binding.navigationView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.menu_alarm -> {
+                    startActivity(Intent(this@PlayerActivity, AlarmActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+        toggle.syncState()
     }
 
     private fun initMenus() {

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="be.florien.anyflow.feature.alarms.add.AddAlarmViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TimePicker
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:time="@={viewModel.time}" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/repeat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.isRepeating}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/alarm_repeat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/time" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/monday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.monday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_monday"
+            app:layout_constraintEnd_toStartOf="@+id/tuesday"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/repeat" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/tuesday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.tuesday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_tuesday"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/monday"
+            app:layout_constraintTop_toBottomOf="@+id/repeat" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/wednesday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.wednesday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_wednesday"
+            app:layout_constraintEnd_toStartOf="@+id/thursday"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tuesday" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/thursday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.thursday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_thursday"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/wednesday"
+            app:layout_constraintTop_toBottomOf="@+id/monday" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/friday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.friday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_friday"
+            app:layout_constraintEnd_toStartOf="@+id/saturday"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/thursday" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/saturday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.saturday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_saturday"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/friday"
+            app:layout_constraintTop_toBottomOf="@+id/thursday" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/sunday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.sunday}"
+            android:padding="@dimen/mediumDimen"
+            android:text="@string/weekday_sunday"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/saturday" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/weekDays"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.isRepeating ? View.VISIBLE : View.GONE}"
+            app:constraint_referenced_ids="monday,tuesday,wednesday,thursday,friday,saturday,sunday" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
