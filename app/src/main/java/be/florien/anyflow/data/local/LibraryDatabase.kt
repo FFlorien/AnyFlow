@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
-@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class], version = 5)
+@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class], version = 6)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -29,6 +29,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getFilterGroupDao(): FilterGroupDao
     protected abstract fun getOrderDao(): OrderDao
+    protected abstract fun getAlarmDao(): AlarmDao
     val changeUpdater: LiveData<Int?> = MutableLiveData()
 
     /**
@@ -79,6 +80,8 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all().distinctUntilChanged()
     fun getOrderList(): List<DbOrder> = getOrderDao().list()
+
+    fun getAlarms(): LiveData<DbAlarm> = getAlarmDao().all()
 
     /**
      * Getters from raw queries
@@ -153,6 +156,10 @@ abstract class LibraryDatabase : RoomDatabase() {
             queueOrder.add(DbQueueOrder(index, songId))
         }
         asyncUpdate(CHANGE_QUEUE) { getQueueOrderDao().setOrder(queueOrder) }
+    }
+
+    suspend fun addAlarm(alarm: DbAlarm) {
+        getAlarmDao().insertSingle(alarm)
     }
 
     /**
@@ -234,6 +241,12 @@ abstract class LibraryDatabase : RoomDatabase() {
                             object : Migration(4, 5) {
                                 override fun migrate(database: SupportSQLiteDatabase) {
                                     database.execSQL("ALTER TABLE DbFilter ADD COLUMN joinClause TEXT DEFAULT null")
+                                }
+
+                            },
+                            object : Migration(5,6) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("CREATE TABLE Alarm (id INTEGER NOT NULL, hour INTEGER NOT NULL, minute INTEGER NOT NULL, active INTEGER NOT NULL, monday INTEGER NOT NULL, tuesday INTEGER NOT NULL, wednesday INTEGER NOT NULL, thursday INTEGER NOT NULL, friday INTEGER NOT NULL, saturday INTEGER NOT NULL , sunday INTEGER NOT NULL , PRIMARY KEY(id))")
                                 }
 
                             })

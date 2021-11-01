@@ -130,6 +130,15 @@ fun DbOrder.toViewOrder(): Order {
     }
 }
 
+fun DbAlarm.toViewAlarm() = Alarm(
+        id = id,
+        hour = hour,
+        minute = minute,
+        isRepeating = monday || tuesday || wednesday || thursday || friday || saturday || sunday,
+        daysToTrigger = listOf(monday, tuesday, wednesday, thursday, friday, saturday, sunday),
+        active = active
+)
+
 /**
  * View to database
  */
@@ -178,6 +187,20 @@ fun Order.toDbOrder() = DbOrder(
         subject = subject,
         orderingType = ordering,
         orderingArgument = argument
+)
+
+fun Alarm.toDbAlarm() = DbAlarm(
+        id = id,
+        hour = hour,
+        minute = minute,
+        active = active,
+        monday = daysToTrigger[0],
+        tuesday = daysToTrigger[1],
+        wednesday = daysToTrigger[2],
+        thursday = daysToTrigger[3],
+        friday = daysToTrigger[4],
+        saturday = daysToTrigger[5],
+        sunday = daysToTrigger[6]
 )
 
 /**

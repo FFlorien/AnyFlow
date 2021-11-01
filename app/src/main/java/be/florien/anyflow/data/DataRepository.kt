@@ -7,6 +7,7 @@ import androidx.paging.*
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.view.Alarm
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Order
@@ -179,6 +180,14 @@ class DataRepository
 
     suspend fun saveQueueOrder(listToSave: MutableList<Long>) {
         libraryDatabase.saveQueueOrder(listToSave)
+    }
+
+    /**
+     * Alarms
+     */
+
+    suspend fun addAlarm(alarm: Alarm) {
+        libraryDatabase.addAlarm(alarm.toDbAlarm())
     }
 
     /**

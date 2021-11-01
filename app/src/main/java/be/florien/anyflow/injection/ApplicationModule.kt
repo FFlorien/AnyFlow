@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Environment
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.AnyFlowApp
+import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.AuthPersistence
@@ -70,5 +71,5 @@ class ApplicationModule {
     fun provideAlarmManager(context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @Provides
-    fun provideAlarmsSynchronizer(alarmManager: AlarmManager): AlarmsSynchronizer = AlarmsSynchronizer(alarmManager)
+    fun provideAlarmsSynchronizer(alarmManager: AlarmManager, dataRepository: DataRepository): AlarmsSynchronizer = AlarmsSynchronizer(alarmManager, dataRepository)
 }
