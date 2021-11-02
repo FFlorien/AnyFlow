@@ -24,9 +24,9 @@ class AddAlarmViewModel : BaseViewModel() {
     fun addAlarm() {
         viewModelScope.launch {
             when {
-                isRepeating.value != true -> alarmsSynchronizer.addSingleAlarm(time.value!! / 60, time.value!! % 60)
-                isEveryday() -> alarmsSynchronizer.addRepeatingAlarm(time.value!! / 60, time.value!! % 60)
-                else -> alarmsSynchronizer.addRepeatingAlarmForWeekDays(time.value!! / 60, time.value!! % 60, monday.value!!, tuesday.value!!, wednesday.value!!, thursday.value!!, friday.value!!, saturday.value!!, sunday.value!!)
+                isRepeating.value != true -> alarmsSynchronizer.addSingleAlarm((time.value ?: 0) / 60, (time.value ?: 0) % 60)
+                isEveryday() -> alarmsSynchronizer.addRepeatingAlarm((time.value ?: 0) / 60, (time.value ?: 0) % 60)
+                else -> alarmsSynchronizer.addRepeatingAlarmForWeekDays((time.value ?: 0) / 60, (time.value ?: 0) % 60, monday.value ?: false, tuesday.value ?: false, wednesday.value ?: false, thursday.value ?: false, friday.value ?: false, saturday.value ?: false, sunday.value ?: false)
             }
         }
     }

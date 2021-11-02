@@ -11,6 +11,7 @@ import be.florien.anyflow.databinding.ActivityAlarmsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.add.AddAlarmFragment
+import be.florien.anyflow.feature.alarms.list.AlarmListFragment
 import be.florien.anyflow.feature.menu.AddAlarmMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.MenuHolder

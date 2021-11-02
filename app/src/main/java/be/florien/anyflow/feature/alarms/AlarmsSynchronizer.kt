@@ -7,6 +7,9 @@ import javax.inject.Inject
 
 class AlarmsSynchronizer @Inject constructor(private val alarmManager: AlarmManager, private val dataRepository: DataRepository) {
     fun canScheduleExactAlarms() = true // Build.VERSION.SDK_INT >= 31 && alarmManager.canScheduleExactAlarms()
+
+    fun getAlarms() = dataRepository.getAlarms()
+
     suspend fun addSingleAlarm(hour: Int, minute: Int) {
         val newAlarm = Alarm(0, hour, minute, false, listOf(false, false, false, false, false, false, false), active = true)
         addAlarmToDb(newAlarm)
@@ -22,6 +25,13 @@ class AlarmsSynchronizer @Inject constructor(private val alarmManager: AlarmMana
         val newAlarm = Alarm(0, hour, minute, true, listOf(monday, tuesday, wednesday, thursday, friday, saturday, sunday), active = true)
         addAlarmToDb(newAlarm)
 
+    }
+    suspend fun toggleAlarm(alarm: Alarm) {
+        if (!alarm.active) {
+            dataRepository.activateAlarm(alarm)
+        } else {
+            dataRepository.deactivateAlarm(alarm)
+        }
     }
 
     private suspend fun addAlarmToDb(alarm: Alarm) {

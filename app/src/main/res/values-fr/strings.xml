@@ -75,9 +75,13 @@
     <string name="weekday_friday">Vendredi</string>
     <string name="weekday_saturday">Samedi</string>
     <string name="weekday_sunday">Dimanche</string>
+    <string name="weekday_everyday">Tous les jours</string>
     <string name="alarm_add">Ajouter une alarme</string>
     <string name="alarm_list">Liste des alarmes</string>
+    <string name="alarm_is_repeating">Se répète</string>
+    <string name="alarm_is_not_repeating">Un seule fois</string>
     <string name="alarm_permission">Permission</string>
     <string name="alarm_permission_explanation">Avant de pouvoir définir une alarme, vous devez accorder la permission à AnyFlow auparavant</string>
     <string name="alarm_give_permission">Accorder la permission</string>
+    <string name="alarm_active">Actif</string>
 </resources>

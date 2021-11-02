@@ -81,7 +81,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all().distinctUntilChanged()
     fun getOrderList(): List<DbOrder> = getOrderDao().list()
 
-    fun getAlarms(): LiveData<DbAlarm> = getAlarmDao().all()
+    fun getAlarms(): LiveData<List<DbAlarm>> = getAlarmDao().all()
 
     /**
      * Getters from raw queries
@@ -160,6 +160,10 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun addAlarm(alarm: DbAlarm) {
         getAlarmDao().insertSingle(alarm)
+    }
+
+    suspend fun updateAlarm(alarm: DbAlarm) {
+        getAlarmDao().update(alarm)
     }
 
     /**

@@ -190,6 +190,18 @@ class DataRepository
         libraryDatabase.addAlarm(alarm.toDbAlarm())
     }
 
+    fun getAlarms(): LiveData<List<Alarm>> = libraryDatabase.getAlarms().map { list -> list.map { it.toViewAlarm() } }
+
+    suspend fun activateAlarm(alarm: Alarm) {
+        val newAlarm = alarm.copy(active = true)
+        libraryDatabase.updateAlarm(newAlarm.toDbAlarm())
+    }
+
+    suspend fun deactivateAlarm(alarm: Alarm) {
+        val newAlarm = alarm.copy(active = false)
+        libraryDatabase.updateAlarm(newAlarm.toDbAlarm())
+    }
+
     /**
      * Filter groups
      */

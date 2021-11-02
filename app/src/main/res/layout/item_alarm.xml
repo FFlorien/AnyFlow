@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="be.florien.anyflow.R" />
+
+        <variable
+            name="alarm"
+            type="be.florien.anyflow.data.view.Alarm" />
+
+        <variable
+            name="viewModel"
+            type="be.florien.anyflow.feature.alarms.list.AlarmListViewModel" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/songInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/cardview_light_background"
+        android:orientation="horizontal"
+        android:padding="@dimen/listItemPadding">
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:text="@{viewModel.timeText(alarm)}"
+            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/repeat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:text="@{alarm.repeating ? R.string.alarm_is_repeating : R.string.alarm_is_not_repeating}"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/time" />
+
+        <TextView
+            android:id="@+id/weekDays"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/repeat" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/active"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_corner_radius"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:checked="@{alarm.active}"
+            android:text="@string/alarm_active"
+            android:textColor="@color/onPrimaryText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

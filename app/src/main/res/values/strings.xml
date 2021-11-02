@@ -75,9 +75,13 @@
     <string name="weekday_friday">Friday</string>
     <string name="weekday_saturday">Saturday</string>
     <string name="weekday_sunday">Sunday</string>
+    <string name="weekday_everyday">Everyday</string>
     <string name="alarm_add">Add alarm</string>
     <string name="alarm_list">List of alarms</string>
+    <string name="alarm_is_repeating">Is repeating</string>
+    <string name="alarm_is_not_repeating">One time</string>
     <string name="alarm_permission">Permission</string>
     <string name="alarm_permission_explanation">Before setting up an alarm, you should give anyflow the permission to wake your device</string>
     <string name="alarm_give_permission">Give permission</string>
+    <string name="alarm_active">Active</string>
 </resources>
