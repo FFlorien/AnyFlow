@@ -6,6 +6,7 @@ import android.os.IBinder
 import androidx.lifecycle.*
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
 import be.florien.anyflow.feature.customView.PlayerControls
 import be.florien.anyflow.player.*
@@ -22,6 +23,7 @@ class PlayerViewModel
 constructor(
         private val playingQueue: PlayingQueue,
         private val orderComposer: OrderComposer,
+        private val alarmsSynchronizer: AlarmsSynchronizer,
         val connectionStatus: LiveData<AmpacheConnection.ConnectionStatus>,
         @Named("Songs")
         val songsUpdatePercentage: LiveData<Int>,
@@ -106,6 +108,12 @@ constructor(
     fun classicOrder() {
         viewModelScope.launch {
             orderComposer.order()
+        }
+    }
+
+    fun syncAlarms() {
+        viewModelScope.launch {
+            alarmsSynchronizer.syncAlarms()
         }
     }
 

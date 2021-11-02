@@ -1,10 +1,8 @@
 package be.florien.anyflow.feature.alarms.add
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AddAlarmViewModel : BaseViewModel() {
@@ -21,13 +19,12 @@ class AddAlarmViewModel : BaseViewModel() {
     @Inject
     lateinit var alarmsSynchronizer: AlarmsSynchronizer
 
-    fun addAlarm() {
-        viewModelScope.launch {
-            when {
-                isRepeating.value != true -> alarmsSynchronizer.addSingleAlarm((time.value ?: 0) / 60, (time.value ?: 0) % 60)
-                isEveryday() -> alarmsSynchronizer.addRepeatingAlarm((time.value ?: 0) / 60, (time.value ?: 0) % 60)
-                else -> alarmsSynchronizer.addRepeatingAlarmForWeekDays((time.value ?: 0) / 60, (time.value ?: 0) % 60, monday.value ?: false, tuesday.value ?: false, wednesday.value ?: false, thursday.value ?: false, friday.value ?: false, saturday.value ?: false, sunday.value ?: false)
-            }
+    suspend fun addAlarm() {
+        when {
+            isRepeating.value != true -> alarmsSynchronizer.addSingleAlarm((time.value ?: 0) / 60, (time.value ?: 0) % 60)
+            isEveryday() -> alarmsSynchronizer.addRepeatingAlarm((time.value ?: 0) / 60, (time.value ?: 0) % 60)
+            else -> alarmsSynchronizer.addRepeatingAlarmForWeekDays((time.value ?: 0) / 60, (time.value ?: 0) % 60, monday.value ?: false, tuesday.value ?: false, wednesday.value ?: false, thursday.value ?: false, friday.value
+                    ?: false, saturday.value ?: false, sunday.value ?: false)
         }
     }
 

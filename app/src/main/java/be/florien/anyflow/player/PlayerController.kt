@@ -11,6 +11,7 @@ interface PlayerController {
 
     fun isPlaying(): Boolean
     fun play()
+    fun playForAlarm()
     fun stop()
     fun pause()
     fun resume()

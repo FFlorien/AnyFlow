@@ -1,8 +1,12 @@
 package be.florien.anyflow.injection
 
 import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.media.AudioManager
+import android.os.Build
 import android.os.Environment
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.AnyFlowApp
@@ -11,7 +15,9 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
+import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
+import be.florien.anyflow.player.PlayerService
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
 import com.google.android.exoplayer2.upstream.cache.Cache
@@ -20,6 +26,7 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -71,5 +78,27 @@ class ApplicationModule {
     fun provideAlarmManager(context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @Provides
-    fun provideAlarmsSynchronizer(alarmManager: AlarmManager, dataRepository: DataRepository): AlarmsSynchronizer = AlarmsSynchronizer(alarmManager, dataRepository)
+    @Named("player")
+    fun providePlayerPendingIntent(context: Context): PendingIntent {
+        val intent = Intent(context, PlayerService::class.java)
+        intent.action = "ALARM"
+        if (Build.VERSION.SDK_INT >= 26) {
+            return PendingIntent.getForegroundService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    @Provides
+    @Named("alarm")
+    fun provideAlarmPendingIntent(context: Context): PendingIntent {
+        val intent = Intent(context, AlarmActivity::class.java)
+        return PendingIntent.getActivity(context, 0, intent, 0)
+    }
+
+    @Provides
+    fun provideAlarmsSynchronizer(alarmManager: AlarmManager, dataRepository: DataRepository, @Named("player") playerIntent: PendingIntent, @Named("alarm") alarmIntent: PendingIntent): AlarmsSynchronizer = AlarmsSynchronizer(alarmManager, dataRepository, alarmIntent, playerIntent)
+
+    @Provides
+    fun provideAudioManager(context: Context) = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
 }

@@ -186,11 +186,10 @@ class DataRepository
      * Alarms
      */
 
-    suspend fun addAlarm(alarm: Alarm) {
-        libraryDatabase.addAlarm(alarm.toDbAlarm())
-    }
+    suspend fun addAlarm(alarm: Alarm) = libraryDatabase.addAlarm(alarm.toDbAlarm())
 
     fun getAlarms(): LiveData<List<Alarm>> = libraryDatabase.getAlarms().map { list -> list.map { it.toViewAlarm() } }
+    suspend fun getAlarmList(): List<Alarm> = libraryDatabase.getAlarmList().map { it.toViewAlarm() }
 
     suspend fun activateAlarm(alarm: Alarm) {
         val newAlarm = alarm.copy(active = true)

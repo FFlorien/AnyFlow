@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.extension.iLog
+import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
@@ -37,6 +38,8 @@ class ExoPlayerController
 @Inject constructor(
         private var playingQueue: PlayingQueue,
         private var ampacheConnection: AmpacheConnection,
+        private var audioManager: AudioManager,
+        private val alarmsSynchronizer: AlarmsSynchronizer,
         private val context: Context,
         cache: Cache,
         okHttpClient: OkHttpClient
@@ -161,6 +164,16 @@ class ExoPlayerController
 
     override fun play() {
         lastDuration = NO_VALUE
+        resume()
+    }
+
+    override fun playForAlarm() {
+        GlobalScope.launch(Dispatchers.Default) {
+            alarmsSynchronizer.syncAlarms()
+        }
+        lastDuration = NO_VALUE
+        val streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamMaxVolume.div(3), 0)
         resume()
     }
 

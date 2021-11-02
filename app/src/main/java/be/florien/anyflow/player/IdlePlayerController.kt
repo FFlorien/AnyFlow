@@ -16,6 +16,8 @@ class IdlePlayerController : PlayerController {
 
     override fun play() {}
 
+    override fun playForAlarm() {}
+
     override fun stop() {}
 
     override fun pause() {}

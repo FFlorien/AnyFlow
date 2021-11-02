@@ -9,4 +9,6 @@ import be.florien.anyflow.data.local.model.DbAlarm
 interface AlarmDao : BaseDao<DbAlarm> {
     @Query("SELECT * FROM alarm")
     fun all(): LiveData<List<DbAlarm>>
+    @Query("SELECT * FROM alarm")
+    suspend fun list(): List<DbAlarm>
 }

@@ -110,6 +110,7 @@ class PlayerActivity : AppCompatActivity() {
                     }
                     .commit()
         }
+        viewModel.syncAlarms()
         viewModel.isOrdered.observe(this) {
             orderMenu.changeState(it)
         }

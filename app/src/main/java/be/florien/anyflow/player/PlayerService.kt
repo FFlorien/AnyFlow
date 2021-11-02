@@ -36,7 +36,7 @@ class PlayerService : LifecycleService() {
      */
 
     private val iBinder = LocalBinder()
-    private val pendingIntent: PendingIntent by lazy {
+    private val pendingIntent: PendingIntent by lazy { //todo inject ?
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@PlayerService, 0, intent, 0)
     }
@@ -110,6 +110,9 @@ class PlayerService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null && intent.action == "ALARM") {
+            playerController.playForAlarm()
+        }
         MediaButtonReceiver.handleIntent(mediaSession, intent)
         return super.onStartCommand(intent, flags, startId)
     }

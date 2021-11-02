@@ -84,6 +84,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getOrderList(): List<DbOrder> = getOrderDao().list()
 
     fun getAlarms(): LiveData<List<DbAlarm>> = getAlarmDao().all()
+    suspend fun getAlarmList(): List<DbAlarm> = getAlarmDao().list()
 
     /**
      * Getters from raw queries
@@ -160,9 +161,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         asyncUpdate(CHANGE_QUEUE) { getQueueOrderDao().setOrder(queueOrder) }
     }
 
-    suspend fun addAlarm(alarm: DbAlarm) {
-        getAlarmDao().insertSingle(alarm)
-    }
+    suspend fun addAlarm(alarm: DbAlarm) = getAlarmDao().insertSingle(alarm)
 
     suspend fun updateAlarm(alarm: DbAlarm) {
         getAlarmDao().update(alarm)
