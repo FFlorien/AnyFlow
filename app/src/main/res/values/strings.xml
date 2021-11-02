@@ -77,6 +77,7 @@
     <string name="weekday_sunday">Sunday</string>
     <string name="weekday_everyday">Everyday</string>
     <string name="alarm_add">Add alarm</string>
+    <string name="alarm_edit">Edit alarm</string>
     <string name="alarm_list">List of alarms</string>
     <string name="alarm_is_repeating">Is repeating</string>
     <string name="alarm_is_not_repeating">One time</string>

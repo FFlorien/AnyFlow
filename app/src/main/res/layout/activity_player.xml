@@ -31,7 +31,8 @@
                 android:layout_height="@dimen/xxLargeDimen"
                 android:background="@color/primary"
                 android:elevation="@dimen/mediumDimen"
-                android:theme="@style/ToolBarStyle" />
+                android:theme="@style/ToolBarStyle"
+                app:titleTextColor="@color/accent" />
 
             <LinearLayout
                 android:id="@+id/connectionStateView"

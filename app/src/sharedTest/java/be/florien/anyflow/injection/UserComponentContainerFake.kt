@@ -11,7 +11,7 @@ import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.player.PlayerService
 import okhttp3.mockwebserver.MockWebServer
 import retrofit2.Retrofit
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import retrofit2.converter.jackson.JacksonConverterFactory
 
 class UserComponentContainerFake : UserComponentContainer {
     override var userComponent: UserComponent?
@@ -25,7 +25,7 @@ class UserComponentContainerFake : UserComponentContainer {
         mockWebServer.dispatcher = dispatcher
         return Retrofit.Builder()
                 .baseUrl(mockWebServer.url("/"))
-                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create())
                 .build()
                 .create(AmpacheApi::
                 class.java)

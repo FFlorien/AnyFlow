@@ -70,10 +70,16 @@ class AlarmActivity : AppCompatActivity() {
 
     private fun initToolbar() {
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_up)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
             adaptToolbarToCurrentFragment()
+        }
+        binding.toolbar.setNavigationOnClickListener {
+            if (!supportFragmentManager.popBackStackImmediate()) {
+                finish()
+            }
         }
     }
 

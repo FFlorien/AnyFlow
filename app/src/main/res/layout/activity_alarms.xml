@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -19,7 +19,8 @@
             android:layout_height="@dimen/xxLargeDimen"
             android:background="@color/primary"
             android:elevation="@dimen/mediumDimen"
-            android:theme="@style/ToolBarStyle" />
+            android:theme="@style/ToolBarStyle"
+            app:titleTextColor="@color/accent" />
 
         <FrameLayout
             android:id="@+id/container"

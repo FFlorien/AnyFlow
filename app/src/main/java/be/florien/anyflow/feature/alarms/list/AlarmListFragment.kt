@@ -13,6 +13,7 @@ import be.florien.anyflow.databinding.FragmentAlarmListBinding
 import be.florien.anyflow.databinding.ItemAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.feature.alarms.edit.EditAlarmFragment
 
 class AlarmListFragment : BaseFragment() {
     private lateinit var binding: FragmentAlarmListBinding
@@ -67,6 +68,9 @@ class AlarmListFragment : BaseFragment() {
                 else -> repetitionText.joinToString(separator = ", ") { getString(it) }
             }
             binding.active.setOnCheckedChangeListener { _, isChecked -> viewModel.setAlarmActive(alarm, isChecked) }
+            binding.root.setOnClickListener {
+                requireActivity().supportFragmentManager.beginTransaction().replace(R.id.container, EditAlarmFragment(alarm)).addToBackStack(null).commit()
+            }
         }
 
     }

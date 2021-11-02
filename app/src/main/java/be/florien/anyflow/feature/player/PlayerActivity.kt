@@ -65,6 +65,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     lateinit var viewModel: PlayerViewModel
     private lateinit var binding: ActivityPlayerBinding
+    private lateinit var drawerToggle: ActionBarDrawerToggle
 
     private lateinit var filterMenu: FilterMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
@@ -195,7 +196,6 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun initToolbar() {
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
@@ -204,8 +204,8 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun initDrawer() {
-        val toggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.info_option_download_description, R.string.info_option_download) // todo strings
-        binding.drawerLayout.addDrawerListener(toggle)
+        drawerToggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.info_option_download_description, R.string.info_option_download) // todo strings
+        binding.drawerLayout.addDrawerListener(drawerToggle)
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.menu_alarm -> {
@@ -215,7 +215,11 @@ class PlayerActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        toggle.syncState()
+        drawerToggle.syncState()
+        drawerToggle.setHomeAsUpIndicator(R.drawable.ic_up)
+        drawerToggle.setToolbarNavigationClickListener {
+            supportFragmentManager.popBackStack()
+        }
     }
 
     private fun initMenus() {
@@ -264,9 +268,11 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun adaptToolbarToCurrentFragment() {
+        val isSongListVisible = isSongListVisible()
         (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
             supportActionBar?.title = it
         }
+        drawerToggle.isDrawerIndicatorEnabled = isSongListVisible
     }
 
     private fun isSongListVisible() =

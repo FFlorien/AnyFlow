@@ -38,4 +38,11 @@ class AlarmsSynchronizer @Inject constructor(private val alarmManager: AlarmMana
         dataRepository.addAlarm(alarm)
     }
 
+    suspend fun updateAlarm(alarm: Alarm) {
+        dataRepository.editAlarm(alarm)
+    }
+
+    suspend fun deleteAlarm(alarm: Alarm) {
+        dataRepository.deleteAlarm(alarm)
+    }
 }

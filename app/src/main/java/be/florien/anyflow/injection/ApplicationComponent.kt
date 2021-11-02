@@ -5,6 +5,7 @@ import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.feature.alarms.AlarmViewModel
 import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
+import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
 import be.florien.anyflow.feature.connect.ConnectViewModel
 import dagger.BindsInstance
@@ -17,7 +18,7 @@ import javax.inject.Singleton
  */
 @Singleton
 @Component(modules = [ApplicationModule::class, ApplicationWideModule::class])
-interface ApplicationComponent  {
+interface ApplicationComponent {
 
     fun inject(anyFlowApp: AnyFlowApp)
 
@@ -26,6 +27,7 @@ interface ApplicationComponent  {
     fun inject(viewModel: AlarmViewModel)
     fun inject(viewModel: AddAlarmViewModel)
     fun inject(viewModel: AlarmListViewModel)
+    fun inject(viewModel: EditAlarmViewModel)
 
     fun userComponentBuilder(): UserComponent.Builder
 

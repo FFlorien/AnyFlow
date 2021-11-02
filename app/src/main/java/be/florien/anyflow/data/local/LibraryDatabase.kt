@@ -1,7 +1,9 @@
 package be.florien.anyflow.data.local
 
 import android.content.Context
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.paging.DataSource
 import androidx.room.Database
 import androidx.room.Room
@@ -166,6 +168,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         getAlarmDao().update(alarm)
     }
 
+    suspend fun deleteAlarm(alarm: DbAlarm) {
+        getAlarmDao().delete(alarm)
+    }
+
     /**
      * Private methods
      */
@@ -248,7 +254,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                                 }
 
                             },
-                            object : Migration(5,6) {
+                            object : Migration(5, 6) {
                                 override fun migrate(database: SupportSQLiteDatabase) {
                                     database.execSQL("CREATE TABLE Alarm (id INTEGER NOT NULL, hour INTEGER NOT NULL, minute INTEGER NOT NULL, active INTEGER NOT NULL, monday INTEGER NOT NULL, tuesday INTEGER NOT NULL, wednesday INTEGER NOT NULL, thursday INTEGER NOT NULL, friday INTEGER NOT NULL, saturday INTEGER NOT NULL , sunday INTEGER NOT NULL , PRIMARY KEY(id))")
                                 }

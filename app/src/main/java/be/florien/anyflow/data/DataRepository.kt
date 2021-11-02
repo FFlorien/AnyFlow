@@ -202,6 +202,14 @@ class DataRepository
         libraryDatabase.updateAlarm(newAlarm.toDbAlarm())
     }
 
+    suspend fun editAlarm(alarm: Alarm) {
+        libraryDatabase.updateAlarm(alarm.toDbAlarm())
+    }
+
+    suspend fun deleteAlarm(alarm: Alarm) {
+        libraryDatabase.deleteAlarm(alarm.toDbAlarm())
+    }
+
     /**
      * Filter groups
      */
