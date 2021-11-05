@@ -24,7 +24,7 @@ class AmpacheSong {
     var year: Int = 0
     var bitrate: Int = 0
     var rate: Int = 0
-    var mode: String = ""
+    var mode: String? = ""
     var mime: String = ""
     var url: String = ""
     var size: Int = 0

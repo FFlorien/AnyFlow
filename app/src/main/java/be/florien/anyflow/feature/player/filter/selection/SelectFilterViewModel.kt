@@ -18,6 +18,7 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
     private var currentPagingData: LiveData<PagingData<FilterItem>>? = null
 
     abstract val itemDisplayType: Int
+    open val hasSearch = true
 
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")

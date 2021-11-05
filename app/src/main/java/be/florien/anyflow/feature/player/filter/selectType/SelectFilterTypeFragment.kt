@@ -33,7 +33,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
         viewModel = ViewModelProvider(requireActivity(), requireActivity().viewModelFactory).get(SelectFilterTypeViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentBinding = FragmentSelectFilterTypeBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel

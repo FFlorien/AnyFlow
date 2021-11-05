@@ -114,8 +114,9 @@ class PlayerActivity : AppCompatActivity() {
         viewModel.isOrdered.observe(this) {
             orderMenu.changeState(it)
         }
-        viewModel.connectionStatus.observe(this) {
-            when (it) {
+        viewModel.connectionStatus.observe(this) { status ->
+            when (status) {
+                AmpacheConnection.ConnectionStatus.WRONG_SERVER_URL,
                 AmpacheConnection.ConnectionStatus.WRONG_ID_PAIR -> {
                     startActivity(ConnectActivity::class)
                     finish()
@@ -143,6 +144,14 @@ class PlayerActivity : AppCompatActivity() {
         viewModel.artistsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_artists, it)
+                animateAppearance(binding.updatingStateView)
+            } else {
+                animateDisappearance(binding.updatingStateView)
+            }
+        }
+        viewModel.playlistsUpdatePercentage.observe(this) {
+            if (it in 0..100) {
+                binding.updatingText.text = getString(R.string.update_playlists, it)
                 animateAppearance(binding.updatingStateView)
             } else {
                 animateDisappearance(binding.updatingStateView)

@@ -30,7 +30,9 @@ constructor(
         @Named("Albums")
         val albumsUpdatePercentage: LiveData<Int>,
         @Named("Artists")
-        val artistsUpdatePercentage: LiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
+        val artistsUpdatePercentage: LiveData<Int>,
+        @Named("Playlists")
+        val playlistsUpdatePercentage: LiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
 
     internal val playerConnection: PlayerConnection = PlayerConnection()
     internal val updateConnection: UpdateConnection = UpdateConnection()

@@ -36,7 +36,7 @@ class PlayingQueue
         set(value) {
             field = value
             MainScope().launch {
-                (stateUpdater as MutableLiveData).value = PlayingQueueState(songUrlListUpdater.value ?: listOf(), value)
+                (stateUpdater as MutableLiveData).value = PlayingQueueState(songIdsListUpdater.value ?: listOf(), value)
                 positionUpdater.value = field
                 orderComposer.currentPosition = field
                 sharedPreferences.applyPutInt(POSITION_PREF, field)
@@ -55,7 +55,7 @@ class PlayingQueue
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
     val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
-    val songUrlListUpdater: LiveData<List<String>> = dataRepository.getUrlInQueueOrder()
+    private val songIdsListUpdater: LiveData<List<Long>> = dataRepository.getIdsInQueueOrder()
     val stateUpdater: LiveData<PlayingQueueState> = MutableLiveData()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
             .map { orderList ->
@@ -63,13 +63,13 @@ class PlayingQueue
             }
 
     init {
-        songUrlListUpdater.observeForever {
+        songIdsListUpdater.observeForever {
             queueSize = it.size
 
             val indexOf = if (currentSong.value == null) {
                 listPosition
             } else {
-                it.indexOf(currentSong.value?.url)
+                it.indexOf(currentSong.value?.id)
             }
             listPosition = if (indexOf >= 0) indexOf else 0
         }
@@ -78,5 +78,5 @@ class PlayingQueue
         }
     }
 
-    class PlayingQueueState(val urls: List<String>, val position: Int)
+    class PlayingQueueState(val ids: List<Long>, val position: Int)
 }

@@ -151,16 +151,21 @@ class DisplayFilterFragment : BaseFilterFragment() {
                 is Filter.AlbumArtistIs -> getString(R.string.filter_display_album_artist_is, filter.displayText)
                 is Filter.AlbumIs -> getString(R.string.filter_display_album_is, filter.displayText)
                 is Filter.PlaylistIs -> getString(R.string.filter_display_playlist_is, filter.displayText)
+                is Filter.DownloadedStatusIs -> getString(if (filter.argument) R.string.filter_display_is_downloaded else R.string.filter_display_is_not_downloaded)
             }
-            val valueStart = charSequence.lastIndexOf(filter.displayText)
-            val stylizedText = SpannableString(charSequence)
-            stylizedText.setSpan(
-                StyleSpan(android.graphics.Typeface.BOLD),
-                valueStart,
-                charSequence.length,
-                Spannable.SPAN_INCLUSIVE_INCLUSIVE
-            )
-            binding.filterName.text = stylizedText
+            if (filter.displayText.isNotBlank() && charSequence.contains(filter.displayText)) {
+                val valueStart = charSequence.lastIndexOf(filter.displayText)
+                val stylizedText = SpannableString(charSequence)
+                stylizedText.setSpan(
+                        StyleSpan(android.graphics.Typeface.BOLD),
+                        valueStart,
+                        charSequence.length,
+                        Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                )
+                binding.filterName.text = stylizedText
+            } else {
+                binding.filterName.text = charSequence
+            }
             binding.vm = viewModel
             binding.filter = filter
             binding.lifecycleOwner = viewLifecycleOwner
@@ -187,6 +192,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     is Filter.GenreIs -> setCompoundDrawableFromResources(R.drawable.ic_genre)
                     is Filter.AlbumIs -> setCompoundDrawableFromResources(R.drawable.ic_album)
                     is Filter.PlaylistIs -> setCompoundDrawableFromResources(R.drawable.ic_playlist)
+                    is Filter.DownloadedStatusIs -> setCompoundDrawableFromResources(R.drawable.ic_download)
                     is Filter.Search,
                     is Filter.TitleIs,
                     is Filter.TitleContain,

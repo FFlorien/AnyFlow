@@ -15,6 +15,8 @@
     <string name="filter_display_album_is">Album is\n%s</string>
     <string name="filter_display_title_contain">Song title contain\n%s</string>
     <string name="filter_display_playlist_is">Song is in playlist\n%s</string>
+    <string name="filter_display_is_downloaded">Song is downloaded</string>
+    <string name="filter_display_is_not_downloaded">Song is not downloaded</string>
     <string name="filter_title_main">Select filters</string>
     <string name="filter_type_genre">Genre</string>
     <string name="filter_type_album_artist">Album’s artist</string>
@@ -25,6 +27,9 @@
     <string name="filter_title_album">Select albums</string>
     <string name="filter_title_album_artist">Select album artists</string>
     <string name="filter_title_genre">Select genres</string>
+    <string name="filter_title_song">Select songs</string>
+    <string name="filter_title_playlist">Select playlists</string>
+    <string name="filter_title_downloaded">Select download status</string>
     <string name="filter_title_saved">Saved filters</string>
     <string name="menu_alarms">Alarms</string>
     <string name="menu_filters">Filters</string>
@@ -45,6 +50,7 @@
     <string name="update_songs">Updating songs: %02d %%</string>
     <string name="update_artists">Updating artists: %02d %%</string>
     <string name="update_albums">Updating albums: %02d %%</string>
+    <string name="update_playlists">Updating playlists: %02d %%</string>
     <string name="cancel">Cancel</string>
     <string name="filter_group_name">Filter group name</string>
     <string name="generic_select_all">Select all</string>
@@ -85,4 +91,6 @@
     <string name="alarm_permission_explanation">Before setting up an alarm, you should give anyflow the permission to wake your device</string>
     <string name="alarm_give_permission">Give permission</string>
     <string name="alarm_active">Active</string>
+    <string name="filter_is_downloaded">Downloaded</string>
+    <string name="filter_is_not_downloaded">Not downloaded</string>
 </resources>

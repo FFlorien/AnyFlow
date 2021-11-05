@@ -38,6 +38,10 @@ open class AmpacheConnection
         private const val OFFSET_PLAYLIST = "playlistOffset"
         private const val OFFSET_PLAYLIST_SONGS = "playlistSongOffset"
         private const val RECONNECT_LIMIT = 3
+        private const val COUNT_SONGS = "SONGS_COUNT"
+        private const val COUNT_ALBUMS = "ALBUMS_COUNT"
+        private const val COUNT_ARTIST = "ARTIST_COUNT"
+        private const val COUNT_PLAYLIST = "PLAYLIST_COUNT"
     }
 
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
@@ -61,9 +65,10 @@ open class AmpacheConnection
 
     val connectionStatusUpdater = MutableLiveData(ConnectionStatus.CONNEXION)
 
-    val songsPercentageUpdater = MutableLiveData(-1)
-    val artistsPercentageUpdater = MutableLiveData(-1)
-    val albumsPercentageUpdater = MutableLiveData(-1)
+    val songsPercentageUpdater = MutableLiveData(0)
+    val artistsPercentageUpdater = MutableLiveData(0)
+    val albumsPercentageUpdater = MutableLiveData(0)
+    val playlistsPercentageUpdater = MutableLiveData(0)
 
     /**
      * Ampache connection handling
@@ -102,11 +107,9 @@ open class AmpacheConnection
         val time = (TimeOperations.getCurrentDate().timeInMillis / 1000).toString()
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
-        val passwordEncoded =
-                binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
+        val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
         encoder.reset()
-        val auth =
-                binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
+        val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         try {
             val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
@@ -115,12 +118,15 @@ open class AmpacheConnection
                     connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
                     throw WrongIdentificationPairException(authentication.error.error_text)
                 }
-                0 -> authPersistence.saveConnectionInfo(
-                        user,
-                        password,
-                        authentication.auth,
-                        TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
-                )
+                0 -> {
+                    authPersistence.saveConnectionInfo(
+                            user,
+                            password,
+                            authentication.auth,
+                            TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
+                    )
+                    saveDbCount(authentication.songs, authentication.albums, authentication.artists, authentication.playlists)
+                }
             }
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
             return authentication
@@ -135,12 +141,17 @@ open class AmpacheConnection
     }
 
     suspend fun ping(authToken: String = authPersistence.authToken.secret): AmpachePing {
+        if (authToken.isBlank()) {
+            throw IllegalArgumentException("No token available !")
+        }
         try {
             connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
             val ping = ampacheApi.ping(auth = authToken)
             if (ping.session_expire.isEmpty()) {
                 return ping
             }
+
+            saveDbCount(ping.songs, ping.albums, ping.artists, ping.playlists)
             authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.session_expire).timeInMillis)
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
             return ping
@@ -172,10 +183,10 @@ open class AmpacheConnection
         reconnectByPing++
         val pingResponse = ping(authPersistence.authToken.secret)
         return if (pingResponse.error.code == 0) {
+            saveDbCount(pingResponse.songs, pingResponse.albums, pingResponse.artists, pingResponse.playlists)
             request()
         } else {
-            val authResponse =
-                    authenticate(authPersistence.user.secret, authPersistence.password.secret)
+            val authResponse = authenticate(authPersistence.user.secret, authPersistence.password.secret)
             if (authResponse.error.code == 0) {
                 request()
             } else {
@@ -186,12 +197,22 @@ open class AmpacheConnection
 
     private suspend fun <T> reconnectByUsernamePassword(request: suspend () -> T): T {
         reconnectByUserPassword++
-        val it = authenticate(authPersistence.user.secret, authPersistence.password.secret)
-        return if (it.error.code == 0) {
+        val authentication = authenticate(authPersistence.user.secret, authPersistence.password.secret)
+        return if (authentication.error.code == 0) {
+            saveDbCount(authentication.songs, authentication.albums, authentication.artists, authentication.playlists)
             request()
         } else {
             throw SessionExpiredException("Can't reconnect")
         }
+    }
+
+    private fun saveDbCount(songs: Int, albums: Int, artists: Int, playlists: Int) {
+        val edit = sharedPreferences.edit()
+        edit.putInt(COUNT_SONGS, songs)
+        edit.putInt(COUNT_ALBUMS, albums)
+        edit.putInt(COUNT_ARTIST, artists)
+        edit.putInt(COUNT_PLAYLIST, playlists)
+        edit.apply()
     }
 
     /**
@@ -206,13 +227,14 @@ open class AmpacheConnection
                     limit = itemLimit,
                     offset = songOffset
             )
+            val totalSongs = sharedPreferences.getInt(COUNT_SONGS, 1)
             return if (songList.isEmpty()) {
                 songsPercentageUpdater.postValue(-1)
                 sharedPreferences.edit().remove(OFFSET_SONG).apply()
                 null
             } else {
-//            val percentage = (songOffset * 100) / songList.total_count
-//            songsPercentageUpdater.postValue(percentage)
+                val percentage = (songOffset * 100) / totalSongs
+                songsPercentageUpdater.postValue(percentage)
                 songOffset += songList.size
                 sharedPreferences.applyPutLong(OFFSET_SONG, songOffset.toLong())
                 songList
@@ -231,14 +253,15 @@ open class AmpacheConnection
                     limit = itemLimit,
                     offset = artistOffset
             )
+            val totalArtists = sharedPreferences.getInt(COUNT_ARTIST, 1)
 
             return if (artistList.isEmpty()) {
                 artistsPercentageUpdater.postValue(-1)
                 sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                 null
             } else {
-//                val percentage = (artistOffset * 100) / artistList.size
-//                artistsPercentageUpdater.postValue(percentage)
+                val percentage = (artistOffset * 100) / totalArtists
+                artistsPercentageUpdater.postValue(percentage)
                 artistOffset += artistList.size
                 sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
                 artistList
@@ -257,13 +280,14 @@ open class AmpacheConnection
                     limit = itemLimit,
                     offset = albumOffset
             )
+            val totalAlbums = sharedPreferences.getInt(COUNT_ALBUMS, 1)
             return if (albumList.isEmpty()) {
                 albumsPercentageUpdater.postValue(-1)
                 sharedPreferences.edit().remove(OFFSET_ALBUM).apply()
                 null
             } else {
-//            val percentage = (albumOffset * 100) / albumList.total_count
-//            albumsPercentageUpdater.postValue(percentage)
+                val percentage = (albumOffset * 100) / totalAlbums
+                albumsPercentageUpdater.postValue(percentage)
                 albumOffset += albumList.size
                 sharedPreferences.applyPutLong(OFFSET_ALBUM, albumOffset.toLong())
                 albumList
@@ -271,6 +295,27 @@ open class AmpacheConnection
         } catch (ex: java.lang.Exception) {
             eLog(ex)
             throw ex
+        }
+    }
+
+    suspend fun getPlaylists(): List<AmpachePlayList>? {
+        val offset = playlistOffset
+        val playlistList = ampacheApi.getPlaylists(
+                auth = authPersistence.authToken.secret,
+                limit = itemLimit,
+                offset = offset
+        )
+        val totalPlaylists = sharedPreferences.getInt(COUNT_PLAYLIST, 1)
+        return if (playlistList.isEmpty()) {
+            playlistsPercentageUpdater.postValue(-1)
+            sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
+            null
+        } else {
+            val percentage = (playlistOffset * 100) / totalPlaylists
+            playlistsPercentageUpdater.postValue(percentage)
+            playlistOffset += playlistList.size
+            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, offset.toLong())
+            playlistList
         }
     }
 
@@ -288,23 +333,6 @@ open class AmpacheConnection
             tagOffset += tagList.size
             sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
             tagList
-        }
-    }
-
-    suspend fun getPlaylists(): List<AmpachePlayList>? {
-        val offset = playlistOffset
-        val playlistList = ampacheApi.getPlaylists(
-                auth = authPersistence.authToken.secret,
-                limit = itemLimit,
-                offset = offset
-        )
-        return if (playlistList.isEmpty()) {
-            sharedPreferences.edit().remove(OFFSET_PLAYLIST).apply()
-            null
-        } else {
-            playlistOffset += playlistList.size
-            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, offset.toLong())
-            playlistList
         }
     }
 
@@ -335,13 +363,10 @@ open class AmpacheConnection
         ampacheApi.addToPlaylist(auth = authPersistence.authToken.secret, filter = playlistId, songId = songId)
     }
 
-    fun getSongUrl(url: String): String { //todo uri
-        val ssidStart = url.indexOf("ssid=") + 5
-        return url.replaceRange(
-                ssidStart,
-                url.indexOf('&', ssidStart),
-                authPersistence.authToken.secret
-        )
+    fun getSongUrl(id: Long): String {
+        val serverUrl = authPersistence.serverUrl.secret
+        val token = authPersistence.authToken.secret
+        return "${serverUrl}play/index.php?ssid=$token&oid=$id"
     }
 
     private fun binToHex(data: ByteArray): String =

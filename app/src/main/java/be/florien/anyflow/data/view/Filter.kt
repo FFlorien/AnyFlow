@@ -18,6 +18,7 @@ sealed class Filter<T>(
             is SongIs -> song.id == argument
             is TitleContain -> song.title.contains(argument, ignoreCase = true)
             is PlaylistIs -> dataRepository.isPlaylistContainingSong(argument, song.id)
+            is DownloadedStatusIs -> dataRepository.hasDownloaded(song)
         }
     }
 
@@ -55,4 +56,10 @@ sealed class Filter<T>(
     class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
 
     class PlaylistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, null)
+
+    /**
+     * Boolean filters
+     */
+
+    class DownloadedStatusIs(argument: Boolean) : Filter<Boolean>(argument, argument.toString())
 }

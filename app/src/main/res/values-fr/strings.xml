@@ -17,10 +17,15 @@
     <string name="filter_display_album_is">L’album est %s</string>
     <string name="filter_display_title_contain">Le titre de la chanson contient %s</string>
     <string name="filter_display_playlist_is">La chanson est dans la liste de lecture %s</string>
+    <string name="filter_display_is_downloaded">La chanson est téléchargée</string>
+    <string name="filter_display_is_not_downloaded">La chanson n\'est pas téléchargée</string>
     <string name="filter_title_main">Selection de filtres</string>
     <string name="filter_title_album">Selection d’albums</string>
     <string name="filter_title_album_artist">Selection d’artistes de l’album</string>
     <string name="filter_title_genre">Selection de genres</string>
+    <string name="filter_title_song">Selection de chansons</string>
+    <string name="filter_title_playlist">Selection de listes de lecture</string>
+    <string name="filter_title_downloaded">Selection du statut de téléchargement</string>
     <string name="filter_type_genre">Genre</string>
     <string name="filter_type_album_artist">Artiste de l’album</string>
     <string name="filter_type_album">Album</string>
@@ -43,6 +48,7 @@
     <string name="update_songs">Mise à jour des chansons: %02d %%</string>
     <string name="update_artists">Mise à jour des artistes: %02d %%</string>
     <string name="update_albums">Mise à jour des albums: %02d %%</string>
+    <string name="update_playlists">Mise à jour des listes de lecture: %02d %%</string>
     <string name="cancel">Annuler</string>
     <string name="filter_title_saved">Filtres enregistrés</string>
     <string name="filter_group_name">Nom du groupe de filtres</string>
@@ -85,4 +91,6 @@
     <string name="alarm_permission_explanation">Avant de pouvoir définir une alarme, vous devez accorder la permission à AnyFlow auparavant</string>
     <string name="alarm_give_permission">Accorder la permission</string>
     <string name="alarm_active">Actif</string>
+    <string name="filter_is_downloaded">Téléchargé</string>
+    <string name="filter_is_not_downloaded">Non téléchargé</string>
 </resources>

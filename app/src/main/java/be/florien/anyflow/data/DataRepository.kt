@@ -7,11 +7,10 @@ import androidx.paging.*
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.data.view.Alarm
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.FilterGroup
-import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.applyPutLong
+import com.google.android.exoplayer2.offline.Download
+import com.google.android.exoplayer2.offline.DownloadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -27,7 +26,8 @@ class DataRepository
 @Inject constructor(
         private val libraryDatabase: LibraryDatabase,
         private val ampacheConnection: AmpacheConnection,
-        private val sharedPreferences: SharedPreferences
+        private val sharedPreferences: SharedPreferences,
+        private val downloadManager: DownloadManager
 ) {
 
     private fun lastAcceptableUpdate() = TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1)
@@ -55,7 +55,7 @@ class DataRepository
     fun getSongsInQueueOrder() =
             convertToPagingLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
 
-    fun getUrlInQueueOrder() = libraryDatabase.getUrlsInQueueOrder()
+    fun getIdsInQueueOrder() = libraryDatabase.getIdsInQueueOrder()
 
     fun searchSongs(filter: String) = libraryDatabase.searchSongs("%$filter%")
 
@@ -143,17 +143,13 @@ class DataRepository
             libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     /**
-     * Update methods
+     * Playlists modification
      */
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheConnection.addSongToPlaylist(songId, playlistId)
         libraryDatabase.addPlaylistSongs(listOf(DbPlaylistSongs(songId, playlistId)))
     }
-
-    /**
-     * Create methods
-     */
 
     suspend fun createPlaylist(name: String) {
         ampacheConnection.createPlaylist(name)
@@ -234,6 +230,13 @@ class DataRepository
             it.toDbFilter(1)
         })
     }
+
+    /**
+     * Download status
+     */
+
+    fun hasDownloaded(song: SongInfo): Boolean = downloadManager.downloadIndex.getDownload(song.url) != null
+
 
     /**
      * Private Method
@@ -379,6 +382,19 @@ class DataRepository
                 DbFilter.ALBUM_ARTIST_ID,
                 DbFilter.PLAYLIST_ID,
                 DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
+                DbFilter.DOWNLOAD_IN -> {
+                    val downloadedCursor = downloadManager.downloadIndex.getDownloads(Download.STATE_COMPLETED)
+                    downloadedCursor.moveToFirst()
+                    val downloadedList = mutableListOf<Download>()
+                    while (!downloadedCursor.isAfterLast) {
+                        downloadedList.add(downloadedCursor.download)
+                        downloadedCursor.moveToNext()
+                    }
+                    downloadedCursor.close()
+
+                    val downloadedUrls = downloadedList.map { it.request.id }.joinToString { "\'$it\'" }
+                    " ${filter.clause} ($downloadedUrls)"
+                }
                 else -> " ${filter.clause} \"${filter.argument}\""
             }
             if (index < filterList.size - 1) {

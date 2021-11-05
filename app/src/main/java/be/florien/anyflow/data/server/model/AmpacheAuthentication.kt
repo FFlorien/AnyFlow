@@ -11,6 +11,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 class AmpacheAuthentication {
     var session_expire: String = ""
     var auth: String = ""
+    var songs: Int = 0
+    var albums: Int = 0
+    var artists: Int = 0
+    var playlists: Int = 0
     var error: AmpacheError = AmpacheError()
 }
 
@@ -21,6 +25,10 @@ class AmpachePing {
     var server: String = ""
     var version: String = ""
     var compatible: String = ""
+    var songs: Int = 0
+    var albums: Int = 0
+    var artists: Int = 0
+    var playlists: Int = 0
     var error: AmpacheError = AmpacheError()
 }
 

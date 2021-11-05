@@ -20,12 +20,15 @@ import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.player.PlayerService
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
+import com.google.android.exoplayer2.offline.DownloadManager
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
+import java.util.concurrent.Executor
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -73,6 +76,19 @@ class ApplicationModule {
             context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
             NoOpCacheEvictor(),
             dbProvider)
+
+    @Singleton
+    @Provides
+    fun provideDownloadManager(context: Context, databaseProvider: ExoDatabaseProvider, cache: Cache): DownloadManager {
+        val dataSourceFactory = DefaultHttpDataSource.Factory()
+        val downloadExecutor = Executor { obj: Runnable -> obj.run() }
+        return DownloadManager(
+                context,
+                databaseProvider,
+                cache,
+                dataSourceFactory,
+                downloadExecutor)
+    }
 
     @Provides
     fun provideAlarmManager(context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

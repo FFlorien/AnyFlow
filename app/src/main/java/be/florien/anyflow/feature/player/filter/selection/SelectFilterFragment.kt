@@ -23,7 +23,9 @@ import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ARTIST_ID
+import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.DOWNLOAD_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.GENRE_ID
+import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.PLAYLIST_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.SONG_ID
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
@@ -49,6 +51,9 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         ALBUM_ID -> getString(R.string.filter_title_album)
         ARTIST_ID -> getString(R.string.filter_title_album_artist)
         GENRE_ID -> getString(R.string.filter_title_genre)
+        SONG_ID -> getString(R.string.filter_title_song)
+        PLAYLIST_ID -> getString(R.string.filter_title_song)
+        DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
         else -> getString(R.string.filter_title_main)
     }
 
@@ -65,10 +70,11 @@ constructor(private var filterType: String) : BaseFilterFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        menuCoordinator.addMenuHolder(SearchMenuHolder {
+        val menuHolder = SearchMenuHolder {
             val currentValue = viewModel.isSearching.value ?: false
             viewModel.isSearching.value = !currentValue
-        })
+        }
+        menuCoordinator.addMenuHolder(menuHolder)
         viewModel.isSearching.observe(this) {
             val imm: InputMethodManager? = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             if (it) {
@@ -80,6 +86,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
                 imm?.hideSoftInputFromWindow(fragmentBinding.root.windowToken, 0)
             }
         }
+        menuHolder.isVisible = viewModel.hasSearch
     }
 
     override fun onAttach(context: Context) {
@@ -90,6 +97,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
                     ARTIST_ID -> SelectFilterArtistViewModel::class.java
                     GENRE_ID -> SelectFilterGenreViewModel::class.java
                     SONG_ID -> SelectFilterSongViewModel::class.java
+                    DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
                     else -> SelectFilterPlaylistViewModel::class.java
                 }
         )

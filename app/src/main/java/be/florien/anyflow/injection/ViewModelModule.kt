@@ -61,6 +61,11 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
+    @ViewModelKey(SelectFilterDownloadedViewModel::class)
+    abstract fun bindsSelectFilterFragmentDownloadedVM(viewModel: SelectFilterDownloadedViewModel): ViewModel
+
+    @Binds
+    @IntoMap
     @ViewModelKey(SavedFilterGroupViewModel::class)
     abstract fun bindsSavedFilterGroupVM(viewModel: SavedFilterGroupViewModel): ViewModel
 

@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.player.filter.selection
 
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager

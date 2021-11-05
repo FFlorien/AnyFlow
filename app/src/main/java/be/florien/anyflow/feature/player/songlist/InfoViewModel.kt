@@ -56,7 +56,7 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
                 SongRow(R.string.info_option_add_to_playlist, null, R.string.info_option_add_to_playlist_detail, R.drawable.ic_add_to_playlist, ::displayPlaylistList, fieldType, ActionType.ADD_NEXT),
                 SongRow(R.string.info_option_filter_title, songInfo.value?.title, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
                 SongRow(R.string.info_option_search_title, songInfo.value?.title, R.string.info_option_search_on, R.drawable.ic_search, ::closeAndSearch, fieldType, ActionType.SEARCH),
-                SongRow(R.string.info_option_download, null, R.string.info_option_download_description, android.R.drawable.stat_sys_download_done, ::download, fieldType, ActionType.DOWNLOAD)
+                SongRow(R.string.info_option_download, null, R.string.info_option_download_description, R.drawable.ic_download, ::download, fieldType, ActionType.DOWNLOAD)
         )
         FieldType.ARTIST -> listOf(
                 SongRow(R.string.info_option_filter_title, songInfo.value?.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, ::filterOn, fieldType, ActionType.ADD_TO_FILTER),
@@ -118,9 +118,7 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
 
     private fun download(fieldType: FieldType) {
         viewModelScope.launch {
-            dataRepository.getSongById(songId)?.url?.let {
-                player.download(it)
-            }
+            player.download(songId)
         }
     }
 
@@ -139,13 +137,13 @@ class InfoViewModel @Inject constructor(private val filtersManager: FiltersManag
         }
         (songRows as MutableLiveData).value = listOf(
                 SongRow(R.string.info_title, value.title, null, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.TITLE, ActionType.EXPAND),
-                SongRow(R.string.info_duration, value.timeText, null, 0, null, FieldType.DURATION, ActionType.NONE),
                 SongRow(R.string.info_artist, value.artistName, null, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.ARTIST, ActionType.EXPAND),
                 SongRow(R.string.info_track, value.track.toString(), null, 0, null, FieldType.TRACK, ActionType.NONE),
                 SongRow(R.string.info_album, value.albumName, null, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.ALBUM, ActionType.EXPAND),
-                SongRow(R.string.info_year, value.year.toString(), null, 0, null, FieldType.YEAR, ActionType.NONE),
                 SongRow(R.string.info_album_artist, value.albumArtistName, null, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.ALBUM_ARTIST, ActionType.EXPAND),
-                SongRow(R.string.info_genre, value.genre, null, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.GENRE, ActionType.EXPAND)
+                SongRow(R.string.info_genre, value.genre, null, R.drawable.ic_next_occurence, ::toggleExpansion, FieldType.GENRE, ActionType.EXPAND),
+                SongRow(R.string.info_duration, value.timeText, null, 0, null, FieldType.DURATION, ActionType.NONE),
+                SongRow(R.string.info_year, value.year.toString(), null, 0, null, FieldType.YEAR, ActionType.NONE)
         )
     }
 

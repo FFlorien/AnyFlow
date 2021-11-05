@@ -34,7 +34,7 @@ fun AmpacheSong.toDbSong() = DbSong(
         rating = rating,
         averagerating = averagerating,
         composer = composer,
-        genre = genre.map { it.name }.joinToString(","))
+        genre = genre.joinToString(",") { it.name })
 
 fun AmpacheArtist.toDbArtist() = DbArtist(
         id = id,
@@ -113,6 +113,7 @@ fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText, displayImage)
     DbFilter.ALBUM_ID -> Filter.AlbumIs(argument.toLong(), displayText, displayImage)
     DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText)
+    DbFilter.DOWNLOAD_IN -> Filter.DownloadedStatusIs(argument.toBoolean())
     else -> Filter.TitleIs("")
 }
 
@@ -166,6 +167,7 @@ fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
             is Filter.AlbumArtistIs -> DbFilter.ALBUM_ARTIST_ID
             is Filter.AlbumIs -> DbFilter.ALBUM_ID
             is Filter.PlaylistIs -> DbFilter.PLAYLIST_ID
+            is Filter.DownloadedStatusIs -> DbFilter.DOWNLOAD_IN
         },
         joinClause = when (this) {
             is Filter.PlaylistIs -> DbFilter.PLAYLIST_ID_JOIN

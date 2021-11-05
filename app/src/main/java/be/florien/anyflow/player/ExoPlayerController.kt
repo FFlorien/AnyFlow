@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
@@ -38,6 +40,7 @@ class ExoPlayerController
 @Inject constructor(
         private var playingQueue: PlayingQueue,
         private var ampacheConnection: AmpacheConnection,
+        private var filtersManager: FiltersManager,
         private var audioManager: AudioManager,
         private val alarmsSynchronizer: AlarmsSynchronizer,
         private val context: Context,
@@ -49,15 +52,15 @@ class ExoPlayerController
         override fun onInserted(position: Int, count: Int) {
             when {
                 count == mediaPlayer.mediaItemCount -> {
-                    mediaPlayer.addMediaItems(urlList.map { urlToMediaItem(it) })
+                    mediaPlayer.addMediaItems(idList.map { idToMediaItem(it) })
                 }
                 position == mediaPlayer.mediaItemCount -> {
-                    mediaPlayer.addMediaItems(urlList.takeLast(count).map { urlToMediaItem(it) })
+                    mediaPlayer.addMediaItems(idList.takeLast(count).map { idToMediaItem(it) })
                 }
                 position == 0 -> {
-                    mediaPlayer.addMediaItems(0, urlList.subList(0, count).map { urlToMediaItem(it) })
+                    mediaPlayer.addMediaItems(0, idList.subList(0, count).map { idToMediaItem(it) })
                 }
-                else -> mediaPlayer.addMediaItems(position, urlList.subList(position, position + count).map { urlToMediaItem(it) })
+                else -> mediaPlayer.addMediaItems(position, idList.subList(position, position + count).map { idToMediaItem(it) })
             }
         }
 
@@ -88,7 +91,7 @@ class ExoPlayerController
     private val mediaPlayer: ExoPlayer
     private var lastPosition: Int = 0
     private var lastDuration: Long = NO_VALUE
-    private var urlList: List<String> = listOf()
+    private var idList: List<Long> = listOf()
     private var offset: Int = 0
 
     private var isReceiverRegistered: Boolean = false
@@ -122,31 +125,33 @@ class ExoPlayerController
                     //todo apply experimentalSetOffloadSchedulingEnabled(true) when in background
                 }
         playingQueue.stateUpdater.observeForever { state ->
-            val currentUrl = urlList.getOrNull(lastPosition - offset)
+            val currentId = idList.getOrNull(lastPosition - offset)
             val nextOffset = max(state.position - MEDIA_ITEM_BEFORE_CURRENT, 0)
-            val nextUrlList = state.urls.subList(nextOffset, min(state.position + MEDIA_ITEM_AFTER_CURRENT, state.urls.size))
+            val nextIdList = state.ids.subList(nextOffset, min(state.position + MEDIA_ITEM_AFTER_CURRENT, state.ids.size))
             val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize() = urlList.size
+                override fun getOldListSize() = idList.size
 
-                override fun getNewListSize(): Int = nextUrlList.size
+                override fun getNewListSize(): Int = nextIdList.size
 
                 override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                        urlList[oldItemPosition] == nextUrlList[newItemPosition]
+                        idList[oldItemPosition] == nextIdList[newItemPosition]
 
                 override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = areItemsTheSame(oldItemPosition, newItemPosition)
 
             })
-            urlList = nextUrlList
+            idList = nextIdList
             offset = nextOffset
             lastPosition = state.position
-            val nextUrl = nextUrlList[state.position - nextOffset]
             diffResult.dispatchUpdatesTo(UrlUpdateCallback())
-            prepare()
-            if (mediaPlayer.currentMediaItem?.mediaId == nextUrl) {
-                return@observeForever
+            if (nextIdList.isNotEmpty()) { //todo UI Handling of this
+                prepare()
+                val nextId = nextIdList[state.position - nextOffset]
+                if (mediaPlayer.currentMediaItem?.mediaId == nextId.toString()) {
+                    return@observeForever
+                }
+                val timeToSeekTo = if (currentId == nextId) C.TIME_UNSET else 0
+                mediaPlayer.seekTo(state.position - offset, timeToSeekTo)
             }
-            val timeToSeekTo = if (currentUrl == nextUrl) C.TIME_UNSET else 0
-            mediaPlayer.seekTo(state.position - offset, timeToSeekTo)
         }
         GlobalScope.launch(Dispatchers.Default) {
             while (true) {
@@ -171,10 +176,19 @@ class ExoPlayerController
         GlobalScope.launch(Dispatchers.Default) {
             alarmsSynchronizer.syncAlarms()
         }
-        lastDuration = NO_VALUE
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
+            filtersManager.clearFilters()
+            filtersManager.addFilter(Filter.DownloadedStatusIs(true))
+            GlobalScope.launch(Dispatchers.Default) {
+                filtersManager.commitChanges()
+            }
+        }
         val streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamMaxVolume.div(3), 0)
-        resume()
+        prepare()
+        play()
     }
 
     private fun prepare() {
@@ -202,8 +216,8 @@ class ExoPlayerController
         mediaPlayer.seekTo(duration)
     }
 
-    override fun download(url: String) {
-        downloadMedia(urlToMediaItem(url))
+    override fun download(id: Long) {
+        downloadMedia(idToMediaItem(id))
     }
 
     override fun onDestroy() {
@@ -230,7 +244,7 @@ class ExoPlayerController
             GlobalScope.launch {
                 ampacheConnection.reconnect {
                     GlobalScope.launch(Dispatchers.Main) {
-                        mediaPlayer.setMediaItems(urlList.map { urlToMediaItem(it) })
+                        mediaPlayer.setMediaItems(idList.map { idToMediaItem(it) })
                     }
                     prepare()
                 }
@@ -269,7 +283,10 @@ class ExoPlayerController
      * PRIVATE METHODS
      */
 
-    private fun urlToMediaItem(url: String) = MediaItem.Builder().setUri(Uri.parse(ampacheConnection.getSongUrl(url))).setMediaId(url).build()
+    private fun idToMediaItem(id: Long): MediaItem {
+        val songUrl = ampacheConnection.getSongUrl(id)
+        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(id.toString()).build()
+    }
 
     private fun downloadMedia(media: MediaItem) {
         val helper = DownloadHelper.forMediaItem(context, media)

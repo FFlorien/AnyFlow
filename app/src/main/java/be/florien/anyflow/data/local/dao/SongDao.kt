@@ -24,8 +24,8 @@ interface SongDao : BaseDao<DbSong> {
     @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song WHERE title LIKE :filter ORDER BY genre COLLATE UNICODE")
     suspend fun displayFilteredList(filter: String): List<DbSongDisplay>
 
-    @Query("SELECT url FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun urlInQueueOrder(): LiveData<List<String>>
+    @Query("SELECT id FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    fun idsInQueueOrder(): LiveData<List<Long>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     suspend fun forPositionInQueue(position: Int): DbSong?

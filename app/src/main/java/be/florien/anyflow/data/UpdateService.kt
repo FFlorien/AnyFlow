@@ -44,6 +44,10 @@ class UpdateService
     lateinit var albumsPercentageUpdater: LiveData<Int>
 
     @Inject
+    @field:Named("Playlists")
+    lateinit var playlistsPercentageUpdater: LiveData<Int>
+
+    @Inject
     @field:Named("Artists")
     lateinit var artistsPercentageUpdater: LiveData<Int>
     private val pendingIntent: PendingIntent by lazy {
@@ -90,6 +94,13 @@ class UpdateService
         albumsPercentageUpdater.observe(this, {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_albums, it))
+            } else {
+                stopForeground(true)
+            }
+        })
+        playlistsPercentageUpdater.observe(this, {
+            if (it in 0..100) {
+                notifyChange(getString(R.string.update_playlists, it))
             } else {
                 stopForeground(true)
             }

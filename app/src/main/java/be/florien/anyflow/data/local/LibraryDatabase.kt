@@ -44,7 +44,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
     fun getSongsInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInAlphabeticalOrder()
-    fun getUrlsInQueueOrder(): LiveData<List<String>> = getSongDao().urlInQueueOrder()
+    fun getIdsInQueueOrder(): LiveData<List<Long>> = getSongDao().idsInQueueOrder()
     fun getSongsFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayFiltered(filter)
     suspend fun getSongsFilteredList(filter: String): List<DbSongDisplay> = getSongDao().displayFilteredList(filter)
 
