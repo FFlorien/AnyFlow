@@ -34,7 +34,7 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 @ActivityScope
 @UserScope
 class SelectFilterFragment @SuppressLint("ValidFragment")
-constructor(private var filterType: String) : BaseFilterFragment() {
+constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
 
     companion object {
         private const val FILTER_TYPE = "TYPE"
@@ -44,8 +44,6 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         get() = viewModel
     lateinit var viewModel: SelectFilterViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
-
-    constructor() : this(GENRE_ID)
 
     override fun getTitle(): String = when (filterType) {
         ALBUM_ID -> getString(R.string.filter_title_album)
@@ -141,7 +139,7 @@ constructor(private var filterType: String) : BaseFilterFragment() {
         }
 
         override fun getSectionName(position: Int): String =
-                snapshot()[position]?.displayName?.firstOrNull()?.toUpperCase()?.toString()
+                snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
                         ?: ""
     }
 

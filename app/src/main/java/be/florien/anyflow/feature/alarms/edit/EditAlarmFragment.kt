@@ -17,7 +17,7 @@ import be.florien.anyflow.feature.menu.DeleteAlarmMenuHolder
 import be.florien.anyflow.feature.menu.MenuHolder
 import kotlinx.coroutines.launch
 
-class EditAlarmFragment(var alarm: Alarm) : BaseFragment() {
+class EditAlarmFragment(var alarm: Alarm = Alarm(0L, 0, 0, false, listOf(), false)) : BaseFragment() {
     companion object {
         const val ALARM_TO_EDIT = "alarmToEdit"
     }

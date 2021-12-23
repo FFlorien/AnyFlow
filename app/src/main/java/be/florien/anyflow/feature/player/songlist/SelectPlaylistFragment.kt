@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.player.songlist
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -27,7 +28,7 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
 @UserScope
-class SelectPlaylistFragment(private var songId: Long) : DialogFragment() {
+class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
     lateinit var viewModel: SelectPlaylistViewModel
     private lateinit var fragmentBinding: FragmentSelectPlaylistBinding
 
@@ -47,6 +48,7 @@ class SelectPlaylistFragment(private var songId: Long) : DialogFragment() {
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(SelectPlaylistViewModel::class.java)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentBinding = FragmentSelectPlaylistBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
@@ -104,7 +106,7 @@ class SelectPlaylistFragment(private var songId: Long) : DialogFragment() {
         }
 
         override fun getSectionName(position: Int): String =
-                snapshot()[position]?.displayName?.firstOrNull()?.toUpperCase()?.toString()
+                snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
                         ?: ""
     }
 

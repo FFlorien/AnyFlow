@@ -18,7 +18,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import timber.log.Timber
-import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 
 
@@ -44,33 +43,30 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         ampacheConnection.ensureConnection()
         createNotificationChannels()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
-            this@AnyFlowApp.eLog(
-                e,
-                "Unexpected error"
-            )
+            this@AnyFlowApp.eLog(e, "Unexpected error")
         }
     }
 
     protected open fun initApplicationComponent() {
         applicationComponent = DaggerApplicationComponent
-            .builder()
-            .application(this)
-            .build()
+                .builder()
+                .application(this)
+                .build()
         applicationComponent.inject(this)
     }
 
     override fun createUserScopeForServer(serverUrl: String): AmpacheApi {
         val ampacheApi = Retrofit
-            .Builder()
-            .baseUrl(serverUrl)
-            .client(okHttpClient)
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build()
-            .create(AmpacheApi::class.java)
+                .Builder()
+                .baseUrl(serverUrl)
+                .client(okHttpClient)
+                .addConverterFactory(JacksonConverterFactory.create())
+                .build()
+                .create(AmpacheApi::class.java)
         userComponent = applicationComponent
-            .userComponentBuilder()
-            .ampacheApi(ampacheApi)
-            .build()
+                .userComponentBuilder()
+                .ampacheApi(ampacheApi)
+                .build()
         return ampacheApi
     }
 

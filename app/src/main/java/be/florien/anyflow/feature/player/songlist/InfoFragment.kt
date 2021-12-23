@@ -20,7 +20,7 @@ import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.player.PlayerService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
+class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", "")) : BottomSheetDialogFragment() {
 
     companion object {
         private const val SONG = "SONG"
@@ -33,7 +33,7 @@ class InfoFragment(private var song: Song) : BottomSheetDialogFragment() {
 
     init {
         arguments?.let {
-            song = it.getParcelable(SONG) ?: Song(0L, "", "", "", "", 0, "", "", "")
+            song = it.getParcelable(SONG) ?: song
         }
         if (arguments == null) {
             arguments = Bundle().apply {
