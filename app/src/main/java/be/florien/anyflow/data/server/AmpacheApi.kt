@@ -1,6 +1,7 @@
 package be.florien.anyflow.data.server
 
 import be.florien.anyflow.data.server.model.*
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -39,7 +40,7 @@ interface AmpacheApi {
             @Query("auth") auth: String,
             @Query("limit") limit: Int,
             @Query("offset") offset: Int)
-            : List<AmpacheArtist>
+            : Response<List<AmpacheArtist>>
 
     @GET("server/json.server.php")
     suspend fun getAlbums(

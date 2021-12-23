@@ -122,7 +122,10 @@ class PlayerActivity : AppCompatActivity() {
                     finish()
                 }
                 AmpacheConnection.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
-                AmpacheConnection.ConnectionStatus.CONNECTED -> animateDisappearance(binding.connectionStateView)
+                AmpacheConnection.ConnectionStatus.CONNECTED -> {
+                    bindService(Intent(this, UpdateService::class.java), viewModel.updateConnection, Context.BIND_AUTO_CREATE)
+                    animateDisappearance(binding.connectionStateView)
+                }
             }
         }
         viewModel.songsUpdatePercentage.observe(this) {
@@ -250,7 +253,6 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun initPingService() {
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        bindService(Intent(this, UpdateService::class.java), viewModel.updateConnection, Context.BIND_AUTO_CREATE)
         val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPeriodic(HALF_HOUR)

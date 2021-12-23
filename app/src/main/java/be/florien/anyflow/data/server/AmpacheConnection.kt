@@ -12,8 +12,10 @@ import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
+import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.HttpException
+import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
@@ -107,9 +109,9 @@ open class AmpacheConnection
         val time = (TimeOperations.getCurrentDate().timeInMillis / 1000).toString()
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
-        val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).toLowerCase(Locale.ROOT)
+        val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).lowercase(Locale.ROOT)
         encoder.reset()
-        val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).toLowerCase(Locale.ROOT)
+        val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).lowercase(Locale.ROOT)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         try {
             val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
@@ -255,16 +257,25 @@ open class AmpacheConnection
             )
             val totalArtists = sharedPreferences.getInt(COUNT_ARTIST, 1)
 
-            return if (artistList.isEmpty()) {
+            if (!artistList.isSuccessful) {
+                val errorBody = artistList.errorBody()
+                if (errorBody != null) {
+                    val readValue = ObjectMapper().readValue(errorBody.byteStream(), AmpacheErrorObject::class.java)
+                    throw IllegalStateException(readValue.error.error_text)
+                }
+            }
+
+            val body = artistList.body() ?: throw IllegalArgumentException("No list of artist in the response")
+            return if (body.isEmpty()) {
                 artistsPercentageUpdater.postValue(-1)
                 sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                 null
             } else {
                 val percentage = (artistOffset * 100) / totalArtists
                 artistsPercentageUpdater.postValue(percentage)
-                artistOffset += artistList.size
+                artistOffset += body.size
                 sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
-                artistList
+                body
             }
         } catch (ex: Exception) {
             eLog(ex)

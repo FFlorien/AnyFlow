@@ -2,6 +2,7 @@ package be.florien.anyflow.data.server
 
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.model.*
+import retrofit2.Response
 
 /**
  * Responses for ampache calls when the server is not set
@@ -16,7 +17,7 @@ class AmpacheApiDisconnected : AmpacheApi {
     override suspend fun getSongs(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheSong> =
             throw NoServerException()
 
-    override suspend fun getArtists(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheArtist> =
+    override suspend fun getArtists(action: String, add: String, auth: String, limit: Int, offset: Int): Response<List<AmpacheArtist>> =
             throw NoServerException()
 
     override suspend fun getAlbums(action: String, add: String, auth: String, limit: Int, offset: Int): List<AmpacheAlbum> =

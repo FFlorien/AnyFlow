@@ -5,6 +5,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.*
 import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
@@ -46,7 +47,7 @@ constructor(
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
 
     val currentDuration: LiveData<Int> = MediatorLiveData()
-    val totalDuration: LiveData<Int> = playingQueue.currentSong.map { it.time * 1000 }
+    val totalDuration: LiveData<Int> = playingQueue.currentSong.map { ((it as SongInfo?)?.time ?: 0) * 1000 }
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
 
