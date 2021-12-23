@@ -340,6 +340,7 @@ class DataRepository
                         Order.Subject.ARTIST -> " song.artistName"
                         Order.Subject.ALBUM_ARTIST -> " song.albumArtistName"
                         Order.Subject.ALBUM -> " song.albumName"
+                        Order.Subject.ALBUM_ID -> " song.albumId"
                         Order.Subject.YEAR -> " song.year"
                         Order.Subject.GENRE -> " song.genre"
                         Order.Subject.TRACK -> " song.track"

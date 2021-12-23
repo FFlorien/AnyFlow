@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.player.filter.display
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
@@ -55,6 +56,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
         viewModel.resetFilterChanges()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentDisplayFilterBinding.inflate(inflater, container, false)
         binding.vm = viewModel
@@ -85,15 +87,11 @@ class DisplayFilterFragment : BaseFilterFragment() {
     }
 
     override fun onDetach() {
-        super.onDetach()
-        viewModel.cancelChanges()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         targets.forEach {
             it.request?.clear()
         }
+        viewModel.cancelChanges()
+        super.onDetach()
     }
 
     inner class FilterListAdapter : RecyclerView.Adapter<FilterViewHolder>() {

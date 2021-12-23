@@ -86,7 +86,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
     }
 
     suspend fun order() {
-        val dbOrders = listOf(Order.SUBJECT_ALBUM_ARTIST, Order.SUBJECT_YEAR, Order.SUBJECT_ALBUM, Order.SUBJECT_TRACK, Order.SUBJECT_TITLE)
+        val dbOrders = listOf(Order.SUBJECT_ALBUM_ARTIST, Order.SUBJECT_YEAR, Order.SUBJECT_ALBUM, Order.SUBJECT_ALBUM_ID, Order.SUBJECT_TRACK, Order.SUBJECT_TITLE)
                 .mapIndexed { index, order ->
                     Order.Ordered(
                             index,

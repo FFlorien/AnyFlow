@@ -20,6 +20,7 @@ sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val 
             SUBJECT_ARTIST -> Subject.ARTIST
             SUBJECT_ALBUM_ARTIST -> Subject.ALBUM_ARTIST
             SUBJECT_ALBUM -> Subject.ALBUM
+            SUBJECT_ALBUM_ID -> Subject.ALBUM_ID
             SUBJECT_YEAR -> Subject.YEAR
             SUBJECT_GENRE -> Subject.GENRE
             SUBJECT_TRACK -> Subject.TRACK
@@ -45,6 +46,7 @@ sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val 
         const val SUBJECT_GENRE = -6L
         const val SUBJECT_TRACK = -7L
         const val SUBJECT_TITLE = -8L
+        const val SUBJECT_ALBUM_ID = -9L
     }
 
     enum class Subject {
@@ -52,6 +54,7 @@ sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val 
         ARTIST,
         ALBUM_ARTIST,
         ALBUM,
+        ALBUM_ID,
         YEAR,
         GENRE,
         TRACK,
