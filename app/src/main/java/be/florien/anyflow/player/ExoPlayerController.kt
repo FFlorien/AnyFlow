@@ -38,14 +38,14 @@ import kotlin.math.min
 
 class ExoPlayerController
 @Inject constructor(
-        private var playingQueue: PlayingQueue,
-        private var ampacheConnection: AmpacheConnection,
-        private var filtersManager: FiltersManager,
-        private var audioManager: AudioManager,
-        private val alarmsSynchronizer: AlarmsSynchronizer,
-        private val context: Context,
-        cache: Cache,
-        okHttpClient: OkHttpClient
+    private var playingQueue: PlayingQueue,
+    private var ampacheConnection: AmpacheConnection,
+    private var filtersManager: FiltersManager,
+    private var audioManager: AudioManager,
+    private val alarmsSynchronizer: AlarmsSynchronizer,
+    private val context: Context,
+    cache: Cache,
+    okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
 
     inner class UrlUpdateCallback : ListUpdateCallback {
@@ -80,8 +80,8 @@ class ExoPlayerController
 
     companion object {
         private const val NO_VALUE = -3L
-        private const val MEDIA_ITEM_BEFORE_CURRENT = 4
-        private const val MEDIA_ITEM_AFTER_CURRENT = 10
+        private const val MEDIA_ITEM_BEFORE_CURRENT = 1
+        private const val MEDIA_ITEM_AFTER_CURRENT = 2
     }
 
     private val dataSourceFactory: DataSource.Factory
@@ -92,7 +92,7 @@ class ExoPlayerController
     private var lastPosition: Int = 0
     private var lastDuration: Long = NO_VALUE
     private var idList: List<Long> = listOf()
-    private var offset: Int = 0
+    private var lastOffset: Int = 0
 
     private var isReceiverRegistered: Boolean = false
     private val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -112,35 +112,35 @@ class ExoPlayerController
 
     init {
         dataSourceFactory = CacheDataSource.Factory()
-                .setCache(cache)
-                .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
-                .setCacheWriteDataSinkFactory(null) // Disable writing.
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
+            .setCacheWriteDataSinkFactory(null) // Disable writing.
 
         mediaPlayer = SimpleExoPlayer
-                .Builder(context, DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
-                .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
-                .build()
-                .apply {
-                    addListener(this@ExoPlayerController)
-                    //todo apply experimentalSetOffloadSchedulingEnabled(true) when in background
-                }
+            .Builder(context, DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
+            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
+            .build()
+            .apply {
+                addListener(this@ExoPlayerController)
+                //todo apply experimentalSetOffloadSchedulingEnabled(true) when in background
+            }
         playingQueue.stateUpdater.observeForever { state ->
-            val currentId = idList.getOrNull(lastPosition - offset)
+            val currentId = idList.getOrNull(lastPosition - lastOffset)
             val nextOffset = max(state.position - MEDIA_ITEM_BEFORE_CURRENT, 0)
-            val nextIdList = state.ids.subList(nextOffset, min(state.position + MEDIA_ITEM_AFTER_CURRENT, state.ids.size))
+            val nextIdList = state.ids.slice(nextOffset until min(state.position + MEDIA_ITEM_AFTER_CURRENT + 1, state.ids.size))
             val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
                 override fun getOldListSize() = idList.size
 
                 override fun getNewListSize(): Int = nextIdList.size
 
                 override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                        idList[oldItemPosition] == nextIdList[newItemPosition]
+                    idList[oldItemPosition] == nextIdList[newItemPosition]
 
                 override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = areItemsTheSame(oldItemPosition, newItemPosition)
 
             })
             idList = nextIdList
-            offset = nextOffset
+            lastOffset = nextOffset
             lastPosition = state.position
             diffResult.dispatchUpdatesTo(UrlUpdateCallback())
             if (nextIdList.isNotEmpty()) { //todo UI Handling of this
@@ -239,12 +239,13 @@ class ExoPlayerController
 
     override fun onPlayerError(error: PlaybackException) {
         iLog(error, "Error while playback")
-        if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403) {
+        if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403 || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
                 ampacheConnection.reconnect {
                     GlobalScope.launch(Dispatchers.Main) {
                         mediaPlayer.setMediaItems(idList.map { idToMediaItem(it) })
+                        mediaPlayer.seekTo(lastPosition - lastOffset, C.TIME_UNSET)
                     }
                     prepare()
                 }
