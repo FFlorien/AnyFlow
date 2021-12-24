@@ -1,7 +1,9 @@
 package be.florien.anyflow.player
 
 import android.content.SharedPreferences
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
@@ -9,10 +11,8 @@ import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.UserScope
 import kotlinx.coroutines.*
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -34,20 +34,19 @@ class PlayingQueue
             return field
         }
         set(value) {
-            field = value
-            MainScope().launch {
-                (stateUpdater as MutableLiveData).value = PlayingQueueState(songIdsListUpdater.value ?: listOf(), value)
-                positionUpdater.value = field
-                orderComposer.currentPosition = field
-                sharedPreferences.applyPutInt(POSITION_PREF, field)
-                val songAtPosition = dataRepository.getSongAtPosition(field)
-                if (songAtPosition != currentSong.value) {
-                    (currentSong as MutableLiveData).value = songAtPosition
-                    orderComposer.currentSong = songAtPosition
+            if (value <= queueSize - 1) {
+                field = value
+                MainScope().launch {
+                    (stateUpdater as MutableLiveData).value = PlayingQueueState(songIdsListUpdater.value ?: listOf(), value)
+                    positionUpdater.value = field
+                    orderComposer.currentPosition = field
+                    sharedPreferences.applyPutInt(POSITION_PREF, field)
+                    val songAtPosition = dataRepository.getSongAtPosition(field)
+                    if (songAtPosition != currentSong.value) {
+                        (currentSong as MutableLiveData).value = songAtPosition
+                        orderComposer.currentSong = songAtPosition
+                    }
                 }
-            }
-            if (value != 0 && field == 0) {
-                this@PlayingQueue.eLog(IllegalArgumentException("The new position may result from a faulty reset."))
             }
         }
     var queueSize: Int = 0
@@ -58,9 +57,9 @@ class PlayingQueue
     private val songIdsListUpdater: LiveData<List<Long>> = dataRepository.getIdsInQueueOrder()
     val stateUpdater: LiveData<PlayingQueueState> = MutableLiveData()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
-            .map { orderList ->
-                orderList.none { it.orderingType == Order.Ordering.RANDOM }
-            }
+        .map { orderList ->
+            orderList.none { it.orderingType == Order.Ordering.RANDOM }
+        }
 
     init {
         songIdsListUpdater.observeForever {

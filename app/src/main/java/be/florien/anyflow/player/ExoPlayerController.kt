@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
@@ -232,7 +233,7 @@ class ExoPlayerController
         if (events.contains(Player.EVENT_PLAYER_ERROR)) {
             val error = player.playerError
             if (error != null) {
-//todo
+                eLog(error, "Unhandled error while playback")
             }
         }
     }
