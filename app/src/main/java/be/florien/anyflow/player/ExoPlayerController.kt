@@ -9,13 +9,10 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
 import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -34,8 +31,6 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.math.max
-import kotlin.math.min
 
 class ExoPlayerController
 @Inject constructor(
@@ -49,54 +44,13 @@ class ExoPlayerController
     okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
 
-    inner class UrlUpdateCallback : ListUpdateCallback {
-        override fun onInserted(position: Int, count: Int) {
-            when {
-                count == mediaPlayer.mediaItemCount -> {
-                    mediaPlayer.addMediaItems(idList.map { idToMediaItem(it) })
-                }
-                position == mediaPlayer.mediaItemCount -> {
-                    mediaPlayer.addMediaItems(idList.takeLast(count).map { idToMediaItem(it) })
-                }
-                position == 0 -> {
-                    mediaPlayer.addMediaItems(0, idList.subList(0, count).map { idToMediaItem(it) })
-                }
-                else -> mediaPlayer.addMediaItems(position, idList.subList(position, position + count).map { idToMediaItem(it) })
-            }
-        }
-
-        override fun onRemoved(position: Int, count: Int) {
-            mediaPlayer.removeMediaItems(position, position + count)
-        }
-
-        override fun onMoved(fromPosition: Int, toPosition: Int) {
-            mediaPlayer.moveMediaItem(fromPosition, toPosition)
-        }
-
-        override fun onChanged(position: Int, count: Int, payload: Any?) {
-            onRemoved(position, count)
-            onInserted(position, count)
-        }
-    }
-
-    companion object {
-        private const val NO_VALUE = -3L
-        private const val MEDIA_ITEM_BEFORE_CURRENT = 1
-        private const val MEDIA_ITEM_AFTER_CURRENT = 2
-    }
-
     private val dataSourceFactory: DataSource.Factory
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
     override val playTimeNotifier: LiveData<Long> = MutableLiveData()
 
     private val mediaPlayer: ExoPlayer
-    private var lastPosition: Int = 0
-    private var lastDuration: Long = NO_VALUE
-    private var idList: List<Long> = listOf()
-    private var lastOffset: Int = 0
 
     private var isReceiverRegistered: Boolean = false
-    private val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
     private val myNoisyAudioStreamReceiver = BecomingNoisyReceiver()
 
     inner class BecomingNoisyReceiver : BroadcastReceiver() {
@@ -126,33 +80,7 @@ class ExoPlayerController
                 //todo apply experimentalSetOffloadSchedulingEnabled(true) when in background
             }
         playingQueue.stateUpdater.observeForever { state ->
-            val currentId = idList.getOrNull(lastPosition - lastOffset)
-            val nextOffset = max(state.position - MEDIA_ITEM_BEFORE_CURRENT, 0)
-            val nextIdList = state.ids.slice(nextOffset until min(state.position + MEDIA_ITEM_AFTER_CURRENT + 1, state.ids.size))
-            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize() = idList.size
-
-                override fun getNewListSize(): Int = nextIdList.size
-
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                    idList[oldItemPosition] == nextIdList[newItemPosition]
-
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = areItemsTheSame(oldItemPosition, newItemPosition)
-
-            })
-            idList = nextIdList
-            lastOffset = nextOffset
-            lastPosition = state.position
-            diffResult.dispatchUpdatesTo(UrlUpdateCallback())
-            if (nextIdList.isNotEmpty()) { //todo UI Handling of this
-                prepare()
-                val nextId = nextIdList[state.position - nextOffset]
-                if (mediaPlayer.currentMediaItem?.mediaId == nextId.toString()) {
-                    return@observeForever
-                }
-                val timeToSeekTo = if (currentId == nextId) C.TIME_UNSET else 0
-                mediaPlayer.seekTo(state.position - offset, timeToSeekTo)
-            }
+            applyState(state)
         }
         GlobalScope.launch(Dispatchers.Default) {
             while (true) {
@@ -160,18 +88,12 @@ class ExoPlayerController
                 withContext(Dispatchers.Main) {
                     val contentPosition = mediaPlayer.contentPosition
                     (playTimeNotifier as MutableLiveData).value = contentPosition
-                    lastDuration = contentPosition
                 }
             }
         }
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
-
-    override fun play() {
-        lastDuration = NO_VALUE
-        resume()
-    }
 
     override fun playForAlarm() {
         GlobalScope.launch(Dispatchers.Default) {
@@ -189,7 +111,7 @@ class ExoPlayerController
         val streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamMaxVolume.div(3), 0)
         prepare()
-        play()
+        resume()
     }
 
     private fun prepare() {
@@ -200,7 +122,6 @@ class ExoPlayerController
 
     override fun stop() {
         mediaPlayer.stop()
-        lastDuration = NO_VALUE
     }
 
     override fun pause() {
@@ -218,7 +139,7 @@ class ExoPlayerController
     }
 
     override fun download(id: Long) {
-        downloadMedia(idToMediaItem(id))
+        downloadMedia(idToMediaItem(id)!!)
     }
 
     override fun onDestroy() {
@@ -239,25 +160,28 @@ class ExoPlayerController
     }
 
     override fun onPlayerError(error: PlaybackException) {
-        iLog(error, "Error while playback")
         if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403 || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
                 ampacheConnection.reconnect {
                     GlobalScope.launch(Dispatchers.Main) {
-                        mediaPlayer.setMediaItems(idList.map { idToMediaItem(it) })
-                        mediaPlayer.seekTo(lastPosition - lastOffset, C.TIME_UNSET)
+                        val firstItem = idToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+                        val secondItem = idToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+                        mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
+                        mediaPlayer.seekTo(0, C.TIME_UNSET)
                     }
                     prepare()
                 }
             }
+        } else {
+            eLog(error, "Error while playback")
         }
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
             Player.STATE_ENDED -> {
-                lastDuration = 0
+                (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PAUSE
             }
             Player.STATE_BUFFERING -> {
                 ampacheConnection.resetReconnectionCount()
@@ -268,16 +192,17 @@ class ExoPlayerController
         }
 
         if (playWhenReady && !isReceiverRegistered) {
-            context.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
+            context.registerReceiver(myNoisyAudioStreamReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+            isReceiverRegistered = true
         } else if (isReceiverRegistered) {
             context.unregisterReceiver(myNoisyAudioStreamReceiver)
+            isReceiverRegistered = false
         }
     }
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
             playingQueue.listPosition += 1
-            lastDuration = 0
         }
     }
 
@@ -285,7 +210,34 @@ class ExoPlayerController
      * PRIVATE METHODS
      */
 
-    private fun idToMediaItem(id: Long): MediaItem {
+    private fun applyState(state: PlayingQueue.PlayingQueueState) {
+        val isNextSong = mediaPlayer.currentWindowIndex == 1
+        if (isNextSong) {
+            mediaPlayer.removeMediaItem(0)
+        }
+        val hasCurrentItemChanged = mediaPlayer.currentMediaItem?.mediaId != state.currentSong.toString()
+        val hasNextItemChanged = (if (mediaPlayer.mediaItemCount > 1) mediaPlayer.getMediaItemAt(1).mediaId else null) != state.nextSong?.toString()
+        if (hasCurrentItemChanged) {
+            mediaPlayer.clearMediaItems()
+            mediaPlayer.setMediaItems(listOfNotNull(idToMediaItem(state.currentSong), idToMediaItem(state.nextSong)))
+            prepare()
+
+            if (state.intent == PlayingQueue.PlayingQueueIntent.CONTINUE || state.intent == PlayingQueue.PlayingQueueIntent.START) {
+                resume()
+            }
+        } else if (hasNextItemChanged) {
+            mediaPlayer.removeMediaItem(1)
+            if (state.nextSong != null) {
+                mediaPlayer.addMediaItem(idToMediaItem(state.nextSong)!!)
+            }
+        } else {
+            if (state.intent == PlayingQueue.PlayingQueueIntent.START) resume()
+            else if (state.intent == PlayingQueue.PlayingQueueIntent.PAUSE) pause()
+        }
+    }
+
+    private fun idToMediaItem(id: Long?): MediaItem? {
+        if (id == null) return null
         val songUrl = ampacheConnection.getSongUrl(id)
         return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(id.toString()).build()
     }

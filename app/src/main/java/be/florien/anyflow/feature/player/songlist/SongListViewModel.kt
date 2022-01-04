@@ -1,8 +1,5 @@
 package be.florien.anyflow.feature.player.songlist
 
-import android.content.ComponentName
-import android.content.ServiceConnection
-import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.LiveData
@@ -15,9 +12,6 @@ import be.florien.anyflow.data.toSong
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.player.IdlePlayerController
-import be.florien.anyflow.player.PlayerController
-import be.florien.anyflow.player.PlayerService
 import be.florien.anyflow.player.PlayingQueue
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -30,8 +24,6 @@ import javax.inject.Inject
 class SongListViewModel
 @Inject constructor(private val playingQueue: PlayingQueue, private val dataRepository: DataRepository) : BaseViewModel() {
 
-    internal var connection: PlayerConnection = PlayerConnection()
-    private var player: PlayerController = IdlePlayerController()
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     val pagedAudioQueue: LiveData<PagingData<Song>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<Song> = playingQueue.currentSong.map { it.toSong() }
@@ -95,8 +87,7 @@ class SongListViewModel
     }
 
     fun play(position: Int) {
-        playingQueue.listPosition = position
-        player.play()
+        playingQueue.listPositionWithIntent = PlayingQueue.PositionWithIntent(position, PlayingQueue.PlayingQueueIntent.CONTINUE)
     }
 
     fun nextSearchOccurrence() {
@@ -125,18 +116,5 @@ class SongListViewModel
         searchResults.value = null
         searchProgression.value = -1
         searchProgressionText.value = ""
-    }
-
-    /**
-     * Inner class
-     */
-    inner class PlayerConnection : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-            player = IdlePlayerController()
-        }
-
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            player = (service as PlayerService.LocalBinder).service
-        }
     }
 }

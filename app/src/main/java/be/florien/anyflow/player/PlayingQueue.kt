@@ -25,30 +25,40 @@ class PlayingQueue
         private const val POSITION_NOT_SET = -5
         private const val POSITION_PREF = "POSITION_PREF"
     }
-
-    var listPosition: Int = POSITION_NOT_SET
+    var listPositionWithIntent: PositionWithIntent = PositionWithIntent(POSITION_NOT_SET, PlayingQueueIntent.PAUSE)
         get() {
-            if (field == POSITION_NOT_SET) {
-                listPosition = sharedPreferences.getInt(POSITION_PREF, 0)
+            if (field.position == POSITION_NOT_SET) {
+                listPositionWithIntent = PositionWithIntent(sharedPreferences.getInt(POSITION_PREF, 0), PlayingQueueIntent.PAUSE)
             }
             return field
         }
         set(value) {
-            if (value <= queueSize - 1) {
+            if (value.position <= queueSize - 1) {
                 field = value
                 MainScope().launch {
-                    (stateUpdater as MutableLiveData).value = PlayingQueueState(songIdsListUpdater.value ?: listOf(), value)
-                    positionUpdater.value = field
-                    orderComposer.currentPosition = field
-                    sharedPreferences.applyPutInt(POSITION_PREF, field)
-                    val songAtPosition = dataRepository.getSongAtPosition(field)
-                    if (songAtPosition != currentSong.value) {
-                        (currentSong as MutableLiveData).value = songAtPosition
+                    val currentSongId = songIdsListUpdater.value?.get(value.position) ?: 0L
+                    val nextSongId = songIdsListUpdater.value?.getOrNull(value.position + 1) ?: 0L
+                    (stateUpdater as MutableLiveData).value = PlayingQueueState(currentSongId, nextSongId, field.intent)
+                    positionUpdater.value = field.position
+                    orderComposer.currentPosition = field.position
+                    sharedPreferences.applyPutInt(POSITION_PREF, field.position)
+                    val songAtPosition = dataRepository.getSongAtPosition(field.position)
+                    if (songAtPosition != this@PlayingQueue.currentSong.value) {
+                        (this@PlayingQueue.currentSong as MutableLiveData).value = songAtPosition
                         orderComposer.currentSong = songAtPosition
                     }
                 }
             }
         }
+    var listPosition: Int
+        get() {
+            return listPositionWithIntent.position
+        }
+        set(value) {
+            val previousIntent = listPositionWithIntent.intent
+            listPositionWithIntent = PositionWithIntent(value, previousIntent)
+        }
+
     var queueSize: Int = 0
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<SongInfo> = MutableLiveData()
@@ -77,5 +87,13 @@ class PlayingQueue
         }
     }
 
-    class PlayingQueueState(val ids: List<Long>, val position: Int)
+    class PlayingQueueState(val currentSong: Long, val nextSong: Long?, val intent: PlayingQueueIntent)
+
+    enum class PlayingQueueIntent {
+        START,
+        PAUSE,
+        CONTINUE
+    }
+
+    class PositionWithIntent(val position: Int, val intent: PlayingQueueIntent)
 }

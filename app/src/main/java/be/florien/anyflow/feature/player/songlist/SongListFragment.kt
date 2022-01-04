@@ -3,7 +3,6 @@ package be.florien.anyflow.feature.player.songlist
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -30,7 +29,6 @@ import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.player.PlayerService
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -117,7 +115,6 @@ class SongListFragment : BaseFragment() {
             binding.currentSongDisplayTouch.elevation = resources.getDimension(R.dimen.mediumDimen)
             binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         }
-        requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
             if (it != null) {
                 (binding.songList.adapter as SongAdapter).submitData(viewLifecycleOwner.lifecycle, it)
@@ -168,7 +165,6 @@ class SongListFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        requireActivity().unbindService(viewModel.connection)
         (requireActivity() as PlayerActivity).menuCoordinator.removeMenuHolder(searchMenuHolder)
     }
 
@@ -201,27 +197,27 @@ class SongListFragment : BaseFragment() {
             val endValue = if (shouldLoadingBeVisible) 1f else 0f
 
             ObjectAnimator
-                    .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
-                        duration = 300
-                        interpolator = AccelerateDecelerateInterpolator()
-                    }.apply {
-                        addListener(object : Animator.AnimatorListener {
+                .ofFloat(binding.loadingText, "alpha", startValue, endValue).apply {
+                    duration = 300
+                    interpolator = AccelerateDecelerateInterpolator()
+                }.apply {
+                    addListener(object : Animator.AnimatorListener {
 
-                            override fun onAnimationStart(animation: Animator?) {
-                                binding.loadingText.visibility = View.VISIBLE
-                            }
+                        override fun onAnimationStart(animation: Animator?) {
+                            binding.loadingText.visibility = View.VISIBLE
+                        }
 
-                            override fun onAnimationRepeat(animation: Animator?) {}
+                        override fun onAnimationRepeat(animation: Animator?) {}
 
-                            override fun onAnimationEnd(animation: Animator?) {
-                                binding.loadingText.visibility =
-                                        if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
-                            }
+                        override fun onAnimationEnd(animation: Animator?) {
+                            binding.loadingText.visibility =
+                                if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
+                        }
 
-                            override fun onAnimationCancel(animation: Animator?) {}
-                        })
-                    }
-                    .start()
+                        override fun onAnimationCancel(animation: Animator?) {}
+                    })
+                }
+                .start()
         }
     }
 
@@ -236,15 +232,15 @@ class SongListFragment : BaseFragment() {
     }
 
     inner class SongAdapter :
-            PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
-                override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
+        PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
+            override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
 
-                override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
-                        oldItem.artistName == newItem.artistName
-                                && oldItem.albumName == newItem.albumName
-                                && oldItem.title == newItem.title
+            override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
+                oldItem.artistName == newItem.artistName
+                        && oldItem.albumName == newItem.albumName
+                        && oldItem.title == newItem.title
 
-            }), FastScrollRecyclerView.SectionedAdapter {
+        }), FastScrollRecyclerView.SectionedAdapter {
 
         private var lastPosition = 0
 
@@ -265,9 +261,9 @@ class SongListFragment : BaseFragment() {
     }
 
     inner class SongViewHolder(
-            parent: ViewGroup,
-            internal val binding: ItemSongBinding = ItemSongBinding
-                    .inflate(LayoutInflater.from(parent.context), parent, false)
+        parent: ViewGroup,
+        internal val binding: ItemSongBinding = ItemSongBinding
+            .inflate(LayoutInflater.from(parent.context), parent, false)
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private var startingTranslationX: Float = 1f
@@ -300,11 +296,11 @@ class SongListFragment : BaseFragment() {
             }
             val backgroundColor = if (isCurrentSong) R.color.selected else R.color.unselected
             binding.songInfo.setBackgroundColor(
-                    ResourcesCompat.getColor(
-                            resources,
-                            backgroundColor,
-                            null
-                    )
+                ResourcesCompat.getColor(
+                    resources,
+                    backgroundColor,
+                    null
+                )
             )
             binding.info.setOnClickListener {
                 if (song == null) {
