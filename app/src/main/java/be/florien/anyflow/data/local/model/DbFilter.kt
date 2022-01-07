@@ -31,6 +31,7 @@ data class DbFilter(
         const val ALBUM_ID = "song.albumId ="
         const val PLAYLIST_ID = "playlistSongs.playlistId ="
         const val PLAYLIST_ID_JOIN = "LEFT JOIN playlistSongs on song.id = playlistSongs.songId"
-        const val DOWNLOAD_IN = "song.id IN"
+        const val DOWNLOADED = "song.local IS NOT NULL"
+        const val NOT_DOWNLOADED = "song.local IS NULL"
     }
 }

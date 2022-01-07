@@ -9,7 +9,6 @@ import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.applyPutLong
-import com.google.android.exoplayer2.offline.Download
 import com.google.android.exoplayer2.offline.DownloadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,10 +23,10 @@ import javax.inject.Singleton
 @Singleton
 class DataRepository
 @Inject constructor(
-        private val libraryDatabase: LibraryDatabase,
-        private val ampacheConnection: AmpacheConnection,
-        private val sharedPreferences: SharedPreferences,
-        private val downloadManager: DownloadManager
+    private val libraryDatabase: LibraryDatabase,
+    private val ampacheConnection: AmpacheConnection,
+    private val sharedPreferences: SharedPreferences,
+    private val downloadManager: DownloadManager
 ) {
 
     private fun lastAcceptableUpdate() = TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1)
@@ -44,16 +43,16 @@ class DataRepository
     }
 
     suspend fun getSongAtPosition(position: Int) =
-            withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSongInfo() }
+        withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSongInfo() }
 
     suspend fun getPositionForSong(songId: Long) =
-            withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(songId) }
+        withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(songId) }
 
     suspend fun getSongById(songId: Long) =
-            withContext(Dispatchers.IO) { libraryDatabase.getSongById(songId)?.toViewSongInfo() }
+        withContext(Dispatchers.IO) { libraryDatabase.getSongById(songId)?.toViewSongInfo() }
 
     fun getSongsInQueueOrder() =
-            convertToPagingLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
+        convertToPagingLiveData(libraryDatabase.getSongsInQueueOrder().map { it.toViewSong() })
 
     fun getIdsInQueueOrder() = libraryDatabase.getIdsInQueueOrder()
 
@@ -62,85 +61,85 @@ class DataRepository
     suspend fun getQueueSize(): Int? = withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
 
     fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getAlbums().map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getAlbums().map { mapping(it) })
 
     fun <T : Any> getArtists(mapping: (DbArtistDisplay) -> T): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
 
     fun <T : Any> getGenres(mapping: (String) -> T): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getGenres().map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getGenres().map { mapping(it) })
 
     fun <T : Any> getSongs(mapping: (DbSongDisplay) -> T): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
 
     fun <T : Any> getPlaylists(mapping: (DbPlaylist) -> T): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
 
     /**
      * Filtered lists
      */
 
     fun <T : Any> getAlbumsFiltered(
-            filter: String,
-            mapping: (DbAlbumDisplay) -> T
+        filter: String,
+        mapping: (DbAlbumDisplay) -> T
     ): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getAlbumsFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getAlbumsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getAlbumsFilteredList(
-            filter: String,
-            mapping: (DbAlbumDisplay) -> T
+        filter: String,
+        mapping: (DbAlbumDisplay) -> T
     ): List<T> =
-            libraryDatabase.getAlbumsFilteredList("%$filter%").map { item -> (mapping(item)) }
+        libraryDatabase.getAlbumsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
 
     fun <T : Any> getArtistsFiltered(
-            filter: String,
-            mapping: (DbArtistDisplay) -> T
+        filter: String,
+        mapping: (DbArtistDisplay) -> T
     ): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getArtistsFilteredList(
-            filter: String,
-            mapping: (DbArtistDisplay) -> T
+        filter: String,
+        mapping: (DbArtistDisplay) -> T
     ): List<T> =
-            libraryDatabase.getAlbumArtistsFilteredList("%$filter%").map { item -> (mapping(item)) }
+        libraryDatabase.getAlbumArtistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
 
     fun <T : Any> getGenresFiltered(
-            filter: String,
-            mapping: (String) -> T
+        filter: String,
+        mapping: (String) -> T
     ): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getGenresFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getGenresFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getGenresFilteredList(
-            filter: String,
-            mapping: (String) -> T
+        filter: String,
+        mapping: (String) -> T
     ): List<T> =
-            libraryDatabase.getGenresFilteredList("%$filter%").map { item -> (mapping(item)) }
+        libraryDatabase.getGenresFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     fun <T : Any> getSongsFiltered(
-            filter: String,
-            mapping: (DbSongDisplay) -> T
+        filter: String,
+        mapping: (DbSongDisplay) -> T
     ): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getSongsFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getSongsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getSongsFilteredList(
-            filter: String,
-            mapping: (DbSongDisplay) -> T
+        filter: String,
+        mapping: (DbSongDisplay) -> T
     ): List<T> =
-            libraryDatabase.getSongsFilteredList("%$filter%").map { item -> (mapping(item)) }
+        libraryDatabase.getSongsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     fun <T : Any> getPlaylistsFiltered(
-            filter: String,
-            mapping: (DbPlaylist) -> T
+        filter: String,
+        mapping: (DbPlaylist) -> T
     ): LiveData<PagingData<T>> =
-            convertToPagingLiveData(libraryDatabase.getPlaylistsFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(libraryDatabase.getPlaylistsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getPlaylistsFilteredList(
-            filter: String,
-            mapping: (DbPlaylist) -> T
+        filter: String,
+        mapping: (DbPlaylist) -> T
     ): List<T> =
-            libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
+        libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
     suspend fun updateSongLocalUri(songId: Long, uri: String) {
         libraryDatabase.updateSongLocalUri(songId, uri)
@@ -165,18 +164,19 @@ class DataRepository
      */
 
     fun getOrders() =
-            libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
+        libraryDatabase.getOrders().map { list -> list.map { item -> item.toViewOrder() } }
 
     suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> =
-            withContext(Dispatchers.IO) {
-                libraryDatabase.getSongsFromQuery(
-                        getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList))
-            }
+        withContext(Dispatchers.IO) {
+            libraryDatabase.getSongsFromQuery(
+                getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList)
+            )
+        }
 
     suspend fun setOrders(orders: List<Order>) =
-            withContext(Dispatchers.IO) {
-                libraryDatabase.setOrders(orders.map { it.toDbOrder() })
-            }
+        withContext(Dispatchers.IO) {
+            libraryDatabase.setOrders(orders.map { it.toDbOrder() })
+        }
 
     suspend fun saveQueueOrder(listToSave: MutableList<Long>) {
         libraryDatabase.saveQueueOrder(listToSave)
@@ -214,20 +214,20 @@ class DataRepository
      */
 
     suspend fun createFilterGroup(filterList: List<Filter<*>>, name: String) =
-            withContext(Dispatchers.IO) {
-                libraryDatabase.createFilterGroup(filterList.map {
-                    it.toDbFilter(-1)
-                }, name)
-            }
+        withContext(Dispatchers.IO) {
+            libraryDatabase.createFilterGroup(filterList.map {
+                it.toDbFilter(-1)
+            }, name)
+        }
 
     fun getFilterGroups() = libraryDatabase.getFilterGroups()
-            .map { groupList -> groupList.map { it.toViewFilterGroup() } }
+        .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
-            withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
+        withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters()
-            .map { filterList -> filterList.map { it.toViewFilter() } }
+        .map { filterList -> filterList.map { it.toViewFilter() } }
 
     suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) {
         libraryDatabase.setCurrentFilters(filterList.map {
@@ -247,8 +247,8 @@ class DataRepository
      */
 
     private suspend fun updateSongsAsync() = updateListAsync(
-            LAST_SONG_UPDATE,
-            AmpacheConnection::getSongs,
+        LAST_SONG_UPDATE,
+        AmpacheConnection::getSongs,
     ) { ampacheSongList ->
         if (ampacheSongList != null) {
             val songs = ampacheSongList.map { it.toDbSong() }
@@ -258,8 +258,8 @@ class DataRepository
     }
 
     private suspend fun updateArtistsAsync() = updateListAsync(
-            LAST_ARTIST_UPDATE,
-            AmpacheConnection::getArtists,
+        LAST_ARTIST_UPDATE,
+        AmpacheConnection::getArtists,
     ) { ampacheArtistList ->
         if (ampacheArtistList != null) {
             libraryDatabase.addArtists(ampacheArtistList.map { it.toDbArtist() })
@@ -267,8 +267,8 @@ class DataRepository
     }
 
     private suspend fun updateAlbumsAsync() = updateListAsync(
-            LAST_ALBUM_UPDATE,
-            AmpacheConnection::getAlbums,
+        LAST_ALBUM_UPDATE,
+        AmpacheConnection::getAlbums,
     ) { ampacheAlbumList ->
         if (ampacheAlbumList != null) {
             libraryDatabase.addAlbums(ampacheAlbumList.map { it.toDbAlbum() })
@@ -276,9 +276,9 @@ class DataRepository
     }
 
     private suspend fun <SERVER_TYPE> updateListAsync(
-            updatePreferenceName: String,
-            getListOnServer: suspend AmpacheConnection.(Calendar) -> List<SERVER_TYPE>?,
-            saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
+        updatePreferenceName: String,
+        getListOnServer: suspend AmpacheConnection.(Calendar) -> List<SERVER_TYPE>?,
+        saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
     ) {
 
         val nowDate = TimeOperations.getCurrentDate()
@@ -335,16 +335,16 @@ class DataRepository
     }
 
     private fun <T : Any> convertToPagingLiveData(dataSourceFactory: DataSource.Factory<Int, T>): LiveData<PagingData<T>> =
-            Pager(PagingConfig(100), 0, dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)).liveData
+        Pager(PagingConfig(100), 0, dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)).liveData
 
     private fun getQueryForSongs(dbFilters: List<DbFilter>, orderList: List<Order>): String {
 
         fun constructOrderStatement(): String {
             val filteredOrderedList =
-                    orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
+                orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
 
             val isSorted =
-                    filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Order.Ordering.RANDOM }
+                filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Order.Ordering.RANDOM }
 
             var orderStatement = if (isSorted) {
                 " ORDER BY"
@@ -402,19 +402,8 @@ class DataRepository
                 DbFilter.ALBUM_ARTIST_ID,
                 DbFilter.PLAYLIST_ID,
                 DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
-                DbFilter.DOWNLOAD_IN -> {
-                    val downloadedCursor = downloadManager.downloadIndex.getDownloads(Download.STATE_COMPLETED)
-                    downloadedCursor.moveToFirst()
-                    val downloadedList = mutableListOf<Download>()
-                    while (!downloadedCursor.isAfterLast) {
-                        downloadedList.add(downloadedCursor.download)
-                        downloadedCursor.moveToNext()
-                    }
-                    downloadedCursor.close()
-
-                    val downloadedUrls = downloadedList.map { it.request.id }.joinToString { "\'$it\'" }
-                    " ${filter.clause} ($downloadedUrls)"
-                }
+                DbFilter.DOWNLOADED -> " ${DbFilter.DOWNLOADED}"
+                DbFilter.NOT_DOWNLOADED -> " ${DbFilter.NOT_DOWNLOADED}"
                 else -> " ${filter.clause} \"${filter.argument}\""
             }
             if (index < filterList.size - 1) {

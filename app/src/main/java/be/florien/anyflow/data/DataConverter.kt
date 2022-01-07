@@ -121,7 +121,8 @@ fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText, displayImage)
     DbFilter.ALBUM_ID -> Filter.AlbumIs(argument.toLong(), displayText, displayImage)
     DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText)
-    DbFilter.DOWNLOAD_IN -> Filter.DownloadedStatusIs(argument.toBoolean())
+    DbFilter.DOWNLOADED -> Filter.DownloadedStatusIs(true)
+    DbFilter.NOT_DOWNLOADED -> Filter.DownloadedStatusIs(false)
     else -> Filter.TitleIs("")
 }
 
@@ -181,7 +182,7 @@ fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
         is Filter.AlbumArtistIs -> DbFilter.ALBUM_ARTIST_ID
         is Filter.AlbumIs -> DbFilter.ALBUM_ID
         is Filter.PlaylistIs -> DbFilter.PLAYLIST_ID
-        is Filter.DownloadedStatusIs -> DbFilter.DOWNLOAD_IN
+        is Filter.DownloadedStatusIs -> if (this.argument) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
     },
     joinClause = when (this) {
         is Filter.PlaylistIs -> DbFilter.PLAYLIST_ID_JOIN
