@@ -6,11 +6,13 @@
     <color name="primaryLight">#77BCFF</color>
     <color name="primaryDark">#005CB4</color>
     <color name="primaryDarkPlus">#005CB4</color>
+    <color name="primaryBackground">#DEEFFF</color>
     <color name="accent">#FFCA40</color>
     <color name="accentLightPlus">#FFE5A3</color>
     <color name="accentLight">#FFDD84</color>
     <color name="accentDark">#EDAB00</color>
     <color name="accentDarkPlus">#D89C00</color>
+    <color name="accentBackground">#FFF2CF</color>
     <color name="iconInApp">@color/accent</color>
     <color name="onPrimaryText">#ffffff</color>
     <color name="onSecondaryText">#000000</color>

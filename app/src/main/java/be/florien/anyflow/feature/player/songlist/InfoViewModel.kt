@@ -48,13 +48,13 @@ class InfoViewModel @Inject constructor(
 
     fun executeAction(fieldType: FieldType, actionType: ActionType) {
         when (actionType) {
-            ActionType.EXPAND -> toggleExpansion(fieldType)
+            ActionType.EXPAND_TITLE -> toggleExpansion(fieldType)
             ActionType.ADD_NEXT -> playNext()
             ActionType.ADD_TO_PLAYLIST -> displayPlaylistList()
             ActionType.ADD_TO_FILTER -> filterOn(fieldType)
             ActionType.SEARCH -> closeAndSearch(fieldType)
             ActionType.DOWNLOAD -> download()
-            ActionType.NONE -> return
+            ActionType.NONE, ActionType.INFO_TITLE -> return
         }
     }
 
@@ -77,14 +77,14 @@ class InfoViewModel @Inject constructor(
             return
         }
         (songRows as MutableLiveData).value = listOf(
-            SongRow(R.string.info_title, value.title, null, R.drawable.ic_next_occurence, FieldType.TITLE, ActionType.EXPAND),
-            SongRow(R.string.info_artist, value.artistName, null, R.drawable.ic_next_occurence, FieldType.ARTIST, ActionType.EXPAND),
-            SongRow(R.string.info_track, value.track.toString(), null, 0, FieldType.TRACK, ActionType.NONE),
-            SongRow(R.string.info_album, value.albumName, null, R.drawable.ic_next_occurence, FieldType.ALBUM, ActionType.EXPAND),
-            SongRow(R.string.info_album_artist, value.albumArtistName, null, R.drawable.ic_next_occurence, FieldType.ALBUM_ARTIST, ActionType.EXPAND),
-            SongRow(R.string.info_genre, value.genre, null, R.drawable.ic_next_occurence, FieldType.GENRE, ActionType.EXPAND),
-            SongRow(R.string.info_duration, value.timeText, null, 0, FieldType.DURATION, ActionType.NONE),
-            SongRow(R.string.info_year, value.year.toString(), null, 0, FieldType.YEAR, ActionType.NONE)
+            SongRow(R.string.info_title, value.title, null, R.drawable.ic_next_occurence, FieldType.TITLE, ActionType.EXPAND_TITLE),
+            SongRow(R.string.info_artist, value.artistName, null, R.drawable.ic_next_occurence, FieldType.ARTIST, ActionType.EXPAND_TITLE),
+            SongRow(R.string.info_track, value.track.toString(), null, 0, FieldType.TRACK, ActionType.INFO_TITLE),
+            SongRow(R.string.info_album, value.albumName, null, R.drawable.ic_next_occurence, FieldType.ALBUM, ActionType.EXPAND_TITLE),
+            SongRow(R.string.info_album_artist, value.albumArtistName, null, R.drawable.ic_next_occurence, FieldType.ALBUM_ARTIST, ActionType.EXPAND_TITLE),
+            SongRow(R.string.info_genre, value.genre, null, R.drawable.ic_next_occurence, FieldType.GENRE, ActionType.EXPAND_TITLE),
+            SongRow(R.string.info_duration, value.timeText, null, 0, FieldType.DURATION, ActionType.INFO_TITLE),
+            SongRow(R.string.info_year, value.year.toString(), null, 0, FieldType.YEAR, ActionType.INFO_TITLE)
         )
     }
 
@@ -94,7 +94,11 @@ class InfoViewModel @Inject constructor(
             SongRow(R.string.info_option_add_to_playlist, null, R.string.info_option_add_to_playlist_detail, R.drawable.ic_add_to_playlist, fieldType, ActionType.ADD_TO_PLAYLIST),
             SongRow(R.string.info_option_filter_title, songInfoData.title, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
             SongRow(R.string.info_option_search_title, songInfoData.title, R.string.info_option_search_on, R.drawable.ic_search, fieldType, ActionType.SEARCH),
-            SongRow(R.string.info_option_download, null, R.string.info_option_download_description, R.drawable.ic_download, fieldType, ActionType.DOWNLOAD)
+            if (songInfoData.local == null) {
+                SongRow(R.string.info_option_download, null, R.string.info_option_download_description, R.drawable.ic_download, fieldType, ActionType.DOWNLOAD)
+            } else {
+                SongRow(R.string.info_option_downloaded, null, R.string.info_option_downloaded_description, R.drawable.ic_downloaded, fieldType, ActionType.NONE)
+            }
         )
         FieldType.ARTIST -> listOf(
             SongRow(R.string.info_option_filter_title, songInfoData.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
@@ -121,13 +125,13 @@ class InfoViewModel @Inject constructor(
 
     private fun toggleExpansion(fieldType: FieldType) {
         val mutableList = (songRows.value as List<SongRow>).toMutableList()
-        val togglePosition = mutableList.indexOfFirst { it.actionType == ActionType.EXPAND && it.fieldType == fieldType }
+        val togglePosition = mutableList.indexOfFirst { it.actionType == ActionType.EXPAND_TITLE && it.fieldType == fieldType }
         val toggledItem = mutableList.removeAt(togglePosition)
-        val isExpanded = mutableList.size > togglePosition && mutableList[togglePosition].actionType != ActionType.EXPAND && mutableList[togglePosition].actionType != ActionType.NONE
+        val isExpanded = mutableList.size > togglePosition && mutableList[togglePosition].actionType != ActionType.EXPAND_TITLE && mutableList[togglePosition].actionType != ActionType.INFO_TITLE
 
         if (isExpanded) {
             val newToggledItem = SongRow(toggledItem.title, toggledItem.text, null, R.drawable.ic_next_occurence, toggledItem.fieldType, toggledItem.actionType)
-            val filteredList = mutableList.filterNot { it.fieldType == fieldType && it.actionType != ActionType.EXPAND }.toMutableList()
+            val filteredList = mutableList.filterNot { it.fieldType == fieldType && it.actionType != ActionType.EXPAND_TITLE }.toMutableList()
             filteredList.add(togglePosition, newToggledItem)
             (songRows as MutableLiveData).value = filteredList
         } else {
@@ -198,6 +202,7 @@ class InfoViewModel @Inject constructor(
                 }
             }
             dataRepository.updateSongLocalUri(songId, newSongUri.toString())
+            initSongInfo()
         }
     }
 
@@ -228,6 +233,6 @@ class InfoViewModel @Inject constructor(
     }
 
     enum class ActionType {
-        NONE, EXPAND, ADD_TO_FILTER, ADD_TO_PLAYLIST, ADD_NEXT, SEARCH, DOWNLOAD
+        NONE, INFO_TITLE, EXPAND_TITLE, ADD_TO_FILTER, ADD_TO_PLAYLIST, ADD_NEXT, SEARCH, DOWNLOAD
     }
 }

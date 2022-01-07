@@ -107,8 +107,10 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
                 else -> ""
             }
             binding.root.setOnClickListener { viewModel.executeAction(row.fieldType, row.actionType) }
-            if (row.actionType != InfoViewModel.ActionType.NONE && row.actionType != InfoViewModel.ActionType.EXPAND) {
-                binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.accentLightPlus, parent.context.theme))
+            if (row.actionType == InfoViewModel.ActionType.NONE ) {
+                binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.primaryBackground, parent.context.theme))
+            } else if (row.actionType != InfoViewModel.ActionType.INFO_TITLE && row.actionType != InfoViewModel.ActionType.EXPAND_TITLE) {
+                binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.accentBackground, parent.context.theme))
             } else {
                 binding.root.setBackgroundColor(0)
             }

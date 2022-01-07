@@ -72,7 +72,9 @@
     <string name="info_option_filter_title">Filtrer</string>
     <string name="info_option_search_title">Rechercher</string>
     <string name="info_option_download">Télécharger</string>
+    <string name="info_option_downloaded">Téléchargée</string>
     <string name="info_option_download_description">Cette chanson sera disponible pour une écoute hors-ligne</string>
+    <string name="info_option_downloaded_description">Cette chanson est disponible pour une écoute hors-ligne</string>
     <string name="alarm_repeat">Répétition</string>
     <string name="weekday_monday">Lundi</string>
     <string name="weekday_tuesday">Mardi</string>
