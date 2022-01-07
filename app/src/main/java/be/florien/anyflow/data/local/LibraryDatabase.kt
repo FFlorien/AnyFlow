@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
-@Database(entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class], version = 6)
+@Database(version = 7, entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class])
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -44,7 +44,7 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
     fun getSongsInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInAlphabeticalOrder()
-    fun getIdsInQueueOrder(): LiveData<List<Long>> = getSongDao().idsInQueueOrder()
+    fun getIdsInQueueOrder(): LiveData<List<DbSongToPlay>> = getSongDao().songsInQueueOrder()
     fun getSongsFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayFiltered(filter)
     suspend fun getSongsFilteredList(filter: String): List<DbSongDisplay> = getSongDao().displayFilteredList(filter)
 
@@ -121,6 +121,10 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun addPlaylistSongs(playlistSongs: List<DbPlaylistSongs>) = asyncUpdate(CHANGE_PLAYLIST_SONG) {
         getPlaylistSongsDao().insert(playlistSongs)
+    }
+
+    suspend fun updateSongLocalUri(songId: Long, uri: String) {
+        getSongDao().updateWithLocalUri(songId, uri)
     }
 
     suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
@@ -256,6 +260,12 @@ abstract class LibraryDatabase : RoomDatabase() {
                             object : Migration(5, 6) {
                                 override fun migrate(database: SupportSQLiteDatabase) {
                                     database.execSQL("CREATE TABLE Alarm (id INTEGER NOT NULL, hour INTEGER NOT NULL, minute INTEGER NOT NULL, active INTEGER NOT NULL, monday INTEGER NOT NULL, tuesday INTEGER NOT NULL, wednesday INTEGER NOT NULL, thursday INTEGER NOT NULL, friday INTEGER NOT NULL, saturday INTEGER NOT NULL , sunday INTEGER NOT NULL , PRIMARY KEY(id))")
+                                }
+
+                            },
+                            object : Migration(6, 7) {
+                                override fun migrate(database: SupportSQLiteDatabase) {
+                                    database.execSQL("ALTER TABLE Song ADD COLUMN local TEXT DEFAULT null")
                                 }
 
                             })

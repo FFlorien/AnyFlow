@@ -9,7 +9,7 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.data.AmpacheDownloadService
+import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
@@ -17,19 +17,14 @@ import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
-import com.google.android.exoplayer2.offline.DownloadHelper
-import com.google.android.exoplayer2.offline.DownloadService
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
-import org.json.JSONObject
-import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 
 class ExoPlayerController
@@ -66,10 +61,12 @@ class ExoPlayerController
      */
 
     init {
-        dataSourceFactory = CacheDataSource.Factory()
-            .setCache(cache)
-            .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
-            .setCacheWriteDataSinkFactory(null) // Disable writing.
+        dataSourceFactory = DefaultDataSourceFactory(
+            context, CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
+                .setCacheWriteDataSinkFactory(null)// Disable writing.
+        )
 
         mediaPlayer = SimpleExoPlayer
             .Builder(context, DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
@@ -138,10 +135,6 @@ class ExoPlayerController
         mediaPlayer.seekTo(duration)
     }
 
-    override fun download(id: Long) {
-        downloadMedia(idToMediaItem(id)!!)
-    }
-
     override fun onDestroy() {
         //todo
     }
@@ -165,8 +158,8 @@ class ExoPlayerController
             GlobalScope.launch {
                 ampacheConnection.reconnect {
                     GlobalScope.launch(Dispatchers.Main) {
-                        val firstItem = idToMediaItem(playingQueue.stateUpdater.value?.currentSong)
-                        val secondItem = idToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+                        val firstItem = dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+                        val secondItem = dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.nextSong)
                         mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
                         mediaPlayer.seekTo(0, C.TIME_UNSET)
                     }
@@ -211,15 +204,16 @@ class ExoPlayerController
      */
 
     private fun applyState(state: PlayingQueue.PlayingQueueState) {
-        val isNextSong = mediaPlayer.currentWindowIndex == 1
+        val nextSongByUser = mediaPlayer.mediaItemCount > 0 && mediaPlayer.getMediaItemAt(1).mediaId == state.currentSong.id.toString()
+        val isNextSong = mediaPlayer.currentWindowIndex == 1 || nextSongByUser
         if (isNextSong) {
             mediaPlayer.removeMediaItem(0)
         }
-        val hasCurrentItemChanged = mediaPlayer.currentMediaItem?.mediaId != state.currentSong.toString()
+        val hasCurrentItemChanged = mediaPlayer.currentMediaItem?.mediaId != state.currentSong.id.toString()
         val hasNextItemChanged = (if (mediaPlayer.mediaItemCount > 1) mediaPlayer.getMediaItemAt(1).mediaId else null) != state.nextSong?.toString()
         if (hasCurrentItemChanged) {
             mediaPlayer.clearMediaItems()
-            mediaPlayer.setMediaItems(listOfNotNull(idToMediaItem(state.currentSong), idToMediaItem(state.nextSong)))
+            mediaPlayer.setMediaItems(listOfNotNull(dbSongToPlayToMediaItem(state.currentSong), dbSongToPlayToMediaItem(state.nextSong)))
             prepare()
 
             if (state.intent == PlayingQueue.PlayingQueueIntent.CONTINUE || state.intent == PlayingQueue.PlayingQueueIntent.START) {
@@ -228,7 +222,7 @@ class ExoPlayerController
         } else if (hasNextItemChanged) {
             mediaPlayer.removeMediaItem(1)
             if (state.nextSong != null) {
-                mediaPlayer.addMediaItem(idToMediaItem(state.nextSong)!!)
+                mediaPlayer.addMediaItem(dbSongToPlayToMediaItem(state.nextSong)!!)
             }
         } else {
             if (state.intent == PlayingQueue.PlayingQueueIntent.START) resume()
@@ -236,28 +230,12 @@ class ExoPlayerController
         }
     }
 
-    private fun idToMediaItem(id: Long?): MediaItem? {
-        if (id == null) return null
-        val songUrl = ampacheConnection.getSongUrl(id)
-        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(id.toString()).build()
-    }
-
-    private fun downloadMedia(media: MediaItem) {
-        val helper = DownloadHelper.forMediaItem(context, media)
-        helper.prepare(object : DownloadHelper.Callback {
-            override fun onPrepared(helper: DownloadHelper) {
-                val json = JSONObject()
-                json.put("title", media.mediaMetadata.title)
-                json.put("artist", media.mediaMetadata.artist)
-                val download = helper.getDownloadRequest(media.mediaId, Util.getUtf8Bytes(json.toString()))
-                //sending the request to the download service
-                DownloadService.sendAddDownload(context, AmpacheDownloadService::class.java, download, true)
-            }
-
-            override fun onPrepareError(helper: DownloadHelper, e: IOException) {
-                Timber.e(e)
-            }
-        })
-
+    private fun dbSongToPlayToMediaItem(song: DbSongToPlay?): MediaItem? {
+        if (song == null) return null
+        if (song.local != null) {
+            return MediaItem.Builder().setUri(song.local).setMediaId(song.id.toString()).build()
+        }
+        val songUrl = ampacheConnection.getSongUrl(song.id)
+        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(song.id.toString()).build()
     }
 }

@@ -7,6 +7,8 @@ import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.local.model.DbSongToPlay
+import be.florien.anyflow.data.toDbSongToPlay
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.data.view.SongInfo
@@ -36,8 +38,8 @@ class PlayingQueue
             if (value.position <= queueSize - 1) {
                 field = value
                 MainScope().launch {
-                    val currentSongId = songIdsListUpdater.value?.get(value.position) ?: 0L
-                    val nextSongId = songIdsListUpdater.value?.getOrNull(value.position + 1) ?: 0L
+                    val currentSongId = songIdsListUpdater.value?.get(value.position) ?: DbSongToPlay(0L, null)
+                    val nextSongId = songIdsListUpdater.value?.getOrNull(value.position + 1) ?: DbSongToPlay(0L, null)
                     (stateUpdater as MutableLiveData).value = PlayingQueueState(currentSongId, nextSongId, field.intent)
                     positionUpdater.value = field.position
                     orderComposer.currentPosition = field.position
@@ -64,7 +66,7 @@ class PlayingQueue
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
     val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
-    private val songIdsListUpdater: LiveData<List<Long>> = dataRepository.getIdsInQueueOrder()
+    private val songIdsListUpdater: LiveData<List<DbSongToPlay>> = dataRepository.getIdsInQueueOrder()
     val stateUpdater: LiveData<PlayingQueueState> = MutableLiveData()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
         .map { orderList ->
@@ -78,7 +80,7 @@ class PlayingQueue
             val indexOf = if (currentSong.value == null) {
                 listPosition
             } else {
-                it.indexOf(currentSong.value?.id)
+                it.indexOf(currentSong.value?.toDbSongToPlay())
             }
             listPosition = if (indexOf >= 0) indexOf else 0
         }
@@ -87,7 +89,7 @@ class PlayingQueue
         }
     }
 
-    class PlayingQueueState(val currentSong: Long, val nextSong: Long?, val intent: PlayingQueueIntent)
+    class PlayingQueueState(val currentSong: DbSongToPlay, val nextSong: DbSongToPlay?, val intent: PlayingQueueIntent)
 
     enum class PlayingQueueIntent {
         START,

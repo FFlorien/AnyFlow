@@ -1,7 +1,5 @@
 package be.florien.anyflow.feature.player.songlist
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +15,6 @@ import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
 import be.florien.anyflow.feature.player.PlayerActivity
-import be.florien.anyflow.player.PlayerService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", "")) : BottomSheetDialogFragment() {
@@ -72,15 +69,9 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
                 SelectPlaylistFragment(song.id).show(childFragmentManager, null)
             }
         }
-        requireActivity().bindService(Intent(requireActivity(), PlayerService::class.java), viewModel.connection, Context.BIND_AUTO_CREATE)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        requireActivity().unbindService(viewModel.connection)
-    }
-
-    class InfoAdapter : ListAdapter<InfoViewModel.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<InfoViewModel.SongRow>() {
+    inner class InfoAdapter : ListAdapter<InfoViewModel.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<InfoViewModel.SongRow>() {
         override fun areItemsTheSame(oldItem: InfoViewModel.SongRow, newItem: InfoViewModel.SongRow): Boolean {
             return oldItem.fieldType == newItem.fieldType && oldItem.actionType == newItem.actionType
         }
@@ -106,7 +97,7 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
 
     }
 
-    class InfoViewHolder(val parent: ViewGroup, val binding: ItemInfoBinding = ItemInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)) : RecyclerView.ViewHolder(binding.root) {
+    inner class InfoViewHolder(val parent: ViewGroup, val binding: ItemInfoBinding = ItemInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)) : RecyclerView.ViewHolder(binding.root) {
         fun bind(row: InfoViewModel.SongRow) {
             binding.display = row
             binding.descriptionText = when {
@@ -115,7 +106,7 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
                 row.text != null && row.textRes != null -> parent.context.resources.getString(row.textRes, row.text)
                 else -> ""
             }
-            binding.root.setOnClickListener { row.action?.invoke(row.fieldType) }
+            binding.root.setOnClickListener { viewModel.executeAction(row.fieldType, row.actionType) }
             if (row.actionType != InfoViewModel.ActionType.NONE && row.actionType != InfoViewModel.ActionType.EXPAND) {
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.accentLightPlus, parent.context.theme))
             } else {

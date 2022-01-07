@@ -8,6 +8,7 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbSongDisplay
+import be.florien.anyflow.data.local.model.DbSongToPlay
 
 @Dao
 interface SongDao : BaseDao<DbSong> {
@@ -24,8 +25,8 @@ interface SongDao : BaseDao<DbSong> {
     @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song WHERE title LIKE :filter ORDER BY genre COLLATE UNICODE")
     suspend fun displayFilteredList(filter: String): List<DbSongDisplay>
 
-    @Query("SELECT id FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun idsInQueueOrder(): LiveData<List<Long>>
+    @Query("SELECT id, local FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    fun songsInQueueOrder(): LiveData<List<DbSongToPlay>>
 
     @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     suspend fun forPositionInQueue(position: Int): DbSong?
@@ -56,4 +57,7 @@ interface SongDao : BaseDao<DbSong> {
 
     @Query("SELECT * FROM song WHERE id = :songId")
     suspend fun findById(songId: Long): DbSong?
+
+    @Query("UPDATE song SET local = :uri WHERE id = :songId")
+    suspend fun updateWithLocalUri(songId: Long, uri: String)
 }

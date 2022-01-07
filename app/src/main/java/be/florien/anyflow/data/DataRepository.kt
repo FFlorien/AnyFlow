@@ -142,18 +142,22 @@ class DataRepository
     ): List<T> =
             libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
+    suspend fun updateSongLocalUri(songId: Long, uri: String) {
+        libraryDatabase.updateSongLocalUri(songId, uri)
+    }
+
     /**
      * Playlists modification
      */
 
-    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheConnection.addSongToPlaylist(songId, playlistId)
-        libraryDatabase.addPlaylistSongs(listOf(DbPlaylistSongs(songId, playlistId)))
-    }
-
     suspend fun createPlaylist(name: String) {
         ampacheConnection.createPlaylist(name)
         updatePlaylistAsync()
+    }
+
+    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
+        ampacheConnection.addSongToPlaylist(songId, playlistId)
+        libraryDatabase.addPlaylistSongs(listOf(DbPlaylistSongs(songId, playlistId)))
     }
 
     /**
@@ -297,21 +301,36 @@ class DataRepository
     }
 
     private suspend fun updatePlaylistAsync() {
-        var listOnServer = ampacheConnection.getPlaylists()
-        while (listOnServer != null) {
-            libraryDatabase.addPlayLists(listOnServer.map { it.toDbPlaylist() })
-            for (playlist in listOnServer) {
-                updatePlaylistSongListAsync(playlist.id)
+        val nowDate = TimeOperations.getCurrentDate()
+        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong(LAST_PLAYLIST_UPDATE, 0))
+        val lastAcceptableUpdate = lastAcceptableUpdate()
+
+        if (lastUpdate.before(lastAcceptableUpdate)) {
+            var listOnServer = ampacheConnection.getPlaylists()
+            while (listOnServer != null) {
+                libraryDatabase.addPlayLists(listOnServer.map { it.toDbPlaylist() })
+                for (playlist in listOnServer) {
+                    updatePlaylistSongListAsync(playlist.id)
+                }
+                listOnServer = ampacheConnection.getPlaylists()
             }
-            listOnServer = ampacheConnection.getPlaylists()
+            sharedPreferences.applyPutLong(LAST_PLAYLIST_UPDATE, nowDate.timeInMillis)
         }
     }
 
     private suspend fun updatePlaylistSongListAsync(playlistId: Long) {
-        var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
-        while (listOnServer != null) {
-            libraryDatabase.addPlaylistSongs(listOnServer.map { DbPlaylistSongs(it.id, playlistId) })
-            listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+        val nowDate = TimeOperations.getCurrentDate()
+        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong("$LAST_PLAYLIST_SONGS_UPDATE$playlistId", 0))
+        val lastAcceptableUpdate = lastAcceptableUpdate()
+
+        if (lastUpdate.before(lastAcceptableUpdate)) {
+            var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+            while (listOnServer != null) {
+                libraryDatabase.addPlaylistSongs(listOnServer.map { DbPlaylistSongs(it.id, playlistId) })
+                listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+            }
+
+            sharedPreferences.applyPutLong("$LAST_PLAYLIST_SONGS_UPDATE$playlistId", nowDate.timeInMillis)
         }
     }
 
@@ -415,6 +434,6 @@ class DataRepository
         private const val LAST_ARTIST_UPDATE = "LAST_ARTIST_UPDATE_v1"
         private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
         private const val LAST_PLAYLIST_UPDATE = "LAST_PLAYLIST_UPDATE"
-        private const val LAST_PLAYLIST_SONGS_UPDATE = "LAST_PLAYLIST_SONGS_UPDATE"
+        private const val LAST_PLAYLIST_SONGS_UPDATE = "LAST_PLAYLIST_SONGS_UPDATE_"
     }
 }
