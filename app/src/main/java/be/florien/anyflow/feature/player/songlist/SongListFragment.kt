@@ -311,7 +311,7 @@ class SongListFragment : BaseFragment() {
             }
         }
 
-        fun swipeToClose() { // todo move this in another method and prevent opening info when closing options
+        fun swipeToClose() {
             if (binding.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
                 val song = binding.song ?: return
                 InfoFragment(song).show(childFragmentManager, "info")
