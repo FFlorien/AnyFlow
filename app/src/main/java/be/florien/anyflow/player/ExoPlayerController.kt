@@ -15,7 +15,6 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.upstream.DataSource
@@ -153,7 +152,10 @@ class ExoPlayerController
     }
 
     override fun onPlayerError(error: PlaybackException) {
-        if ((error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403 || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400) {
+        if (
+            (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403
+            || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400
+        ) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
                 ampacheConnection.reconnect {
@@ -166,6 +168,12 @@ class ExoPlayerController
                     prepare()
                 }
             }
+        } else if (
+            error is ExoPlaybackException
+            && error.cause is IllegalStateException
+            && error.cause?.message?.contains("Playback stuck buffering and not loading", false) == true
+        ) {
+            mediaPlayer.seekTo(mediaPlayer.currentPosition)
         } else {
             eLog(error, "Error while playback")
         }
