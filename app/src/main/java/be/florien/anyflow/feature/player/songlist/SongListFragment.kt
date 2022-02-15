@@ -2,12 +2,16 @@ package be.florien.anyflow.feature.player.songlist
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
@@ -278,11 +282,7 @@ class SongListFragment : BaseFragment() {
                 }
             }
             binding.songInfo.setOnLongClickListener {
-                if (binding.songInfo.translationX == 0f) {
-                    swipeToOpen()
-                } else {
-                    swipeToClose()
-                }
+                swipeForInfo()
                 return@setOnLongClickListener true
             }
         }
@@ -311,9 +311,17 @@ class SongListFragment : BaseFragment() {
             }
         }
 
-        fun swipeToClose() {
-            startingTranslationX = 1f
+        fun swipeToClose() { // todo move this in another method and prevent opening info when closing options
+            if (binding.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
+                val song = binding.song ?: return
+                InfoFragment(song).show(childFragmentManager, "info")
+            }
             ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, 0f).apply {
+                duration = 300L
+                interpolator = DecelerateInterpolator()
+                start()
+            }
+            ObjectAnimator.ofFloat(binding.songOptions, View.TRANSLATION_X, 0f).apply {
                 duration = 300L
                 interpolator = DecelerateInterpolator()
                 start()
@@ -321,10 +329,10 @@ class SongListFragment : BaseFragment() {
             if (isCurrentSong && this != currentSongViewHolder) {
                 currentSongViewHolder.swipeToClose()
             }
+            startingTranslationX = 0F
         }
 
         fun swipeToOpen() {
-            startingTranslationX = 1f
             if (this != currentSongViewHolder) {
                 val start = linearLayoutManager.findFirstVisibleItemPosition()
                 val stop = linearLayoutManager.findLastVisibleItemPosition()
@@ -354,20 +362,56 @@ class SongListFragment : BaseFragment() {
                     }
                 }
             }
-            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, (binding.songOptions.left - itemView.width.toFloat())).apply {
+            val translationXEnd = binding.songOptions.left - itemView.width.toFloat()
+            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, translationXEnd).apply {
                 duration = 100L
                 interpolator = DecelerateInterpolator()
                 start()
             }
+            startingTranslationX = translationXEnd
         }
 
         fun swipeForMove(translateX: Float) {
-            if (startingTranslationX > 0) {
-                startingTranslationX = binding.songInfo.translationX
+            if (translateX > 0F) {
+                val translationToSeeOptions = (binding.infoView.right).toFloat()
+                val translationToFollowMove = startingTranslationX + translateX
+                binding.songInfo.translationX = minOf(translationToSeeOptions, translationToFollowMove).coerceAtLeast(startingTranslationX)
+                binding.songOptions.translationX = minOf(translationToSeeOptions, translationToFollowMove).coerceAtLeast(startingTranslationX)
+            } else {
+                val translationToSeeOptions = (binding.songOptions.left - itemView.width).toFloat()
+                val translationToFollowMove = startingTranslationX + translateX
+                binding.songInfo.translationX = maxOf(translationToSeeOptions, translationToFollowMove).coerceAtMost(0f)
             }
-            val translationToSeeOptions = (binding.songOptions.left - itemView.width).toFloat()
-            val translationToFollowMove = startingTranslationX + translateX
-            binding.songInfo.translationX = maxOf(translationToSeeOptions, translationToFollowMove).coerceAtMost(0f)
+        }
+
+        private fun swipeForInfo() {
+            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, binding.infoView.right.toFloat()).apply {
+                duration = 200L
+                interpolator = DecelerateInterpolator()
+                repeatCount = 1
+                repeatMode = ValueAnimator.REVERSE
+                addListener(object : Animator.AnimatorListener {
+                    override fun onAnimationStart(animation: Animator?) {}
+
+                    override fun onAnimationEnd(animation: Animator?) {
+                        val song = binding.song ?: return
+                        InfoFragment(song).show(childFragmentManager, "info")
+                    }
+
+                    override fun onAnimationCancel(animation: Animator?) {}
+
+                    override fun onAnimationRepeat(animation: Animator?) {}
+
+                })
+                start()
+            }
+            ObjectAnimator.ofFloat(binding.songOptions, View.TRANSLATION_X, binding.infoView.right.toFloat()).apply {
+                duration = 200L
+                interpolator = DecelerateInterpolator()
+                repeatCount = 1
+                repeatMode = ValueAnimator.REVERSE
+                start()
+            }
         }
     }
 
