@@ -383,7 +383,7 @@ class DataRepository
     }
 
     private fun constructJoinStatement(filterList: List<DbFilter>): String {
-        return filterList.filter { !it.joinClause.isNullOrBlank() }.joinToString(separator = " ", prefix = " ", postfix = " ") {
+        return filterList.filter { !it.joinClause.isNullOrBlank() }.distinctBy{it.joinClause}.joinToString(separator = " ", prefix = " ", postfix = " ") {
             it.joinClause!!
         }
     }
