@@ -270,7 +270,7 @@ class SongListFragment : BaseFragment() {
             .inflate(LayoutInflater.from(parent.context), parent, false)
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private var startingTranslationX: Float = 1f
+        private var startingTranslationX: Float = 0f
         var isCurrentSong: Boolean = false
 
         init {
