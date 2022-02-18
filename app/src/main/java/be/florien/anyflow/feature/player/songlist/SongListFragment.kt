@@ -153,6 +153,11 @@ class SongListFragment : BaseFragment() {
             }
             updateCurrentSongDisplay()
         }
+        viewModel.playlistListDisplayedFor.observe(viewLifecycleOwner) {
+            if (it > 0) {
+                SelectPlaylistFragment(it).show(childFragmentManager, null)
+            }
+        }
         shouldHideLoading = true
     }
 
@@ -306,7 +311,7 @@ class SongListFragment : BaseFragment() {
                 if (song == null) {
                     return@setOnClickListener
                 }
-                InfoFragment(song).show(childFragmentManager, "info")
+                viewModel.executeSongAction(song.id, SongInfoOptions.ActionType.SEARCH, SongInfoOptions.FieldType.ARTIST)
                 swipeToClose()
             }
         }

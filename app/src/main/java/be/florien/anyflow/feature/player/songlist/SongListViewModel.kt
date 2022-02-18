@@ -1,17 +1,18 @@
 package be.florien.anyflow.feature.player.songlist
 
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.map
+import androidx.lifecycle.*
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.toSong
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.injection.ActivityScope
+import be.florien.anyflow.player.FiltersManager
+import be.florien.anyflow.player.OrderComposer
 import be.florien.anyflow.player.PlayingQueue
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -22,9 +23,17 @@ import javax.inject.Inject
 
 @ActivityScope
 class SongListViewModel
-@Inject constructor(private val playingQueue: PlayingQueue, private val dataRepository: DataRepository) : BaseViewModel() {
+@Inject constructor(
+    context: Context,
+    ampache: AmpacheConnection,
+    filtersManager: FiltersManager,
+    orderComposer: OrderComposer,
+    private val playingQueue: PlayingQueue,
+    private val dataRepository: DataRepository,
+) : BaseViewModel() {
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
+    private val songInfoOptions = SongInfoOptions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository)
     val pagedAudioQueue: LiveData<PagingData<Song>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<Song> = playingQueue.currentSong.map { it.toSong() }
 
@@ -34,6 +43,7 @@ class SongListViewModel
     val searchResults: MutableLiveData<LiveData<List<Long>>> = MutableLiveData()
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
+    val playlistListDisplayedFor: LiveData<Long> = MutableLiveData(-1L)
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
         private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -108,6 +118,19 @@ class SongListViewModel
         searchedText.value = ""
     }
 
+    fun executeSongAction(songId: Long, actionType: SongInfoOptions.ActionType, fieldType: SongInfoOptions.FieldType) {
+        viewModelScope.launch {
+            when (actionType) {
+                SongInfoOptions.ActionType.ADD_NEXT -> songInfoOptions.playNext(songId)
+                SongInfoOptions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songId)
+                SongInfoOptions.ActionType.ADD_TO_FILTER -> songInfoOptions.filterOn(songId, fieldType)
+                SongInfoOptions.ActionType.SEARCH -> searchText(songInfoOptions.getSearchTerms(songId, fieldType))
+                SongInfoOptions.ActionType.DOWNLOAD -> songInfoOptions.download(songId)
+                else -> return@launch
+            }
+        }
+    }
+
     /**
      * Private methods
      */
@@ -116,5 +139,14 @@ class SongListViewModel
         searchResults.value = null
         searchProgression.value = -1
         searchProgressionText.value = ""
+    }
+
+    private fun searchText(text: String) {
+        isSearching.mutable.value = true
+        searchedText.mutable.value = text
+    }
+
+    private fun displayPlaylistList(songId: Long) {
+        playlistListDisplayedFor.mutable.value = songId
     }
 }

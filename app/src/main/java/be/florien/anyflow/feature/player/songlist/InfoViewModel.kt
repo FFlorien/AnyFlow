@@ -16,28 +16,28 @@ import javax.inject.Inject
 
 class InfoViewModel @Inject constructor(
     context: Context,
-    private val ampache: AmpacheConnection,
-    private val filtersManager: FiltersManager,
-    private val orderComposer: OrderComposer,
-    private val dataRepository: DataRepository
+    ampache: AmpacheConnection,
+    filtersManager: FiltersManager,
+    orderComposer: OrderComposer,
+    dataRepository: DataRepository
 ) : BaseViewModel() {
     val songInfo: LiveData<SongInfo> = MutableLiveData()
     val songRows: LiveData<List<SongInfoOptions.SongRow>> = MutableLiveData(listOf())
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
     private val contentResolver = context.contentResolver
-    private lateinit var songInfoOptions: SongInfoOptions
+    private var songInfoOptions = SongInfoOptions(contentResolver, ampache, filtersManager, orderComposer, dataRepository)
+    private var songId: Long = 0L
 
     /**
      * Public methods
      */
 
     fun setSongId(songId: Long) {
-        songInfoOptions = SongInfoOptions(songId, contentResolver, ampache, filtersManager, orderComposer, dataRepository)
+        this.songId = songId
         viewModelScope.launch {
-            songInfoOptions.initSongInfo()
-            songInfo.mutable.value = songInfoOptions.songInfo
-            songRows.mutable.value = songInfoOptions.getInfoRows()
+            songInfo.mutable.value = songInfoOptions.getSongInfo(songId)
+            songRows.mutable.value = songInfoOptions.getInfoRows(songId)
         }
     }
 
@@ -45,11 +45,11 @@ class InfoViewModel @Inject constructor(
         viewModelScope.launch {
             when (actionType) {
                 SongInfoOptions.ActionType.EXPAND_TITLE -> toggleExpansion(fieldType)
-                SongInfoOptions.ActionType.ADD_NEXT -> songInfoOptions.playNext()
+                SongInfoOptions.ActionType.ADD_NEXT -> songInfoOptions.playNext(songId)
                 SongInfoOptions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList()
-                SongInfoOptions.ActionType.ADD_TO_FILTER -> songInfoOptions.filterOn(fieldType)
-                SongInfoOptions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoOptions.getSearchTerms(fieldType)
-                SongInfoOptions.ActionType.DOWNLOAD -> songInfoOptions.download()
+                SongInfoOptions.ActionType.ADD_TO_FILTER -> songInfoOptions.filterOn(songId, fieldType)
+                SongInfoOptions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoOptions.getSearchTerms(songId, fieldType)
+                SongInfoOptions.ActionType.DOWNLOAD -> songInfoOptions.download(songId)
                 SongInfoOptions.ActionType.NONE, SongInfoOptions.ActionType.INFO_TITLE -> return@launch
             }
         }
@@ -59,7 +59,7 @@ class InfoViewModel @Inject constructor(
      * Private methods: actions
      */
 
-    private fun toggleExpansion(fieldType: SongInfoOptions.FieldType) {
+    private suspend fun toggleExpansion(fieldType: SongInfoOptions.FieldType) {
         val mutableList = (songRows.value as List<SongInfoOptions.SongRow>).toMutableList()
         val togglePosition = mutableList.indexOfFirst { it.actionType == SongInfoOptions.ActionType.EXPAND_TITLE && it.fieldType == fieldType }
         val toggledItem = mutableList.removeAt(togglePosition)
@@ -72,7 +72,7 @@ class InfoViewModel @Inject constructor(
             (songRows as MutableLiveData).value = filteredList
         } else {
             val newToggledItem = SongInfoOptions.SongRow(toggledItem.title, toggledItem.text, null, R.drawable.ic_previous_occurence, toggledItem.fieldType, toggledItem.actionType)
-            mutableList.addAll(togglePosition, songInfoOptions.getOptionsRows(fieldType))
+            mutableList.addAll(togglePosition, songInfoOptions.getOptionsRows(songId, fieldType))
             mutableList.add(togglePosition, newToggledItem)
             (songRows as MutableLiveData).value = mutableList
         }
