@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.player.songlist
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -43,13 +42,9 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(SelectPlaylistViewModel::class.java)
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(SelectPlaylistViewModel::class.java) //todo change get viewmodel from attach to oncreateView in other fragments
         fragmentBinding = FragmentSelectPlaylistBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel
@@ -71,15 +66,15 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
                 val editText = EditText(requireActivity())
                 editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
                 AlertDialog.Builder(requireActivity())
-                        .setView(editText)
-                        .setTitle(R.string.info_option_new_playlist)
-                        .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                            viewModel.createPlaylist(editText.text.toString())
-                        }
-                        .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
-                            dialog.cancel()
-                        }
-                        .show()
+                    .setView(editText)
+                    .setTitle(R.string.info_option_new_playlist)
+                    .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                        viewModel.createPlaylist(editText.text.toString())
+                    }
+                    .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+                        dialog.cancel()
+                    }
+                    .show()
             }
         }
         viewModel.isFinished.observe(viewLifecycleOwner) {
@@ -94,7 +89,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         override fun areItemsTheSame(oldItem: SelectPlaylistViewModel.SelectionItem, newItem: SelectPlaylistViewModel.SelectionItem) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: SelectPlaylistViewModel.SelectionItem, newItem: SelectPlaylistViewModel.SelectionItem): Boolean =
-                oldItem.displayName == newItem.displayName && oldItem.isSelected == (viewModel.currentSelectionLive.value?.any { it.id == newItem.id })
+            oldItem.displayName == newItem.displayName && oldItem.isSelected == (viewModel.currentSelectionLive.value?.any { it.id == newItem.id })
 
     }), FastScrollRecyclerView.SectionedAdapter {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder = PlaylistViewHolder()
@@ -106,13 +101,13 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         }
 
         override fun getSectionName(position: Int): String =
-                snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
-                        ?: ""
+            snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
+                ?: ""
     }
 
     inner class PlaylistViewHolder(
-            private val itemPlaylistBinding: ItemSelectPlaylistBinding
-            = ItemSelectPlaylistBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
+        private val itemPlaylistBinding: ItemSelectPlaylistBinding
+        = ItemSelectPlaylistBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
     ) : RecyclerView.ViewHolder(itemPlaylistBinding.root) {
 
         fun bind(selection: SelectPlaylistViewModel.SelectionItem) {

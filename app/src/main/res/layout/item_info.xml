@@ -6,7 +6,7 @@
 
         <variable
             name="display"
-            type="be.florien.anyflow.feature.player.songlist.InfoViewModel.SongRow" />
+            type="be.florien.anyflow.feature.player.songlist.SongInfoOptions.SongRow" />
 
         <variable
             name="descriptionText"

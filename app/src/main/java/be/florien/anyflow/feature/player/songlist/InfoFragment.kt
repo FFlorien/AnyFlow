@@ -42,7 +42,7 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoViewModel::class.java)
         songListViewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
-        viewModel.songId = song.id
+        viewModel.setSongId(song.id)
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -53,10 +53,10 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
         super.onViewCreated(view, savedInstanceState)
         binding.songInfo.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.songInfo.adapter = InfoAdapter()
-        viewModel.songRows.observe(viewLifecycleOwner, {
+        viewModel.songRows.observe(viewLifecycleOwner) {
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)
-        })
+        }
         viewModel.searchTerm.observe(viewLifecycleOwner) {
             if (it != null) {
                 songListViewModel.isSearching.value = true
@@ -71,12 +71,12 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
         }
     }
 
-    inner class InfoAdapter : ListAdapter<InfoViewModel.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<InfoViewModel.SongRow>() {
-        override fun areItemsTheSame(oldItem: InfoViewModel.SongRow, newItem: InfoViewModel.SongRow): Boolean {
+    inner class InfoAdapter : ListAdapter<SongInfoOptions.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<SongInfoOptions.SongRow>() {
+        override fun areItemsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean {
             return oldItem.fieldType == newItem.fieldType && oldItem.actionType == newItem.actionType
         }
 
-        override fun areContentsTheSame(oldItem: InfoViewModel.SongRow, newItem: InfoViewModel.SongRow): Boolean = areItemsTheSame(oldItem, newItem) && oldItem.icon == newItem.icon
+        override fun areContentsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean = areItemsTheSame(oldItem, newItem) && oldItem.icon == newItem.icon
     }) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder = InfoViewHolder(parent)
@@ -98,7 +98,7 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
     }
 
     inner class InfoViewHolder(val parent: ViewGroup, val binding: ItemInfoBinding = ItemInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(row: InfoViewModel.SongRow) {
+        fun bind(row: SongInfoOptions.SongRow) {
             binding.display = row
             binding.descriptionText = when {
                 row.text == null && row.textRes != null -> parent.context.resources.getString(row.textRes)
@@ -107,9 +107,9 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
                 else -> ""
             }
             binding.root.setOnClickListener { viewModel.executeAction(row.fieldType, row.actionType) }
-            if (row.actionType == InfoViewModel.ActionType.NONE ) {
+            if (row.actionType == SongInfoOptions.ActionType.NONE ) {
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.primaryBackground, parent.context.theme))
-            } else if (row.actionType != InfoViewModel.ActionType.INFO_TITLE && row.actionType != InfoViewModel.ActionType.EXPAND_TITLE) {
+            } else if (row.actionType != SongInfoOptions.ActionType.INFO_TITLE && row.actionType != SongInfoOptions.ActionType.EXPAND_TITLE) {
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.accentBackground, parent.context.theme))
             } else {
                 binding.root.setBackgroundColor(0)
