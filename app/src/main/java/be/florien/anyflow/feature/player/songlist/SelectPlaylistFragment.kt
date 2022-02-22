@@ -85,6 +85,14 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         return fragmentBinding.root
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        val parentFragment = parentFragment
+        if (parentFragment is DialogInterface.OnDismissListener) {
+            parentFragment.onDismiss(dialog);
+        }
+        super.onDismiss(dialog)
+    }
+
     inner class FilterListAdapter : PagingDataAdapter<SelectPlaylistViewModel.SelectionItem, PlaylistViewHolder>(object : DiffUtil.ItemCallback<SelectPlaylistViewModel.SelectionItem>() {
         override fun areItemsTheSame(oldItem: SelectPlaylistViewModel.SelectionItem, newItem: SelectPlaylistViewModel.SelectionItem) = oldItem.id == newItem.id
 

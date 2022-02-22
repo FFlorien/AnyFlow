@@ -118,6 +118,11 @@ class SongListViewModel
         searchedText.value = ""
     }
 
+    fun clearPlaylistDisplay() {
+        playlistListDisplayedFor.mutable.value = -1L
+    }
+
+    //todo extract some of these actions elsewhere because it's the fragment responsibility
     fun executeSongAction(songId: Long, actionType: SongInfoOptions.ActionType, fieldType: SongInfoOptions.FieldType) {
         viewModelScope.launch {
             when (actionType) {

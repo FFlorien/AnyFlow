@@ -23,7 +23,7 @@
         <TextView
             android:id="@+id/filterName"
             android:layout_width="0dp"
-            android:layout_height="@dimen/imageSize"
+            android:layout_height="@dimen/minClickableSize"
             android:layout_margin="8dp"
             android:gravity="start|center_vertical"
             android:text="@{item.displayName}"

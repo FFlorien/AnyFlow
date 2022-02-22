@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.feature.BaseViewModel
@@ -15,7 +16,7 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
     private val currentSelection: MutableSet<SelectionItem> = mutableSetOf()
     val currentSelectionLive: LiveData<Set<SelectionItem>> = MutableLiveData(setOf())
 
-    val values: LiveData<PagingData<SelectionItem>> = dataRepository.getPlaylists(::convert)
+    val values: LiveData<PagingData<SelectionItem>> = dataRepository.getPlaylists(::convert).cachedIn(this)
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 

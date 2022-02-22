@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -43,7 +44,7 @@ import kotlin.math.absoluteValue
  * Display a list of songs and play it upon selection.
  */
 @ActivityScope
-class SongListFragment : BaseFragment() {
+class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
     override fun getTitle(): String = getString(R.string.player_playing_now)
 
     lateinit var viewModel: SongListViewModel
@@ -154,8 +155,8 @@ class SongListFragment : BaseFragment() {
             updateCurrentSongDisplay()
         }
         viewModel.playlistListDisplayedFor.observe(viewLifecycleOwner) {
-            if (it > 0) {
-                SelectPlaylistFragment(it).show(childFragmentManager, null)
+            if (it > 0 && childFragmentManager.findFragmentByTag("playlist") == null) {
+                SelectPlaylistFragment(it).show(childFragmentManager, "playlist")
             }
         }
         shouldHideLoading = true
@@ -175,6 +176,10 @@ class SongListFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         (requireActivity() as PlayerActivity).menuCoordinator.removeMenuHolder(searchMenuHolder)
+    }
+
+    override fun onDismiss(dialog: DialogInterface?) {
+        viewModel.clearPlaylistDisplay()
     }
 
     private fun updateCurrentSongDisplay() {
@@ -311,16 +316,19 @@ class SongListFragment : BaseFragment() {
                 if (song == null) {
                     return@setOnClickListener
                 }
-                viewModel.executeSongAction(song.id, SongInfoOptions.ActionType.SEARCH, SongInfoOptions.FieldType.ARTIST)
+                viewModel.executeSongAction(song.id, SongInfoOptions.ActionType.ADD_TO_PLAYLIST, SongInfoOptions.FieldType.TITLE)
                 swipeToClose()
             }
         }
 
-        fun swipeToClose() {
-            if (binding.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
+        fun openInfoWhenSwiped() {
+            if (binding.root.visibility == View.VISIBLE && binding.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
                 val song = binding.song ?: return
                 InfoFragment(song).show(childFragmentManager, "info")
             }
+        }
+
+        fun swipeToClose() {
             ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, 0f).apply {
                 duration = 300L
                 interpolator = DecelerateInterpolator()
@@ -471,6 +479,7 @@ class SongListFragment : BaseFragment() {
                     if (lastDeltaX < -1.0) {
                         viewHolder.swipeToOpen()
                     } else {
+                        viewHolder.openInfoWhenSwiped()
                         viewHolder.swipeToClose()
                     }
                 }

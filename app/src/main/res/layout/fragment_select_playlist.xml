@@ -57,7 +57,8 @@
             android:textColor="@android:color/white"
             android:gravity="center_vertical"
             android:textSize="@dimen/textLarge"
-            android:padding="@dimen/mediumDimen"
+            android:paddingVertical="@dimen/smallDimen"
+            android:paddingHorizontal="@dimen/mediumDimen"
             android:text="@string/info_option_add_to_playlist" />
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView

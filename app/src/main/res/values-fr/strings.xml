@@ -64,7 +64,7 @@
     <string name="info_genre">Genre</string>
     <string name="info_option_track_next">Ajouter la chanson à la suite</string>
     <string name="info_option_next_title">Jouer ensuite</string>
-    <string name="info_option_add_to_playlist">Ajouter à une liste de lecture</string>
+    <string name="info_option_add_to_playlist">Ajouter à des listes de lecture</string>
     <string name="info_option_new_playlist">Nom de la liste de lecture</string>
     <string name="info_option_add_to_playlist_detail">Selectionner une ou plusieurs listes de lecture auxquelles ajouter cette chanson</string>
     <string name="info_option_filter_on">N\'écouter que %1$s</string>

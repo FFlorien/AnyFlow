@@ -41,7 +41,7 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoViewModel::class.java)
-        songListViewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
+        songListViewModel = ViewModelProvider(requireParentFragment(), (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
         viewModel.setSongId(song.id)
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
