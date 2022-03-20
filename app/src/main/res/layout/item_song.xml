@@ -14,21 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/accentBackground">
-
-            <ImageView
-                android:id="@+id/infoView"
-                android:layout_width="@dimen/minClickableSize"
-                android:layout_height="@dimen/minClickableSize"
-                android:layout_gravity="center_vertical"
-                android:padding="@dimen/mediumDimen"
-                android:src="@drawable/ic_info" />
-
-        </FrameLayout>
-
         <LinearLayout
             android:id="@+id/songOptions"
             android:layout_width="wrap_content"
@@ -39,11 +24,19 @@
             android:orientation="horizontal"
             android:padding="@dimen/mediumDimen">
 
-            <ImageButton
-                android:id="@+id/info"
+            <ImageView
+                android:id="@+id/infoView"
                 android:layout_width="@dimen/minClickableSize"
                 android:layout_height="@dimen/minClickableSize"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/mediumDimen"
                 android:src="@drawable/ic_info" />
+
+            <View
+                android:id="@+id/optionsPadding"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
         </LinearLayout>
 

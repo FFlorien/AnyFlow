@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.player.songlist
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.*
@@ -28,12 +29,13 @@ class SongListViewModel
     ampache: AmpacheConnection,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
+    sharedPreferences: SharedPreferences,
     private val playingQueue: PlayingQueue,
     private val dataRepository: DataRepository,
 ) : BaseViewModel() {
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
-    private val songInfoOptions = SongInfoOptions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository)
+    private val songInfoOptions = SongInfoOptions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences)
     val pagedAudioQueue: LiveData<PagingData<Song>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<Song> = playingQueue.currentSong.map { it.toSong() }
 
@@ -135,6 +137,8 @@ class SongListViewModel
             }
         }
     }
+
+    fun getQuickOptions(): List<SongInfoOptions.SongRow> = songInfoOptions.getQuickOptions()
 
     /**
      * Private methods

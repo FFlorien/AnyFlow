@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.player.songlist
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.SharedPreferences
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.DrawableRes
@@ -20,8 +21,8 @@ class SongInfoOptions constructor(
     private val ampache: AmpacheConnection,
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
-    private val dataRepository: DataRepository
-
+    private val dataRepository: DataRepository,
+    private val sharedPreferences: SharedPreferences
 ) {
     private var lastSongInfo: SongInfo? = null
 
@@ -29,7 +30,7 @@ class SongInfoOptions constructor(
         lastSongInfo = dataRepository.getSongById(songId) ?: throw IllegalArgumentException("No song for ID")
     }
 
-    suspend fun getSongInfo(songId: Long) : SongInfo {
+    suspend fun getSongInfo(songId: Long): SongInfo {
         if (lastSongInfo == null || lastSongInfo?.id != songId) {
             initSongInfo(songId)
         }
@@ -58,11 +59,11 @@ class SongInfoOptions constructor(
     suspend fun getSearchTerms(songId: Long, fieldType: FieldType): String {
         val songInfo = getSongInfo(songId)
         return when (fieldType) {
-            FieldType.TITLE ->  songInfo.title
-            FieldType.ARTIST ->  songInfo.artistName
-            FieldType.ALBUM ->  songInfo.albumName
-            FieldType.ALBUM_ARTIST ->  songInfo.albumArtistName
-            FieldType.GENRE ->  songInfo.genre
+            FieldType.TITLE -> songInfo.title
+            FieldType.ARTIST -> songInfo.artistName
+            FieldType.ALBUM -> songInfo.albumName
+            FieldType.ALBUM_ARTIST -> songInfo.albumArtistName
+            FieldType.GENRE -> songInfo.genre
             else -> throw IllegalArgumentException("This field can't be searched on")
         }
     }
@@ -110,51 +111,105 @@ class SongInfoOptions constructor(
         }
     }
 
-    suspend fun getInfoRows(songId: Long) : List<SongRow> {
+    suspend fun getInfoRows(songId: Long): List<SongRow> {
         val songInfo = getSongInfo(songId)
-        return listOf(
-            SongRow(R.string.info_title, songInfo.title, null, R.drawable.ic_next_occurence, FieldType.TITLE, ActionType.EXPAND_TITLE),
-            SongRow(R.string.info_artist, songInfo.artistName, null, R.drawable.ic_next_occurence, FieldType.ARTIST, ActionType.EXPAND_TITLE),
-            SongRow(R.string.info_track, songInfo.track.toString(), null, 0, FieldType.TRACK, ActionType.INFO_TITLE),
-            SongRow(R.string.info_album, songInfo.albumName, null, R.drawable.ic_next_occurence, FieldType.ALBUM, ActionType.EXPAND_TITLE),
-            SongRow(R.string.info_album_artist, songInfo.albumArtistName, null, R.drawable.ic_next_occurence, FieldType.ALBUM_ARTIST, ActionType.EXPAND_TITLE),
-            SongRow(R.string.info_genre, songInfo.genre, null, R.drawable.ic_next_occurence, FieldType.GENRE, ActionType.EXPAND_TITLE),
-            SongRow(R.string.info_duration, songInfo.timeText, null, 0, FieldType.DURATION, ActionType.INFO_TITLE),
-            SongRow(R.string.info_year, songInfo.year.toString(), null, 0, FieldType.YEAR, ActionType.INFO_TITLE)
+        return listOfNotNull(
+            getSongOption(songInfo, FieldType.TITLE, ActionType.EXPAND_TITLE),
+            getSongOption(songInfo, FieldType.ARTIST, ActionType.EXPAND_TITLE),
+            getSongOption(songInfo, FieldType.TRACK, ActionType.INFO_TITLE),
+            getSongOption(songInfo, FieldType.ALBUM, ActionType.EXPAND_TITLE),
+            getSongOption(songInfo, FieldType.ALBUM_ARTIST, ActionType.EXPAND_TITLE),
+            getSongOption(songInfo, FieldType.GENRE, ActionType.EXPAND_TITLE),
+            getSongOption(songInfo, FieldType.DURATION, ActionType.INFO_TITLE),
+            getSongOption(songInfo, FieldType.YEAR, ActionType.INFO_TITLE)
         )
     }
 
     suspend fun getOptionsRows(songId: Long, fieldType: FieldType): List<SongRow> {
         val songInfo = getSongInfo(songId)
         return when (fieldType) {
-            FieldType.TITLE -> listOf(
-                SongRow(R.string.info_option_next_title, null, R.string.info_option_track_next, R.drawable.ic_add, fieldType, ActionType.ADD_NEXT),
-                SongRow(R.string.info_option_add_to_playlist, null, R.string.info_option_add_to_playlist_detail, R.drawable.ic_add_to_playlist, fieldType, ActionType.ADD_TO_PLAYLIST),
-                SongRow(R.string.info_option_filter_title, songInfo.title, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
-                SongRow(R.string.info_option_search_title, songInfo.title, R.string.info_option_search_on, R.drawable.ic_search, fieldType, ActionType.SEARCH),
+            FieldType.TITLE -> listOfNotNull(
+                getSongOption(songInfo, fieldType, ActionType.ADD_NEXT),
+                getSongOption(songInfo, fieldType, ActionType.ADD_TO_PLAYLIST),
+                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER),
+                getSongOption(songInfo, fieldType, ActionType.SEARCH),
                 if (songInfo.local == null) {
-                    SongRow(R.string.info_option_download, null, R.string.info_option_download_description, R.drawable.ic_download, fieldType, ActionType.DOWNLOAD)
+                    getSongOption(songInfo, fieldType, ActionType.DOWNLOAD)
                 } else {
-                    SongRow(R.string.info_option_downloaded, null, R.string.info_option_downloaded_description, R.drawable.ic_downloaded, fieldType, ActionType.NONE)
+                    getSongOption(songInfo, fieldType, ActionType.NONE)
                 }
             )
-            FieldType.ARTIST -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
-                SongRow(R.string.info_option_search_title, songInfo.artistName, R.string.info_option_search_on, R.drawable.ic_search, fieldType, ActionType.SEARCH)
+            FieldType.ARTIST -> listOfNotNull(
+                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER),
+                getSongOption(songInfo, fieldType, ActionType.SEARCH)
             )
-            FieldType.ALBUM -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.albumName, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
-                SongRow(R.string.info_option_search_title, songInfo.albumName, R.string.info_option_search_on, R.drawable.ic_search, fieldType, ActionType.SEARCH)
+            FieldType.ALBUM -> listOfNotNull(
+                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER),
+                getSongOption(songInfo, fieldType, ActionType.SEARCH)
             )
-            FieldType.ALBUM_ARTIST -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.albumArtistName, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
-                SongRow(R.string.info_option_search_title, songInfo.albumArtistName, R.string.info_option_search_on, R.drawable.ic_search, fieldType, ActionType.SEARCH)
+            FieldType.ALBUM_ARTIST -> listOfNotNull(
+                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER),
+                getSongOption(songInfo, fieldType, ActionType.SEARCH)
             )
-            FieldType.GENRE -> listOf(
-                SongRow(R.string.info_option_filter_title, songInfo.genre, R.string.info_option_filter_on, R.drawable.ic_filter, fieldType, ActionType.ADD_TO_FILTER),
-                SongRow(R.string.info_option_search_title, songInfo.genre, R.string.info_option_search_on, R.drawable.ic_search, fieldType, ActionType.SEARCH)
+            FieldType.GENRE -> listOfNotNull(
+                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER),
+                getSongOption(songInfo, fieldType, ActionType.SEARCH)
             )
             else -> listOf()
+        }
+    }
+
+    private fun getSongOption(songInfo: SongInfo, field: FieldType, action: ActionType): SongRow? {
+        return when (action) {
+            ActionType.EXPAND_TITLE -> when (field) {
+                FieldType.TITLE -> SongRow(R.string.info_title, songInfo.title, null, R.drawable.ic_next_occurence, FieldType.TITLE, ActionType.EXPAND_TITLE)
+                FieldType.ARTIST -> SongRow(R.string.info_artist, songInfo.artistName, null, R.drawable.ic_next_occurence, FieldType.ARTIST, ActionType.EXPAND_TITLE)
+                FieldType.ALBUM -> SongRow(R.string.info_album, songInfo.albumName, null, R.drawable.ic_next_occurence, FieldType.ALBUM, ActionType.EXPAND_TITLE)
+                FieldType.ALBUM_ARTIST -> SongRow(R.string.info_album_artist, songInfo.albumArtistName, null, R.drawable.ic_next_occurence, FieldType.ALBUM_ARTIST, ActionType.EXPAND_TITLE)
+                FieldType.GENRE -> SongRow(R.string.info_genre, songInfo.genre, null, R.drawable.ic_next_occurence, FieldType.GENRE, ActionType.EXPAND_TITLE)
+                else -> null
+            }
+            ActionType.INFO_TITLE -> when (field) {
+                FieldType.TRACK -> SongRow(R.string.info_track, songInfo.track.toString(), null, 0, FieldType.TRACK, ActionType.INFO_TITLE)
+                FieldType.DURATION -> SongRow(R.string.info_duration, songInfo.timeText, null, 0, FieldType.DURATION, ActionType.INFO_TITLE)
+                FieldType.YEAR -> SongRow(R.string.info_year, songInfo.year.toString(), null, 0, FieldType.YEAR, ActionType.INFO_TITLE)
+                else -> null
+            }
+            ActionType.NONE -> if (field == FieldType.TITLE) SongRow(R.string.info_option_downloaded, null, R.string.info_option_downloaded_description, R.drawable.ic_downloaded, FieldType.TITLE, ActionType.NONE) else null
+            ActionType.ADD_TO_FILTER -> when (field) {
+                FieldType.TITLE -> SongRow(R.string.info_option_filter_title, songInfo.title, R.string.info_option_filter_on, R.drawable.ic_filter, FieldType.TITLE, ActionType.ADD_TO_FILTER)
+                FieldType.ARTIST -> SongRow(R.string.info_option_filter_title, songInfo.artistName, R.string.info_option_filter_on, R.drawable.ic_filter, FieldType.ARTIST, ActionType.ADD_TO_FILTER)
+                FieldType.ALBUM -> SongRow(R.string.info_option_filter_title, songInfo.albumName, R.string.info_option_filter_on, R.drawable.ic_filter, FieldType.ALBUM, ActionType.ADD_TO_FILTER)
+                FieldType.ALBUM_ARTIST -> SongRow(R.string.info_option_filter_title, songInfo.albumArtistName, R.string.info_option_filter_on, R.drawable.ic_filter, FieldType.ALBUM_ARTIST, ActionType.ADD_TO_FILTER)
+                FieldType.GENRE -> SongRow(R.string.info_option_filter_title, songInfo.genre, R.string.info_option_filter_on, R.drawable.ic_filter, FieldType.GENRE, ActionType.ADD_TO_FILTER)
+                else -> null
+            }
+            ActionType.ADD_TO_PLAYLIST -> if (field == FieldType.TITLE) SongRow(
+                R.string.info_option_add_to_playlist,
+                null,
+                R.string.info_option_add_to_playlist_detail,
+                R.drawable.ic_add_to_playlist,
+                FieldType.TITLE,
+                ActionType.ADD_TO_PLAYLIST
+            ) else null
+            ActionType.ADD_NEXT -> if (field == FieldType.TITLE) SongRow(R.string.info_option_next_title, null, R.string.info_option_track_next, R.drawable.ic_play_next, FieldType.TITLE, ActionType.ADD_NEXT) else null
+            ActionType.SEARCH -> if (field == FieldType.TITLE) SongRow(R.string.info_option_search_title, songInfo.title, R.string.info_option_search_on, R.drawable.ic_search, FieldType.TITLE, ActionType.SEARCH) else null
+            ActionType.DOWNLOAD -> if (field == FieldType.TITLE) SongRow(R.string.info_option_download, null, R.string.info_option_download_description, R.drawable.ic_download, FieldType.TITLE, ActionType.DOWNLOAD) else null
+        }
+    }
+
+    fun getQuickOptions(): List<SongRow> {
+        // val stringSet = sharedPreferences.getStringSet("quickOptions", setOf()) ?: return emptyList()
+        val stringSet = listOf("TITLE|ADD_TO_FILTER", "TITLE|SEARCH", "TITLE|ADD_TO_PLAYLIST")
+        val songInfo = SongInfo(0L, "", "", 0L, "", 0L, "", 0L, 0, 0, 0, "", "", "", "", null)
+
+        return stringSet.mapNotNull {
+            val fieldTypeString = it.substringBefore('|')
+            val actionTypeString = it.substringAfter('|')
+
+            val fieldType = FieldType.valueOf(fieldTypeString)
+            val actionType = ActionType.valueOf(actionTypeString)
+            getSongOption(songInfo, fieldType, actionType)
         }
     }
 

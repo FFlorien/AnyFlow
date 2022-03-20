@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.player.songlist
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -19,14 +20,15 @@ class InfoViewModel @Inject constructor(
     ampache: AmpacheConnection,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
-    dataRepository: DataRepository
+    dataRepository: DataRepository,
+    sharedPreferences: SharedPreferences
 ) : BaseViewModel() {
     val songInfo: LiveData<SongInfo> = MutableLiveData()
     val songRows: LiveData<List<SongInfoOptions.SongRow>> = MutableLiveData(listOf())
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
     private val contentResolver = context.contentResolver
-    private var songInfoOptions = SongInfoOptions(contentResolver, ampache, filtersManager, orderComposer, dataRepository)
+    private var songInfoOptions = SongInfoOptions(contentResolver, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences)
     private var songId: Long = 0L
 
     /**
