@@ -9,11 +9,11 @@ import javax.inject.Inject
 class SelectFilterArtistViewModel @Inject constructor(val dataRepository: DataRepository, filtersManager: FiltersManager) : SelectFilterViewModel(filtersManager) {
     override val itemDisplayType = ITEM_LIST
 
-    override fun getUnfilteredPagingList() = dataRepository.getArtists(::convert)
-    override fun getFilteredPagingList(search: String) = dataRepository.getArtistsFiltered(search, ::convert)
-    override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getArtistsFilteredList(search, ::convert)
+    override fun getUnfilteredPagingList() = dataRepository.getAlbumArtists(::convert)
+    override fun getFilteredPagingList(search: String) = dataRepository.getAlbumArtistsFiltered(search, ::convert)
+    override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getAlbumArtistsFilteredList(search, ::convert)
 
-    override fun getFilter(filterValue: FilterItem) = Filter.ArtistIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
+    override fun getFilter(filterValue: FilterItem) = Filter.AlbumArtistIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
 
-    private fun convert(artist: DbArtistDisplay) = FilterItem(artist.id, artist.name, artist.art, filtersManager.isFilterInEdition(Filter.ArtistIs(artist.id, artist.name, artist.art)))
+    private fun convert(artist: DbArtistDisplay) = FilterItem(artist.id, artist.name, artist.art, filtersManager.isFilterInEdition(Filter.AlbumArtistIs(artist.id, artist.name, artist.art)))
 }
