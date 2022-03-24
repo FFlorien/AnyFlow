@@ -173,7 +173,10 @@ class ExoPlayerController
             && error.cause is IllegalStateException
             && error.cause?.message?.contains("Playback stuck buffering and not loading", false) == true
         ) {
-            mediaPlayer.seekTo(mediaPlayer.currentPosition)
+            val position = mediaPlayer.currentPosition
+            prepare()
+            seekTo(position)
+            resume()
         } else {
             eLog(error, "Error while playback")
         }
