@@ -193,7 +193,41 @@ class SongInfoOptions constructor(
                 ActionType.ADD_TO_PLAYLIST
             ) else null
             ActionType.ADD_NEXT -> if (field == FieldType.TITLE) SongRow(R.string.info_option_next_title, null, R.string.info_option_track_next, R.drawable.ic_play_next, FieldType.TITLE, ActionType.ADD_NEXT) else null
-            ActionType.SEARCH -> if (field == FieldType.TITLE) SongRow(R.string.info_option_search_title, songInfo.title, R.string.info_option_search_on, R.drawable.ic_search, FieldType.TITLE, ActionType.SEARCH) else null
+            ActionType.SEARCH -> when (field) {
+                FieldType.TITLE -> SongRow(
+                    R.string.info_option_search_title,
+                    songInfo.title,
+                    R.string.info_option_search_on,
+                    R.drawable.ic_search,
+                    FieldType.TITLE,
+                    ActionType.SEARCH
+                )
+                FieldType.ARTIST -> SongRow(
+                    R.string.info_option_search_title,
+                    songInfo.artistName,
+                    R.string.info_option_search_on,
+                    R.drawable.ic_search,
+                    FieldType.ARTIST,
+                    ActionType.SEARCH
+                )
+                FieldType.ALBUM -> SongRow(
+                    R.string.info_option_search_title,
+                    songInfo.albumName,
+                    R.string.info_option_search_on,
+                    R.drawable.ic_search,
+                    FieldType.ALBUM,
+                    ActionType.SEARCH
+                )
+                FieldType.ALBUM_ARTIST -> SongRow(
+                    R.string.info_option_search_title,
+                    songInfo.albumArtistName,
+                    R.string.info_option_search_on,
+                    R.drawable.ic_search,
+                    FieldType.ALBUM_ARTIST,
+                    ActionType.SEARCH
+                )
+                else -> null
+            }
             ActionType.DOWNLOAD -> if (field == FieldType.TITLE) SongRow(R.string.info_option_download, null, R.string.info_option_download_description, R.drawable.ic_download, FieldType.TITLE, ActionType.DOWNLOAD) else null
         }
     }
