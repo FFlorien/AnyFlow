@@ -4,6 +4,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="display"
             type="be.florien.anyflow.feature.player.songlist.SongInfoOptions.SongRow" />
@@ -18,16 +20,29 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/mediumDimen">
 
+        <TextView
+            android:id="@+id/order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/mediumDimen"
+            android:text="@{display.orderDisplay}"
+            android:visibility="@{display.order != null? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/title"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableResource="@{display.icon}"
-            app:tint="@color/primaryDark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/title"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/primaryDark" />
 
         <TextView
             android:id="@+id/title"
@@ -35,7 +50,7 @@
             android:layout_height="wrap_content"
             android:text="@{display.title}"
             android:textStyle="bold"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/order"
             app:layout_constraintRight_toLeftOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,7 +60,7 @@
             android:layout_height="wrap_content"
             android:text="@{descriptionText}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/order"
             app:layout_constraintRight_toLeftOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@+id/title" />
 

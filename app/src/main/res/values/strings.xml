@@ -32,6 +32,7 @@
     <string name="filter_title_downloaded">Select download status</string>
     <string name="filter_title_saved">Saved filters</string>
     <string name="menu_alarms">Alarms</string>
+    <string name="menu_quick_options">Quick options</string>
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>

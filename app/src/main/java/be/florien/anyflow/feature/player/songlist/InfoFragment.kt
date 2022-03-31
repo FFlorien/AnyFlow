@@ -15,9 +15,10 @@ import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
 import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.feature.quickOptions.InfoOptionsSelectionViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", "")) : BottomSheetDialogFragment() {
+class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, "", "", "", "", 0, "", "", "")) : BottomSheetDialogFragment() {
 
     companion object {
         private const val SONG = "SONG"
@@ -40,9 +41,17 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoViewModel::class.java)
-        songListViewModel = ViewModelProvider(requireParentFragment(), (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
-        viewModel.setSongId(song.id)
+        viewModel = if (song.id == SongInfoOptions.DUMMY_SONG_ID) {
+            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoOptionsSelectionViewModel::class.java)
+        } else {
+            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoDisplayViewModel::class.java)
+        }
+        songListViewModel = if (parentFragment != null) {
+            ViewModelProvider(requireParentFragment(), (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
+        }else {
+            ViewModelProvider(requireActivity(), (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
+        }
+        viewModel.song = song
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -69,11 +78,19 @@ class InfoFragment(private var song: Song = Song(0L, "", "", "", "", 0, "", "", 
                 SelectPlaylistFragment(song.id).show(childFragmentManager, null)
             }
         }
+        val selectionViewModel = viewModel
+        if (selectionViewModel is InfoOptionsSelectionViewModel) {
+            selectionViewModel.shouldUpdateSongList.observe(viewLifecycleOwner) {
+                if (it == true) {
+                    songListViewModel.refreshQuickOptions()
+                }
+            }
+        }
     }
 
     inner class InfoAdapter : ListAdapter<SongInfoOptions.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<SongInfoOptions.SongRow>() {
         override fun areItemsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean {
-            return oldItem.fieldType == newItem.fieldType && oldItem.actionType == newItem.actionType
+            return oldItem.fieldType == newItem.fieldType && oldItem.actionType == newItem.actionType && oldItem.order == newItem.order
         }
 
         override fun areContentsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean = areItemsTheSame(oldItem, newItem) && oldItem.icon == newItem.icon

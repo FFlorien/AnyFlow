@@ -20,6 +20,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
@@ -30,6 +31,8 @@ import be.florien.anyflow.feature.menu.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.OrderMenuHolder
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
+import be.florien.anyflow.feature.player.songlist.InfoFragment
+import be.florien.anyflow.feature.player.songlist.SongInfoOptions
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
@@ -76,8 +79,8 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val component = anyFlowApp.userComponent
-                ?.playerComponentBuilder()
-                ?.build()
+            ?.playerComponentBuilder()
+            ?.build()
         activityComponent = if (component != null) {
             component
         } else {
@@ -103,12 +106,12 @@ class PlayerActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
-                    .runOnCommit {
-                        adaptToolbarToCurrentFragment()
-                    }
-                    .commit()
+                .beginTransaction()
+                .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
+                .runOnCommit {
+                    adaptToolbarToCurrentFragment()
+                }
+                .commit()
         }
         viewModel.syncAlarms()
         viewModel.isOrdered.observe(this) {
@@ -225,6 +228,22 @@ class PlayerActivity : AppCompatActivity() {
                     startActivity(Intent(this@PlayerActivity, AlarmActivity::class.java))
                     true
                 }
+                R.id.menu_quick_options -> {
+                    InfoFragment(
+                        Song(
+                            SongInfoOptions.DUMMY_SONG_ID,
+                            getString(R.string.info_title),
+                            getString(R.string.info_artist),
+                            getString(R.string.info_album),
+                            getString(R.string.info_album_artist),
+                            120,
+                            "",
+                            "",
+                            getString(R.string.info_genre)
+                        )
+                    ).show(supportFragmentManager, "quickOptions")
+                    true
+                }
                 else -> false
             }
         }
@@ -254,9 +273,9 @@ class PlayerActivity : AppCompatActivity() {
     private fun initPingService() {
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(HALF_HOUR)
-                .build()
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .setPeriodic(HALF_HOUR)
+            .build()
         jobScheduler.schedule(pingJobInfo)
 
         bindService(Intent(this, PlayerService::class.java), viewModel.playerConnection, Context.BIND_AUTO_CREATE)
@@ -264,13 +283,13 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun displayFilters() {
         val fragment = supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
-                ?: DisplayFilterFragment()
+            ?: DisplayFilterFragment()
         supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
-                .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
-                .addToBackStack(FILTER_STACK_NAME)
-                .commit()
+            .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
+            .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
+            .addToBackStack(FILTER_STACK_NAME)
+            .commit()
     }
 
     private fun updateMenuItemVisibility() {
@@ -288,7 +307,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun isSongListVisible() =
-            supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
+        supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
 
     private fun animateAppearance(view: View) {
         if (view.visibility != View.VISIBLE) {

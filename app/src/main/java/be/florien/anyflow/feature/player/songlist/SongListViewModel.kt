@@ -46,6 +46,7 @@ class SongListViewModel
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     val playlistListDisplayedFor: LiveData<Long> = MutableLiveData(-1L)
+    val quickOptions: LiveData<List<SongInfoOptions.SongRow>> = MutableLiveData(songInfoOptions.getQuickOptions())
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
         private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -138,7 +139,9 @@ class SongListViewModel
         }
     }
 
-    fun getQuickOptions(): List<SongInfoOptions.SongRow> = songInfoOptions.getQuickOptions()
+    fun refreshQuickOptions() {
+        quickOptions.mutable.value = songInfoOptions.getQuickOptions()
+    }
 
     /**
      * Private methods

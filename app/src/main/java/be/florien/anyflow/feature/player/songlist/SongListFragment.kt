@@ -53,7 +53,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
     private lateinit var binding: FragmentSongListBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var currentSongViewHolder: SongViewHolder
-    private lateinit var quickOptions: List<SongInfoOptions.SongRow>
     private var shouldScrollToCurrent = false
     private var shouldHideLoading = false
     private var isLoadingVisible = false
@@ -86,7 +85,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel = ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
-        quickOptions = viewModel.getQuickOptions()
         binding = FragmentSongListBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -161,6 +159,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
             if (it > 0 && childFragmentManager.findFragmentByTag("playlist") == null) {
                 SelectPlaylistFragment(it).show(childFragmentManager, "playlist")
             }
+        }
+        viewModel.quickOptions.observe(viewLifecycleOwner) {
+            updateQuickOptions()
         }
         shouldHideLoading = true
     }
@@ -248,6 +249,13 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
         }, 300)
     }
 
+    private fun updateQuickOptions() {
+        for (childIndex in 0 until binding.songList.childCount) {
+            val holder = (binding.songList.getChildViewHolder(binding.songList.getChildAt(childIndex)) as SongViewHolder)
+            holder.setQuickOptions()
+        }
+    }
+
     inner class SongAdapter :
         PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
             override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
@@ -298,8 +306,13 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 swipeForInfo()
                 return@setOnLongClickListener true
             }
-            for (option in quickOptions) {
-                binding.songOptions.addView((LayoutInflater.from(parent.context).inflate(R.layout.item_option, binding.songOptions, false) as ImageButton).apply {
+            setQuickOptions()
+        }
+
+        internal fun setQuickOptions() {
+            binding.songOptions.removeAllViews()
+            for (option in (viewModel.quickOptions.value?.reversed() ?: emptyList())) {
+                binding.songOptions.addView((LayoutInflater.from(binding.cover.context).inflate(R.layout.item_option, binding.songOptions, false) as ImageButton).apply {
                     setImageResource(option.icon)
                     setOnClickListener {
                         val song = binding.song
@@ -366,7 +379,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
 
                 if (isCurrentSong) {
                     currentSongViewHolder.swipeToOpen()
-                    this@SongListFragment.binding.currentSongDisplayTouch.translationX = this@SongListFragment.binding.currentSongDisplay.optionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
+                    this@SongListFragment.binding.currentSongDisplayTouch.translationX =
+                        this@SongListFragment.binding.currentSongDisplay.optionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
                 } else if (!isCurrentSong) {
                     currentSongViewHolder.swipeToClose()
                     this@SongListFragment.binding.currentSongDisplayTouch.translationX = 0F
