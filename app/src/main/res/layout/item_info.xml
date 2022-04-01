@@ -37,7 +37,7 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableResource="@{display.icon}"
+            android:drawableResource="@{display.actionType.iconRes}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/title"
             app:layout_constraintRight_toRightOf="parent"

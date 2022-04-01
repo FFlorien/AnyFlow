@@ -48,7 +48,7 @@ class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, 
         }
         songListViewModel = if (parentFragment != null) {
             ViewModelProvider(requireParentFragment(), (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
-        }else {
+        } else {
             ViewModelProvider(requireActivity(), (requireActivity() as PlayerActivity).viewModelFactory).get(SongListViewModel::class.java)
         }
         viewModel.song = song
@@ -90,10 +90,13 @@ class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, 
 
     inner class InfoAdapter : ListAdapter<SongInfoOptions.SongRow, InfoViewHolder>(object : DiffUtil.ItemCallback<SongInfoOptions.SongRow>() {
         override fun areItemsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean {
-            return oldItem.fieldType == newItem.fieldType && oldItem.actionType == newItem.actionType && oldItem.order == newItem.order
+            val isSameAction = (oldItem.actionType == newItem.actionType)
+                    || (oldItem.actionType == SongInfoOptions.ActionType.EXPANDED_TITLE && newItem.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE)
+                    || (oldItem.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE && newItem.actionType == SongInfoOptions.ActionType.EXPANDED_TITLE)
+            return oldItem.fieldType == newItem.fieldType && isSameAction && oldItem.order == newItem.order
         }
 
-        override fun areContentsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean = areItemsTheSame(oldItem, newItem) && oldItem.icon == newItem.icon
+        override fun areContentsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean = areItemsTheSame(oldItem, newItem) && oldItem.actionType == newItem.actionType
     }) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder = InfoViewHolder(parent)
@@ -114,7 +117,8 @@ class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, 
 
     }
 
-    inner class InfoViewHolder(val parent: ViewGroup, val binding: ItemInfoBinding = ItemInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)) : RecyclerView.ViewHolder(binding.root) {
+    inner class InfoViewHolder(val parent: ViewGroup, val binding: ItemInfoBinding = ItemInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(row: SongInfoOptions.SongRow) {
             binding.display = row
             binding.descriptionText = when {
@@ -124,9 +128,9 @@ class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, 
                 else -> ""
             }
             binding.root.setOnClickListener { viewModel.executeAction(row.fieldType, row.actionType) }
-            if (row.actionType == SongInfoOptions.ActionType.NONE ) {
+            if (row.actionType == SongInfoOptions.ActionType.NONE) {
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.primaryBackground, parent.context.theme))
-            } else if (row.actionType != SongInfoOptions.ActionType.INFO_TITLE && row.actionType != SongInfoOptions.ActionType.EXPAND_TITLE) {
+            } else if (row.actionType != SongInfoOptions.ActionType.INFO_TITLE && row.actionType != SongInfoOptions.ActionType.EXPANDABLE_TITLE && row.actionType != SongInfoOptions.ActionType.EXPANDED_TITLE) {
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(parent.context.resources, R.color.accentBackground, parent.context.theme))
             } else {
                 binding.root.setBackgroundColor(0)

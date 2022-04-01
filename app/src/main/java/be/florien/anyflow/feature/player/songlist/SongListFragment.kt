@@ -17,6 +17,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
@@ -312,8 +313,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
         internal fun setQuickOptions() {
             binding.songOptions.removeAllViews()
             for (option in (viewModel.quickOptions.value?.reversed() ?: emptyList())) {
-                binding.songOptions.addView((LayoutInflater.from(binding.cover.context).inflate(R.layout.item_option, binding.songOptions, false) as ImageButton).apply {
-                    setImageResource(option.icon)
+                binding.songOptions.addView((LayoutInflater.from(binding.cover.context).inflate(R.layout.item_option, binding.songOptions, false)).apply {
+                    findViewById<ImageView>(R.id.action).setImageResource(option.actionType.iconRes)
+                    findViewById<ImageView>(R.id.field).setImageResource(option.fieldType.iconRes)
                     setOnClickListener {
                         val song = binding.song
                         if (song != null)

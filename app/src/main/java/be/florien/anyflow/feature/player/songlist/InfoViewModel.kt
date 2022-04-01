@@ -46,7 +46,7 @@ abstract class InfoViewModel(
     open fun executeAction(fieldType: SongInfoOptions.FieldType, actionType: SongInfoOptions.ActionType) {
         viewModelScope.launch {
             when (actionType) {
-                SongInfoOptions.ActionType.EXPAND_TITLE -> toggleExpansion(fieldType)
+                SongInfoOptions.ActionType.EXPANDABLE_TITLE, SongInfoOptions.ActionType.EXPANDED_TITLE -> toggleExpansion(fieldType)
                 else -> executeSongAction(fieldType, actionType)
             }
         }
@@ -55,9 +55,9 @@ abstract class InfoViewModel(
     protected suspend fun updateRows() {
         val mutableList = songInfoOptions.getInfoRows(song.id).toMutableList()
         for (fieldType in expandedSections) {
-            val togglePosition = mutableList.indexOfFirst { it.actionType == SongInfoOptions.ActionType.EXPAND_TITLE && it.fieldType == fieldType }
+            val togglePosition = mutableList.indexOfFirst { it.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE && it.fieldType == fieldType }
             val toggledItem = mutableList.removeAt(togglePosition)
-            val newToggledItem = SongInfoOptions.SongRow(toggledItem.title, toggledItem.text, null, R.drawable.ic_previous_occurence, toggledItem.fieldType, toggledItem.actionType)
+            val newToggledItem = SongInfoOptions.SongRow(toggledItem.title, toggledItem.text, null, toggledItem.fieldType, SongInfoOptions.ActionType.EXPANDED_TITLE)
             mutableList.addAll(togglePosition, songInfoOptions.getOptionsRows(song.id, fieldType))
             mutableList.add(togglePosition, newToggledItem)
         }

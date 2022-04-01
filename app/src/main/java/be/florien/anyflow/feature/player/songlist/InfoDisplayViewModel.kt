@@ -27,7 +27,7 @@ class InfoDisplayViewModel @Inject constructor(
                 SongInfoOptions.ActionType.ADD_TO_FILTER -> songInfoOptions.filterOn(song.id, fieldType)
                 SongInfoOptions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoOptions.getSearchTerms(song.id, fieldType)
                 SongInfoOptions.ActionType.DOWNLOAD -> songInfoOptions.download(song.id)
-                SongInfoOptions.ActionType.NONE, SongInfoOptions.ActionType.INFO_TITLE, SongInfoOptions.ActionType.EXPAND_TITLE -> return@launch
+                SongInfoOptions.ActionType.NONE, SongInfoOptions.ActionType.INFO_TITLE, SongInfoOptions.ActionType.EXPANDABLE_TITLE -> return@launch
             }
         }
     }
