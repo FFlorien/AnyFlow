@@ -21,8 +21,7 @@
             android:layout_gravity="end"
             android:background="@color/accentBackground"
             android:gravity="end|center_vertical"
-            android:orientation="horizontal"
-            android:padding="@dimen/mediumDimen">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/infoView"
@@ -44,6 +43,7 @@
             android:id="@+id/songInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            tools:visibility="gone"
             android:background="@color/cardview_light_background"
             android:orientation="horizontal"
             android:padding="@dimen/listItemPadding">
