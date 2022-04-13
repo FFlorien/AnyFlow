@@ -99,16 +99,16 @@ class ApplicationModule {
         val intent = Intent(context, PlayerService::class.java)
         intent.action = "ALARM"
         if (Build.VERSION.SDK_INT >= 26) {
-            return PendingIntent.getForegroundService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            return PendingIntent.getForegroundService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
-        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     @Provides
     @Named("alarm")
     fun provideAlarmPendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, AlarmActivity::class.java)
-        return PendingIntent.getActivity(context, 0, intent, 0)
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     @Provides

@@ -1,7 +1,6 @@
 package be.florien.anyflow.injection
 
 import be.florien.anyflow.UserComponentContainer
-import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
@@ -42,10 +41,6 @@ class UserComponentContainerFake : UserComponentContainer {
 
         override fun inject(pingService: PingService) {
             // Stub !
-        }
-
-        override fun inject(downloadService: AmpacheDownloadService) {
-            TODO("Not yet implemented")
         }
 
         override fun playerComponentBuilder(): PlayerComponent.Builder = PlayerComponentStub.Builder()

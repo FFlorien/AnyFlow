@@ -52,7 +52,7 @@ class UpdateService
     lateinit var artistsPercentageUpdater: LiveData<Int>
     private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
-        PendingIntent.getActivity(this@UpdateService, 0, intent, 0)
+        PendingIntent.getActivity(this@UpdateService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun onCreate() {
@@ -76,35 +76,35 @@ class UpdateService
             }
             stopForeground(true)
         }
-        songsPercentageUpdater.observe(this, {
+        songsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_songs, it))
             } else {
                 stopForeground(true)
             }
 
-        })
-        artistsPercentageUpdater.observe(this, {
+        }
+        artistsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_artists, it))
             } else {
                 stopForeground(true)
             }
-        })
-        albumsPercentageUpdater.observe(this, {
+        }
+        albumsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_albums, it))
             } else {
                 stopForeground(true)
             }
-        })
-        playlistsPercentageUpdater.observe(this, {
+        }
+        playlistsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_playlists, it))
             } else {
                 stopForeground(true)
             }
-        })
+        }
     }
 
     override fun onDestroy() {

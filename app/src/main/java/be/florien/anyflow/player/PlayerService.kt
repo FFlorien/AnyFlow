@@ -38,7 +38,7 @@ class PlayerService : LifecycleService() {
     private val iBinder = LocalBinder()
     private val pendingIntent: PendingIntent by lazy { //todo inject ?
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
-        PendingIntent.getActivity(this@PlayerService, 0, intent, 0)
+        PendingIntent.getActivity(this@PlayerService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
     private val mediaSession: MediaSessionCompat by lazy {
         MediaSessionCompat(this, MEDIA_SESSION_NAME).apply {

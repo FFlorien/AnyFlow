@@ -1,6 +1,5 @@
 package be.florien.anyflow.data.user
 
-import be.florien.anyflow.data.AmpacheDownloadService
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
@@ -20,7 +19,6 @@ interface UserComponent {
     fun inject(playerService: PlayerService)
     fun inject(updateService: UpdateService)
     fun inject(pingService: PingService)
-    fun inject(downloadService: AmpacheDownloadService)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
 
