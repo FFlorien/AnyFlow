@@ -242,7 +242,8 @@ class SongInfoOptions constructor(
                 null,
                 R.string.info_option_track_next,
                 FieldType.TITLE,
-                ActionType.ADD_NEXT
+                ActionType.ADD_NEXT,
+                order
             ) else null
             ActionType.SEARCH -> when (field) {
                 FieldType.TITLE -> SongRow(R.string.info_option_search_title, songInfo.title, R.string.info_option_search_on, FieldType.TITLE, ActionType.SEARCH, order)

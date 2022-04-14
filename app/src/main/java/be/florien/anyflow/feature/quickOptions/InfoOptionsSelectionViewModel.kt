@@ -29,7 +29,7 @@ class InfoOptionsSelectionViewModel @Inject constructor(
         val quickOptions = songInfoOptions.getQuickOptions()
         quickOptions.forEach {
             val indexOfFirst = mutableList.indexOfFirst { option -> it.actionType == option.actionType && it.fieldType == option.fieldType }
-            if (indexOfFirst > 0) {
+            if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] = it
             }
         }
