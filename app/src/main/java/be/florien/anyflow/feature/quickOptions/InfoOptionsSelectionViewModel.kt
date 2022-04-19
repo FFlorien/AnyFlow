@@ -21,14 +21,23 @@ class InfoOptionsSelectionViewModel @Inject constructor(
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
     sharedPreferences: SharedPreferences
-) : InfoViewModel(context, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences) {
+) : InfoViewModel(
+    context,
+    ampache,
+    filtersManager,
+    orderComposer,
+    dataRepository,
+    sharedPreferences
+) {
     val shouldUpdateSongList: LiveData<Boolean> = MutableLiveData(false)
+    var maxItems = 3
 
     override fun mapOptionsRows(initialList: List<SongInfoOptions.SongRow>): List<SongInfoOptions.SongRow> {
         val mutableList = initialList.toMutableList()
         val quickOptions = songInfoOptions.getQuickOptions()
         quickOptions.forEach {
-            val indexOfFirst = mutableList.indexOfFirst { option -> it.actionType == option.actionType && it.fieldType == option.fieldType }
+            val indexOfFirst =
+                mutableList.indexOfFirst { option -> it.actionType == option.actionType && it.fieldType == option.fieldType }
             if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] = it
             }
@@ -36,11 +45,17 @@ class InfoOptionsSelectionViewModel @Inject constructor(
         return mutableList
     }
 
-    override fun executeSongAction(fieldType: SongInfoOptions.FieldType, actionType: SongInfoOptions.ActionType) {
-        viewModelScope.launch {
-            songInfoOptions.toggleQuickOption(fieldType, actionType)
-            updateRows()
-            shouldUpdateSongList.mutable.value = true
+    override fun executeSongAction(
+        fieldType: SongInfoOptions.FieldType,
+        actionType: SongInfoOptions.ActionType
+    ) {
+        val quickOptions = songInfoOptions.getQuickOptions()
+        if (songInfoOptions.getQuickOptions().size < maxItems || quickOptions.any { it.fieldType == fieldType && it.actionType == actionType }) {
+            viewModelScope.launch {
+                songInfoOptions.toggleQuickOption(fieldType, actionType)
+                updateRows()
+                shouldUpdateSongList.mutable.value = true
+            }
         }
     }
 }

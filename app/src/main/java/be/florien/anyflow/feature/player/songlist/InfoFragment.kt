@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.player.songlist
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +43,15 @@ class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel = if (song.id == SongInfoOptions.DUMMY_SONG_ID) {
-            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoOptionsSelectionViewModel::class.java)
+            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoOptionsSelectionViewModel::class.java).apply {
+                val displayMetrics = DisplayMetrics()
+                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+                val width = displayMetrics.widthPixels
+                val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
+                val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
+                val itemFullWidth = itemWidth + margin + margin
+                maxItems = (width / itemFullWidth) - 1
+            }
         } else {
             ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(InfoDisplayViewModel::class.java)
         }
@@ -93,10 +102,10 @@ class InfoFragment(private var song: Song = Song(SongInfoOptions.DUMMY_SONG_ID, 
             val isSameAction = (oldItem.actionType == newItem.actionType)
                     || (oldItem.actionType == SongInfoOptions.ActionType.EXPANDED_TITLE && newItem.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE)
                     || (oldItem.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE && newItem.actionType == SongInfoOptions.ActionType.EXPANDED_TITLE)
-            return oldItem.fieldType == newItem.fieldType && isSameAction && oldItem.order == newItem.order
+            return oldItem.fieldType == newItem.fieldType && isSameAction
         }
 
-        override fun areContentsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow): Boolean = areItemsTheSame(oldItem, newItem) && oldItem.actionType == newItem.actionType
+        override fun areContentsTheSame(oldItem: SongInfoOptions.SongRow, newItem: SongInfoOptions.SongRow) = areItemsTheSame(oldItem, newItem) && oldItem.actionType == newItem.actionType && oldItem.order == newItem.order
     }) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder = InfoViewHolder(parent)
