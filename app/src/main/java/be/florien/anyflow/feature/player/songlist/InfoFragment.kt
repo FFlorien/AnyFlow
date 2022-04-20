@@ -203,15 +203,11 @@ class InfoFragment(
         fun bindChangedData(row: SongInfoOptions.SongRow) {
             binding.display = row
             if (row.order != null) {
-                binding.order.removeViews(1, binding.order.size - 1)
+                binding.order.removeViews(2, binding.order.size - 2)
                 val inflater = LayoutInflater.from(binding.root.context)
-                val newView = inflater
-                    .inflate(R.layout.item_order, binding.order, false) as ImageView
-                newView.setImageResource(R.drawable.ic_option_order_item_selected)
-                binding.order.addView(newView)
                 for (i in 0 until row.order) {
                     val unselectedView = inflater
-                        .inflate(R.layout.item_order, binding.order, false) as ImageView
+                        .inflate(R.layout.item_option_order, binding.order, false) as ImageView
                     unselectedView.setImageResource(R.drawable.ic_option_order_item_unselected)
                     binding.order.addView(unselectedView)
                 }

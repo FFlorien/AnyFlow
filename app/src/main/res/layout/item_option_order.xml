@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/orderItemsHeight"
-    android:paddingVertical="3dp"
-    android:paddingHorizontal="1dp"
     android:adjustViewBounds="true"
+    android:paddingHorizontal="1dp"
+    android:paddingVertical="3dp"
+    android:src="@drawable/ic_option_order_item_selected"
     tools:showIn="@layout/item_info" />

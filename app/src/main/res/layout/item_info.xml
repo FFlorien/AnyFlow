@@ -50,6 +50,9 @@
                 android:layout_width="@dimen/orderItemsHeight"
                 android:layout_height="@dimen/orderItemsHeight"
                 android:src="@drawable/ic_option_order_item_fg" />
+
+            <include
+                layout="@layout/item_option_order"/>
         </LinearLayout>
 
         <ImageView
