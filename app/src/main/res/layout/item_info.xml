@@ -20,18 +20,37 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/mediumDimen">
 
-        <TextView
-            android:id="@+id/order"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/mediumDimen"
-            android:text="@{display.orderDisplay}"
+        <ImageView
+            android:id="@+id/orderBg"
+            android:layout_width="@dimen/orderBackgroundWidth"
+            android:layout_marginHorizontal="@dimen/smallDimen"
+            android:layout_height="@dimen/orderItemsHeight"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_option_order_bg"
             android:visibility="@{display.order != null? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/title"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/order"
+            android:layout_width="@dimen/orderBackgroundWidth"
+            android:layout_marginHorizontal="@dimen/smallDimen"
+            android:layout_height="@dimen/orderItemsHeight"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:visibility="@{display.order != null? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/title"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/orderItemsHeight"
+                android:layout_height="@dimen/orderItemsHeight"
+                android:src="@drawable/ic_option_order_item_fg" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/icon"
@@ -60,7 +79,7 @@
             android:layout_height="wrap_content"
             android:text="@{descriptionText}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/order"
+            app:layout_constraintLeft_toLeftOf="@id/title"
             app:layout_constraintRight_toLeftOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@+id/title" />
 

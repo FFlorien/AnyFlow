@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Song
