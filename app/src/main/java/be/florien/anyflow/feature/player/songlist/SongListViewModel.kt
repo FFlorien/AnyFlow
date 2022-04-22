@@ -140,7 +140,11 @@ class SongListViewModel
     }
 
     fun refreshQuickOptions() {
-        quickOptions.mutable.value = songInfoOptions.getQuickOptions()
+        val oldValue = quickOptions.value
+        val newValue = songInfoOptions.getQuickOptions()
+        if (!newValue.containsAll(oldValue ?: listOf()) || oldValue?.containsAll(newValue) == false) {
+            quickOptions.mutable.value = songInfoOptions.getQuickOptions()
+        }
     }
 
     /**

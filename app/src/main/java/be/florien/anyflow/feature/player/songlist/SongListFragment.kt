@@ -190,6 +190,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
     override fun onResume() {
         super.onResume()
         viewModel.refreshSongs()
+        viewModel.refreshQuickOptions()
         searchMenuHolder.isVisible = true
     }
 

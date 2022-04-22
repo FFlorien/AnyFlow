@@ -10,7 +10,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:minHeight="500dp">
 
         <ImageView
             android:id="@+id/cover"
@@ -24,7 +25,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/songInfo"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="0dp"
+            android:minHeight="500dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cover" />
     </androidx.constraintlayout.widget.ConstraintLayout>

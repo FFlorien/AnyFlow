@@ -29,8 +29,13 @@ class InfoOptionsSelectionViewModel @Inject constructor(
     dataRepository,
     sharedPreferences
 ) {
-    val shouldUpdateSongList: LiveData<Boolean> = MutableLiveData(false)
     var maxItems = 3
+        set(value) {
+            field = value
+            updateCountDisplay()
+        }
+    val currentOptionsCountDisplay: LiveData<String> =
+        MutableLiveData("${songInfoOptions.getQuickOptions().size}/$maxItems")
 
     override fun mapOptionsRows(initialList: List<SongInfoOptions.SongRow>): List<SongInfoOptions.SongRow> {
         val mutableList = initialList.toMutableList()
@@ -39,7 +44,7 @@ class InfoOptionsSelectionViewModel @Inject constructor(
             val indexOfFirst =
                 mutableList.indexOfFirst { option -> it.actionType == option.actionType && it.fieldType == option.fieldType }
             if (indexOfFirst >= 0) {
-                mutableList[indexOfFirst] = it
+                mutableList[indexOfFirst] = SongInfoOptions.SongRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList
@@ -50,12 +55,17 @@ class InfoOptionsSelectionViewModel @Inject constructor(
         actionType: SongInfoOptions.ActionType
     ) {
         val quickOptions = songInfoOptions.getQuickOptions()
-        if (songInfoOptions.getQuickOptions().size < maxItems || quickOptions.any { it.fieldType == fieldType && it.actionType == actionType }) {
+        if (quickOptions.size < maxItems || quickOptions.any { it.fieldType == fieldType && it.actionType == actionType }) {
             viewModelScope.launch {
                 songInfoOptions.toggleQuickOption(fieldType, actionType)
                 updateRows()
-                shouldUpdateSongList.mutable.value = true
+                updateCountDisplay()
             }
         }
+    }
+
+    private fun updateCountDisplay() {
+        val currentCount = songInfoOptions.getQuickOptions().size
+        currentOptionsCountDisplay.mutable.value = "$currentCount/$maxItems"
     }
 }

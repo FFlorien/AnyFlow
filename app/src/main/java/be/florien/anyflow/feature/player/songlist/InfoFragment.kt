@@ -17,8 +17,8 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
-import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.quickOptions.InfoOptionsSelectionViewModel
+import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class InfoFragment(
@@ -32,7 +32,7 @@ class InfoFragment(
     }
 
     private lateinit var viewModel: InfoViewModel
-    private lateinit var songListViewModel: SongListViewModel
+    private var songListViewModel: SongListViewModel? = null
     private lateinit var binding: FragmentInfoBinding
 
     init {
@@ -52,30 +52,25 @@ class InfoFragment(
         savedInstanceState: Bundle?
     ): View {
         viewModel = if (song.id == SongInfoOptions.DUMMY_SONG_ID) {
-            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(
-                InfoOptionsSelectionViewModel::class.java
-            ).apply {
-                val displayMetrics = DisplayMetrics()
-                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-                val width = displayMetrics.widthPixels
-                val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
-                val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
-                val itemFullWidth = itemWidth + margin + margin
-                maxItems = (width / itemFullWidth) - 1
-            }
+            ViewModelProvider(requireActivity(), (requireActivity() as ViewModelFactoryHolder).getFactory())
+                .get(InfoOptionsSelectionViewModel::class.java)
+                .apply {
+                    val displayMetrics = DisplayMetrics()
+                    requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+                    val width = displayMetrics.widthPixels
+                    val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
+                    val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
+                    val itemFullWidth = itemWidth + margin + margin
+                    maxItems = (width / itemFullWidth) - 1
+                }
         } else {
-            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory)
+            ViewModelProvider(this, (requireActivity() as ViewModelFactoryHolder).getFactory())
                 .get(InfoDisplayViewModel::class.java)
         }
-        songListViewModel = if (parentFragment != null) {
-            ViewModelProvider(
+        if (parentFragment != null) {
+            songListViewModel = ViewModelProvider(
                 requireParentFragment(),
-                (requireActivity() as PlayerActivity).viewModelFactory
-            ).get(SongListViewModel::class.java)
-        } else {
-            ViewModelProvider(
-                requireActivity(),
-                (requireActivity() as PlayerActivity).viewModelFactory
+                (requireActivity() as ViewModelFactoryHolder).getFactory()
             ).get(SongListViewModel::class.java)
         }
         viewModel.song = song
@@ -94,24 +89,18 @@ class InfoFragment(
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)
         }
-        viewModel.searchTerm.observe(viewLifecycleOwner) {
-            if (it != null) {
-                songListViewModel.isSearching.value = true
-                songListViewModel.searchedText.value = it
-                dismiss()
+        if (songListViewModel != null) {
+            viewModel.searchTerm.observe(viewLifecycleOwner) {
+                if (it != null) {
+                    songListViewModel?.isSearching?.value = true
+                    songListViewModel?.searchedText?.value = it
+                    dismiss()
+                }
             }
         }
         viewModel.isPlaylistListDisplayed.observe(viewLifecycleOwner) {
             if (it) {
                 SelectPlaylistFragment(song.id).show(childFragmentManager, null)
-            }
-        }
-        val selectionViewModel = viewModel
-        if (selectionViewModel is InfoOptionsSelectionViewModel) {
-            selectionViewModel.shouldUpdateSongList.observe(viewLifecycleOwner) {
-                if (it == true) {
-                    songListViewModel.refreshQuickOptions()
-                }
             }
         }
     }
@@ -167,6 +156,7 @@ class InfoFragment(
 
         fun bindNewData(row: SongInfoOptions.SongRow) {
             bindChangedData(row)
+            binding.display = row
             binding.descriptionText = when {
                 row.text == null && row.textRes != null -> parent.context.resources.getString(row.textRes)
                 row.text != null && row.textRes == null -> row.text
@@ -201,7 +191,6 @@ class InfoFragment(
         }
 
         fun bindChangedData(row: SongInfoOptions.SongRow) {
-            binding.display = row
             if (row.order != null) {
                 binding.order.removeViews(2, binding.order.size - 2)
                 val inflater = LayoutInflater.from(binding.root.context)

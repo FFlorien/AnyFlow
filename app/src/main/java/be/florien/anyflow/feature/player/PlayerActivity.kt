@@ -20,7 +20,6 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
@@ -31,13 +30,9 @@ import be.florien.anyflow.feature.menu.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.OrderMenuHolder
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
-import be.florien.anyflow.feature.player.songlist.InfoFragment
-import be.florien.anyflow.feature.player.songlist.SongInfoOptions
 import be.florien.anyflow.feature.player.songlist.SongListFragment
-import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.injection.AnyFlowViewModelFactory
-import be.florien.anyflow.injection.PlayerComponent
-import be.florien.anyflow.injection.UserScope
+import be.florien.anyflow.feature.quickOptions.QuickOptionsActivity
+import be.florien.anyflow.injection.*
 import be.florien.anyflow.player.PlayerService
 import javax.inject.Inject
 
@@ -46,7 +41,7 @@ import javax.inject.Inject
  */
 @ActivityScope
 @UserScope
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     /**
      * Injection
@@ -198,6 +193,8 @@ class PlayerActivity : AppCompatActivity() {
         jobScheduler.cancelAll()
     }
 
+    override fun getFactory() = viewModelFactory
+
     /**
      * Public method
      */
@@ -229,19 +226,7 @@ class PlayerActivity : AppCompatActivity() {
                     true
                 }
                 R.id.menu_quick_options -> {
-                    InfoFragment(
-                        Song(
-                            SongInfoOptions.DUMMY_SONG_ID,
-                            getString(R.string.info_title),
-                            getString(R.string.info_artist),
-                            getString(R.string.info_album),
-                            getString(R.string.info_album_artist),
-                            120,
-                            "",
-                            "",
-                            getString(R.string.info_genre)
-                        )
-                    ).show(supportFragmentManager, "quickOptions")
+                    startActivity(Intent(this, QuickOptionsActivity::class.java))
                     true
                 }
                 else -> false

@@ -20,9 +20,9 @@
 
         <activity
             android:name=".feature.player.PlayerActivity"
+            android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme"
-            android:exported="true">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,7 +33,10 @@
 
         <activity android:name=".feature.alarms.AlarmActivity" />
 
-        <service android:name=".player.PlayerService"
+        <activity android:name=".feature.quickOptions.QuickOptionsActivity" />
+
+        <service
+            android:name=".player.PlayerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
@@ -50,7 +53,8 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <receiver android:name="androidx.media.session.MediaButtonReceiver"
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
