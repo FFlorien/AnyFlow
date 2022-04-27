@@ -19,8 +19,7 @@
         android:layout_width="@dimen/mediumDimen"
         android:layout_height="@dimen/mediumDimen"
         android:layout_gravity="bottom|start"
-        android:background="@drawable/bg_blue_button"
         android:scaleType="fitCenter"
-        app:tint="@color/accent" />
+        app:tint="@color/accentDarkPlus" />
 
 </FrameLayout>

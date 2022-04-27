@@ -438,7 +438,7 @@ class SongInfoOptions constructor(
         val optionString = "$fieldType|$actionType"
         var string = sharedPreferences.getString(QUICK_OPTIONS_PREF_NAME, "") ?: ""
         if (string.contains(optionString)) {
-            string = string.replace(optionString, "")
+            string = string.replace(optionString, "") // todo album_artist and artist collide
             string = string.replace("##", "#")
             string = string.trim('#')
         } else {
@@ -487,7 +487,7 @@ class SongInfoOptions constructor(
         TRACK(R.drawable.ic_song),
         ARTIST(R.drawable.ic_artist),
         ALBUM(R.drawable.ic_album),
-        ALBUM_ARTIST(R.drawable.ic_artist),
+        ALBUM_ARTIST(R.drawable.ic_album_artist),
         GENRE(R.drawable.ic_genre),
         YEAR(R.drawable.ic_album),
         DURATION(R.drawable.ic_song)

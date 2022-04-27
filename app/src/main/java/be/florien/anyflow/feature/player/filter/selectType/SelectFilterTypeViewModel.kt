@@ -31,7 +31,7 @@ class SelectFilterTypeViewModel @Inject constructor(filtersManager: FiltersManag
 
     val filtersImages = listOf(
             R.drawable.ic_genre,
-            R.drawable.ic_artist,
+            R.drawable.ic_album_artist,
             R.drawable.ic_album,
             R.drawable.ic_song,
             R.drawable.ic_playlist,
