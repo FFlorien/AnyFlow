@@ -35,7 +35,7 @@ class SongListViewModel
 ) : BaseViewModel() {
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
-    private val songInfoOptions = SongInfoOptions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences)
+    private val songInfoActions = SongInfoActions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences)
     val pagedAudioQueue: LiveData<PagingData<Song>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<Song> = playingQueue.currentSong.map { it.toSong() }
 
@@ -46,7 +46,7 @@ class SongListViewModel
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     val playlistListDisplayedFor: LiveData<Long> = MutableLiveData(-1L)
-    val quickOptions: LiveData<List<SongInfoOptions.SongRow>> = MutableLiveData(songInfoOptions.getQuickOptions())
+    val quickActions: LiveData<List<SongInfoActions.SongRow>> = MutableLiveData(songInfoActions.getQuickActions())
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
         private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -126,24 +126,24 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songId: Long, actionType: SongInfoOptions.ActionType, fieldType: SongInfoOptions.FieldType) {
+    fun executeSongAction(songId: Long, actionType: SongInfoActions.ActionType, fieldType: SongInfoActions.FieldType) {
         viewModelScope.launch {
             when (actionType) {
-                SongInfoOptions.ActionType.ADD_NEXT -> songInfoOptions.playNext(songId)
-                SongInfoOptions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songId)
-                SongInfoOptions.ActionType.ADD_TO_FILTER -> songInfoOptions.filterOn(songId, fieldType)
-                SongInfoOptions.ActionType.SEARCH -> searchText(songInfoOptions.getSearchTerms(songId, fieldType))
-                SongInfoOptions.ActionType.DOWNLOAD -> songInfoOptions.download(songId)
+                SongInfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(songId)
+                SongInfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songId)
+                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(songId, fieldType)
+                SongInfoActions.ActionType.SEARCH -> searchText(songInfoActions.getSearchTerms(songId, fieldType))
+                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(songId)
                 else -> return@launch
             }
         }
     }
 
-    fun refreshQuickOptions() {
-        val oldValue = quickOptions.value
-        val newValue = songInfoOptions.getQuickOptions()
+    fun refreshQuickActions() {
+        val oldValue = quickActions.value
+        val newValue = songInfoActions.getQuickActions()
         if (!newValue.containsAll(oldValue ?: listOf()) || oldValue?.containsAll(newValue) == false) {
-            quickOptions.mutable.value = songInfoOptions.getQuickOptions()
+            quickActions.mutable.value = songInfoActions.getQuickActions()
         }
     }
 

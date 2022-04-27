@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.quickOptions
+package be.florien.anyflow.feature.quickActions
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,13 +8,13 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.feature.player.songlist.InfoViewModel
-import be.florien.anyflow.feature.player.songlist.SongInfoOptions
+import be.florien.anyflow.feature.player.songlist.SongInfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class InfoOptionsSelectionViewModel @Inject constructor(
+class InfoActionsSelectionViewModel @Inject constructor(
     context: Context,
     ampache: AmpacheConnection,
     filtersManager: FiltersManager,
@@ -34,30 +34,30 @@ class InfoOptionsSelectionViewModel @Inject constructor(
             field = value
             updateCountDisplay()
         }
-    val currentOptionsCountDisplay: LiveData<String> =
-        MutableLiveData("${songInfoOptions.getQuickOptions().size}/$maxItems")
+    val currentActionsCountDisplay: LiveData<String> =
+        MutableLiveData("${songInfoActions.getQuickActions().size}/$maxItems")
 
-    override fun mapOptionsRows(initialList: List<SongInfoOptions.SongRow>): List<SongInfoOptions.SongRow> {
+    override fun mapActionsRows(initialList: List<SongInfoActions.SongRow>): List<SongInfoActions.SongRow> {
         val mutableList = initialList.toMutableList()
-        val quickOptions = songInfoOptions.getQuickOptions()
-        quickOptions.forEach {
+        val quickActions = songInfoActions.getQuickActions()
+        quickActions.forEach {
             val indexOfFirst =
-                mutableList.indexOfFirst { option -> it.actionType == option.actionType && it.fieldType == option.fieldType }
+                mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
-                mutableList[indexOfFirst] = SongInfoOptions.SongRow(initialList[indexOfFirst], it.order)
+                mutableList[indexOfFirst] = SongInfoActions.SongRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList
     }
 
     override fun executeSongAction(
-        fieldType: SongInfoOptions.FieldType,
-        actionType: SongInfoOptions.ActionType
+        fieldType: SongInfoActions.FieldType,
+        actionType: SongInfoActions.ActionType
     ) {
-        val quickOptions = songInfoOptions.getQuickOptions()
-        if (quickOptions.size < maxItems || quickOptions.any { it.fieldType == fieldType && it.actionType == actionType }) {
+        val quickActions = songInfoActions.getQuickActions()
+        if (quickActions.size < maxItems || quickActions.any { it.fieldType == fieldType && it.actionType == actionType }) {
             viewModelScope.launch {
-                songInfoOptions.toggleQuickOption(fieldType, actionType)
+                songInfoActions.toggleQuickAction(fieldType, actionType)
                 updateRows()
                 updateCountDisplay()
             }
@@ -65,7 +65,7 @@ class InfoOptionsSelectionViewModel @Inject constructor(
     }
 
     private fun updateCountDisplay() {
-        val currentCount = songInfoOptions.getQuickOptions().size
-        currentOptionsCountDisplay.mutable.value = "$currentCount/$maxItems"
+        val currentCount = songInfoActions.getQuickActions().size
+        currentActionsCountDisplay.mutable.value = "$currentCount/$maxItems"
     }
 }

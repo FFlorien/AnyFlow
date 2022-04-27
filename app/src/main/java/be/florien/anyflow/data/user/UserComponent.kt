@@ -4,7 +4,7 @@ import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.UpdateService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.injection.PlayerComponent
-import be.florien.anyflow.injection.QuickOptionsComponent
+import be.florien.anyflow.injection.QuickActionsComponent
 import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.player.PlayerService
 import dagger.BindsInstance
@@ -22,7 +22,7 @@ interface UserComponent {
     fun inject(pingService: PingService)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
-    fun quickOptionsComponentBuilder(): QuickOptionsComponent.Builder
+    fun quickActionsComponentBuilder(): QuickActionsComponent.Builder
 
     @Subcomponent.Builder
     interface Builder {

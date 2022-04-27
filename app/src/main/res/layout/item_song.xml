@@ -15,7 +15,7 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/songOptions"
+            android:id="@+id/songActions"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
@@ -32,7 +32,7 @@
                 android:src="@drawable/ic_info" />
 
             <View
-                android:id="@+id/optionsPadding"
+                android:id="@+id/actionsPadding"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />

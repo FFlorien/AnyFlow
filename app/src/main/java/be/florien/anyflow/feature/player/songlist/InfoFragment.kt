@@ -17,13 +17,13 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
-import be.florien.anyflow.feature.quickOptions.InfoOptionsSelectionViewModel
+import be.florien.anyflow.feature.quickActions.InfoActionsSelectionViewModel
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class InfoFragment(
     private var song: Song = Song(
-        SongInfoOptions.DUMMY_SONG_ID, "", "", "", "", 0, "", "", ""
+        SongInfoActions.DUMMY_SONG_ID, "", "", "", "", 0, "", "", ""
     )
 ) : BottomSheetDialogFragment() {
 
@@ -51,9 +51,9 @@ class InfoFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = if (song.id == SongInfoOptions.DUMMY_SONG_ID) {
+        viewModel = if (song.id == SongInfoActions.DUMMY_SONG_ID) {
             ViewModelProvider(requireActivity(), (requireActivity() as ViewModelFactoryHolder).getFactory())
-                .get(InfoOptionsSelectionViewModel::class.java)
+                .get(InfoActionsSelectionViewModel::class.java)
                 .apply {
                     val displayMetrics = DisplayMetrics()
                     requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -105,21 +105,21 @@ class InfoFragment(
         }
     }
 
-    inner class InfoAdapter : ListAdapter<SongInfoOptions.SongRow, InfoViewHolder>(object :
-        DiffUtil.ItemCallback<SongInfoOptions.SongRow>() {
+    inner class InfoAdapter : ListAdapter<SongInfoActions.SongRow, InfoViewHolder>(object :
+        DiffUtil.ItemCallback<SongInfoActions.SongRow>() {
         override fun areItemsTheSame(
-            oldItem: SongInfoOptions.SongRow,
-            newItem: SongInfoOptions.SongRow
+            oldItem: SongInfoActions.SongRow,
+            newItem: SongInfoActions.SongRow
         ): Boolean {
             val isSameAction = (oldItem.actionType == newItem.actionType)
-                    || (oldItem.actionType == SongInfoOptions.ActionType.EXPANDED_TITLE && newItem.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE)
-                    || (oldItem.actionType == SongInfoOptions.ActionType.EXPANDABLE_TITLE && newItem.actionType == SongInfoOptions.ActionType.EXPANDED_TITLE)
+                    || (oldItem.actionType == SongInfoActions.ActionType.EXPANDED_TITLE && newItem.actionType == SongInfoActions.ActionType.EXPANDABLE_TITLE)
+                    || (oldItem.actionType == SongInfoActions.ActionType.EXPANDABLE_TITLE && newItem.actionType == SongInfoActions.ActionType.EXPANDED_TITLE)
             return oldItem.fieldType == newItem.fieldType && isSameAction
         }
 
         override fun areContentsTheSame(
-            oldItem: SongInfoOptions.SongRow,
-            newItem: SongInfoOptions.SongRow
+            oldItem: SongInfoActions.SongRow,
+            newItem: SongInfoActions.SongRow
         ) = areItemsTheSame(
             oldItem,
             newItem
@@ -154,7 +154,7 @@ class InfoFragment(
     ) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bindNewData(row: SongInfoOptions.SongRow) {
+        fun bindNewData(row: SongInfoActions.SongRow) {
             bindChangedData(row)
             binding.display = row
             binding.descriptionText = when {
@@ -169,7 +169,7 @@ class InfoFragment(
             binding.root.setOnClickListener {
                 viewModel.executeAction(row.fieldType, row.actionType)
             }
-            if (row.actionType == SongInfoOptions.ActionType.NONE) {
+            if (row.actionType == SongInfoActions.ActionType.NONE) {
                 binding.root.setBackgroundColor(
                     ResourcesCompat.getColor(
                         parent.context.resources,
@@ -177,7 +177,7 @@ class InfoFragment(
                         parent.context.theme
                     )
                 )
-            } else if (row.actionType != SongInfoOptions.ActionType.INFO_TITLE && row.actionType != SongInfoOptions.ActionType.EXPANDABLE_TITLE && row.actionType != SongInfoOptions.ActionType.EXPANDED_TITLE) {
+            } else if (row.actionType != SongInfoActions.ActionType.INFO_TITLE && row.actionType != SongInfoActions.ActionType.EXPANDABLE_TITLE && row.actionType != SongInfoActions.ActionType.EXPANDED_TITLE) {
                 binding.root.setBackgroundColor(
                     ResourcesCompat.getColor(
                         parent.context.resources,
@@ -190,14 +190,14 @@ class InfoFragment(
             }
         }
 
-        fun bindChangedData(row: SongInfoOptions.SongRow) {
+        fun bindChangedData(row: SongInfoActions.SongRow) {
             if (row.order != null) {
                 binding.order.removeViews(2, binding.order.size - 2)
                 val inflater = LayoutInflater.from(binding.root.context)
                 for (i in 0 until row.order) {
                     val unselectedView = inflater
-                        .inflate(R.layout.item_option_order, binding.order, false) as ImageView
-                    unselectedView.setImageResource(R.drawable.ic_option_order_item_unselected)
+                        .inflate(R.layout.item_action_order, binding.order, false) as ImageView
+                    unselectedView.setImageResource(R.drawable.ic_action_order_item_unselected)
                     binding.order.addView(unselectedView)
                 }
             }

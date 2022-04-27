@@ -19,20 +19,20 @@ class InfoDisplayViewModel @Inject constructor(
     sharedPreferences: SharedPreferences
 ) : InfoViewModel(context, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences) {
 
-    override fun executeSongAction(fieldType: SongInfoOptions.FieldType, actionType: SongInfoOptions.ActionType) {
+    override fun executeSongAction(fieldType: SongInfoActions.FieldType, actionType: SongInfoActions.ActionType) {
         viewModelScope.launch {
             when (actionType) {
-                SongInfoOptions.ActionType.ADD_NEXT -> songInfoOptions.playNext(song.id)
-                SongInfoOptions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList()
-                SongInfoOptions.ActionType.ADD_TO_FILTER -> songInfoOptions.filterOn(song.id, fieldType)
-                SongInfoOptions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoOptions.getSearchTerms(song.id, fieldType)
-                SongInfoOptions.ActionType.DOWNLOAD -> songInfoOptions.download(song.id)
-                SongInfoOptions.ActionType.NONE, SongInfoOptions.ActionType.INFO_TITLE, SongInfoOptions.ActionType.EXPANDABLE_TITLE -> return@launch
+                SongInfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(song.id)
+                SongInfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList()
+                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(song.id, fieldType)
+                SongInfoActions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoActions.getSearchTerms(song.id, fieldType)
+                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(song.id)
+                SongInfoActions.ActionType.NONE, SongInfoActions.ActionType.INFO_TITLE, SongInfoActions.ActionType.EXPANDABLE_TITLE -> return@launch
             }
         }
     }
 
-    override fun mapOptionsRows(initialList: List<SongInfoOptions.SongRow>): List<SongInfoOptions.SongRow> = initialList
+    override fun mapActionsRows(initialList: List<SongInfoActions.SongRow>): List<SongInfoActions.SongRow> = initialList
 
     private fun displayPlaylistList() {
         isPlaylistListDisplayed.mutable.value = true

@@ -67,7 +67,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
                 editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
                 AlertDialog.Builder(requireActivity())
                     .setView(editText)
-                    .setTitle(R.string.info_option_new_playlist)
+                    .setTitle(R.string.info_action_new_playlist)
                     .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
                         viewModel.createPlaylist(editText.text.toString())
                     }

@@ -59,7 +59,7 @@
             android:textSize="@dimen/textLarge"
             android:paddingVertical="@dimen/smallDimen"
             android:paddingHorizontal="@dimen/mediumDimen"
-            android:text="@string/info_option_add_to_playlist" />
+            android:text="@string/info_action_add_to_playlist" />
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/filterList"

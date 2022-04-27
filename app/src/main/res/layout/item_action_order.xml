@@ -6,5 +6,5 @@
     android:adjustViewBounds="true"
     android:paddingHorizontal="1dp"
     android:paddingVertical="3dp"
-    android:src="@drawable/ic_option_order_item_selected"
+    android:src="@drawable/ic_action_order_item_selected"
     tools:showIn="@layout/item_info" />

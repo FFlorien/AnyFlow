@@ -31,7 +31,7 @@ import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.OrderMenuHolder
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
-import be.florien.anyflow.feature.quickOptions.QuickOptionsActivity
+import be.florien.anyflow.feature.quickActions.QuickActionsActivity
 import be.florien.anyflow.injection.*
 import be.florien.anyflow.player.PlayerService
 import javax.inject.Inject
@@ -217,7 +217,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     }
 
     private fun initDrawer() {
-        drawerToggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.info_option_download_description, R.string.info_option_download) // todo strings
+        drawerToggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.info_action_download_description, R.string.info_action_download) // todo strings
         binding.drawerLayout.addDrawerListener(drawerToggle)
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
@@ -225,8 +225,8 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                     startActivity(Intent(this@PlayerActivity, AlarmActivity::class.java))
                     true
                 }
-                R.id.menu_quick_options -> {
-                    startActivity(Intent(this, QuickOptionsActivity::class.java))
+                R.id.menu_quick_actions -> {
+                    startActivity(Intent(this, QuickActionsActivity::class.java))
                     true
                 }
                 else -> false

@@ -17,7 +17,7 @@ import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import java.net.URL
 
-class SongInfoOptions constructor(
+class SongInfoActions constructor(
     private val contentResolver: ContentResolver,
     private val ampache: AmpacheConnection,
     private val filtersManager: FiltersManager,
@@ -27,7 +27,7 @@ class SongInfoOptions constructor(
 ) {
     companion object {
         const val DUMMY_SONG_ID = -5L
-        private const val QUICK_OPTIONS_PREF_NAME = "Quick options"
+        private const val QUICK_ACTIONS_PREF_NAME = "Quick actions"
     }
 
     private var lastSongInfo: SongInfo? = null
@@ -152,18 +152,18 @@ class SongInfoOptions constructor(
     suspend fun getInfoRows(songId: Long): List<SongRow> {
         val songInfo = getSongInfo(songId)
         return listOfNotNull(
-            getSongOption(songInfo, FieldType.TITLE, ActionType.EXPANDABLE_TITLE),
-            getSongOption(songInfo, FieldType.ARTIST, ActionType.EXPANDABLE_TITLE),
-            getSongOption(songInfo, FieldType.TRACK, ActionType.INFO_TITLE),
-            getSongOption(songInfo, FieldType.ALBUM, ActionType.EXPANDABLE_TITLE),
-            getSongOption(songInfo, FieldType.ALBUM_ARTIST, ActionType.EXPANDABLE_TITLE),
-            getSongOption(songInfo, FieldType.GENRE, ActionType.EXPANDABLE_TITLE),
-            getSongOption(songInfo, FieldType.DURATION, ActionType.INFO_TITLE),
-            getSongOption(songInfo, FieldType.YEAR, ActionType.INFO_TITLE)
+            getSongAction(songInfo, FieldType.TITLE, ActionType.EXPANDABLE_TITLE),
+            getSongAction(songInfo, FieldType.ARTIST, ActionType.EXPANDABLE_TITLE),
+            getSongAction(songInfo, FieldType.TRACK, ActionType.INFO_TITLE),
+            getSongAction(songInfo, FieldType.ALBUM, ActionType.EXPANDABLE_TITLE),
+            getSongAction(songInfo, FieldType.ALBUM_ARTIST, ActionType.EXPANDABLE_TITLE),
+            getSongAction(songInfo, FieldType.GENRE, ActionType.EXPANDABLE_TITLE),
+            getSongAction(songInfo, FieldType.DURATION, ActionType.INFO_TITLE),
+            getSongAction(songInfo, FieldType.YEAR, ActionType.INFO_TITLE)
         )
     }
 
-    suspend fun getOptionsRows(
+    suspend fun getActionsRows(
         songId: Long,
         fieldType: FieldType,
         order: Int? = null
@@ -171,37 +171,37 @@ class SongInfoOptions constructor(
         val songInfo = getSongInfo(songId)
         return when (fieldType) {
             FieldType.TITLE -> listOfNotNull(
-                getSongOption(songInfo, fieldType, ActionType.ADD_NEXT, order),
-                getSongOption(songInfo, fieldType, ActionType.ADD_TO_PLAYLIST, order),
-                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
-                getSongOption(songInfo, fieldType, ActionType.SEARCH, order),
+                getSongAction(songInfo, fieldType, ActionType.ADD_NEXT, order),
+                getSongAction(songInfo, fieldType, ActionType.ADD_TO_PLAYLIST, order),
+                getSongAction(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
+                getSongAction(songInfo, fieldType, ActionType.SEARCH, order),
                 if (songInfo.local == null) {
-                    getSongOption(songInfo, fieldType, ActionType.DOWNLOAD, order)
+                    getSongAction(songInfo, fieldType, ActionType.DOWNLOAD, order)
                 } else {
-                    getSongOption(songInfo, fieldType, ActionType.NONE, order)
+                    getSongAction(songInfo, fieldType, ActionType.NONE, order)
                 }
             )
             FieldType.ARTIST -> listOfNotNull(
-                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
-                getSongOption(songInfo, fieldType, ActionType.SEARCH, order)
+                getSongAction(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
+                getSongAction(songInfo, fieldType, ActionType.SEARCH, order)
             )
             FieldType.ALBUM -> listOfNotNull(
-                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
-                getSongOption(songInfo, fieldType, ActionType.SEARCH, order)
+                getSongAction(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
+                getSongAction(songInfo, fieldType, ActionType.SEARCH, order)
             )
             FieldType.ALBUM_ARTIST -> listOfNotNull(
-                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
-                getSongOption(songInfo, fieldType, ActionType.SEARCH, order)
+                getSongAction(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
+                getSongAction(songInfo, fieldType, ActionType.SEARCH, order)
             )
             FieldType.GENRE -> listOfNotNull(
-                getSongOption(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
-                getSongOption(songInfo, fieldType, ActionType.SEARCH, order)
+                getSongAction(songInfo, fieldType, ActionType.ADD_TO_FILTER, order),
+                getSongAction(songInfo, fieldType, ActionType.SEARCH, order)
             )
             else -> listOf()
         }
     }
 
-    private fun getSongOption(
+    private fun getSongAction(
         songInfo: SongInfo,
         field: FieldType,
         action: ActionType,
@@ -322,50 +322,50 @@ class SongInfoOptions constructor(
                 else -> null
             }
             ActionType.NONE -> if (field == FieldType.TITLE) SongRow(
-                R.string.info_option_downloaded,
+                R.string.info_action_downloaded,
                 null,
-                R.string.info_option_downloaded_description,
+                R.string.info_action_downloaded_description,
                 FieldType.TITLE,
                 ActionType.NONE,
                 order
             ) else null
             ActionType.ADD_TO_FILTER -> when (field) {
                 FieldType.TITLE -> SongRow(
-                    R.string.info_option_filter_title,
+                    R.string.info_action_filter_title,
                     songInfo.title,
-                    R.string.info_option_filter_on,
+                    R.string.info_action_filter_on,
                     FieldType.TITLE,
                     ActionType.ADD_TO_FILTER,
                     order
                 )
                 FieldType.ARTIST -> SongRow(
-                    R.string.info_option_filter_title,
+                    R.string.info_action_filter_title,
                     songInfo.artistName,
-                    R.string.info_option_filter_on,
+                    R.string.info_action_filter_on,
                     FieldType.ARTIST,
                     ActionType.ADD_TO_FILTER,
                     order
                 )
                 FieldType.ALBUM -> SongRow(
-                    R.string.info_option_filter_title,
+                    R.string.info_action_filter_title,
                     songInfo.albumName,
-                    R.string.info_option_filter_on,
+                    R.string.info_action_filter_on,
                     FieldType.ALBUM,
                     ActionType.ADD_TO_FILTER,
                     order
                 )
                 FieldType.ALBUM_ARTIST -> SongRow(
-                    R.string.info_option_filter_title,
+                    R.string.info_action_filter_title,
                     songInfo.albumArtistName,
-                    R.string.info_option_filter_on,
+                    R.string.info_action_filter_on,
                     FieldType.ALBUM_ARTIST,
                     ActionType.ADD_TO_FILTER,
                     order
                 )
                 FieldType.GENRE -> SongRow(
-                    R.string.info_option_filter_title,
+                    R.string.info_action_filter_title,
                     songInfo.genre,
-                    R.string.info_option_filter_on,
+                    R.string.info_action_filter_on,
                     FieldType.GENRE,
                     ActionType.ADD_TO_FILTER,
                     order
@@ -373,50 +373,50 @@ class SongInfoOptions constructor(
                 else -> null
             }
             ActionType.ADD_TO_PLAYLIST -> if (field == FieldType.TITLE) SongRow(
-                R.string.info_option_add_to_playlist,
+                R.string.info_action_add_to_playlist,
                 null,
-                R.string.info_option_add_to_playlist_detail,
+                R.string.info_action_add_to_playlist_detail,
                 FieldType.TITLE,
                 ActionType.ADD_TO_PLAYLIST,
                 order
             ) else null
             ActionType.ADD_NEXT -> if (field == FieldType.TITLE) SongRow(
-                R.string.info_option_next_title,
+                R.string.info_action_next_title,
                 null,
-                R.string.info_option_track_next,
+                R.string.info_action_track_next,
                 FieldType.TITLE,
                 ActionType.ADD_NEXT,
                 order
             ) else null
             ActionType.SEARCH -> when (field) {
                 FieldType.TITLE -> SongRow(
-                    R.string.info_option_search_title,
+                    R.string.info_action_search_title,
                     songInfo.title,
-                    R.string.info_option_search_on,
+                    R.string.info_action_search_on,
                     FieldType.TITLE,
                     ActionType.SEARCH,
                     order
                 )
                 FieldType.ARTIST -> SongRow(
-                    R.string.info_option_search_title,
+                    R.string.info_action_search_title,
                     songInfo.artistName,
-                    R.string.info_option_search_on,
+                    R.string.info_action_search_on,
                     FieldType.ARTIST,
                     ActionType.SEARCH,
                     order
                 )
                 FieldType.ALBUM -> SongRow(
-                    R.string.info_option_search_title,
+                    R.string.info_action_search_title,
                     songInfo.albumName,
-                    R.string.info_option_search_on,
+                    R.string.info_action_search_on,
                     FieldType.ALBUM,
                     ActionType.SEARCH,
                     order
                 )
                 FieldType.ALBUM_ARTIST -> SongRow(
-                    R.string.info_option_search_title,
+                    R.string.info_action_search_title,
                     songInfo.albumArtistName,
-                    R.string.info_option_search_on,
+                    R.string.info_action_search_on,
                     FieldType.ALBUM_ARTIST,
                     ActionType.SEARCH,
                     order
@@ -424,9 +424,9 @@ class SongInfoOptions constructor(
                 else -> null
             }
             ActionType.DOWNLOAD -> if (field == FieldType.TITLE) SongRow(
-                R.string.info_option_download,
+                R.string.info_action_download,
                 null,
-                R.string.info_option_download_description,
+                R.string.info_action_download_description,
                 FieldType.TITLE,
                 ActionType.DOWNLOAD,
                 order
@@ -434,21 +434,25 @@ class SongInfoOptions constructor(
         }
     }
 
-    fun toggleQuickOption(fieldType: FieldType, actionType: ActionType) {
-        val optionString = "$fieldType|$actionType"
-        var string = sharedPreferences.getString(QUICK_OPTIONS_PREF_NAME, "") ?: ""
-        if (string.contains(optionString)) {
-            string = string.replace(optionString, "") // todo album_artist and artist collide
-            string = string.replace("##", "#")
-            string = string.trim('#')
+    fun toggleQuickAction(fieldType: FieldType, actionType: ActionType) {
+        val quickActions = getQuickActions().toMutableList()
+        if (quickActions.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
+            sharedPreferences.edit()
+                .putString(
+                    QUICK_ACTIONS_PREF_NAME,
+                    quickActions.joinToString(separator = "#") { "${it.fieldType}|${it.actionType}" }
+                )
+                .apply()
         } else {
-            string = "$string#$optionString"
+            val originalString = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "")
+            sharedPreferences.edit()
+                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#$fieldType|$actionType")
+                .apply()
         }
-        sharedPreferences.edit().putString(QUICK_OPTIONS_PREF_NAME, string).apply()
     }
 
-    fun getQuickOptions(): List<SongRow> {
-        val string = sharedPreferences.getString(QUICK_OPTIONS_PREF_NAME, "") ?: return emptyList()
+    fun getQuickActions(): List<SongRow> {
+        val string = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "") ?: return emptyList()
         val songInfo = SongInfo(0L, "", "", 0L, "", 0L, "", 0L, 0, 0, 0, "", "", "", "", null)
 
         return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
@@ -457,7 +461,7 @@ class SongInfoOptions constructor(
 
             val fieldType = FieldType.valueOf(fieldTypeString)
             val actionType = ActionType.valueOf(actionTypeString)
-            getSongOption(songInfo, fieldType, actionType, index)
+            getSongAction(songInfo, fieldType, actionType, index)
         }
     }
 

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.quickOptions
+package be.florien.anyflow.feature.quickActions
 
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -7,33 +7,33 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Song
-import be.florien.anyflow.databinding.ActivityQuickOptionsBinding
+import be.florien.anyflow.databinding.ActivityQuickActionsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
 import be.florien.anyflow.feature.player.songlist.InfoFragment
-import be.florien.anyflow.feature.player.songlist.SongInfoOptions
+import be.florien.anyflow.feature.player.songlist.SongInfoActions
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
-import be.florien.anyflow.injection.QuickOptionsComponent
+import be.florien.anyflow.injection.QuickActionsComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import javax.inject.Inject
 
-class QuickOptionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
+class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
-    private lateinit var binding: ActivityQuickOptionsBinding
-    private lateinit var activityComponent: QuickOptionsComponent
-    private lateinit var viewModel: InfoOptionsSelectionViewModel
+    private lateinit var binding: ActivityQuickActionsBinding
+    private lateinit var activityComponent: QuickActionsComponent
+    private lateinit var viewModel: InfoActionsSelectionViewModel
 
     @Inject
     lateinit var viewModelFactory: AnyFlowViewModelFactory
 
-    private val fakeComponent = object : QuickOptionsComponent {
-        override fun inject(quickOptionsActivity: QuickOptionsActivity) {}
+    private val fakeComponent = object : QuickActionsComponent {
+        override fun inject(quickActionsActivity: QuickActionsActivity) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val component = anyFlowApp.userComponent
-            ?.quickOptionsComponentBuilder()
+            ?.quickActionsComponentBuilder()
             ?.build()
         activityComponent = if (component != null) {
             component
@@ -50,7 +50,7 @@ class QuickOptionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
         activityComponent.inject(this)
 
         viewModel = ViewModelProvider(this, viewModelFactory)
-            .get(InfoOptionsSelectionViewModel::class.java)
+            .get(InfoActionsSelectionViewModel::class.java)
             .apply {
                 val displayMetrics = DisplayMetrics()
                 windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -60,7 +60,7 @@ class QuickOptionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 val itemFullWidth = itemWidth + margin + margin
                 maxItems = (width / itemFullWidth) - 1
             }
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_quick_options)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_quick_actions)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initToolbar()
@@ -70,7 +70,7 @@ class QuickOptionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 .beginTransaction()
                 .add(R.id.fragment_container_view, InfoFragment(
                     Song(
-                        SongInfoOptions.DUMMY_SONG_ID,
+                        SongInfoActions.DUMMY_SONG_ID,
                         getString(R.string.info_title),
                         getString(R.string.info_artist),
                         getString(R.string.info_album),
