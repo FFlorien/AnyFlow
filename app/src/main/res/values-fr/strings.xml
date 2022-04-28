@@ -6,7 +6,7 @@
     <string name="connect_connect_action">Connexion</string>
     <string name="connect_wait_label">Connexion, veuillez patienter…</string>
     <string name="connect_error_extends">Impossible de prolonger la session</string>
-    <string name="player_playing_now">En cours de lecture</string>
+    <string name="player_playing_now">En cours</string>
     <string name="player_controls_unknown">Inconnu</string>
     <string name="filter_display_title_is">Le titre de la chanson est %s</string>
     <string name="filter_display_genre_is">Le genre est %s</string>
