@@ -49,7 +49,6 @@ abstract class BaseFilterFragment : BaseFragment() {
         baseViewModel.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
             confirmMenuHolder.isVisible = it == true
         }
-        saveMenuHolder.isVisible = false
         baseViewModel.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
                 (requireActivity() as PlayerActivity).displaySongList()
