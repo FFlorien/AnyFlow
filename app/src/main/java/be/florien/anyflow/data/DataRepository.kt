@@ -10,8 +10,10 @@ import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.applyPutLong
 import com.google.android.exoplayer2.offline.DownloadManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +45,9 @@ class DataRepository
     }
 
     suspend fun getSongAtPosition(position: Int) =
-        withContext(Dispatchers.IO) { libraryDatabase.getSongAtPosition(position)?.toViewSongInfo() }
+        withContext(Dispatchers.IO) {
+            libraryDatabase.getSongAtPosition(position)?.toViewSongInfo()
+        }
 
     suspend fun getPositionForSong(songId: Long) =
         withContext(Dispatchers.IO) { libraryDatabase.getPositionForSong(songId) }
@@ -58,7 +62,8 @@ class DataRepository
 
     fun searchSongs(filter: String) = libraryDatabase.searchSongs("%$filter%")
 
-    suspend fun getQueueSize(): Int? = withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
+    suspend fun getQueueSize(): Int? =
+        withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
 
     fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagingData<T>> =
         convertToPagingLiveData(libraryDatabase.getAlbums().map { mapping(it) })
@@ -96,7 +101,8 @@ class DataRepository
         filter: String,
         mapping: (DbArtistDisplay) -> T
     ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(
+            libraryDatabase.getAlbumArtistsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getAlbumArtistsFilteredList(
         filter: String,
@@ -133,7 +139,8 @@ class DataRepository
         filter: String,
         mapping: (DbPlaylist) -> T
     ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getPlaylistsFiltered("%$filter%").map { mapping(it) })
+        convertToPagingLiveData(
+            libraryDatabase.getPlaylistsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getPlaylistsFilteredList(
         filter: String,
@@ -169,7 +176,10 @@ class DataRepository
     suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> =
         withContext(Dispatchers.IO) {
             libraryDatabase.getSongsFromQuery(
-                getQueryForSongs(filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }, orderList)
+                getQueryForSongs(
+                    filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) },
+                    orderList
+                )
             )
         }
 
@@ -188,8 +198,11 @@ class DataRepository
 
     suspend fun addAlarm(alarm: Alarm) = libraryDatabase.addAlarm(alarm.toDbAlarm())
 
-    fun getAlarms(): LiveData<List<Alarm>> = libraryDatabase.getAlarms().map { list -> list.map { it.toViewAlarm() } }
-    suspend fun getAlarmList(): List<Alarm> = libraryDatabase.getAlarmList().map { it.toViewAlarm() }
+    fun getAlarms(): LiveData<List<Alarm>> =
+        libraryDatabase.getAlarms().map { list -> list.map { it.toViewAlarm() } }
+
+    suspend fun getAlarmList(): List<Alarm> =
+        libraryDatabase.getAlarmList().map { it.toViewAlarm() }
 
     suspend fun activateAlarm(alarm: Alarm) {
         val newAlarm = alarm.copy(active = true)
@@ -239,7 +252,8 @@ class DataRepository
      * Download status
      */
 
-    fun hasDownloaded(song: SongInfo): Boolean = downloadManager.downloadIndex.getDownload(song.url) != null
+    fun hasDownloaded(song: SongInfo): Boolean =
+        downloadManager.downloadIndex.getDownload(song.url) != null
 
 
     /**
@@ -282,7 +296,8 @@ class DataRepository
     ) {
 
         val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
+        val lastUpdate =
+            TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {
@@ -302,7 +317,8 @@ class DataRepository
 
     private suspend fun updatePlaylistAsync() {
         val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong(LAST_PLAYLIST_UPDATE, 0))
+        val lastUpdate =
+            TimeOperations.getDateFromMillis(sharedPreferences.getLong(LAST_PLAYLIST_UPDATE, 0))
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {
@@ -320,17 +336,30 @@ class DataRepository
 
     private suspend fun updatePlaylistSongListAsync(playlistId: Long) {
         val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate = TimeOperations.getDateFromMillis(sharedPreferences.getLong("$LAST_PLAYLIST_SONGS_UPDATE$playlistId", 0))
+        val lastUpdate = TimeOperations.getDateFromMillis(
+            sharedPreferences.getLong(
+                "$LAST_PLAYLIST_SONGS_UPDATE$playlistId",
+                0
+            )
+        )
         val lastAcceptableUpdate = lastAcceptableUpdate()
 
         if (lastUpdate.before(lastAcceptableUpdate)) {
             var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
             while (listOnServer != null) {
-                libraryDatabase.addPlaylistSongs(listOnServer.map { DbPlaylistSongs(it.id, playlistId) })
+                libraryDatabase.addPlaylistSongs(listOnServer.map {
+                    DbPlaylistSongs(
+                        it.id,
+                        playlistId
+                    )
+                })
                 listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
             }
 
-            sharedPreferences.applyPutLong("$LAST_PLAYLIST_SONGS_UPDATE$playlistId", nowDate.timeInMillis)
+            sharedPreferences.applyPutLong(
+                "$LAST_PLAYLIST_SONGS_UPDATE$playlistId",
+                nowDate.timeInMillis
+            )
         }
     }
 
@@ -376,17 +405,23 @@ class DataRepository
                 }
             }
 
+            if (orderList.isEmpty() || (orderList.size == 1 && orderList[0].orderingType != Order.Ordering.RANDOM) || orderList.any { it.orderingSubject == Order.Subject.ALL }) {
+                FirebaseCrashlytics.getInstance()
+                    .recordException(Exception("This is not the order you looking for (orderStatement: $orderStatement)"))
+            }
+
             return orderStatement
         }
 
-        return "SELECT id FROM song" + constructJoinStatement(dbFilters) + constructWhereStatement(dbFilters) + constructOrderStatement()
+        return "SELECT id FROM song" + constructJoinStatement(dbFilters) + constructWhereStatement(
+            dbFilters
+        ) + constructOrderStatement()
     }
 
-    private fun constructJoinStatement(filterList: List<DbFilter>): String {
-        return filterList.filter { !it.joinClause.isNullOrBlank() }.distinctBy{it.joinClause}.joinToString(separator = " ", prefix = " ", postfix = " ") {
-            it.joinClause!!
-        }
-    }
+    private fun constructJoinStatement(filterList: List<DbFilter>): String = filterList
+        .filter { !it.joinClause.isNullOrBlank() }
+        .distinctBy { it.joinClause }
+        .joinToString(separator = " ", prefix = " ", postfix = " ") { it.joinClause!! }
 
     private fun constructWhereStatement(filterList: List<DbFilter>): String {
         var whereStatement = if (filterList.isNotEmpty()) {
@@ -414,7 +449,8 @@ class DataRepository
         return whereStatement
     }
 
-    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean = libraryDatabase.isPlaylistContainingSong(playlistId, songId)
+    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
+        libraryDatabase.isPlaylistContainingSong(playlistId, songId)
 
     companion object {
         private const val LAST_SONG_UPDATE = "LAST_SONG_UPDATE"
