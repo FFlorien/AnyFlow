@@ -18,7 +18,8 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
     private var currentOrders = listOf<Order>()
     var currentSong: SongInfo? = null
     var currentPosition: Int = -1
-    var areFirstFilterArrived = false
+    var areFirstFiltersArrived = false
+    var areFirstOrdersArrived = false
 
     init {
         val ordersLiveData = dataRepository.getOrders()
@@ -27,39 +28,34 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
         ordersLiveData.observeForever {
             FirebaseCrashlytics.getInstance()
                 .log("We will maybe save queue order form ordersLiveData.observeForever")
+            areFirstOrdersArrived = true
             currentOrders = it
             val filterList = filtersLiveData.value
-            if (filterList != null) {
+            if (areFirstFiltersArrived && filterList != null) {
                 saveQueue(filterList, currentOrders)
             }
         }
 
         filtersLiveData.observeForever { filterList ->
             CoroutineScope(Dispatchers.IO).launch {
-                FirebaseCrashlytics.getInstance()
+                FirebaseCrashlytics
+                    .getInstance()
                     .log("We will maybe save queue order form filtersLiveData.observeForever")
-                val newOrders = if (areFirstFilterArrived) {
+                if (!areFirstOrdersArrived) {
+                    areFirstFiltersArrived = true
+                    return@launch
+                }
+                val newOrders = if (areFirstFiltersArrived) { // todo this code is for avoiding current song at first position multiple time, but cause bug with play next
                     currentOrders
                         .filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
                         .toMutableList()
                 } else {
                     currentOrders.toMutableList()
                 }
-                areFirstFilterArrived = true
+                areFirstFiltersArrived = true
+
                 if (newOrders.any { it.orderingType == Order.Ordering.RANDOM }) {
-                    currentSong?.let { songInfo ->
-                        val isCurrentSongInNewFilters = filterList
-                            .any { it.contains(songInfo, dataRepository) }
-                        if (isCurrentSongInNewFilters) {
-                            newOrders.add(
-                                Order.Precise(
-                                    0,
-                                    songId = songInfo.id,
-                                    priority = Order.PRIORITY_PRECISE
-                                )
-                            )
-                        }
-                    }
+                    getCurrentSongPrecisePositionIfPresent(filterList)?.let { newOrders.add(it) }
                 }
                 if (newOrders.containsAll(currentOrders) && currentOrders.containsAll(newOrders)) {
                     saveQueue(filterList, newOrders)
@@ -68,6 +64,17 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                 }
             }
         }
+    }
+
+    private suspend fun getCurrentSongPrecisePositionIfPresent(filterList: List<Filter<*>>): Order.Precise? {
+        currentSong?.let { songInfo ->
+            val isCurrentSongInNewFilters =
+                filterList.any { it.contains(songInfo, dataRepository) }
+            if (isCurrentSongInNewFilters) {
+                return Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE)
+            }
+        }
+        return null
     }
 
     suspend fun changeSongPositionForNext(songId: Long) {

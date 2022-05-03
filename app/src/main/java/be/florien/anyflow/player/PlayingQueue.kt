@@ -22,15 +22,22 @@ import javax.inject.Inject
  */
 @UserScope
 class PlayingQueue
-@Inject constructor(private val dataRepository: DataRepository, private val sharedPreferences: SharedPreferences, private val orderComposer: OrderComposer) {
+@Inject constructor(
+    private val dataRepository: DataRepository,
+    private val sharedPreferences: SharedPreferences,
+    private val orderComposer: OrderComposer
+) {
     companion object {
         private const val POSITION_NOT_SET = -5
         private const val POSITION_PREF = "POSITION_PREF"
     }
-    var listPositionWithIntent: PositionWithIntent = PositionWithIntent(POSITION_NOT_SET, PlayingQueueIntent.PAUSE)
+    var listPositionWithIntent = PositionWithIntent(POSITION_NOT_SET, PlayingQueueIntent.PAUSE)
         get() {
             if (field.position == POSITION_NOT_SET) {
-                listPositionWithIntent = PositionWithIntent(sharedPreferences.getInt(POSITION_PREF, 0), PlayingQueueIntent.PAUSE)
+                listPositionWithIntent = PositionWithIntent(
+                    sharedPreferences.getInt(POSITION_PREF, 0),
+                    PlayingQueueIntent.PAUSE
+                )
             }
             return field
         }
@@ -38,9 +45,12 @@ class PlayingQueue
             if (value.position <= queueSize - 1) {
                 field = value
                 MainScope().launch {
-                    val currentSongId = songIdsListUpdater.value?.get(value.position) ?: DbSongToPlay(0L, null)
-                    val nextSongId = songIdsListUpdater.value?.getOrNull(value.position + 1) ?: DbSongToPlay(0L, null)
-                    (stateUpdater as MutableLiveData).value = PlayingQueueState(currentSongId, nextSongId, field.intent)
+                    val currentSongId = songIdsListUpdater.value?.get(value.position)
+                        ?: DbSongToPlay(0L, null)
+                    val nextSongId = songIdsListUpdater.value?.getOrNull(value.position + 1)
+                        ?: DbSongToPlay(0L, null)
+                    (stateUpdater as MutableLiveData).value =
+                        PlayingQueueState(currentSongId, nextSongId, field.intent)
                     positionUpdater.value = field.position
                     orderComposer.currentPosition = field.position
                     sharedPreferences.applyPutInt(POSITION_PREF, field.position)
@@ -65,8 +75,10 @@ class PlayingQueue
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
-    val songDisplayListUpdater: LiveData<PagingData<Song>> = dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
-    private val songIdsListUpdater: LiveData<List<DbSongToPlay>> = dataRepository.getIdsInQueueOrder()
+    val songDisplayListUpdater: LiveData<PagingData<Song>> =
+        dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
+    private val songIdsListUpdater: LiveData<List<DbSongToPlay>> =
+        dataRepository.getIdsInQueueOrder()
     val stateUpdater: LiveData<PlayingQueueState> = MutableLiveData()
     val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
         .map { orderList ->
@@ -89,7 +101,11 @@ class PlayingQueue
         }
     }
 
-    class PlayingQueueState(val currentSong: DbSongToPlay, val nextSong: DbSongToPlay?, val intent: PlayingQueueIntent)
+    class PlayingQueueState(
+        val currentSong: DbSongToPlay,
+        val nextSong: DbSongToPlay?,
+        val intent: PlayingQueueIntent
+    )
 
     enum class PlayingQueueIntent {
         START,
