@@ -97,7 +97,8 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         initToolbar()
         initDrawer()
         initMenus()
-        initPingService()
+        initPingJob()
+        initPlayerService()
 
         if (savedInstanceState == null) {
             supportFragmentManager
@@ -113,6 +114,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             orderMenu.changeState(it)
         }
         viewModel.connectionStatus.observe(this) { status ->
+            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (status) {
                 AmpacheConnection.ConnectionStatus.WRONG_SERVER_URL,
                 AmpacheConnection.ConnectionStatus.WRONG_ID_PAIR -> {
@@ -255,15 +257,21 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         menuCoordinator.addMenuHolder(orderMenu)
     }
 
-    private fun initPingService() {
+    private fun initPingJob() {
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .setPeriodic(HALF_HOUR)
             .build()
         jobScheduler.schedule(pingJobInfo)
+    }
 
-        bindService(Intent(this, PlayerService::class.java), viewModel.playerConnection, Context.BIND_AUTO_CREATE)
+    private fun initPlayerService() {
+        bindService(
+            Intent(this, PlayerService::class.java),
+            viewModel.playerConnection,
+            BIND_AUTO_CREATE
+        )
     }
 
     private fun displayFilters() {

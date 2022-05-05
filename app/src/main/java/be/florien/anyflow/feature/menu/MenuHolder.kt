@@ -6,11 +6,12 @@ import android.view.Menu
 import android.view.MenuItem
 
 abstract class MenuHolder(
-        @get:MenuRes
-        val menuResource: Int,
-        @get:IdRes
-        val menuId: Int,
-        val action: () -> Unit) {
+    @get:MenuRes
+    val menuResource: Int,
+    @get:IdRes
+    val menuId: Int,
+    val action: () -> Unit
+) {
 
     protected var menuItem: MenuItem? = null
     var isVisible = true

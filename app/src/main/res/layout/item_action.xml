@@ -20,6 +20,7 @@
         android:layout_height="@dimen/mediumDimen"
         android:layout_gravity="bottom|start"
         android:scaleType="fitCenter"
-        app:tint="@color/primaryLightPlus" />
+        android:background="@drawable/bg_accent"
+        app:tint="@color/primary" />
 
 </FrameLayout>

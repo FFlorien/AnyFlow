@@ -309,12 +309,11 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getPlaylists(): List<AmpachePlayList>? {
-        val offset = playlistOffset
+    suspend fun getPlaylists(): List<AmpachePlayList>? { // todo these are the new playlists
         val playlistList = ampacheApi.getPlaylists(
                 auth = authPersistence.authToken.secret,
                 limit = itemLimit,
-                offset = offset
+                offset = playlistOffset
         )
         val totalPlaylists = sharedPreferences.getInt(COUNT_PLAYLIST, 1)
         return if (playlistList.isEmpty()) {
@@ -325,7 +324,7 @@ open class AmpacheConnection
             val percentage = (playlistOffset * 100) / totalPlaylists
             playlistsPercentageUpdater.postValue(percentage)
             playlistOffset += playlistList.size
-            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, offset.toLong())
+            sharedPreferences.applyPutLong(OFFSET_PLAYLIST, playlistOffset.toLong())
             playlistList
         }
     }
