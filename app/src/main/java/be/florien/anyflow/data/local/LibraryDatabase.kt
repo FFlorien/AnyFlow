@@ -8,7 +8,6 @@ import androidx.paging.DataSource
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -19,7 +18,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
-@Database(version = 7, entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class])
+@Database(
+    version = 7,
+    entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
+)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -28,6 +30,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getPlaylistSongsDao(): PlaylistSongDao
     protected abstract fun getQueueOrderDao(): QueueOrderDao
     protected abstract fun getSongDao(): SongDao
+    protected abstract fun getGenreDao(): GenreDao
+    protected abstract fun getSongGenreDao(): SongGenreDao
     protected abstract fun getFilterDao(): FilterDao
     protected abstract fun getFilterGroupDao(): FilterGroupDao
     protected abstract fun getOrderDao(): OrderDao
@@ -38,40 +42,66 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters
      */
 
-    suspend fun getSongAtPosition(position: Int): DbSong? = getSongDao().forPositionInQueue(position)
-    suspend fun getPositionForSong(songId: Long): Int? = getSongDao().findPositionInQueue(songId)
-    suspend fun getSongById(songId: Long): DbSong? = getSongDao().findById(songId)
+    suspend fun getSongAtPosition(position: Int): DbSongDisplay? =
+        getSongDao().forPositionInQueue(position)
 
-    fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInQueueOrder()
-    fun getSongsInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayInAlphabeticalOrder()
+    suspend fun getPositionForSong(songId: Long): Int? = getSongDao().findPositionInQueue(songId)
+
+    fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().displayInQueueOrder()
+
+    fun getSongsInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().displayInAlphabeticalOrder()
+
     fun getIdsInQueueOrder(): LiveData<List<DbSongToPlay>> = getSongDao().songsInQueueOrder()
-    fun getSongsFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay> = getSongDao().displayFiltered(filter)
-    suspend fun getSongsFilteredList(filter: String): List<DbSongDisplay> = getSongDao().displayFilteredList(filter)
+    fun getSongsFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().displayFiltered(filter)
+
+    suspend fun getSongsFilteredList(filter: String): List<DbSongDisplay> =
+        getSongDao().displayFilteredList(filter)
 
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 
-    suspend fun getSongsFromQuery(query: String): List<Long> = getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
-    fun searchSongs(filter: String): LiveData<List<Long>> = getSongDao().searchPositionsWhereFilterPresent(filter)
+    suspend fun getSongsFromQuery(query: String): List<Long> =
+        getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
 
-    fun getGenres(): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenre()
-    fun getGenresFiltered(filter: String): DataSource.Factory<Int, String> = getSongDao().genreOrderByGenreFiltered(filter)
-    suspend fun getGenresFilteredList(filter: String): List<String> = getSongDao().genreOrderByGenreFilteredList(filter)
+    fun searchSongs(filter: String): LiveData<List<Long>> =
+        getSongDao().searchPositionsWhereFilterPresent(filter)
 
-    fun getAlbumArtists(): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByName()
-    fun getAlbumArtistsFiltered(filter: String): DataSource.Factory<Int, DbArtistDisplay> = getArtistDao().orderByNameFiltered(filter)
-    suspend fun getAlbumArtistsFilteredList(filter: String): List<DbArtistDisplay> = getArtistDao().orderByNameFilteredList(filter)
+    fun getGenres(): DataSource.Factory<Int, DbGenre> = getGenreDao().genreOrderByGenre()
+    fun getGenresFiltered(filter: String): DataSource.Factory<Int, DbGenre> =
+        getGenreDao().genreOrderByGenreFiltered(filter)
+
+    suspend fun getGenresFilteredList(filter: String): List<DbGenre> =
+        getGenreDao().genreOrderByGenreFilteredList(filter)
+
+    fun getAlbumArtists(): DataSource.Factory<Int, DbArtist> = getArtistDao().albumArtistOrderByName()
+    fun getAlbumArtistsFiltered(filter: String): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().albumArtistOrderByNameFiltered(filter)
+
+    suspend fun getAlbumArtistsFilteredList(filter: String): List<DbArtist> =
+        getArtistDao().albumArtistOrderByNameFilteredList(filter)
 
     fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
-    fun getAlbumsFiltered(filter: String): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByNameFiltered(filter)
-    suspend fun getAlbumsFilteredList(filter: String): List<DbAlbumDisplay> = getAlbumDao().orderByNameFilteredList(filter)
+    fun getAlbumsFiltered(filter: String): DataSource.Factory<Int, DbAlbumDisplay> =
+        getAlbumDao().orderByNameFiltered(filter)
+
+    suspend fun getAlbumsFilteredList(filter: String): List<DbAlbumDisplay> =
+        getAlbumDao().orderByNameFilteredList(filter)
 
 
     fun getPlaylists(): DataSource.Factory<Int, DbPlaylist> = getPlaylistDao().orderByName()
-    fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylist> = getPlaylistDao().orderByNameFiltered(filter)
-    suspend fun getPlaylistsFilteredList(filter: String): List<DbPlaylist> = getPlaylistDao().orderByNameFilteredList(filter)
-    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean = getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
+    fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylist> =
+        getPlaylistDao().orderByNameFiltered(filter)
 
-    fun getCurrentFilters(): LiveData<List<DbFilter>> = getFilterDao().currentFilters().distinctUntilChanged()
+    suspend fun getPlaylistsFilteredList(filter: String): List<DbPlaylist> =
+        getPlaylistDao().orderByNameFilteredList(filter)
+
+    suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
+        getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
+
+    fun getCurrentFilters(): LiveData<List<DbFilter>> =
+        getFilterDao().currentFilters().distinctUntilChanged()
 
     fun getFilterGroups(): LiveData<List<DbFilterGroup>> = getFilterGroupDao().allSavedFilterGroup()
 
@@ -81,7 +111,6 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all().distinctUntilChanged()
-    fun getOrderList(): List<DbOrder> = getOrderDao().list()
 
     fun getAlarms(): LiveData<List<DbAlarm>> = getAlarmDao().all()
     suspend fun getAlarmList(): List<DbAlarm> = getAlarmDao().list()
@@ -90,38 +119,62 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters from raw queries
      */
 
-    suspend fun getSongsFromRawQuery(rawQuery: String) = getSongDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getArtistsFomRawQuery(rawQuery: String) = getArtistDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getAlbumsFomRawQuery(rawQuery: String) = getAlbumDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getPlaylistsFomRawQuery(rawQuery: String) = getPlaylistDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getFilterFomRawQuery(rawQuery: String) = getFilterDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getFilterGroupFomRawQuery(rawQuery: String) = getFilterGroupDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getQueueOrderFromRawQuery(rawQuery: String) = getQueueOrderDao().rawQuery(SimpleSQLiteQuery(rawQuery))
-    suspend fun getOrderFromRawQuery(rawQuery: String) = getOrderDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+    suspend fun getSongsFromRawQuery(rawQuery: String) =
+        getSongDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getArtistsFomRawQuery(rawQuery: String) =
+        getArtistDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getAlbumsFomRawQuery(rawQuery: String) =
+        getAlbumDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getPlaylistsFomRawQuery(rawQuery: String) =
+        getPlaylistDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getFilterFomRawQuery(rawQuery: String) =
+        getFilterDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getFilterGroupFomRawQuery(rawQuery: String) =
+        getFilterGroupDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getQueueOrderFromRawQuery(rawQuery: String) =
+        getQueueOrderDao().rawQuery(SimpleSQLiteQuery(rawQuery))
+
+    suspend fun getOrderFromRawQuery(rawQuery: String) =
+        getOrderDao().rawQuery(SimpleSQLiteQuery(rawQuery))
 
     /**
      * Setters
      */
 
-    suspend fun addSongs(songs: List<DbSong>) = asyncUpdate(CHANGE_SONGS) {
-        getSongDao().insert(songs)
+    suspend fun addOrUpdateSongs(songs: List<DbSong>) = asyncUpdate(CHANGE_SONGS) {
+        getSongDao().upsert(songs)
     }
 
-    suspend fun addArtists(artists: List<DbArtist>) = asyncUpdate(CHANGE_ARTISTS) {
-        getArtistDao().insert(artists)
+    suspend fun addOrUpdateGenres(genres: List<DbGenre>) = asyncUpdate(CHANGE_GENRES) {
+        getGenreDao().upsert(genres)
     }
 
-    suspend fun addAlbums(albums: List<DbAlbum>) = asyncUpdate(CHANGE_ALBUMS) {
-        getAlbumDao().insert(albums)
+    suspend fun addOrUpdateSongGenres(genres: List<DbSongGenre>) = asyncUpdate(CHANGE_GENRES) {
+        getSongGenreDao().upsert(genres)
     }
 
-    suspend fun addPlayLists(playlists: List<DbPlaylist>) = asyncUpdate(CHANGE_PLAYLISTS) {
-        getPlaylistDao().insert(playlists)
+    suspend fun addOrUpdateArtists(artists: List<DbArtist>) = asyncUpdate(CHANGE_ARTISTS) {
+        getArtistDao().upsert(artists)
     }
 
-    suspend fun addPlaylistSongs(playlistSongs: List<DbPlaylistSongs>) = asyncUpdate(CHANGE_PLAYLIST_SONG) {
-        getPlaylistSongsDao().insert(playlistSongs)
+    suspend fun addOrUpdateAlbums(albums: List<DbAlbum>) = asyncUpdate(CHANGE_ALBUMS) {
+        getAlbumDao().upsert(albums)
     }
+
+    suspend fun addOrUpdatePlayLists(playlists: List<DbPlaylist>) = asyncUpdate(CHANGE_PLAYLISTS) {
+        getPlaylistDao().upsert(playlists)
+    }
+
+    suspend fun addOrUpdatePlaylistSongs(playlistSongs: List<DbPlaylistSongs>) =
+        asyncUpdate(CHANGE_PLAYLIST_SONG) {
+            getPlaylistSongsDao().upsert(playlistSongs)
+        }
 
     suspend fun updateSongLocalUri(songId: Long, uri: String) {
         getSongDao().updateWithLocalUri(songId, uri)
@@ -129,29 +182,25 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
         withTransaction {
-            getFilterDao().updateGroup(DbFilterGroup.currentFilterGroup, filters.map { it.copy(filterGroup = 1) })
+            getFilterDao().updateGroup(
+                DbFilterGroup.currentFilterGroup,
+                filters.map { it.copy(filterGroup = 1) })
         }
     }
 
-    suspend fun correctAlbumArtist(songs: List<DbSong>) = asyncUpdate(CHANGE_SONGS) {
-        songs.distinctBy { it.albumId }
-                .forEach { getAlbumDao().updateAlbumArtist(it.albumId, it.albumArtistId, it.albumArtistName) }
-    }
-
-    suspend fun createFilterGroup(filters: List<DbFilter>, name: String) = asyncUpdate(CHANGE_FILTER_GROUP) {
-        if (getFilterGroupDao().withNameIgnoreCase(name).isEmpty()) {
-            val filterGroup = DbFilterGroup(0, name)
-            val newId = getFilterGroupDao().insertSingle(filterGroup)
-            val filtersUpdated = filters.map { it.copy(filterGroup = newId) }
-            getFilterDao().insert(filtersUpdated)
-        } else {
-            throw IllegalArgumentException("A filter group with this name already exists")
+    suspend fun createFilterGroup(filters: List<DbFilter>, name: String) =
+        asyncUpdate(CHANGE_FILTER_GROUP) {
+            if (getFilterGroupDao().withNameIgnoreCase(name).isEmpty()) {
+                val filterGroup = DbFilterGroup(0, name)
+                val newId = getFilterGroupDao().insertSingle(filterGroup)
+                val filtersUpdated = filters.map { it.copy(filterGroup = newId) }
+                getFilterDao().insert(filtersUpdated)
+            } else {
+                throw IllegalArgumentException("A filter group with this name already exists")
+            }
         }
-    }
 
     suspend fun filterForGroupSync(id: Long) = getFilterDao().filterForGroup(id)
-
-    suspend fun artForFilters(whereStatement: String) = getSongDao().artForFilters(SimpleSQLiteQuery(getQueryForFiltersArt(whereStatement)))
 
     suspend fun setOrders(orders: List<DbOrder>) = asyncUpdate(CHANGE_ORDER) {
         getOrderDao().replaceBy(orders)
@@ -175,12 +224,6 @@ abstract class LibraryDatabase : RoomDatabase() {
         getAlarmDao().delete(alarm)
     }
 
-    /**
-     * Private methods
-     */
-
-    private fun getQueryForFiltersArt(whereStatement: String) = "SELECT DISTINCT art FROM song$whereStatement"
-
     private suspend fun asyncUpdate(changeSubject: Int, action: suspend () -> Unit) {
         MainScope().launch {
             (changeUpdater as MutableLiveData).value = changeSubject
@@ -201,6 +244,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         const val CHANGE_QUEUE = 6
         const val CHANGE_FILTER_GROUP = 7
         const val CHANGE_PLAYLIST_SONG = 8
+        const val CHANGE_GENRES = 9
 
         @Volatile
         private var instance: LibraryDatabase? = null
@@ -220,57 +264,19 @@ abstract class LibraryDatabase : RoomDatabase() {
         @Synchronized
         private fun create(context: Context, isForTests: Boolean): LibraryDatabase {
             val databaseBuilder = if (isForTests) {
-                Room.inMemoryDatabaseBuilder(context, LibraryDatabase::class.java).setTransactionExecutor(Executors.newSingleThreadExecutor())
+                Room.inMemoryDatabaseBuilder(context, LibraryDatabase::class.java)
+                    .setTransactionExecutor(Executors.newSingleThreadExecutor())
             } else {
                 Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
             }
             return databaseBuilder
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            val currentFilterGroup = DbFilterGroup.currentFilterGroup
-                            db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
-                        }
-                    })
-                    .addMigrations(
-                            object : Migration(1, 2) {
-                                override fun migrate(database: SupportSQLiteDatabase) {
-                                    database.execSQL("ALTER TABLE Artist ADD COLUMN art TEXT NOT NULL DEFAULT ''")
-                                }
-
-                            },
-                            object : Migration(2, 3) {
-                                override fun migrate(database: SupportSQLiteDatabase) {
-                                    database.execSQL("CREATE TABLE FilterGroup (id INTEGER NOT NULL, name TEXT NOT NULL, PRIMARY KEY(id))")
-                                    database.execSQL("ALTER TABLE DbFilter ADD COLUMN filterGroup INTEGER NOT NULL DEFAULT 0 REFERENCES FilterGroup(id) ON DELETE CASCADE")
-                                }
-
-                            },
-                            object : Migration(3, 4) {
-                                override fun migrate(database: SupportSQLiteDatabase) {
-                                    database.execSQL("CREATE TABLE PlaylistSongs (songId INTEGER NOT NULL, playlistId INTEGER NOT NULL, PRIMARY KEY(songId, playlistId))")
-                                }
-
-                            },
-                            object : Migration(4, 5) {
-                                override fun migrate(database: SupportSQLiteDatabase) {
-                                    database.execSQL("ALTER TABLE DbFilter ADD COLUMN joinClause TEXT DEFAULT null")
-                                }
-
-                            },
-                            object : Migration(5, 6) {
-                                override fun migrate(database: SupportSQLiteDatabase) {
-                                    database.execSQL("CREATE TABLE Alarm (id INTEGER NOT NULL, hour INTEGER NOT NULL, minute INTEGER NOT NULL, active INTEGER NOT NULL, monday INTEGER NOT NULL, tuesday INTEGER NOT NULL, wednesday INTEGER NOT NULL, thursday INTEGER NOT NULL, friday INTEGER NOT NULL, saturday INTEGER NOT NULL , sunday INTEGER NOT NULL , PRIMARY KEY(id))")
-                                }
-
-                            },
-                            object : Migration(6, 7) {
-                                override fun migrate(database: SupportSQLiteDatabase) {
-                                    database.execSQL("ALTER TABLE Song ADD COLUMN local TEXT DEFAULT null")
-                                }
-
-                            })
-                    .build()
+                .addCallback(object : RoomDatabase.Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        val currentFilterGroup = DbFilterGroup.currentFilterGroup
+                        db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
+                    }
+                })
+                .build()
         }
-
     }
 }

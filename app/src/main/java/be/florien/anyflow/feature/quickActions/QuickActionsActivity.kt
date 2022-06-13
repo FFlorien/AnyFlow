@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Song
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.ActivityQuickActionsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
@@ -69,16 +69,20 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container_view, InfoFragment(
-                    Song(
+                    SongInfo(
                         SongInfoActions.DUMMY_SONG_ID,
                         getString(R.string.info_title),
                         getString(R.string.info_artist),
+                        0L,
                         getString(R.string.info_album),
+                        0L,
                         getString(R.string.info_album_artist),
+                        0L,
+                        listOf(getString(R.string.info_genre)),
+                        1,
                         120,
-                        "",
-                        "",
-                        getString(R.string.info_genre)
+                        2000,
+                        null
                     )
                 ), InfoFragment::class.java.simpleName)
                 .commit()

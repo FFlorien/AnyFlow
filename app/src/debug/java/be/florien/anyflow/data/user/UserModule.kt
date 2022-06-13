@@ -32,6 +32,11 @@ class UserModule {
     fun provideSongsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.songsPercentageUpdater
 
     @Provides
+    @Named("Genres")
+    @UserScope
+    fun provideGenresPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.genresPercentageUpdater
+
+    @Provides
     @Named("Artists")
     @UserScope
     fun provideArtistsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.artistsPercentageUpdater

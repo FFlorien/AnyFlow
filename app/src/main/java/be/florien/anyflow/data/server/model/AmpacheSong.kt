@@ -11,40 +11,30 @@ import com.fasterxml.jackson.annotation.JsonInclude
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpacheSong {
     var id: Long = 0
-    var song: String = ""
     var title: String = ""
-    var name: String = ""
-    var artist: AmpacheArtistName = AmpacheArtistName()
-    var album: AmpacheAlbumName = AmpacheAlbumName()
-    var albumartist: AmpacheAlbumArtist = AmpacheAlbumArtist()
-    var tag: List<AmpacheTagName> = mutableListOf()
-    var filename: String = ""
+    var artist: AmpacheNameId = AmpacheNameId()
+    var album: AmpacheNameId = AmpacheNameId()
+    var genre: List<AmpacheNameId> = mutableListOf()
     var track: Int = 0
+    var disk: Int = 0
     var time: Int = 0
     var year: Int = 0
-    var bitrate: Int = 0
-    var rate: Int = 0
-    var mode: String? = ""
-    var mime: String = ""
-    var url: String = ""
-    var size: Int = 0
-    var art: String = ""
-    var preciserating: Int = 0
-    var rating: Int = 0
-    var averagerating: Double = 0.0
-    var composer: String = ""
-    var replaygain_album_gain: Double = 0.0
-    var replaygain_album_peak: Double = 0.0
-    var replaygain_track_gain: Double = 0.0
-    var replaygain_track_peak: Double = 0.0
-    var genre: List<AmpacheGenre> = mutableListOf()
-}
-
-class AmpacheGenre {
-    var name: String = ""
+    var composer: String? = null
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class AmpacheSongId {
     var id: Long = 0
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheSongResponse {
+    var song: List<AmpacheSong> = mutableListOf()
+    var error: AmpacheError? = null
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheSongIdResponse {
+    var song: List<AmpacheSongId> = mutableListOf()
+    var error: AmpacheError? = null
 }

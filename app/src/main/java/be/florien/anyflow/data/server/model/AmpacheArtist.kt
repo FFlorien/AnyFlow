@@ -11,21 +11,11 @@ import com.fasterxml.jackson.annotation.JsonInclude
 class AmpacheArtist {
     var id: Long = 0
     var name: String = ""
-    var albums: String = ""
-    var art: String = ""
-    var songs: String = ""
-    var tag: List<AmpacheTagName> = mutableListOf()
-    var preciserating: Int = 0
-    var rating: Double = 0.0
-
+    var summary: String? = null
 }
 
-class AmpacheAlbumArtist {
-    var id: Long = 0
-    var name: String = ""
-}
-
-class AmpacheArtistName {
-    var id: Long = 0
-    var name: String = ""
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheArtistResponse {
+    var artist: List<AmpacheArtist> = mutableListOf()
+    var error: AmpacheError? = null
 }

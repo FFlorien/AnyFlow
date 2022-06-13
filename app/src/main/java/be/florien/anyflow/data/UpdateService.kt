@@ -40,6 +40,10 @@ class UpdateService
     lateinit var songsPercentageUpdater: LiveData<Int>
 
     @Inject
+    @field:Named("Genres")
+    lateinit var genresPercentageUpdater: LiveData<Int>
+
+    @Inject
     @field:Named("Albums")
     lateinit var albumsPercentageUpdater: LiveData<Int>
 
@@ -79,6 +83,14 @@ class UpdateService
         songsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_songs, it))
+            } else {
+                stopForeground(true)
+            }
+
+        }
+        genresPercentageUpdater.observe(this) {
+            if (it in 0..100) {
+                notifyChange(getString(R.string.update_genres, it))
             } else {
                 stopForeground(true)
             }

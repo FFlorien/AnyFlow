@@ -69,6 +69,7 @@ class AuthPersistenceKeystore(
                         ""
                     }
                 }
+                field = secretValue
                 return secretValue
             }
             private set(value) {

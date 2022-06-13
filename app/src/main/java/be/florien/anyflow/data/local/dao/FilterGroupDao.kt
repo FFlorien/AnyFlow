@@ -6,7 +6,7 @@ import androidx.room.Query
 import be.florien.anyflow.data.local.model.DbFilterGroup
 
 @Dao
-abstract class FilterGroupDao : BaseDao<DbFilterGroup> {
+abstract class FilterGroupDao : BaseDao<DbFilterGroup>() {
     @Query("SELECT * FROM filtergroup")
     abstract fun all(): LiveData<List<DbFilterGroup>>
 

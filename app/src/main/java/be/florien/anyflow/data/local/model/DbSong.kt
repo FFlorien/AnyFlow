@@ -1,54 +1,48 @@
 package be.florien.anyflow.data.local.model
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Entity(
     tableName = "Song",
-    indices = [(Index("artistId")),
-        Index("albumId"),
-        Index("albumArtistId"),
-        Index("genre")]
 )
 data class DbSong(
     @PrimaryKey
     val id: Long,
-    val song: String,
     val title: String,
-    val name: String,
-    val artistName: String,
+    @ColumnInfo(index = true)
     val artistId: Long,
-    val albumName: String,
+    @ColumnInfo(index = true)
     val albumId: Long,
-    val albumArtistName: String,
-    val albumArtistId: Long,
-    val filename: String,
     val track: Int,
+    val disk: Int,
     val time: Int,
     val year: Int,
-    val bitrate: Int,
-    val rate: Int,
-    val url: String,
-    val art: String,
-    val preciserating: Int,
-    val rating: Int,
-    val averagerating: Double,
     val composer: String,
-    val genre: String,
     val local: String?
 )
 
 data class DbSongDisplay(
-    val id: Long,
-    val title: String,
-    val artistName: String,
-    val albumName: String,
-    val albumArtistName: String,
-    val time: Int,
-    val art: String,
-    val url: String,
-    val genre: String
+    @Embedded
+    var song: DbSong,
+    @Relation(
+        parentColumn = "artistId",
+        entityColumn = "id"
+    )
+    var artist: DbArtist,
+    @Relation(
+        entity = DbAlbum::class,
+        parentColumn = "albumId",
+        entityColumn = "id"
+    )
+    var album: DbAlbumDisplay,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(DbSongGenre::class,
+        parentColumn = "songId",
+        entityColumn = "genreId")
+    )
+    var genres: List<DbGenre>
 )
 
 data class DbSongToPlay(

@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Song
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
 import be.florien.anyflow.feature.quickActions.InfoActionsSelectionViewModel
@@ -22,8 +22,8 @@ import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class InfoFragment(
-    private var song: Song = Song(
-        SongInfoActions.DUMMY_SONG_ID, "", "", "", "", 0, "", "", ""
+    private var song: SongInfo = SongInfo(
+        SongInfoActions.DUMMY_SONG_ID, "", "", 0L, "", 0L, "", 0, listOf(""), 0, 0, 0, ""
     )
 ) : BottomSheetDialogFragment() {
 

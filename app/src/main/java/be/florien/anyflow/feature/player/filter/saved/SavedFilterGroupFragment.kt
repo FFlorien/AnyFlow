@@ -54,7 +54,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(SavedFilterGroupViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSavedFilterGroupBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.savedList.layoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)

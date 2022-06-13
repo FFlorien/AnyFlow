@@ -7,11 +7,10 @@ import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.map
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.CrashReportingTree
-import be.florien.anyflow.data.toSong
+import be.florien.anyflow.data.DataRepository
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,6 +29,9 @@ class PlayerService : LifecycleService() {
 
     @Inject
     internal lateinit var playingQueue: PlayingQueue
+
+    @Inject
+    internal lateinit var dataRepository: DataRepository
 
     /**
      * Fields
@@ -67,7 +69,7 @@ class PlayerService : LifecycleService() {
             isActive = true
         }
     }
-    private val notificationBuilder: PlayerNotificationBuilder by lazy { PlayerNotificationBuilder(this, mediaSession, pendingIntent) }
+    private val notificationBuilder: PlayerNotificationBuilder by lazy { PlayerNotificationBuilder(this, mediaSession, pendingIntent, dataRepository) }
 
     private val isPlaying
         get() = playerController.isPlaying()
@@ -104,7 +106,7 @@ class PlayerService : LifecycleService() {
         playerController.playTimeNotifier.observe(this) {
             notificationBuilder.lastPosition = it
         }
-        playingQueue.currentSong.map { it.toSong() }.observe(this) {
+        playingQueue.currentSong.observe(this) {
             notificationBuilder.updateMediaSession(it)
         }
     }

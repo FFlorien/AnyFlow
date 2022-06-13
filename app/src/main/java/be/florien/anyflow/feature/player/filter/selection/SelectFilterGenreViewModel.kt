@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.player.filter.selection
 
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.local.model.DbGenre
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
@@ -13,7 +14,6 @@ class SelectFilterGenreViewModel @Inject constructor(private val dataRepository:
     override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getGenresFilteredList(search, ::convert)
 
     override fun getFilter(filterValue: FilterItem) = Filter.GenreIs(filterValue.displayName)
-    private var currentId = 0L
 
-    private fun convert(genre: String) = FilterItem(currentId++, genre, isSelected = filtersManager.isFilterInEdition(Filter.GenreIs(genre)))
+    private fun convert(genre: DbGenre) = FilterItem(genre.id, genre.name, isSelected = filtersManager.isFilterInEdition(Filter.GenreIs(genre.name)))
 }

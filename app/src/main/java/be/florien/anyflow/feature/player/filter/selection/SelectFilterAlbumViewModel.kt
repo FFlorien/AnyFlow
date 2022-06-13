@@ -16,6 +16,9 @@ class SelectFilterAlbumViewModel @Inject constructor(val dataRepository: DataRep
 
     override fun getFilter(filterValue: FilterItem) = Filter.AlbumIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
 
-    private fun convert(album: DbAlbumDisplay) =
-            FilterItem(album.id, "${album.name}\nby ${album.artistName}", album.art, filtersManager.isFilterInEdition(Filter.AlbumIs(album.id, album.name, album.art)))
+    private fun convert(album: DbAlbumDisplay): FilterItem {
+        val artUrl = dataRepository.getAlbumArtUrl(album.album.id)
+        return FilterItem(album.album.id, "${album.album.name}\nby ${album.artist.name}",
+            artUrl, filtersManager.isFilterInEdition(Filter.AlbumIs(album.album.id, album.album.name, artUrl)))
+    }
 }

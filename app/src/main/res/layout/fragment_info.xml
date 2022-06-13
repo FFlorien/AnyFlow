@@ -15,7 +15,7 @@
 
         <ImageView
             android:id="@+id/cover"
-            coverImageUrl="@{viewModel.songInfo.art}"
+            coverImageUrl="@{viewModel.songArt}"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
             android:layout_margin="@dimen/mediumDimen"

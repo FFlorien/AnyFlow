@@ -8,7 +8,7 @@ import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
 
 @Dao
-abstract class FilterDao : BaseDao<DbFilter> {
+abstract class FilterDao : BaseDao<DbFilter>() {
     @Query("SELECT * FROM dbfilter WHERE filterGroup = 1")
     abstract fun currentFilters(): LiveData<List<DbFilter>>
 

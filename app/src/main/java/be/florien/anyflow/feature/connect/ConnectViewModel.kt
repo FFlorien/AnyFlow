@@ -44,7 +44,7 @@ open class ConnectViewModel : BaseViewModel() {
                     val it = ampacheConnection.ping()
 
                     isLoading.mutable.value = false
-                    when (it.error.code) {
+                    when (it.error.errorCode) {
                         0 -> isConnected.mutable.value = true
                         else -> errorMessage.mutable.value = R.string.connect_error_extends
                     }
@@ -61,7 +61,7 @@ open class ConnectViewModel : BaseViewModel() {
                     try {
                         val it = ampacheConnection.authenticate(user, password1)
                         isLoading.mutable.value = false
-                        when (it.error.code) {
+                        when (it.error.errorCode) {
                             0 -> isConnected.mutable.value = true
                             else -> errorMessage.mutable.value = R.string.connect_error_credentials
                         }

@@ -11,7 +11,6 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
@@ -32,61 +31,31 @@ class SongInfoActions constructor(
 
     private var lastSongInfo: SongInfo? = null
 
-    private suspend fun initSongInfo(songId: Long) {
-        lastSongInfo =
-            dataRepository.getSongById(songId) ?: throw IllegalArgumentException("No song for ID")
-    }
-
-    private suspend fun getSongInfo(songId: Long): SongInfo {
-        if (lastSongInfo == null || lastSongInfo?.id != songId) {
-            initSongInfo(songId)
-        }
-        return lastSongInfo as SongInfo
-    }
-
-    suspend fun getSongInfo(song: Song): SongInfo {
-        if (song.id == DUMMY_SONG_ID) {
-            lastSongInfo =
-                SongInfo(
-                    id = DUMMY_SONG_ID,
-                    title = song.title,
-                    artistName = song.artistName,
-                    artistId = 0L,
-                    albumName = song.albumName,
-                    albumId = 0L,
-                    albumArtistName = song.albumArtistName,
-                    albumArtistId = 0L,
-                    track = 0,
-                    time = song.time,
-                    year = 0,
-                    url = song.url,
-                    art = song.art,
-                    genre = song.genre,
-                    fileName = "",
-                    local = null
-                )
-        } else if (lastSongInfo == null || lastSongInfo?.id != song.id) {
-            initSongInfo(song.id)
-        }
-        return lastSongInfo as SongInfo
-    }
+    fun getAlbumArtUrl(albumId: Long) = ampache.getAlbumArtUrl(albumId)
 
     suspend fun playNext(songId: Long) {
         orderComposer.changeSongPositionForNext(songId)
     }
 
-    suspend fun filterOn(songId: Long, fieldType: FieldType) {
-        val songInfo = getSongInfo(songId)
+    suspend fun filterOn(songInfo: SongInfo, fieldType: FieldType) {
         val filter = when (fieldType) {
-            FieldType.TITLE -> Filter.SongIs(songInfo.id, songInfo.title, songInfo.art)
+            FieldType.TITLE -> Filter.SongIs(
+                songInfo.id,
+                songInfo.title,
+                ampache.getAlbumArtUrl(songInfo.albumId)
+            )
             FieldType.ARTIST -> Filter.ArtistIs(songInfo.artistId, songInfo.artistName, null)
-            FieldType.ALBUM -> Filter.AlbumIs(songInfo.albumId, songInfo.albumName, songInfo.art)
+            FieldType.ALBUM -> Filter.AlbumIs(
+                songInfo.albumId,
+                songInfo.albumName,
+                ampache.getAlbumArtUrl(songInfo.albumId)
+            )
             FieldType.ALBUM_ARTIST -> Filter.AlbumArtistIs(
                 songInfo.albumArtistId,
                 songInfo.albumArtistName,
                 null
             )
-            FieldType.GENRE -> Filter.GenreIs(songInfo.genre)
+            FieldType.GENRE -> Filter.GenreIs(songInfo.genreNames.first())
             else -> throw IllegalArgumentException("This field can't be filtered on")
         }
         filtersManager.clearFilters()
@@ -94,44 +63,41 @@ class SongInfoActions constructor(
         filtersManager.commitChanges()
     }
 
-    suspend fun getSearchTerms(songId: Long, fieldType: FieldType): String {
-        val songInfo = getSongInfo(songId)
+    fun getSearchTerms(songInfo: SongInfo, fieldType: FieldType): String {
         return when (fieldType) {
             FieldType.TITLE -> songInfo.title
             FieldType.ARTIST -> songInfo.artistName
             FieldType.ALBUM -> songInfo.albumName
             FieldType.ALBUM_ARTIST -> songInfo.albumArtistName
-            FieldType.GENRE -> songInfo.genre
+            FieldType.GENRE -> songInfo.genreNames.first()
             else -> throw IllegalArgumentException("This field can't be searched on")
         }
     }
 
-    suspend fun download(songId: Long) {
+    suspend fun download(songInfo: SongInfo) {
         val audioCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         }
 
-        val newSongDetails = getNewSongDetails(songId)
+        val newSongDetails = getNewSongDetails(songInfo)
 
         val newSongUri = contentResolver.insert(audioCollection, newSongDetails) ?: return
 
         kotlin.runCatching {
-            val songUrl = ampache.getSongUrl(songId)
+            val songUrl = ampache.getSongUrl(songInfo.id)
             URL(songUrl).openStream().use { input ->
                 contentResolver.openOutputStream(newSongUri)?.use { output ->
                     input.copyTo(output)
                 }
             }
         }
-        dataRepository.updateSongLocalUri(songId, newSongUri.toString())
+        dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
         lastSongInfo = null
-        initSongInfo(songId)
     }
 
-    private suspend fun getNewSongDetails(songId: Long): ContentValues {
-        val songInfo = getSongInfo(songId)
+    private fun getNewSongDetails(songInfo: SongInfo): ContentValues {
         return ContentValues().apply {
             put(MediaStore.Audio.Media.TITLE, songInfo.title)
             put(MediaStore.Audio.Media.ARTIST, songInfo.artistName)
@@ -143,14 +109,13 @@ class SongInfoActions constructor(
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 put(MediaStore.Audio.Media.ALBUM_ARTIST, songInfo.albumArtistName)
-                put(MediaStore.Audio.Media.GENRE, songInfo.genre)
+                put(MediaStore.Audio.Media.GENRE, songInfo.genreNames.first())
                 put(MediaStore.Audio.Media.YEAR, songInfo.year)
             }
         }
     }
 
-    suspend fun getInfoRows(songId: Long): List<SongRow> {
-        val songInfo = getSongInfo(songId)
+    fun getInfoRows(songInfo: SongInfo): List<SongRow> {
         return listOfNotNull(
             getSongAction(songInfo, FieldType.TITLE, ActionType.EXPANDABLE_TITLE),
             getSongAction(songInfo, FieldType.ARTIST, ActionType.EXPANDABLE_TITLE),
@@ -163,12 +128,11 @@ class SongInfoActions constructor(
         )
     }
 
-    suspend fun getActionsRows(
-        songId: Long,
+    fun getActionsRows(
+        songInfo: SongInfo,
         fieldType: FieldType,
         order: Int? = null
     ): List<SongRow> {
-        val songInfo = getSongInfo(songId)
         return when (fieldType) {
             FieldType.TITLE -> listOfNotNull(
                 getSongAction(songInfo, fieldType, ActionType.ADD_NEXT, order),
@@ -243,7 +207,7 @@ class SongInfoActions constructor(
                 )
                 FieldType.GENRE -> SongRow(
                     R.string.info_genre,
-                    songInfo.genre,
+                    songInfo.genreNames.first(),
                     null,
                     FieldType.GENRE,
                     ActionType.EXPANDABLE_TITLE,
@@ -286,7 +250,7 @@ class SongInfoActions constructor(
                 )
                 FieldType.GENRE -> SongRow(
                     R.string.info_genre,
-                    songInfo.genre,
+                    songInfo.genreNames.first(),
                     null,
                     FieldType.GENRE,
                     ActionType.EXPANDED_TITLE,
@@ -364,7 +328,7 @@ class SongInfoActions constructor(
                 )
                 FieldType.GENRE -> SongRow(
                     R.string.info_action_filter_title,
-                    songInfo.genre,
+                    songInfo.genreNames.first(),
                     R.string.info_action_filter_on,
                     FieldType.GENRE,
                     ActionType.ADD_TO_FILTER,
@@ -453,7 +417,7 @@ class SongInfoActions constructor(
 
     fun getQuickActions(): List<SongRow> {
         val string = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "") ?: return emptyList()
-        val songInfo = SongInfo(0L, "", "", 0L, "", 0L, "", 0L, 0, 0, 0, "", "", "", "", null)
+        val songInfo = SongInfo(0L, "", "", 0L, "", 0L, "", 0L, listOf(""), 0, 0, 0, null)
 
         return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
             val fieldTypeString = it.substringBefore('|')

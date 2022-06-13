@@ -28,6 +28,8 @@ constructor(
         val connectionStatus: LiveData<AmpacheConnection.ConnectionStatus>,
         @Named("Songs")
         val songsUpdatePercentage: LiveData<Int>,
+        @Named("Genres")
+        val genresUpdatePercentage: LiveData<Int>,
         @Named("Albums")
         val albumsUpdatePercentage: LiveData<Int>,
         @Named("Artists")

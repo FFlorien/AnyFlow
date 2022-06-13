@@ -1,26 +1,33 @@
 package be.florien.anyflow.data.local.model
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import be.florien.anyflow.data.server.model.AmpacheAlbum
+import androidx.room.*
 
-@Entity(tableName = "Album", indices = [Index("artistId"), Index("name")])
+@Entity(
+    tableName = "Album",
+    foreignKeys = [ForeignKey(
+        entity = DbArtist::class,
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("artistId"),
+        onDelete = ForeignKey.CASCADE
+    )]
+)
 data class DbAlbum(
-        @PrimaryKey
-        val id: Long,
-        val name: String,
-        val artistName: String,
-        val artistId: Long,
-        val year: Int,
-        val tracks: Int,
-        val disk: Int,
-        val art: String,
-        val preciserating: Int,
-        val rating: Double)
+    @PrimaryKey
+    val id: Long,
+    @ColumnInfo(index = true)
+    val name: String,
+    @ColumnInfo(index = true)
+    val artistId: Long,
+    val year: Int,
+    val diskcount: Int
+)
 
 data class DbAlbumDisplay(
-        val id: Long,
-        val name: String,
-        val artistName: String,
-        val art: String)
+    @Embedded
+    val album: DbAlbum,
+    @Relation(
+        parentColumn = "artistId",
+        entityColumn = "id"
+    )
+    val artist: DbArtist
+)

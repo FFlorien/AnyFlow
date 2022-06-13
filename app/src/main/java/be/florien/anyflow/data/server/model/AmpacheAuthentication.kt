@@ -33,6 +33,8 @@ class AmpachePing {
 }
 
 class AmpacheError {
-    var code: Int = 0
-    var error_text: String = "success"
+    var errorAction : String = ""
+    var errorType : String = ""
+    var errorCode: Int = 0
+    var errorMessage: String = "success"
 }

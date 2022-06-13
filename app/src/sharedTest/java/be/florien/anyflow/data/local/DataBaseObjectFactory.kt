@@ -172,7 +172,7 @@ fun DbSong.toDbSongDisplay() = DbSongDisplay(
         time = time,
         art = art,
         url = url,
-        genre = genre
+        genreName = genre
 )
 
 fun DbAlbum.toDbAlbumDisplay() = DbAlbumDisplay(

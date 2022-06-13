@@ -2,62 +2,54 @@ package be.florien.anyflow.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.RawQuery
+import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.local.model.DbSongToPlay
 
 @Dao
-interface SongDao : BaseDao<DbSong> {
+abstract class SongDao : BaseDao<DbSong>() {
 
-    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
+    @Transaction
+    @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    abstract fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
-    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song ORDER BY title")
-    fun displayInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay>
+    @Transaction
+    @Query("SELECT * FROM song ORDER BY title")
+    abstract fun displayInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay>
 
-    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song WHERE title LIKE :filter ORDER BY title COLLATE UNICODE")
-    fun displayFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay>
+    @Transaction
+    @Query("SELECT * FROM song WHERE title LIKE :filter ORDER BY title COLLATE UNICODE")
+    abstract fun displayFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay>
 
-    @Query("SELECT id, title, artistName, albumName, albumArtistName, time, art, url, genre FROM song WHERE title LIKE :filter ORDER BY genre COLLATE UNICODE")
-    suspend fun displayFilteredList(filter: String): List<DbSongDisplay>
+    @Transaction
+    @Query("SELECT * FROM song WHERE title LIKE :filter ORDER BY title COLLATE UNICODE")
+    abstract suspend fun displayFilteredList(filter: String): List<DbSongDisplay>
 
-    @Query("SELECT id, local FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
-    fun songsInQueueOrder(): LiveData<List<DbSongToPlay>>
+    @Query("SELECT song.id, song.local FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    abstract fun songsInQueueOrder(): LiveData<List<DbSongToPlay>>
 
-    @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
-    suspend fun forPositionInQueue(position: Int): DbSong?
+    @Transaction
+    @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
+    abstract suspend fun forPositionInQueue(position: Int): DbSongDisplay?
 
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
-    suspend fun findPositionInQueue(songId: Long): Int?
+    abstract suspend fun findPositionInQueue(songId: Long): Int?
 
-    @Query("SELECT queueorder.`order` FROM queueorder JOIN song ON queueorder.songId = song.id WHERE song.title LIKE :filter OR song.artistName LIKE :filter OR song.albumArtistName LIKE :filter OR song.albumName LIKE :filter ORDER BY queueorder.`order` COLLATE UNICODE")
-    fun searchPositionsWhereFilterPresent(filter: String): LiveData<List<Long>>
+    @Query("SELECT queueorder.`order` FROM queueorder JOIN song ON queueorder.songId = song.id JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN artist AS albumArtist ON album.artistId = albumArtist.id WHERE song.title LIKE :filter OR artist.name LIKE :filter OR albumArtist.name LIKE :filter OR album.name LIKE :filter ORDER BY queueorder.`order` COLLATE UNICODE")
+    abstract fun searchPositionsWhereFilterPresent(filter: String): LiveData<List<Long>>
 
     @RawQuery(observedEntities = [DbSong::class])
-    suspend fun forCurrentFilters(query: SupportSQLiteQuery): List<Long>
-
-    @RawQuery
-    suspend fun artForFilters(query: SupportSQLiteQuery): List<String>
-
-    @Query("SELECT DISTINCT genre FROM song ORDER BY genre COLLATE UNICODE")
-    fun genreOrderByGenre(): DataSource.Factory<Int, String>
-
-    @Query("SELECT DISTINCT genre FROM song WHERE genre LIKE :filter ORDER BY genre COLLATE UNICODE")
-    fun genreOrderByGenreFiltered(filter: String): DataSource.Factory<Int, String>
-
-    @Query("SELECT DISTINCT genre FROM song WHERE genre LIKE :filter ORDER BY genre COLLATE UNICODE")
-    suspend fun genreOrderByGenreFilteredList(filter: String): List<String>
+    abstract suspend fun forCurrentFilters(query: SupportSQLiteQuery): List<Long>
 
     @Query("SELECT COUNT(*) FROM queueorder")
-    suspend fun queueSize(): Int?
+    abstract suspend fun queueSize(): Int?
 
-    @Query("SELECT * FROM song WHERE id = :songId")
-    suspend fun findById(songId: Long): DbSong?
+    @Transaction
+    @Query("SELECT * FROM song WHERE song.id = :songId")
+    abstract suspend fun findById(songId: Long): DbSongDisplay?
 
-    @Query("UPDATE song SET local = :uri WHERE id = :songId")
-    suspend fun updateWithLocalUri(songId: Long, uri: String)
+    @Query("UPDATE song SET local = :uri WHERE song.id = :songId")
+    abstract suspend fun updateWithLocalUri(songId: Long, uri: String)
 }

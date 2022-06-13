@@ -49,6 +49,7 @@
     <string name="player_playing_now">Now playing</string>
     <string name="ok">OK</string>
     <string name="update_songs">Updating songs: %02d %%</string>
+    <string name="update_genres">Updating genres: %02d %%</string>
     <string name="update_artists">Updating artists: %02d %%</string>
     <string name="update_albums">Updating albums: %02d %%</string>
     <string name="update_playlists">Updating playlists: %02d %%</string>

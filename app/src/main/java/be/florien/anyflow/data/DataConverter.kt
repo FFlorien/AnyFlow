@@ -1,10 +1,7 @@
 package be.florien.anyflow.data
 
 import be.florien.anyflow.data.local.model.*
-import be.florien.anyflow.data.server.model.AmpacheAlbum
-import be.florien.anyflow.data.server.model.AmpacheArtist
-import be.florien.anyflow.data.server.model.AmpachePlayList
-import be.florien.anyflow.data.server.model.AmpacheSong
+import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.view.*
 
 
@@ -13,50 +10,40 @@ import be.florien.anyflow.data.view.*
  */
 fun AmpacheSong.toDbSong() = DbSong(
     id = id,
-    song = song,
     title = title,
-    name = name,
-    artistName = artist.name,
     artistId = artist.id,
-    albumName = album.name,
     albumId = album.id,
-    albumArtistName = albumartist.name,
-    albumArtistId = albumartist.id,
-    filename = filename,
     track = track,
     time = time,
     year = year,
-    bitrate = bitrate,
-    rate = rate,
-    url = url,
-    art = art,
-    preciserating = preciserating,
-    rating = rating,
-    averagerating = averagerating,
-    composer = composer,
-    genre = genre.joinToString(",") { it.name },
-    null
+    composer = composer ?: "",
+    disk = disk,
+    local = null
 )
+
+fun AmpacheSong.toDbSongGenres(): List<DbSongGenre> {
+    val songId = id
+    return genre.map { DbSongGenre(songId = songId, it.id) }
+}
+
 
 fun AmpacheArtist.toDbArtist() = DbArtist(
     id = id,
     name = name,
-    preciserating = preciserating,
-    rating = rating,
-    art = art
+    summary = summary
+)
+
+fun AmpacheNameId.toDbGenre() = DbGenre(
+    id = id,
+    name = name
 )
 
 fun AmpacheAlbum.toDbAlbum() = DbAlbum(
     id = id,
     name = name,
-    artistName = artist.name,
     artistId = artist.id,
     year = year,
-    tracks = tracks,
-    disk = disk,
-    art = art,
-    preciserating = preciserating,
-    rating = rating
+    diskcount = diskcount
 )
 
 fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
@@ -69,47 +56,20 @@ fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
  * Database to view
  */
 
-fun DbSong.toViewSong() = Song(
-    id = id,
-    title = title,
-    artistName = artistName,
-    albumName = albumName,
-    albumArtistName = albumArtistName,
-    time = time,
-    url = url,
-    art = art,
-    genre = genre
-)
-
-fun DbSong.toViewSongInfo() = SongInfo(
-    id = id,
-    track = track,
-    title = title,
-    artistName = artistName,
-    artistId = artistId,
-    albumName = albumName,
-    albumId = albumId,
-    albumArtistName = albumArtistName,
-    albumArtistId = albumArtistId,
-    time = time,
-    url = url,
-    art = art,
-    year = year,
-    genre = genre,
-    fileName = filename,
-    local = local
-)
-
-fun DbSongDisplay.toViewSong() = Song(
-    id = id,
-    title = title,
-    artistName = artistName,
-    albumName = albumName,
-    albumArtistName = albumArtistName,
-    time = time,
-    art = art,
-    url = url,
-    genre = genre
+fun DbSongDisplay.toViewSongInfo() = SongInfo(
+    id = song.id,
+    track = song.track,
+    title = song.title,
+    artistName = artist.name,
+    artistId = song.artistId,
+    albumName = album.album.name,
+    albumId = song.albumId,
+    albumArtistName = album.artist.name,
+    albumArtistId = album.artist.id,
+    genreNames = genres.map { it.name },
+    time = song.time,
+    year = song.year,
+    local = song.local
 )
 
 fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
@@ -152,18 +112,6 @@ fun DbAlarm.toViewAlarm() = Alarm(
 /**
  * View to database
  */
-
-fun Song.toDbSongDisplay() = DbSongDisplay(
-    id = id,
-    title = title,
-    artistName = artistName,
-    albumName = albumName,
-    albumArtistName = albumArtistName,
-    time = time,
-    art = art,
-    url = url,
-    genre = genre
-)
 
 fun SongInfo.toDbSongToPlay() = DbSongToPlay(
     id = id,
@@ -219,9 +167,3 @@ fun Alarm.toDbAlarm() = DbAlarm(
     saturday = daysToTrigger[5],
     sunday = daysToTrigger[6]
 )
-
-/**
- * View to View
- */
-
-fun SongInfo.toSong() = Song(id = id, title = title, artistName = artistName, albumName = albumName, albumArtistName = albumArtistName, time = time, art = art, url = url, genre = genre)

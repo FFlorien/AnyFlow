@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.data.toSong
-import be.florien.anyflow.data.view.Song
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.FiltersManager
@@ -36,8 +38,8 @@ class SongListViewModel
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     private val songInfoActions = SongInfoActions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences)
-    val pagedAudioQueue: LiveData<PagingData<Song>> = playingQueue.songDisplayListUpdater
-    val currentSong: LiveData<Song> = playingQueue.currentSong.map { it.toSong() }
+    val pagedAudioQueue: LiveData<PagingData<SongInfo>> = playingQueue.songDisplayListUpdater
+    val currentSong: LiveData<SongInfo> = playingQueue.currentSong
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -126,14 +128,14 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songId: Long, actionType: SongInfoActions.ActionType, fieldType: SongInfoActions.FieldType) {
+    fun executeSongAction(songInfo: SongInfo, actionType: SongInfoActions.ActionType, fieldType: SongInfoActions.FieldType) {
         viewModelScope.launch {
             when (actionType) {
-                SongInfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(songId)
-                SongInfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songId)
-                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(songId, fieldType)
-                SongInfoActions.ActionType.SEARCH -> searchText(songInfoActions.getSearchTerms(songId, fieldType))
-                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(songId)
+                SongInfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(songInfo.id)
+                SongInfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songInfo.id)
+                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(songInfo, fieldType)
+                SongInfoActions.ActionType.SEARCH -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
+                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(songInfo)
                 else -> return@launch
             }
         }
@@ -146,6 +148,8 @@ class SongListViewModel
             quickActions.mutable.value = songInfoActions.getQuickActions()
         }
     }
+
+    fun getArtUrl(albumId: Long) = songInfoActions.getAlbumArtUrl(albumId)
 
     /**
      * Private methods

@@ -6,8 +6,12 @@
     <data>
 
         <variable
+            name="art"
+            type="String" />
+
+        <variable
             name="song"
-            type="be.florien.anyflow.data.view.Song" />
+            type="be.florien.anyflow.data.view.SongInfo" />
     </data>
 
     <FrameLayout
@@ -54,7 +58,7 @@
                 android:layout_height="@dimen/imageSize"
                 android:contentDescription="@null"
                 android:scaleType="fitXY"
-                app:coverImageUrl="@{song.art}"
+                app:coverImageUrl="@{art}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@drawable/cover_placeholder" />

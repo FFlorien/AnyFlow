@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         BaseFilterViewModel(filtersManager) {
     private var searchJob: Job? = null
-    private var currentPagingData: LiveData<PagingData<FilterItem>>? = null
 
     abstract val itemDisplayType: Int
     open val hasSearch = true
@@ -75,7 +74,6 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
     }
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
-        currentPagingData?.let { (values as MediatorLiveData).removeSource(it) }
         val liveData: LiveData<PagingData<FilterItem>> = if (search.isNullOrEmpty()) {
             getUnfilteredPagingList()
         } else {
@@ -84,7 +82,6 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         (values as MediatorLiveData).addSource(liveData) {
             (values as MediatorLiveData).value = it
         }
-        currentPagingData = liveData
         return liveData
     }
 

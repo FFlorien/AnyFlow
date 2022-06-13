@@ -13,8 +13,8 @@ sealed class Filter<T>(
             is AlbumArtistIs -> song.albumArtistId == argument
             is AlbumIs -> song.albumId == argument
             is ArtistIs -> song.artistId == argument
-            is GenreIs -> song.genre == argument
-            is Search -> song.title.contains(argument, ignoreCase = true) || song.artistName.contains(argument, ignoreCase = true) || song.albumName.contains(argument, ignoreCase = true) || song.genre.contains(argument, ignoreCase = true)
+            is GenreIs -> song.genreNames.any{ it == argument }
+            is Search -> song.title.contains(argument, ignoreCase = true) || song.artistName.contains(argument, ignoreCase = true) || song.albumName.contains(argument, ignoreCase = true) || song.genreNames.any { it.contains(argument, ignoreCase = true) }
             is SongIs -> song.id == argument
             is TitleContain -> song.title.contains(argument, ignoreCase = true)
             is PlaylistIs -> dataRepository.isPlaylistContainingSong(argument, song.id)

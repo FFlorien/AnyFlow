@@ -2,7 +2,6 @@ package be.florien.anyflow.data.local
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.distinctUntilChanged
 import androidx.paging.LivePagingDataBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -56,7 +55,7 @@ class LibraryDatabaseTest {
 
             // When Inserting Albums
             val albumsToInsert = dataFactory.createAlbumList(5)
-            library.addAlbums(albumsToInsert)
+            library.addOrUpdateAlbums(albumsToInsert)
 
             // Then Only These Albums Are Inserted
             val albumsInserted = library.getAlbumsFomRawQuery("SELECT * FROM album")
@@ -73,7 +72,7 @@ class LibraryDatabaseTest {
             // With Multiple Album
             val albumsToInsert = dataFactory.createAlbumList(40)
             val albumsExpected = albumsToInsert.map { it.toDbAlbumDisplay() }
-            library.addAlbums(albumsToInsert)
+            library.addOrUpdateAlbums(albumsToInsert)
 
             // When Querying Album
             val PagingData = LivePagingDataBuilder(library.getAlbums(), 40).build()
@@ -96,7 +95,7 @@ class LibraryDatabaseTest {
 
             // When Inserting Artists
             val artistsToInsert = dataFactory.createArtistList(5)
-            library.addArtists(artistsToInsert)
+            library.addOrUpdateArtists(artistsToInsert)
 
             // Then Only These Artists Are Inserted
             val artistsInserted = library.getArtistsFomRawQuery("SELECT * FROM artist")
@@ -113,8 +112,8 @@ class LibraryDatabaseTest {
             // With Multiple Album Artist And Songs Corresponding
             val songs = dataFactory.createSongList(40)
             val artistsToInsert = dataFactory.createArtistList(songs)
-            library.addSongs(songs)
-            library.addArtists(artistsToInsert)
+            library.addOrUpdateSongs(songs)
+            library.addOrUpdateArtists(artistsToInsert)
 
             // When Querying Album Artist
             val PagingData = LivePagingDataBuilder(library.getAlbumArtists(), 40).build()
@@ -137,7 +136,7 @@ class LibraryDatabaseTest {
 
             // When Inserting Playlists
             val playlistsToInsert = dataFactory.createPlaylistList(5)
-            library.addPlayLists(playlistsToInsert)
+            library.addOrUpdatePlayLists(playlistsToInsert)
 
             // Then Only These Playlists Are Inserted
             val playlistsInserted = library.getPlaylistsFomRawQuery("SELECT * FROM playlist")
@@ -159,7 +158,7 @@ class LibraryDatabaseTest {
 
             // When inserting songs
             val songsToInsert = dataFactory.createSongList(5)
-            library.addSongs(songsToInsert)
+            library.addOrUpdateSongs(songsToInsert)
 
             // Then only these songs are inserted
             val songsInserted = library.getSongsFromRawQuery("SELECT * FROM song")
@@ -175,7 +174,7 @@ class LibraryDatabaseTest {
 
             // With Existing Songs In Db
             val songList = dataFactory.createSongList(15)
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
 
             // When Saving Correct Queue Order
             library.saveQueueOrder(songList.map { it.id })
@@ -194,7 +193,7 @@ class LibraryDatabaseTest {
 
             // With Existing Songs In Db
             val songList = dataFactory.createSongList(15)
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             try {
 
                 // When Saving Incorrect Queue Order
@@ -216,7 +215,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Ordered Queue In Db
             val songList = dataFactory.createSongList(15)
             val orderList = songList.map { it.id }
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(orderList)
 
             // When Querying A Song In Position
@@ -235,7 +234,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Random Queue In Db
             val songList = dataFactory.createSongList(15)
             val randomList = songList.map { it.id }.shuffled()
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(randomList)
 
             // When Querying A Song In Position
@@ -253,7 +252,7 @@ class LibraryDatabaseTest {
 
             // With Existing Songs And No Queue In Db
             val songList = dataFactory.createSongList(15)
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
 
             // When Querying A Song In Position
             val songAtPosition = library.getSongAtPosition(5)
@@ -286,7 +285,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Ordered Queue In Db
             val songList = dataFactory.createSongList(15)
             val orderList = songList.map { it.id }
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(orderList)
 
             // When Querying A Song Position
@@ -306,7 +305,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Random Queue In Db
             val songList = dataFactory.createSongList(15)
             val randomList = songList.shuffled()
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(randomList.map { it.id })
 
             // When Querying A Song Position
@@ -324,7 +323,7 @@ class LibraryDatabaseTest {
 
             // With Existing Songs And No Queue In Db
             val songList = dataFactory.createSongList(15)
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
 
             // When Querying A Song Position
             val songPosition = library.getPositionForSong(songList[5].toDbSongDisplay())
@@ -354,7 +353,7 @@ class LibraryDatabaseTest {
 
             // With Existing Songs And Ordered Queue
             val songList = dataFactory.createSongList(50)
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(songList.map { it.id })
 
             // When Querying Queue
@@ -376,7 +375,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Random Queue
             val songList = dataFactory.createSongList(50)
             val randomList = songList.shuffled()
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(randomList.map { it.id })
 
             // When Querying Queue
@@ -399,7 +398,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Random Queue
             val songList = dataFactory.createSongList(50)
             val randomList = songList.shuffled(Random(5))
-            library.addSongs(songList)
+            library.addOrUpdateSongs(songList)
             library.saveQueueOrder(randomList.map { it.id })
 
             // When Changing Queue
@@ -425,14 +424,14 @@ class LibraryDatabaseTest {
             val songListFirst = dataFactory.createSongList(25)
             val songListNext = dataFactory.createSongList(25, 26)
             val songList = songListFirst + songListNext
-            library.addSongs(songListFirst)
+            library.addOrUpdateSongs(songListFirst)
             library.saveQueueOrder(songListFirst.map { it.id })
             val PagingData = LivePagingDataBuilder(library.getSongsInQueueOrder(), 50).build()
 
             // When Adding Songs In Queue
             PagingData.captureValues {
                 assertThat(values.first()).containsExactlyElementsIn(songListFirst.map { it.toDbSongDisplay() })
-                library.addSongs(songListNext)
+                library.addOrUpdateSongs(songListNext)
                 library.saveQueueOrder(songList.map { it.id })
 
                 // Then It Is Notified
@@ -449,7 +448,7 @@ class LibraryDatabaseTest {
             // With Existing Songs And Queue
             val songListFirst = dataFactory.createSongList(25)
             val songListNext = dataFactory.createSongList(25, 26)
-            library.addSongs(songListFirst)
+            library.addOrUpdateSongs(songListFirst)
             library.saveQueueOrder(songListFirst.map { it.id })
             library.inTransaction()
             val dataSourceFactory = library.getSongsInQueueOrder()
@@ -459,7 +458,7 @@ class LibraryDatabaseTest {
                 assertThat(values.last()).containsExactlyElementsIn(songListFirst.map { it.toDbSongDisplay() })
 
                 // When Adding Songs Not In Queue
-                library.addSongs(songListNext)
+                library.addOrUpdateSongs(songListNext)
 
                 // Then It Is Not Notified
                 delay(150)
@@ -490,7 +489,7 @@ class LibraryDatabaseTest {
             // With Multiple Genre
             val songsToInsert = dataFactory.createSongList(40)
             val genresExpected = songsToInsert.map { it.genre }.toSet().toList()
-            library.addSongs(songsToInsert)
+            library.addOrUpdateSongs(songsToInsert)
 
             // When Querying Genre
             val PagingData = LivePagingDataBuilder(library.getGenres(), 40).build()
@@ -987,13 +986,13 @@ class LibraryDatabaseTest {
             val filtersToInsert = dataFactory.createFilterList(5)
             val queueList = songsToInsert.map { it.id }
             library.changeUpdater.captureValues {
-                library.addSongs(songsToInsert)
+                library.addOrUpdateSongs(songsToInsert)
                 delay(50)
-                library.addAlbums(albumsToInsert)
+                library.addOrUpdateAlbums(albumsToInsert)
                 delay(50)
-                library.addArtists(artistsToInsert)
+                library.addOrUpdateArtists(artistsToInsert)
                 delay(50)
-                library.addPlayLists(playlistsToInsert)
+                library.addOrUpdatePlayLists(playlistsToInsert)
                 delay(50)
                 library.setOrders(orderList)
                 delay(50)

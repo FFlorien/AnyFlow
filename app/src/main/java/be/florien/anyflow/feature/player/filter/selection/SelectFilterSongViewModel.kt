@@ -16,6 +16,9 @@ class SelectFilterSongViewModel @Inject constructor(val dataRepository: DataRepo
 
     override fun getFilter(filterValue: FilterItem) = Filter.SongIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
 
-    private fun convert(song: DbSongDisplay) =
-            FilterItem(song.id, "${song.title}\nby ${song.artistName}\nfrom ${song.albumName}", song.art, filtersManager.isFilterInEdition(Filter.SongIs(song.id, song.title, song.art)))
+    private fun convert(song: DbSongDisplay): FilterItem {
+        val artUrl = dataRepository.getAlbumArtUrl(song.album.album.id)
+        return FilterItem(song.song.id, "${song.song.title}\nby ${song.artist.name}\nfrom ${song.album.album.name}",
+            artUrl, filtersManager.isFilterInEdition(Filter.SongIs(song.song.id, song.song.title, artUrl)))
+    }
 }

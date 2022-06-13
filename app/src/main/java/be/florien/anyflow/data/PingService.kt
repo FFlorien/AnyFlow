@@ -26,7 +26,7 @@ class PingService
         serviceScope.launch {
             try {
                 val it = ampacheConnection.ping()
-                if (it.error.code.div(100) == 4) {
+                if (it.error.errorCode.div(100) == 4) {
                     throw SessionExpiredException("Ping thrown an error")
                 }
             } catch (exception: Exception) {

@@ -10,7 +10,6 @@ import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.toDbSongToPlay
 import be.florien.anyflow.data.view.Order
-import be.florien.anyflow.data.view.Song
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.injection.UserScope
@@ -75,7 +74,7 @@ class PlayingQueue
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
-    val songDisplayListUpdater: LiveData<PagingData<Song>> =
+    val songDisplayListUpdater: LiveData<PagingData<SongInfo>> =
         dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
     private val songIdsListUpdater: LiveData<List<DbSongToPlay>> =
         dataRepository.getIdsInQueueOrder()

@@ -13,6 +13,10 @@ class AmpachePlayList {
     var id: Long = 0
     var name: String = ""
     var owner: String = ""
-    var items: Int = 0
-    var tag: List<AmpacheTagName> = mutableListOf()
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpachePlaylistResponse {
+    var playlist: List<AmpachePlayList> = mutableListOf()
+    var error: AmpacheError? = null
 }

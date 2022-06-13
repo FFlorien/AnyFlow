@@ -24,9 +24,9 @@ class InfoDisplayViewModel @Inject constructor(
             when (actionType) {
                 SongInfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(song.id)
                 SongInfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList()
-                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(song.id, fieldType)
-                SongInfoActions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoActions.getSearchTerms(song.id, fieldType)
-                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(song.id)
+                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(song, fieldType)
+                SongInfoActions.ActionType.SEARCH -> searchTerm.mutable.value = songInfoActions.getSearchTerms(song, fieldType)
+                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(song)
                 SongInfoActions.ActionType.NONE, SongInfoActions.ActionType.INFO_TITLE, SongInfoActions.ActionType.EXPANDABLE_TITLE -> return@launch
             }
         }

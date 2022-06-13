@@ -10,7 +10,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Song
+import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.GlideApp
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -20,7 +21,8 @@ import com.bumptech.glide.request.target.Target
 class PlayerNotificationBuilder(
         private val service: Service,
         private val mediaSession: MediaSessionCompat,
-        pendingIntent: PendingIntent) {
+        pendingIntent: PendingIntent,
+private val dataRepository: DataRepository) {
 
     private var state: State = State(isPlaying = false, hasPrevious = false, hasNext = false)
     var lastPosition = 0L
@@ -93,17 +95,17 @@ class PlayerNotificationBuilder(
         notifyChange(shouldChangeForegroundState)
     }
 
-    fun updateMediaSession(song: Song) {
+    fun updateMediaSession(song: SongInfo) {
         metadataBuilder = MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artistName)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, song.albumArtistName)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.albumName)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
-                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, song.genre)
+                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, song.genreNames.first())
         GlideApp
                 .with(service)
                 .asBitmap()
-                .load(song.art)
+                .load(dataRepository.getAlbumArtUrl(song.albumId))
                 .listener(asyncBitmapLoadingReceiver)
                 .submit()
         mediaSession.setMetadata(metadataBuilder.build())

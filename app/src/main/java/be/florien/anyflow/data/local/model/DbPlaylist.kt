@@ -16,7 +16,9 @@ data class DbPlaylist(
 @Entity(tableName = "PlaylistSongs",
         primaryKeys = ["songId", "playlistId"])
 data class DbPlaylistSongs(
+        @ColumnInfo(index = true)
         val songId: Long,
+        @ColumnInfo(index = true)
         val playlistId: Long)
 
 data class DbPlaylistWithSongs(

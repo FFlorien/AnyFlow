@@ -12,10 +12,8 @@ import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
-import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.HttpException
-import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
@@ -28,19 +26,20 @@ import javax.inject.Singleton
 @Singleton
 open class AmpacheConnection
 @Inject constructor(
-        private var authPersistence: AuthPersistence,
-        private var userComponentContainer: UserComponentContainer,
-        private val sharedPreferences: SharedPreferences
+    private var authPersistence: AuthPersistence,
+    private var userComponentContainer: UserComponentContainer,
+    private val sharedPreferences: SharedPreferences
 ) {
     companion object {
         private const val OFFSET_SONG = "songOffset"
+        private const val OFFSET_GENRE = "genreOffset"
         private const val OFFSET_ARTIST = "artistOffset"
         private const val OFFSET_ALBUM = "albumOffset"
-        private const val OFFSET_TAG = "tagOffset"
         private const val OFFSET_PLAYLIST = "playlistOffset"
         private const val OFFSET_PLAYLIST_SONGS = "playlistSongOffset"
         private const val RECONNECT_LIMIT = 3
         private const val COUNT_SONGS = "SONGS_COUNT"
+        private const val COUNT_GENRES = "GENRES_COUNT"
         private const val COUNT_ALBUMS = "ALBUMS_COUNT"
         private const val COUNT_ARTIST = "ARTIST_COUNT"
         private const val COUNT_PLAYLIST = "PLAYLIST_COUNT"
@@ -52,9 +51,9 @@ open class AmpacheConnection
 
     private val itemLimit: Int = 150
     private var songOffset: Int = sharedPreferences.getLong(OFFSET_SONG, 0).toInt()
+    private var genreOffset: Int = sharedPreferences.getLong(OFFSET_GENRE, 0).toInt()
     private var artistOffset: Int = sharedPreferences.getLong(OFFSET_ARTIST, 0).toInt()
     private var albumOffset: Int = sharedPreferences.getLong(OFFSET_ALBUM, 0).toInt()
-    private var tagOffset: Int = sharedPreferences.getLong(OFFSET_TAG, 0).toInt()
     private var playlistOffset: Int = sharedPreferences.getLong(OFFSET_PLAYLIST, 0).toInt()
     private var reconnectByPing = 0
     private var reconnectByUserPassword = 0
@@ -67,10 +66,11 @@ open class AmpacheConnection
 
     val connectionStatusUpdater = MutableLiveData(ConnectionStatus.CONNEXION)
 
-    val songsPercentageUpdater = MutableLiveData(0)
-    val artistsPercentageUpdater = MutableLiveData(0)
-    val albumsPercentageUpdater = MutableLiveData(0)
-    val playlistsPercentageUpdater = MutableLiveData(0)
+    val songsPercentageUpdater = MutableLiveData(-1)
+    val genresPercentageUpdater = MutableLiveData(-1)
+    val artistsPercentageUpdater = MutableLiveData(-1)
+    val albumsPercentageUpdater = MutableLiveData(-1)
+    val playlistsPercentageUpdater = MutableLiveData(-1)
 
     /**
      * Ampache connection handling
@@ -81,8 +81,8 @@ open class AmpacheConnection
             serverUrl.toHttpUrl()
         } catch (exception: IllegalArgumentException) {
             throw WrongFormatServerUrlException(
-                    "The provided url was not correctly formed",
-                    exception
+                "The provided url was not correctly formed",
+                exception
             )
         }
         ampacheApi = userComponentContainer.createUserScopeForServer(url.toString())
@@ -109,23 +109,25 @@ open class AmpacheConnection
         val time = (TimeOperations.getCurrentDate().timeInMillis / 1000).toString()
         val encoder = MessageDigest.getInstance("SHA-256")
         encoder.reset()
-        val passwordEncoded = binToHex(encoder.digest(password.toByteArray())).lowercase(Locale.ROOT)
+        val passwordEncoded =
+            binToHex(encoder.digest(password.toByteArray())).lowercase(Locale.ROOT)
         encoder.reset()
-        val auth = binToHex(encoder.digest((time + passwordEncoded).toByteArray())).lowercase(Locale.ROOT)
+        val auth =
+            binToHex(encoder.digest((time + passwordEncoded).toByteArray())).lowercase(Locale.ROOT)
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         try {
             val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
-            when (authentication.error.code) {
+            when (authentication.error.errorCode) {
                 401 -> {
                     connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
-                    throw WrongIdentificationPairException(authentication.error.error_text)
+                    throw WrongIdentificationPairException(authentication.error.errorMessage)
                 }
                 0 -> {
                     authPersistence.saveConnectionInfo(
-                            user,
-                            password,
-                            authentication.auth,
-                            TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
+                        user,
+                        password,
+                        authentication.auth,
+                        TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
                     )
                     saveDbCount(authentication.songs, authentication.albums, authentication.artists, authentication.playlists)
                 }
@@ -183,13 +185,13 @@ open class AmpacheConnection
 
     private suspend fun <T> reconnectByPing(request: suspend () -> T): T {
         reconnectByPing++
-        val pingResponse = ping(authPersistence.authToken.secret)
-        return if (pingResponse.error.code == 0) {
-            saveDbCount(pingResponse.songs, pingResponse.albums, pingResponse.artists, pingResponse.playlists)
+        val ping = ping(authPersistence.authToken.secret)
+        return if (ping.error.errorCode == 0) {
+            saveDbCount(ping.songs, ping.albums, ping.artists, ping.playlists)
             request()
         } else {
-            val authResponse = authenticate(authPersistence.user.secret, authPersistence.password.secret)
-            if (authResponse.error.code == 0) {
+            val auth = authenticate(authPersistence.user.secret, authPersistence.password.secret)
+            if (auth.error.errorCode == 0) {
                 request()
             } else {
                 throw SessionExpiredException("Can't reconnect")
@@ -199,9 +201,9 @@ open class AmpacheConnection
 
     private suspend fun <T> reconnectByUsernamePassword(request: suspend () -> T): T {
         reconnectByUserPassword++
-        val authentication = authenticate(authPersistence.user.secret, authPersistence.password.secret)
-        return if (authentication.error.code == 0) {
-            saveDbCount(authentication.songs, authentication.albums, authentication.artists, authentication.playlists)
+        val auth = authenticate(authPersistence.user.secret, authPersistence.password.secret)
+        return if (auth.error.errorCode == 0) {
+            saveDbCount(auth.songs, auth.albums, auth.artists, auth.playlists)
             request()
         } else {
             throw SessionExpiredException("Can't reconnect")
@@ -223,12 +225,20 @@ open class AmpacheConnection
 
     suspend fun getSongs(from: Calendar = oldestDateForRefresh): List<AmpacheSong>? {
         try {
-            val songList = ampacheApi.getSongs(
+            val songList = if (from != oldestDateForRefresh) {
+                ampacheApi.getSongs(
                     auth = authPersistence.authToken.secret,
-                    add = TimeOperations.getAmpacheGetFormatted(from),
+                    update = TimeOperations.getAmpacheGetFormatted(from),
                     limit = itemLimit,
                     offset = songOffset
-            )
+                ).song
+            } else {
+                ampacheApi.getSongsForFirstTime(
+                    auth = authPersistence.authToken.secret,
+                    limit = itemLimit,
+                    offset = songOffset
+                ).song
+            }
             val totalSongs = sharedPreferences.getInt(COUNT_SONGS, 1)
             return if (songList.isEmpty()) {
                 songsPercentageUpdater.postValue(-1)
@@ -247,35 +257,67 @@ open class AmpacheConnection
         }
     }
 
+    suspend fun getGenres(from: Calendar = oldestDateForRefresh): List<AmpacheNameId>? {
+        try {
+            val genreList =  if (from != oldestDateForRefresh) {
+                ampacheApi.getGenres(
+                    auth = authPersistence.authToken.secret,
+                    update = TimeOperations.getAmpacheGetFormatted(from),
+                    limit = itemLimit,
+                    offset = genreOffset
+                ).genre
+            } else {
+                ampacheApi.getGenresForFirstTime(
+                    auth = authPersistence.authToken.secret,
+                    limit = itemLimit,
+                    offset = genreOffset
+                ).genre
+            }
+            val totalGenres = sharedPreferences.getInt(COUNT_GENRES, 1)
+            return if (genreList.isEmpty()) {
+                genresPercentageUpdater.postValue(-1)
+                sharedPreferences.edit().remove(OFFSET_GENRE).apply()
+                null
+            } else {
+                val percentage = (genreOffset * 100) / totalGenres
+                genresPercentageUpdater.postValue(percentage)
+                genreOffset += genreList.size
+                sharedPreferences.applyPutLong(OFFSET_GENRE, genreOffset.toLong())
+                genreList
+            }
+        } catch (ex: Exception) {
+            eLog(ex)
+            throw ex
+        }
+    }
+
     suspend fun getArtists(from: Calendar = oldestDateForRefresh): List<AmpacheArtist>? {
         try {
-            val artistList = ampacheApi.getArtists(
+            val artistList =  if (from != oldestDateForRefresh) {
+                ampacheApi.getArtists(
                     auth = authPersistence.authToken.secret,
-                    add = TimeOperations.getAmpacheGetFormatted(from),
+                    update = TimeOperations.getAmpacheGetFormatted(from),
                     limit = itemLimit,
                     offset = artistOffset
-            )
-            val totalArtists = sharedPreferences.getInt(COUNT_ARTIST, 1)
-
-            if (!artistList.isSuccessful) {
-                val errorBody = artistList.errorBody()
-                if (errorBody != null) {
-                    val readValue = ObjectMapper().readValue(errorBody.byteStream(), AmpacheErrorObject::class.java)
-                    throw IllegalStateException(readValue.error.error_text)
-                }
+                ).artist
+            } else {
+                ampacheApi.getArtistsForFirstTime(
+                    auth = authPersistence.authToken.secret,
+                    limit = itemLimit,
+                    offset = artistOffset
+                ).artist
             }
-
-            val body = artistList.body() ?: throw IllegalArgumentException("No list of artist in the response")
-            return if (body.isEmpty()) {
+            val totalArtists = sharedPreferences.getInt(COUNT_ARTIST, 1)
+            return if (artistList.isEmpty()) {
                 artistsPercentageUpdater.postValue(-1)
                 sharedPreferences.edit().remove(OFFSET_ARTIST).apply()
                 null
             } else {
                 val percentage = (artistOffset * 100) / totalArtists
                 artistsPercentageUpdater.postValue(percentage)
-                artistOffset += body.size
+                artistOffset += artistList.size
                 sharedPreferences.applyPutLong(OFFSET_ARTIST, artistOffset.toLong())
-                body
+                artistList
             }
         } catch (ex: Exception) {
             eLog(ex)
@@ -285,12 +327,20 @@ open class AmpacheConnection
 
     suspend fun getAlbums(from: Calendar = oldestDateForRefresh): List<AmpacheAlbum>? {
         try {
-            val albumList = ampacheApi.getAlbums(
+            val albumList =  if (from != oldestDateForRefresh) {
+                ampacheApi.getAlbums(
                     auth = authPersistence.authToken.secret,
-                    add = TimeOperations.getAmpacheGetFormatted(from),
+                    update = TimeOperations.getAmpacheGetFormatted(from),
                     limit = itemLimit,
                     offset = albumOffset
-            )
+                ).album
+            } else {
+                ampacheApi.getAlbumsForFirstTime(
+                    auth = authPersistence.authToken.secret,
+                    limit = itemLimit,
+                    offset = albumOffset
+                ).album
+            }
             val totalAlbums = sharedPreferences.getInt(COUNT_ALBUMS, 1)
             return if (albumList.isEmpty()) {
                 albumsPercentageUpdater.postValue(-1)
@@ -309,12 +359,21 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getPlaylists(): List<AmpachePlayList>? { // todo these are the new playlists
-        val playlistList = ampacheApi.getPlaylists(
+    suspend fun getPlaylists(from: Calendar = oldestDateForRefresh): List<AmpachePlayList>? {
+        val playlistList =  if (from != oldestDateForRefresh) {
+            ampacheApi.getPlaylists(
+                auth = authPersistence.authToken.secret,
+                update = TimeOperations.getAmpacheGetFormatted(from),
+                limit = itemLimit,
+                offset = playlistOffset
+            ).playlist
+        } else {
+            ampacheApi.getPlaylistsForFirstTime(
                 auth = authPersistence.authToken.secret,
                 limit = itemLimit,
                 offset = playlistOffset
-        )
+            ).playlist
+        }
         val totalPlaylists = sharedPreferences.getInt(COUNT_PLAYLIST, 1)
         return if (playlistList.isEmpty()) {
             playlistsPercentageUpdater.postValue(-1)
@@ -329,32 +388,15 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getTags(from: Calendar = oldestDateForRefresh): List<AmpacheTag>? {
-        val tagList = ampacheApi.getTags(
-                auth = authPersistence.authToken.secret,
-                add = TimeOperations.getAmpacheGetFormatted(from),
-                limit = itemLimit,
-                offset = tagOffset
-        )
-        return if (tagList.isEmpty()) {
-            sharedPreferences.edit().remove(OFFSET_TAG).apply()
-            null
-        } else {
-            tagOffset += tagList.size
-            sharedPreferences.applyPutLong(OFFSET_TAG, tagOffset.toLong())
-            tagList
-        }
-    }
-
     suspend fun getPlaylistsSongs(playlistToQuery: Long): List<AmpacheSongId>? {
         val prefName = OFFSET_PLAYLIST_SONGS + playlistToQuery
         var currentPlaylistOffset = sharedPreferences.getLong(prefName, 0).toInt()
         val playlistSongList = ampacheApi.getPlaylistSongs(
-                auth = authPersistence.authToken.secret,
-                filter = playlistToQuery.toString(),
-                limit = itemLimit,
-                offset = currentPlaylistOffset
-        )
+            auth = authPersistence.authToken.secret,
+            filter = playlistToQuery.toString(),
+            limit = itemLimit,
+            offset = currentPlaylistOffset
+        ).song
         return if (playlistSongList.isEmpty()) {
             sharedPreferences.edit().remove(prefName).apply()
             null
@@ -370,17 +412,33 @@ open class AmpacheConnection
     }
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheApi.addToPlaylist(auth = authPersistence.authToken.secret, filter = playlistId, songId = songId)
+        ampacheApi.addToPlaylist(
+            auth = authPersistence.authToken.secret,
+            filter = playlistId,
+            songId = songId
+        )
     }
 
     fun getSongUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret
-        return "${serverUrl}play/index.php?ssid=$token&oid=$id"
+        return "${serverUrl}play/index.php?ssid=$token&type=song&oid=$id&uid=1"
+    }
+
+    fun getAlbumArtUrl(id: Long): String {
+        val serverUrl = authPersistence.serverUrl.secret
+        val token = authPersistence.authToken.secret
+        return "${serverUrl}image.php?auth=$token&object_type=album&object_id=$id"
+    }
+
+    fun getArtistArtUrl(id: Long): String {
+        val serverUrl = authPersistence.serverUrl.secret
+        val token = authPersistence.authToken.secret
+        return "${serverUrl}image.php?auth=$token&object_type=artist&object_id=$id"
     }
 
     private fun binToHex(data: ByteArray): String =
-            String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
+        String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 
     enum class ConnectionStatus {
         WRONG_SERVER_URL,

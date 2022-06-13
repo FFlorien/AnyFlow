@@ -6,8 +6,7 @@ import androidx.room.Transaction
 import be.florien.anyflow.data.local.model.DbQueueOrder
 
 @Dao
-abstract class QueueOrderDao : BaseDao<DbQueueOrder> {
-
+abstract class QueueOrderDao : BaseDao<DbQueueOrder>() {
 
     @Query("SELECT count(*) FROM queueorder")
     protected abstract suspend fun getCount(): Int

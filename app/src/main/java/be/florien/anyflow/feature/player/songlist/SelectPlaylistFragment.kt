@@ -88,7 +88,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         val parentFragment = parentFragment
         if (parentFragment is DialogInterface.OnDismissListener) {
-            parentFragment.onDismiss(dialog);
+            parentFragment.onDismiss(dialog)
         }
         super.onDismiss(dialog)
     }

@@ -136,6 +136,14 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 animateDisappearance(binding.updatingStateView)
             }
         }
+        viewModel.genresUpdatePercentage.observe(this) {
+            if (it in 0..100) {
+                binding.updatingText.text = getString(R.string.update_genres, it)
+                animateAppearance(binding.updatingStateView)
+            } else {
+                animateDisappearance(binding.updatingStateView)
+            }
+        }
         viewModel.albumsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_albums, it)

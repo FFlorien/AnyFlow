@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Song
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
@@ -284,10 +284,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
     }
 
     inner class SongAdapter :
-        PagingDataAdapter<Song, SongViewHolder>(object : DiffUtil.ItemCallback<Song>() {
-            override fun areItemsTheSame(oldItem: Song, newItem: Song) = oldItem.id == newItem.id
+        PagingDataAdapter<SongInfo, SongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
+            override fun areItemsTheSame(oldItem: SongInfo, newItem: SongInfo) = oldItem.id == newItem.id
 
-            override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean =
+            override fun areContentsTheSame(oldItem: SongInfo, newItem: SongInfo): Boolean =
                 oldItem.artistName == newItem.artistName
                         && oldItem.albumName == newItem.albumName
                         && oldItem.title == newItem.title
@@ -352,7 +352,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                                 val song = binding.song
                                 if (song != null)
                                     viewModel.executeSongAction(
-                                        song.id,
+                                        song,
                                         action.actionType,
                                         action.fieldType
                                     )
@@ -362,8 +362,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
             }
         }
 
-        fun bind(song: Song?) {
+        fun bind(song: SongInfo?) {
             binding.song = song
+            binding.art = song?.albumId?.let { viewModel.getArtUrl(it) }
             binding.songInfo.translationX = if (isCurrentSong) {
                 currentSongViewHolder.binding.songInfo.translationX
             } else {

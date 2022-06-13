@@ -5,16 +5,24 @@ import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Query
 import be.florien.anyflow.data.local.model.DbArtist
-import be.florien.anyflow.data.local.model.DbArtistDisplay
 
 @Dao
-interface ArtistDao : BaseDao<DbArtist> {
-    @Query("SELECT DISTINCT song.albumArtistId AS id, song.albumArtistName AS name, artist.art AS art FROM song LEFT JOIN artist ON song.albumArtistId = artist.id ORDER BY albumArtistName COLLATE UNICODE")
-    fun orderByName(): DataSource.Factory<Int, DbArtistDisplay>
+abstract class ArtistDao : BaseDao<DbArtist>() {
+    @Query("SELECT * FROM artist ORDER BY name COLLATE UNICODE")
+    abstract fun orderByName(): DataSource.Factory<Int, DbArtist>
 
-    @Query("SELECT DISTINCT song.albumArtistId AS id, song.albumArtistName AS name, artist.art AS art FROM song LEFT JOIN artist ON song.albumArtistId = artist.id WHERE song.albumArtistName LIKE :filter ORDER BY albumArtistName COLLATE UNICODE")
-    fun orderByNameFiltered(filter: String): DataSource.Factory<Int, DbArtistDisplay>
+    @Query("SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist INNER JOIN album ON album.artistId = artist.id ORDER BY artist.name COLLATE UNICODE")
+    abstract fun albumArtistOrderByName(): DataSource.Factory<Int, DbArtist>
 
-    @Query("SELECT DISTINCT song.albumArtistId AS id, song.albumArtistName AS name, artist.art AS art FROM song LEFT JOIN artist ON song.albumArtistId = artist.id WHERE song.albumArtistName LIKE :filter ORDER BY albumArtistName COLLATE UNICODE")
-    suspend fun orderByNameFilteredList(filter: String): List<DbArtistDisplay>
+    @Query("SELECT * FROM artist WHERE name LIKE :filter ORDER BY name COLLATE UNICODE")
+    abstract fun orderByNameFiltered(filter: String): DataSource.Factory<Int, DbArtist>
+
+    @Query("SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist INNER JOIN album ON album.artistId = artist.id WHERE artist.name LIKE :filter ORDER BY artist.name COLLATE UNICODE")
+    abstract fun albumArtistOrderByNameFiltered(filter: String): DataSource.Factory<Int, DbArtist>
+
+    @Query("SELECT * FROM artist WHERE name LIKE :filter ORDER BY name COLLATE UNICODE")
+    abstract suspend fun orderByNameFilteredList(filter: String): List<DbArtist>
+
+    @Query("SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist INNER JOIN album ON album.artistId = artist.id WHERE artist.name LIKE :filter ORDER BY artist.name COLLATE UNICODE")
+    abstract suspend fun albumArtistOrderByNameFilteredList(filter: String): List<DbArtist>
 }

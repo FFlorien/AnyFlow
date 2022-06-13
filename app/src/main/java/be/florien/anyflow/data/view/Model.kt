@@ -4,21 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Song(
-    val id: Long,
-    val title: String,
-    val artistName: String,
-    val albumName: String,
-    val albumArtistName: String,
-    val time: Int,
-    val art: String,
-    val url: String,
-    val genre: String
-) : Parcelable {
-    val timeText: String
-        get() = String.format("%d:%02d", time / 60, time % 60)
-}
-
 data class SongInfo(
     val id: Long,
     val title: String,
@@ -28,15 +13,12 @@ data class SongInfo(
     val albumId: Long,
     val albumArtistName: String,
     val albumArtistId: Long,
+    val genreNames: List<String>,
     val track: Int,
     val time: Int,
     val year: Int,
-    val url: String,
-    val art: String,
-    val genre: String,
-    val fileName: String,
     val local: String?
-) {
+): Parcelable {
     val timeText: String
         get() = String.format("%d:%02d", time / 60, time % 60)
 }
