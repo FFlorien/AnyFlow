@@ -315,13 +315,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
             ValueAnimator.ofInt(0, maxHeight).apply {
                 addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationRepeat(p0: Animator?) {}
+                    override fun onAnimationRepeat(p0: Animator) {}
 
-                    override fun onAnimationEnd(p0: Animator?) {}
+                    override fun onAnimationEnd(p0: Animator) {}
 
-                    override fun onAnimationCancel(p0: Animator?) {}
+                    override fun onAnimationCancel(p0: Animator) {}
 
-                    override fun onAnimationStart(p0: Animator?) {
+                    override fun onAnimationStart(p0: Animator) {
                         view.visibility = View.VISIBLE
                     }
 
@@ -337,15 +337,15 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
             ValueAnimator.ofInt(maxHeight, 0).apply {
                 addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationRepeat(p0: Animator?) {}
+                    override fun onAnimationRepeat(p0: Animator) {}
 
-                    override fun onAnimationEnd(p0: Animator?) {
+                    override fun onAnimationEnd(p0: Animator) {
                         view.visibility = View.GONE
                     }
 
-                    override fun onAnimationCancel(p0: Animator?) {}
+                    override fun onAnimationCancel(p0: Animator) {}
 
-                    override fun onAnimationStart(p0: Animator?) {}
+                    override fun onAnimationStart(p0: Animator) {}
 
                 })
                 addUpdateListener { view.layoutParams.height = it.animatedValue as Int }

@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.local.model.DbSongToPlay
@@ -47,6 +50,9 @@ class ExoPlayerController
     private var isReceiverRegistered: Boolean = false
     private val myNoisyAudioStreamReceiver = BecomingNoisyReceiver()
 
+    private var shouldPlayOnFocusChange = false
+    private val audioFocusRequest: AudioFocusRequest?  = getFocusRequest()
+
     inner class BecomingNoisyReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
@@ -68,7 +74,9 @@ class ExoPlayerController
         )
 
         mediaPlayer = SimpleExoPlayer
-            .Builder(context, DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
+            .Builder(
+                context,
+                DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
             .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
             .build()
             .apply {
@@ -95,7 +103,8 @@ class ExoPlayerController
         GlobalScope.launch(Dispatchers.Default) {
             alarmsSynchronizer.syncAlarms()
         }
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
             filtersManager.clearFilters()
@@ -117,17 +126,87 @@ class ExoPlayerController
     }
 
     override fun stop() {
+        abandonAudioFocus()
         mediaPlayer.stop()
     }
 
     override fun pause() {
+        abandonAudioFocus()
         mediaPlayer.playWhenReady = false
         (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PAUSE
     }
 
     override fun resume() {
-        mediaPlayer.playWhenReady = true
-        (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PLAY
+        if (!isPlaying()) {
+            val focusResponse = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val focusRequest = audioFocusRequest ?: throw IllegalStateException("AudiFocusRequest should have been initialized")
+                audioManager.requestAudioFocus(focusRequest)
+            } else {
+                @Suppress("DEPRECATION")
+                audioManager.requestAudioFocus(
+                    ::onAudioFocusChange,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN
+                )
+            }
+            when (focusResponse) {
+                AudioManager.AUDIOFOCUS_REQUEST_DELAYED -> {
+                    shouldPlayOnFocusChange = true
+                }
+                AudioManager.AUDIOFOCUS_REQUEST_GRANTED -> {
+                    mediaPlayer.playWhenReady = true
+                    (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PLAY
+                }
+            }
+        }
+    }
+
+
+    private fun getFocusRequest(): AudioFocusRequest? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val attributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+            AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(attributes)
+                .setAcceptsDelayedFocusGain(true)
+                .setOnAudioFocusChangeListener(::onAudioFocusChange)
+                .build()
+        } else {
+            null
+        }
+
+    private fun onAudioFocusChange(change: Int) {
+        when (change) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                mediaPlayer.volume = 1f
+                if (!isPlaying() && shouldPlayOnFocusChange) resume()
+                shouldPlayOnFocusChange = false
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    mediaPlayer.volume = 0.2f
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                pause()
+                shouldPlayOnFocusChange = true
+            }
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                stop()
+                shouldPlayOnFocusChange = false
+            }
+        }
+    }
+
+    private fun abandonAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val request = audioFocusRequest ?: throw IllegalStateException("AudioFocusRequest should have been initialized")
+            audioManager.abandonAudioFocusRequest(request)
+        } else {
+            audioManager.abandonAudioFocus(::onAudioFocusChange)
+        }
     }
 
     override fun seekTo(duration: Long) {
@@ -135,6 +214,7 @@ class ExoPlayerController
     }
 
     override fun onDestroy() {
+        abandonAudioFocus()
         //todo
     }
 
@@ -160,8 +240,10 @@ class ExoPlayerController
             GlobalScope.launch {
                 ampacheConnection.reconnect {
                     GlobalScope.launch(Dispatchers.Main) {
-                        val firstItem = dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
-                        val secondItem = dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+                        val firstItem =
+                            dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+                        val secondItem =
+                            dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.nextSong)
                         mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
                         mediaPlayer.seekTo(0, C.TIME_UNSET)
                     }
@@ -171,7 +253,10 @@ class ExoPlayerController
         } else if (
             error is ExoPlaybackException
             && error.cause is IllegalStateException
-            && error.cause?.message?.contains("Playback stuck buffering and not loading", false) == true
+            && error.cause?.message?.contains(
+                "Playback stuck buffering and not loading",
+                false
+            ) == true
         ) {
             val position = mediaPlayer.currentPosition
             prepare()
@@ -191,12 +276,17 @@ class ExoPlayerController
                 ampacheConnection.resetReconnectionCount()
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.BUFFER
             }
-            Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value = PlayerController.State.NO_MEDIA
-            Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value = if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
+            Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value =
+                PlayerController.State.NO_MEDIA
+            Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value =
+                if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
         }
 
         if (playWhenReady && !isReceiverRegistered) {
-            context.registerReceiver(myNoisyAudioStreamReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+            context.registerReceiver(
+                myNoisyAudioStreamReceiver,
+                IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+            )
             isReceiverRegistered = true
         } else if (isReceiverRegistered) {
             context.unregisterReceiver(myNoisyAudioStreamReceiver)
@@ -215,16 +305,24 @@ class ExoPlayerController
      */
 
     private fun applyState(state: PlayingQueue.PlayingQueueState) {
-        val nextSongByUser = mediaPlayer.mediaItemCount > 0 && mediaPlayer.getMediaItemAt(1).mediaId == state.currentSong.id.toString()
+        val nextSongByUser =
+            mediaPlayer.mediaItemCount > 0 && mediaPlayer.getMediaItemAt(1).mediaId == state.currentSong.id.toString()
         val isNextSong = mediaPlayer.currentWindowIndex == 1 || nextSongByUser
         if (isNextSong) {
             mediaPlayer.removeMediaItem(0)
         }
-        val hasCurrentItemChanged = mediaPlayer.currentMediaItem?.mediaId != state.currentSong.id.toString()
-        val hasNextItemChanged = (if (mediaPlayer.mediaItemCount > 1) mediaPlayer.getMediaItemAt(1).mediaId else null) != state.nextSong?.toString()
+        val hasCurrentItemChanged =
+            mediaPlayer.currentMediaItem?.mediaId != state.currentSong.id.toString()
+        val hasNextItemChanged =
+            (if (mediaPlayer.mediaItemCount > 1) mediaPlayer.getMediaItemAt(1).mediaId else null) != state.nextSong?.toString()
         if (hasCurrentItemChanged) {
             mediaPlayer.clearMediaItems()
-            mediaPlayer.setMediaItems(listOfNotNull(dbSongToPlayToMediaItem(state.currentSong), dbSongToPlayToMediaItem(state.nextSong)))
+            mediaPlayer.setMediaItems(
+                listOfNotNull(
+                    dbSongToPlayToMediaItem(state.currentSong),
+                    dbSongToPlayToMediaItem(state.nextSong)
+                )
+            )
             prepare()
 
             if (state.intent == PlayingQueue.PlayingQueueIntent.CONTINUE || state.intent == PlayingQueue.PlayingQueueIntent.START) {

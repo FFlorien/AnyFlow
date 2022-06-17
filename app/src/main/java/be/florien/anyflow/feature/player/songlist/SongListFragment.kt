@@ -246,18 +246,18 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 }.apply {
                     addListener(object : Animator.AnimatorListener {
 
-                        override fun onAnimationStart(animation: Animator?) {
+                        override fun onAnimationStart(animation: Animator) {
                             binding.loadingText.visibility = View.VISIBLE
                         }
 
-                        override fun onAnimationRepeat(animation: Animator?) {}
+                        override fun onAnimationRepeat(animation: Animator) {}
 
-                        override fun onAnimationEnd(animation: Animator?) {
+                        override fun onAnimationEnd(animation: Animator) {
                             binding.loadingText.visibility =
                                 if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
                         }
 
-                        override fun onAnimationCancel(animation: Animator?) {}
+                        override fun onAnimationCancel(animation: Animator) {}
                     })
                 }
                 .start()
@@ -473,16 +473,16 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 repeatCount = 1
                 repeatMode = ValueAnimator.REVERSE
                 addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationStart(animation: Animator?) {}
+                    override fun onAnimationStart(animation: Animator) {}
 
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         val song = binding.song ?: return
                         InfoFragment(song).show(childFragmentManager, "info")
                     }
 
-                    override fun onAnimationCancel(animation: Animator?) {}
+                    override fun onAnimationCancel(animation: Animator) {}
 
-                    override fun onAnimationRepeat(animation: Animator?) {}
+                    override fun onAnimationRepeat(animation: Animator) {}
                 })
                 start()
             }

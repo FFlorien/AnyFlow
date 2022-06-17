@@ -1,6 +1,7 @@
 package be.florien.anyflow.data
 
 import android.content.SharedPreferences
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.*
@@ -13,7 +14,6 @@ import com.google.android.exoplayer2.offline.DownloadManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,11 +38,29 @@ class DataRepository
      */
 
     suspend fun updateAll() = withContext(Dispatchers.IO) {
-        updateGenresAsync()
-        updateArtistsAsync()
-        updateAlbumsAsync()
-        updateSongsAsync()
-        updatePlaylistAsync()
+        try {
+            updateGenresAsync()
+            updateArtistsAsync()
+            updateAlbumsAsync()
+            updateSongsAsync()
+            updatePlaylistAsync()
+        } catch (sqlConstraintException: SQLiteConstraintException) {
+            sharedPreferences.edit().apply {
+                remove(LAST_SONG_UPDATE)
+                remove(LAST_GENRE_UPDATE)
+                remove(LAST_ARTIST_UPDATE)
+                remove(LAST_ALBUM_UPDATE)
+                remove(LAST_PLAYLIST_UPDATE)
+                libraryDatabase.getPlaylistsFilteredList("").forEach {
+                    remove("LAST_PLAYLIST_SONGS_UPDATE$it")
+                }
+            }.apply()
+            updateGenresAsync()
+            updateArtistsAsync()
+            updateAlbumsAsync()
+            updateSongsAsync()
+            updatePlaylistAsync()
+        }
     }
 
     suspend fun getSongAtPosition(position: Int) =
@@ -477,21 +495,22 @@ class DataRepository
             ""
         }
 
-        filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }.forEachIndexed { index, filter ->
-            whereStatement += when (filter.clause) {
-                DbFilter.SONG_ID,
-                DbFilter.ARTIST_ID,
-                DbFilter.ALBUM_ARTIST_ID,
-                DbFilter.PLAYLIST_ID,
-                DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
-                DbFilter.DOWNLOADED -> " ${DbFilter.DOWNLOADED}"
-                DbFilter.NOT_DOWNLOADED -> " ${DbFilter.NOT_DOWNLOADED}"
-                else -> " ${filter.clause} \"${filter.argument}\""
+        filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }
+            .forEachIndexed { index, filter ->
+                whereStatement += when (filter.clause) {
+                    DbFilter.SONG_ID,
+                    DbFilter.ARTIST_ID,
+                    DbFilter.ALBUM_ARTIST_ID,
+                    DbFilter.PLAYLIST_ID,
+                    DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
+                    DbFilter.DOWNLOADED -> " ${DbFilter.DOWNLOADED}"
+                    DbFilter.NOT_DOWNLOADED -> " ${DbFilter.NOT_DOWNLOADED}"
+                    else -> " ${filter.clause} \"${filter.argument}\""
+                }
+                if (index < filterList.size - 1) {
+                    whereStatement += " OR"
+                }
             }
-            if (index < filterList.size - 1) {
-                whereStatement += " OR"
-            }
-        }
 
         return whereStatement
     }
