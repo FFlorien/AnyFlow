@@ -1,7 +1,7 @@
 package be.florien.anyflow.data.user
 
 import be.florien.anyflow.data.PingService
-import be.florien.anyflow.data.UpdateService
+import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.QuickActionsComponent
@@ -18,7 +18,7 @@ import dagger.Subcomponent
 interface UserComponent {
 
     fun inject(playerService: PlayerService)
-    fun inject(updateService: UpdateService)
+    fun inject(syncService: SyncService)
     fun inject(pingService: PingService)
 
     fun playerComponentBuilder(): PlayerComponent.Builder

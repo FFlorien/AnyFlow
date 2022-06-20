@@ -19,99 +19,104 @@ class AmpacheApiDisconnected : AmpacheApi {
     override suspend fun ping(action: String, auth: String): AmpachePing =
         throw NoServerException()
 
-    override suspend fun getSongsForFirstTime(
-        action: String,
+    override suspend fun getNewSongs(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheSongResponse {
         throw NoServerException()
     }
 
-    override suspend fun getGenresForFirstTime(
-        action: String,
+    override suspend fun getNewGenres(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheGenreResponse {
         throw NoServerException()
     }
 
-    override suspend fun getArtistsForFirstTime(
-        action: String,
+    override suspend fun getNewArtists(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheArtistResponse {
         throw NoServerException()
     }
 
-    override suspend fun getAlbumsForFirstTime(
-        action: String,
+    override suspend fun getNewAlbums(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheAlbumResponse {
         throw NoServerException()
     }
 
-    override suspend fun getPlaylistsForFirstTime(
-        action: String,
+    override suspend fun getNewPlaylists(
         auth: String,
         limit: Int,
         offset: Int,
-        hideSearch: Int
+        update: String,
+        hideSearch: Int,
+        action: String
     ): AmpachePlaylistResponse {
         throw NoServerException()
     }
 
-    override suspend fun getSongs(
-        action: String,
-        update: String,
+    override suspend fun getUpdatedSongs(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheSongResponse {
         throw NoServerException()
     }
 
-    override suspend fun getGenres(
-        action: String,
-        update: String,
+    override suspend fun getUpdatedGenres(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheGenreResponse {
         throw NoServerException()
     }
 
-    override suspend fun getArtists(
-        action: String,
-        update: String,
+    override suspend fun getUpdatedArtists(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheArtistResponse {
         throw NoServerException()
     }
 
-    override suspend fun getAlbums(
-        action: String,
-        update: String,
+    override suspend fun getUpdatedAlbums(
         auth: String,
         limit: Int,
-        offset: Int
+        offset: Int,
+        update: String,
+        action: String
     ): AmpacheAlbumResponse {
         throw NoServerException()
     }
 
-    override suspend fun getPlaylists(
-        action: String,
-        update: String,
+    override suspend fun getUpdatedPlaylists(
         auth: String,
         limit: Int,
         offset: Int,
-        hideSearch: Int
+        update: String,
+        hideSearch: Int,
+        action: String
     ): AmpachePlaylistResponse {
         throw NoServerException()
     }
@@ -125,6 +130,15 @@ class AmpacheApiDisconnected : AmpacheApi {
     ): AmpacheSongIdResponse =
         throw NoServerException()
 
+    override suspend fun getDeletedSongs(
+        action: String,
+        auth: String,
+        limit: Int,
+        offset: Int
+    ): AmpacheDeletedSongIdResponse {
+        throw NoServerException()
+    }
+
     override suspend fun createPlaylist(action: String, auth: String, name: String, type: String) =
         throw NoServerException()
 
@@ -135,12 +149,4 @@ class AmpacheApiDisconnected : AmpacheApi {
         songId: Long,
         check: Int
     ) = throw NoServerException()
-
-    override suspend fun getArtistWithId(
-        action: String,
-        id: Long,
-        auth: String
-    ): AmpacheArtist {
-        throw NoServerException()
-    }
 }

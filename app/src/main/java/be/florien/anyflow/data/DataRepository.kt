@@ -1,7 +1,6 @@
 package be.florien.anyflow.data
 
 import android.content.SharedPreferences
-import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.*
@@ -31,37 +30,59 @@ class DataRepository
     private val downloadManager: DownloadManager
 ) {
 
-    private fun lastAcceptableUpdate() = TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1)
-
     /**
      * Getter with server updates
      */
 
-    suspend fun updateAll() = withContext(Dispatchers.IO) {
-        try {
-            updateGenresAsync()
-            updateArtistsAsync()
-            updateAlbumsAsync()
-            updateSongsAsync()
-            updatePlaylistAsync()
-        } catch (sqlConstraintException: SQLiteConstraintException) {
-            sharedPreferences.edit().apply {
-                remove(LAST_SONG_UPDATE)
-                remove(LAST_GENRE_UPDATE)
-                remove(LAST_ARTIST_UPDATE)
-                remove(LAST_ALBUM_UPDATE)
-                remove(LAST_PLAYLIST_UPDATE)
-                libraryDatabase.getPlaylistsFilteredList("").forEach {
-                    remove("LAST_PLAYLIST_SONGS_UPDATE$it")
-                }
-            }.apply()
-            updateGenresAsync()
-            updateArtistsAsync()
-            updateAlbumsAsync()
-            updateSongsAsync()
-            updatePlaylistAsync()
-        }
+    suspend fun syncAll() {
+        addAll()
+        updateAll()
+        cleanAll()
     }
+
+    private suspend fun addAll() =
+        syncIfOutdated(AmpacheConnection.SERVER_ADD, LAST_ADD_QUERY) { lastSync ->
+            addGenres(lastSync)
+            addArtists(lastSync)
+            addAlbums(lastSync)
+            addSongs(lastSync)
+            addPlaylists(lastSync)
+            ampacheConnection.resetAddOffsets()
+        }
+
+    private suspend fun updateAll() =
+        syncIfOutdated(AmpacheConnection.SERVER_UPDATE, LAST_UPDATE_QUERY) { lastSync ->
+            updateGenres(lastSync)
+            updateArtists(lastSync)
+            updateAlbums(lastSync)
+            updateSongs(lastSync)
+            updatePlaylists(lastSync)
+            ampacheConnection.resetUpdateOffsets()
+        }
+
+    private suspend fun cleanAll() = syncIfOutdated(AmpacheConnection.SERVER_CLEAN, LAST_CLEAN_QUERY) {
+        updateDeletedSongs()
+    }
+
+    private suspend fun syncIfOutdated(
+        lastServerSyncName: String,
+        lastDbSyncName: String,
+        sync: suspend (Calendar) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        val nowDate = TimeOperations.getCurrentDate()
+        val lastCleanMillis = sharedPreferences.getLong(lastServerSyncName, 0L)
+        val lastServerClean = TimeOperations.getDateFromMillis(lastCleanMillis)
+        val lastSync =
+            TimeOperations.getDateFromMillis(sharedPreferences.getLong(lastDbSyncName, 0L))
+        if (lastServerClean.after(lastSync) || lastCleanMillis == 0L) {
+            sync(lastSync)
+        }
+        sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
+    }
+
+    /**
+     * Songs related methods
+     */
 
     suspend fun getSongAtPosition(position: Int) =
         withContext(Dispatchers.IO) {
@@ -77,6 +98,14 @@ class DataRepository
     fun getIdsInQueueOrder() = libraryDatabase.getIdsInQueueOrder()
 
     fun searchSongs(filter: String) = libraryDatabase.searchSongs("%$filter%")
+
+    suspend fun updateSongLocalUri(songId: Long, uri: String) {
+        libraryDatabase.updateSongLocalUri(songId, uri)
+    }
+
+    /**
+     * Lists
+     */
 
     suspend fun getQueueSize(): Int? =
         withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
@@ -164,17 +193,13 @@ class DataRepository
     ): List<T> =
         libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
-    suspend fun updateSongLocalUri(songId: Long, uri: String) {
-        libraryDatabase.updateSongLocalUri(songId, uri)
-    }
-
     /**
      * Playlists modification
      */
 
     suspend fun createPlaylist(name: String) {
         ampacheConnection.createPlaylist(name)
-        updatePlaylistAsync()
+        addPlaylists(TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1))
     }
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
@@ -275,90 +300,111 @@ class DataRepository
      * Private Method : New data
      */
 
-    private suspend fun updateSongsAsync() = updateListAsync(
-        LAST_SONG_UPDATE,
-        AmpacheConnection::getSongs,
-    ) { ampacheSongList ->
-        if (ampacheSongList != null) {
-            val songs = ampacheSongList.map { it.toDbSong() }
-            libraryDatabase.addOrUpdateSongs(songs)
-            val songGenres = ampacheSongList.map { it.toDbSongGenres() }.flatten()
-            libraryDatabase.addOrUpdateSongGenres(songGenres)
-        }
-    }
-
-    private suspend fun updateGenresAsync() = updateListAsync(
-        LAST_GENRE_UPDATE,
-        AmpacheConnection::getGenres,
-    ) { ampacheGenreList ->
-        if (ampacheGenreList != null) {
-            libraryDatabase.addOrUpdateGenres(ampacheGenreList.map { it.toDbGenre() })
-        }
-    }
-
-    private suspend fun updateArtistsAsync() = updateListAsync(
-        LAST_ARTIST_UPDATE,
-        AmpacheConnection::getArtists,
-    ) { ampacheArtistList ->
-        if (ampacheArtistList != null) {
-            libraryDatabase.addOrUpdateArtists(ampacheArtistList.map { it.toDbArtist() })
-        }
-    }
-
-    private suspend fun updateAlbumsAsync() = updateListAsync(
-        LAST_ALBUM_UPDATE,
-        AmpacheConnection::getAlbums,
-    ) { ampacheAlbumList ->
-        if (ampacheAlbumList != null) {
-            libraryDatabase.addOrUpdateAlbums(ampacheAlbumList.map { it.toDbAlbum() })
-        }
-    }
-
-    private suspend fun updatePlaylistAsync() {
-        val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate =
-            TimeOperations.getDateFromMillis(sharedPreferences.getLong(LAST_PLAYLIST_UPDATE, 0))
-        val lastAcceptableUpdate = lastAcceptableUpdate()
-
-        if (lastUpdate.before(lastAcceptableUpdate)) {
-            var listOnServer = ampacheConnection.getPlaylists(from = lastUpdate)
-            while (listOnServer != null) {
-                libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
-                for (playlist in listOnServer) {
-                    retrievePlaylistSongs(playlist.id)
-                }
-                listOnServer = ampacheConnection.getPlaylists()
+    private suspend fun addSongs(from: Calendar) =
+        updateList(from, AmpacheConnection::getNewSongs) { ampacheSongList ->
+            if (ampacheSongList != null) {
+                val songs = ampacheSongList.map { it.toDbSong() }
+                libraryDatabase.addOrUpdateSongs(songs)
+                val songGenres = ampacheSongList.map { it.toDbSongGenres() }.flatten()
+                libraryDatabase.addOrUpdateSongGenres(songGenres)
             }
-            sharedPreferences.applyPutLong(LAST_PLAYLIST_UPDATE, nowDate.timeInMillis)
+        }
+
+    private suspend fun addGenres(from: Calendar) =
+        updateList(from, AmpacheConnection::getNewGenres) { ampacheGenreList ->
+            if (ampacheGenreList != null) {
+                libraryDatabase.addOrUpdateGenres(ampacheGenreList.map { it.toDbGenre() })
+            }
+        }
+
+    private suspend fun addArtists(from: Calendar) =
+        updateList(from, AmpacheConnection::getNewArtists) { ampacheArtistList ->
+            if (ampacheArtistList != null) {
+                libraryDatabase.addOrUpdateArtists(ampacheArtistList.map { it.toDbArtist() })
+            }
+        }
+
+    private suspend fun addAlbums(from: Calendar) =
+        updateList(from, AmpacheConnection::getNewAlbums) { ampacheAlbumList ->
+            if (ampacheAlbumList != null) {
+                libraryDatabase.addOrUpdateAlbums(ampacheAlbumList.map { it.toDbAlbum() })
+            }
+        }
+
+    private suspend fun addPlaylists(from: Calendar) {
+        var listOnServer = ampacheConnection.getNewPlaylists(from)
+        while (listOnServer != null) {
+            libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
+            for (playlist in listOnServer) {
+                retrievePlaylistSongs(playlist.id)
+            }
+            listOnServer = ampacheConnection.getNewPlaylists(from)
         }
     }
 
     private suspend fun retrievePlaylistSongs(playlistId: Long) {
-        val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate = TimeOperations.getDateFromMillis(
-            sharedPreferences.getLong(
-                "$LAST_PLAYLIST_SONGS_UPDATE$playlistId",
-                0
-            )
-        )
-        val lastAcceptableUpdate = lastAcceptableUpdate()
+        libraryDatabase.clearPlaylist(playlistId)
+        var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+        while (listOnServer != null) {
+            libraryDatabase.addOrUpdatePlaylistSongs(listOnServer.map {
+                DbPlaylistSongs(it.id, playlistId)
+            })
+            listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+        }
 
-        if (lastUpdate.before(lastAcceptableUpdate)) {
-            var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
-            while (listOnServer != null) {
-                libraryDatabase.addOrUpdatePlaylistSongs(listOnServer.map {
-                    DbPlaylistSongs(
-                        it.id,
-                        playlistId
-                    )
-                })
-                listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+    }
+
+    /**
+     * Private Method : Updated data
+     */
+
+    private suspend fun updateSongs(from: Calendar) =
+        updateList(from, AmpacheConnection::getUpdatedSongs) { ampacheSongList ->
+            if (ampacheSongList != null) {
+                val songs = ampacheSongList.map { it.toDbSong() }
+                libraryDatabase.addOrUpdateSongs(songs)
+                val songGenres = ampacheSongList.map { it.toDbSongGenres() }.flatten()
+                libraryDatabase.addOrUpdateSongGenres(songGenres)
             }
+        }
 
-            sharedPreferences.applyPutLong(
-                "$LAST_PLAYLIST_SONGS_UPDATE$playlistId",
-                nowDate.timeInMillis
-            )
+    private suspend fun updateGenres(from: Calendar) =
+        updateList(from, AmpacheConnection::getUpdatedGenres) { ampacheGenreList ->
+            if (ampacheGenreList != null) {
+                libraryDatabase.addOrUpdateGenres(ampacheGenreList.map { it.toDbGenre() })
+            }
+        }
+
+    private suspend fun updateArtists(from: Calendar) =
+        updateList(from, AmpacheConnection::getUpdatedArtists) { ampacheArtistList ->
+            if (ampacheArtistList != null) {
+                libraryDatabase.addOrUpdateArtists(ampacheArtistList.map { it.toDbArtist() })
+            }
+        }
+
+    private suspend fun updateAlbums(from: Calendar) =
+        updateList(from, AmpacheConnection::getUpdatedAlbums) { ampacheAlbumList ->
+            if (ampacheAlbumList != null) {
+                libraryDatabase.addOrUpdateAlbums(ampacheAlbumList.map { it.toDbAlbum() })
+            }
+        }
+
+    private suspend fun updatePlaylists(from: Calendar) {
+        var listOnServer = ampacheConnection.getUpdatedPlaylists(from)
+        while (listOnServer != null) {
+            libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
+            for (playlist in listOnServer) {
+                retrievePlaylistSongs(playlist.id)
+            }
+            listOnServer = ampacheConnection.getUpdatedPlaylists(from)
+        }
+    }
+
+    private suspend fun updateDeletedSongs() {
+        var listOnServer = ampacheConnection.getDeletedSongs()
+        while (listOnServer != null) {
+            libraryDatabase.removeSongs(listOnServer.map { it.toDbSongId() })
+            listOnServer = ampacheConnection.getDeletedSongs()
         }
     }
 
@@ -366,24 +412,15 @@ class DataRepository
      * Private methods: commons
      */
 
-    private suspend fun <SERVER_TYPE> updateListAsync(
-        updatePreferenceName: String,
+    private suspend fun <SERVER_TYPE> updateList(
+        from: Calendar,
         getListOnServer: suspend AmpacheConnection.(Calendar) -> List<SERVER_TYPE>?,
         saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
     ) {
-
-        val nowDate = TimeOperations.getCurrentDate()
-        val lastUpdate =
-            TimeOperations.getDateFromMillis(sharedPreferences.getLong(updatePreferenceName, 0))
-        val lastAcceptableUpdate = lastAcceptableUpdate()
-
-        if (lastUpdate.before(lastAcceptableUpdate)) {
-            var listOnServer = ampacheConnection.getListOnServer(lastUpdate)
-            while (listOnServer != null) {
-                saveToDatabase(listOnServer)
-                listOnServer = ampacheConnection.getListOnServer(lastUpdate)
-            }
-            sharedPreferences.applyPutLong(updatePreferenceName, nowDate.timeInMillis)
+        var listOnServer = ampacheConnection.getListOnServer(from)
+        while (listOnServer != null) {
+            saveToDatabase(listOnServer)
+            listOnServer = ampacheConnection.getListOnServer(from)
         }
     }
 
@@ -519,13 +556,8 @@ class DataRepository
         libraryDatabase.isPlaylistContainingSong(playlistId, songId)
 
     companion object {
-        private const val LAST_SONG_UPDATE = "LAST_SONG_UPDATE"
-
-        // updated because the art was added , see LibraryDatabase migration 1->2
-        private const val LAST_GENRE_UPDATE = "LAST_GENRE_UPDATE"
-        private const val LAST_ARTIST_UPDATE = "LAST_ARTIST_UPDATE_v1"
-        private const val LAST_ALBUM_UPDATE = "LAST_ALBUM_UPDATE"
-        private const val LAST_PLAYLIST_UPDATE = "LAST_PLAYLIST_UPDATE"
-        private const val LAST_PLAYLIST_SONGS_UPDATE = "LAST_PLAYLIST_SONGS_UPDATE_"
+        private const val LAST_ADD_QUERY = "LAST_ADD_QUERY"
+        private const val LAST_UPDATE_QUERY = "LAST_UPDATE_QUERY"
+        private const val LAST_CLEAN_QUERY = "LAST_CLEAN_QUERY"
     }
 }

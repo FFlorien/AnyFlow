@@ -49,3 +49,7 @@ data class DbSongToPlay(
     val id: Long,
     val local: String?
 )
+
+data class DbSongId(
+    val id: Long
+)

@@ -5,7 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
-import be.florien.anyflow.data.UpdateService
+import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.data.user.UserComponent
@@ -93,7 +93,7 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
 
     private fun getUpdateChannel(): NotificationChannel {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(UpdateService.UPDATE_SESSION_NAME, "Update", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(SyncService.UPDATE_SESSION_NAME, "Update", NotificationManager.IMPORTANCE_DEFAULT)
             channel.description = "It update your music database"
             return channel
         } else {

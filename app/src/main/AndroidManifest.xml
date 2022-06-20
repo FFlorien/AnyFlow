@@ -44,7 +44,7 @@
         </service>
 
         <service
-            android:name=".data.UpdateService"
+            android:name=".data.SyncService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

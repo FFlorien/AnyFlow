@@ -38,3 +38,9 @@ class AmpacheSongIdResponse {
     var song: List<AmpacheSongId> = mutableListOf()
     var error: AmpacheError? = null
 }
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheDeletedSongIdResponse {
+    var deleted_song: List<AmpacheSongId> = mutableListOf()
+    var error: AmpacheError? = null
+}

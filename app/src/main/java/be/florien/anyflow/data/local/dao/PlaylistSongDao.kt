@@ -8,4 +8,7 @@ import be.florien.anyflow.data.local.model.DbPlaylistSongs
 abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
     @Query("SELECT count(*) FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")
     abstract suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Int
+
+    @Query("DELETE FROM playlistsongs WHERE playlistId = :playlistId")
+    abstract suspend fun deleteSongsFromPlaylist(playlistId: Long)
 }

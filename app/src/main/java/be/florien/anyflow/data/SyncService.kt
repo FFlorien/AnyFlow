@@ -22,7 +22,7 @@ import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 
-class UpdateService
+class SyncService
 @Inject constructor() : LifecycleService() {
     override fun onBind(intent: Intent): IBinder? {
         super.onBind(intent)
@@ -56,7 +56,7 @@ class UpdateService
     lateinit var artistsPercentageUpdater: LiveData<Int>
     private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
-        PendingIntent.getActivity(this@UpdateService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        PendingIntent.getActivity(this@SyncService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun onCreate() {
@@ -65,17 +65,17 @@ class UpdateService
         Timber.plant(CrashReportingTree())
         serviceScope.launch {
             try {
-                dataRepository.updateAll()
+                dataRepository.syncAll()
             } catch (throwable: Throwable) {
                 when (throwable) {
                     is SessionExpiredException ->
-                        this@UpdateService.iLog(throwable, "The session token is expired")
+                        this@SyncService.iLog(throwable, "The session token is expired")
                     is WrongIdentificationPairException ->
-                        this@UpdateService.iLog(throwable, "Couldn't reconnect the user: wrong user/pwd")
+                        this@SyncService.iLog(throwable, "Couldn't reconnect the user: wrong user/pwd")
                     is SocketTimeoutException, is NoServerException ->
-                        this@UpdateService.eLog(throwable, "Couldn't connect to the webservice")
+                        this@SyncService.eLog(throwable, "Couldn't connect to the webservice")
                     else ->
-                        this@UpdateService.eLog(throwable, "Unknown error")
+                        this@SyncService.eLog(throwable, "Unknown error")
                 }
             }
             stopForeground(true)

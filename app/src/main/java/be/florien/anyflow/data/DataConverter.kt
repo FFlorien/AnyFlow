@@ -26,6 +26,7 @@ fun AmpacheSong.toDbSongGenres(): List<DbSongGenre> {
     return genre.map { DbSongGenre(songId = songId, it.id) }
 }
 
+fun AmpacheSongId.toDbSongId() = DbSongId(id)
 
 fun AmpacheArtist.toDbArtist() = DbArtist(
     id = id,

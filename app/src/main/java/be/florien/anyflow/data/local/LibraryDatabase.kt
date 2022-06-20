@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 7,
+    version = 1,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
 )
 abstract class LibraryDatabase : RoomDatabase() {
@@ -232,6 +232,14 @@ abstract class LibraryDatabase : RoomDatabase() {
         MainScope().launch {
             (changeUpdater as MutableLiveData).value = null
         }
+    }
+
+    suspend fun removeSongs(idsToDelete: List<DbSongId>) {
+        getSongDao().deleteWithId(idsToDelete)
+    }
+
+    suspend fun clearPlaylist(playlistId: Long) {
+        getPlaylistSongsDao().deleteSongsFromPlaylist(playlistId)
     }
 
     companion object {

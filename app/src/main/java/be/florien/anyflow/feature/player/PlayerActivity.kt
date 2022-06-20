@@ -18,7 +18,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
-import be.florien.anyflow.data.UpdateService
+import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.server.AmpacheConnection
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
@@ -123,7 +123,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 }
                 AmpacheConnection.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
                 AmpacheConnection.ConnectionStatus.CONNECTED -> {
-                    bindService(Intent(this, UpdateService::class.java), viewModel.updateConnection, Context.BIND_AUTO_CREATE)
+                    bindService(Intent(this, SyncService::class.java), viewModel.updateConnection, Context.BIND_AUTO_CREATE)
                     animateDisappearance(binding.connectionStateView)
                 }
             }

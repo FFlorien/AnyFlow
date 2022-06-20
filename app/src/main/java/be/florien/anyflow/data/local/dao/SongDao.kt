@@ -6,6 +6,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbSongDisplay
+import be.florien.anyflow.data.local.model.DbSongId
 import be.florien.anyflow.data.local.model.DbSongToPlay
 
 @Dao
@@ -52,4 +53,8 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     @Query("UPDATE song SET local = :uri WHERE song.id = :songId")
     abstract suspend fun updateWithLocalUri(songId: Long, uri: String)
+
+    @Delete(entity = DbSong::class)
+    abstract suspend fun deleteWithId(ids: List<DbSongId>)
+
 }

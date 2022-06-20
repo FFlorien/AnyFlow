@@ -2,7 +2,7 @@ package be.florien.anyflow.injection
 
 import be.florien.anyflow.UserComponentContainer
 import be.florien.anyflow.data.PingService
-import be.florien.anyflow.data.UpdateService
+import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.server.AmpacheApi
 import be.florien.anyflow.data.server.AmpacheServerFakeDispatcher
 import be.florien.anyflow.data.user.UserComponent
@@ -35,7 +35,7 @@ class UserComponentContainerFake : UserComponentContainer {
             // Stub !
         }
 
-        override fun inject(updateService: UpdateService) {
+        override fun inject(syncService: SyncService) {
             // Stub !
         }
 

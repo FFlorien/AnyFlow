@@ -19,12 +19,14 @@ data class DbGenre(
     foreignKeys = [ForeignKey(
         entity = DbSong::class,
         parentColumns = ["id"],
-        childColumns = ["songId"]
+        childColumns = ["songId"],
+        onDelete = ForeignKey.CASCADE
     ),
     ForeignKey(
         entity = DbGenre::class,
         parentColumns = ["id"],
-        childColumns = ["genreId"]
+        childColumns = ["genreId"],
+        onDelete = ForeignKey.CASCADE
     )]
 )
 data class DbSongGenre(
