@@ -47,6 +47,9 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("SELECT COUNT(*) FROM queueorder")
     abstract suspend fun queueSize(): Int?
 
+    @Query("SELECT COUNT(*) FROM song")
+    abstract suspend fun songCount(): Int
+
     @Transaction
     @Query("SELECT * FROM song WHERE song.id = :songId")
     abstract suspend fun findById(songId: Long): DbSongDisplay?

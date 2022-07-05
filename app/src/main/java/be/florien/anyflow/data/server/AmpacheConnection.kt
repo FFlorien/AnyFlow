@@ -244,8 +244,8 @@ open class AmpacheConnection
      * API calls : data
      */
 
-    suspend fun getNewSongs(from: Calendar): List<AmpacheSong>? {
-        val songList = getItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG, from)
+    suspend fun getNewSongs(): List<AmpacheSong>? {
+        val songList = getNewItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG)
         return if (updateRetrievingData(
                 songList?.song,
                 OFFSET_ADD_SONG,
@@ -259,9 +259,9 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getNewGenres(from: Calendar): List<AmpacheNameId>? {
+    suspend fun getNewGenres(): List<AmpacheNameId>? {
         val list =
-            getItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE, from)
+            getNewItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE)
         return if (updateRetrievingData(
                 list?.genre,
                 OFFSET_ADD_GENRE,
@@ -275,9 +275,9 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getNewArtists(from: Calendar): List<AmpacheArtist>? {
+    suspend fun getNewArtists(): List<AmpacheArtist>? {
         val list =
-            getItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST, from)
+            getNewItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST)
         return if (updateRetrievingData(
                 list?.artist,
                 OFFSET_ADD_ARTIST,
@@ -291,9 +291,9 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getNewAlbums(from: Calendar): List<AmpacheAlbum>? {
+    suspend fun getNewAlbums(): List<AmpacheAlbum>? {
         val list =
-            getItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM, from)
+            getNewItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM)
         return if (updateRetrievingData(
                 list?.album,
                 OFFSET_ADD_ALBUM,
@@ -307,10 +307,92 @@ open class AmpacheConnection
         }
     }
 
-    suspend fun getNewPlaylists(from: Calendar): List<AmpachePlayList>? {
+    suspend fun getNewPlaylists(): List<AmpachePlayList>? {
+        val list =
+            getNewItems(
+                AmpacheApi::getNewPlaylists,
+                OFFSET_ADD_PLAYLIST
+            )
+        return if (updateRetrievingData(
+                list?.playlist,
+                OFFSET_ADD_PLAYLIST,
+                COUNT_PLAYLIST,
+                playlistsPercentageUpdater
+            )
+        ) {
+            list?.playlist
+        } else {
+            null
+        }
+    }
+
+    suspend fun getAddedSongs(from: Calendar): List<AmpacheSong>? {
+        val songList = getItems(AmpacheApi::getAddedSongs, OFFSET_ADD_SONG, from)
+        return if (updateRetrievingData(
+                songList?.song,
+                OFFSET_ADD_SONG,
+                COUNT_SONGS,
+                songsPercentageUpdater
+            )
+        ) {
+            songList?.song
+        } else {
+            null
+        }
+    }
+
+    suspend fun getAddedGenres(from: Calendar): List<AmpacheNameId>? {
+        val list =
+            getItems(AmpacheApi::getAddedGenres, OFFSET_ADD_GENRE, from)
+        return if (updateRetrievingData(
+                list?.genre,
+                OFFSET_ADD_GENRE,
+                COUNT_GENRES,
+                genresPercentageUpdater
+            )
+        ) {
+            list?.genre
+        } else {
+            null
+        }
+    }
+
+    suspend fun getAddedArtists(from: Calendar): List<AmpacheArtist>? {
+        val list =
+            getItems(AmpacheApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
+        return if (updateRetrievingData(
+                list?.artist,
+                OFFSET_ADD_ARTIST,
+                COUNT_ARTIST,
+                artistsPercentageUpdater
+            )
+        ) {
+            list?.artist
+        } else {
+            null
+        }
+    }
+
+    suspend fun getAddedAlbums(from: Calendar): List<AmpacheAlbum>? {
+        val list =
+            getItems(AmpacheApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
+        return if (updateRetrievingData(
+                list?.album,
+                OFFSET_ADD_ALBUM,
+                COUNT_ALBUMS,
+                albumsPercentageUpdater
+            )
+        ) {
+            list?.album
+        } else {
+            null
+        }
+    }
+
+    suspend fun getAddedPlaylists(from: Calendar): List<AmpachePlayList>? {
         val list =
             getItems(
-                AmpacheApi::getNewPlaylists,
+                AmpacheApi::getAddedPlaylists,
                 OFFSET_ADD_PLAYLIST,
                 from
             )
@@ -492,6 +574,23 @@ open class AmpacheConnection
                 itemLimit,
                 currentOffset,
                 TimeOperations.getAmpacheCompleteFormatted(from)
+            )
+        } catch (ex: Exception) {
+            eLog(ex)
+            throw ex
+        }
+    }
+
+    private suspend fun <T> getNewItems(
+        apiMethod: suspend AmpacheApi.(String, Int, Int) -> T?,
+        offsetName: String
+    ): T? {
+        try {
+            val currentOffset = sharedPreferences.getInt(offsetName, 0)
+            return ampacheApi.apiMethod(
+                authPersistence.authToken.secret,
+                itemLimit,
+                currentOffset
             )
         } catch (ex: Exception) {
             eLog(ex)

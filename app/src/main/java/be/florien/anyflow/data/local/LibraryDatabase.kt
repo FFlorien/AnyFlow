@@ -42,6 +42,8 @@ abstract class LibraryDatabase : RoomDatabase() {
      * Getters
      */
 
+    suspend fun getSongCount() = getSongDao().songCount()
+
     suspend fun getSongAtPosition(position: Int): DbSongDisplay? =
         getSongDao().forPositionInQueue(position)
 

@@ -23,7 +23,6 @@ class AmpacheApiDisconnected : AmpacheApi {
         auth: String,
         limit: Int,
         offset: Int,
-        update: String,
         action: String
     ): AmpacheSongResponse {
         throw NoServerException()
@@ -33,7 +32,6 @@ class AmpacheApiDisconnected : AmpacheApi {
         auth: String,
         limit: Int,
         offset: Int,
-        update: String,
         action: String
     ): AmpacheGenreResponse {
         throw NoServerException()
@@ -43,7 +41,6 @@ class AmpacheApiDisconnected : AmpacheApi {
         auth: String,
         limit: Int,
         offset: Int,
-        update: String,
         action: String
     ): AmpacheArtistResponse {
         throw NoServerException()
@@ -53,13 +50,62 @@ class AmpacheApiDisconnected : AmpacheApi {
         auth: String,
         limit: Int,
         offset: Int,
-        update: String,
         action: String
     ): AmpacheAlbumResponse {
         throw NoServerException()
     }
 
     override suspend fun getNewPlaylists(
+        auth: String,
+        limit: Int,
+        offset: Int,
+        hideSearch: Int,
+        action: String
+    ): AmpachePlaylistResponse {
+        throw NoServerException()
+    }
+
+    override suspend fun getAddedSongs(
+        auth: String,
+        limit: Int,
+        offset: Int,
+        update: String,
+        action: String
+    ): AmpacheSongResponse {
+        throw NoServerException()
+    }
+
+    override suspend fun getAddedGenres(
+        auth: String,
+        limit: Int,
+        offset: Int,
+        update: String,
+        action: String
+    ): AmpacheGenreResponse {
+        throw NoServerException()
+    }
+
+    override suspend fun getAddedArtists(
+        auth: String,
+        limit: Int,
+        offset: Int,
+        update: String,
+        action: String
+    ): AmpacheArtistResponse {
+        throw NoServerException()
+    }
+
+    override suspend fun getAddedAlbums(
+        auth: String,
+        limit: Int,
+        offset: Int,
+        update: String,
+        action: String
+    ): AmpacheAlbumResponse {
+        throw NoServerException()
+    }
+
+    override suspend fun getAddedPlaylists(
         auth: String,
         limit: Int,
         offset: Int,

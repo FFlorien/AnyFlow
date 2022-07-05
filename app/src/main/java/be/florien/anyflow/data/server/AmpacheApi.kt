@@ -28,7 +28,6 @@ interface AmpacheApi {
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
-        @Query("add") update: String = "1970-01-01",
         @Query("action") action: String = "songs"
     ): AmpacheSongResponse
 
@@ -37,7 +36,6 @@ interface AmpacheApi {
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
-        @Query("add") update: String = "1970-01-01",
         @Query("action") action: String = "genres"
     ): AmpacheGenreResponse
 
@@ -46,7 +44,6 @@ interface AmpacheApi {
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
-        @Query("add") update: String = "1970-01-01",
         @Query("action") action: String = "artists"
     ): AmpacheArtistResponse
 
@@ -55,12 +52,56 @@ interface AmpacheApi {
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
-        @Query("add") update: String = "1970-01-01",
         @Query("action") action: String = "albums"
     ): AmpacheAlbumResponse
 
     @GET("server/json.server.php")
     suspend fun getNewPlaylists(
+        @Query("auth") auth: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("hide_search") hideSearch: Int = 1,
+        @Query("action") action: String = "playlists"
+    ): AmpachePlaylistResponse
+
+    @GET("server/json.server.php")
+    suspend fun getAddedSongs(
+        @Query("auth") auth: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("add") update: String = "1970-01-01",
+        @Query("action") action: String = "songs"
+    ): AmpacheSongResponse
+
+    @GET("server/json.server.php")
+    suspend fun getAddedGenres(
+        @Query("auth") auth: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("add") update: String = "1970-01-01",
+        @Query("action") action: String = "genres"
+    ): AmpacheGenreResponse
+
+    @GET("server/json.server.php")
+    suspend fun getAddedArtists(
+        @Query("auth") auth: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("add") update: String = "1970-01-01",
+        @Query("action") action: String = "artists"
+    ): AmpacheArtistResponse
+
+    @GET("server/json.server.php")
+    suspend fun getAddedAlbums(
+        @Query("auth") auth: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("add") update: String = "1970-01-01",
+        @Query("action") action: String = "albums"
+    ): AmpacheAlbumResponse
+
+    @GET("server/json.server.php")
+    suspend fun getAddedPlaylists(
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
