@@ -98,8 +98,8 @@ class DataRepository
             TimeOperations.getDateFromMillis(sharedPreferences.getLong(lastDbSyncName, 0L))
         if (lastServerClean.after(lastSync) || lastCleanMillis == 0L) {
             sync(lastSync)
+            sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
         }
-        sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
     }
 
     /**

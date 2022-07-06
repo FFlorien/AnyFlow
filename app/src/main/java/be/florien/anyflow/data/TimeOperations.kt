@@ -5,7 +5,7 @@ import java.util.*
 
 object TimeOperations {
 
-    private const val AMPACHE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss"
+    private const val AMPACHE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZZ"
     private val ampacheCompleteFormatter = SimpleDateFormat(AMPACHE_DATE_FORMAT, Locale.getDefault())
     var currentTimeUpdater: CurrentTimeUpdater? = null
 
