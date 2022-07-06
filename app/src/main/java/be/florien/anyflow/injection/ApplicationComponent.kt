@@ -8,6 +8,8 @@ import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
 import be.florien.anyflow.feature.connect.ConnectViewModel
+import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
+import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -28,6 +30,8 @@ interface ApplicationComponent {
     fun inject(viewModel: AddAlarmViewModel)
     fun inject(viewModel: AlarmListViewModel)
     fun inject(viewModel: EditAlarmViewModel)
+    fun inject(viewModel: PlaylistSongsViewModel)
+    fun inject(viewModel: PlaylistListViewModel)
 
     fun userComponentBuilder(): UserComponent.Builder
 

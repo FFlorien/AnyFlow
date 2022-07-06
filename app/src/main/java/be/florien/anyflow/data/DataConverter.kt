@@ -73,6 +73,8 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
     local = song.local
 )
 
+fun DbPlaylist.toViewPlaylist() = Playlist(id, name)
+
 fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.TITLE_IS -> Filter.TitleIs(argument)
     DbFilter.TITLE_CONTAIN -> Filter.TitleContain(argument)

@@ -4,10 +4,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
-import be.florien.anyflow.databinding.ActivityAlarmsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.add.AddAlarmFragment
@@ -18,7 +17,7 @@ import be.florien.anyflow.feature.menu.MenuHolder
 
 
 class AlarmActivity : AppCompatActivity() {
-    lateinit var binding: ActivityAlarmsBinding
+    lateinit var toolbar: Toolbar
     private lateinit var viewModel: AlarmViewModel
 
     val menuCoordinator = MenuCoordinator()
@@ -27,10 +26,13 @@ class AlarmActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(AlarmViewModel::class.java)
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.NewInstanceFactory()
+        ).get(AlarmViewModel::class.java)
         anyFlowApp.applicationComponent.inject(viewModel)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_alarms)
-        binding.lifecycleOwner = this
+        setContentView(R.layout.activity_alarms)
+        toolbar = findViewById(R.id.toolbar)
 
         initToolbar()
         initMenus()
@@ -69,14 +71,14 @@ class AlarmActivity : AppCompatActivity() {
     }
 
     private fun initToolbar() {
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_up)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
             adaptToolbarToCurrentFragment()
         }
-        binding.toolbar.setNavigationOnClickListener {
+        toolbar.setNavigationOnClickListener {
             if (!supportFragmentManager.popBackStackImmediate()) {
                 finish()
             }
@@ -85,7 +87,8 @@ class AlarmActivity : AppCompatActivity() {
 
     private fun initMenus() {
         addMenu = AddAlarmMenuHolder {
-            supportFragmentManager.beginTransaction().replace(R.id.container, AddAlarmFragment()).addToBackStack(null).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.container, AddAlarmFragment())
+                .addToBackStack(null).commit()
         }
 
         menuCoordinator.addMenuHolder(addMenu)
@@ -97,8 +100,9 @@ class AlarmActivity : AppCompatActivity() {
     }
 
     private fun adaptToolbarToCurrentFragment() {
-        (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
-            supportActionBar?.title = it
-        }
+        (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()
+            ?.let {
+                supportActionBar?.title = it
+            }
     }
 }

@@ -147,6 +147,12 @@ class DataRepository
     fun <T : Any> getPlaylists(mapping: (DbPlaylist) -> T): LiveData<PagingData<T>> =
         convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
 
+    fun <T : Any> getPlaylistSongs(
+        playlistId: Long,
+        mapping: (DbSongDisplay) -> T
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(libraryDatabase.getPlaylistSongs(playlistId).map { mapping(it) })
+
     /**
      * Filtered lists
      */
@@ -226,7 +232,16 @@ class DataRepository
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheConnection.addSongToPlaylist(songId, playlistId)
-        libraryDatabase.addOrUpdatePlaylistSongs(listOf(DbPlaylistSongs(songId, playlistId)))
+        val playlistLastOrder = libraryDatabase.getPlaylistLastOrder(playlistId)
+        libraryDatabase.addOrUpdatePlaylistSongs(
+            listOf(
+                DbPlaylistSongs(
+                    playlistLastOrder + 1,
+                    songId,
+                    playlistId
+                )
+            )
+        )
     }
 
     /**

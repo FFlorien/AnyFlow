@@ -27,3 +27,9 @@ data class FilterGroup(
     val id: Long,
     val name: String
 )
+
+@Parcelize
+data class Playlist(
+    val id: Long,
+    val name: String
+) : Parcelable

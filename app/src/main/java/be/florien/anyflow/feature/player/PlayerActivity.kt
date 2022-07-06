@@ -31,6 +31,7 @@ import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.OrderMenuHolder
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
+import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.quickActions.QuickActionsActivity
 import be.florien.anyflow.injection.*
 import be.florien.anyflow.player.PlayerService
@@ -233,6 +234,10 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             when (it.itemId) {
                 R.id.menu_alarm -> {
                     startActivity(Intent(this@PlayerActivity, AlarmActivity::class.java))
+                    true
+                }
+                R.id.menu_playlist -> {
+                    startActivity(Intent(this, PlaylistsActivity::class.java))
                     true
                 }
                 R.id.menu_quick_actions -> {

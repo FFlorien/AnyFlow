@@ -34,6 +34,7 @@
     <string name="filter_type_search">Recherche</string>
     <string name="menu_alarms">Alarmes</string>
     <string name="menu_quick_actions">Actions rapides</string>
+    <string name="menu_playlist">Listes de lecture</string>
     <string name="menu_filters">Filtres</string>
     <string name="menu_order_random">Aléatoire</string>
     <string name="menu_order_classic">Classique</string>

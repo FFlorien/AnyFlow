@@ -8,6 +8,7 @@ import androidx.paging.DataSource
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -19,7 +20,7 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
 )
 abstract class LibraryDatabase : RoomDatabase() {
@@ -101,6 +102,10 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
+
+    suspend fun getPlaylistLastOrder(playlistId: Long) = getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
+
+    fun getPlaylistSongs(playlistId: Long) = getPlaylistSongsDao().songsFromPlaylist(playlistId)
 
     fun getCurrentFilters(): LiveData<List<DbFilter>> =
         getFilterDao().currentFilters().distinctUntilChanged()
@@ -285,6 +290,9 @@ abstract class LibraryDatabase : RoomDatabase() {
                         val currentFilterGroup = DbFilterGroup.currentFilterGroup
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
                     }
+                })
+                .addMigrations(Migration(1, 2) { db ->
+                    db.execSQL("ALTER TABLE PlaylistSongs ADD COLUMN 'order' INTEGER NOT NULL DEFAULT 0")
                 })
                 .build()
         }

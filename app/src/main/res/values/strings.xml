@@ -33,6 +33,7 @@
     <string name="filter_title_saved">Saved filters</string>
     <string name="menu_alarms">Alarms</string>
     <string name="menu_quick_actions">Quick actions</string>
+    <string name="menu_playlist">Playlists</string>
     <string name="menu_filters">Filters</string>
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
