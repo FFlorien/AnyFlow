@@ -31,5 +31,6 @@ data class FilterGroup(
 @Parcelize
 data class Playlist(
     val id: Long,
-    val name: String
+    val name: String,
+    val count: Int
 ) : Parcelable

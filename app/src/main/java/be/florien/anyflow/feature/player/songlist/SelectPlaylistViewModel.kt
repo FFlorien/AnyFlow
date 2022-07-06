@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbPlaylist
+import be.florien.anyflow.data.local.model.DbPlaylistWithCount
 import be.florien.anyflow.feature.BaseViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,7 +21,7 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
-    private fun convert(playlist: DbPlaylist) =
+    private fun convert(playlist: DbPlaylistWithCount) =
             SelectionItem(playlist.id, playlist.name, currentSelection.any {
                 it.id == playlist.id
             })

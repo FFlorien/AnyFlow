@@ -13,6 +13,11 @@ data class DbPlaylist(
         val name: String,
         val owner: String)
 
+data class DbPlaylistWithCount(
+        val id: Long,
+        val name: String,
+        val songCount: Int)
+
 @Entity(tableName = "PlaylistSongs",
         primaryKeys = ["songId", "playlistId"])
 data class DbPlaylistSongs(

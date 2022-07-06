@@ -93,11 +93,11 @@ abstract class LibraryDatabase : RoomDatabase() {
         getAlbumDao().orderByNameFilteredList(filter)
 
 
-    fun getPlaylists(): DataSource.Factory<Int, DbPlaylist> = getPlaylistDao().orderByName()
-    fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylist> =
+    fun getPlaylists(): DataSource.Factory<Int, DbPlaylistWithCount> = getPlaylistDao().orderByName()
+    fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylistWithCount> =
         getPlaylistDao().orderByNameFiltered(filter)
 
-    suspend fun getPlaylistsFilteredList(filter: String): List<DbPlaylist> =
+    suspend fun getPlaylistsFilteredList(filter: String): List<DbPlaylistWithCount> =
         getPlaylistDao().orderByNameFilteredList(filter)
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =

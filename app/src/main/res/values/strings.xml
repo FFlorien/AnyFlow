@@ -100,4 +100,10 @@
     <string name="filter_is_not_downloaded">Not downloaded</string>
     <string name="quick_actions_description">Select the actions you want to perform faster. It will only take a swipe left on a song to find your preferred actions.</string>
     <string name="quick_actions_count_title">Selected actions:</string>
+    <plurals name="playlist_songs_count">
+        <item quantity="one">1 song</item>
+        <item quantity="other">%d songs</item>
+        <item quantity="many">%d songs</item>
+        <item quantity="zero">No songs</item>
+    </plurals>
 </resources>

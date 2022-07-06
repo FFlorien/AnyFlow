@@ -144,7 +144,7 @@ class DataRepository
     fun <T : Any> getSongs(mapping: (DbSongDisplay) -> T): LiveData<PagingData<T>> =
         convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
 
-    fun <T : Any> getPlaylists(mapping: (DbPlaylist) -> T): LiveData<PagingData<T>> =
+    fun <T : Any> getPlaylists(mapping: (DbPlaylistWithCount) -> T): LiveData<PagingData<T>> =
         convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
 
     fun <T : Any> getPlaylistSongs(
@@ -210,14 +210,14 @@ class DataRepository
 
     fun <T : Any> getPlaylistsFiltered(
         filter: String,
-        mapping: (DbPlaylist) -> T
+        mapping: (DbPlaylistWithCount) -> T
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getPlaylistsFiltered("%$filter%").map { mapping(it) })
 
     suspend fun <T : Any> getPlaylistsFilteredList(
         filter: String,
-        mapping: (DbPlaylist) -> T
+        mapping: (DbPlaylistWithCount) -> T
     ): List<T> =
         libraryDatabase.getPlaylistsFilteredList("%$filter%").map { item -> (mapping(item)) }
 
