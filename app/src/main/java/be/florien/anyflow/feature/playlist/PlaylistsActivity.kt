@@ -17,8 +17,10 @@ class PlaylistsActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
         initToolbar()
 
-        val fragment = PlaylistListFragment()
-        supportFragmentManager.beginTransaction().add(R.id.container, fragment).commit()
+        if (supportFragmentManager.findFragmentById(R.id.container) == null) {
+            val fragment = PlaylistListFragment()
+            supportFragmentManager.beginTransaction().add(R.id.container, fragment).commit()
+        }
     }
 
     override fun onResume() {
