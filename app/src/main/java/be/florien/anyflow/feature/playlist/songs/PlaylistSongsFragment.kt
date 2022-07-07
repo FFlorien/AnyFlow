@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.databinding.ItemSongBinding
+import be.florien.anyflow.databinding.LayoutSongBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -41,7 +41,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
         viewModel = ViewModelProvider(
             this,
             ViewModelProvider.NewInstanceFactory()
-        ).get(PlaylistSongsViewModel::class.java)
+        )[PlaylistSongsViewModel::class.java]
         viewModel.playlistId = playlist.id
         anyFlowApp.applicationComponent.inject(viewModel)
     }
@@ -55,16 +55,27 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = PlaylistAdapter(viewModel::getCover)
+        recyclerView.adapter = PlaylistSongAdapter(viewModel::getCover, viewModel::isSelected, viewModel::setSelection)
         viewModel.songList.observe(viewLifecycleOwner) {
-            (recyclerView.adapter as PlaylistAdapter).submitData(lifecycle, it)
+            (recyclerView.adapter as PlaylistSongAdapter).submitData(lifecycle, it)
+        }
+        viewModel.selectionList.observe(viewLifecycleOwner) {
+            val firstPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            val lastPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+            for (position in firstPosition..lastPosition) {
+                val songViewHolder =
+                    recyclerView.findViewHolderForAdapterPosition(position) as? PlaylistSongViewHolder
+                songViewHolder?.setSelection(it.contains(songViewHolder.getCurrentId()))
+            }
         }
     }
 
-    class PlaylistAdapter(
-        private val getCoverUrl: (Long) -> String
+    class PlaylistSongAdapter(
+        private val getCoverUrl: (Long) -> String,
+        private val isSelected: (Long?) -> Boolean,
+        private val setSelected: (Long?, Boolean) -> Unit
     ) :
-        PagingDataAdapter<SongInfo, PlaylistViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
+        PagingDataAdapter<SongInfo, PlaylistSongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
             override fun areItemsTheSame(
                 oldItem: SongInfo,
                 newItem: SongInfo
@@ -75,20 +86,23 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
                 newItem: SongInfo
             ) = areItemsTheSame(oldItem, newItem)
         }), FastScrollRecyclerView.SectionedAdapter {
-        override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
-            holder.bind(getItem(position))
+
+        override fun onBindViewHolder(holder: PlaylistSongViewHolder, position: Int) {
+            val item = getItem(position)
+            holder.bind(item, isSelected(item?.id))
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            PlaylistViewHolder(parent, getCoverUrl)
+            PlaylistSongViewHolder(parent, getCoverUrl, setSelected)
 
         override fun getSectionName(position: Int) = position.plus(1).toString()
     }
 
-    class PlaylistViewHolder(
+    class PlaylistSongViewHolder(
         container: ViewGroup,
-        val getCoverUrl: (Long) -> String,
-        val binding: ItemSongBinding = ItemSongBinding.inflate(
+        private val getCoverUrl: (Long) -> String,
+        private val onSelectChange: (Long, Boolean) -> Unit,
+        private val binding: LayoutSongBinding = LayoutSongBinding.inflate(
             LayoutInflater.from(container.context),
             container,
             false
@@ -97,12 +111,22 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
+            binding.root.setOnClickListener {
+                binding.song?.let { song -> onSelectChange(song.id, !binding.selected) }
+            }
         }
 
-        fun bind(item: SongInfo?) {
+        fun bind(item: SongInfo?, isSelected: Boolean) {
             binding.song = item
             binding.art = item?.albumId?.let { getCoverUrl(it) }
+            setSelection(isSelected)
         }
+
+        fun setSelection(isSelected: Boolean) {
+            binding.selected = isSelected
+        }
+
+        fun getCurrentId() = binding.song?.id
     }
 
     companion object {

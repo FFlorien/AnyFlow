@@ -267,6 +267,7 @@ class ExoPlayerController
         }
     }
 
+    @Deprecated("Deprecated in library")
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
             Player.STATE_ENDED -> {

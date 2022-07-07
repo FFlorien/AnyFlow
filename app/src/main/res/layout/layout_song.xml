@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="art"
+            type="String" />
+
+        <variable
+            name="song"
+            type="be.florien.anyflow.data.view.SongInfo" />
+
+        <variable
+            name="current"
+            type="boolean" />
+
+        <variable
+            name="selected"
+            type="boolean" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/songInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/listItemPadding"
+        app:isSelectedBackground="@{selected || current}">
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="@dimen/imageSize"
+            android:layout_height="@dimen/imageSize"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            app:coverImageUrl="@{art}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/cover_placeholder" />
+
+        <ImageView
+            android:id="@+id/selectImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_select"
+            app:isVisiblePresent="@{selected}"
+            app:layout_constraintBottom_toBottomOf="@+id/cover"
+            app:layout_constraintEnd_toEndOf="@+id/cover"
+            app:layout_constraintStart_toStartOf="@id/cover"
+            app:layout_constraintTop_toTopOf="@id/cover" />
+
+        <TextView
+            android:id="@+id/songTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:text="@{song.title}"
+            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintStart_toEndOf="@+id/cover"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="This song's title" />
+
+        <TextView
+            android:id="@+id/songArtist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:text="@{song.artistName}"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintStart_toEndOf="@+id/cover"
+            app:layout_constraintTop_toBottomOf="@+id/songTitle"
+            tools:text="This artist's name" />
+
+        <TextView
+            android:id="@+id/songAlbum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:text="@{song.albumName}"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintStart_toEndOf="@+id/cover"
+            app:layout_constraintTop_toBottomOf="@+id/songArtist"
+            tools:text="This album's name" />
+
+        <TextView
+            android:id="@+id/songDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_corner_radius"
+            android:paddingHorizontal="@dimen/smallDimen"
+            android:text="@{song.timeText}"
+            android:textColor="@color/onPrimaryText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="3:45" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

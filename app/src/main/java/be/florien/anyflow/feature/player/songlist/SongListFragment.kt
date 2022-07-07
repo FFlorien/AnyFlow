@@ -18,7 +18,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
@@ -98,9 +97,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
         savedInstanceState: Bundle?
     ): View {
         viewModel =
-            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory).get(
-                SongListViewModel::class.java
-            )
+            ViewModelProvider(this, (requireActivity() as PlayerActivity).viewModelFactory)[SongListViewModel::class.java]
         binding = FragmentSongListBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -127,7 +124,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
             }
         })
         binding.songList.addOnItemTouchListener(SongInfoTouchListener())
-        binding.currentSongDisplay.songInfo.setBackgroundResource(R.color.selected)
+        binding.currentSongDisplay.songLayout.songInfo.setBackgroundResource(R.color.selected)
         binding.currentSongDisplayTouch.setOnClickListener {
             scrollToCurrentSong()
         }
@@ -225,9 +222,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 binding.currentSongDisplayTouch.visibility = View.VISIBLE
             }
 
-            if (viewModel.listPosition.value ?: 0 < firstVisibleItemPosition) {
+            if ((viewModel.listPosition.value ?: 0) < firstVisibleItemPosition) {
                 topSet.applyTo(binding.root as ConstraintLayout?)
-            } else if (viewModel.listPosition.value ?: 0 > lastVisibleItemPosition) {
+            } else if ((viewModel.listPosition.value ?: 0) > lastVisibleItemPosition) {
                 bottomSet.applyTo(binding.root as ConstraintLayout?)
             }
         }
@@ -285,7 +282,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
 
     inner class SongAdapter :
         PagingDataAdapter<SongInfo, SongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
-            override fun areItemsTheSame(oldItem: SongInfo, newItem: SongInfo) = oldItem.id == newItem.id
+            override fun areItemsTheSame(oldItem: SongInfo, newItem: SongInfo) =
+                oldItem.id == newItem.id
 
             override fun areContentsTheSame(oldItem: SongInfo, newItem: SongInfo): Boolean =
                 oldItem.artistName == newItem.artistName
@@ -323,13 +321,13 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
 
         init {
             if (parent is RecyclerView) {
-                binding.songInfo.setOnClickListener {
+                binding.songLayout.songInfo.setOnClickListener {
                     viewModel.play(absoluteAdapterPosition)
-                    binding.songInfo.translationX = 0F
-                    currentSongViewHolder.binding.songInfo.translationX = 0F
+                    binding.songLayout.songInfo.translationX = 0F
+                    currentSongViewHolder.binding.songLayout.songInfo.translationX = 0F
                 }
             }
-            binding.songInfo.setOnLongClickListener {
+            binding.songLayout.songInfo.setOnLongClickListener {
                 swipeForInfo()
                 return@setOnLongClickListener true
             }
@@ -343,7 +341,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
             }
             for (action in (viewModel.quickActions.value?.reversed() ?: emptyList())) {
                 binding.songActions.addView(
-                    (LayoutInflater.from(binding.cover.context)
+                    (LayoutInflater.from(binding.songLayout.cover.context)
                         .inflate(R.layout.item_action, binding.songActions, false))
                         .apply {
                             findViewById<ImageView>(R.id.action).setImageResource(action.actionType.iconRes)
@@ -365,30 +363,23 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
         fun bind(song: SongInfo?) {
             binding.song = song
             binding.art = song?.albumId?.let { viewModel.getArtUrl(it) }
-            binding.songInfo.translationX = if (isCurrentSong) {
-                currentSongViewHolder.binding.songInfo.translationX
+            binding.songLayout.songInfo.translationX = if (isCurrentSong) {
+                currentSongViewHolder.binding.songLayout.songInfo.translationX
             } else {
                 0F
             }
-            val backgroundColor = if (isCurrentSong) R.color.selected else R.color.unselected
-            binding.songInfo.setBackgroundColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    backgroundColor,
-                    null
-                )
-            )
+            binding.songLayout.current = isCurrentSong
         }
 
         fun openInfoWhenSwiped() {
-            if (binding.root.visibility == View.VISIBLE && binding.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
+            if (binding.root.visibility == View.VISIBLE && binding.songLayout.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
                 val song = binding.song ?: return
                 InfoFragment(song).show(childFragmentManager, "info")
             }
         }
 
         fun swipeToClose() {
-            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, 0f).apply {
+            ObjectAnimator.ofFloat(binding.songLayout.songInfo, View.TRANSLATION_X, 0f).apply {
                 duration = 300L
                 interpolator = DecelerateInterpolator()
                 start()
@@ -412,7 +403,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 for (i in start..stop) {
                     val songViewHolder =
                         this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
-                    if (i != except && songViewHolder != null && songViewHolder.binding.songInfo.translationX != 0F) {
+                    if (i != except && songViewHolder != null && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
                         songViewHolder.swipeToClose()
                     }
                 }
@@ -432,17 +423,18 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 for (i in start..stop) {
                     val songViewHolder =
                         this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
-                    if (songViewHolder?.isCurrentSong == false && songViewHolder.binding.songInfo.translationX != 0F) {
+                    if (songViewHolder?.isCurrentSong == false && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
                         songViewHolder.swipeToClose()
                     }
                 }
             }
             val translationXEnd = binding.actionsPadding.right - itemView.width.toFloat()
-            ObjectAnimator.ofFloat(binding.songInfo, View.TRANSLATION_X, translationXEnd).apply {
-                duration = 100L
-                interpolator = DecelerateInterpolator()
-                start()
-            }
+            ObjectAnimator.ofFloat(binding.songLayout.songInfo, View.TRANSLATION_X, translationXEnd)
+                .apply {
+                    duration = 100L
+                    interpolator = DecelerateInterpolator()
+                    start()
+                }
             startingTranslationX = translationXEnd
         }
 
@@ -450,21 +442,21 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
             if (translateX > 0F) {
                 val translationToSeeActions = (binding.infoView.right).toFloat()
                 val translationToFollowMove = startingTranslationX + translateX
-                binding.songInfo.translationX =
+                binding.songLayout.songInfo.translationX =
                     minOf(translationToSeeActions, translationToFollowMove)
                         .coerceAtLeast(startingTranslationX)
             } else if (!viewModel.quickActions.value.isNullOrEmpty()) {
                 val translationToSeeActions =
                     (binding.actionsPadding.right - itemView.width).toFloat()
                 val translationToFollowMove = startingTranslationX + translateX
-                binding.songInfo.translationX =
+                binding.songLayout.songInfo.translationX =
                     maxOf(translationToSeeActions, translationToFollowMove).coerceAtMost(0f)
             }
         }
 
         private fun swipeForInfo() {
             ObjectAnimator.ofFloat(
-                binding.songInfo,
+                binding.songLayout.songInfo,
                 View.TRANSLATION_X,
                 binding.infoView.right.toFloat()
             ).apply {
