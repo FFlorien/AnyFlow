@@ -18,12 +18,12 @@ abstract class PlaylistDao : BaseDao<DbPlaylist>() {
     @Query("SELECT * FROM playlist")
     abstract fun getPlaylistsWithSongs(): LiveData<List<DbPlaylistWithSongs>>
 
-    @Query("SELECT DISTINCT id, name, COUNT(*) as songCount FROM playlist JOIN playlistsongs ON playlistId = id GROUP BY id ORDER BY name COLLATE UNICODE")
+    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist ORDER BY name COLLATE UNICODE")
     abstract fun orderByName(): DataSource.Factory<Int, DbPlaylistWithCount>
 
-    @Query("SELECT DISTINCT id, name, COUNT(*) as songCount FROM playlist JOIN playlistsongs ON playlistId = id WHERE playlist.name LIKE :filter GROUP BY id ORDER BY name COLLATE UNICODE")
+    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist WHERE playlist.name LIKE :filter ORDER BY name COLLATE UNICODE")
     abstract fun orderByNameFiltered(filter: String): DataSource.Factory<Int, DbPlaylistWithCount>
 
-    @Query("SELECT DISTINCT id, name, COUNT(*) as songCount FROM playlist JOIN playlistsongs ON playlistId = id WHERE playlist.name LIKE :filter GROUP BY id ORDER BY name COLLATE UNICODE")
+    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist WHERE playlist.name LIKE :filter ORDER BY name COLLATE UNICODE")
     abstract suspend fun orderByNameFilteredList(filter: String): List<DbPlaylistWithCount>
 }
