@@ -12,15 +12,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
+import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
 import be.florien.anyflow.extension.viewModelFactory
+import be.florien.anyflow.feature.BaseSelectableAdapter
+import be.florien.anyflow.feature.refreshVisibleViewHolders
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -43,28 +47,45 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(SelectPlaylistViewModel::class.java) //todo change get viewmodel from attach to oncreateView in other fragments
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        viewModel = ViewModelProvider(
+            this,
+            requireActivity().viewModelFactory
+        )[SelectPlaylistViewModel::class.java] //todo change get viewmodel from attach to oncreateView in other fragments
         fragmentBinding = FragmentSelectPlaylistBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel
         fragmentBinding.songId = songId
-        fragmentBinding.filterList.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        fragmentBinding.filterList.adapter = FilterListAdapter()
-        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
-            fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
-        }
+        fragmentBinding.filterList.layoutManager =
+            LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel::isSelected, viewModel::changeSelection)
+        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
+            ?.let {
+                fragmentBinding.filterList.addItemDecoration(
+                    DividerItemDecoration(
+                        requireActivity(),
+                        DividerItemDecoration.VERTICAL
+                    ).apply { setDrawable(it) })
+            }
         viewModel.values.observe(viewLifecycleOwner) {
             if (it != null)
                 (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
         }
         viewModel.currentSelectionLive.observe(viewLifecycleOwner) {
-            (fragmentBinding.filterList.adapter as FilterListAdapter).notifyDataSetChanged()
+            fragmentBinding.filterList.refreshVisibleViewHolders { vh ->
+                val songViewHolder = vh as? PlaylistViewHolder
+                songViewHolder?.setSelection(it.contains(songViewHolder.getCurrentId()))
+            }
         }
         viewModel.isCreating.observe(viewLifecycleOwner) {
             if (it) {
                 val editText = EditText(requireActivity())
-                editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
+                editText.inputType =
+                    EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
                 AlertDialog.Builder(requireActivity())
                     .setView(editText)
                     .setTitle(R.string.info_action_new_playlist)
@@ -93,44 +114,54 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         super.onDismiss(dialog)
     }
 
-    inner class FilterListAdapter : PagingDataAdapter<SelectPlaylistViewModel.SelectionItem, PlaylistViewHolder>(object : DiffUtil.ItemCallback<SelectPlaylistViewModel.SelectionItem>() {
-        override fun areItemsTheSame(oldItem: SelectPlaylistViewModel.SelectionItem, newItem: SelectPlaylistViewModel.SelectionItem) = oldItem.id == newItem.id
+    class FilterListAdapter(override val isSelected: (Long) -> Boolean,
+                            override val setSelected: (Long, Boolean) -> Unit
+    ) :
+        PagingDataAdapter<Playlist, PlaylistViewHolder>(object :
+            DiffUtil.ItemCallback<Playlist>() {
+            override fun areItemsTheSame(oldItem: Playlist, newItem: Playlist) =
+                oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: SelectPlaylistViewModel.SelectionItem, newItem: SelectPlaylistViewModel.SelectionItem): Boolean =
-            oldItem.displayName == newItem.displayName && oldItem.isSelected == (viewModel.currentSelectionLive.value?.any { it.id == newItem.id })
+            override fun areContentsTheSame(oldItem: Playlist, newItem: Playlist): Boolean =
+                oldItem.id == newItem.id && oldItem.name == newItem.name && oldItem.count == newItem.count
 
-    }), FastScrollRecyclerView.SectionedAdapter {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder = PlaylistViewHolder()
+        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Long> {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder =
+            PlaylistViewHolder(parent, setSelected)
 
         override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
             val filter = getItem(position) ?: return
-            filter.isSelected = viewModel.currentSelectionLive.value?.any { it.id == filter.id } ?: false
-            holder.bind(filter)
+            holder.bind(filter, isSelected(filter.id))
         }
 
         override fun getSectionName(position: Int): String =
-            snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
+            snapshot()[position]?.name?.firstOrNull()?.uppercaseChar()?.toString()
                 ?: ""
     }
 
-    inner class PlaylistViewHolder(
+    class PlaylistViewHolder(
+        parent: ViewGroup,
+        override val onSelectChange: (Long, Boolean) -> Unit,
         private val itemPlaylistBinding: ItemSelectPlaylistBinding
-        = ItemSelectPlaylistBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
-    ) : RecyclerView.ViewHolder(itemPlaylistBinding.root) {
+        = ItemSelectPlaylistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    ) : RecyclerView.ViewHolder(itemPlaylistBinding.root), BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
 
-        fun bind(selection: SelectPlaylistViewModel.SelectionItem) {
-            itemPlaylistBinding.vm = viewModel
-            itemPlaylistBinding.lifecycleOwner = viewLifecycleOwner
-            itemPlaylistBinding.item = selection
-            setBackground(itemPlaylistBinding.root, selection)
+        init {
+            itemPlaylistBinding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
+        }
+
+        override fun bind(item: Playlist, isSelected: Boolean) {
+            itemPlaylistBinding.item = item
+            setSelection(isSelected)
             itemPlaylistBinding.root.setOnClickListener {
-                viewModel.changeFilterSelection(selection)
-                setBackground(itemPlaylistBinding.root, selection)
+                onSelectChange(item.id, isSelected)
             }
         }
 
-        private fun setBackground(view: View, selection: SelectPlaylistViewModel.SelectionItem?) {
-            view.setBackgroundColor(ResourcesCompat.getColor(resources, if (selection?.isSelected == true) R.color.selected else R.color.unselected, requireActivity().theme))
+        override fun setSelection(isSelected: Boolean) {
+            itemPlaylistBinding.selected = isSelected
         }
+
+        override fun getCurrentId(): Long? = itemPlaylistBinding.item?.id
     }
 }

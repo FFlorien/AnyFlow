@@ -12,13 +12,18 @@
             name="vm"
             type="be.florien.anyflow.feature.player.filter.selection.SelectFilterViewModel" />
 
+        <variable
+            name="selected"
+            type="boolean" />
+
         <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/minClickableSize">
+        android:minHeight="@dimen/minClickableSize"
+        app:isSelectedBackground="@{selected}">
 
         <ImageView
             android:id="@+id/imageView"

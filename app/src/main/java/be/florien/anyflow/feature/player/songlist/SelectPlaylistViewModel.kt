@@ -6,35 +6,34 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.local.model.DbPlaylistWithCount
+import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.feature.BaseViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataRepository) : BaseViewModel() {
 
-    private val currentSelection: MutableSet<SelectionItem> = mutableSetOf()
-    val currentSelectionLive: LiveData<Set<SelectionItem>> = MutableLiveData(setOf())
+    private val currentSelection: MutableSet<Long> = mutableSetOf()
+    val currentSelectionLive: LiveData<Set<Long>> = MutableLiveData(setOf())
 
-    val values: LiveData<PagingData<SelectionItem>> = dataRepository.getPlaylists(::convert).cachedIn(this)
+    val values: LiveData<PagingData<Playlist>> = dataRepository.getPlaylists().cachedIn(this)
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
-    private fun convert(playlist: DbPlaylistWithCount) =
-            SelectionItem(playlist.id, playlist.name, currentSelection.any {
-                it.id == playlist.id
-            })
-
-    fun changeFilterSelection(selectionValue: SelectionItem) {
-        if (!currentSelection.remove(selectionValue)) {
+    fun changeSelection(selectionValue: Long, isSelected: Boolean) {
+        if (isSelected) {
             currentSelection.add(selectionValue)
+        } else {
+            currentSelection.remove(selectionValue)
         }
         currentSelectionLive.mutable.value = currentSelection
     }
 
+    fun isSelected(id: Long) = currentSelection.contains(id)
+
     fun confirmChanges(songId: Long) {
         viewModelScope.launch {
-            for (playlistId in currentSelection.map { it.id }) {
+            for (playlistId in currentSelection) {
                 dataRepository.addSongToPlaylist(songId, playlistId)
             }
             isFinished.mutable.value = true
@@ -50,10 +49,4 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
             dataRepository.createPlaylist(name)
         }
     }
-
-    class SelectionItem(
-            val id: Long,
-            val displayName: String,
-            var isSelected: Boolean
-    )
 }

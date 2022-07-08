@@ -68,6 +68,7 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
     albumArtistName = album.artist.name,
     albumArtistId = album.artist.id,
     genreNames = genres.map { it.name },
+    genreIds = genres.map { it.id },
     time = song.time,
     year = song.year,
     local = song.local
@@ -78,7 +79,7 @@ fun DbPlaylistWithCount.toViewPlaylist() = Playlist(id, name, songCount)
 fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.TITLE_IS -> Filter.TitleIs(argument)
     DbFilter.TITLE_CONTAIN -> Filter.TitleContain(argument)
-    DbFilter.GENRE_IS -> Filter.GenreIs(argument)
+    DbFilter.GENRE_IS -> Filter.GenreIs(argument.toLong(), displayText)
     DbFilter.SONG_ID -> Filter.SongIs(argument.toLong(), displayText, displayImage)
     DbFilter.ARTIST_ID -> Filter.ArtistIs(argument.toLong(), displayText, displayImage)
     DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText, displayImage)

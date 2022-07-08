@@ -13,7 +13,7 @@ sealed class Filter<T>(
             is AlbumArtistIs -> song.albumArtistId == argument
             is AlbumIs -> song.albumId == argument
             is ArtistIs -> song.artistId == argument
-            is GenreIs -> song.genreNames.any{ it == argument }
+            is GenreIs -> song.genreIds.any{ it == argument }
             is Search -> song.title.contains(argument, ignoreCase = true) || song.artistName.contains(argument, ignoreCase = true) || song.albumName.contains(argument, ignoreCase = true) || song.genreNames.any { it.contains(argument, ignoreCase = true) }
             is SongIs -> song.id == argument
             is TitleContain -> song.title.contains(argument, ignoreCase = true)
@@ -39,8 +39,6 @@ sealed class Filter<T>(
 
     class TitleContain(argument: String) : Filter<String>(argument, argument)
 
-    class GenreIs(argument: String) : Filter<String>(argument, argument)
-
     class Search(argument: String) : Filter<String>(argument, argument)
 
     /**
@@ -54,6 +52,8 @@ sealed class Filter<T>(
     class AlbumArtistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
 
     class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+
+    class GenreIs(argument: Long, name: String) : Filter<Long>(argument, name)
 
     class PlaylistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, null)
 

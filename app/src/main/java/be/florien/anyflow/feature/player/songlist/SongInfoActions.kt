@@ -55,7 +55,7 @@ class SongInfoActions constructor(
                 songInfo.albumArtistName,
                 null
             )
-            FieldType.GENRE -> Filter.GenreIs(songInfo.genreNames.first())
+            FieldType.GENRE -> Filter.GenreIs(songInfo.genreIds.first(), songInfo.genreNames.first()) // todo handle multiple genre in info view
             else -> throw IllegalArgumentException("This field can't be filtered on")
         }
         filtersManager.clearFilters()
@@ -417,7 +417,7 @@ class SongInfoActions constructor(
 
     fun getQuickActions(): List<SongRow> {
         val string = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "") ?: return emptyList()
-        val songInfo = SongInfo(0L, "", "", 0L, "", 0L, "", 0L, listOf(""), 0, 0, 0, null)
+        val songInfo = SongInfo.dummySongInfo()
 
         return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
             val fieldTypeString = it.substringBefore('|')

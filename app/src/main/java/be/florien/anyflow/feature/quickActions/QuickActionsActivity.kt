@@ -49,8 +49,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
         }
         activityComponent.inject(this)
 
-        viewModel = ViewModelProvider(this, viewModelFactory)
-            .get(InfoActionsSelectionViewModel::class.java)
+        viewModel = ViewModelProvider(this, viewModelFactory)[InfoActionsSelectionViewModel::class.java]
             .apply {
                 val displayMetrics = DisplayMetrics()
                 windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -79,6 +78,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                         getString(R.string.info_album_artist),
                         0L,
                         listOf(getString(R.string.info_genre)),
+                        listOf(0L),
                         1,
                         120,
                         2000,

@@ -6,19 +6,18 @@
 
         <variable
             name="item"
-            type="be.florien.anyflow.feature.player.songlist.SelectPlaylistViewModel.SelectionItem" />
+            type="be.florien.anyflow.data.view.Playlist" />
 
         <variable
-            name="vm"
-            type="be.florien.anyflow.feature.player.songlist.SelectPlaylistViewModel" />
-
-        <import type="android.view.View" />
+            name="selected"
+            type="boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/minClickableSize">
+        android:minHeight="@dimen/minClickableSize"
+        app:isSelectedBackground="@{selected}">
 
         <TextView
             android:id="@+id/filterName"
@@ -26,7 +25,7 @@
             android:layout_height="@dimen/minClickableSize"
             android:layout_margin="8dp"
             android:gravity="start|center_vertical"
-            android:text="@{item.displayName}"
+            android:text="@{item.name}"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"

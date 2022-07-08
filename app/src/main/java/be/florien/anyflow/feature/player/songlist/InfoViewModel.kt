@@ -36,7 +36,7 @@ abstract class InfoViewModel(
         dataRepository,
         sharedPreferences
     )
-    var song: SongInfo = SongInfo(0, "", "", 0L, "", 0L, "", 0, listOf(""), 0, 0, 0, "")
+    var song: SongInfo = SongInfo.dummySongInfo()
         set(value) {
             field = value
             viewModelScope.launch {

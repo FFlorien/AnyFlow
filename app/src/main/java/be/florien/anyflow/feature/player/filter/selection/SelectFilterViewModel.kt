@@ -49,9 +49,9 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         }
     }
 
-    fun changeFilterSelection(filterValue: FilterItem) {
+    fun changeFilterSelection(filterValue: FilterItem, isSelected: Boolean) {
         val filter = getFilter(filterValue)
-        if (!filtersManager.isFilterInEdition(filter)) {
+        if (isSelected) {
             filtersManager.addFilter(filter)
         } else {
             filtersManager.removeFilter(filter)
@@ -83,6 +83,11 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
             (values as MediatorLiveData).value = it
         }
         return liveData
+    }
+
+    fun hasFilter(filterItem: FilterItem): Boolean {
+        val filter = getFilter(filterItem)
+        return filtersManager.isFilterInEdition(filter)
     }
 
     class FilterItem(

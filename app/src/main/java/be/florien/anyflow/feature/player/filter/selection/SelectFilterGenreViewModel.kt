@@ -13,7 +13,7 @@ class SelectFilterGenreViewModel @Inject constructor(private val dataRepository:
     override fun getFilteredPagingList(search: String) = dataRepository.getGenresFiltered(search, ::convert)
     override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getGenresFilteredList(search, ::convert)
 
-    override fun getFilter(filterValue: FilterItem) = Filter.GenreIs(filterValue.displayName)
+    override fun getFilter(filterValue: FilterItem) = Filter.GenreIs(filterValue.id, filterValue.displayName)
 
-    private fun convert(genre: DbGenre) = FilterItem(genre.id, genre.name, isSelected = filtersManager.isFilterInEdition(Filter.GenreIs(genre.name)))
+    private fun convert(genre: DbGenre) = FilterItem(genre.id, genre.name, isSelected = filtersManager.isFilterInEdition(Filter.GenreIs(genre.id, genre.name)))
 }

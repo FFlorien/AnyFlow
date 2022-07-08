@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
@@ -18,6 +19,7 @@ import be.florien.anyflow.databinding.FragmentSelectFilterBinding
 import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.extension.viewModelFactory
+import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.SearchMenuHolder
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
@@ -74,7 +76,8 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         }
         menuCoordinator.addMenuHolder(menuHolder)
         viewModel.isSearching.observe(this) {
-            val imm: InputMethodManager? = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            val imm: InputMethodManager? =
+                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             if (it) {
                 Handler(Looper.getMainLooper()).postDelayed({
                     fragmentBinding.search.requestFocus()
@@ -89,7 +92,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(
+        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[
                 when (filterType) {
                     ALBUM_ID -> SelectFilterAlbumViewModel::class.java
                     ARTIST_ID -> SelectFilterArtistViewModel::class.java
@@ -97,91 +100,134 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
                     SONG_ID -> SelectFilterSongViewModel::class.java
                     DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
                     else -> SelectFilterPlaylistViewModel::class.java
-                }
-        )
+                }]
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         fragmentBinding = FragmentSelectFilterBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel
-        fragmentBinding.filterList.layoutManager = if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_LIST) {
-            LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        } else {
-            GridLayoutManager(activity, 3)
-        }
-        fragmentBinding.filterList.adapter = FilterListAdapter()
-        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
-            fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
-            if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_GRID) {
-                fragmentBinding.filterList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL).apply { setDrawable(it) })
+        fragmentBinding.filterList.layoutManager =
+            if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_LIST) {
+                LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            } else {
+                GridLayoutManager(activity, 3)
             }
-        }
+
+        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel.itemDisplayType, viewModel, viewModel::hasFilter, viewModel::changeFilterSelection)
+        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
+            ?.let {
+                fragmentBinding.filterList.addItemDecoration(
+                    DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL)
+                        .apply { setDrawable(it) })
+                if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_GRID) {
+                    fragmentBinding.filterList.addItemDecoration(
+                        DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL)
+                            .apply { setDrawable(it) })
+                }
+            }
         viewModel.values.observe(viewLifecycleOwner) {
             (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
         }
         return fragmentBinding.root
     }
 
-    inner class FilterListAdapter : PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object : DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
-        override fun areItemsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem) = oldItem.id == newItem.id
+    class FilterListAdapter(
+        private val itemDisplayType: Int,
+        private val viewModel: SelectFilterViewModel,
+        override val isSelected: (SelectFilterViewModel.FilterItem) -> Boolean,
+        override val setSelected: (SelectFilterViewModel.FilterItem, Boolean) -> Unit
+    ) :
+        PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object :
+            DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
+            override fun areItemsTheSame(
+                oldItem: SelectFilterViewModel.FilterItem,
+                newItem: SelectFilterViewModel.FilterItem
+            ) = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: SelectFilterViewModel.FilterItem, newItem: SelectFilterViewModel.FilterItem): Boolean =
+            override fun areContentsTheSame(
+                oldItem: SelectFilterViewModel.FilterItem,
+                newItem: SelectFilterViewModel.FilterItem
+            ): Boolean =
                 oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
-
-    }), FastScrollRecyclerView.SectionedAdapter {
+        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<SelectFilterViewModel.FilterItem> {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =
-            if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_LIST) FilterListViewHolder() else FilterGridViewHolder()
+            if (itemDisplayType == SelectFilterViewModel.ITEM_LIST) {
+                FilterListViewHolder(parent, viewModel, setSelected)
+            } else {
+                FilterGridViewHolder(parent, viewModel, setSelected)
+            }
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             val filter = getItem(position) ?: return
-            holder.bind(filter)
+            val isSelected = isSelected(filter)
+            holder.bind(filter, isSelected)
         }
 
         override fun getSectionName(position: Int): String =
-                snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString()
-                        ?: ""
+            snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: ""
     }
 
-    abstract inner class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        abstract fun bind(filter: SelectFilterViewModel.FilterItem)
+    abstract class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view),
+        BaseSelectableAdapter.BaseSelectableViewHolder<SelectFilterViewModel.FilterItem, SelectFilterViewModel.FilterItem>
 
-        protected fun setBackground(view: View, filter: SelectFilterViewModel.FilterItem?) {
-            view.setBackgroundColor(ResourcesCompat.getColor(resources, if (filter?.isSelected == true) R.color.selected else R.color.unselected, requireActivity().theme))
-        }
-    }
-
-    inner class FilterListViewHolder(
-            private val itemFilterTypeBinding: ItemSelectFilterListBinding
-            = ItemSelectFilterListBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
+    class FilterListViewHolder(
+        parent: ViewGroup,
+        viewModel: SelectFilterViewModel,
+        override val onSelectChange: (SelectFilterViewModel.FilterItem, Boolean) -> Unit,
+        private val itemFilterTypeBinding: ItemSelectFilterListBinding
+        = ItemSelectFilterListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     ) : FilterViewHolder(itemFilterTypeBinding.root) {
 
-        override fun bind(filter: SelectFilterViewModel.FilterItem) {
+        init {
             itemFilterTypeBinding.vm = viewModel
-            itemFilterTypeBinding.lifecycleOwner = viewLifecycleOwner
-            itemFilterTypeBinding.item = filter
-            setBackground(itemFilterTypeBinding.root, filter)
+            itemFilterTypeBinding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
+        }
+
+        override fun bind(item: SelectFilterViewModel.FilterItem, isSelected: Boolean) {
+            itemFilterTypeBinding.item = item
+            setSelection(isSelected)
             itemFilterTypeBinding.root.setOnClickListener {
-                viewModel.changeFilterSelection(filter)
-                setBackground(itemFilterTypeBinding.root, filter)
+                onSelectChange(item, !itemFilterTypeBinding.selected)
             }
         }
+
+        override fun setSelection(isSelected: Boolean) {
+            itemFilterTypeBinding.selected = isSelected
+        }
+
+        override fun getCurrentId(): SelectFilterViewModel.FilterItem? = itemFilterTypeBinding.item
     }
 
-    inner class FilterGridViewHolder(
-            private val itemFilterTypeBinding: ItemSelectFilterGridBinding
-            = ItemSelectFilterGridBinding.inflate(layoutInflater, fragmentBinding.filterList, false)
+    class FilterGridViewHolder(
+        parent: ViewGroup,
+        viewModel: SelectFilterViewModel,
+        override val onSelectChange: (SelectFilterViewModel.FilterItem, Boolean) -> Unit,
+        private val itemFilterTypeBinding: ItemSelectFilterGridBinding
+        = ItemSelectFilterGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     ) : FilterViewHolder(itemFilterTypeBinding.root) {
 
-        override fun bind(filter: SelectFilterViewModel.FilterItem) {
+        init {
             itemFilterTypeBinding.vm = viewModel
-            itemFilterTypeBinding.lifecycleOwner = viewLifecycleOwner
-            itemFilterTypeBinding.item = filter
-            setBackground(itemFilterTypeBinding.root, filter)
+        }
+
+        override fun bind(item: SelectFilterViewModel.FilterItem, isSelected: Boolean) {
+            itemFilterTypeBinding.lifecycleOwner = itemFilterTypeBinding.lifecycleOwner
+            itemFilterTypeBinding.item = item
+            setSelection(isSelected)
             itemFilterTypeBinding.root.setOnClickListener {
-                viewModel.changeFilterSelection(filter)
-                setBackground(itemFilterTypeBinding.root, filter)
+                onSelectChange(item, !itemFilterTypeBinding.selected)
             }
         }
+
+        override fun setSelection(isSelected: Boolean) {
+            itemFilterTypeBinding.selected = isSelected
+        }
+
+        override fun getCurrentId(): SelectFilterViewModel.FilterItem? = itemFilterTypeBinding.item
     }
 }

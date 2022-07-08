@@ -147,6 +147,9 @@ class DataRepository
     fun <T : Any> getPlaylists(mapping: (DbPlaylistWithCount) -> T): LiveData<PagingData<T>> =
         convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
 
+    fun getPlaylists(): LiveData<PagingData<Playlist>> =
+        convertToPagingLiveData(libraryDatabase.getPlaylists().map { it.toViewPlaylist() })
+
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
         mapping: (DbSongDisplay) -> T

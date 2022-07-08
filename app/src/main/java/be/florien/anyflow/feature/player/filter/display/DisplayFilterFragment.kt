@@ -177,6 +177,9 @@ class DisplayFilterFragment : BaseFilterFragment() {
                             }
 
                             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                if (context == null) {
+                                    return
+                                }
                                 val drawable = BitmapDrawable(resources, resource)
                                 drawable.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
                                 binding.filterName.setCompoundDrawables(drawable, null, null, null) //todo verify threading

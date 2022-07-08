@@ -22,9 +22,7 @@ import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class InfoFragment(
-    private var song: SongInfo = SongInfo(
-        SongInfoActions.DUMMY_SONG_ID, "", "", 0L, "", 0L, "", 0, listOf(""), 0, 0, 0, ""
-    )
+    private var song: SongInfo = SongInfo.dummySongInfo(SongInfoActions.DUMMY_SONG_ID)
 ) : BottomSheetDialogFragment() {
 
     companion object {
@@ -52,8 +50,7 @@ class InfoFragment(
         savedInstanceState: Bundle?
     ): View {
         viewModel = if (song.id == SongInfoActions.DUMMY_SONG_ID) {
-            ViewModelProvider(requireActivity(), (requireActivity() as ViewModelFactoryHolder).getFactory())
-                .get(InfoActionsSelectionViewModel::class.java)
+            ViewModelProvider(requireActivity(), (requireActivity() as ViewModelFactoryHolder).getFactory())[InfoActionsSelectionViewModel::class.java]
                 .apply {
                     val displayMetrics = DisplayMetrics()
                     requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -64,14 +61,13 @@ class InfoFragment(
                     maxItems = (width / itemFullWidth) - 1
                 }
         } else {
-            ViewModelProvider(this, (requireActivity() as ViewModelFactoryHolder).getFactory())
-                .get(InfoDisplayViewModel::class.java)
+            ViewModelProvider(this, (requireActivity() as ViewModelFactoryHolder).getFactory())[InfoDisplayViewModel::class.java]
         }
         if (parentFragment != null) {
             songListViewModel = ViewModelProvider(
                 requireParentFragment(),
                 (requireActivity() as ViewModelFactoryHolder).getFactory()
-            ).get(SongListViewModel::class.java)
+            )[SongListViewModel::class.java]
         }
         viewModel.song = song
         binding = FragmentInfoBinding.inflate(inflater, container, false)

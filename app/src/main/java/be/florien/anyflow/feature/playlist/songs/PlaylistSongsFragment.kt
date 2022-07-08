@@ -17,6 +17,8 @@ import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.LayoutSongBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.feature.BaseSelectableAdapter
+import be.florien.anyflow.feature.refreshVisibleViewHolders
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
@@ -60,11 +62,8 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
             (recyclerView.adapter as PlaylistSongAdapter).submitData(lifecycle, it)
         }
         viewModel.selectionList.observe(viewLifecycleOwner) {
-            val firstPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-            val lastPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-            for (position in firstPosition..lastPosition) {
-                val songViewHolder =
-                    recyclerView.findViewHolderForAdapterPosition(position) as? PlaylistSongViewHolder
+            recyclerView.refreshVisibleViewHolders { vh ->
+                val songViewHolder = vh as? PlaylistSongViewHolder
                 songViewHolder?.setSelection(it.contains(songViewHolder.getCurrentId()))
             }
         }
@@ -72,8 +71,8 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
 
     class PlaylistSongAdapter(
         private val getCoverUrl: (Long) -> String,
-        private val isSelected: (Long?) -> Boolean,
-        private val setSelected: (Long?, Boolean) -> Unit
+        override val isSelected: (Long) -> Boolean,
+        override val setSelected: (Long, Boolean) -> Unit
     ) :
         PagingDataAdapter<SongInfo, PlaylistSongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
             override fun areItemsTheSame(
@@ -85,11 +84,11 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
                 oldItem: SongInfo,
                 newItem: SongInfo
             ) = areItemsTheSame(oldItem, newItem)
-        }), FastScrollRecyclerView.SectionedAdapter {
+        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Long> {
 
         override fun onBindViewHolder(holder: PlaylistSongViewHolder, position: Int) {
-            val item = getItem(position)
-            holder.bind(item, isSelected(item?.id))
+            val item = getItem(position) ?: return
+            holder.bind(item, isSelected(item.id))
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -101,13 +100,13 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     class PlaylistSongViewHolder(
         container: ViewGroup,
         private val getCoverUrl: (Long) -> String,
-        private val onSelectChange: (Long, Boolean) -> Unit,
+        override val onSelectChange: (Long, Boolean) -> Unit,
         private val binding: LayoutSongBinding = LayoutSongBinding.inflate(
             LayoutInflater.from(container.context),
             container,
             false
         )
-    ) : RecyclerView.ViewHolder(binding.root) {
+    ) : RecyclerView.ViewHolder(binding.root), BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongInfo> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -116,17 +115,17 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
             }
         }
 
-        fun bind(item: SongInfo?, isSelected: Boolean) {
+        override fun bind(item: SongInfo, isSelected: Boolean) {
             binding.song = item
-            binding.art = item?.albumId?.let { getCoverUrl(it) }
+            binding.art = getCoverUrl(item.albumId)
             setSelection(isSelected)
         }
 
-        fun setSelection(isSelected: Boolean) {
+        override fun setSelection(isSelected: Boolean) {
             binding.selected = isSelected
         }
 
-        fun getCurrentId() = binding.song?.id
+        override fun getCurrentId() = binding.song?.id
     }
 
     companion object {
