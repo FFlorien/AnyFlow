@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.player.songlist.SelectPlaylistViewModel" />
+            type="be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel" />
 
         <variable
             name="songId"

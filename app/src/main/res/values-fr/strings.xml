@@ -38,6 +38,7 @@
     <string name="menu_filters">Filtres</string>
     <string name="menu_order_random">Aléatoire</string>
     <string name="menu_order_classic">Classique</string>
+    <string name="menu_playlist_create">Créer une nouvelle liste de lecture</string>
     <string name="general_loading_label">Chargement, veuillez patienter…</string>
     <string name="action_filter_clear">Nettoyer les filtres</string>
     <string name="action_filter_add">Ajouter des filtres</string>

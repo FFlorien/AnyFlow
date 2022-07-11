@@ -1,6 +1,7 @@
-package be.florien.anyflow.feature.menu
+package be.florien.anyflow.feature.menu.implementation
 
 import be.florien.anyflow.R
+import be.florien.anyflow.feature.menu.MenuHolder
 
 class SearchMenuHolder(action: () -> Unit): MenuHolder(R.menu.menu_filter_display, R.id.menu_search_filters, action)
 

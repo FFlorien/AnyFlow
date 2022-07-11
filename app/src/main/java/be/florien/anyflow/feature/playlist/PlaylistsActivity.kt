@@ -1,14 +1,18 @@
 package be.florien.anyflow.feature.playlist
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import be.florien.anyflow.R
 import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.playlist.list.PlaylistListFragment
 
 class PlaylistsActivity : AppCompatActivity() {
-    lateinit var toolbar: Toolbar
+    private lateinit var toolbar: Toolbar
+    internal val menuCoordinator = MenuCoordinator()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +32,19 @@ class PlaylistsActivity : AppCompatActivity() {
         adaptToolbarToCurrentFragment()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuCoordinator.inflateMenus(menu, menuInflater)
+        return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menuCoordinator.prepareMenus(menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return menuCoordinator.handleMenuClick(item.itemId)
+    }
 
     private fun adaptToolbarToCurrentFragment() {
         (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()

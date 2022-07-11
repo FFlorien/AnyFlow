@@ -11,7 +11,7 @@ import be.florien.anyflow.databinding.FragmentAddAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.menu.ConfirmAlarmMenuHolder
+import be.florien.anyflow.feature.menu.implementation.ConfirmAlarmMenuHolder
 import be.florien.anyflow.feature.menu.MenuHolder
 import kotlinx.coroutines.launch
 
@@ -24,7 +24,7 @@ class AddAlarmFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(AddAlarmViewModel::class.java)
+        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[AddAlarmViewModel::class.java]
         anyFlowApp.applicationComponent.inject(viewModel)
         confirmMenuHolder = ConfirmAlarmMenuHolder {
             viewLifecycleOwner.lifecycleScope.launch {

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.songlist
+package be.florien.anyflow.feature.playlist.selection
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
@@ -6,9 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +21,7 @@ import be.florien.anyflow.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.BaseSelectableAdapter
+import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.refreshVisibleViewHolders
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
@@ -62,7 +60,8 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         fragmentBinding.songId = songId
         fragmentBinding.filterList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel::isSelected, viewModel::toggleSelection)
+        fragmentBinding.filterList.adapter =
+            FilterListAdapter(viewModel::isSelected, viewModel::toggleSelection)
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
             ?.let {
                 fragmentBinding.filterList.addItemDecoration(
@@ -83,19 +82,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         }
         viewModel.isCreating.observe(viewLifecycleOwner) {
             if (it) {
-                val editText = EditText(requireActivity())
-                editText.inputType =
-                    EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
-                AlertDialog.Builder(requireActivity())
-                    .setView(editText)
-                    .setTitle(R.string.info_action_new_playlist)
-                    .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                        viewModel.createPlaylist(editText.text.toString())
-                    }
-                    .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
-                        dialog.cancel()
-                    }
-                    .show()
+                requireActivity().newPlaylist(viewModel)
             }
         }
         viewModel.isFinished.observe(viewLifecycleOwner) {
@@ -114,8 +101,9 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         super.onDismiss(dialog)
     }
 
-    class FilterListAdapter(override val isSelected: (Long) -> Boolean,
-                            override val setSelected: (Long) -> Unit
+    class FilterListAdapter(
+        override val isSelected: (Long) -> Boolean,
+        override val setSelected: (Long) -> Unit
     ) :
         PagingDataAdapter<Playlist, PlaylistViewHolder>(object :
             DiffUtil.ItemCallback<Playlist>() {
@@ -144,7 +132,8 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         override val onSelectChange: (Long) -> Unit,
         private val itemPlaylistBinding: ItemSelectPlaylistBinding
         = ItemSelectPlaylistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    ) : RecyclerView.ViewHolder(itemPlaylistBinding.root), BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
+    ) : RecyclerView.ViewHolder(itemPlaylistBinding.root),
+        BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
 
         init {
             itemPlaylistBinding.lifecycleOwner = parent.findViewTreeLifecycleOwner()

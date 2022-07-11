@@ -20,7 +20,7 @@ import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.BaseSelectableAdapter
-import be.florien.anyflow.feature.menu.SearchMenuHolder
+import be.florien.anyflow.feature.menu.implementation.SearchMenuHolder
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID

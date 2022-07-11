@@ -12,8 +12,8 @@ import be.florien.anyflow.databinding.FragmentEditAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.menu.ConfirmAlarmMenuHolder
-import be.florien.anyflow.feature.menu.DeleteAlarmMenuHolder
+import be.florien.anyflow.feature.menu.implementation.ConfirmAlarmMenuHolder
+import be.florien.anyflow.feature.menu.implementation.DeleteAlarmMenuHolder
 import be.florien.anyflow.feature.menu.MenuHolder
 import kotlinx.coroutines.launch
 
@@ -42,7 +42,7 @@ class EditAlarmFragment(var alarm: Alarm = Alarm(0L, 0, 0, false, listOf(), fals
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(EditAlarmViewModel::class.java)
+        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[EditAlarmViewModel::class.java]
         viewModel.alarm = alarm
         anyFlowApp.applicationComponent.inject(viewModel)
         confirmMenuHolder = ConfirmAlarmMenuHolder {

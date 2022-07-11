@@ -11,7 +11,7 @@ import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.add.AddAlarmFragment
 import be.florien.anyflow.feature.alarms.list.AlarmListFragment
-import be.florien.anyflow.feature.menu.AddAlarmMenuHolder
+import be.florien.anyflow.feature.menu.implementation.AddAlarmMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.MenuHolder
 
@@ -29,7 +29,7 @@ class AlarmActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(
             this,
             ViewModelProvider.NewInstanceFactory()
-        ).get(AlarmViewModel::class.java)
+        )[AlarmViewModel::class.java]
         anyFlowApp.applicationComponent.inject(viewModel)
         setContentView(R.layout.activity_alarms)
         toolbar = findViewById(R.id.toolbar)

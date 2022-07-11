@@ -1,0 +1,28 @@
+package be.florien.anyflow.feature.playlist
+
+import android.content.Context
+import android.content.DialogInterface
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import be.florien.anyflow.R
+
+fun Context.newPlaylist(vm: NewPlaylistViewModel) {
+    val editText = EditText(this)
+    editText.inputType =
+        EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
+    AlertDialog.Builder(this)
+        .setView(editText)
+        .setTitle(R.string.info_action_new_playlist)
+        .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+            vm.createPlaylist(editText.text.toString())
+        }
+        .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+            dialog.cancel()
+        }
+        .show()
+}
+
+interface NewPlaylistViewModel {
+    fun createPlaylist(name: String)
+}

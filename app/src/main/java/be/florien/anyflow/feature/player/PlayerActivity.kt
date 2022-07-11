@@ -26,9 +26,9 @@ import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
-import be.florien.anyflow.feature.menu.FilterMenuHolder
+import be.florien.anyflow.feature.menu.implementation.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
-import be.florien.anyflow.feature.menu.OrderMenuHolder
+import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
@@ -90,7 +90,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             return
         }
         activityComponent.inject(this)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(PlayerViewModel::class.java)
+        viewModel = ViewModelProvider(this, viewModelFactory)[PlayerViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

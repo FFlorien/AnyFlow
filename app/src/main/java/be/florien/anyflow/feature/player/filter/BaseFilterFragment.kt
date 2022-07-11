@@ -8,9 +8,9 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import be.florien.anyflow.R
 import be.florien.anyflow.feature.BaseFragment
-import be.florien.anyflow.feature.menu.ConfirmMenuHolder
+import be.florien.anyflow.feature.menu.implementation.ConfirmMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
-import be.florien.anyflow.feature.menu.SaveFilterGroupMenuHolder
+import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 
 abstract class BaseFilterFragment : BaseFragment() {
@@ -22,7 +22,7 @@ abstract class BaseFilterFragment : BaseFragment() {
         baseViewModel.confirmChanges()
     }
     protected val saveMenuHolder = SaveFilterGroupMenuHolder {
-        val editText = EditText(requireActivity())
+        val editText = EditText(requireActivity()) //todo better "ask a name" dialog
         editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
         AlertDialog.Builder(requireActivity())
             .setView(editText)

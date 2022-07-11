@@ -17,6 +17,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
+import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.feature.quickActions.InfoActionsSelectionViewModel
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
