@@ -3,7 +3,7 @@ package be.florien.anyflow.data.user
 import android.content.Context
 import android.media.AudioManager
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.injection.UserScope
 import be.florien.anyflow.player.ExoPlayerController
@@ -24,30 +24,30 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun providePlayerController(context: Context, playingQueue: PlayingQueue, ampacheConnection: AmpacheConnection, filtersManager: FiltersManager, audioManager: AudioManager, alarmsSynchronizer: AlarmsSynchronizer, cache: Cache, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(playingQueue, ampacheConnection, filtersManager, audioManager, alarmsSynchronizer, context, cache, okHttpClient)
+    fun providePlayerController(context: Context, playingQueue: PlayingQueue, ampacheDataSource: AmpacheDataSource, filtersManager: FiltersManager, audioManager: AudioManager, alarmsSynchronizer: AlarmsSynchronizer, cache: Cache, okHttpClient: OkHttpClient): PlayerController = ExoPlayerController(playingQueue, ampacheDataSource, filtersManager, audioManager, alarmsSynchronizer, context, cache, okHttpClient)
 
     @Provides
     @Named("Songs")
     @UserScope
-    fun provideSongsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.songsPercentageUpdater
+    fun provideSongsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> = ampacheDataSource.songsPercentageUpdater
 
     @Provides
     @Named("Genres")
     @UserScope
-    fun provideGenresPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.genresPercentageUpdater
+    fun provideGenresPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> = ampacheDataSource.genresPercentageUpdater
 
     @Provides
     @Named("Artists")
     @UserScope
-    fun provideArtistsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.artistsPercentageUpdater
+    fun provideArtistsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> = ampacheDataSource.artistsPercentageUpdater
 
     @Provides
     @Named("Albums")
     @UserScope
-    fun provideAlbumsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.albumsPercentageUpdater
+    fun provideAlbumsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> = ampacheDataSource.albumsPercentageUpdater
 
     @Provides
     @Named("Playlists")
     @UserScope
-    fun providePlaylistsPercentageUpdater(ampacheConnection: AmpacheConnection): LiveData<Int> = ampacheConnection.playlistsPercentageUpdater
+    fun providePlaylistsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> = ampacheDataSource.playlistsPercentageUpdater
 }

@@ -24,7 +24,7 @@ import javax.inject.Singleton
  * Manager for the ampache API server-side
  */
 @Singleton
-open class AmpacheConnection
+open class AmpacheDataSource
 @Inject constructor(
     private var authPersistence: AuthPersistence,
     private var userComponentContainer: UserComponentContainer,

@@ -3,7 +3,7 @@ package be.florien.anyflow.data
 import android.app.job.JobParameters
 import android.app.job.JobService
 import be.florien.anyflow.CrashReportingTree
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -15,7 +15,7 @@ class PingService
 @Inject constructor() : JobService() {
 
     @Inject
-    lateinit var ampacheConnection: AmpacheConnection
+    lateinit var ampacheDataSource: AmpacheDataSource
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(serviceJob)
@@ -25,12 +25,12 @@ class PingService
         Timber.plant(CrashReportingTree())
         serviceScope.launch {
             try {
-                val it = ampacheConnection.ping()
+                val it = ampacheDataSource.ping()
                 if (it.error.errorCode.div(100) == 4) {
                     throw SessionExpiredException("Ping thrown an error")
                 }
             } catch (exception: Exception) {
-                ampacheConnection.reconnect {
+                ampacheDataSource.reconnect {
                     jobFinished(p0, true)
                 }
             }

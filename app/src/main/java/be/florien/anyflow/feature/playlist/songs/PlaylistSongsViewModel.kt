@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
@@ -17,14 +17,14 @@ class PlaylistSongsViewModel : BaseViewModel() {
     lateinit var dataRepository: DataRepository
 
     @Inject
-    lateinit var ampacheConnection: AmpacheConnection
+    lateinit var ampacheDataSource: AmpacheDataSource
 
     val selectionList: LiveData<List<Long>> = MutableLiveData(listOf())
 
     val songList: LiveData<PagingData<SongInfo>>
         get() = dataRepository.getPlaylistSongs(playlistId) { it.toViewSongInfo() }
 
-    fun getCover(long: Long) = ampacheConnection.getAlbumArtUrl(long)
+    fun getCover(long: Long) = ampacheDataSource.getAlbumArtUrl(long)
 
     fun isSelected(id: Long?) = selectionList.value?.contains(id) ?: false
 

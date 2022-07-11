@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
@@ -17,7 +17,7 @@ import javax.inject.Inject
 open class ConnectViewModel : BaseViewModel() {
 
     @Inject
-    lateinit var ampacheConnection: AmpacheConnection
+    lateinit var ampacheDataSource: AmpacheDataSource
 
     /**
      * Fields
@@ -36,12 +36,12 @@ open class ConnectViewModel : BaseViewModel() {
     fun connect() {
         isLoading.mutable.value = true
         val serverUrl = server.value ?: return //todo warn user
-        ampacheConnection.openConnection(serverUrl)
+        ampacheDataSource.openConnection(serverUrl)
         if (username.value?.isBlank() == true) {
             viewModelScope.launch {
 
                 try {
-                    val it = ampacheConnection.ping()
+                    val it = ampacheDataSource.ping()
 
                     isLoading.mutable.value = false
                     when (it.error.errorCode) {
@@ -59,7 +59,7 @@ open class ConnectViewModel : BaseViewModel() {
             if (password1?.isNotBlank() == true && user?.isNotBlank() == true) {
                 viewModelScope.launch {
                     try {
-                        val it = ampacheConnection.authenticate(user, password1)
+                        val it = ampacheDataSource.authenticate(user, password1)
                         isLoading.mutable.value = false
                         when (it.error.errorCode) {
                             0 -> isConnected.mutable.value = true

@@ -7,7 +7,7 @@ import android.os.Build
 import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.server.AmpacheApi
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ApplicationComponent
@@ -30,7 +30,7 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
     override var userComponent: UserComponent? = null
 
     @Inject
-    lateinit var ampacheConnection: AmpacheConnection
+    lateinit var ampacheDataSource: AmpacheDataSource
 
     @Inject
     lateinit var okHttpClient: OkHttpClient
@@ -39,7 +39,7 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         super.onCreate()
         Timber.plant(CrashReportingTree())
         initApplicationComponent()
-        ampacheConnection.ensureConnection()
+        ampacheDataSource.ensureConnection()
         createNotificationChannels()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             this@AnyFlowApp.eLog(e, "Unexpected error")

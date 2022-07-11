@@ -6,7 +6,7 @@ import androidx.lifecycle.map
 import androidx.paging.*
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.*
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.applyPutLong
 import com.google.android.exoplayer2.offline.DownloadManager
@@ -25,7 +25,7 @@ import javax.inject.Singleton
 class DataRepository
 @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
-    private val ampacheConnection: AmpacheConnection,
+    private val ampacheDataSource: AmpacheDataSource,
     private val sharedPreferences: SharedPreferences,
     private val downloadManager: DownloadManager
 ) {
@@ -52,9 +52,9 @@ class DataRepository
         newPlaylists()
         val currentMillis = TimeOperations.getCurrentDate().timeInMillis
         sharedPreferences.edit().apply {
-            putLong(AmpacheConnection.SERVER_ADD, currentMillis)
-            putLong(AmpacheConnection.SERVER_UPDATE, currentMillis)
-            putLong(AmpacheConnection.SERVER_CLEAN, currentMillis)
+            putLong(AmpacheDataSource.SERVER_ADD, currentMillis)
+            putLong(AmpacheDataSource.SERVER_UPDATE, currentMillis)
+            putLong(AmpacheDataSource.SERVER_CLEAN, currentMillis)
             putLong(LAST_ADD_QUERY, currentMillis)
             putLong(LAST_UPDATE_QUERY, currentMillis)
             putLong(LAST_CLEAN_QUERY, currentMillis)
@@ -62,27 +62,27 @@ class DataRepository
     }
 
     private suspend fun addAll() =
-        syncIfOutdated(AmpacheConnection.SERVER_ADD, LAST_ADD_QUERY) { lastSync ->
+        syncIfOutdated(AmpacheDataSource.SERVER_ADD, LAST_ADD_QUERY) { lastSync ->
             addGenres(lastSync)
             addArtists(lastSync)
             addAlbums(lastSync)
             addSongs(lastSync)
             addPlaylists(lastSync)
-            ampacheConnection.resetAddOffsets()
+            ampacheDataSource.resetAddOffsets()
         }
 
     private suspend fun updateAll() =
-        syncIfOutdated(AmpacheConnection.SERVER_UPDATE, LAST_UPDATE_QUERY) { lastSync ->
+        syncIfOutdated(AmpacheDataSource.SERVER_UPDATE, LAST_UPDATE_QUERY) { lastSync ->
             updateGenres(lastSync)
             updateArtists(lastSync)
             updateAlbums(lastSync)
             updateSongs(lastSync)
             updatePlaylists(lastSync)
-            ampacheConnection.resetUpdateOffsets()
+            ampacheDataSource.resetUpdateOffsets()
         }
 
     private suspend fun cleanAll() =
-        syncIfOutdated(AmpacheConnection.SERVER_CLEAN, LAST_CLEAN_QUERY) {
+        syncIfOutdated(AmpacheDataSource.SERVER_CLEAN, LAST_CLEAN_QUERY) {
             updateDeletedSongs()
         }
 
@@ -229,12 +229,12 @@ class DataRepository
      */
 
     suspend fun createPlaylist(name: String) {
-        ampacheConnection.createPlaylist(name)
+        ampacheDataSource.createPlaylist(name)
         addPlaylists(TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1))
     }
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheConnection.addSongToPlaylist(songId, playlistId)
+        ampacheDataSource.addSongToPlaylist(songId, playlistId)
         val playlistLastOrder = libraryDatabase.getPlaylistLastOrder(playlistId)
         libraryDatabase.addOrUpdatePlaylistSongs(
             listOf(
@@ -326,22 +326,22 @@ class DataRepository
         })
     }
 
-    fun getAlbumArtUrl(id: Long) = ampacheConnection.getAlbumArtUrl(id)
-    fun getArtistArtUrl(id: Long) = ampacheConnection.getArtistArtUrl(id)
+    fun getAlbumArtUrl(id: Long) = ampacheDataSource.getAlbumArtUrl(id)
+    fun getArtistArtUrl(id: Long) = ampacheDataSource.getArtistArtUrl(id)
 
     /**
      * Download status
      */
 
     fun hasDownloaded(song: SongInfo): Boolean =
-        downloadManager.downloadIndex.getDownload(ampacheConnection.getSongUrl(song.id)) != null
+        downloadManager.downloadIndex.getDownload(ampacheDataSource.getSongUrl(song.id)) != null
 
     /**
      * Private Method : New data
      */
 
     private suspend fun newSongs() =
-        newList(AmpacheConnection::getNewSongs) { ampacheSongList ->
+        newList(AmpacheDataSource::getNewSongs) { ampacheSongList ->
             if (ampacheSongList != null) {
                 val songs = ampacheSongList.map { it.toDbSong() }
                 libraryDatabase.addOrUpdateSongs(songs)
@@ -351,34 +351,34 @@ class DataRepository
         }
 
     private suspend fun newGenres() =
-        newList(AmpacheConnection::getNewGenres) { ampacheGenreList ->
+        newList(AmpacheDataSource::getNewGenres) { ampacheGenreList ->
             if (ampacheGenreList != null) {
                 libraryDatabase.addOrUpdateGenres(ampacheGenreList.map { it.toDbGenre() })
             }
         }
 
     private suspend fun newArtists() =
-        newList(AmpacheConnection::getNewArtists) { ampacheArtistList ->
+        newList(AmpacheDataSource::getNewArtists) { ampacheArtistList ->
             if (ampacheArtistList != null) {
                 libraryDatabase.addOrUpdateArtists(ampacheArtistList.map { it.toDbArtist() })
             }
         }
 
     private suspend fun newAlbums() =
-        newList(AmpacheConnection::getNewAlbums) { ampacheAlbumList ->
+        newList(AmpacheDataSource::getNewAlbums) { ampacheAlbumList ->
             if (ampacheAlbumList != null) {
                 libraryDatabase.addOrUpdateAlbums(ampacheAlbumList.map { it.toDbAlbum() })
             }
         }
 
     private suspend fun newPlaylists() {
-        var listOnServer = ampacheConnection.getNewPlaylists()
+        var listOnServer = ampacheDataSource.getNewPlaylists()
         while (listOnServer != null) {
             libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
             for (playlist in listOnServer) {
                 retrievePlaylistSongs(playlist.id)
             }
-            listOnServer = ampacheConnection.getNewPlaylists()
+            listOnServer = ampacheDataSource.getNewPlaylists()
         }
     }
 
@@ -387,7 +387,7 @@ class DataRepository
      */
 
     private suspend fun addSongs(from: Calendar) =
-        updateList(from, AmpacheConnection::getAddedSongs) { ampacheSongList ->
+        updateList(from, AmpacheDataSource::getAddedSongs) { ampacheSongList ->
             if (ampacheSongList != null) {
                 val songs = ampacheSongList.map { it.toDbSong() }
                 libraryDatabase.addOrUpdateSongs(songs)
@@ -397,46 +397,46 @@ class DataRepository
         }
 
     private suspend fun addGenres(from: Calendar) =
-        updateList(from, AmpacheConnection::getAddedGenres) { ampacheGenreList ->
+        updateList(from, AmpacheDataSource::getAddedGenres) { ampacheGenreList ->
             if (ampacheGenreList != null) {
                 libraryDatabase.addOrUpdateGenres(ampacheGenreList.map { it.toDbGenre() })
             }
         }
 
     private suspend fun addArtists(from: Calendar) =
-        updateList(from, AmpacheConnection::getAddedArtists) { ampacheArtistList ->
+        updateList(from, AmpacheDataSource::getAddedArtists) { ampacheArtistList ->
             if (ampacheArtistList != null) {
                 libraryDatabase.addOrUpdateArtists(ampacheArtistList.map { it.toDbArtist() })
             }
         }
 
     private suspend fun addAlbums(from: Calendar) =
-        updateList(from, AmpacheConnection::getAddedAlbums) { ampacheAlbumList ->
+        updateList(from, AmpacheDataSource::getAddedAlbums) { ampacheAlbumList ->
             if (ampacheAlbumList != null) {
                 libraryDatabase.addOrUpdateAlbums(ampacheAlbumList.map { it.toDbAlbum() })
             }
         }
 
     private suspend fun addPlaylists(from: Calendar) {
-        var listOnServer = ampacheConnection.getAddedPlaylists(from)
+        var listOnServer = ampacheDataSource.getAddedPlaylists(from)
         while (listOnServer != null) {
             libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
             for (playlist in listOnServer) {
                 retrievePlaylistSongs(playlist.id)
             }
-            listOnServer = ampacheConnection.getNewPlaylists()
+            listOnServer = ampacheDataSource.getNewPlaylists()
         }
     }
 
     private suspend fun retrievePlaylistSongs(playlistId: Long) {
         libraryDatabase.clearPlaylist(playlistId)
-        var listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+        var listOnServer = ampacheDataSource.getPlaylistsSongs(playlistId)
         while (listOnServer != null) {
             val playlistCount = libraryDatabase.getPlaylistLastOrder(playlistId)
             libraryDatabase.addOrUpdatePlaylistSongs(listOnServer.mapIndexed { index, songId ->
                 DbPlaylistSongs(playlistCount + index, songId.id, playlistId)
             })
-            listOnServer = ampacheConnection.getPlaylistsSongs(playlistId)
+            listOnServer = ampacheDataSource.getPlaylistsSongs(playlistId)
         }
 
     }
@@ -446,7 +446,7 @@ class DataRepository
      */
 
     private suspend fun updateSongs(from: Calendar) =
-        updateList(from, AmpacheConnection::getUpdatedSongs) { ampacheSongList ->
+        updateList(from, AmpacheDataSource::getUpdatedSongs) { ampacheSongList ->
             if (ampacheSongList != null) {
                 val songs = ampacheSongList.map { it.toDbSong() }
                 libraryDatabase.addOrUpdateSongs(songs)
@@ -456,42 +456,42 @@ class DataRepository
         }
 
     private suspend fun updateGenres(from: Calendar) =
-        updateList(from, AmpacheConnection::getUpdatedGenres) { ampacheGenreList ->
+        updateList(from, AmpacheDataSource::getUpdatedGenres) { ampacheGenreList ->
             if (ampacheGenreList != null) {
                 libraryDatabase.addOrUpdateGenres(ampacheGenreList.map { it.toDbGenre() })
             }
         }
 
     private suspend fun updateArtists(from: Calendar) =
-        updateList(from, AmpacheConnection::getUpdatedArtists) { ampacheArtistList ->
+        updateList(from, AmpacheDataSource::getUpdatedArtists) { ampacheArtistList ->
             if (ampacheArtistList != null) {
                 libraryDatabase.addOrUpdateArtists(ampacheArtistList.map { it.toDbArtist() })
             }
         }
 
     private suspend fun updateAlbums(from: Calendar) =
-        updateList(from, AmpacheConnection::getUpdatedAlbums) { ampacheAlbumList ->
+        updateList(from, AmpacheDataSource::getUpdatedAlbums) { ampacheAlbumList ->
             if (ampacheAlbumList != null) {
                 libraryDatabase.addOrUpdateAlbums(ampacheAlbumList.map { it.toDbAlbum() })
             }
         }
 
     private suspend fun updatePlaylists(from: Calendar) {
-        var listOnServer = ampacheConnection.getUpdatedPlaylists(from)
+        var listOnServer = ampacheDataSource.getUpdatedPlaylists(from)
         while (listOnServer != null) {
             libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
             for (playlist in listOnServer) {
                 retrievePlaylistSongs(playlist.id)
             }
-            listOnServer = ampacheConnection.getUpdatedPlaylists(from)
+            listOnServer = ampacheDataSource.getUpdatedPlaylists(from)
         }
     }
 
     private suspend fun updateDeletedSongs() {
-        var listOnServer = ampacheConnection.getDeletedSongs()
+        var listOnServer = ampacheDataSource.getDeletedSongs()
         while (listOnServer != null) {
             libraryDatabase.removeSongs(listOnServer.map { it.toDbSongId() })
-            listOnServer = ampacheConnection.getDeletedSongs()
+            listOnServer = ampacheDataSource.getDeletedSongs()
         }
     }
 
@@ -500,25 +500,25 @@ class DataRepository
      */
 
     private suspend fun <SERVER_TYPE> newList(
-        getListOnServer: suspend AmpacheConnection.() -> List<SERVER_TYPE>?,
+        getListOnServer: suspend AmpacheDataSource.() -> List<SERVER_TYPE>?,
         saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
     ) {
-        var listOnServer = ampacheConnection.getListOnServer()
+        var listOnServer = ampacheDataSource.getListOnServer()
         while (listOnServer != null) {
             saveToDatabase(listOnServer)
-            listOnServer = ampacheConnection.getListOnServer()
+            listOnServer = ampacheDataSource.getListOnServer()
         }
     }
 
     private suspend fun <SERVER_TYPE> updateList(
         from: Calendar,
-        getListOnServer: suspend AmpacheConnection.(Calendar) -> List<SERVER_TYPE>?,
+        getListOnServer: suspend AmpacheDataSource.(Calendar) -> List<SERVER_TYPE>?,
         saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
     ) {
-        var listOnServer = ampacheConnection.getListOnServer(from)
+        var listOnServer = ampacheDataSource.getListOnServer(from)
         while (listOnServer != null) {
             saveToDatabase(listOnServer)
-            listOnServer = ampacheConnection.getListOnServer(from)
+            listOnServer = ampacheDataSource.getListOnServer(from)
         }
     }
 

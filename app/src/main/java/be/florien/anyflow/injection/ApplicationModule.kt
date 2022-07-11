@@ -12,7 +12,7 @@ import androidx.lifecycle.LiveData
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
@@ -56,11 +56,11 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheConnection =
-            AmpacheConnection(authPersistence, (context.applicationContext as AnyFlowApp), sharedPreferences)
+    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheDataSource =
+            AmpacheDataSource(authPersistence, (context.applicationContext as AnyFlowApp), sharedPreferences)
 
     @Provides
-    fun provideAmpacheConnectionStatus(connection: AmpacheConnection): LiveData<AmpacheConnection.ConnectionStatus> = connection.connectionStatusUpdater
+    fun provideAmpacheConnectionStatus(connection: AmpacheDataSource): LiveData<AmpacheDataSource.ConnectionStatus> = connection.connectionStatusUpdater
 
     @Singleton
     @Provides

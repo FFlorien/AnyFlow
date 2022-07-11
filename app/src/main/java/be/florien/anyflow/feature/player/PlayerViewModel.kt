@@ -4,7 +4,7 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.*
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -22,19 +22,19 @@ import kotlin.math.absoluteValue
 class PlayerViewModel
 @Inject
 constructor(
-        private val playingQueue: PlayingQueue,
-        private val orderComposer: OrderComposer,
-        private val alarmsSynchronizer: AlarmsSynchronizer,
-        val connectionStatus: LiveData<AmpacheConnection.ConnectionStatus>,
-        @Named("Songs")
+    private val playingQueue: PlayingQueue,
+    private val orderComposer: OrderComposer,
+    private val alarmsSynchronizer: AlarmsSynchronizer,
+    val connectionStatus: LiveData<AmpacheDataSource.ConnectionStatus>,
+    @Named("Songs")
         val songsUpdatePercentage: LiveData<Int>,
-        @Named("Genres")
+    @Named("Genres")
         val genresUpdatePercentage: LiveData<Int>,
-        @Named("Albums")
+    @Named("Albums")
         val albumsUpdatePercentage: LiveData<Int>,
-        @Named("Artists")
+    @Named("Artists")
         val artistsUpdatePercentage: LiveData<Int>,
-        @Named("Playlists")
+    @Named("Playlists")
         val playlistsUpdatePercentage: LiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
 
     internal val playerConnection: PlayerConnection = PlayerConnection()

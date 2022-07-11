@@ -13,7 +13,7 @@ import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.local.model.DbSongToPlay
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -32,7 +32,7 @@ import javax.inject.Inject
 class ExoPlayerController
 @Inject constructor(
     private var playingQueue: PlayingQueue,
-    private var ampacheConnection: AmpacheConnection,
+    private var ampacheDataSource: AmpacheDataSource,
     private var filtersManager: FiltersManager,
     private var audioManager: AudioManager,
     private val alarmsSynchronizer: AlarmsSynchronizer,
@@ -238,7 +238,7 @@ class ExoPlayerController
         ) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
-                ampacheConnection.reconnect {
+                ampacheDataSource.reconnect {
                     GlobalScope.launch(Dispatchers.Main) {
                         val firstItem =
                             dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
@@ -274,7 +274,7 @@ class ExoPlayerController
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PAUSE
             }
             Player.STATE_BUFFERING -> {
-                ampacheConnection.resetReconnectionCount()
+                ampacheDataSource.resetReconnectionCount()
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.BUFFER
             }
             Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value =
@@ -345,7 +345,7 @@ class ExoPlayerController
         if (song.local != null) {
             return MediaItem.Builder().setUri(song.local).setMediaId(song.id.toString()).build()
         }
-        val songUrl = ampacheConnection.getSongUrl(song.id)
+        val songUrl = ampacheDataSource.getSongUrl(song.id)
         return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(song.id.toString()).build()
     }
 }

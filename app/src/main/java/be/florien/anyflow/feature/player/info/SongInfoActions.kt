@@ -9,7 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.player.FiltersManager
@@ -18,7 +18,7 @@ import java.net.URL
 
 class SongInfoActions constructor(
     private val contentResolver: ContentResolver,
-    private val ampache: AmpacheConnection,
+    private val ampache: AmpacheDataSource,
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
     private val dataRepository: DataRepository,

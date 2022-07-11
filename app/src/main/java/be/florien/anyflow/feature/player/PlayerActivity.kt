@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.SyncService
-import be.florien.anyflow.data.server.AmpacheConnection
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
@@ -117,13 +117,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         viewModel.connectionStatus.observe(this) { status ->
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (status) {
-                AmpacheConnection.ConnectionStatus.WRONG_SERVER_URL,
-                AmpacheConnection.ConnectionStatus.WRONG_ID_PAIR -> {
+                AmpacheDataSource.ConnectionStatus.WRONG_SERVER_URL,
+                AmpacheDataSource.ConnectionStatus.WRONG_ID_PAIR -> {
                     startActivity(ConnectActivity::class)
                     finish()
                 }
-                AmpacheConnection.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
-                AmpacheConnection.ConnectionStatus.CONNECTED -> {
+                AmpacheDataSource.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
+                AmpacheDataSource.ConnectionStatus.CONNECTED -> {
                     bindService(Intent(this, SyncService::class.java), viewModel.updateConnection, Context.BIND_AUTO_CREATE)
                     animateDisappearance(binding.connectionStateView)
                 }
