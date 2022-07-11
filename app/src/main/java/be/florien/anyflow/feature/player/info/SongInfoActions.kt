@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.songlist
+package be.florien.anyflow.feature.player.info
 
 import android.content.ContentResolver
 import android.content.ContentValues

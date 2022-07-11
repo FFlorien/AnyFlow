@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.server.AmpacheConnection
-import be.florien.anyflow.feature.player.songlist.InfoViewModel
-import be.florien.anyflow.feature.player.songlist.SongInfoActions
+import be.florien.anyflow.feature.player.info.InfoViewModel
+import be.florien.anyflow.feature.player.info.SongInfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.launch

@@ -7,7 +7,7 @@ import be.florien.anyflow.feature.player.filter.display.DisplayFilterViewModel
 import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel
 import be.florien.anyflow.feature.player.filter.selection.*
-import be.florien.anyflow.feature.player.songlist.InfoDisplayViewModel
+import be.florien.anyflow.feature.player.info.InfoDisplayViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import be.florien.anyflow.feature.quickActions.InfoActionsSelectionViewModel

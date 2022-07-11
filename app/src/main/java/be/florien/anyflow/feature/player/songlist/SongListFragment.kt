@@ -32,6 +32,7 @@ import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.feature.player.info.InfoFragment
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ActivityScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView

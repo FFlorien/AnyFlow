@@ -5,7 +5,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.player.songlist.InfoViewModel" />
+            type="be.florien.anyflow.feature.player.info.InfoViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

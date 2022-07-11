@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.songlist
+package be.florien.anyflow.feature.player.info
 
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -17,6 +17,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemInfoBinding
+import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.feature.quickActions.InfoActionsSelectionViewModel
 import be.florien.anyflow.injection.ViewModelFactoryHolder
