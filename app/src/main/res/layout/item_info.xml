@@ -8,7 +8,7 @@
 
         <variable
             name="display"
-            type="be.florien.anyflow.feature.player.info.SongInfoActions" />
+            type="be.florien.anyflow.feature.player.info.SongInfoActions.SongRow" />
 
         <variable
             name="descriptionText"
