@@ -49,12 +49,12 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         }
     }
 
-    fun changeFilterSelection(filterValue: FilterItem, isSelected: Boolean) {
+    fun toggleFilterSelection(filterValue: FilterItem) {
         val filter = getFilter(filterValue)
-        if (isSelected) {
-            filtersManager.addFilter(filter)
-        } else {
+        if (filtersManager.isFilterInEdition(filter)) {
             filtersManager.removeFilter(filter)
+        } else {
+            filtersManager.addFilter(filter)
         }
     }
 
@@ -79,8 +79,10 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
         } else {
             getFilteredPagingList(search)
         }
-        (values as MediatorLiveData).addSource(liveData) {
-            (values as MediatorLiveData).value = it
+        if (!liveData.hasActiveObservers()) {
+            (values as MediatorLiveData).addSource(liveData) {
+                (values as MediatorLiveData).value = it
+            }
         }
         return liveData
     }

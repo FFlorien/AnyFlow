@@ -3,13 +3,18 @@ package be.florien.anyflow.feature.player.filter.selection
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
-class SelectFilterDownloadedViewModel @Inject constructor(val dataRepository: DataRepository, filtersManager: FiltersManager, context: Context) : SelectFilterViewModel(filtersManager) {
+class SelectFilterDownloadedViewModel @Inject constructor(
+    val dataRepository: DataRepository,
+    filtersManager: FiltersManager,
+    context: Context
+) : SelectFilterViewModel(filtersManager) {
 
     override val hasSearch = false
     override val itemDisplayType = ITEM_LIST
@@ -30,11 +35,12 @@ class SelectFilterDownloadedViewModel @Inject constructor(val dataRepository: Da
     override fun getFilteredPagingList(search: String) = liveData
     override suspend fun getFoundFilters(search: String): List<FilterItem> = getFilterList()
 
-    override fun getFilter(filterValue: FilterItem) = Filter.DownloadedStatusIs(filterValue.id == 0L)
+    override fun getFilter(filterValue: FilterItem) =
+        Filter.DownloadedStatusIs(filterValue.id == 0L)
 
     private fun getFilterList() = listOf(
-            FilterItem(0, downloadedName, null, currentDownloadFilters.any { it.argument }),
-            FilterItem(1, notDownloadedName, null, currentDownloadFilters.any { !it.argument })
+        FilterItem(0, downloadedName, null, currentDownloadFilters.any { it.argument }),
+        FilterItem(1, notDownloadedName, null, currentDownloadFilters.any { !it.argument })
     )
 
 }

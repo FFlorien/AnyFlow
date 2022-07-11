@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 
 interface BaseSelectableAdapter<ID> {
     val isSelected: (ID) -> Boolean
-    val setSelected: (ID, Boolean) -> Unit
+    val setSelected: (ID) -> Unit
 
     interface BaseSelectableViewHolder<ID, ITEM> {
-        val onSelectChange: (ID, Boolean) -> Unit
+        val onSelectChange: (ID) -> Unit
 
         fun bind(item: ITEM, isSelected: Boolean)
 

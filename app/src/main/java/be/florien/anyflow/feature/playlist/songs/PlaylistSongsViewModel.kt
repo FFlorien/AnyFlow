@@ -28,15 +28,13 @@ class PlaylistSongsViewModel : BaseViewModel() {
 
     fun isSelected(id: Long?) = selectionList.value?.contains(id) ?: false
 
-    fun setSelection(id: Long?, isSelected: Boolean) {
+    fun toggleSelection(id: Long?) {
         if (id == null) {
             return
         }
         val newList = selectionList.value?.toMutableList() ?: mutableListOf()
-        if (isSelected) {
+        if (!newList.remove(id)) {
             newList.add(id)
-        } else {
-            newList.remove(id)
         }
         selectionList.mutable.value = newList
     }

@@ -118,7 +118,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
                 GridLayoutManager(activity, 3)
             }
 
-        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel.itemDisplayType, viewModel, viewModel::hasFilter, viewModel::changeFilterSelection)
+        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel.itemDisplayType, viewModel, viewModel::hasFilter, viewModel::toggleFilterSelection)
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
             ?.let {
                 fragmentBinding.filterList.addItemDecoration(
@@ -140,7 +140,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         private val itemDisplayType: Int,
         private val viewModel: SelectFilterViewModel,
         override val isSelected: (SelectFilterViewModel.FilterItem) -> Boolean,
-        override val setSelected: (SelectFilterViewModel.FilterItem, Boolean) -> Unit
+        override val setSelected: (SelectFilterViewModel.FilterItem) -> Unit
     ) :
         PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object :
             DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
@@ -178,7 +178,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
     class FilterListViewHolder(
         parent: ViewGroup,
         viewModel: SelectFilterViewModel,
-        override val onSelectChange: (SelectFilterViewModel.FilterItem, Boolean) -> Unit,
+        override val onSelectChange: (SelectFilterViewModel.FilterItem) -> Unit,
         private val itemFilterTypeBinding: ItemSelectFilterListBinding
         = ItemSelectFilterListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     ) : FilterViewHolder(itemFilterTypeBinding.root) {
@@ -192,7 +192,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
             itemFilterTypeBinding.item = item
             setSelection(isSelected)
             itemFilterTypeBinding.root.setOnClickListener {
-                onSelectChange(item, !itemFilterTypeBinding.selected)
+                onSelectChange(item)
             }
         }
 
@@ -206,7 +206,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
     class FilterGridViewHolder(
         parent: ViewGroup,
         viewModel: SelectFilterViewModel,
-        override val onSelectChange: (SelectFilterViewModel.FilterItem, Boolean) -> Unit,
+        override val onSelectChange: (SelectFilterViewModel.FilterItem) -> Unit,
         private val itemFilterTypeBinding: ItemSelectFilterGridBinding
         = ItemSelectFilterGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     ) : FilterViewHolder(itemFilterTypeBinding.root) {
@@ -220,7 +220,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
             itemFilterTypeBinding.item = item
             setSelection(isSelected)
             itemFilterTypeBinding.root.setOnClickListener {
-                onSelectChange(item, !itemFilterTypeBinding.selected)
+                onSelectChange(item)
             }
         }
 

@@ -20,13 +20,11 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
-    fun changeSelection(selectionValue: Long, isSelected: Boolean) {
-        if (isSelected) {
+    fun toggleSelection(selectionValue: Long) {
+        if (!currentSelection.remove(selectionValue)) {
             currentSelection.add(selectionValue)
-        } else {
-            currentSelection.remove(selectionValue)
         }
-        currentSelectionLive.mutable.value = currentSelection
+        currentSelectionLive.mutable.value = currentSelection.toSet()
     }
 
     fun isSelected(id: Long) = currentSelection.contains(id)

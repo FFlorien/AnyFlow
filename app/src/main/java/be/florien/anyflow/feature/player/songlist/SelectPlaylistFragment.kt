@@ -62,7 +62,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
         fragmentBinding.songId = songId
         fragmentBinding.filterList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel::isSelected, viewModel::changeSelection)
+        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel::isSelected, viewModel::toggleSelection)
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
             ?.let {
                 fragmentBinding.filterList.addItemDecoration(
@@ -115,7 +115,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
     }
 
     class FilterListAdapter(override val isSelected: (Long) -> Boolean,
-                            override val setSelected: (Long, Boolean) -> Unit
+                            override val setSelected: (Long) -> Unit
     ) :
         PagingDataAdapter<Playlist, PlaylistViewHolder>(object :
             DiffUtil.ItemCallback<Playlist>() {
@@ -141,7 +141,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
 
     class PlaylistViewHolder(
         parent: ViewGroup,
-        override val onSelectChange: (Long, Boolean) -> Unit,
+        override val onSelectChange: (Long) -> Unit,
         private val itemPlaylistBinding: ItemSelectPlaylistBinding
         = ItemSelectPlaylistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     ) : RecyclerView.ViewHolder(itemPlaylistBinding.root), BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
@@ -154,7 +154,7 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
             itemPlaylistBinding.item = item
             setSelection(isSelected)
             itemPlaylistBinding.root.setOnClickListener {
-                onSelectChange(item.id, isSelected)
+                onSelectChange(item.id)
             }
         }
 

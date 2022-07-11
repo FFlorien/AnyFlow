@@ -57,7 +57,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = PlaylistSongAdapter(viewModel::getCover, viewModel::isSelected, viewModel::setSelection)
+        recyclerView.adapter = PlaylistSongAdapter(viewModel::getCover, viewModel::isSelected, viewModel::toggleSelection)
         viewModel.songList.observe(viewLifecycleOwner) {
             (recyclerView.adapter as PlaylistSongAdapter).submitData(lifecycle, it)
         }
@@ -72,7 +72,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     class PlaylistSongAdapter(
         private val getCoverUrl: (Long) -> String,
         override val isSelected: (Long) -> Boolean,
-        override val setSelected: (Long, Boolean) -> Unit
+        override val setSelected: (Long) -> Unit
     ) :
         PagingDataAdapter<SongInfo, PlaylistSongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
             override fun areItemsTheSame(
@@ -100,7 +100,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     class PlaylistSongViewHolder(
         container: ViewGroup,
         private val getCoverUrl: (Long) -> String,
-        override val onSelectChange: (Long, Boolean) -> Unit,
+        override val onSelectChange: (Long) -> Unit,
         private val binding: LayoutSongBinding = LayoutSongBinding.inflate(
             LayoutInflater.from(container.context),
             container,
@@ -111,7 +111,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
             binding.root.setOnClickListener {
-                binding.song?.let { song -> onSelectChange(song.id, !binding.selected) }
+                binding.song?.let { song -> onSelectChange(song.id) }
             }
         }
 
