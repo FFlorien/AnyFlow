@@ -21,9 +21,15 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
         dataRepository.getPlaylists { it.toViewPlaylist() }.cachedIn(this)
     }
     val selection: LiveData<List<Long>> = MutableLiveData(mutableListOf())
+    private var isForcingSelectMode = false
+    val isInSelectionMode: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(selection) {
+            value = isForcingSelectMode || it.isNotEmpty()
+        }
+    }.distinctUntilChanged()
     val hasSelection: LiveData<Boolean> = Transformations.map(selection) {
         it.isNotEmpty()
-    }.distinctUntilChanged()
+    }
 
     fun isSelected(id: Long) = selection.value?.contains(id) ?: false
 
@@ -47,6 +53,16 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
                 dataRepository.deletePlaylist(it)
             }
             selection.mutable.value = mutableListOf()
+        }
+    }
+
+    fun toggleSelectionMode() {
+        isForcingSelectMode = isInSelectionMode.value == false
+        isInSelectionMode.mutable.value = if (isForcingSelectMode) {
+            true
+        } else {
+            selection.mutable.value = mutableListOf()
+            false
         }
     }
 }

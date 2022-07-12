@@ -57,9 +57,11 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
     private var shouldHideLoading = false
     private var isLoadingVisible = false
 
-    private val searchMenuHolder = SearchSongMenuHolder {
-        val currentState = viewModel.isSearching.value == true
-        viewModel.isSearching.value = !currentState
+    private val searchMenuHolder by lazy {
+        SearchSongMenuHolder(viewModel.isSearching.value == true, requireContext()) {
+            val currentState = viewModel.isSearching.value == true
+            viewModel.isSearching.value = !currentState
+        }
     }
 
     private val topSet: ConstraintSet
@@ -90,7 +92,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        (requireActivity() as PlayerActivity).menuCoordinator.addMenuHolder(searchMenuHolder)
     }
 
     override fun onCreateView(
@@ -106,6 +107,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
         currentSongViewHolder =
             SongViewHolder(binding.root as ViewGroup, binding.currentSongDisplay)
         currentSongViewHolder.isCurrentSong = true
+        (requireActivity() as PlayerActivity).menuCoordinator.addMenuHolder(searchMenuHolder)
         return binding.root
     }
 
@@ -154,6 +156,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
             }
         }
         viewModel.isSearching.observe(viewLifecycleOwner) {
+            searchMenuHolder.changeState(!it)
             val imm: InputMethodManager? =
                 requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             if (it) {

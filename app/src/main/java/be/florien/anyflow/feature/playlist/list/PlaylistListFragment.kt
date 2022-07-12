@@ -18,6 +18,7 @@ import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.DeletePlaylistMenuHolder
 import be.florien.anyflow.feature.menu.implementation.NewPlaylistMenuHolder
+import be.florien.anyflow.feature.menu.implementation.SelectionModeMenuHolder
 import be.florien.anyflow.feature.playlist.deletePlaylistConfirmation
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
@@ -28,11 +29,16 @@ class PlaylistListFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewModel: PlaylistListViewModel
     private val menuCoordinator = MenuCoordinator()
-    private val newPlaylistMenuHolder = NewPlaylistMenuHolder{
+    private val newPlaylistMenuHolder = NewPlaylistMenuHolder {
         requireActivity().newPlaylist(viewModel)
     }
-    private val deletePlaylistMenuHolder = DeletePlaylistMenuHolder{
+    private val deletePlaylistMenuHolder = DeletePlaylistMenuHolder {
         requireActivity().deletePlaylistConfirmation(viewModel)
+    }
+    private val selectPlaylistMenuHolder by lazy {
+        SelectionModeMenuHolder(viewModel.hasSelection.value == true, requireContext()) {
+            viewModel.toggleSelectionMode()
+        }
     }
 
     override fun getTitle() = resources.getString(R.string.menu_playlist)
@@ -41,6 +47,7 @@ class PlaylistListFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         menuCoordinator.addMenuHolder(newPlaylistMenuHolder)
         menuCoordinator.addMenuHolder(deletePlaylistMenuHolder)
+        menuCoordinator.addMenuHolder(selectPlaylistMenuHolder)
         setHasOptionsMenu(true)
     }
 
@@ -62,7 +69,8 @@ class PlaylistListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = PlaylistAdapter(this::onItemClicked, viewModel::isSelected, viewModel::toggleSelection)
+        recyclerView.adapter =
+            PlaylistAdapter(this::onItemClicked, viewModel::isSelected, viewModel::toggleSelection)
         viewModel.playlistList.observe(viewLifecycleOwner) {
             (recyclerView.adapter as PlaylistAdapter).submitData(lifecycle, it)
         }
@@ -72,8 +80,11 @@ class PlaylistListFragment : BaseFragment() {
                 viewHolder.setSelection(it.contains(vh.getCurrentId()))
             }
         }
-        viewModel.hasSelection.observe(viewLifecycleOwner) {
+        viewModel.isInSelectionMode.observe(viewLifecycleOwner) {
             newPlaylistMenuHolder.isVisible = !it
+            selectPlaylistMenuHolder.changeState(!it)
+        }
+        viewModel.hasSelection.observe(viewLifecycleOwner) {
             deletePlaylistMenuHolder.isVisible = it
         }
     }
@@ -96,10 +107,11 @@ class PlaylistListFragment : BaseFragment() {
         super.onDestroy()
         menuCoordinator.removeMenuHolder(newPlaylistMenuHolder)
         menuCoordinator.removeMenuHolder(deletePlaylistMenuHolder)
+        menuCoordinator.removeMenuHolder(selectPlaylistMenuHolder)
     }
 
     private fun onItemClicked(item: Playlist?) {
-        if (viewModel.hasSelection.value == true) {
+        if (viewModel.isInSelectionMode.value == true) {
             item?.id?.let { viewModel.toggleSelection(it) }
         } else {
             if (item != null)
@@ -133,7 +145,8 @@ class PlaylistListFragment : BaseFragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             PlaylistViewHolder(parent, onItemClickListener, setSelected)
 
-        override fun getSectionName(position: Int): String = getItem(position)?.name?.firstOrNull()?.toString() ?: position.toString()
+        override fun getSectionName(position: Int): String =
+            getItem(position)?.name?.firstOrNull()?.toString() ?: position.toString()
 
     }
 
@@ -146,7 +159,8 @@ class PlaylistListFragment : BaseFragment() {
             container,
             false
         )
-    ) : RecyclerView.ViewHolder(binding.root), BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
+    ) : RecyclerView.ViewHolder(binding.root),
+        BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()

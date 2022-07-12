@@ -3,33 +3,32 @@ package be.florien.anyflow.feature.menu
 import android.content.Context
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
+import android.view.Menu
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import android.view.Menu
 
 abstract class AnimatedMenuHolder(
-        @MenuRes
-        menuResource: Int,
-        @IdRes
-        menuId: Int,
-        @DrawableRes
-        val firstStateDrawableResource: Int,
-        @DrawableRes
-        val secondStateDrawableResource: Int,
-        var isIconInFirstState: Boolean,
-        val context: Context,
-        action: () -> Unit) : MenuHolder(menuResource, menuId, action) {
+    @MenuRes
+    menuResource: Int,
+    @IdRes
+    menuId: Int,
+    @DrawableRes
+    val firstStateDrawableResource: Int,
+    @DrawableRes
+    val secondStateDrawableResource: Int,
+    var isIconInFirstState: Boolean,
+    val context: Context,
+    action: () -> Unit
+) : MenuHolder(menuResource, menuId, action) {
 
     private val firstStateDrawable: AnimatedVectorDrawableCompat
         get() = AnimatedVectorDrawableCompat.create(context, firstStateDrawableResource)?.apply {
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     super.onAnimationEnd(drawable)
-                    firstStateDrawable
-                    menuItem?.icon = secondStateDrawable
                     isIconInFirstState = false
                 }
             })
@@ -38,8 +37,6 @@ abstract class AnimatedMenuHolder(
         get() = AnimatedVectorDrawableCompat.create(context, secondStateDrawableResource)?.apply {
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    menuItem?.icon = firstStateDrawable
                     isIconInFirstState = true
                 }
             })
@@ -53,6 +50,7 @@ abstract class AnimatedMenuHolder(
     fun changeState(toFirstState: Boolean) {
         if (isIconInFirstState != toFirstState) {
             if (isVisible && menuItem != null) {
+                menuItem?.icon = if (toFirstState) secondStateDrawable else firstStateDrawable
                 (menuItem?.icon as? Animatable)?.start()
             } else {
                 setState(toFirstState)

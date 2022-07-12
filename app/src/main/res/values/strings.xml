@@ -38,6 +38,7 @@
     <string name="menu_order_random">Random</string>
     <string name="menu_order_classic">Classic</string>
     <string name="menu_playlist_create">Create a new playlist</string>
+    <string name="menu_playlist_select">Selection mode</string>
     <string name="menu_playlist_delete">Delete the playlist</string>
     <string name="menu_playlist_song_remove">Remove from the playlist</string>
     <string name="general_loading_label">Loading, please wait…</string>
