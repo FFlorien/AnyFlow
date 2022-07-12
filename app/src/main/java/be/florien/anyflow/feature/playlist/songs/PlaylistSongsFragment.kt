@@ -2,9 +2,7 @@ package be.florien.anyflow.feature.playlist.songs
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
@@ -18,12 +16,18 @@ import be.florien.anyflow.databinding.LayoutSongBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.BaseSelectableAdapter
+import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.feature.menu.implementation.RemoveSongsMenuHolder
 import be.florien.anyflow.feature.refreshVisibleViewHolders
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     lateinit var recyclerView: RecyclerView
     lateinit var viewModel: PlaylistSongsViewModel
+    private val menuCoordinator = MenuCoordinator()
+    private val removeFromPlaylistMenuHolder = RemoveSongsMenuHolder{
+        requireActivity().removeSongsConfirmation(viewModel)
+    }
 
     init {
         arguments?.let { args ->
@@ -37,6 +41,12 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     }
 
     override fun getTitle() = playlist.name
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        menuCoordinator.addMenuHolder(removeFromPlaylistMenuHolder)
+        setHasOptionsMenu(true)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,6 +77,28 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
                 songViewHolder?.setSelection(it.contains(songViewHolder.getCurrentId()))
             }
         }
+        viewModel.hasSelection.observe(viewLifecycleOwner) {
+            removeFromPlaylistMenuHolder.isVisible = it
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menuCoordinator.inflateMenus(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menuCoordinator.prepareMenus(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return menuCoordinator.handleMenuClick(item.itemId)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        menuCoordinator.removeMenuHolder(removeFromPlaylistMenuHolder)
     }
 
     class PlaylistSongAdapter(

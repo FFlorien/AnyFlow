@@ -196,4 +196,12 @@ interface AmpacheApi {
         @Query("song") songId: Long,
         @Query("check") check: Int = 1
     )
+
+    @GET("server/json.server.php")
+    suspend fun removeFromPlaylist(
+        @Query("action") action: String = "playlist_remove_song",
+        @Query("filter") filter: Long,
+        @Query("auth") auth: String,
+        @Query("song") song: Long
+    )
 }

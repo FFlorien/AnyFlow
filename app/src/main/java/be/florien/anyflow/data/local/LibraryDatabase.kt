@@ -253,6 +253,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         getPlaylistDao().delete(DbPlaylist(id, "", ""))
     }
 
+    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
+        getPlaylistSongsDao().delete(DbPlaylistSongs(0, songId, playlistId))
+    }
+
     companion object {
         const val CHANGE_SONGS = 0
         const val CHANGE_ALBUMS = 1

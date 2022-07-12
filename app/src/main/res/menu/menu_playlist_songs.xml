@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_remove_playlist"
+        android:title="@string/menu_playlist_song_remove"
+        android:icon="@drawable/ic_delete_yellow"
+        app:showAsAction="ifRoom" />
+</menu>

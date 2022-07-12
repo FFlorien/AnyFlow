@@ -548,6 +548,14 @@ open class AmpacheDataSource
         )
     }
 
+    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
+        ampacheApi.removeFromPlaylist(
+            auth = authPersistence.authToken.secret,
+            filter = playlistId,
+            song = songId
+        )
+    }
+
     fun getSongUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret

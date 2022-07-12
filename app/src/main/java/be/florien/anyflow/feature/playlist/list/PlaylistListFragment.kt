@@ -39,7 +39,6 @@ class PlaylistListFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity()
         menuCoordinator.addMenuHolder(newPlaylistMenuHolder)
         menuCoordinator.addMenuHolder(deletePlaylistMenuHolder)
         setHasOptionsMenu(true)

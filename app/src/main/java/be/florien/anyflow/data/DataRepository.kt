@@ -252,6 +252,11 @@ class DataRepository
         )
     }
 
+    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
+        ampacheDataSource.removeSongFromPlaylist(playlistId, songId)
+        libraryDatabase.removeSongFromPlaylist(playlistId, songId)
+    }
+
     /**
      * Orders
      */

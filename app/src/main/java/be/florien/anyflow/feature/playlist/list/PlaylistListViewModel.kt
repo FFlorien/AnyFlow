@@ -1,9 +1,6 @@
 package be.florien.anyflow.feature.playlist.list
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
@@ -26,7 +23,7 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     val selection: LiveData<List<Long>> = MutableLiveData(mutableListOf())
     val hasSelection: LiveData<Boolean> = Transformations.map(selection) {
         it.isNotEmpty()
-    }
+    }.distinctUntilChanged()
 
     fun isSelected(id: Long) = selection.value?.contains(id) ?: false
 

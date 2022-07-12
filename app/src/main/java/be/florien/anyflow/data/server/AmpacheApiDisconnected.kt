@@ -199,4 +199,13 @@ class AmpacheApiDisconnected : AmpacheApi {
         songId: Long,
         check: Int
     ) = throw NoServerException()
+
+    override suspend fun removeFromPlaylist(
+        action: String,
+        filter: Long,
+        auth: String,
+        song: Long
+    ) {
+        throw NoServerException()
+    }
 }
