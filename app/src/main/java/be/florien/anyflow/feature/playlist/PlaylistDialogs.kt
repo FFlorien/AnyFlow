@@ -23,6 +23,22 @@ fun Context.newPlaylist(vm: NewPlaylistViewModel) {
         .show()
 }
 
+fun Context.deletePlaylistConfirmation(vm: DeletePlaylistViewModel) {
+    AlertDialog.Builder(this)
+        .setTitle(R.string.info_action_delete_playlist)
+        .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+            vm.deletePlaylist()
+        }
+        .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+            dialog.cancel()
+        }
+        .show()
+}
+
 interface NewPlaylistViewModel {
     fun createPlaylist(name: String)
+}
+
+interface DeletePlaylistViewModel {
+    fun deletePlaylist()
 }

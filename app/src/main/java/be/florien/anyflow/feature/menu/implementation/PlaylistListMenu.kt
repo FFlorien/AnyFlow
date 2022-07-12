@@ -9,3 +9,9 @@ class NewPlaylistMenuHolder(action: () -> Unit) : MenuHolder(
     R.id.menu_new_playlist,
     action
 )
+
+class DeletePlaylistMenuHolder(action: () -> Unit) : MenuHolder(
+    R.menu.menu_playlist_list,
+    R.id.menu_delete_playlist,
+    action
+)

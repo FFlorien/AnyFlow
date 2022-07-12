@@ -188,6 +188,10 @@ class AmpacheApiDisconnected : AmpacheApi {
     override suspend fun createPlaylist(action: String, auth: String, name: String, type: String) =
         throw NoServerException()
 
+    override suspend fun deletePlaylist(action: String, auth: String, id: String) {
+        throw NoServerException()
+    }
+
     override suspend fun addToPlaylist(
         action: String,
         filter: Long,

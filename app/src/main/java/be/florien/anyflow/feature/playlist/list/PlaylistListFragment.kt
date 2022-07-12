@@ -16,7 +16,9 @@ import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.feature.menu.implementation.DeletePlaylistMenuHolder
 import be.florien.anyflow.feature.menu.implementation.NewPlaylistMenuHolder
+import be.florien.anyflow.feature.playlist.deletePlaylistConfirmation
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
 import be.florien.anyflow.feature.refreshVisibleViewHolders
@@ -29,6 +31,9 @@ class PlaylistListFragment : BaseFragment() {
     private val newPlaylistMenuHolder = NewPlaylistMenuHolder{
         requireActivity().newPlaylist(viewModel)
     }
+    private val deletePlaylistMenuHolder = DeletePlaylistMenuHolder{
+        requireActivity().deletePlaylistConfirmation(viewModel)
+    }
 
     override fun getTitle() = resources.getString(R.string.menu_playlist)
 
@@ -36,6 +41,7 @@ class PlaylistListFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         requireActivity()
         menuCoordinator.addMenuHolder(newPlaylistMenuHolder)
+        menuCoordinator.addMenuHolder(deletePlaylistMenuHolder)
         setHasOptionsMenu(true)
     }
 
@@ -67,6 +73,10 @@ class PlaylistListFragment : BaseFragment() {
                 viewHolder.setSelection(it.contains(vh.getCurrentId()))
             }
         }
+        viewModel.hasSelection.observe(viewLifecycleOwner) {
+            newPlaylistMenuHolder.isVisible = !it
+            deletePlaylistMenuHolder.isVisible = it
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -86,12 +96,18 @@ class PlaylistListFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         menuCoordinator.removeMenuHolder(newPlaylistMenuHolder)
+        menuCoordinator.removeMenuHolder(deletePlaylistMenuHolder)
     }
 
     private fun onItemClicked(item: Playlist?) {
-        if (item != null)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.container, PlaylistSongsFragment(item)).addToBackStack(null).commit()
+        if (viewModel.hasSelection.value == true) {
+            item?.id?.let { viewModel.toggleSelection(it) }
+        } else {
+            if (item != null)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.container, PlaylistSongsFragment(item)).addToBackStack(null)
+                    .commit()
+        }
     }
 
     class PlaylistAdapter(

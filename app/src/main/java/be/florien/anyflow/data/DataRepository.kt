@@ -233,6 +233,11 @@ class DataRepository
         addPlaylists(TimeOperations.getCurrentDatePlus(Calendar.HOUR, -1))
     }
 
+    suspend fun deletePlaylist(id: Long) {
+        ampacheDataSource.deletePlaylist(id)
+        libraryDatabase.deletePlaylist(id)
+    }
+
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheDataSource.addSongToPlaylist(songId, playlistId)
         val playlistLastOrder = libraryDatabase.getPlaylistLastOrder(playlistId)

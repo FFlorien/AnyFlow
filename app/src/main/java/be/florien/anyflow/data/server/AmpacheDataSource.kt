@@ -536,6 +536,10 @@ open class AmpacheDataSource
         ampacheApi.createPlaylist(auth = authPersistence.authToken.secret, name = name)
     }
 
+    suspend fun deletePlaylist(id: Long) {
+        ampacheApi.deletePlaylist(auth = authPersistence.authToken.secret, id = id.toString())
+    }
+
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheApi.addToPlaylist(
             auth = authPersistence.authToken.secret,

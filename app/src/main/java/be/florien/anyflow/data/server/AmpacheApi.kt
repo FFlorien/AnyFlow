@@ -182,6 +182,13 @@ interface AmpacheApi {
     )
 
     @GET("server/json.server.php")
+    suspend fun deletePlaylist(
+        @Query("action") action: String = "playlist_delete",
+        @Query("auth") auth: String,
+        @Query("filter") id: String
+    )
+
+    @GET("server/json.server.php")
     suspend fun addToPlaylist(
         @Query("action") action: String = "playlist_add_song",
         @Query("filter") filter: Long,

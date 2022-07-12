@@ -39,6 +39,7 @@
     <string name="menu_order_random">Aléatoire</string>
     <string name="menu_order_classic">Classique</string>
     <string name="menu_playlist_create">Créer une nouvelle liste de lecture</string>
+    <string name="menu_playlist_delete">Supprimer la liste de lecture</string>
     <string name="general_loading_label">Chargement, veuillez patienter…</string>
     <string name="action_filter_clear">Nettoyer les filtres</string>
     <string name="action_filter_add">Ajouter des filtres</string>
@@ -70,6 +71,7 @@
     <string name="info_action_next_title">Jouer ensuite</string>
     <string name="info_action_add_to_playlist">Ajouter à des listes de lecture</string>
     <string name="info_action_new_playlist">Nom de la liste de lecture</string>
+    <string name="info_action_delete_playlist">Êtes-vous sûr de vouloir supprimer cette liste de lecture ?</string>
     <string name="info_action_add_to_playlist_detail">Selectionner une ou plusieurs listes de lecture auxquelles ajouter cette chanson</string>
     <string name="info_action_filter_on">N\'écouter que %1$s</string>
     <string name="info_action_search_on">Rechercher %1$s dans la liste de lecture actuelle</string>
