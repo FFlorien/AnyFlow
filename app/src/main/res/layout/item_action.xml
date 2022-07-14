@@ -20,7 +20,7 @@
         android:layout_height="@dimen/mediumDimen"
         android:layout_gravity="bottom|start"
         android:scaleType="fitCenter"
-        android:background="@drawable/bg_accent"
+        android:background="@drawable/bg_action"
         app:tint="@color/primary" />
 
 </FrameLayout>

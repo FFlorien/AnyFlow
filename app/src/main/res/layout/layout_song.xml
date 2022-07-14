@@ -23,13 +23,14 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <be.florien.anyflow.extension.CheckableConstrainLayout
         android:id="@+id/songInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_blue_selectable_ripple"
+        android:checked="@{selected || current}"
         android:orientation="horizontal"
-        android:padding="@dimen/listItemPadding"
-        app:isSelectedBackground="@{selected || current}">
+        android:padding="@dimen/listItemPadding">
 
         <ImageView
             android:id="@+id/cover"
@@ -99,5 +100,5 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="3:45" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </be.florien.anyflow.extension.CheckableConstrainLayout>
 </layout>

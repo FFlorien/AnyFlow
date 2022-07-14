@@ -37,9 +37,9 @@
             android:background="#00000000"
             android:contentDescription="@null"
             android:onClick="@{() -> vm.deleteFilter(filter)}"
-            android:tint="@color/primaryDark"
-            android:tintMode="src_in"
             android:visibility="@{vm == null ? View.GONE : View.VISIBLE}"
-            app:srcCompat="@drawable/ic_delete" />
+            app:srcCompat="@drawable/ic_delete"
+            app:tint="@color/primaryDark"
+            app:tintMode="src_in" />
     </LinearLayout>
 </layout>

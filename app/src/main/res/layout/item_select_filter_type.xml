@@ -13,7 +13,7 @@
             android:layout_height="@dimen/xLargeDimen"
             android:layout_marginBottom="@dimen/listItemPadding"
             android:contentDescription="@null"
-            android:tint="@color/primaryDark"
+            app:tint="@color/primaryDark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

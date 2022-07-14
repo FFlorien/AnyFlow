@@ -176,15 +176,9 @@ class InfoFragment(
                     )
                 )
             } else if (row.actionType != SongInfoActions.ActionType.INFO_TITLE && row.actionType != SongInfoActions.ActionType.EXPANDABLE_TITLE && row.actionType != SongInfoActions.ActionType.EXPANDED_TITLE) {
-                binding.root.setBackgroundColor(
-                    ResourcesCompat.getColor(
-                        parent.context.resources,
-                        R.color.accentBackground,
-                        parent.context.theme
-                    )
-                )
+                binding.root.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
             } else {
-                binding.root.setBackgroundColor(0)
+                binding.root.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)
             }
         }
 

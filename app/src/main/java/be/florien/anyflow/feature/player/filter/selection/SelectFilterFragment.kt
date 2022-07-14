@@ -46,6 +46,12 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         get() = viewModel
     lateinit var viewModel: SelectFilterViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
+    private val searchMenuHolder by lazy {
+        SearchMenuHolder(viewModel.isSearching.value == true, requireContext()) {
+            val currentValue = viewModel.isSearching.value ?: false
+            viewModel.isSearching.value = !currentValue
+        }
+    }
 
     override fun getTitle(): String = when (filterType) {
         ALBUM_ID -> getString(R.string.filter_title_album)
@@ -70,12 +76,9 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val menuHolder = SearchMenuHolder {
-            val currentValue = viewModel.isSearching.value ?: false
-            viewModel.isSearching.value = !currentValue
-        }
-        menuCoordinator.addMenuHolder(menuHolder)
+        menuCoordinator.addMenuHolder(searchMenuHolder)
         viewModel.isSearching.observe(this) {
+            searchMenuHolder.changeState(!it)
             val imm: InputMethodManager? =
                 requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             if (it) {
@@ -87,7 +90,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
                 imm?.hideSoftInputFromWindow(fragmentBinding.root.windowToken, 0)
             }
         }
-        menuHolder.isVisible = viewModel.hasSearch
+        searchMenuHolder.isVisible = viewModel.hasSearch
     }
 
     override fun onAttach(context: Context) {
@@ -118,7 +121,12 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
                 GridLayoutManager(activity, 3)
             }
 
-        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel.itemDisplayType, viewModel, viewModel::hasFilter, viewModel::toggleFilterSelection)
+        fragmentBinding.filterList.adapter = FilterListAdapter(
+            viewModel.itemDisplayType,
+            viewModel,
+            viewModel::hasFilter,
+            viewModel::toggleFilterSelection
+        )
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
             ?.let {
                 fragmentBinding.filterList.addItemDecoration(
@@ -154,7 +162,8 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
                 newItem: SelectFilterViewModel.FilterItem
             ): Boolean =
                 oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
-        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<SelectFilterViewModel.FilterItem> {
+        }), FastScrollRecyclerView.SectionedAdapter,
+        BaseSelectableAdapter<SelectFilterViewModel.FilterItem> {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =
             if (itemDisplayType == SelectFilterViewModel.ITEM_LIST) {
                 FilterListViewHolder(parent, viewModel, setSelected)

@@ -19,11 +19,12 @@
         <import type="android.view.View" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <be.florien.anyflow.extension.CheckableConstrainLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/minClickableSize"
-        app:isSelectedBackground="@{selected}">
+        android:checked="@{selected}"
+        android:background="@drawable/bg_blue_selectable_ripple">
 
         <ImageView
             android:id="@+id/imageView"
@@ -50,5 +51,5 @@
             app:layout_constraintStart_toEndOf="@+id/imageView"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </be.florien.anyflow.extension.CheckableConstrainLayout>
 </layout>
