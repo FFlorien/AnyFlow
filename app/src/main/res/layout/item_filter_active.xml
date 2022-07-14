@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
+        android:background="@drawable/bg_blue_light_selectable_ripple"
         android:padding="@dimen/listItemPadding">
 
         <TextView
