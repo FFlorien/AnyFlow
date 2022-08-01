@@ -14,6 +14,8 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.net.URL
 
 class SongInfoActions constructor(
@@ -55,7 +57,10 @@ class SongInfoActions constructor(
                 songInfo.albumArtistName,
                 null
             )
-            FieldType.GENRE -> Filter.GenreIs(songInfo.genreIds.first(), songInfo.genreNames.first()) // todo handle multiple genre in info view
+            FieldType.GENRE -> Filter.GenreIs(
+                songInfo.genreIds.first(),
+                songInfo.genreNames.first()
+            ) // todo handle multiple genre in info view
             else -> throw IllegalArgumentException("This field can't be filtered on")
         }
         filtersManager.clearFilters()
@@ -85,13 +90,18 @@ class SongInfoActions constructor(
 
         val newSongUri = contentResolver.insert(audioCollection, newSongDetails) ?: return
 
-        kotlin.runCatching {
-            val songUrl = ampache.getSongUrl(songInfo.id)
-            URL(songUrl).openStream().use { input ->
-                contentResolver.openOutputStream(newSongUri)?.use { output ->
-                    input.copyTo(output)
+        val result = kotlin.runCatching {
+            withContext(Dispatchers.IO) {
+                val songUrl = ampache.getSongUrl(songInfo.id)
+                URL(songUrl).openStream().use { input ->
+                    contentResolver.openOutputStream(newSongUri)?.use { output ->
+                        input.copyTo(output)
+                    }
                 }
             }
+        }
+        if (result.isFailure) {
+            throw result.exceptionOrNull() ?: return
         }
         dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
         lastSongInfo = null
