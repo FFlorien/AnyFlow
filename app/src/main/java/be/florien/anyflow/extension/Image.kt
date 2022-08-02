@@ -1,5 +1,6 @@
 package be.florien.anyflow.extension
 
+import android.net.Uri
 import android.widget.ImageView
 import android.widget.TimePicker
 import androidx.databinding.BindingAdapter
@@ -7,6 +8,7 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import be.florien.anyflow.R
 import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
 
 
@@ -19,11 +21,22 @@ fun ImageView.setCoverImageUrl(url: String?) {
         setImageBitmap(null)
     } else {
         GlideApp.with(this.rootView)
-                .load(url)
-                .placeholder(R.drawable.cover_placeholder)
-                .error(R.drawable.cover_placeholder)
-                .fitCenter()
-                .into(this)
+            .load(ChangingTokenUrl(url))
+            .placeholder(R.drawable.cover_placeholder)
+            .error(R.drawable.cover_placeholder)
+            .fitCenter()
+            .into(this)
+    }
+}
+
+internal class ChangingTokenUrl(val url: String) : GlideUrl(url) {
+    override fun getCacheKey(): String {
+        val uri = Uri.parse(url)
+        return (uri.host
+            ?.plus(uri.getQueryParameter("object_type"))
+            ?.plus("_")
+            ?.plus(uri.getQueryParameter("object_id")))
+            ?: url
     }
 }
 
@@ -46,10 +59,11 @@ fun TimePicker.setTimeBinding(time: Int) {
 fun TimePicker.getHourBinding(): Int {
     return currentHour * 60 + currentMinute
 }
+
 @BindingAdapter("app:timeAttrChanged")
 fun setListenersForHour(
-        view: TimePicker,
-        attrChange: InverseBindingListener
+    view: TimePicker,
+    attrChange: InverseBindingListener
 ) {
     view.setOnTimeChangedListener { _, _, _ -> attrChange.onChange() }
 }
