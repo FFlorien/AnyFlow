@@ -33,9 +33,9 @@ internal class ChangingTokenUrl(val url: String) : GlideUrl(url) {
     override fun getCacheKey(): String {
         val uri = Uri.parse(url)
         return (uri.host
-            ?.plus(uri.getQueryParameter("object_type"))
+            ?.plus(uri.getQueryParameter("type"))
             ?.plus("_")
-            ?.plus(uri.getQueryParameter("object_id")))
+            ?.plus(uri.getQueryParameter("id")))
             ?: url
     }
 }

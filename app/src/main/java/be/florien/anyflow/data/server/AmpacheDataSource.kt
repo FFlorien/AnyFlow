@@ -559,19 +559,19 @@ open class AmpacheDataSource
     fun getSongUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret
-        return "${serverUrl}play/index.php?ssid=$token&type=song&oid=$id&uid=1"
+        return "${serverUrl}server/json.server.php?action=stream&auth=$token&type=song&id=$id&uid=1"
     }
 
     fun getAlbumArtUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret
-        return "${serverUrl}image.php?auth=$token&object_type=album&object_id=$id"
+        return "${serverUrl}server/json.server.php?action=get_art&auth=$token&type=album&id=$id"
     }
 
     fun getArtistArtUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret
-        return "${serverUrl}image.php?auth=$token&object_type=artist&object_id=$id"
+        return "${serverUrl}server/json.server.php?action=get_art&auth=$token&type=artist&id=$id"
     }
 
     private suspend fun <T> getItems(
