@@ -92,11 +92,11 @@ class DataRepository
         sync: suspend (Calendar) -> Unit
     ) = withContext(Dispatchers.IO) {
         val nowDate = TimeOperations.getCurrentDate()
-        val lastCleanMillis = sharedPreferences.getLong(lastServerSyncName, 0L)
-        val lastServerClean = TimeOperations.getDateFromMillis(lastCleanMillis)
+        val lastSyncMillis = sharedPreferences.getLong(lastServerSyncName, 0L)
+        val lastServerSync = TimeOperations.getDateFromMillis(lastSyncMillis)
         val lastSync =
             TimeOperations.getDateFromMillis(sharedPreferences.getLong(lastDbSyncName, 0L))
-        if (lastServerClean.after(lastSync) || lastCleanMillis == 0L) {
+        if (lastServerSync.after(lastSync) || lastSyncMillis == 0L) {
             sync(lastSync)
             sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
         }

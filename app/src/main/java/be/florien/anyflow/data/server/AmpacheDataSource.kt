@@ -556,6 +556,9 @@ open class AmpacheDataSource
         )
     }
 
+    suspend fun getStreamError(songId: Long) =
+        ampacheApi.streamError(auth = authPersistence.authToken.secret, songId = songId)
+
     fun getSongUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret

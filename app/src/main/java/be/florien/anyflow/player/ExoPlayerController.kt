@@ -20,6 +20,7 @@ import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
+import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.HttpDataSource
@@ -232,23 +233,42 @@ class ExoPlayerController
     }
 
     override fun onPlayerError(error: PlaybackException) {
+
+        suspend fun reconnect() {
+            ampacheDataSource.reconnect {
+                GlobalScope.launch(Dispatchers.Main) {
+                    val firstItem =
+                        dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+                    val secondItem =
+                        dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+                    mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
+                    mediaPlayer.seekTo(0, C.TIME_UNSET)
+                }
+                prepare()
+            }
+        }
+
+        if (error is ExoPlaybackException && error.type == ExoPlaybackException.TYPE_SOURCE && error.sourceException is UnrecognizedInputFormatException) {
+            val sourceException = error.sourceException as UnrecognizedInputFormatException
+            val uri = sourceException.uri
+            val songId = uri.getQueryParameter("id")?.toLongOrNull()
+            if (songId != null) {
+                GlobalScope.launch (Dispatchers.IO) {
+                    val ampacheError = ampacheDataSource.getStreamError(songId)
+                    if (ampacheError.error.errorCode == 4701) {
+                        reconnect()
+                    }
+                }
+            }
+        }
+
         if (
             (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403
             || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400
         ) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             GlobalScope.launch {
-                ampacheDataSource.reconnect {
-                    GlobalScope.launch(Dispatchers.Main) {
-                        val firstItem =
-                            dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
-                        val secondItem =
-                            dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.nextSong)
-                        mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
-                        mediaPlayer.seekTo(0, C.TIME_UNSET)
-                    }
-                    prepare()
-                }
+                reconnect()
             }
         } else if (
             error is ExoPlaybackException

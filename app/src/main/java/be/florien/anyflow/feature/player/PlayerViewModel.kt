@@ -99,7 +99,7 @@ constructor(
     }
 
     override fun onCurrentDurationChanged(newDuration: Long) {
-        if ((currentDuration.value?.minus(newDuration))?.absoluteValue ?: 0 > 1000) {
+        if (((currentDuration.value?.minus(newDuration))?.absoluteValue ?: 0) > 1000) {
             player.seekTo(newDuration)
         }
     }

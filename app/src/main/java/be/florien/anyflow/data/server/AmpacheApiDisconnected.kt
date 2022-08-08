@@ -208,4 +208,13 @@ class AmpacheApiDisconnected : AmpacheApi {
     ) {
         throw NoServerException()
     }
+
+    override suspend fun streamError(
+        action: String,
+        type: String,
+        auth: String,
+        songId: Long
+    ): AmpacheErrorObject {
+        throw NoServerException()
+    }
 }

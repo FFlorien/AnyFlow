@@ -204,4 +204,12 @@ interface AmpacheApi {
         @Query("auth") auth: String,
         @Query("song") song: Long
     )
+
+    @GET("server/json.server.php")
+    suspend fun streamError(
+        @Query("action") action: String = "stream",
+        @Query("type") type: String = "song",
+        @Query("auth") auth: String,
+        @Query("is") songId: Long
+    ): AmpacheErrorObject
 }
