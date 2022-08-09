@@ -38,48 +38,6 @@
         android:orientation="horizontal"
         android:padding="@dimen/listItemPadding">
 
-        <ImageView
-            android:id="@+id/cover1"
-            android:layout_width="@dimen/smallImageSize"
-            android:layout_height="@dimen/smallImageSize"
-            android:contentDescription="@null"
-            android:scaleType="fitXY"
-            app:coverImageUrl="@{cover1Url}"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/cover2"
-            android:layout_width="@dimen/smallImageSize"
-            android:layout_height="@dimen/smallImageSize"
-            android:contentDescription="@null"
-            android:scaleType="fitXY"
-            app:coverImageUrl="@{cover2Url}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cover1" />
-
-        <ImageView
-            android:id="@+id/cover3"
-            android:layout_width="@dimen/smallImageSize"
-            android:layout_height="@dimen/smallImageSize"
-            android:contentDescription="@null"
-            android:scaleType="fitXY"
-            app:coverImageUrl="@{cover3Url}"
-            app:layout_constraintLeft_toRightOf="@id/cover1"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/cover4"
-            android:layout_width="@dimen/smallImageSize"
-            android:layout_height="@dimen/smallImageSize"
-            android:contentDescription="@null"
-            android:scaleType="fitXY"
-            app:coverImageUrl="@{cover4Url}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/cover1"
-            app:layout_constraintTop_toBottomOf="@id/cover3" />
-
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"

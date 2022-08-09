@@ -4,7 +4,6 @@ import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.toViewPlaylist
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.playlist.DeletePlaylistViewModel
@@ -18,7 +17,7 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     lateinit var dataRepository: DataRepository
 
     val playlistList: LiveData<PagingData<Playlist>> by lazy {
-        dataRepository.getPlaylists { it.toViewPlaylist() }.cachedIn(this)
+        dataRepository.getPlaylists().cachedIn(this)
     }
     val selection: LiveData<List<Long>> = MutableLiveData(mutableListOf())
     private var isForcingSelectMode = false

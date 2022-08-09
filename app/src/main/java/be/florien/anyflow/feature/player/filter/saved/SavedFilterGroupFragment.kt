@@ -6,7 +6,6 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
@@ -51,7 +50,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(SavedFilterGroupViewModel::class.java)
+        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[SavedFilterGroupViewModel::class.java]
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -72,7 +71,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
 
         override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
             val group = viewModel.filterGroups.value ?: return
-            holder.bind(group[position], List(4) { "" }, selectedList.contains(position)) // todo don't change images, only selection
+            holder.bind(group[position], selectedList.contains(position)) // todo don't change images, only selection
         }
     }
 
@@ -85,7 +84,7 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
             itemBinding.lifecycleOwner = viewLifecycleOwner
             itemBinding.root.setOnClickListener {
                 if (selectedList.isEmpty()) {
-                    viewModel.changeForSavedGroup(adapterPosition)
+                    viewModel.changeForSavedGroup(bindingAdapterPosition)
                 } else toggleSelection()
             }
             itemBinding.root.setOnLongClickListener {
@@ -100,18 +99,14 @@ class SavedFilterGroupFragment : BaseFilterFragment() {
         }
 
         private fun toggleSelection() {
-            if (!selectedList.remove(adapterPosition)) {
-                selectedList.add(adapterPosition)
+            if (!selectedList.remove(bindingAdapterPosition)) {
+                selectedList.add(bindingAdapterPosition)
             }
-            binding.savedList.adapter?.notifyItemChanged(adapterPosition)
+            binding.savedList.adapter?.notifyItemChanged(bindingAdapterPosition)
         }
 
-        fun bind(filterGroup: FilterGroup, coverUrls: List<String>, isSelected: Boolean) {
+        fun bind(filterGroup: FilterGroup, isSelected: Boolean) {
             itemBinding.filterGroup = filterGroup
-            itemBinding.cover1Url = coverUrls[0]
-            itemBinding.cover2Url = coverUrls[1]
-            itemBinding.cover3Url = coverUrls[2]
-            itemBinding.cover4Url = coverUrls[3]
             itemBinding.isSelected = isSelected
         }
     }

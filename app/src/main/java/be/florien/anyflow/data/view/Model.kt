@@ -37,5 +37,6 @@ data class FilterGroup(
 data class Playlist(
     val id: Long,
     val name: String,
-    val count: Int
+    val count: Int,
+    val coverUrl: String
 ) : Parcelable

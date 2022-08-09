@@ -10,6 +10,8 @@
         <variable
             name="selected"
             type="boolean" />
+
+        <import type="android.view.View" />
     </data>
 
     <be.florien.anyflow.extension.CheckableConstrainLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,6 +22,18 @@
         android:checked="@{selected}"
         android:minHeight="@dimen/minClickableSize">
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/imageSize"
+            android:layout_height="@dimen/imageSize"
+            android:layout_margin="8dp"
+            android:contentDescription="@null"
+            android:visibility="@{item.coverUrl != null ? View.VISIBLE : View.GONE}"
+            app:coverImageUrl="@{item.coverUrl}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/filterName"
             android:layout_width="0dp"
@@ -28,15 +42,15 @@
             android:gravity="start|bottom"
             android:text="@{item.name}"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/count"
+            app:layout_constraintBottom_toTopOf="@id/filterCount"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageView"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="1.0" />
 
         <TextView
-            android:id="@+id/count"
+            android:id="@+id/filterCount"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="8dp"
@@ -44,8 +58,9 @@
             android:text="@{@plurals/playlist_songs_count(item.count, item.count)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/filterName"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintTop_toBottomOf="@id/filterName"
             app:layout_constraintVertical_bias="0.0" />
     </be.florien.anyflow.extension.CheckableConstrainLayout>
 </layout>

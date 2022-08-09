@@ -74,7 +74,7 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
     local = song.local
 )
 
-fun DbPlaylistWithCount.toViewPlaylist() = Playlist(id, name, songCount)
+fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) = Playlist(id, name, songCount, coverUrl)
 
 fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.TITLE_IS -> Filter.TitleIs(argument)

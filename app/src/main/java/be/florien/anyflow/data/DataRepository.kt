@@ -148,7 +148,7 @@ class DataRepository
         convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
 
     fun getPlaylists(): LiveData<PagingData<Playlist>> =
-        convertToPagingLiveData(libraryDatabase.getPlaylists().map { it.toViewPlaylist() })
+        convertToPagingLiveData(libraryDatabase.getPlaylists().map { it.toViewPlaylist(getPlaylistArtUrl(it.id)) })
 
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
@@ -338,6 +338,7 @@ class DataRepository
 
     fun getAlbumArtUrl(id: Long) = ampacheDataSource.getAlbumArtUrl(id)
     fun getArtistArtUrl(id: Long) = ampacheDataSource.getArtistArtUrl(id)
+    fun getPlaylistArtUrl(id: Long) = ampacheDataSource.getPlaylistArtUrl(id)
 
     /**
      * Download status
