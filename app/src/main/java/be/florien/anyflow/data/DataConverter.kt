@@ -47,10 +47,16 @@ fun AmpacheAlbum.toDbAlbum() = DbAlbum(
     diskcount = diskcount
 )
 
-fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
+fun AmpachePlayListWithSongs.toDbPlaylist() = DbPlaylist(
     id = id,
     name = name,
     owner = owner
+)
+
+fun AmpachePlaylistSong.toDbPlaylistSong(playlistId: Long) = DbPlaylistSongs(
+    order = playlisttrack,
+    songId = id,
+    playlistId = playlistId
 )
 
 /**

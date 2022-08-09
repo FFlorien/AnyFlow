@@ -56,12 +56,14 @@ interface AmpacheApi {
     ): AmpacheAlbumResponse
 
     @GET("server/json.server.php")
-    suspend fun getNewPlaylists(
+    suspend fun getPlaylists(
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
-        @Query("hide_search") hideSearch: Int = 1,
-        @Query("action") action: String = "playlists"
+        @Query("action") action: String = "get_indexes",
+        @Query("type") type: String = "playlist",
+        @Query("include") include: Int = 1,
+        @Query("hide_search") hideSearch: Int = 1
     ): AmpachePlaylistResponse
 
     @GET("server/json.server.php")
@@ -101,16 +103,6 @@ interface AmpacheApi {
     ): AmpacheAlbumResponse
 
     @GET("server/json.server.php")
-    suspend fun getAddedPlaylists(
-        @Query("auth") auth: String,
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int,
-        @Query("add") update: String = "1970-01-01",
-        @Query("hide_search") hideSearch: Int = 1,
-        @Query("action") action: String = "playlists"
-    ): AmpachePlaylistResponse
-
-    @GET("server/json.server.php")
     suspend fun getUpdatedSongs(
         @Query("auth") auth: String,
         @Query("limit") limit: Int,
@@ -145,25 +137,6 @@ interface AmpacheApi {
         @Query("update") update: String = "1970-01-01",
         @Query("action") action: String = "albums"
     ): AmpacheAlbumResponse
-
-    @GET("server/json.server.php")
-    suspend fun getUpdatedPlaylists(
-        @Query("auth") auth: String,
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int,
-        @Query("update") update: String = "1970-01-01",
-        @Query("hide_search") hideSearch: Int = 1,
-        @Query("action") action: String = "playlists"
-    ): AmpachePlaylistResponse
-
-    @GET("server/json.server.php")
-    suspend fun getPlaylistSongs(
-        @Query("action") action: String = "playlist_songs",
-        @Query("filter") filter: String,
-        @Query("auth") auth: String,
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int
-    ): AmpacheSongIdResponse
 
     @GET("server/json.server.php")
     suspend fun getDeletedSongs(

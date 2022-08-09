@@ -55,12 +55,14 @@ class AmpacheApiDisconnected : AmpacheApi {
         throw NoServerException()
     }
 
-    override suspend fun getNewPlaylists(
+    override suspend fun getPlaylists(
         auth: String,
         limit: Int,
         offset: Int,
-        hideSearch: Int,
-        action: String
+        action: String,
+        type: String,
+        include: Int,
+        hideSearch: Int
     ): AmpachePlaylistResponse {
         throw NoServerException()
     }
@@ -105,17 +107,6 @@ class AmpacheApiDisconnected : AmpacheApi {
         throw NoServerException()
     }
 
-    override suspend fun getAddedPlaylists(
-        auth: String,
-        limit: Int,
-        offset: Int,
-        update: String,
-        hideSearch: Int,
-        action: String
-    ): AmpachePlaylistResponse {
-        throw NoServerException()
-    }
-
     override suspend fun getUpdatedSongs(
         auth: String,
         limit: Int,
@@ -155,26 +146,6 @@ class AmpacheApiDisconnected : AmpacheApi {
     ): AmpacheAlbumResponse {
         throw NoServerException()
     }
-
-    override suspend fun getUpdatedPlaylists(
-        auth: String,
-        limit: Int,
-        offset: Int,
-        update: String,
-        hideSearch: Int,
-        action: String
-    ): AmpachePlaylistResponse {
-        throw NoServerException()
-    }
-
-    override suspend fun getPlaylistSongs(
-        action: String,
-        filter: String,
-        auth: String,
-        limit: Int,
-        offset: Int
-    ): AmpacheSongIdResponse =
-        throw NoServerException()
 
     override suspend fun getDeletedSongs(
         action: String,

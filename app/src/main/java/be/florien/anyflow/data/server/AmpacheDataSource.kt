@@ -13,6 +13,7 @@ import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.internal.wait
 import retrofit2.HttpException
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -35,13 +36,11 @@ open class AmpacheDataSource
         private const val OFFSET_ADD_GENRE = "OFFSET_ADD_GENRE"
         private const val OFFSET_ADD_ARTIST = "OFFSET_ADD_ARTIST"
         private const val OFFSET_ADD_ALBUM = "OFFSET_ADD_ALBUM"
-        private const val OFFSET_ADD_PLAYLIST = "OFFSET_ADD_PLAYLIST"
-        private const val OFFSET_PLAYLIST_SONGS = "OFFSET_PLAYLIST_SONGS"
+        private const val OFFSET_PLAYLIST = "OFFSET_PLAYLIST"
         private const val OFFSET_UPDATE_SONG = "OFFSET_UPDATE_SONG"
         private const val OFFSET_UPDATE_GENRE = "OFFSET_UPDATE_GENRE"
         private const val OFFSET_UPDATE_ARTIST = "OFFSET_UPDATE_ARTIST"
         private const val OFFSET_UPDATE_ALBUM = "OFFSET_UPDATE_ALBUM"
-        private const val OFFSET_UPDATE_PLAYLIST = "OFFSET_UPDATE_PLAYLIST"
         private const val OFFSET_DELETED_SONGS = "OFFSET_DELETED_SONGS"
         private const val RECONNECT_LIMIT = 3
         private const val COUNT_SONGS = "COUNT_SONGS"
@@ -307,15 +306,15 @@ open class AmpacheDataSource
         }
     }
 
-    suspend fun getNewPlaylists(): List<AmpachePlayList>? {
+    suspend fun getPlaylists(): List<AmpachePlayListWithSongs>? {
         val list =
             getNewItems(
-                AmpacheApi::getNewPlaylists,
-                OFFSET_ADD_PLAYLIST
+                AmpacheApi::getPlaylists,
+                OFFSET_PLAYLIST
             )
         return if (updateRetrievingData(
                 list?.playlist,
-                OFFSET_ADD_PLAYLIST,
+                OFFSET_PLAYLIST,
                 COUNT_PLAYLIST,
                 playlistsPercentageUpdater
             )
@@ -389,45 +388,6 @@ open class AmpacheDataSource
         }
     }
 
-    suspend fun getAddedPlaylists(from: Calendar): List<AmpachePlayList>? {
-        val list =
-            getItems(
-                AmpacheApi::getAddedPlaylists,
-                OFFSET_ADD_PLAYLIST,
-                from
-            )
-        return if (updateRetrievingData(
-                list?.playlist,
-                OFFSET_ADD_PLAYLIST,
-                COUNT_PLAYLIST,
-                playlistsPercentageUpdater
-            )
-        ) {
-            list?.playlist
-        } else {
-            null
-        }
-    }
-
-    suspend fun getPlaylistsSongs(playlistToQuery: Long): List<AmpacheSongId>? {
-        val prefName = OFFSET_PLAYLIST_SONGS + playlistToQuery
-        var currentPlaylistOffset = sharedPreferences.getInt(prefName, 0)
-        val playlistSongList = ampacheApi.getPlaylistSongs(
-            auth = authPersistence.authToken.secret,
-            filter = playlistToQuery.toString(),
-            limit = itemLimit,
-            offset = currentPlaylistOffset
-        ).song
-        return if (playlistSongList.isEmpty()) {
-            sharedPreferences.edit().remove(prefName).apply()
-            null
-        } else {
-            currentPlaylistOffset += playlistSongList.size
-            sharedPreferences.applyPutInt(prefName, currentPlaylistOffset)
-            playlistSongList
-        }
-    }
-
     /**
      * API calls : updated data
      */
@@ -490,26 +450,6 @@ open class AmpacheDataSource
             )
         ) {
             list?.album
-        } else {
-            null
-        }
-    }
-
-    suspend fun getUpdatedPlaylists(from: Calendar): List<AmpachePlayList>? {
-        val list =
-            getItems(
-                AmpacheApi::getUpdatedPlaylists,
-                OFFSET_UPDATE_PLAYLIST,
-                from
-            )
-        return if (updateRetrievingData(
-                list?.playlist,
-                OFFSET_UPDATE_PLAYLIST,
-                COUNT_PLAYLIST,
-                playlistsPercentageUpdater
-            )
-        ) {
-            list?.playlist
         } else {
             null
         }
@@ -642,7 +582,7 @@ open class AmpacheDataSource
             remove(OFFSET_ADD_GENRE)
             remove(OFFSET_ADD_ARTIST)
             remove(OFFSET_ADD_ALBUM)
-            remove(OFFSET_ADD_PLAYLIST)
+            remove(OFFSET_PLAYLIST)
         }.apply()
     }
 
@@ -652,7 +592,12 @@ open class AmpacheDataSource
             remove(OFFSET_UPDATE_GENRE)
             remove(OFFSET_UPDATE_ARTIST)
             remove(OFFSET_UPDATE_ALBUM)
-            remove(OFFSET_UPDATE_PLAYLIST)
+        }.apply()
+    }
+
+    fun resetPlaylistOffsets() {
+        sharedPreferences.edit().apply {
+            remove(OFFSET_PLAYLIST)
         }.apply()
     }
 

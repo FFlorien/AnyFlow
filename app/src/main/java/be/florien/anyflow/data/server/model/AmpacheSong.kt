@@ -28,6 +28,12 @@ class AmpacheSongId {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+class AmpachePlaylistSong {
+    var id: Long = 0
+    var playlisttrack: Int = 0
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 class AmpacheSongResponse {
     var song: List<AmpacheSong> = mutableListOf()
     var error: AmpacheError? = null
