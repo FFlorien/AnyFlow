@@ -101,6 +101,7 @@
                 app:previousBackgroundColor="@color/primary"
                 app:progressAnimDuration="10000"
                 app:progressBackgroundColor="@color/primary"
+                app:seekable="@{viewModel.isSeekable}"
                 app:shouldShowBuffering="@{viewModel.shouldShowBuffering}"
                 app:smallestButtonWidth="@dimen/minClickableSize"
                 app:state="@{viewModel.state}"

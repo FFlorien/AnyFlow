@@ -100,6 +100,8 @@ class ExoPlayerController
 
     override fun isPlaying() = mediaPlayer.playWhenReady
 
+    override fun isSeekable() = mediaPlayer.isCurrentMediaItemSeekable
+
     override fun playForAlarm() {
         GlobalScope.launch(Dispatchers.Default) {
             alarmsSynchronizer.syncAlarms()

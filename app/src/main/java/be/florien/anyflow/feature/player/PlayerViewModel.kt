@@ -53,6 +53,8 @@ constructor(
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
 
+    val isSeekable: LiveData<Boolean> = MutableLiveData(false)
+
     var player: PlayerController = IdlePlayerController()
         set(value) {
             (currentDuration as MediatorLiveData).removeSource(field.playTimeNotifier)
@@ -70,6 +72,7 @@ constructor(
                     PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
                     else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
                 }
+                isSeekable.mutable.value = player.isSeekable()
             }
         }
 
@@ -99,7 +102,7 @@ constructor(
     }
 
     override fun onCurrentDurationChanged(newDuration: Long) {
-        if (((currentDuration.value?.minus(newDuration))?.absoluteValue ?: 0) > 1000) {
+        if (player.isSeekable() && ((currentDuration.value?.minus(newDuration))?.absoluteValue ?: 0) > 1000) {
             player.seekTo(newDuration)
         }
     }

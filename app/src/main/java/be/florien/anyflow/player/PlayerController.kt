@@ -10,6 +10,7 @@ interface PlayerController {
     val stateChangeNotifier: LiveData<State>
 
     fun isPlaying(): Boolean
+    fun isSeekable(): Boolean
     fun playForAlarm()
     fun stop()
     fun pause()

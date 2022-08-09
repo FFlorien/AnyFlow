@@ -14,8 +14,8 @@ import kotlin.math.min
  * Created by florien on 8/01/18.
  */
 class PlayerControls
-@JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : View(context, attrs, defStyleAttr) {
+@JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    View(context, attrs, defStyleAttr) {
 
     /**
      * Attributes
@@ -23,8 +23,10 @@ class PlayerControls
 
     private val playPauseIconAnimator: PlayPauseIconAnimator = PlayPauseIconAnimator(context)
     private val previousIconAnimator: PreviousIconAnimator = PreviousIconAnimator(context)
-    private val playPlayerPainter: PlayPlayerPainter = PlayPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
-    private val scrollPlayerPainter: ScrollPlayerPainter = ScrollPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
+    private val playPlayerPainter: PlayPlayerPainter =
+        PlayPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
+    private val scrollPlayerPainter: ScrollPlayerPainter =
+        ScrollPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
     private var currentPlayerPainter: PlayerPainter = playPlayerPainter
         set(value) {
             field.onValuesComputed = {}
@@ -49,6 +51,7 @@ class PlayerControls
             playPlayerPainter.hasNext = value
             scrollPlayerPainter.hasNext = value
         }
+    var isSeekable: Boolean = false
 
     // Variables that can be configured by XML attributes
     var currentDuration: Int
@@ -80,10 +83,18 @@ class PlayerControls
     init {
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PlayerControls)
-            currentDuration = typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
-            totalDuration = typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
-            progressAnimDuration = typedArray.getInt(R.styleable.PlayerControls_progressAnimDuration, progressAnimDuration)
-            state = typedArray.getInteger(R.styleable.PlayerControls_state, PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE)
+            currentDuration =
+                typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
+            totalDuration =
+                typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
+            progressAnimDuration = typedArray.getInt(
+                R.styleable.PlayerControls_progressAnimDuration,
+                progressAnimDuration
+            )
+            state = typedArray.getInteger(
+                R.styleable.PlayerControls_state,
+                PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+            )
             playPlayerPainter.retrieveLayoutProperties(typedArray)
             scrollPlayerPainter.retrieveLayoutProperties(typedArray)
             typedArray.recycle()
@@ -138,18 +149,25 @@ class PlayerControls
                 scrollPlayerPainter.durationOnTouchStart = currentDuration
             }
             MotionEvent.ACTION_MOVE -> {
-                scrollPlayerPainter.scrollOffset = (event.x - lastDownEventX)
-                if (scrollPlayerPainter.scrollOffset.absoluteValue > playPlayerPainter.smallestButtonWidth && currentPlayerPainter != scrollPlayerPainter) {
-                    currentPlayerPainter = scrollPlayerPainter
+                if (isSeekable) {
+                    scrollPlayerPainter.scrollOffset = (event.x - lastDownEventX)
+                    if (scrollPlayerPainter.scrollOffset.absoluteValue > playPlayerPainter.smallestButtonWidth && currentPlayerPainter != scrollPlayerPainter) {
+                        currentPlayerPainter = scrollPlayerPainter
+                    }
                 }
             }
             MotionEvent.ACTION_UP -> {
-                when (currentPlayerPainter.getButtonClicked(lastDownEventX.toInt(), event.x.toInt())) {
+                when (currentPlayerPainter.getButtonClicked(
+                    lastDownEventX.toInt(),
+                    event.x.toInt()
+                )) {
                     PlayerPainter.CLICK_PREVIOUS -> actionListener?.onPreviousClicked()
                     PlayerPainter.CLICK_PLAY_PAUSE -> actionListener?.onPlayPauseClicked()
                     PlayerPainter.CLICK_NEXT -> actionListener?.onNextClicked()
                     else -> {
-                        actionListener?.onCurrentDurationChanged(scrollPlayerPainter.duration.toLong())
+                        if (isSeekable) {
+                            actionListener?.onCurrentDurationChanged(scrollPlayerPainter.duration.toLong())
+                        }
                     }
                 }
 
