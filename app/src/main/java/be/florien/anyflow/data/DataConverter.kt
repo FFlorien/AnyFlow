@@ -90,7 +90,7 @@ fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.ARTIST_ID -> Filter.ArtistIs(argument.toLong(), displayText, displayImage)
     DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText, displayImage)
     DbFilter.ALBUM_ID -> Filter.AlbumIs(argument.toLong(), displayText, displayImage)
-    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText)
+    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText, displayImage)
     DbFilter.DOWNLOADED -> Filter.DownloadedStatusIs(true)
     DbFilter.NOT_DOWNLOADED -> Filter.DownloadedStatusIs(false)
     else -> Filter.TitleIs("")

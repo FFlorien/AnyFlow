@@ -55,7 +55,7 @@ sealed class Filter<T>(
 
     class GenreIs(argument: Long, name: String) : Filter<Long>(argument, name)
 
-    class PlaylistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, null)
+    class PlaylistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
 
     /**
      * Boolean filters
