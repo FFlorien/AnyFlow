@@ -58,7 +58,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         ARTIST_ID -> getString(R.string.filter_title_album_artist)
         GENRE_ID -> getString(R.string.filter_title_genre)
         SONG_ID -> getString(R.string.filter_title_song)
-        PLAYLIST_ID -> getString(R.string.filter_title_song)
+        PLAYLIST_ID -> getString(R.string.filter_title_playlist)
         DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
         else -> getString(R.string.filter_title_main)
     }
