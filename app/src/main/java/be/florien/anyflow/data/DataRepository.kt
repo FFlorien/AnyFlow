@@ -336,16 +336,18 @@ class DataRepository
         })
     }
 
-    fun getAlbumArtUrl(id: Long) = ampacheDataSource.getAlbumArtUrl(id)
-    fun getArtistArtUrl(id: Long) = ampacheDataSource.getArtistArtUrl(id)
-    fun getPlaylistArtUrl(id: Long) = ampacheDataSource.getPlaylistArtUrl(id)
+    fun getSongUrl(id: Long) = ampacheDataSource.getSongUrl(id)
+    fun getAlbumArtUrl(id: Long) = ampacheDataSource.getArtUrl(ART_TYPE_ALBUM, id)
+    fun getArtistArtUrl(id: Long) = ampacheDataSource.getArtUrl(ART_TYPE_ARTIST, id)
+    fun getPlaylistArtUrl(id: Long) = ampacheDataSource.getArtUrl(ART_TYPE_PLAYLIST, id)
+    fun getArtUrl(type: String, id: Long) = ampacheDataSource.getArtUrl(type, id)
 
     /**
      * Download status
      */
 
     fun hasDownloaded(song: SongInfo): Boolean =
-        downloadManager.downloadIndex.getDownload(ampacheDataSource.getSongUrl(song.id)) != null
+        downloadManager.downloadIndex.getDownload(getSongUrl(song.id)) != null
 
     /**
      * Private Method : New data
@@ -637,5 +639,10 @@ class DataRepository
         private const val LAST_ADD_QUERY = "LAST_ADD_QUERY"
         private const val LAST_UPDATE_QUERY = "LAST_UPDATE_QUERY"
         private const val LAST_CLEAN_QUERY = "LAST_CLEAN_QUERY"
+
+        const val ART_TYPE_SONG = "song"
+        const val ART_TYPE_ALBUM = "album"
+        const val ART_TYPE_ARTIST = "artist"
+        const val ART_TYPE_PLAYLIST = "playlist"
     }
 }

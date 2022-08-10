@@ -5,7 +5,8 @@ import be.florien.anyflow.data.DataRepository
 sealed class Filter<T>(
         val argument: T,
         val displayText: String,
-        val displayImage: String? = null) {
+        val imageType: String? = null) {
+
 
     suspend fun contains(song: SongInfo, dataRepository: DataRepository): Boolean {
         return when (this) {
@@ -45,17 +46,17 @@ sealed class Filter<T>(
      * Long filters
      */
 
-    class SongIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+    class SongIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_SONG)
 
-    class ArtistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+    class ArtistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST)
 
-    class AlbumArtistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+    class AlbumArtistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST)
 
-    class AlbumIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+    class AlbumIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ALBUM)
 
     class GenreIs(argument: Long, name: String) : Filter<Long>(argument, name)
 
-    class PlaylistIs(argument: Long, displayValue: String, displayImage: String?) : Filter<Long>(argument, displayValue, displayImage)
+    class PlaylistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_PLAYLIST)
 
     /**
      * Boolean filters

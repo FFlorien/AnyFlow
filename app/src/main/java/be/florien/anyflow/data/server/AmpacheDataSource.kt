@@ -505,13 +505,7 @@ open class AmpacheDataSource
         return "${serverUrl}server/json.server.php?action=stream&auth=$token&type=song&id=$id&uid=1"
     }
 
-    fun getAlbumArtUrl(id: Long) = getArtUrl("album", id)
-
-    fun getArtistArtUrl(id: Long) = getArtUrl("artist", id)
-
-    fun getPlaylistArtUrl(id: Long) = getArtUrl("playlist", id)
-
-    private fun getArtUrl(type: String, id: Long): String {
+    fun getArtUrl(type: String, id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
         val token = authPersistence.authToken.secret
         return "${serverUrl}server/json.server.php?action=get_art&auth=$token&type=$type&id=$id"

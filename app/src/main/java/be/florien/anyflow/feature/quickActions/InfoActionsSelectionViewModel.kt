@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.feature.player.info.InfoViewModel
 import be.florien.anyflow.feature.player.info.SongInfoActions
 import be.florien.anyflow.player.FiltersManager
@@ -16,14 +15,12 @@ import javax.inject.Inject
 
 class InfoActionsSelectionViewModel @Inject constructor(
     context: Context,
-    ampache: AmpacheDataSource,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
     sharedPreferences: SharedPreferences
 ) : InfoViewModel(
     context,
-    ampache,
     filtersManager,
     orderComposer,
     dataRepository,

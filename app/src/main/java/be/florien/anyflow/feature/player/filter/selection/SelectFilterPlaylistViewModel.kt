@@ -14,10 +14,10 @@ class SelectFilterPlaylistViewModel @Inject constructor(val dataRepository: Data
     override fun getFilteredPagingList(search: String) = dataRepository.getPlaylistsFiltered(search, ::convert)
     override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getPlaylistsFilteredList(search, ::convert)
 
-    override fun getFilter(filterValue: FilterItem) = Filter.PlaylistIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
+    override fun getFilter(filterValue: FilterItem) = Filter.PlaylistIs(filterValue.id, filterValue.displayName)
 
     private fun convert(playlist: DbPlaylistWithCount): FilterItem {
         val artUrl = dataRepository.getPlaylistArtUrl(playlist.id)
-        return FilterItem(playlist.id, playlist.name, artUrl, filtersManager.isFilterInEdition(Filter.PlaylistIs(playlist.id, playlist.name, artUrl)))
+        return FilterItem(playlist.id, playlist.name, artUrl, filtersManager.isFilterInEdition(Filter.PlaylistIs(playlist.id, playlist.name)))
     }
 }

@@ -86,11 +86,11 @@ fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
     DbFilter.TITLE_IS -> Filter.TitleIs(argument)
     DbFilter.TITLE_CONTAIN -> Filter.TitleContain(argument)
     DbFilter.GENRE_IS -> Filter.GenreIs(argument.toLong(), displayText)
-    DbFilter.SONG_ID -> Filter.SongIs(argument.toLong(), displayText, displayImage)
-    DbFilter.ARTIST_ID -> Filter.ArtistIs(argument.toLong(), displayText, displayImage)
-    DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText, displayImage)
-    DbFilter.ALBUM_ID -> Filter.AlbumIs(argument.toLong(), displayText, displayImage)
-    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText, displayImage)
+    DbFilter.SONG_ID -> Filter.SongIs(argument.toLong(), displayText)
+    DbFilter.ARTIST_ID -> Filter.ArtistIs(argument.toLong(), displayText)
+    DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText)
+    DbFilter.ALBUM_ID -> Filter.AlbumIs(argument.toLong(), displayText)
+    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText)
     DbFilter.DOWNLOADED -> Filter.DownloadedStatusIs(true)
     DbFilter.NOT_DOWNLOADED -> Filter.DownloadedStatusIs(false)
     else -> Filter.TitleIs("")
@@ -148,7 +148,7 @@ fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
     },
     argument = argument.toString(),
     displayText = displayText,
-    displayImage = displayImage,
+    displayImage = null,
     filterGroup = groupId
 )
 

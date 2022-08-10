@@ -48,7 +48,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory).get(DisplayFilterViewModel::class.java)
+        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[DisplayFilterViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,11 +167,11 @@ class DisplayFilterFragment : BaseFilterFragment() {
             binding.vm = viewModel
             binding.filter = filter
             binding.lifecycleOwner = viewLifecycleOwner
-            if (filter.displayImage != null) {
+            if (filter.imageType != null && filter.argument is Long) {
                 targets.add(
                     GlideApp.with(requireActivity())
                         .asBitmap()
-                        .load(filter.displayImage)
+                        .load(viewModel.getUrlForImage(filter.imageType, filter.argument))
                         .into(object : CustomTarget<Bitmap>() {
                             override fun onLoadCleared(placeholder: Drawable?) {
                             }

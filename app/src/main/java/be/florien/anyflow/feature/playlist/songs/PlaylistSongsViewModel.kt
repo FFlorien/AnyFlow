@@ -3,7 +3,6 @@ package be.florien.anyflow.feature.playlist.songs
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
@@ -16,9 +15,6 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     @Inject
     lateinit var dataRepository: DataRepository
 
-    @Inject
-    lateinit var ampacheDataSource: AmpacheDataSource
-
     val selectionList: LiveData<List<Long>> = MutableLiveData(listOf())
     val hasSelection: LiveData<Boolean> = Transformations.map(selectionList) {
         it.isNotEmpty()
@@ -27,7 +23,7 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     val songList: LiveData<PagingData<SongInfo>>
         get() = dataRepository.getPlaylistSongs(playlistId) { it.toViewSongInfo() }
 
-    fun getCover(long: Long) = ampacheDataSource.getAlbumArtUrl(long)
+    fun getCover(long: Long) = dataRepository.getAlbumArtUrl(long)
 
     fun isSelected(id: Long?) = selectionList.value?.contains(id) ?: false
 

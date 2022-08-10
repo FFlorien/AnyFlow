@@ -9,7 +9,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.player.FiltersManager
@@ -20,7 +19,6 @@ import java.net.URL
 
 class SongInfoActions constructor(
     private val contentResolver: ContentResolver,
-    private val ampache: AmpacheDataSource,
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
     private val dataRepository: DataRepository,
@@ -33,7 +31,7 @@ class SongInfoActions constructor(
 
     private var lastSongInfo: SongInfo? = null
 
-    fun getAlbumArtUrl(albumId: Long) = ampache.getAlbumArtUrl(albumId)
+    fun getAlbumArtUrl(albumId: Long) = dataRepository.getAlbumArtUrl(albumId)
 
     suspend fun playNext(songId: Long) {
         orderComposer.changeSongPositionForNext(songId)
@@ -43,19 +41,16 @@ class SongInfoActions constructor(
         val filter = when (fieldType) {
             FieldType.TITLE -> Filter.SongIs(
                 songInfo.id,
-                songInfo.title,
-                ampache.getAlbumArtUrl(songInfo.albumId)
+                songInfo.title
             )
-            FieldType.ARTIST -> Filter.ArtistIs(songInfo.artistId, songInfo.artistName, null)
+            FieldType.ARTIST -> Filter.ArtistIs(songInfo.artistId, songInfo.artistName)
             FieldType.ALBUM -> Filter.AlbumIs(
                 songInfo.albumId,
-                songInfo.albumName,
-                ampache.getAlbumArtUrl(songInfo.albumId)
+                songInfo.albumName
             )
             FieldType.ALBUM_ARTIST -> Filter.AlbumArtistIs(
                 songInfo.albumArtistId,
-                songInfo.albumArtistName,
-                null
+                songInfo.albumArtistName
             )
             FieldType.GENRE -> Filter.GenreIs(
                 songInfo.genreIds.first(),
@@ -92,7 +87,7 @@ class SongInfoActions constructor(
 
         val result = kotlin.runCatching {
             withContext(Dispatchers.IO) {
-                val songUrl = ampache.getSongUrl(songInfo.id)
+                val songUrl = dataRepository.getSongUrl(songInfo.id)
                 URL(songUrl).openStream().use { input ->
                     contentResolver.openOutputStream(newSongUri)?.use { output ->
                         input.copyTo(output)

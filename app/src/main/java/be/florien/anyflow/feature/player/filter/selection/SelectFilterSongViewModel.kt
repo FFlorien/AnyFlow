@@ -14,11 +14,11 @@ class SelectFilterSongViewModel @Inject constructor(val dataRepository: DataRepo
     override fun getFilteredPagingList(search: String) = dataRepository.getSongsFiltered(search, ::convert)
     override suspend fun getFoundFilters(search: String): List<FilterItem> = dataRepository.getSongsFilteredList(search, ::convert)
 
-    override fun getFilter(filterValue: FilterItem) = Filter.SongIs(filterValue.id, filterValue.displayName, filterValue.artUrl)
+    override fun getFilter(filterValue: FilterItem) = Filter.SongIs(filterValue.id, filterValue.displayName)
 
     private fun convert(song: DbSongDisplay): FilterItem {
         val artUrl = dataRepository.getAlbumArtUrl(song.album.album.id)
         return FilterItem(song.song.id, "${song.song.title}\nby ${song.artist.name}\nfrom ${song.album.album.name}",
-            artUrl, filtersManager.isFilterInEdition(Filter.SongIs(song.song.id, song.song.title, artUrl)))
+            artUrl, filtersManager.isFilterInEdition(Filter.SongIs(song.song.id, song.song.title)))
     }
 }

@@ -10,7 +10,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.info.SongInfoActions
@@ -29,7 +28,6 @@ import javax.inject.Inject
 class SongListViewModel
 @Inject constructor(
     context: Context,
-    ampache: AmpacheDataSource,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     sharedPreferences: SharedPreferences,
@@ -38,14 +36,14 @@ class SongListViewModel
 ) : BaseViewModel() {
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
-    private val songInfoActions = SongInfoActions(context.contentResolver, ampache, filtersManager, orderComposer, dataRepository, sharedPreferences)
+    private val songInfoActions = SongInfoActions(context.contentResolver, filtersManager, orderComposer, dataRepository, sharedPreferences)
     val pagedAudioQueue: LiveData<PagingData<SongInfo>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<SongInfo> = playingQueue.currentSong
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
-    val searchResults: MutableLiveData<LiveData<List<Long>>> = MutableLiveData()
+    val searchResults: MutableLiveData<LiveData<List<Long>>?> = MutableLiveData()
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     val playlistListDisplayedFor: LiveData<Long> = MutableLiveData(-1L)

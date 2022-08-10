@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.player.FiltersManager
@@ -15,7 +14,6 @@ import kotlinx.coroutines.launch
 
 abstract class InfoViewModel(
     context: Context,
-    ampache: AmpacheDataSource,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
@@ -30,7 +28,6 @@ abstract class InfoViewModel(
     private val contentResolver = context.contentResolver
     protected var songInfoActions = SongInfoActions(
         contentResolver,
-        ampache,
         filtersManager,
         orderComposer,
         dataRepository,

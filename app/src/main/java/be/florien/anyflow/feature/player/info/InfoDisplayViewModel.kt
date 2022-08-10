@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.launch
@@ -12,14 +11,12 @@ import javax.inject.Inject
 
 class InfoDisplayViewModel @Inject constructor(
     context: Context,
-    ampache: AmpacheDataSource,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
     sharedPreferences: SharedPreferences
 ) : InfoViewModel(
     context,
-    ampache,
     filtersManager,
     orderComposer,
     dataRepository,
