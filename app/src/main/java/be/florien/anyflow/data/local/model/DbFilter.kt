@@ -18,7 +18,6 @@ data class DbFilter(
         val joinClause: String?,
         val argument: String,
         val displayText: String,
-        val displayImage: String?,
         @ColumnInfo(index = true)
         val filterGroup: Long) {
 

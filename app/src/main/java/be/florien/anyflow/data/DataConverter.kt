@@ -148,7 +148,6 @@ fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
     },
     argument = argument.toString(),
     displayText = displayText,
-    displayImage = null,
     filterGroup = groupId
 )
 

@@ -12,6 +12,7 @@ import be.florien.anyflow.extension.applyPutLong
 import com.google.android.exoplayer2.offline.DownloadManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
@@ -41,8 +42,8 @@ class DataRepository
             addAll()
             updateAll()
             cleanAll()
-            playlists()
         }
+        playlists()
     }
 
     private suspend fun getFromScratch() = withContext(Dispatchers.IO) {
@@ -385,18 +386,23 @@ class DataRepository
         }
 
     private suspend fun playlists() {
-        var listOnServer = ampacheDataSource.getPlaylists()
-        while (listOnServer != null) {
-            libraryDatabase.addOrUpdatePlayLists(listOnServer.map { it.toDbPlaylist() })
-            for (playlist in listOnServer) {
-                libraryDatabase.clearPlaylist(playlist.id)
-                libraryDatabase.addOrUpdatePlaylistSongs(playlist.items.map {
-                    it.toDbPlaylistSong(playlist.id)
-                })
+        ampacheDataSource.getPlaylists()
+            .flowOn(Dispatchers.IO)
+            .onEach { playlistList ->
+                libraryDatabase.addOrUpdatePlayLists(playlistList.map { it.toDbPlaylist() })
+                for (playlist in playlistList) {
+                    libraryDatabase.clearPlaylist(playlist.id)
+                    libraryDatabase.addOrUpdatePlaylistSongs(playlist.items.map {
+                        it.toDbPlaylistSong(playlist.id)
+                    })
+                }
             }
-            listOnServer = ampacheDataSource.getPlaylists()
-        }
-        ampacheDataSource.resetPlaylistOffsets()
+            .flowOn(Dispatchers.IO)
+            .onCompletion {
+                ampacheDataSource.resetPlaylistOffsets()
+                ampacheDataSource.cancelPercentageUpdaters()
+            }
+            .collect()
     }
 
     /**
@@ -482,26 +488,26 @@ class DataRepository
      */
 
     private suspend fun <SERVER_TYPE> newList(
-        getListOnServer: suspend AmpacheDataSource.() -> List<SERVER_TYPE>?,
+        getListOnServer: AmpacheDataSource.() -> Flow<List<SERVER_TYPE>>,
         saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
     ) {
-        var listOnServer = ampacheDataSource.getListOnServer()
-        while (listOnServer != null) {
-            saveToDatabase(listOnServer)
-            listOnServer = ampacheDataSource.getListOnServer()
-        }
+        ampacheDataSource.getListOnServer()
+            .flowOn(Dispatchers.IO)
+            .onEach(saveToDatabase)
+            .flowOn(Dispatchers.IO)
+            .collect()
     }
 
     private suspend fun <SERVER_TYPE> updateList(
         from: Calendar,
-        getListOnServer: suspend AmpacheDataSource.(Calendar) -> List<SERVER_TYPE>?,
+        getListOnServer: AmpacheDataSource.(Calendar) -> Flow<List<SERVER_TYPE>?>,
         saveToDatabase: suspend (List<SERVER_TYPE>?) -> Unit
     ) {
-        var listOnServer = ampacheDataSource.getListOnServer(from)
-        while (listOnServer != null) {
-            saveToDatabase(listOnServer)
-            listOnServer = ampacheDataSource.getListOnServer(from)
-        }
+        ampacheDataSource.getListOnServer(from)
+            .flowOn(Dispatchers.IO)
+            .onEach(saveToDatabase)
+            .flowOn(Dispatchers.IO)
+            .collect()
     }
 
     private fun <T : Any> convertToPagingLiveData(dataSourceFactory: DataSource.Factory<Int, T>): LiveData<PagingData<T>> =

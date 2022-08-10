@@ -12,8 +12,9 @@ import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.internal.wait
 import retrofit2.HttpException
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -55,7 +56,7 @@ open class AmpacheDataSource
 
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
-    private val itemLimit: Int = 150
+    private val itemLimit: Int = 250
     private var reconnectByPing = 0
     private var reconnectByUserPassword = 0
 
@@ -243,148 +244,130 @@ open class AmpacheDataSource
      * API calls : data
      */
 
-    suspend fun getNewSongs(): List<AmpacheSong>? {
-        val songList = getNewItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG)
-        return if (updateRetrievingData(
-                songList?.song,
+    fun getNewSongs(): Flow<List<AmpacheSong>> = flow {
+        var list = getNewItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG)
+        while (list != null && list.song.isNotEmpty()) {
+            updateRetrievingData(
+                list.song,
                 OFFSET_ADD_SONG,
                 COUNT_SONGS,
                 songsPercentageUpdater
             )
-        ) {
-            songList?.song
-        } else {
-            null
+            emit(list.song)
+            list = getNewItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG)
         }
     }
 
-    suspend fun getNewGenres(): List<AmpacheNameId>? {
-        val list =
-            getNewItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE)
-        return if (updateRetrievingData(
-                list?.genre,
+
+    fun getNewGenres(): Flow<List<AmpacheNameId>> = flow {
+        var list = getNewItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE)
+        while (list != null && list.genre.isNotEmpty()) {
+            updateRetrievingData(
+                list.genre,
                 OFFSET_ADD_GENRE,
                 COUNT_GENRES,
                 genresPercentageUpdater
             )
-        ) {
-            list?.genre
-        } else {
-            null
+            emit(list.genre)
+            list = getNewItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE)
         }
     }
 
-    suspend fun getNewArtists(): List<AmpacheArtist>? {
-        val list =
-            getNewItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST)
-        return if (updateRetrievingData(
-                list?.artist,
+    fun getNewArtists(): Flow<List<AmpacheArtist>> = flow {
+        var list = getNewItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST)
+        while (list != null && list.artist.isNotEmpty()) {
+            updateRetrievingData(
+                list.artist,
                 OFFSET_ADD_ARTIST,
                 COUNT_ARTIST,
                 artistsPercentageUpdater
             )
-        ) {
-            list?.artist
-        } else {
-            null
+            emit(list.artist)
+            list = getNewItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST)
         }
     }
 
-    suspend fun getNewAlbums(): List<AmpacheAlbum>? {
-        val list =
-            getNewItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM)
-        return if (updateRetrievingData(
-                list?.album,
+    fun getNewAlbums(): Flow<List<AmpacheAlbum>> = flow {
+        var list = getNewItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM)
+        while (list != null && list.album.isNotEmpty()) {
+            updateRetrievingData(
+                list.album,
                 OFFSET_ADD_ALBUM,
                 COUNT_ALBUMS,
                 albumsPercentageUpdater
             )
-        ) {
-            list?.album
-        } else {
-            null
+            emit(list.album)
+            list = getNewItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM)
         }
     }
 
-    suspend fun getPlaylists(): List<AmpachePlayListWithSongs>? {
-        val list =
-            getNewItems(
-                AmpacheApi::getPlaylists,
-                OFFSET_PLAYLIST
-            )
-        return if (updateRetrievingData(
-                list?.playlist,
+    fun getPlaylists(): Flow<List<AmpachePlayListWithSongs>> = flow {
+        var list = getNewItems(AmpacheApi::getPlaylists, OFFSET_PLAYLIST)
+        while (list != null && list.playlist.isNotEmpty()) {
+            updateRetrievingData(
+                list.playlist,
                 OFFSET_PLAYLIST,
                 COUNT_PLAYLIST,
                 playlistsPercentageUpdater
             )
-        ) {
-            list?.playlist
-        } else {
-            null
+            emit(list.playlist)
+            list = getNewItems(AmpacheApi::getPlaylists, OFFSET_PLAYLIST)
         }
     }
 
-    suspend fun getAddedSongs(from: Calendar): List<AmpacheSong>? {
-        val songList = getItems(AmpacheApi::getAddedSongs, OFFSET_ADD_SONG, from)
-        return if (updateRetrievingData(
-                songList?.song,
+    fun getAddedSongs(from: Calendar): Flow<List<AmpacheSong>> = flow {
+        var list = getItems(AmpacheApi::getAddedSongs, OFFSET_ADD_SONG, from)
+        while (list != null && list.song.isNotEmpty()) {
+            updateRetrievingData(
+                list.song,
                 OFFSET_ADD_SONG,
                 COUNT_SONGS,
                 songsPercentageUpdater
             )
-        ) {
-            songList?.song
-        } else {
-            null
+            emit(list.song)
+            list = getItems(AmpacheApi::getAddedSongs, OFFSET_ADD_SONG, from)
         }
     }
 
-    suspend fun getAddedGenres(from: Calendar): List<AmpacheNameId>? {
-        val list =
-            getItems(AmpacheApi::getAddedGenres, OFFSET_ADD_GENRE, from)
-        return if (updateRetrievingData(
-                list?.genre,
+    fun getAddedGenres(from: Calendar): Flow<List<AmpacheNameId>> = flow {
+        var list = getItems(AmpacheApi::getAddedGenres, OFFSET_ADD_GENRE, from)
+        while (list != null && list.genre.isNotEmpty()) {
+            updateRetrievingData(
+                list.genre,
                 OFFSET_ADD_GENRE,
                 COUNT_GENRES,
                 genresPercentageUpdater
             )
-        ) {
-            list?.genre
-        } else {
-            null
+            emit(list.genre)
+            list = getItems(AmpacheApi::getAddedGenres, OFFSET_ADD_GENRE, from)
         }
     }
 
-    suspend fun getAddedArtists(from: Calendar): List<AmpacheArtist>? {
-        val list =
-            getItems(AmpacheApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
-        return if (updateRetrievingData(
-                list?.artist,
+    fun getAddedArtists(from: Calendar): Flow<List<AmpacheArtist>> = flow {
+        var list = getItems(AmpacheApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
+        while (list != null && list.artist.isNotEmpty()) {
+            updateRetrievingData(
+                list.artist,
                 OFFSET_ADD_ARTIST,
                 COUNT_ARTIST,
                 artistsPercentageUpdater
             )
-        ) {
-            list?.artist
-        } else {
-            null
+            emit(list.artist)
+            list = getItems(AmpacheApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
         }
     }
 
-    suspend fun getAddedAlbums(from: Calendar): List<AmpacheAlbum>? {
-        val list =
-            getItems(AmpacheApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
-        return if (updateRetrievingData(
-                list?.album,
+    fun getAddedAlbums(from: Calendar): Flow<List<AmpacheAlbum>> = flow {
+        var list = getItems(AmpacheApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
+        while (list != null && list.album.isNotEmpty()) {
+            updateRetrievingData(
+                list.album,
                 OFFSET_ADD_ALBUM,
                 COUNT_ALBUMS,
                 albumsPercentageUpdater
             )
-        ) {
-            list?.album
-        } else {
-            null
+            emit(list.album)
+            list = getItems(AmpacheApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
         }
     }
 
@@ -392,66 +375,59 @@ open class AmpacheDataSource
      * API calls : updated data
      */
 
-    suspend fun getUpdatedSongs(from: Calendar): List<AmpacheSong>? {
-        val songList = getItems(AmpacheApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
-        return if (updateRetrievingData(
-                songList?.song,
+    fun getUpdatedSongs(from: Calendar): Flow<List<AmpacheSong>> = flow {
+        var list = getItems(AmpacheApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
+        while (list != null && list.song.isNotEmpty()) {
+            updateRetrievingData(
+                list.song,
                 OFFSET_UPDATE_SONG,
                 COUNT_SONGS,
                 songsPercentageUpdater
             )
-        ) {
-            songList?.song
-        } else {
-            null
+            emit(list.song)
+            list = getItems(AmpacheApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
         }
     }
 
-    suspend fun getUpdatedGenres(from: Calendar): List<AmpacheNameId>? {
-        val list =
-            getItems(AmpacheApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
-        return if (updateRetrievingData(
-                list?.genre,
+    fun getUpdatedGenres(from: Calendar): Flow<List<AmpacheNameId>> = flow {
+        var list = getItems(AmpacheApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
+        while (list != null && list.genre.isNotEmpty()) {
+            updateRetrievingData(
+                list.genre,
                 OFFSET_UPDATE_GENRE,
                 COUNT_GENRES,
                 genresPercentageUpdater
             )
-        ) {
-            list?.genre
-        } else {
-            null
+            emit(list.genre)
+            list = getItems(AmpacheApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
         }
     }
 
-    suspend fun getUpdatedArtists(from: Calendar): List<AmpacheArtist>? {
-        val list =
-            getItems(AmpacheApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
-        return if (updateRetrievingData(
-                list?.artist,
+    fun getUpdatedArtists(from: Calendar): Flow<List<AmpacheArtist>> = flow {
+        var list = getItems(AmpacheApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
+        while (list != null && list.artist.isNotEmpty()) {
+            updateRetrievingData(
+                list.artist,
                 OFFSET_UPDATE_ARTIST,
                 COUNT_ARTIST,
                 artistsPercentageUpdater
             )
-        ) {
-            list?.artist
-        } else {
-            null
+            emit(list.artist)
+            list = getItems(AmpacheApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
         }
     }
 
-    suspend fun getUpdatedAlbums(from: Calendar): List<AmpacheAlbum>? {
-        val list =
-            getItems(AmpacheApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
-        return if (updateRetrievingData(
-                list?.album,
+    fun getUpdatedAlbums(from: Calendar): Flow<List<AmpacheAlbum>> = flow {
+        var list = getItems(AmpacheApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
+        while (list != null && list.album.isNotEmpty()) {
+            updateRetrievingData(
+                list.album,
                 OFFSET_UPDATE_ALBUM,
                 COUNT_ALBUMS,
                 albumsPercentageUpdater
             )
-        ) {
-            list?.album
-        } else {
-            null
+            emit(list.album)
+            list = getItems(AmpacheApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
         }
     }
 
@@ -552,18 +528,16 @@ open class AmpacheDataSource
         offsetName: String,
         countName: String,
         percentageUpdater: MutableLiveData<Int>
-    ): Boolean {
+    ) {
         var currentOffset = sharedPreferences.getInt(offsetName, 0)
         val totalSongs = sharedPreferences.getInt(countName, 1)
-        return if (itemList.isNullOrEmpty()) {
+        if (itemList.isNullOrEmpty()) {
             percentageUpdater.postValue(-1)
-            false
         } else {
             currentOffset += itemList.size
             val percentage = (currentOffset * 100) / totalSongs
             percentageUpdater.postValue(percentage)
             sharedPreferences.applyPutInt(offsetName, currentOffset)
-            true
         }
     }
 
@@ -593,6 +567,14 @@ open class AmpacheDataSource
         sharedPreferences.edit().apply {
             remove(OFFSET_PLAYLIST)
         }.apply()
+    }
+
+    fun cancelPercentageUpdaters() {
+        genresPercentageUpdater.postValue(-1)
+        artistsPercentageUpdater.postValue(-1)
+        albumsPercentageUpdater.postValue(-1)
+        songsPercentageUpdater.postValue(-1)
+        playlistsPercentageUpdater.postValue(-1)
     }
 
     enum class ConnectionStatus {
