@@ -168,6 +168,11 @@ open class AmpacheDataSource
             }
 
             saveDbCount(ping.songs, ping.albums, ping.artists, ping.playlists)
+            saveServerDates(
+                TimeOperations.getDateFromAmpacheComplete(ping.add),
+                TimeOperations.getDateFromAmpacheComplete(ping.update),
+                TimeOperations.getDateFromAmpacheComplete(ping.clean)
+            )
             authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.session_expire).timeInMillis)
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
             return ping
