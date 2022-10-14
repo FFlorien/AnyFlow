@@ -87,7 +87,6 @@ class PlayerService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         (application as AnyFlowApp).userComponent?.inject(this)
-        Timber.plant(CrashReportingTree())
         playerController.stateChangeNotifier.observe(this) {
             if (!isPlaying) {
                 stopForeground(false)

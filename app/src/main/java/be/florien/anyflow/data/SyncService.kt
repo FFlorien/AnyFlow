@@ -62,7 +62,6 @@ class SyncService
     override fun onCreate() {
         super.onCreate()
         (application as be.florien.anyflow.AnyFlowApp).userComponent?.inject(this)
-        Timber.plant(CrashReportingTree())
         serviceScope.launch {
             try {
                 dataRepository.syncAll()

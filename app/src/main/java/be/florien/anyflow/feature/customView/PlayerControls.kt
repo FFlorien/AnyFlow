@@ -73,6 +73,14 @@ class PlayerControls
             playPlayerPainter.totalDuration = field
         }
     private var progressAnimDuration: Int = 10000
+    var downSamples: IntArray?
+        set(value) {
+            if (value != null) {
+                playPlayerPainter.downSamples = value
+                scrollPlayerPainter.downSamples = value
+            }
+        }
+    get() = currentPlayerPainter.downSamples
 
     // Calculations
     private var lastDownEventX = 0f

@@ -19,9 +19,12 @@ abstract class PlayerPainter(val context: Context) {
 
             computePlayButtonLeftBound()
             computePlayButtonRightBound()
+            computeDownSamples()
             computeTicks()
             onValuesComputed()
         }
+    var downSamples: IntArray = IntArray(0)
+    var downSampleStartOffset: Float = 0F
     var totalDuration: Int = 0
     var currentState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
         set(value) {
@@ -30,7 +33,11 @@ abstract class PlayerPainter(val context: Context) {
             computePlayPauseIcon()
             onValuesComputed()
         }
-    var smallestButtonWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CLICKABLE_SIZE_DP, context.resources.displayMetrics).toInt()
+    var smallestButtonWidth = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        CLICKABLE_SIZE_DP,
+        context.resources.displayMetrics
+    ).toInt()
     var onValuesComputed: () -> Unit = {}
 
     private var oldState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
@@ -42,6 +49,8 @@ abstract class PlayerPainter(val context: Context) {
     protected var playButtonLeftBound: Int = 0
     protected var playButtonRightBound: Int = 0
     protected val ticks: FloatArray = FloatArray(6)
+    protected var firstDownSample: Int = 0
+    protected var lastDownSample: Int = 0
 
     abstract fun retrieveLayoutProperties(values: TypedArray)
     abstract fun measure(width: Int, height: Int)
@@ -51,6 +60,7 @@ abstract class PlayerPainter(val context: Context) {
     protected abstract fun computeRemainingDurationText()
     protected abstract fun computePlayButtonLeftBound()
     protected abstract fun computePlayButtonRightBound()
+    protected abstract fun computeDownSamples()
     protected abstract fun computeTicks()
     abstract fun computePreviousIcon()
     protected abstract fun computePlayPauseIcon()

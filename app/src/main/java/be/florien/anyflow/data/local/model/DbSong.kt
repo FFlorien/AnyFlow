@@ -3,7 +3,7 @@ package be.florien.anyflow.data.local.model
 import androidx.room.*
 
 @Entity(
-    tableName = "Song",
+    tableName = "Song"
 )
 data class DbSong(
     @PrimaryKey
@@ -18,7 +18,9 @@ data class DbSong(
     val time: Int,
     val year: Int,
     val composer: String,
-    val local: String?
+    val local: String?,
+    val downSamples: IntArray
+    //todo dirty downSamples: List<Double>
 )
 
 data class DbSongDisplay(
@@ -52,4 +54,8 @@ data class DbSongToPlay(
 
 data class DbSongId(
     val id: Long
+)
+
+data class DbSongDownSample(
+    val downSamples: IntArray
 )

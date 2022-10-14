@@ -4,12 +4,10 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import androidx.paging.DataSource
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 import androidx.room.migration.Migration
-import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.data.local.dao.*
@@ -20,9 +18,10 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 2,
+    version = 3,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
 )
+@TypeConverters(CustomTypeConverters::class)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -71,6 +70,10 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
 
+    fun getDownSamples(songId: Long): LiveData<IntArray> = getSongDao().getDownSamples(songId).map { it.downSamples }
+
+    suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
+
     fun getGenres(): DataSource.Factory<Int, DbGenre> = getGenreDao().genreOrderByGenre()
     fun getGenresFiltered(filter: String): DataSource.Factory<Int, DbGenre> =
         getGenreDao().genreOrderByGenreFiltered(filter)
@@ -78,7 +81,9 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getGenresFilteredList(filter: String): List<DbGenre> =
         getGenreDao().genreOrderByGenreFilteredList(filter)
 
-    fun getAlbumArtists(): DataSource.Factory<Int, DbArtist> = getArtistDao().albumArtistOrderByName()
+    fun getAlbumArtists(): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().albumArtistOrderByName()
+
     fun getAlbumArtistsFiltered(filter: String): DataSource.Factory<Int, DbArtist> =
         getArtistDao().albumArtistOrderByNameFiltered(filter)
 
@@ -93,7 +98,9 @@ abstract class LibraryDatabase : RoomDatabase() {
         getAlbumDao().orderByNameFilteredList(filter)
 
 
-    fun getPlaylists(): DataSource.Factory<Int, DbPlaylistWithCount> = getPlaylistDao().orderByName()
+    fun getPlaylists(): DataSource.Factory<Int, DbPlaylistWithCount> =
+        getPlaylistDao().orderByName()
+
     fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylistWithCount> =
         getPlaylistDao().orderByNameFiltered(filter)
 
@@ -103,7 +110,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
 
-    suspend fun getPlaylistLastOrder(playlistId: Long) = getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
+    suspend fun getPlaylistLastOrder(playlistId: Long) =
+        getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
 
     fun getPlaylistSongs(playlistId: Long) = getPlaylistSongsDao().songsFromPlaylist(playlistId)
 
@@ -185,6 +193,10 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun updateSongLocalUri(songId: Long, uri: String) {
         getSongDao().updateWithLocalUri(songId, uri)
+    }
+
+    suspend fun updateDownSamples(songId: Long, downSamples: IntArray) {
+        getSongDao().updateWithNewDownSamples(songId, downSamples)
     }
 
     suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
@@ -301,6 +313,9 @@ abstract class LibraryDatabase : RoomDatabase() {
                 })
                 .addMigrations(Migration(1, 2) { db ->
                     db.execSQL("ALTER TABLE PlaylistSongs ADD COLUMN 'order' INTEGER NOT NULL DEFAULT 0")
+                })
+                .addMigrations(Migration(2, 3) { db ->
+                    db.execSQL("ALTER TABLE Song ADD COLUMN downSamples TEXT NOT NULL DEFAULT \"\"")
                 })
                 .build()
         }

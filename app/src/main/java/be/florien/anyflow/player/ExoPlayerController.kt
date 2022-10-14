@@ -22,13 +22,14 @@ import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import kotlin.coroutines.EmptyCoroutineContext
 
 class ExoPlayerController
 @Inject constructor(
@@ -37,10 +38,12 @@ class ExoPlayerController
     private var filtersManager: FiltersManager,
     private var audioManager: AudioManager,
     private val alarmsSynchronizer: AlarmsSynchronizer,
+    private val downSampleRepository: DownSampleRepository,
     private val context: Context,
     cache: Cache,
     okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
+    private val exoplayerScope = CoroutineScope(EmptyCoroutineContext)
 
     private val dataSourceFactory: DataSource.Factory
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
@@ -52,7 +55,8 @@ class ExoPlayerController
     private val myNoisyAudioStreamReceiver = BecomingNoisyReceiver()
 
     private var shouldPlayOnFocusChange = false
-    private val audioFocusRequest: AudioFocusRequest?  = getFocusRequest()
+    private var currentSongId = -1L
+    private val audioFocusRequest: AudioFocusRequest? = getFocusRequest()
 
     inner class BecomingNoisyReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -67,17 +71,23 @@ class ExoPlayerController
      */
 
     init {
-        dataSourceFactory = DefaultDataSourceFactory(
+        dataSourceFactory = DefaultDataSource.Factory(
             context, CacheDataSource.Factory()
                 .setCache(cache)
                 .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
                 .setCacheWriteDataSinkFactory(null)// Disable writing.
         )
 
-        mediaPlayer = SimpleExoPlayer
+        mediaPlayer = ExoPlayer
             .Builder(
                 context,
-                DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) })
+                AnyFlowRenderersFactory(context, object: BufferDownSamplingListener {
+                    override fun onBufferDownSampling(downSample: Double, positionUs: Long) {
+                        if (currentSongId >= 0L) {
+                            downSampleRepository.addDownSample(currentSongId, downSample, positionUs)
+                        }
+                    }
+                }).apply { setEnableAudioOffload(true) })
             .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
             .build()
             .apply {
@@ -86,8 +96,9 @@ class ExoPlayerController
             }
         playingQueue.stateUpdater.observeForever { state ->
             applyState(state)
+            currentSongId = state.currentSong.id
         }
-        GlobalScope.launch(Dispatchers.Default) {
+        exoplayerScope.launch(Dispatchers.Default) {
             while (true) {
                 delay(10)
                 withContext(Dispatchers.Main) {
@@ -103,7 +114,7 @@ class ExoPlayerController
     override fun isSeekable() = mediaPlayer.isCurrentMediaItemSeekable
 
     override fun playForAlarm() {
-        GlobalScope.launch(Dispatchers.Default) {
+        exoplayerScope.launch(Dispatchers.Default) {
             alarmsSynchronizer.syncAlarms()
         }
         val connectivityManager =
@@ -112,7 +123,7 @@ class ExoPlayerController
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
             filtersManager.clearFilters()
             filtersManager.addFilter(Filter.DownloadedStatusIs(true))
-            GlobalScope.launch(Dispatchers.Default) {
+            exoplayerScope.launch(Dispatchers.Default) {
                 filtersManager.commitChanges()
             }
         }
@@ -123,7 +134,7 @@ class ExoPlayerController
     }
 
     private fun prepare() {
-        GlobalScope.launch(Dispatchers.Main) {
+        exoplayerScope.launch(Dispatchers.Main) {
             mediaPlayer.prepare()
         }
     }
@@ -142,7 +153,8 @@ class ExoPlayerController
     override fun resume() {
         if (!isPlaying()) {
             val focusResponse = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val focusRequest = audioFocusRequest ?: throw IllegalStateException("AudiFocusRequest should have been initialized")
+                val focusRequest = audioFocusRequest
+                    ?: throw IllegalStateException("AudiFocusRequest should have been initialized")
                 audioManager.requestAudioFocus(focusRequest)
             } else {
                 @Suppress("DEPRECATION")
@@ -205,9 +217,11 @@ class ExoPlayerController
 
     private fun abandonAudioFocus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val request = audioFocusRequest ?: throw IllegalStateException("AudioFocusRequest should have been initialized")
+            val request = audioFocusRequest
+                ?: throw IllegalStateException("AudioFocusRequest should have been initialized")
             audioManager.abandonAudioFocusRequest(request)
         } else {
+            @Suppress("DEPRECATION")
             audioManager.abandonAudioFocus(::onAudioFocusChange)
         }
     }
@@ -238,7 +252,7 @@ class ExoPlayerController
 
         suspend fun reconnect() {
             ampacheDataSource.reconnect {
-                GlobalScope.launch(Dispatchers.Main) {
+                exoplayerScope.launch(Dispatchers.Main) {
                     val firstItem =
                         dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
                     val secondItem =
@@ -255,7 +269,7 @@ class ExoPlayerController
             val uri = sourceException.uri
             val songId = uri.getQueryParameter("id")?.toLongOrNull()
             if (songId != null) {
-                GlobalScope.launch (Dispatchers.IO) {
+                exoplayerScope.launch(Dispatchers.IO) {
                     val ampacheError = ampacheDataSource.getStreamError(songId)
                     if (ampacheError.error.errorCode == 4701) {
                         reconnect()
@@ -269,7 +283,7 @@ class ExoPlayerController
             || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400
         ) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
-            GlobalScope.launch {
+            exoplayerScope.launch {
                 reconnect()
             }
         } else if (
@@ -330,7 +344,7 @@ class ExoPlayerController
     private fun applyState(state: PlayingQueue.PlayingQueueState) {
         val nextSongByUser =
             mediaPlayer.mediaItemCount > 0 && mediaPlayer.getMediaItemAt(1).mediaId == state.currentSong.id.toString()
-        val isNextSong = mediaPlayer.currentWindowIndex == 1 || nextSongByUser
+        val isNextSong = mediaPlayer.currentMediaItemIndex == 1 || nextSongByUser
         if (isNextSong) {
             mediaPlayer.removeMediaItem(0)
         }

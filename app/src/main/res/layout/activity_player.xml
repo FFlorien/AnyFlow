@@ -105,7 +105,8 @@
                 app:shouldShowBuffering="@{viewModel.shouldShowBuffering}"
                 app:smallestButtonWidth="@dimen/minClickableSize"
                 app:state="@{viewModel.state}"
-                app:totalDuration="@{viewModel.totalDuration}" />
+                app:totalDuration="@{viewModel.totalDuration}"
+                app:downSamples="@{viewModel.downSamples}"/>
         </LinearLayout>
 
         <com.google.android.material.navigation.NavigationView
