@@ -43,7 +43,6 @@ open class AmpacheDataSource
         private const val OFFSET_UPDATE_ARTIST = "OFFSET_UPDATE_ARTIST"
         private const val OFFSET_UPDATE_ALBUM = "OFFSET_UPDATE_ALBUM"
         private const val OFFSET_DELETED_SONGS = "OFFSET_DELETED_SONGS"
-        private const val RECONNECT_LIMIT = 3
         private const val COUNT_SONGS = "COUNT_SONGS"
         private const val COUNT_GENRES = "COUNT_GENRES"
         private const val COUNT_ALBUMS = "COUNT_ALBUMS"
@@ -57,7 +56,6 @@ open class AmpacheDataSource
     private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
 
     private val itemLimit: Int = 250
-    private var reconnectByPing = 0
     private var reconnectByUserPassword = 0
 
     private var userComponent
@@ -156,7 +154,8 @@ open class AmpacheDataSource
         }
     }
 
-    suspend fun ping(authToken: String = authPersistence.authToken.secret): AmpachePing {
+    suspend fun ping(): AmpachePing {
+        val authToken: String = authPersistence.authToken.secret
         if (authToken.isBlank()) {
             throw IllegalArgumentException("No token available !")
         }
@@ -186,30 +185,9 @@ open class AmpacheDataSource
         if (!authPersistence.hasConnectionInfo()) {
             throw SessionExpiredException("Can't reconnect")
         } else {
-            if (reconnectByPing >= RECONNECT_LIMIT) {
-                reconnectByPing = 0
-                authPersistence.revokeAuthToken()
-            }
-            return if (authPersistence.authToken.secret.isNotBlank()) {
-                reconnectByPing(request)
-            } else if (authPersistence.user.secret.isNotBlank() && authPersistence.password.secret.isNotBlank()) {
+            authPersistence.revokeAuthToken()
+            return if (authPersistence.user.secret.isNotBlank() && authPersistence.password.secret.isNotBlank()) {
                 reconnectByUsernamePassword(request)
-            } else {
-                throw SessionExpiredException("Can't reconnect")
-            }
-        }
-    }
-
-    private suspend fun <T> reconnectByPing(request: suspend () -> T): T {
-        reconnectByPing++
-        val ping = ping(authPersistence.authToken.secret)
-        return if (ping.error.errorCode == 0) {
-            saveDbCount(ping.songs, ping.albums, ping.artists, ping.playlists)
-            request()
-        } else {
-            val auth = authenticate(authPersistence.user.secret, authPersistence.password.secret)
-            if (auth.error.errorCode == 0) {
-                request()
             } else {
                 throw SessionExpiredException("Can't reconnect")
             }

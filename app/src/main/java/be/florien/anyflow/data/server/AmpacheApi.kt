@@ -183,6 +183,6 @@ interface AmpacheApi {
         @Query("action") action: String = "stream",
         @Query("type") type: String = "song",
         @Query("auth") auth: String,
-        @Query("is") songId: Long
+        @Query("id") songId: Long
     ): AmpacheErrorObject
 }
