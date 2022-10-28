@@ -1,6 +1,7 @@
 package be.florien.anyflow.player
 
 import android.content.Context
+import android.media.MediaFormat
 import android.os.Handler
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.Format
@@ -8,12 +9,15 @@ import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.audio.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.absoluteValue
 
 class AnyFlowRenderersFactory(
     context: Context,
-    private val onBufferDownSamplingListener: BufferDownSamplingListener
+    private val onBufferDownSamplingListener: BufferDownSamplingConnector
 ) : DefaultRenderersFactory(context) {
 
     override fun buildAudioRenderers(
@@ -36,7 +40,8 @@ class AnyFlowRenderersFactory(
                 DefaultAudioSink.Builder().setAudioCapabilities(
                     AudioCapabilities.getCapabilities(context)
                 ).build(),
-                onBufferDownSamplingListener::onBufferDownSampling
+                onBufferDownSamplingListener::onBufferDownSampling,
+                onBufferDownSamplingListener::shouldComputeDownSampling
             )
         )
 
@@ -52,8 +57,10 @@ class AnyFlowRenderersFactory(
         )
     }
 }
-interface BufferDownSamplingListener {
+
+interface BufferDownSamplingConnector {
     fun onBufferDownSampling(downSample: Double, positionUs: Long)
+    suspend fun shouldComputeDownSampling(): Boolean
 }
 
 class BufferDownSamplingListenerAudioRenderer(
@@ -63,7 +70,8 @@ class BufferDownSamplingListenerAudioRenderer(
     eventHandler: Handler?,
     eventListener: AudioRendererEventListener?,
     audioSink: AudioSink,
-    private val onDownSamplingReady: (Double, Long) -> Unit
+    private val onDownSamplingReady: (Double, Long) -> Unit,
+    private val shouldComputeDownSampling: suspend () -> Boolean
 ) : MediaCodecAudioRenderer(
     context,
     mediaCodecSelector,
@@ -76,10 +84,15 @@ class BufferDownSamplingListenerAudioRenderer(
     private var lastPositionUs = 0L
     private var mediaOffset = -1L
     private var shouldUpdateOffset = false
+    private var shouldCompute = true
+    private val coroutineScope = CoroutineScope(EmptyCoroutineContext)
 
-    override fun onProcessedStreamChange() {
-        super.onProcessedStreamChange()
+    override fun onOutputFormatChanged(format: Format, mediaFormat: MediaFormat?) {
+        super.onOutputFormatChanged(format, mediaFormat)
         shouldUpdateOffset = true
+        coroutineScope.launch {
+            shouldCompute = shouldComputeDownSampling()
+        }
     }
 
     override fun processOutputBuffer(
@@ -102,13 +115,14 @@ class BufferDownSamplingListenerAudioRenderer(
             shouldUpdateOffset = false
             mediaOffset = positionUs
         }
-        if (lastPositionUs != positionUs) {
+        if (lastPositionUs != positionUs && shouldCompute) {
             lastPositionUs = positionUs
             val mediaPositionUs = positionUs - mediaOffset
 
             val bufferCopy = deepCopy(buffer)
             if (bufferCopy != null) {
-                val decoded = bufferCopy.downSample() //todo this is not what we want, but good enough for now
+                val decoded =
+                    bufferCopy.downSample() //todo this is not what we want, but good enough for now
                 onDownSamplingReady(decoded, mediaPositionUs)
             }
         }

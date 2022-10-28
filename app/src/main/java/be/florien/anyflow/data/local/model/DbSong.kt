@@ -57,5 +57,11 @@ data class DbSongId(
 )
 
 data class DbSongDownSample(
-    val downSamples: IntArray
-)
+    val downSamples: String
+) {
+    val downSamplesArray: IntArray
+    get() {
+        if (downSamples.isBlank()) return IntArray(0)
+        return downSamples.split('|').map { it.toInt() }.toIntArray()
+    }
+}

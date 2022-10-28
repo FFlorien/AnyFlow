@@ -81,11 +81,15 @@ class ExoPlayerController
         mediaPlayer = ExoPlayer
             .Builder(
                 context,
-                AnyFlowRenderersFactory(context, object: BufferDownSamplingListener {
+                AnyFlowRenderersFactory(context, object: BufferDownSamplingConnector {
                     override fun onBufferDownSampling(downSample: Double, positionUs: Long) {
                         if (currentSongId >= 0L) {
                             downSampleRepository.addDownSample(currentSongId, downSample, positionUs)
                         }
+                    }
+
+                    override suspend fun shouldComputeDownSampling(): Boolean {
+                        return downSampleRepository.shouldComputeDownSampleForSong(currentSongId)
                     }
                 }).apply { setEnableAudioOffload(true) })
             .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))

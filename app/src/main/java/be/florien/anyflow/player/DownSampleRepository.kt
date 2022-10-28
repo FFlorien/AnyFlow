@@ -6,10 +6,12 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 class DownSampleRepository(private val libraryDatabase: LibraryDatabase) {
 
+    //todo clean this after a while ?
     private val dataMap: HashMap<Long, DownSampleData> = hashMapOf()
     private var currentSongId: Long = -1L
 
@@ -21,10 +23,13 @@ class DownSampleRepository(private val libraryDatabase: LibraryDatabase) {
     fun addDownSample(songId: Long, sample: Double, positionUs: Long) {
         if (songId != currentSongId) {
             dataMap[currentSongId]?.saveDownSamples()
+            currentSongId = songId
         }
 
         getDownSamples(songId).addDownSample(sample, positionUs)
     }
+
+    suspend fun shouldComputeDownSampleForSong(songId: Long) = getDownSamples(songId).shouldComputeDownSample()
 
     //todo method to let exoplayer know if it should downsample
 
@@ -43,6 +48,8 @@ class DownSampleRepository(private val libraryDatabase: LibraryDatabase) {
         private var currentPosition: Long = -1
         private val rawSampleList: MutableList<Double> = mutableListOf()
         private var computedSampleList: IntArray = IntArray(100) { 0 }
+        private var shouldComputeDownSamples = true
+        private var isInit = false
         val computedLiveData: LiveData<IntArray> = MutableLiveData()
 
         init {
@@ -53,20 +60,33 @@ class DownSampleRepository(private val libraryDatabase: LibraryDatabase) {
         //todo get clean if we have that, or dirty if not, from libraryDatabase
 
         fun addDownSample(sample: Double, positionUs: Long) {
-            val inDownSampleDuration = positionUs.fromUsToMs.inDownSampleDuration
-            if (inDownSampleDuration != currentPosition) {
-                setDownSample()
-                currentPosition = inDownSampleDuration
-                rawSampleList.clear()
-            }
+            if (shouldComputeDownSamples) {
+                val inDownSampleDuration = positionUs.fromUsToMs.inDownSampleDuration
+                if (inDownSampleDuration != currentPosition) {
+                    setDownSample()
+                    currentPosition = inDownSampleDuration
+                    rawSampleList.clear()
+                }
 
-            rawSampleList.add(sample)
+                rawSampleList.add(sample)
+            }
         }
 
         fun saveDownSamples() {
-            setDownSample()
-            coroutineScope.launch {
-                libraryDatabase.updateDownSamples(songId, computedSampleList)
+            if (shouldComputeDownSamples) {
+                setDownSample()
+                coroutineScope.launch(Dispatchers.IO) {
+                    libraryDatabase.updateDownSamples(songId, computedSampleList)
+                    shouldComputeDownSamples = false
+                }
+            }
+        }
+
+        suspend fun shouldComputeDownSample(): Boolean {
+            return withContext(coroutineScope.coroutineContext + Dispatchers.Default) {
+                while (!isInit) {
+                }
+                shouldComputeDownSamples
             }
         }
 
@@ -74,18 +94,30 @@ class DownSampleRepository(private val libraryDatabase: LibraryDatabase) {
             val element = (rawSampleList.average().times(10000)).toInt()
             val position = (currentPosition / DOWN_SAMPLE_DURATION_MS).toInt()
             computedSampleList[position] = element
-            coroutineScope.launch(Dispatchers.Main) {
-                (computedLiveData as MutableLiveData).value = computedSampleList
-            }
+            updateLiveData()
         }
 
         private suspend fun initIntArray() {
-            val duration = libraryDatabase.getSongDuration(songId)
-            val previousList = computedSampleList
-            val size = ((duration * 1000) / DOWN_SAMPLE_DURATION_MS) + 2
-            computedSampleList = IntArray(size) { 0 }
-            previousList.forEachIndexed { index, value ->
-                if (index < size) computedSampleList[index] = value
+            val databaseDownSamples = libraryDatabase.getDownSamples(songId)
+            if (databaseDownSamples.isNotEmpty()) {
+                computedSampleList = databaseDownSamples
+                shouldComputeDownSamples = false
+            } else {
+                val duration = libraryDatabase.getSongDuration(songId)
+                val previousList = computedSampleList
+                val size = ((duration * 1000) / DOWN_SAMPLE_DURATION_MS) + 2
+                computedSampleList = IntArray(size) { 0 }
+                previousList.forEachIndexed { index, value ->
+                    if (index < size) computedSampleList[index] = value
+                }
+            }
+            updateLiveData()
+            isInit = true
+        }
+
+        private fun updateLiveData() {
+            coroutineScope.launch(Dispatchers.Main) {
+                (computedLiveData as MutableLiveData).value = computedSampleList
             }
         }
 

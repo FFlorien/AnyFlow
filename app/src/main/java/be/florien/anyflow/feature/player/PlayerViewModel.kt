@@ -6,13 +6,12 @@ import android.os.IBinder
 import androidx.lifecycle.*
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.customView.PlayPauseIconAnimator
 import be.florien.anyflow.feature.customView.PlayerControls
 import be.florien.anyflow.player.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.absoluteValue
@@ -54,10 +53,9 @@ constructor(
     val totalDuration: LiveData<Int> = playingQueue.currentSong.map { ((it as SongInfo?)?.time ?: 0) * 1000 }
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
-    val downSamples: LiveData<IntArray> = playingQueue.currentSong.switchMap { downSampleRepository.getComputedDownSamples(it.id) }
+    val downSamples: LiveData<IntArray> = playingQueue.currentSong.switchMap { downSampleRepository.getComputedDownSamples(it.id) }.distinctUntilChanged()
 
     val isSeekable: LiveData<Boolean> = MutableLiveData(false)
-    private var executableExceptionThrower : Job? = null
 
     var player: PlayerController = IdlePlayerController()
         set(value) {
@@ -69,12 +67,6 @@ constructor(
                 currentDuration.mutable.value = it.toInt()
             }
             state.addSource(field.stateChangeNotifier) {
-                if (executableExceptionThrower != null && it != PlayerController.State.BUFFER) {
-                    executableExceptionThrower?.cancel()
-                }
-                if (it == PlayerController.State.BUFFER) {
-                    executableExceptionThrower = throwErrorOnBuffering()
-                }
                 shouldShowBuffering.mutable.value = it == PlayerController.State.BUFFER
                 state.mutable.value = when (it) {
                     PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
@@ -85,15 +77,6 @@ constructor(
                 isSeekable.mutable.value = player.isSeekable()
             }
         }
-
-    private fun throwErrorOnBuffering(): Job {
-        return viewModelScope.launch {
-            delay(5000)
-            if (isActive) {
-                eLog(Exception("Buffering for too long"), "Buffering for too long")
-            }
-        }
-    }
 
     /**
      * PlayerControls.OnActionListener methods

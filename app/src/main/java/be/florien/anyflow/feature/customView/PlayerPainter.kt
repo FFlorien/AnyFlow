@@ -24,6 +24,10 @@ abstract class PlayerPainter(val context: Context) {
             onValuesComputed()
         }
     var downSamples: IntArray = IntArray(0)
+        set(value) {
+            field = value
+            computeDownSamples()
+        }
     var downSampleStartOffset: Float = 0F
     var totalDuration: Int = 0
     var currentState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE

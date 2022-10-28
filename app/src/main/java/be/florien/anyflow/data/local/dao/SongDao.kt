@@ -59,7 +59,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract suspend fun songCount(): Int
 
     @Query("SELECT downSamples FROM Song WHERE song.id = :songId")
-    abstract fun getDownSamples(songId: Long): LiveData<DbSongDownSample>
+    abstract suspend fun getDownSamples(songId: Long): DbSongDownSample
 
     @Query("SELECT time FROM Song WHERE song.id = :songId")
     abstract suspend fun getSongDuration(songId: Long): Int
@@ -73,6 +73,6 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract suspend fun updateWithLocalUri(songId: Long, uri: String)
 
     @Query("UPDATE song SET downSamples = :downSamples WHERE song.id = :songId")
-    abstract suspend fun updateWithNewDownSamples(songId: Long, downSamples: IntArray)
+    abstract suspend fun updateWithNewDownSamples(songId: Long, downSamples: String?)
 
 }

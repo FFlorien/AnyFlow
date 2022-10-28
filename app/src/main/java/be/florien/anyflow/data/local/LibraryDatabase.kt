@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
 import androidx.paging.DataSource
 import androidx.room.*
 import androidx.room.migration.Migration
@@ -21,7 +20,6 @@ import java.util.concurrent.Executors
     version = 3,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
 )
-@TypeConverters(CustomTypeConverters::class)
 abstract class LibraryDatabase : RoomDatabase() {
 
     protected abstract fun getAlbumDao(): AlbumDao
@@ -70,7 +68,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
 
-    fun getDownSamples(songId: Long): LiveData<IntArray> = getSongDao().getDownSamples(songId).map { it.downSamples }
+    suspend fun getDownSamples(songId: Long): IntArray = getSongDao().getDownSamples(songId).downSamplesArray
 
     suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
 
@@ -196,7 +194,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     suspend fun updateDownSamples(songId: Long, downSamples: IntArray) {
-        getSongDao().updateWithNewDownSamples(songId, downSamples)
+        val stringify =  downSamples.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { it.toString() }
+        getSongDao().updateWithNewDownSamples(songId, stringify)
     }
 
     suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
