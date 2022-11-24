@@ -14,6 +14,8 @@
         </attr>
         <attr name="iconColor" format="color"/>
         <attr name="outLineColor" format="color"/>
+        <attr name="readBarsColor" format="color"/>
+        <attr name="comingBarsColor" format="color"/>
         <attr name="disabledColor" format="color"/>
         <attr name="progressBackgroundColor" format="color"/>
         <attr name="previousBackgroundColor" format="color"/>

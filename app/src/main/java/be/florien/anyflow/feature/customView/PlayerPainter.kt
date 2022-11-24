@@ -13,13 +13,13 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
 import be.florien.anyflow.player.DownSampleRepository
 
-internal abstract class DurationPlayerPainter(
+internal abstract class PlayerPainter(
     val context: Context,
     protected val playPauseIconAnimator: PlayPauseIconAnimator,
     private val previousIconAnimator: PreviousIconAnimator
 ) {
 
-    //todo reordonate the properties
+    // Public values
     var duration = 0
         protected set(value) {
             val oldValue = field
@@ -36,111 +36,19 @@ internal abstract class DurationPlayerPainter(
             computeTicks()
             onValuesComputed()
         }
-    var downSamples: IntArray = IntArray(0)
+    var downSamples = IntArray(0)
         set(value) {
             field = value
             computeBars()
         }
-    var totalDuration: Int = 0
-    var currentState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+    var totalDuration = 0
+    var currentState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
         set(value) {
             oldState = field
             field = value
             computePlayPauseIcon()
             onValuesComputed()
         }
-    var measuredSmallestButtonWidth = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,
-        CLICKABLE_SIZE_DP,
-        context.resources.displayMetrics
-    ).toInt()
-    var onValuesComputed: () -> Unit = {}
-
-    private var oldState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
-
-    private var elapsedDurationText: String = ""
-    private var remainingDurationText: String = ""
-    protected var measuredPlayButtonOffsetWidth = 0
-    private var measuredNumberOfBarsInHalf = 0
-    private var measuredStartEndAnimDuration: Int = 10000
-    protected var playButtonLeftBound: Int = 0
-    protected var playButtonRightBound: Int = 0
-    protected val ticks: FloatArray = FloatArray(6)
-    private val readBarsLeftValues: FloatArray =
-        FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
-    private val comingBarsLeftValues: FloatArray =
-        FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
-    private var firstBarIndex: Int = 0
-    private var currentBarIndex: Int = 0
-    private var lastBarIndex: Int = 0
-
-
-    // Sizes
-    private var measuredSmallPlayButtonLeftX = 0
-    private var measuredSmallPlayButtonRightX = 0
-    private var measuredBigPlayButtonRightX = 0
-    private var measuredInformationBaseline: Int = 0
-    private var measuredBarWidth = 0
-    private var measuredBarWidthNoMargin = 0
-    private var measuredCenterX = 0
-    private var measuredTickHeight = 0
-
-    // Drawables
-    private lateinit var nextIcon: AnimatedVectorDrawableCompat
-    protected val playPausePosition = Rect()
-    private val previousIconPosition: Rect = Rect()
-    private val nextIconPosition: Rect = Rect()
-
-    // Paints
-    private val textAndOutlineColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
-        setColor(color)
-        textAlign = Paint.Align.CENTER
-        textSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            VISIBLE_TEXT_SP,
-            context.resources.displayMetrics
-        )
-        strokeWidth = 2f
-    }
-    private val timelineOutlineColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.iconInApp)
-        setColor(color)
-        strokeWidth = 2f
-    }
-    private val readBarsColor = Paint().apply {//todo attr
-        val color = ContextCompat.getColor(context, R.color.primaryDark)
-        setColor(color)
-        strokeWidth = 2f
-    }
-    private val comingBarsColor = Paint().apply {//todo attr
-        val color = ContextCompat.getColor(context, R.color.primaryLight)
-        setColor(color)
-        strokeWidth = 2f
-    }
-    private val backgroundColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.primary)
-        setColor(color)
-    }
-    private val previousBackgroundColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.primaryDark)
-        setColor(color)
-    }
-    private val nextBackgroundColor = Paint().apply {
-        val color = ContextCompat.getColor(context, R.color.primaryDark)
-        setColor(color)
-    }
-
-    // Icon related
-    private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
-    private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
-
-    protected abstract fun computePlayPauseIcon()
-    abstract fun getButtonClicked(lastDownEventX: Int, downEventX: Int): Int
-
-    /**
-     * Overridden variables
-     */
     var hasPrevious: Boolean = false
         set(value) {
             if (field != value) {
@@ -163,6 +71,93 @@ internal abstract class DurationPlayerPainter(
                 )
             }
         }
+    var onValuesComputed: () -> Unit = {}
+
+    // State
+    private var oldState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+
+    // Buttons
+    private var elapsedDurationText = ""
+    private var remainingDurationText = ""
+    protected var playButtonLeftBound = 0F
+    protected var playButtonRightBound = 0F
+    var measuredSmallestButtonWidth = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        CLICKABLE_SIZE_DP,
+        context.resources.displayMetrics
+    )
+    protected var measuredPlayButtonOffsetWidth = 0F
+    private var measuredSmallPlayButtonLeftX = 0F
+    private var measuredSmallPlayButtonRightX = 0F
+    private var measuredBigPlayButtonRightX = 0F
+
+    // Timeline
+    private val ticks = FloatArray(6)
+    private val readBarsLeftValues = FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
+    private val comingBarsLeftValues = FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
+    private var firstBarIndex = 0
+    private var currentBarIndex = 0
+    private var lastBarIndex = 0
+    private var measuredNumberOfBarsInHalf = 0
+    private var measuredInformationBaseline = 0F
+    private var measuredBarWidth = 0F
+    private var measuredBarWidthNoMargin = 0F
+    private var measuredCenterX = 0F
+    private var measuredTickHeight = 0F
+    private var measuredStartEndAnimDuration = 10000
+
+    // Drawables
+    private lateinit var nextIcon: AnimatedVectorDrawableCompat
+    protected val playPausePosition = Rect()
+    private val previousIconPosition = Rect()
+    private val nextIconPosition = Rect()
+    private var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+    private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
+
+    // Paints
+    private val textAndOutlineColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        setColor(color)
+        textAlign = Paint.Align.CENTER
+        textSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            VISIBLE_TEXT_SP,
+            context.resources.displayMetrics
+        )
+        strokeWidth = 2f
+    }
+    private val timelineOutlineColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.iconInApp)
+        setColor(color)
+        strokeWidth = 2f
+    }
+    private val readBarsColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primaryDark)
+        setColor(color)
+        strokeWidth = 2f
+    }
+    private val comingBarsColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primaryLight)
+        setColor(color)
+        strokeWidth = 2f
+    }
+    private val backgroundColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primary)
+        setColor(color)
+    }
+    private val previousBackgroundColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primaryDark)
+        setColor(color)
+    }
+    private val nextBackgroundColor = Paint().apply {
+        val color = ContextCompat.getColor(context, R.color.primaryDark)
+        setColor(color)
+    }
+
+    // Abstract methods
+
+    protected abstract fun computePlayPauseIcon()
+    abstract fun getButtonClicked(lastDownEventX: Int, downEventX: Int): Int
 
     /**
      * Widget Methods
@@ -170,8 +165,8 @@ internal abstract class DurationPlayerPainter(
     open fun retrieveLayoutProperties(values: TypedArray) {
         measuredSmallestButtonWidth = values.getDimensionPixelSize(
             R.styleable.PlayerControls_smallestButtonWidth,
-            measuredSmallestButtonWidth
-        )
+            measuredSmallestButtonWidth.toInt()
+        ).toFloat()
         values.getColor(R.styleable.PlayerControls_iconColor, PlayerControls.NO_VALUE)
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
                 iconColor = it
@@ -180,6 +175,14 @@ internal abstract class DurationPlayerPainter(
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
                 textAndOutlineColor.color = it
                 timelineOutlineColor.color = it
+            }
+        values.getColor(R.styleable.PlayerControls_readBarsColor, PlayerControls.NO_VALUE)
+            .takeIf { it != PlayerControls.NO_VALUE }?.let {
+                readBarsColor.color = it
+            }
+        values.getColor(R.styleable.PlayerControls_comingBarsColor, PlayerControls.NO_VALUE)
+            .takeIf { it != PlayerControls.NO_VALUE }?.let {
+                comingBarsColor.color = it
             }
         values.getColor(R.styleable.PlayerControls_previousBackgroundColor, PlayerControls.NO_VALUE)
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
@@ -204,26 +207,27 @@ internal abstract class DurationPlayerPainter(
 
     fun measure(width: Int, height: Int) {
         if (width < (measuredSmallestButtonWidth * 3)) {
-            measuredSmallestButtonWidth = width / 3
+            measuredSmallestButtonWidth = width / 3f
         }
-        measuredCenterX = width / 2
+        measuredCenterX = width / 2f
         val availableBarsWidth = width - (measuredSmallestButtonWidth * 2)
-        val numberOfBars = MAX_DURATION_VISIBLE_IN_SEC * 2
-        val totalMargin = BAR_MARGIN * 2
+        val numberOfBars = MAX_DURATION_VISIBLE_IN_SEC * 2f
+        val totalMargin = BAR_MARGIN * 2f
         measuredBarWidth = availableBarsWidth / numberOfBars
         measuredBarWidthNoMargin = measuredBarWidth - totalMargin
-        measuredSmallPlayButtonLeftX = ((width - measuredSmallestButtonWidth).toFloat() / 2).toInt()
+        measuredSmallPlayButtonLeftX = ((width - measuredSmallestButtonWidth) / 2)
         measuredSmallPlayButtonRightX = measuredSmallPlayButtonLeftX + measuredSmallestButtonWidth
         measuredBigPlayButtonRightX = width - measuredSmallestButtonWidth
         measuredPlayButtonOffsetWidth = measuredSmallPlayButtonLeftX - measuredSmallestButtonWidth
         measuredStartEndAnimDuration =
-            (measuredPlayButtonOffsetWidth * BAR_DURATION_MS) / measuredBarWidth
-        measuredNumberOfBarsInHalf = (width - (measuredSmallestButtonWidth * 2)) / 2 / measuredBarWidth
+            ((measuredPlayButtonOffsetWidth * BAR_DURATION_MS) / measuredBarWidth).toInt()
+        measuredNumberOfBarsInHalf =
+            ((width - (measuredSmallestButtonWidth * 2)) / 2 / measuredBarWidth).toInt()
 
-        measuredTickHeight = height / 4 * 3
-        val iconMargin = measuredSmallestButtonWidth / 4
-        val iconSize = measuredSmallestButtonWidth / 2
-        val playIconStartX = measuredSmallPlayButtonLeftX + iconMargin
+        measuredTickHeight = height / 4f * 3f
+        val iconMargin = (measuredSmallestButtonWidth / 4).toInt()
+        val iconSize = (measuredSmallestButtonWidth / 2).toInt()
+        val playIconStartX = (measuredSmallPlayButtonLeftX + iconMargin).toInt()
         playPausePosition.left = playIconStartX
         playPausePosition.top = iconMargin
         playPausePosition.right = playIconStartX + iconSize
@@ -232,48 +236,50 @@ internal abstract class DurationPlayerPainter(
         previousIconPosition.top = iconMargin
         previousIconPosition.right = iconMargin + iconSize
         previousIconPosition.bottom = iconMargin + iconSize
-        val nextIconStartX = width - measuredSmallestButtonWidth + iconMargin
+        val nextIconStartX = (width - measuredSmallestButtonWidth + iconMargin).toInt()
         nextIconPosition.left = nextIconStartX
         nextIconPosition.top = iconMargin
         nextIconPosition.right = nextIconStartX + iconSize
         nextIconPosition.bottom = iconMargin + iconSize
         nextIcon.bounds = nextIconPosition
-        measuredInformationBaseline = (height - 10f).toInt()
+        measuredInformationBaseline = (height - 10f)
     }
 
     fun draw(canvas: Canvas, width: Int, height: Int) {
+        val heightFloat = height.toFloat()
+        val widthFloat = width.toFloat()
         canvas.drawRect( // Previous background
             /* left =   */ 0f,
             /* top =    */ 0f,
-            /* right =  */ playButtonLeftBound.toFloat(),
-            /* bottom = */ height.toFloat(),
+            /* right =  */ playButtonLeftBound,
+            /* bottom = */ heightFloat,
             /* paint =  */ previousBackgroundColor
         )
         canvas.drawRect( // Play/pause background
-            /* left =   */ playButtonLeftBound.toFloat(),
+            /* left =   */ playButtonLeftBound,
             /* top =    */ 0f,
-            /* right =  */ playButtonRightBound.toFloat(),
-            /* bottom = */ height.toFloat(),
+            /* right =  */ playButtonRightBound,
+            /* bottom = */ heightFloat,
             /* paint =  */ backgroundColor
         )
         canvas.drawRect( // Next background
-            /* left =   */ playButtonRightBound.toFloat(),
+            /* left =   */ playButtonRightBound,
             /* top =    */ 0f,
-            /* right =  */ width.toFloat(),
-            /* bottom = */ height.toFloat(),
+            /* right =  */ widthFloat,
+            /* bottom = */ heightFloat,
             /* paint =  */ nextBackgroundColor
         )
         canvas.drawLine( // Bottom time line
-            /* startX = */ playButtonLeftBound.toFloat(),
-            /* startY = */ measuredInformationBaseline.toFloat(),
-            /* stopX =  */ playButtonRightBound.toFloat(),
-            /* stopY =  */ measuredInformationBaseline.toFloat(),
+            /* startX = */ playButtonLeftBound,
+            /* startY = */ measuredInformationBaseline,
+            /* stopX =  */ playButtonRightBound,
+            /* stopY =  */ measuredInformationBaseline,
             /* paint =  */ timelineOutlineColor
         )
         canvas.drawLine( // Widget top line (separator)
             /* startX = */ 0f,
             /* startY = */ 0f,
-            /* stopX =  */ width.toFloat(),
+            /* stopX =  */ widthFloat,
             /* stopY =  */ 0f,
             /* paint =  */ textAndOutlineColor
         )
@@ -282,15 +288,15 @@ internal abstract class DurationPlayerPainter(
                 return@forEachIndexed
             }
             val barHeight = downSamples[index + firstBarIndex]
-            val topBound = (measuredInformationBaseline - barHeight).toFloat()
+            val topBound = (measuredInformationBaseline - barHeight)
             val leftBound = (value + BAR_MARGIN)
             val rightBound = value + measuredBarWidth - BAR_MARGIN
 
             canvas.drawRect( // Already played Amplitude bars
-                /* left =   */ leftBound.coerceAtLeast(playButtonLeftBound.toFloat()),
+                /* left =   */ leftBound.coerceAtLeast(playButtonLeftBound),
                 /* top =    */ topBound,
-                /* right =  */ rightBound.coerceAtMost((width / 2).toFloat()),
-                /* bottom = */ measuredInformationBaseline.toFloat(),
+                /* right =  */ rightBound.coerceAtMost(measuredCenterX),
+                /* bottom = */ measuredInformationBaseline,
                 /* paint =  */ readBarsColor
             )
         }
@@ -299,14 +305,14 @@ internal abstract class DurationPlayerPainter(
                 return@forEachIndexed
             }
             val barHeight = downSamples[index + currentBarIndex]
-            val topBound = (measuredInformationBaseline - barHeight).toFloat()
+            val topBound = (measuredInformationBaseline - barHeight)
             val leftBound = (value + BAR_MARGIN)
             val rightBound = value + measuredBarWidth - BAR_MARGIN
             canvas.drawRect( // Amplitude bars to read
-                /* left =   */ leftBound.coerceAtLeast((width / 2).toFloat()),
+                /* left =   */ leftBound.coerceAtLeast(measuredCenterX),
                 /* top =    */ topBound,
-                /* right =  */ rightBound.coerceAtMost(playButtonRightBound.toFloat()),
-                /* bottom = */ measuredInformationBaseline.toFloat(),
+                /* right =  */ rightBound.coerceAtMost(playButtonRightBound),
+                /* bottom = */ measuredInformationBaseline,
                 /* paint =  */ comingBarsColor
             )
         }
@@ -316,37 +322,36 @@ internal abstract class DurationPlayerPainter(
         ticks.filter { it > 0 }.forEach {
             canvas.drawLine( // Ticks
                 /* startX = */ it,
-                // todo save all data in float to avoid conversion
-                /* startY = */ measuredInformationBaseline.toFloat(),
+                /* startY = */ measuredInformationBaseline,
                 /* stopX =  */ it,
-                /* stopY =  */ measuredTickHeight.toFloat(),
+                /* stopY =  */ measuredTickHeight,
                 /* paint =  */ timelineOutlineColor
             )
         }
         canvas.drawText( // Elapsed time text
             /* text =  */ elapsedDurationText,
-            /* x =     */ (measuredSmallestButtonWidth / 2).toFloat(),
-            /* y =     */ measuredInformationBaseline.toFloat(),
+            /* x =     */ (measuredSmallestButtonWidth / 2F),
+            /* y =     */ measuredInformationBaseline,
             /* paint = */ textAndOutlineColor
         )
         canvas.drawText( // Remaining time text
             /* text =  */ remainingDurationText,
-            /* x =     */ (width - (measuredSmallestButtonWidth / 2)).toFloat(),
-            /* y =     */ measuredInformationBaseline.toFloat(),
+            /* x =     */ (widthFloat - (measuredSmallestButtonWidth / 2)),
+            /* y =     */ measuredInformationBaseline,
             /* paint = */ textAndOutlineColor
         )
         canvas.drawLine( // Previous/Play button separator
-            /* startX = */ playButtonLeftBound.toFloat(),
+            /* startX = */ playButtonLeftBound,
             /* startY = */ 0f,
-            /* stopX =  */ playButtonLeftBound.toFloat(),
-            /* stopY =  */ height.toFloat(),
+            /* stopX =  */ playButtonLeftBound,
+            /* stopY =  */ heightFloat,
             /* paint =  */ textAndOutlineColor
         )
         canvas.drawLine( // Play/Next button separator
-            /* startX = */ playButtonRightBound.toFloat(),
+            /* startX = */ playButtonRightBound,
             /* startY = */ 0f,
-            /* stopX =  */ playButtonRightBound.toFloat(),
-            /* stopY =  */ height.toFloat(),
+            /* stopX =  */ playButtonRightBound,
+            /* stopY =  */ heightFloat,
             /* paint =  */ textAndOutlineColor
         )
 
@@ -386,9 +391,11 @@ internal abstract class DurationPlayerPainter(
 
     private fun computePlayButtonLeftBound() {
         playButtonLeftBound = if (duration < measuredStartEndAnimDuration) {
-            val startProgressPercent = duration.toFloat() / measuredStartEndAnimDuration.toFloat()
+            val startProgressPercent = duration.toFloat() / measuredStartEndAnimDuration
             val offsetOfPlayButton = (startProgressPercent * measuredPlayButtonOffsetWidth).toInt()
-            val maybeLeftBound = measuredSmallPlayButtonLeftX - offsetOfPlayButton
+            val maybeLeftBound = (measuredSmallPlayButtonLeftX - offsetOfPlayButton).coerceAtMost(
+                measuredSmallPlayButtonLeftX
+            )
             if (maybeLeftBound > measuredSmallestButtonWidth) {
                 maybeLeftBound
             } else {
@@ -402,9 +409,9 @@ internal abstract class DurationPlayerPainter(
     private fun computePlayButtonRightBound() {
         playButtonRightBound = if (duration > totalDuration - measuredStartEndAnimDuration) {
             val remainingTime = (totalDuration - duration).toFloat()
-            val endProgressPercent = remainingTime / measuredStartEndAnimDuration.toFloat()
+            val endProgressPercent = remainingTime / measuredStartEndAnimDuration
             val offsetOfPlayButton = (endProgressPercent * measuredPlayButtonOffsetWidth).toInt()
-            val maybeRightBound = measuredSmallPlayButtonRightX + offsetOfPlayButton
+            val maybeRightBound = (measuredSmallPlayButtonRightX + offsetOfPlayButton).coerceAtLeast(measuredSmallPlayButtonRightX)
             if (maybeRightBound < measuredBigPlayButtonRightX) {
                 maybeRightBound
             } else {
@@ -416,7 +423,7 @@ internal abstract class DurationPlayerPainter(
     }
 
     private fun computeBars() {
-        if (measuredCenterX == 0 || downSamples.isEmpty()) {
+        if (measuredCenterX == 0F || downSamples.isEmpty()) {
             return
         }
 
@@ -424,22 +431,24 @@ internal abstract class DurationPlayerPainter(
         val barProgressPercent = barPositionInDuration.toFloat() / BAR_DURATION_MS
         val barStartOffset = (barProgressPercent * (measuredBarWidthNoMargin + 2)).toInt()
 
-        currentBarIndex = duration / BAR_DURATION_MS
+        currentBarIndex =
+            (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(downSamples.size - 1)
         firstBarIndex = (currentBarIndex - measuredNumberOfBarsInHalf).coerceAtLeast(0)
-        lastBarIndex = (currentBarIndex + measuredNumberOfBarsInHalf + 1).coerceAtMost(downSamples.size - 1)
+        lastBarIndex =
+            (currentBarIndex + measuredNumberOfBarsInHalf + 1).coerceAtMost(downSamples.size - 1)
         val firstCurrentDelta = currentBarIndex - firstBarIndex
 
         downSamples.slice(firstBarIndex..currentBarIndex).forEachIndexed { index, _ ->
             readBarsLeftValues[index] =
-                (measuredCenterX - ((firstCurrentDelta - index) * measuredBarWidth) - barStartOffset).toFloat()
+                (measuredCenterX - ((firstCurrentDelta - index) * measuredBarWidth) - barStartOffset)
         }
 
         downSamples.slice(currentBarIndex until lastBarIndex).forEachIndexed { index, _ ->
             comingBarsLeftValues[index] =
-                (measuredCenterX + (index * measuredBarWidth) - barStartOffset).toFloat()
+                (measuredCenterX + (index * measuredBarWidth) - barStartOffset)
         }
 
-        val readBarsSize = (currentBarIndex - firstBarIndex)
+        val readBarsSize = currentBarIndex - firstBarIndex + 1
         readBarsLeftValues.fill(-1F, readBarsSize)
 
         val comingBarsSize = (lastBarIndex - currentBarIndex)
@@ -447,15 +456,15 @@ internal abstract class DurationPlayerPainter(
     }
 
     private fun computeTicks() {
-        val tickOffset = measuredPlayButtonOffsetWidth.toFloat() / 2
+        val tickOffset = measuredPlayButtonOffsetWidth / 2
         val nextTickInDuration = 5000 - (duration % 5000)
-        val percentageOfDuration = nextTickInDuration.toFloat() / 10000f
+        val percentageOfDuration = nextTickInDuration / 10000f
         val firstTickX =
             (measuredSmallPlayButtonLeftX + (measuredSmallestButtonWidth / 2)) + (percentageOfDuration * measuredPlayButtonOffsetWidth) - measuredPlayButtonOffsetWidth - (measuredSmallestButtonWidth / 2)
 
         for (i in 0 until 6) {
             val maybeTickX = firstTickX + (tickOffset * i)
-            ticks[i] = when (maybeTickX.toInt()) {
+            ticks[i] = when (maybeTickX) {
                 in playButtonLeftBound..playButtonRightBound -> maybeTickX
                 else -> -1f
             }
@@ -481,7 +490,7 @@ internal abstract class DurationPlayerPainter(
     companion object {
         private const val VISIBLE_TEXT_SP = 12f
         private const val MAX_DURATION_VISIBLE_IN_SEC = 25
-        private const val BAR_MARGIN = 1
+        private const val BAR_MARGIN = 1F
         private const val BAR_DURATION_MS = DownSampleRepository.DOWN_SAMPLE_DURATION_MS
 
 

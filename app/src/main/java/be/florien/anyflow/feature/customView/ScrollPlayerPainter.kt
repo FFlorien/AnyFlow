@@ -10,7 +10,7 @@ internal class ScrollPlayerPainter(
     context: Context,
     playPauseIconAnimator: PlayPauseIconAnimator,
     previousIconAnimator: PreviousIconAnimator
-) : DurationPlayerPainter(context, playPauseIconAnimator, previousIconAnimator) {
+) : PlayerPainter(context, playPauseIconAnimator, previousIconAnimator) {
 
     var durationOnTouchStart: Int = 0
     var scrollOffset: Float = 0F
@@ -19,7 +19,7 @@ internal class ScrollPlayerPainter(
             duration = (durationOnTouchStart - durationOffset).toInt()
         }
     private val durationOffset
-        get() = (scrollOffset / (measuredPlayButtonOffsetWidth / 2)) * 5000
+        get() = (scrollOffset / (measuredPlayButtonOffsetWidth / 2)) * MINIMUM_SCROLL
     private var minimumDurationOffset = 50
 
     init {
@@ -44,5 +44,9 @@ internal class ScrollPlayerPainter(
             PlayPauseIconAnimator.STATE_PLAY_PAUSE_SCROLL,
             playPausePosition
         )
+    }
+
+    companion object {
+        private const val MINIMUM_SCROLL = 5000
     }
 }
