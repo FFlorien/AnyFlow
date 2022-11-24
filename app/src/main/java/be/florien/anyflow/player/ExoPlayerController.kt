@@ -102,7 +102,7 @@ class ExoPlayerController
             applyState(state)
             currentSongId = state.currentSong.id
         }
-        exoplayerScope.launch(Dispatchers.Default) {
+        exoplayerScope.launch(Dispatchers.Default) { // todo softer update (pause ? only if different ? )
             while (true) {
                 delay(10)
                 withContext(Dispatchers.Main) {

@@ -19,7 +19,7 @@ internal class ScrollPlayerPainter(
             duration = (durationOnTouchStart - durationOffset).toInt()
         }
     private val durationOffset
-        get() = (scrollOffset / (playButtonMaxWidthOffset / 2)) * 5000
+        get() = (scrollOffset / (measuredPlayButtonOffsetWidth / 2)) * 5000
     private var minimumDurationOffset = 50
 
     init {

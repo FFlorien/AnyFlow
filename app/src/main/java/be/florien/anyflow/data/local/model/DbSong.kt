@@ -19,8 +19,7 @@ data class DbSong(
     val year: Int,
     val composer: String,
     val local: String?,
-    val downSamples: IntArray
-    //todo dirty downSamples: List<Double>
+    val downSamples: String
 )
 
 data class DbSongDisplay(

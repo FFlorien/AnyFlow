@@ -63,7 +63,7 @@ constructor(
             (state as MediatorLiveData).removeSource(field.stateChangeNotifier)
             field = value
             currentDuration.addSource(field.playTimeNotifier) {
-                isBackKeyPreviousSong = it.toInt() < 10000
+                isBackKeyPreviousSong = it.toInt() < 10000 // todo differentiate previous and start from the playercontrol
                 currentDuration.mutable.value = it.toInt()
             }
             state.addSource(field.stateChangeNotifier) {

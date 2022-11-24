@@ -27,7 +27,7 @@ class PlayerControls
         PlayPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
     private val scrollPlayerPainter: ScrollPlayerPainter =
         ScrollPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
-    private var currentPlayerPainter: PlayerPainter = playPlayerPainter
+    private var currentPlayerPainter: DurationPlayerPainter = playPlayerPainter
         set(value) {
             field.onValuesComputed = {}
             value.onValuesComputed = {
@@ -120,7 +120,7 @@ class PlayerControls
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
-        val idealButtonSize = currentPlayerPainter.smallestButtonWidth
+        val idealButtonSize = currentPlayerPainter.measuredSmallestButtonWidth
 
         val desiredWidth = when (widthMode) {
             MeasureSpec.AT_MOST -> widthSize
@@ -159,7 +159,7 @@ class PlayerControls
             MotionEvent.ACTION_MOVE -> {
                 if (isSeekable) {
                     scrollPlayerPainter.scrollOffset = (event.x - lastDownEventX)
-                    if (scrollPlayerPainter.scrollOffset.absoluteValue > playPlayerPainter.smallestButtonWidth && currentPlayerPainter != scrollPlayerPainter) {
+                    if (scrollPlayerPainter.scrollOffset.absoluteValue > playPlayerPainter.measuredSmallestButtonWidth && currentPlayerPainter != scrollPlayerPainter) {
                         currentPlayerPainter = scrollPlayerPainter
                     }
                 }
@@ -169,9 +169,9 @@ class PlayerControls
                     lastDownEventX.toInt(),
                     event.x.toInt()
                 )) {
-                    PlayerPainter.CLICK_PREVIOUS -> actionListener?.onPreviousClicked()
-                    PlayerPainter.CLICK_PLAY_PAUSE -> actionListener?.onPlayPauseClicked()
-                    PlayerPainter.CLICK_NEXT -> actionListener?.onNextClicked()
+                    DurationPlayerPainter.CLICK_PREVIOUS -> actionListener?.onPreviousClicked()
+                    DurationPlayerPainter.CLICK_PLAY_PAUSE -> actionListener?.onPlayPauseClicked()
+                    DurationPlayerPainter.CLICK_NEXT -> actionListener?.onNextClicked()
                     else -> {
                         if (isSeekable) {
                             actionListener?.onCurrentDurationChanged(scrollPlayerPainter.duration.toLong())
