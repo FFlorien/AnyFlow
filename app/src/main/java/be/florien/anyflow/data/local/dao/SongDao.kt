@@ -34,7 +34,7 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // Song
     @Transaction
-    @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local, song.downSamples FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
+    @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local, song.bars FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     abstract suspend fun forPositionInQueue(position: Int): DbSongDisplay?
 
     @Transaction
@@ -58,8 +58,8 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("SELECT COUNT(*) FROM song")
     abstract suspend fun songCount(): Int
 
-    @Query("SELECT downSamples FROM Song WHERE song.id = :songId")
-    abstract suspend fun getDownSamples(songId: Long): DbSongDownSample
+    @Query("SELECT bars FROM Song WHERE song.id = :songId")
+    abstract suspend fun getDownSamples(songId: Long): DbSongBars
 
     @Query("SELECT time FROM Song WHERE song.id = :songId")
     abstract suspend fun getSongDuration(songId: Long): Int
@@ -72,7 +72,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("UPDATE song SET local = :uri WHERE song.id = :songId")
     abstract suspend fun updateWithLocalUri(songId: Long, uri: String)
 
-    @Query("UPDATE song SET downSamples = :downSamples WHERE song.id = :songId")
+    @Query("UPDATE song SET bars = :downSamples WHERE song.id = :songId")
     abstract suspend fun updateWithNewDownSamples(songId: Long, downSamples: String?)
 
 }

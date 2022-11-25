@@ -21,11 +21,11 @@ class PlayerControls
      * Attributes
      */
 
-    private val playPauseIconAnimator: PlayPauseIconAnimator = PlayPauseIconAnimator(context)
-    private val previousIconAnimator: PreviousIconAnimator = PreviousIconAnimator(context)
-    private val playPlayerPainter: PlayPlayerPainter =
+    private val playPauseIconAnimator = PlayPauseIconAnimator(context)
+    private val previousIconAnimator = PreviousIconAnimator(context)
+    private val playPlayerPainter =
         PlayPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
-    private val scrollPlayerPainter: ScrollPlayerPainter =
+    private val scrollPlayerPainter =
         ScrollPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
     private var currentPlayerPainter: PlayerPainter = playPlayerPainter
         set(value) {
@@ -38,7 +38,7 @@ class PlayerControls
         }
 
     // Variable changing due to usage
-    var shouldShowBuffering: Boolean = false
+    var shouldShowBuffering = false
     var hasPrevious: Boolean
         get() = currentPlayerPainter.hasPrevious
         set(value) {
@@ -51,7 +51,7 @@ class PlayerControls
             playPlayerPainter.hasNext = value
             scrollPlayerPainter.hasNext = value
         }
-    var isSeekable: Boolean = false
+    var isSeekable = false
 
     // Variables that can be configured by XML attributes
     var currentDuration: Int
@@ -66,21 +66,20 @@ class PlayerControls
         }
 
     var actionListener: OnActionListener? = null
-    var totalDuration: Int = 0
+    var totalDuration = 0
         set(value) {
             field = if (value == 0) Int.MAX_VALUE else value
             scrollPlayerPainter.totalDuration = field
             playPlayerPainter.totalDuration = field
         }
-    private var progressAnimDuration: Int = 10000
-    var downSamples: IntArray?
+    var bars: DoubleArray?
         set(value) {
             if (value != null) {
-                playPlayerPainter.downSamples = value
-                scrollPlayerPainter.downSamples = value
+                playPlayerPainter.bars = value
+                scrollPlayerPainter.bars = value
             }
         }
-    get() = currentPlayerPainter.downSamples
+        get() = currentPlayerPainter.bars
 
     // Calculations
     private var lastDownEventX = 0f
@@ -95,10 +94,6 @@ class PlayerControls
                 typedArray.getInt(R.styleable.PlayerControls_currentDuration, currentDuration)
             totalDuration =
                 typedArray.getInt(R.styleable.PlayerControls_totalDuration, totalDuration)
-            progressAnimDuration = typedArray.getInt(
-                R.styleable.PlayerControls_progressAnimDuration,
-                progressAnimDuration
-            )
             state = typedArray.getInteger(
                 R.styleable.PlayerControls_state,
                 PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE

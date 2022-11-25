@@ -38,7 +38,6 @@ class ExoPlayerController
     private var filtersManager: FiltersManager,
     private var audioManager: AudioManager,
     private val alarmsSynchronizer: AlarmsSynchronizer,
-    private val downSampleRepository: DownSampleRepository,
     private val context: Context,
     cache: Cache,
     okHttpClient: OkHttpClient
@@ -81,17 +80,8 @@ class ExoPlayerController
         mediaPlayer = ExoPlayer
             .Builder(
                 context,
-                AnyFlowRenderersFactory(context, object: BufferDownSamplingConnector {
-                    override fun onBufferDownSampling(downSample: Double, positionUs: Long) {
-                        if (currentSongId >= 0L) {
-                            downSampleRepository.addDownSample(currentSongId, downSample, positionUs)
-                        }
-                    }
-
-                    override suspend fun shouldComputeDownSampling(): Boolean {
-                        return downSampleRepository.shouldComputeDownSampleForSong(currentSongId)
-                    }
-                }).apply { setEnableAudioOffload(true) })
+                DefaultRenderersFactory(context).apply { setEnableAudioOffload(true) }
+            )
             .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
             .build()
             .apply {

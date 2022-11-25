@@ -99,14 +99,13 @@
                 app:nextBackgroundColor="@color/primary"
                 app:outLineColor="@color/selected"
                 app:previousBackgroundColor="@color/primary"
-                app:progressAnimDuration="10000"
                 app:progressBackgroundColor="@color/primary"
                 app:seekable="@{viewModel.isSeekable}"
                 app:shouldShowBuffering="@{viewModel.shouldShowBuffering}"
                 app:smallestButtonWidth="@dimen/minClickableSize"
                 app:state="@{viewModel.state}"
                 app:totalDuration="@{viewModel.totalDuration}"
-                app:downSamples="@{viewModel.downSamples}"/>
+                app:bars="@{viewModel.bars}"/>
         </LinearLayout>
 
         <com.google.android.material.navigation.NavigationView

@@ -1,0 +1,120 @@
+package be.florien.anyflow.player
+
+import android.content.Context
+import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import be.florien.anyflow.data.local.LibraryDatabase
+import be.florien.anyflow.data.server.AmpacheDataSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.EmptyCoroutineContext
+
+class WaveFormBarsRepository(
+    private val libraryDatabase: LibraryDatabase,
+    private val ampacheDataSource: AmpacheDataSource,
+    private val context: Context
+) {
+
+    //todo clean this after a while ?
+    private val dataMap: HashMap<Long, WaveFormBars> = hashMapOf()
+
+    private val coroutineScope = CoroutineScope(EmptyCoroutineContext)
+
+    fun getComputedBars(songId: Long): LiveData<DoubleArray> =
+        getBars(songId).computedLiveData
+
+    private fun getBars(songId: Long): WaveFormBars {
+        val dataFromMap = dataMap[songId]
+        return if (dataFromMap == null) {
+            val data = WaveFormBars(songId)
+            dataMap[songId] = data
+            data
+        } else {
+            dataFromMap
+        }
+    }
+
+    inner class WaveFormBars(val songId: Long) {
+        private lateinit var computedBarList: DoubleArray
+        val computedLiveData: LiveData<DoubleArray> = MutableLiveData()
+
+        init {
+            coroutineScope.launch {
+                fetchDataLocally()
+
+                if (computedBarList.isEmpty()) {
+                    getWaveFormFromAmpache()
+                }
+            }
+        }
+
+        private suspend fun fetchDataLocally() = withContext(Dispatchers.IO) {
+            computedBarList = libraryDatabase.getBars(songId)
+            updateLiveData()
+        }
+
+        private suspend fun getWaveFormFromAmpache() {
+            val bitmap = getBitmap()
+            val array = getValuesFromBitmap(bitmap)
+            ratioValues(array)
+            save()
+            updateLiveData()
+        }
+
+        private suspend fun getBitmap() = withContext(Dispatchers.IO) {
+            ampacheDataSource.getWaveFormImage(songId, context)
+        }
+
+        private suspend fun getValuesFromBitmap(bitmap: Bitmap) = withContext(Dispatchers.Default) {
+            val width = bitmap.width
+            val height = bitmap.height
+            val array = DoubleArray(width)
+            val waveFormHeight = height / 2
+            abscissa@ for (x in 0 until width) {
+                for (y in 0 until waveFormHeight) {
+                    val pixel = bitmap.getPixel(x, y)
+                    val alpha = pixel / ALPHA_MASK
+                    if (alpha > ALPHA_TRESHOLD) {
+                        array[x] = (waveFormHeight - y).toDouble() / waveFormHeight
+                        continue@abscissa
+                    }
+                }
+            }
+            array
+        }
+
+        private suspend fun ratioValues(array: DoubleArray) = withContext(Dispatchers.Default) {
+            val duration = libraryDatabase.getSongDuration(songId)
+            val durationMs = duration * 1000
+            val numberOfBars = durationMs / BAR_DURATION_MS
+            val ratio = array.size.toDouble() / numberOfBars
+            computedBarList = DoubleArray(numberOfBars)
+            for (index in 0 until numberOfBars) {
+                val firstIndex = (index * ratio).toInt()
+                val lastIndex = ((index + 1) * ratio).toInt().coerceAtMost(array.size - 1)
+                computedBarList[index] = array.slice(firstIndex..lastIndex).average()
+            }
+        }
+
+        suspend fun save() {
+            withContext(Dispatchers.IO) {
+                libraryDatabase.updateBars(songId, computedBarList)
+            }
+        }
+
+        private suspend fun updateLiveData() {
+            withContext(Dispatchers.Main) {
+                (computedLiveData as MutableLiveData).value = computedBarList
+            }
+        }
+    }
+
+    companion object {
+        const val BAR_DURATION_MS = 500
+        private const val ALPHA_MASK = 0x1000000
+        private const val ALPHA_TRESHOLD = 0x10
+    }
+}

@@ -11,7 +11,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
-import be.florien.anyflow.player.DownSampleRepository
+import be.florien.anyflow.player.WaveFormBarsRepository
 
 internal abstract class PlayerPainter(
     val context: Context,
@@ -36,7 +36,7 @@ internal abstract class PlayerPainter(
             computeTicks()
             onValuesComputed()
         }
-    var downSamples = IntArray(0)
+    var bars = DoubleArray(0)
         set(value) {
             field = value
             computeBars()
@@ -284,33 +284,33 @@ internal abstract class PlayerPainter(
             /* paint =  */ textAndOutlineColor
         )
         readBarsLeftValues.forEachIndexed { index, value ->
-            if (value < 0) {
+            if (value < 0 || bars.isEmpty()) {
                 return@forEachIndexed
             }
-            val barHeight = downSamples[index + firstBarIndex]
-            val topBound = (measuredInformationBaseline - barHeight)
+            val barRatio = bars[index + firstBarIndex]
+            val topBound = (measuredInformationBaseline - (measuredInformationBaseline * barRatio))
             val leftBound = (value + BAR_MARGIN)
             val rightBound = value + measuredBarWidth - BAR_MARGIN
 
             canvas.drawRect( // Already played Amplitude bars
                 /* left =   */ leftBound.coerceAtLeast(playButtonLeftBound),
-                /* top =    */ topBound,
+                /* top =    */ topBound.toFloat(),
                 /* right =  */ rightBound.coerceAtMost(measuredCenterX),
                 /* bottom = */ measuredInformationBaseline,
                 /* paint =  */ readBarsColor
             )
         }
         comingBarsLeftValues.forEachIndexed { index, value ->
-            if (value < 0) {
+            if (value < 0 || bars.isEmpty()) {
                 return@forEachIndexed
             }
-            val barHeight = downSamples[index + currentBarIndex]
-            val topBound = (measuredInformationBaseline - barHeight)
+            val barRatio = bars[index + currentBarIndex]
+            val topBound = (measuredInformationBaseline - (measuredInformationBaseline * barRatio))
             val leftBound = (value + BAR_MARGIN)
             val rightBound = value + measuredBarWidth - BAR_MARGIN
             canvas.drawRect( // Amplitude bars to read
                 /* left =   */ leftBound.coerceAtLeast(measuredCenterX),
-                /* top =    */ topBound,
+                /* top =    */ topBound.toFloat(),
                 /* right =  */ rightBound.coerceAtMost(playButtonRightBound),
                 /* bottom = */ measuredInformationBaseline,
                 /* paint =  */ comingBarsColor
@@ -423,7 +423,7 @@ internal abstract class PlayerPainter(
     }
 
     private fun computeBars() {
-        if (measuredCenterX == 0F || downSamples.isEmpty()) {
+        if (measuredCenterX == 0F || bars.isEmpty()) {
             return
         }
 
@@ -432,18 +432,18 @@ internal abstract class PlayerPainter(
         val barStartOffset = (barProgressPercent * (measuredBarWidthNoMargin + 2)).toInt()
 
         currentBarIndex =
-            (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(downSamples.size - 1)
+            (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(bars.size - 1)
         firstBarIndex = (currentBarIndex - measuredNumberOfBarsInHalf).coerceAtLeast(0)
         lastBarIndex =
-            (currentBarIndex + measuredNumberOfBarsInHalf + 1).coerceAtMost(downSamples.size - 1)
+            (currentBarIndex + measuredNumberOfBarsInHalf + 1).coerceAtMost(bars.size - 1)
         val firstCurrentDelta = currentBarIndex - firstBarIndex
 
-        downSamples.slice(firstBarIndex..currentBarIndex).forEachIndexed { index, _ ->
+        bars.slice(firstBarIndex..currentBarIndex).forEachIndexed { index, _ ->
             readBarsLeftValues[index] =
                 (measuredCenterX - ((firstCurrentDelta - index) * measuredBarWidth) - barStartOffset)
         }
 
-        downSamples.slice(currentBarIndex until lastBarIndex).forEachIndexed { index, _ ->
+        bars.slice(currentBarIndex until lastBarIndex).forEachIndexed { index, _ ->
             comingBarsLeftValues[index] =
                 (measuredCenterX + (index * measuredBarWidth) - barStartOffset)
         }
@@ -491,7 +491,7 @@ internal abstract class PlayerPainter(
         private const val VISIBLE_TEXT_SP = 12f
         private const val MAX_DURATION_VISIBLE_IN_SEC = 25
         private const val BAR_MARGIN = 1F
-        private const val BAR_DURATION_MS = DownSampleRepository.DOWN_SAMPLE_DURATION_MS
+        private const val BAR_DURATION_MS = WaveFormBarsRepository.BAR_DURATION_MS
 
 
         const val CLICK_PREVIOUS = 0

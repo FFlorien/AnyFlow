@@ -19,7 +19,7 @@ data class DbSong(
     val year: Int,
     val composer: String,
     val local: String?,
-    val downSamples: String
+    val bars: String
 )
 
 data class DbSongDisplay(
@@ -55,12 +55,12 @@ data class DbSongId(
     val id: Long
 )
 
-data class DbSongDownSample(
-    val downSamples: String
+data class DbSongBars(
+    val bars: String
 ) {
-    val downSamplesArray: IntArray
+    val downSamplesArray: DoubleArray
     get() {
-        if (downSamples.isBlank()) return IntArray(0)
-        return downSamples.split('|').map { it.toInt() }.toIntArray()
+        if (bars.isBlank()) return DoubleArray(0)
+        return bars.split('|').map { it.toDouble() }.toDoubleArray()
     }
 }

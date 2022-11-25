@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 3,
+    version = 4,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
 )
 abstract class LibraryDatabase : RoomDatabase() {
@@ -68,7 +68,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
 
-    suspend fun getDownSamples(songId: Long): IntArray = getSongDao().getDownSamples(songId).downSamplesArray
+    suspend fun getBars(songId: Long): DoubleArray = getSongDao().getDownSamples(songId).downSamplesArray
 
     suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
 
@@ -193,8 +193,8 @@ abstract class LibraryDatabase : RoomDatabase() {
         getSongDao().updateWithLocalUri(songId, uri)
     }
 
-    suspend fun updateDownSamples(songId: Long, downSamples: IntArray) {
-        val stringify =  downSamples.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { it.toString() }
+    suspend fun updateBars(songId: Long, bars: DoubleArray) {
+        val stringify =  bars.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { it.toString() }
         getSongDao().updateWithNewDownSamples(songId, stringify)
     }
 
@@ -315,6 +315,9 @@ abstract class LibraryDatabase : RoomDatabase() {
                 })
                 .addMigrations(Migration(2, 3) { db ->
                     db.execSQL("ALTER TABLE Song ADD COLUMN downSamples TEXT NOT NULL DEFAULT \"\"")
+                })
+                .addMigrations(Migration(3, 4) { db ->
+                    db.execSQL("ALTER TABLE Song RENAME COLUMN downSamples TO bars")
                 })
                 .build()
         }

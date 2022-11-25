@@ -1,6 +1,8 @@
 package be.florien.anyflow.data.server
 
+import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.UserComponentContainer
 import be.florien.anyflow.data.TimeOperations
@@ -10,10 +12,14 @@ import be.florien.anyflow.data.server.exception.WrongFormatServerUrlException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.user.AuthPersistence
+import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
+import com.bumptech.glide.request.FutureTarget
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.HttpException
 import java.math.BigInteger
@@ -429,6 +435,20 @@ open class AmpacheDataSource
             sharedPreferences.applyPutInt(OFFSET_DELETED_SONGS, currentOffset)
             deletedList
         }
+    }
+
+    suspend fun getWaveFormImage(songId: Long, context: Context) = withContext(Dispatchers.IO) {
+        val url = "${authPersistence.serverUrl.secret}/waveform.php?song_id=$songId"
+        val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
+            .asBitmap()
+            .load(url)
+            .timeout(60000)//it may need some time to generate those
+            .submit()
+
+        val bitmap: Bitmap = futureTarget.get()
+
+        GlideApp.with(context).clear(futureTarget)
+        bitmap
     }
 
     suspend fun createPlaylist(name: String) {

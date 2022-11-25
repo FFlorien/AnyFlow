@@ -29,7 +29,6 @@ class UserModule {
         filtersManager: FiltersManager,
         audioManager: AudioManager,
         alarmsSynchronizer: AlarmsSynchronizer,
-        downSampleRepository: DownSampleRepository,
         cache: Cache,
         okHttpClient: OkHttpClient
     ): PlayerController = ExoPlayerController(
@@ -38,7 +37,6 @@ class UserModule {
         filtersManager,
         audioManager,
         alarmsSynchronizer,
-        downSampleRepository,
         context,
         cache,
         okHttpClient
@@ -46,7 +44,11 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun provideDownSampleRepository(libraryDatabase: LibraryDatabase) = DownSampleRepository(libraryDatabase)
+    fun provideDownSampleRepository(
+        libraryDatabase: LibraryDatabase,
+        ampacheDataSource: AmpacheDataSource,
+        context: Context
+    ) = WaveFormBarsRepository(libraryDatabase, ampacheDataSource, context)
 
     @Provides
     @Named("Songs")
