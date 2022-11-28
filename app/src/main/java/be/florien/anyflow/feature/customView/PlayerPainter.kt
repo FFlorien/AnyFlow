@@ -269,13 +269,6 @@ internal abstract class PlayerPainter(
             /* bottom = */ heightFloat,
             /* paint =  */ nextBackgroundColor
         )
-        canvas.drawLine( // Bottom time line
-            /* startX = */ playButtonLeftBound,
-            /* startY = */ measuredInformationBaseline,
-            /* stopX =  */ playButtonRightBound,
-            /* stopY =  */ measuredInformationBaseline,
-            /* paint =  */ timelineOutlineColor
-        )
         canvas.drawLine( // Widget top line (separator)
             /* startX = */ 0f,
             /* startY = */ 0f,
@@ -328,6 +321,13 @@ internal abstract class PlayerPainter(
                 /* paint =  */ timelineOutlineColor
             )
         }
+        canvas.drawLine( // Bottom time line
+            /* startX = */ playButtonLeftBound,
+            /* startY = */ measuredInformationBaseline,
+            /* stopX =  */ playButtonRightBound,
+            /* stopY =  */ measuredInformationBaseline,
+            /* paint =  */ timelineOutlineColor
+        )
         canvas.drawText( // Elapsed time text
             /* text =  */ elapsedDurationText,
             /* x =     */ (measuredSmallestButtonWidth / 2F),
@@ -429,7 +429,7 @@ internal abstract class PlayerPainter(
 
         val barPositionInDuration = duration % BAR_DURATION_MS
         val barProgressPercent = barPositionInDuration.toFloat() / BAR_DURATION_MS
-        val barStartOffset = (barProgressPercent * (measuredBarWidthNoMargin + 2)).toInt()
+        val barStartOffset = (barProgressPercent * measuredBarWidth).toInt()
 
         currentBarIndex =
             (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(bars.size - 1)
@@ -456,12 +456,11 @@ internal abstract class PlayerPainter(
     }
 
     private fun computeTicks() {
-        val tickOffset = measuredPlayButtonOffsetWidth / 2
-        val nextTickInDuration = 5000 - (duration % 5000)
-        val percentageOfDuration = nextTickInDuration / 10000f
-        val firstTickX =
-            (measuredSmallPlayButtonLeftX + (measuredSmallestButtonWidth / 2)) + (percentageOfDuration * measuredPlayButtonOffsetWidth) - measuredPlayButtonOffsetWidth - (measuredSmallestButtonWidth / 2)
-
+        val tickOffset = measuredBarWidth * 10
+        val tickPositionInDuration = duration % 5000
+        val tickProgressPercent = tickPositionInDuration.toFloat() / 5000
+        val tickStartOffset = (tickProgressPercent * tickOffset).toInt()
+        val firstTickX = measuredCenterX - tickStartOffset - (tickOffset * 2)
         for (i in 0 until 6) {
             val maybeTickX = firstTickX + (tickOffset * i)
             ticks[i] = when (maybeTickX) {
