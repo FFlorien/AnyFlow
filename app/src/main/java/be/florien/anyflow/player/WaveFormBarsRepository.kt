@@ -59,7 +59,8 @@ class WaveFormBarsRepository(
         private suspend fun getWaveFormFromAmpache() {
             val bitmap = getBitmap()
             val array = getValuesFromBitmap(bitmap)
-            ratioValues(array)
+            val ratioArray = ratioValues(array)
+            computedBarList = enhanceBarsHeight(ratioArray)
             save()
             updateLiveData()
         }
@@ -91,12 +92,19 @@ class WaveFormBarsRepository(
             val durationMs = duration * 1000
             val numberOfBars = durationMs / BAR_DURATION_MS
             val ratio = array.size.toDouble() / numberOfBars
-            computedBarList = DoubleArray(numberOfBars)
+            val barList = DoubleArray(numberOfBars)
             for (index in 0 until numberOfBars) {
                 val firstIndex = (index * ratio).toInt()
                 val lastIndex = ((index + 1) * ratio).toInt().coerceAtMost(array.size - 1)
-                computedBarList[index] = array.slice(firstIndex..lastIndex).average()
+                barList[index] = array.slice(firstIndex..lastIndex).average()
             }
+            barList
+        }
+
+        private suspend fun enhanceBarsHeight(ratioArray: DoubleArray)  = withContext(Dispatchers.Default) {
+            val maxRatio = ratioArray.max()
+            val multiplier = 1 / maxRatio
+            ratioArray.map { it * multiplier }.toDoubleArray()
         }
 
         suspend fun save() {
@@ -115,6 +123,6 @@ class WaveFormBarsRepository(
     companion object {
         const val BAR_DURATION_MS = 500
         private const val ALPHA_MASK = 0x1000000
-        private const val ALPHA_TRESHOLD = 0x10
+        private const val ALPHA_TRESHOLD = 0x40
     }
 }
