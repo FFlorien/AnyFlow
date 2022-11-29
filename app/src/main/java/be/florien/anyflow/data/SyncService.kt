@@ -2,22 +2,19 @@ package be.florien.anyflow.data
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.CrashReportingTree
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.extension.iLog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import timber.log.Timber
+import kotlinx.coroutines.*
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
@@ -29,8 +26,11 @@ class SyncService
         return null
     }
 
-    private val serviceJob = Job()
-    private val serviceScope = CoroutineScope(serviceJob)
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        eLog(throwable, "Received an exception in SyncService's scope")
+    }
+    private val serviceScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
     @Inject
     lateinit var dataRepository: DataRepository
@@ -77,50 +77,58 @@ class SyncService
                         this@SyncService.eLog(throwable, "Unknown error")
                 }
             }
-            stopForeground(true)
+            stopForeground()
         }
         songsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_songs, it))
             } else {
-                stopForeground(true)
+                stopForeground()
             }
-
         }
         genresPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_genres, it))
             } else {
-                stopForeground(true)
+                stopForeground()
             }
-
         }
         artistsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_artists, it))
             } else {
-                stopForeground(true)
+                stopForeground()
             }
         }
         albumsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_albums, it))
             } else {
-                stopForeground(true)
+                stopForeground()
             }
         }
         playlistsPercentageUpdater.observe(this) {
             if (it in 0..100) {
                 notifyChange(getString(R.string.update_playlists, it))
             } else {
-                stopForeground(true)
+                stopForeground()
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopForeground(true)
+        stopForeground()
+        serviceScope.cancel()
+    }
+
+    private fun stopForeground() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
     }
 
     private fun notifyChange(message: String) {

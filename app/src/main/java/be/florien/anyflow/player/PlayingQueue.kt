@@ -12,6 +12,7 @@ import be.florien.anyflow.data.toDbSongToPlay
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
+import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.UserScope
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -30,6 +31,11 @@ class PlayingQueue
         private const val POSITION_NOT_SET = -5
         private const val POSITION_PREF = "POSITION_PREF"
     }
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        eLog(throwable, "Received an exception in playingQueue's scope")
+    }
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
     var listPositionWithIntent = PositionWithIntent(POSITION_NOT_SET, PlayingQueueIntent.PAUSE)
         get() {
             if (field.position == POSITION_NOT_SET) {
@@ -75,7 +81,7 @@ class PlayingQueue
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
     val songDisplayListUpdater: LiveData<PagingData<SongInfo>> =
-        dataRepository.getSongsInQueueOrder().cachedIn(CoroutineScope(Dispatchers.Default))
+        dataRepository.getSongsInQueueOrder().cachedIn(coroutineScope)
     private val songIdsListUpdater: LiveData<List<DbSongToPlay>> =
         dataRepository.getIdsInQueueOrder()
     val stateUpdater: LiveData<PlayingQueueState> = MutableLiveData()
@@ -95,7 +101,7 @@ class PlayingQueue
             }
             listPosition = if (indexOf >= 0) indexOf else 0
         }
-        GlobalScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.IO) {
             queueSize = dataRepository.getQueueSize() ?: 0
         }
     }

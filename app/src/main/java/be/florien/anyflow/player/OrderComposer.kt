@@ -5,7 +5,9 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Order.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.extension.eLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,11 +17,15 @@ import javax.inject.Singleton
 
 @Singleton
 class OrderComposer @Inject constructor(private val dataRepository: DataRepository) {
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        eLog(throwable, "Received an exception in OrderComposer's scope")
+    }
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
     private var currentOrders = listOf<Order>()
     var currentSong: SongInfo? = null
     var currentPosition: Int = -1
-    var areFirstFiltersArrived = false
-    var areFirstOrdersArrived = false
+    private var areFirstFiltersArrived = false
+    private var areFirstOrdersArrived = false
 
     init {
         val ordersLiveData = dataRepository.getOrders()
@@ -37,7 +43,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
         }
 
         filtersLiveData.observeForever { filterList ->
-            CoroutineScope(Dispatchers.IO).launch {
+            coroutineScope.launch(Dispatchers.IO) {
                 FirebaseCrashlytics
                     .getInstance()
                     .log("We will maybe save queue order form filtersLiveData.observeForever")
@@ -137,7 +143,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
     private fun saveQueue(filterList: List<Filter<*>>, orderList: List<Order>) {
         FirebaseCrashlytics.getInstance()
             .log("Order for saving queue order: ${orderList.joinToString { it.orderingSubject.name }}")
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
             val queue = dataRepository.getOrderlessQueue(filterList, orderList)
             val randomOrderingSeed = orderList
                 .firstOrNull { it.orderingType == Order.Ordering.RANDOM }

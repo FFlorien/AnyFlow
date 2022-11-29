@@ -3,16 +3,18 @@ package be.florien.anyflow.player
 import android.content.Context
 import android.media.MediaFormat
 import android.os.Handler
+import be.florien.anyflow.extension.eLog
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.audio.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.absoluteValue
 
 class AnyFlowRenderersFactory(
@@ -85,7 +87,11 @@ class BufferDownSamplingListenerAudioRenderer(
     private var mediaOffset = -1L
     private var shouldUpdateOffset = false
     private var shouldCompute = true
-    private val coroutineScope = CoroutineScope(EmptyCoroutineContext)
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        eLog(throwable, "Received an exception in BufferDownSampler's scope")
+    }
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
     override fun onOutputFormatChanged(format: Format, mediaFormat: MediaFormat?) {
         super.onOutputFormatChanged(format, mediaFormat)

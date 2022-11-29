@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
-import kotlin.coroutines.EmptyCoroutineContext
 
 class ExoPlayerController
 @Inject constructor(
@@ -42,7 +41,11 @@ class ExoPlayerController
     cache: Cache,
     okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
-    private val exoplayerScope = CoroutineScope(EmptyCoroutineContext)
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        eLog(throwable, "Received an exception in ExoPlayerController's scope")
+    }
+    private val exoplayerScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
     private val dataSourceFactory: DataSource.Factory
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
@@ -226,7 +229,7 @@ class ExoPlayerController
 
     override fun onDestroy() {
         abandonAudioFocus()
-        //todo
+        exoplayerScope.cancel()
     }
 
     /**

@@ -6,11 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheDataSource
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.EmptyCoroutineContext
+import be.florien.anyflow.extension.eLog
+import kotlinx.coroutines.*
 
 class WaveFormBarsRepository(
     private val libraryDatabase: LibraryDatabase,
@@ -21,7 +18,10 @@ class WaveFormBarsRepository(
     //todo clean this after a while ?
     private val dataMap: HashMap<Long, WaveFormBars> = hashMapOf()
 
-    private val coroutineScope = CoroutineScope(EmptyCoroutineContext)
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        eLog(throwable, "Received an exception in WaveFormBarsRepository's scope")
+    }
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
     fun getComputedBars(songId: Long): LiveData<DoubleArray> =
         getBars(songId).computedLiveData
