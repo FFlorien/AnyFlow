@@ -4,18 +4,20 @@
 
     <item
         android:id="@+id/menu_search_songs"
-        android:title="@string/menu_filters"
+        android:checkable="true"
         android:icon="@drawable/ic_search"
+        android:title="@string/info_action_search_title"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_filters"
-        android:title="@string/menu_filters"
         android:icon="@drawable/ic_filter"
+        android:title="@string/menu_filters"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_order"
+        android:icon="@drawable/ic_order_ordered"
         android:title="@string/menu_order_random"
         app:showAsAction="always" />
 </menu>

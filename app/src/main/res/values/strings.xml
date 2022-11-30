@@ -31,6 +31,7 @@
     <string name="filter_title_playlist">Select playlists</string>
     <string name="filter_title_downloaded">Select download status</string>
     <string name="filter_title_saved">Saved filters</string>
+    <string name="filter_add_error">You cannot add anymore filters</string>
     <string name="menu_alarms">Alarms</string>
     <string name="menu_quick_actions">Quick actions</string>
     <string name="menu_playlist">Playlists</string>
@@ -45,6 +46,7 @@
     <string name="action_filter_confirm">Confirm</string>
     <string name="action_filter_clear">Clear filters</string>
     <string name="action_filter_add">Add filters</string>
+    <string name="action_filter_save">Save filters</string>
     <string name="notification_title_artist">%1$s by %2$s</string>
     <string name="display_reconnecting">Reconnecting</string>
     <string name="confirm">Confirm</string>
@@ -61,6 +63,7 @@
     <string name="cancel">Cancel</string>
     <string name="filter_group_name">Filter group name</string>
     <string name="generic_select_all">Select all</string>
+    <string name="generic_select_none">Select none</string>
     <string name="info_title">Title</string>
     <string name="info_duration">Duration</string>
     <string name="info_artist">Artist</string>

@@ -20,3 +20,9 @@ class ConfirmMenuHolder(action: () -> Unit) :
 
 class SaveFilterGroupMenuHolder(action: () -> Unit) :
     MenuHolder(R.menu.menu_filter_display, R.id.menu_save, action)
+
+class SelectAllMenuHolder(action: () -> Unit) :
+    MenuHolder(R.menu.menu_filter_display, R.id.menu_select_all, action)
+
+class SelectNoneMenuHolder(action: () -> Unit) :
+    MenuHolder(R.menu.menu_filter_display, R.id.menu_select_none, action)

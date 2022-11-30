@@ -36,6 +36,9 @@ class FiltersManager
     }
 
     fun addFilter(filter: Filter<*>) {
+        if (unCommittedFilters.size >= MAX_FILTER_NUMBER) {
+            throw MaxFiltersNumberExceededException()
+        }
         unCommittedFilters.add(filter)
         (filtersInEdition as MutableLiveData).value = unCommittedFilters
         areFiltersChanged = true
@@ -73,4 +76,12 @@ class FiltersManager
     }
 
     fun isFilterInEdition(filter: Filter<*>): Boolean = unCommittedFilters.contains(filter)
+
+    companion object {
+        // There is apparently a limit of 1000 characters for queries, which leave us with
+        // (1000 / 50 = 20) characters for each filter, not counting the characters before the WHERE
+        private const val MAX_FILTER_NUMBER = 50
+    }
+
+    class MaxFiltersNumberExceededException: Exception()
 }

@@ -1,16 +1,12 @@
 package be.florien.anyflow.feature.player.filter
 
-import android.content.DialogInterface
 import android.os.Bundle
-import android.view.*
-import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
-import be.florien.anyflow.R
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import be.florien.anyflow.feature.BaseFragment
-import be.florien.anyflow.feature.menu.implementation.ConfirmMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
-import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
+import be.florien.anyflow.feature.menu.implementation.ConfirmMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 
 abstract class BaseFilterFragment : BaseFragment() {
@@ -21,33 +17,17 @@ abstract class BaseFilterFragment : BaseFragment() {
     private val confirmMenuHolder = ConfirmMenuHolder {
         baseViewModel.confirmChanges()
     }
-    protected val saveMenuHolder = SaveFilterGroupMenuHolder {
-        val editText = EditText(requireActivity()) //todo better "ask a name" dialog
-        editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
-        AlertDialog.Builder(requireActivity())
-            .setView(editText)
-            .setTitle(R.string.filter_group_name)
-            .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                baseViewModel.saveFilterGroup(editText.text.toString())
-            }
-            .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
-                dialog.cancel()
-            }
-            .show()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         menuCoordinator.addMenuHolder(confirmMenuHolder)
-        menuCoordinator.addMenuHolder(saveMenuHolder)
         setHasOptionsMenu(true)
     }
 
     override fun onResume() {
         super.onResume()
-        confirmMenuHolder.isVisible = baseViewModel.hasChangeFromCurrentFilters.value == true
         baseViewModel.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
-            confirmMenuHolder.isVisible = it == true
+            confirmMenuHolder.isEnabled = it == true
         }
         baseViewModel.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
@@ -64,6 +44,7 @@ abstract class BaseFilterFragment : BaseFragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menuCoordinator.prepareMenus(menu)
+        confirmMenuHolder.isEnabled = baseViewModel.hasChangeFromCurrentFilters.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -73,6 +54,5 @@ abstract class BaseFilterFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         menuCoordinator.removeMenuHolder(confirmMenuHolder)
-        menuCoordinator.removeMenuHolder(saveMenuHolder)
     }
 }

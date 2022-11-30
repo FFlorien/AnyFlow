@@ -21,6 +21,8 @@ import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.implementation.SearchMenuHolder
+import be.florien.anyflow.feature.menu.implementation.SelectAllMenuHolder
+import be.florien.anyflow.feature.menu.implementation.SelectNoneMenuHolder
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
@@ -31,6 +33,7 @@ import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewM
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.SONG_ID
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
+import com.google.android.material.snackbar.Snackbar
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 @ActivityScope
@@ -50,6 +53,16 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         SearchMenuHolder(viewModel.isSearching.value == true, requireContext()) {
             val currentValue = viewModel.isSearching.value ?: false
             viewModel.isSearching.value = !currentValue
+        }
+    }
+    private val selectAllMenuHolder by lazy {
+        SelectAllMenuHolder {
+            viewModel.selectAllInSelection()
+        }
+    }
+    private val selectNoneMenuHolder by lazy {
+        SelectNoneMenuHolder {
+            viewModel.selectNoneInSelection()
         }
     }
 
@@ -77,6 +90,8 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         menuCoordinator.addMenuHolder(searchMenuHolder)
+        menuCoordinator.addMenuHolder(selectAllMenuHolder)
+        menuCoordinator.addMenuHolder(selectNoneMenuHolder)
         viewModel.isSearching.observe(this) {
             searchMenuHolder.changeState(!it)
             val imm: InputMethodManager? =
@@ -88,6 +103,16 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
                 }, 200)
             } else {
                 imm?.hideSoftInputFromWindow(fragmentBinding.root.windowToken, 0)
+            }
+        }
+        viewModel.hasFilterOfThisType.observe(this) { isAnythingSelected ->
+                selectAllMenuHolder.isVisible = !isAnythingSelected
+                selectNoneMenuHolder.isVisible = isAnythingSelected
+        }
+        viewModel.errorMessage.observe(this) {
+            if (it > 0) {
+                Snackbar.make(fragmentBinding.filterList, it,  Snackbar.LENGTH_SHORT).show()
+                viewModel.errorMessage.value = -1
             }
         }
         searchMenuHolder.isVisible = viewModel.hasSearch
@@ -142,6 +167,13 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
             (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
         }
         return fragmentBinding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        menuCoordinator.removeMenuHolder(searchMenuHolder)
+        menuCoordinator.removeMenuHolder(selectAllMenuHolder)
+        menuCoordinator.removeMenuHolder(selectNoneMenuHolder)
     }
 
     class FilterListAdapter(

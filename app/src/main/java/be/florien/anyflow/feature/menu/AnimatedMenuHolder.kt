@@ -49,11 +49,15 @@ abstract class AnimatedMenuHolder(
 
     fun changeState(toFirstState: Boolean) {
         if (isIconInFirstState != toFirstState) {
-            if (isVisible && menuItem != null) {
-                menuItem?.icon = if (toFirstState) secondStateDrawable else firstStateDrawable
-                (menuItem?.icon as? Animatable)?.start()
+            val nullSafeMenuItem = menuItem
+            if (isVisible && nullSafeMenuItem != null) {
+                nullSafeMenuItem.icon = if (toFirstState) secondStateDrawable else firstStateDrawable
+                (nullSafeMenuItem.icon as? Animatable)?.start()
             } else {
                 setState(toFirstState)
+            }
+            if (nullSafeMenuItem != null && nullSafeMenuItem.isCheckable) {
+                nullSafeMenuItem.isChecked = !toFirstState
             }
         }
     }

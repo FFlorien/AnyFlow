@@ -3,7 +3,6 @@ package be.florien.anyflow.feature.player.filter.selection
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
@@ -33,6 +32,8 @@ class SelectFilterDownloadedViewModel @Inject constructor(
 
     override fun getUnfilteredPagingList() = liveData
     override fun getFilteredPagingList(search: String) = liveData
+    override fun isThisTypeOfFilter(filter: Filter<*>) = filter is Filter.DownloadedStatusIs
+
     override suspend fun getFoundFilters(search: String): List<FilterItem> = getFilterList()
 
     override fun getFilter(filterValue: FilterItem) =

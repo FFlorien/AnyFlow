@@ -32,6 +32,7 @@
     <string name="filter_type_song">Chanson</string>
     <string name="filter_type_playlist">Liste de lecture</string>
     <string name="filter_type_search">Recherche</string>
+    <string name="filter_add_error">Vous ne pouvez pas ajouter plus de filtres</string>
     <string name="menu_alarms">Alarmes</string>
     <string name="menu_quick_actions">Actions rapides</string>
     <string name="menu_playlist">Listes de lecture</string>
@@ -45,6 +46,7 @@
     <string name="general_loading_label">Chargement, veuillez patienter…</string>
     <string name="action_filter_clear">Nettoyer les filtres</string>
     <string name="action_filter_add">Ajouter des filtres</string>
+    <string name="action_filter_save">Sauvegarder les filtres</string>
     <string name="notification_title_artist">%1$s par %2$s</string>
     <string name="display_reconnecting">Reconnexion</string>
     <string name="confirm">Confirmer</string>
@@ -61,6 +63,7 @@
     <string name="filter_group_name">Nom du groupe de filtres</string>
     <string name="action_filter_confirm">Confirmer</string>
     <string name="generic_select_all">Tout sélectionner</string>
+    <string name="generic_select_none">Tout désélectionner</string>
     <string name="info_title">Titre</string>
     <string name="info_duration">Durée</string>
     <string name="info_artist">Artiste</string>

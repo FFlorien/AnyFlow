@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.player.filter.display
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
@@ -13,7 +14,10 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
@@ -28,6 +32,7 @@ import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.viewModelFactory
+import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupFragment
@@ -46,6 +51,21 @@ class DisplayFilterFragment : BaseFilterFragment() {
     private lateinit var binding: FragmentDisplayFilterBinding
     private lateinit var filterListAdapter: FilterListAdapter
 
+    private val saveMenuHolder = SaveFilterGroupMenuHolder {
+        val editText = EditText(requireActivity()) //todo better "ask a name" dialog
+        editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES
+        AlertDialog.Builder(requireActivity())
+            .setView(editText)
+            .setTitle(R.string.filter_group_name)
+            .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                baseViewModel.saveFilterGroup(editText.text.toString())
+            }
+            .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
+                dialog.cancel()
+            }
+            .show()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[DisplayFilterViewModel::class.java]
@@ -54,6 +74,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.resetFilterChanges()
+        menuCoordinator.addMenuHolder(saveMenuHolder)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -91,6 +112,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
             it.request?.clear()
         }
         viewModel.cancelChanges()
+        menuCoordinator.removeMenuHolder(saveMenuHolder)
         super.onDetach()
     }
 

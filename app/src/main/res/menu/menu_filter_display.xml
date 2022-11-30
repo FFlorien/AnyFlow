@@ -3,24 +3,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_search_filters"
+        android:id="@+id/menu_select_all"
+        android:icon="@drawable/ic_select_all"
+        android:orderInCategory="0"
+        android:title="@string/generic_select_all"
         android:visible="false"
-        android:icon="@drawable/ic_search"
-        android:title="@string/filter_type_search"
-        android:iconTint="@color/accent"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
     <item
-        android:id="@+id/menu_confirm"
-        android:icon="@drawable/ic_confirm"
-        android:iconTint="@color/accent"
-        android:title="@string/action_filter_confirm"
-        app:showAsAction="always"/>
+        android:id="@+id/menu_select_none"
+        android:icon="@drawable/ic_select_none"
+        android:orderInCategory="0"
+        android:title="@string/generic_select_none"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_search_filters"
+        android:checkable="true"
+        android:icon="@drawable/ic_search"
+        android:orderInCategory="1"
+        android:title="@string/filter_type_search"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_save"
         android:icon="@drawable/ic_save"
-        android:iconTint="@color/accent"
-        android:title="@string/action_filter_add"
-        app:showAsAction="always"/>
+        android:orderInCategory="1"
+        android:title="@string/action_filter_save"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/menu_confirm"
+        android:icon="@drawable/ic_confirm"
+        android:orderInCategory="2"
+        android:title="@string/action_filter_confirm"
+        app:showAsAction="always" />
 </menu>
