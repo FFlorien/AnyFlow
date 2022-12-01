@@ -8,7 +8,7 @@
     <path
         android:pathData="M20,200a180,180 0,1 0,360 0a180,180 0,1 0,-360 0z"
         android:strokeColor="@color/iconInApp"
-        android:strokeWidth="30" />
+        android:strokeWidth="35" />
     <path
         android:name="cross"
         android:pathData="M 110 110 L 290 290 M 290 110 L 110 290"

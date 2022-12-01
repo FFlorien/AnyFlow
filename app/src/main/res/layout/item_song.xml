@@ -31,7 +31,7 @@
                 android:layout_width="@dimen/minClickableSize"
                 android:layout_height="@dimen/minClickableSize"
                 android:layout_gravity="center_vertical"
-                android:padding="@dimen/mediumDimen"
+                android:padding="@dimen/smallDimen"
                 android:src="@drawable/ic_info" />
 
             <View

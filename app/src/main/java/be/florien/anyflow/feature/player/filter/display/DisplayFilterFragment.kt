@@ -158,7 +158,8 @@ class DisplayFilterFragment : BaseFilterFragment() {
         val binding: ItemFilterActiveBinding = ItemFilterActiveBinding.inflate(layoutInflater, parent, false)
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private val leftDrawableSize = resources.getDimensionPixelSize(R.dimen.xLargeDimen)
+        private val leftIconSize = resources.getDimensionPixelSize(R.dimen.xLargeDimen)
+        private val leftActionSize = resources.getDimensionPixelSize(R.dimen.largeDimen)
 
         fun bind(filter: Filter<*>) {
             val charSequence: CharSequence = when (filter) {
@@ -203,7 +204,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
                                     return
                                 }
                                 val drawable = BitmapDrawable(resources, resource)
-                                drawable.bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
+                                drawable.bounds = Rect(0, 0, leftIconSize, leftIconSize)
                                 binding.filterName.setCompoundDrawables(drawable, null, null, null) //todo verify threading
                             }
                         })
@@ -211,15 +212,15 @@ class DisplayFilterFragment : BaseFilterFragment() {
             } else {
                 when (filter) {
                     is Filter.AlbumArtistIs,
-                    is Filter.ArtistIs -> setCompoundDrawableFromResources(R.drawable.ic_artist)
-                    is Filter.GenreIs -> setCompoundDrawableFromResources(R.drawable.ic_genre)
-                    is Filter.AlbumIs -> setCompoundDrawableFromResources(R.drawable.ic_album)
-                    is Filter.PlaylistIs -> setCompoundDrawableFromResources(R.drawable.ic_playlist)
-                    is Filter.DownloadedStatusIs -> setCompoundDrawableFromResources(R.drawable.ic_download)
+                    is Filter.ArtistIs -> setCompoundDrawableFromResources(R.drawable.ic_artist, leftIconSize)
+                    is Filter.GenreIs -> setCompoundDrawableFromResources(R.drawable.ic_genre, leftIconSize)
+                    is Filter.AlbumIs -> setCompoundDrawableFromResources(R.drawable.ic_album, leftIconSize)
+                    is Filter.PlaylistIs -> setCompoundDrawableFromResources(R.drawable.ic_playlist, leftIconSize)
+                    is Filter.DownloadedStatusIs -> setCompoundDrawableFromResources(R.drawable.ic_download, leftIconSize)
                     is Filter.Search,
                     is Filter.TitleIs,
                     is Filter.TitleContain,
-                    is Filter.SongIs -> setCompoundDrawableFromResources(R.drawable.ic_song)
+                    is Filter.SongIs -> setCompoundDrawableFromResources(R.drawable.ic_song, leftIconSize)
                 }
             }
         }
@@ -229,14 +230,14 @@ class DisplayFilterFragment : BaseFilterFragment() {
             binding.vm = null
             binding.filterName.text = text
             binding.lifecycleOwner = viewLifecycleOwner
-            setCompoundDrawableFromResources(icon)
+            setCompoundDrawableFromResources(icon, leftActionSize)
         }
 
-        private fun setCompoundDrawableFromResources(resId: Int) {
+        private fun setCompoundDrawableFromResources(resId: Int, size: Int) {
             ResourcesCompat.getDrawable(resources, resId, requireActivity().theme)?.apply {
                 val color = ResourcesCompat.getColor(resources, R.color.primaryDark, requireActivity().theme)
                 colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_IN)
-                bounds = Rect(0, 0, leftDrawableSize, leftDrawableSize)
+                bounds = Rect(0, 0, size, size)
                 binding.filterName.setCompoundDrawables(this, null, null, null)
             }
         }
