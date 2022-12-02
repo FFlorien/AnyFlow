@@ -123,6 +123,6 @@ class WaveFormBarsRepository(
     companion object {
         const val BAR_DURATION_MS = 500
         private const val ALPHA_MASK = 0x1000000
-        private const val ALPHA_THRESHOLD = 0x40
+        private const val ALPHA_THRESHOLD = 0x1E
     }
 }
