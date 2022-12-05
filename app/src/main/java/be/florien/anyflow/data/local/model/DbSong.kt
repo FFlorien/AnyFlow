@@ -61,6 +61,6 @@ data class DbSongBars(
     val downSamplesArray: DoubleArray
     get() {
         if (bars.isBlank()) return DoubleArray(0)
-        return bars.split('|').map { it.toDouble() }.toDoubleArray()
+        return bars.split('|').map { it.replace(',', '.').toDouble() }.toDoubleArray()
     }
 }

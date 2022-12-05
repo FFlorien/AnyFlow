@@ -194,7 +194,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     suspend fun updateBars(songId: Long, bars: DoubleArray) {
-        val stringify =  bars.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { it.toString() }
+        val stringify =  bars.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { "%.3f".format(it) }
         getSongDao().updateWithNewDownSamples(songId, stringify)
     }
 
