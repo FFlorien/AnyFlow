@@ -106,12 +106,12 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
             }
         }
         viewModel.hasFilterOfThisType.observe(this) { isAnythingSelected ->
-                selectAllMenuHolder.isVisible = !isAnythingSelected
-                selectNoneMenuHolder.isVisible = isAnythingSelected
+            selectAllMenuHolder.isVisible = !isAnythingSelected
+            selectNoneMenuHolder.isVisible = isAnythingSelected
         }
         viewModel.errorMessage.observe(this) {
             if (it > 0) {
-                Snackbar.make(fragmentBinding.filterList, it,  Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(fragmentBinding.filterList, it, Snackbar.LENGTH_SHORT).show()
                 viewModel.errorMessage.value = -1
             }
         }

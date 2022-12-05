@@ -417,7 +417,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                     currentSongViewHolder.swipeToOpen()
                     this@SongListFragment.binding.currentSongDisplayTouch.translationX =
                         this@SongListFragment.binding.currentSongDisplay.actionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
-                } else if (!isCurrentSong) {
+                } else {
                     currentSongViewHolder.swipeToClose()
                     this@SongListFragment.binding.currentSongDisplayTouch.translationX = 0F
 
@@ -472,26 +472,15 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                 addListener(object : Animator.AnimatorListener {
                     override fun onAnimationStart(animation: Animator) {}
 
-                    override fun onAnimationEnd(animation: Animator) {
-                        val song = binding.song ?: return
-                        InfoFragment(song).show(childFragmentManager, "info")
-                    }
+                    override fun onAnimationEnd(animation: Animator) {}
 
                     override fun onAnimationCancel(animation: Animator) {}
 
-                    override fun onAnimationRepeat(animation: Animator) {}
+                    override fun onAnimationRepeat(animation: Animator) {
+                        val song = binding.song ?: return
+                        InfoFragment(song).show(childFragmentManager, "info")
+                    }
                 })
-                start()
-            }
-            ObjectAnimator.ofFloat(
-                binding.songActions,
-                View.TRANSLATION_X,
-                binding.infoView.right.toFloat()
-            ).apply {
-                duration = 200L
-                interpolator = DecelerateInterpolator()
-                repeatCount = 1
-                repeatMode = ValueAnimator.REVERSE
                 start()
             }
         }
