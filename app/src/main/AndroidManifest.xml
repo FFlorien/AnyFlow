@@ -33,7 +33,7 @@
 
         <activity android:name=".feature.alarms.AlarmActivity" />
 
-        <activity android:name=".feature.quickActions.QuickActionsActivity" />
+        <activity android:name=".feature.player.info.song.quickActions.QuickActionsActivity" />
         <activity android:name=".feature.playlist.PlaylistsActivity" />
 
         <service

@@ -12,7 +12,8 @@ import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.player.info.SongInfoActions
+import be.florien.anyflow.feature.player.info.InfoActions
+import be.florien.anyflow.feature.player.info.song.info.SongInfoActions
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
@@ -47,7 +48,7 @@ class SongListViewModel
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     val playlistListDisplayedFor: LiveData<Long> = MutableLiveData(-1L)
-    val quickActions: LiveData<List<SongInfoActions.SongRow>> = MutableLiveData(songInfoActions.getQuickActions())
+    val quickActions: LiveData<List<InfoActions.InfoRow>> = MutableLiveData(songInfoActions.getQuickActions())
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
         private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -127,14 +128,14 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songInfo: SongInfo, actionType: SongInfoActions.ActionType, fieldType: SongInfoActions.FieldType) {
+    fun executeSongAction(songInfo: SongInfo, actionType: InfoActions.ActionType, fieldType: InfoActions.FieldType) {
         viewModelScope.launch {
             when (actionType) {
-                SongInfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(songInfo.id)
-                SongInfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songInfo.id)
-                SongInfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(songInfo, fieldType)
-                SongInfoActions.ActionType.SEARCH -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
-                SongInfoActions.ActionType.DOWNLOAD -> songInfoActions.download(songInfo)
+                InfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(songInfo.id)
+                InfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songInfo.id)
+                InfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(songInfo, fieldType)
+                InfoActions.ActionType.SEARCH -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
+                InfoActions.ActionType.DOWNLOAD -> songInfoActions.download(songInfo)
                 else -> return@launch
             }
         }

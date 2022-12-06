@@ -1,6 +1,6 @@
 package be.florien.anyflow.injection
 
-import be.florien.anyflow.feature.quickActions.QuickActionsActivity
+import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsActivity
 import dagger.Subcomponent
 
 @Subcomponent(modules = [ViewModelModule::class])

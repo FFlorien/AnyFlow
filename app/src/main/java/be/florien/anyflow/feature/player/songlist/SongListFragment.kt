@@ -32,7 +32,7 @@ import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
-import be.florien.anyflow.feature.player.info.InfoFragment
+import be.florien.anyflow.feature.player.info.song.info.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ActivityScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -379,7 +379,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
         fun openInfoWhenSwiped() {
             if (binding.root.visibility == View.VISIBLE && binding.songLayout.songInfo.translationX > binding.infoView.right - 10 && startingTranslationX == 0f) {
                 val song = binding.song ?: return
-                InfoFragment(song).show(childFragmentManager, "info")
+                SongInfoFragment(song).show(childFragmentManager, "info")
             }
         }
 
@@ -478,7 +478,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener {
 
                     override fun onAnimationRepeat(animation: Animator) {
                         val song = binding.song ?: return
-                        InfoFragment(song).show(childFragmentManager, "info")
+                        SongInfoFragment(song).show(childFragmentManager, "info")
                     }
                 })
                 start()

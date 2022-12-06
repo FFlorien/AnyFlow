@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.quickActions
+package be.florien.anyflow.feature.player.info.song.quickActions
 
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -11,8 +11,8 @@ import be.florien.anyflow.databinding.ActivityQuickActionsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
-import be.florien.anyflow.feature.player.info.InfoFragment
-import be.florien.anyflow.feature.player.info.SongInfoActions
+import be.florien.anyflow.feature.player.info.song.info.SongInfoActions
+import be.florien.anyflow.feature.player.info.song.info.SongInfoFragment
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
 import be.florien.anyflow.injection.QuickActionsComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
@@ -22,7 +22,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     private lateinit var binding: ActivityQuickActionsBinding
     private lateinit var activityComponent: QuickActionsComponent
-    private lateinit var viewModel: InfoActionsSelectionViewModel
+    private lateinit var viewModel: QuickActionsViewModel
 
     @Inject
     lateinit var viewModelFactory: AnyFlowViewModelFactory
@@ -49,42 +49,46 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
         }
         activityComponent.inject(this)
 
-        viewModel = ViewModelProvider(this, viewModelFactory)[InfoActionsSelectionViewModel::class.java]
-            .apply {
-                val displayMetrics = DisplayMetrics()
-                windowManager.defaultDisplay.getMetrics(displayMetrics)
-                val width = displayMetrics.widthPixels
-                val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
-                val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
-                val itemFullWidth = itemWidth + margin + margin
-                maxItems = (width / itemFullWidth) - 1
-            }
+        viewModel =
+            ViewModelProvider(this, viewModelFactory)[QuickActionsViewModel::class.java]
+                .apply {
+                    val displayMetrics = DisplayMetrics()
+                    windowManager.defaultDisplay.getMetrics(displayMetrics)
+                    val width = displayMetrics.widthPixels
+                    val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
+                    val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
+                    val itemFullWidth = itemWidth + margin + margin
+                    maxItems = (width / itemFullWidth) - 1
+                }
         binding = DataBindingUtil.setContentView(this, R.layout.activity_quick_actions)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initToolbar()
-        val fragment = supportFragmentManager.findFragmentByTag(InfoFragment::class.java.simpleName)
+        val fragment =
+            supportFragmentManager.findFragmentByTag(SongInfoFragment::class.java.simpleName)
         if (fragment == null) {
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container_view, InfoFragment(
-                    SongInfo(
-                        SongInfoActions.DUMMY_SONG_ID,
-                        getString(R.string.info_title),
-                        getString(R.string.info_artist),
-                        0L,
-                        getString(R.string.info_album),
-                        0L,
-                        getString(R.string.info_album_artist),
-                        0L,
-                        listOf(getString(R.string.info_genre)),
-                        listOf(0L),
-                        1,
-                        120,
-                        2000,
-                        null
-                    )
-                ), InfoFragment::class.java.simpleName)
+                .add(
+                    R.id.fragment_container_view, SongInfoFragment(
+                        SongInfo(
+                            SongInfoActions.DUMMY_SONG_ID,
+                            getString(R.string.info_title),
+                            getString(R.string.info_artist),
+                            0L,
+                            getString(R.string.info_album),
+                            0L,
+                            getString(R.string.info_album_artist),
+                            0L,
+                            listOf(getString(R.string.info_genre)),
+                            listOf(0L),
+                            1,
+                            120,
+                            2000,
+                            null
+                        )
+                    ), SongInfoFragment::class.java.simpleName
+                )
                 .commit()
         }
     }

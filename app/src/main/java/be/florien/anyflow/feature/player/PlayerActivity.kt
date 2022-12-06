@@ -32,7 +32,7 @@ import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
-import be.florien.anyflow.feature.quickActions.QuickActionsActivity
+import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsActivity
 import be.florien.anyflow.injection.*
 import be.florien.anyflow.player.PlayerService
 import javax.inject.Inject

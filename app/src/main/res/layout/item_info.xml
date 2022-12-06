@@ -8,7 +8,7 @@
 
         <variable
             name="display"
-            type="be.florien.anyflow.feature.player.info.SongInfoActions.SongRow" />
+            type="be.florien.anyflow.feature.player.info.InfoActions.InfoRow" />
 
         <variable
             name="descriptionText"
@@ -28,7 +28,7 @@
             android:layout_height="@dimen/orderItemsHeight"
             android:scaleType="fitXY"
             android:src="@drawable/ic_action_order_bg"
-            android:visibility="@{display.order != null? View.VISIBLE : View.GONE}"
+            android:visibility="@{display.additionalInfo != null? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/title"
@@ -41,7 +41,7 @@
             android:layout_height="@dimen/orderItemsHeight"
             android:gravity="end"
             android:orientation="horizontal"
-            android:visibility="@{display.order != null? View.VISIBLE : View.GONE}"
+            android:visibility="@{display.additionalInfo != null? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/title"
