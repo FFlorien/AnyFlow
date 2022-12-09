@@ -19,7 +19,8 @@ data class DbFilter(
         val argument: String,
         val displayText: String,
         @ColumnInfo(index = true)
-        val filterGroup: Long) {
+        val filterGroup: Long,
+        val parentFilter: Long? = null) {
 
     companion object {
         const val TITLE_IS = "title ="

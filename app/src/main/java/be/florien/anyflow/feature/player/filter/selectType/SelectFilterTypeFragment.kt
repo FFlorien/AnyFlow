@@ -30,7 +30,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(requireActivity(), requireActivity().viewModelFactory).get(SelectFilterTypeViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), requireActivity().viewModelFactory)[SelectFilterTypeViewModel::class.java]
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

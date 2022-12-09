@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 4,
+    version = 5,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
 )
 abstract class LibraryDatabase : RoomDatabase() {
@@ -129,7 +129,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getAlarmList(): List<DbAlarm> = getAlarmDao().list()
 
     /**
-     * Getters from raw queries
+     * Getters from raw queries (Was it only for tests ?)
      */
 
     suspend fun getSongsFromRawQuery(rawQuery: String) =
@@ -304,7 +304,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                 Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
             }
             return databaseBuilder
-                .addCallback(object : RoomDatabase.Callback() {
+                .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         val currentFilterGroup = DbFilterGroup.currentFilterGroup
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
@@ -318,6 +318,9 @@ abstract class LibraryDatabase : RoomDatabase() {
                 })
                 .addMigrations(Migration(3, 4) { db ->
                     db.execSQL("ALTER TABLE Song RENAME COLUMN downSamples TO bars")
+                })
+                .addMigrations(Migration(4, 5) { db ->
+                    db.execSQL("ALTER TABLE DbFilter ADD COLUMN parentFilter INTEGER DEFAULT NULL")
                 })
                 .build()
         }
