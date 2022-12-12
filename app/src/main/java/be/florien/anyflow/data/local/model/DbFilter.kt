@@ -12,15 +12,16 @@ import androidx.room.PrimaryKey
             childColumns = arrayOf("filterGroup"),
             onDelete = ForeignKey.CASCADE)])
 data class DbFilter(
-        @PrimaryKey(autoGenerate = true)
-        val id: Int?,
-        val clause: String,
-        val joinClause: String?,
-        val argument: String,
-        val displayText: String,
-        @ColumnInfo(index = true)
-        val filterGroup: Long,
-        val parentFilter: Long? = null) {
+    @PrimaryKey(autoGenerate = true)
+    val id: Int?,
+    val clause: String,
+    val joinClause: String?,
+    val argument: String,
+    val displayText: String,
+    @ColumnInfo(index = true)
+    val filterGroup: Long,
+    val parentFilter: Int? = null
+) {
 
     companion object {
         const val TITLE_IS = "title ="

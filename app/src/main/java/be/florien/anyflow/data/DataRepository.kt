@@ -329,7 +329,10 @@ class DataRepository
         withContext(Dispatchers.IO) { libraryDatabase.setSavedGroupAsCurrentFilters(filterGroup.toDbFilterGroup()) }
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters()
-        .map { filterList -> filterList.map { it.toViewFilter() } }
+        .map { filterList ->
+            filterList.map { filter -> filter.toViewFilter(filterList)
+            }
+        }
 
     suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) {
         libraryDatabase.setCurrentFilters(filterList.map {
@@ -570,7 +573,7 @@ class DataRepository
                 constructOrderStatement()
     }
 
-    private fun constructJoinStatement(
+    private fun constructJoinStatement( //todo traversal of children
         filterList: List<Filter<*>>,
         orderList: List<Order>
     ): String {
@@ -618,23 +621,35 @@ class DataRepository
             ""
         }
 
-        filterList.map { it.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID) }
+        whereStatement += constructWhereSubStatement(filterList)
+
+        return whereStatement
+    }
+
+    private fun constructWhereSubStatement(filterList: List<Filter<*>>): String {
+        var whereStatement = ""
+        filterList
             .forEachIndexed { index, filter ->
-                whereStatement += when (filter.clause) {
+                val dbFilter = filter.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID)
+                whereStatement += when (dbFilter.clause) {
                     DbFilter.SONG_ID,
                     DbFilter.ARTIST_ID,
                     DbFilter.ALBUM_ARTIST_ID,
                     DbFilter.PLAYLIST_ID,
-                    DbFilter.ALBUM_ID -> " ${filter.clause} ${filter.argument}"
+                    DbFilter.ALBUM_ID -> " ${dbFilter.clause} ${dbFilter.argument}"
                     DbFilter.DOWNLOADED -> " ${DbFilter.DOWNLOADED}"
                     DbFilter.NOT_DOWNLOADED -> " ${DbFilter.NOT_DOWNLOADED}"
-                    else -> " ${filter.clause} \"${filter.argument}\""
+                    else -> " ${dbFilter.clause} \"${dbFilter.argument}\""
+                }
+                if (filter.childrenFilters.isNotEmpty()) {
+                    whereStatement += " ("
+                    whereStatement += constructWhereSubStatement(filter.childrenFilters)
+                    whereStatement += ")"
                 }
                 if (index < filterList.size - 1) {
                     whereStatement += " OR"
                 }
             }
-
         return whereStatement
     }
 

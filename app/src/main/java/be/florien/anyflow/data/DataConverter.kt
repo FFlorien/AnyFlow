@@ -83,19 +83,52 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
 
 fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) = Playlist(id, name, songCount, coverUrl)
 
-fun DbFilter.toViewFilter(): Filter<*> = when (clause) {
-    DbFilter.TITLE_IS -> Filter.TitleIs(argument)
-    DbFilter.TITLE_CONTAIN -> Filter.TitleContain(argument)
-    DbFilter.GENRE_IS -> Filter.GenreIs(argument.toLong(), displayText)
-    DbFilter.SONG_ID -> Filter.SongIs(argument.toLong(), displayText)
-    DbFilter.ARTIST_ID -> Filter.ArtistIs(argument.toLong(), displayText)
-    DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(argument.toLong(), displayText)
-    DbFilter.ALBUM_ID -> Filter.AlbumIs(argument.toLong(), displayText)
-    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(argument.toLong(), displayText)
-    DbFilter.DOWNLOADED -> Filter.DownloadedStatusIs(true)
-    DbFilter.NOT_DOWNLOADED -> Filter.DownloadedStatusIs(false)
-    else -> Filter.TitleIs("")
+fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = when (clause) {
+    DbFilter.TITLE_IS -> Filter.TitleIs(argument, getChildrenFilters(this, filterList))
+    DbFilter.TITLE_CONTAIN -> Filter.TitleContain(argument, getChildrenFilters(this, filterList))
+    DbFilter.GENRE_IS -> Filter.GenreIs(
+        argument.toLong(),
+        displayText,
+        getChildrenFilters(this, filterList)
+    )
+    DbFilter.SONG_ID -> Filter.SongIs(
+        argument.toLong(),
+        displayText,
+        getChildrenFilters(this, filterList)
+    )
+    DbFilter.ARTIST_ID -> Filter.ArtistIs(
+        argument.toLong(),
+        displayText,
+        getChildrenFilters(this, filterList)
+    )
+    DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(
+        argument.toLong(),
+        displayText,
+        getChildrenFilters(this, filterList)
+    )
+    DbFilter.ALBUM_ID -> Filter.AlbumIs(
+        argument.toLong(),
+        displayText,
+        getChildrenFilters(this, filterList)
+    )
+    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(
+        argument.toLong(),
+        displayText,
+        getChildrenFilters(this, filterList)
+    )
+    DbFilter.DOWNLOADED -> Filter.DownloadedStatusIs(true, getChildrenFilters(this, filterList))
+    DbFilter.NOT_DOWNLOADED -> Filter.DownloadedStatusIs(
+        false,
+        getChildrenFilters(this, filterList)
+    )
+    else -> Filter.TitleIs("", getChildrenFilters(this, filterList))
 }
+
+private fun getChildrenFilters( //warning: this hasn't been tested (yet)
+    filter: DbFilter,
+    filterList: List<DbFilter>
+): List<Filter<*>> = filterList.filter { dbFilter -> filter.id == dbFilter.parentFilter }
+    .map { dbFilter -> dbFilter.toViewFilter(filterList) }
 
 fun DbFilterGroup.toViewFilterGroup() = FilterGroup(
     id = id,

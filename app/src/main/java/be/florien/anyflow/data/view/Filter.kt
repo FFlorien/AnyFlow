@@ -5,7 +5,9 @@ import be.florien.anyflow.data.DataRepository
 sealed class Filter<T>(
         val argument: T,
         val displayText: String,
-        val imageType: String? = null) {
+        val imageType: String? = null,
+        val childrenFilters: List<Filter<*>>
+) {
 
 
     suspend fun contains(song: SongInfo, dataRepository: DataRepository): Boolean {
@@ -36,31 +38,31 @@ sealed class Filter<T>(
     /**
      * String filters
      */
-    class TitleIs(argument: String) : Filter<String>(argument, argument)
+    class TitleIs(argument: String, childFilters: List<Filter<*>> = emptyList()) : Filter<String>(argument, argument, childrenFilters = childFilters)
 
-    class TitleContain(argument: String) : Filter<String>(argument, argument)
+    class TitleContain(argument: String, childFilters: List<Filter<*>> = emptyList()) : Filter<String>(argument, argument, childrenFilters = childFilters)
 
-    class Search(argument: String) : Filter<String>(argument, argument)
+    class Search(argument: String, childFilters: List<Filter<*>> = emptyList()) : Filter<String>(argument, argument, childrenFilters = childFilters)
 
     /**
      * Long filters
      */
 
-    class SongIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_SONG)
+    class SongIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_SONG, childrenFilters = childFilters)
 
-    class ArtistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST)
+    class ArtistIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST, childrenFilters = childFilters)
 
-    class AlbumArtistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST)
+    class AlbumArtistIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST, childrenFilters = childFilters)
 
-    class AlbumIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ALBUM)
+    class AlbumIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ALBUM, childrenFilters = childFilters)
 
-    class GenreIs(argument: Long, name: String) : Filter<Long>(argument, name)
+    class GenreIs(argument: Long, name: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, name, childrenFilters = childFilters)
 
-    class PlaylistIs(argument: Long, displayValue: String) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_PLAYLIST)
+    class PlaylistIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_PLAYLIST, childrenFilters = childFilters)
 
     /**
      * Boolean filters
      */
 
-    class DownloadedStatusIs(argument: Boolean) : Filter<Boolean>(argument, argument.toString())
+    class DownloadedStatusIs(argument: Boolean, childFilters: List<Filter<*>> = emptyList()) : Filter<Boolean>(argument, argument.toString(), childrenFilters = childFilters)
 }

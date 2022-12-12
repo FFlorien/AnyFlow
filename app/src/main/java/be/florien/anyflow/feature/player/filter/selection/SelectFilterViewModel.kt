@@ -6,7 +6,10 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
 import be.florien.anyflow.player.FiltersManager
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
     BaseFilterViewModel(filtersManager) {
