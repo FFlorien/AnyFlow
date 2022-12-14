@@ -125,7 +125,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 updateCurrentSongDisplay()
             }
         })
-        binding.songList.addOnItemTouchListener(object : SongInfoTouchAdapter(),  RecyclerView.OnItemTouchListener  {
+        binding.songList.addOnItemTouchListener(object : ItemInfoTouchAdapter(),  RecyclerView.OnItemTouchListener  {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 return onInterceptTouchEvent(e)
             }
@@ -143,7 +143,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.currentSongDisplayTouch.setOnClickListener {
             scrollToCurrentSong()
         }
-        binding.currentSongDisplayTouch.setOnTouchListener(object : SongInfoTouchAdapter(), View.OnTouchListener  {
+        binding.currentSongDisplayTouch.setOnTouchListener(object : ItemInfoTouchAdapter(), View.OnTouchListener  {
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 onTouch(currentSongViewHolder, event)
                 when (event.actionMasked) {
@@ -273,16 +273,16 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 val songViewHolder =
                     binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
                 if (i != position && songViewHolder != null && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToClose()
+                    songViewHolder.swipeToCloseQuickActions()
                 }
             }
 
             if (position == viewModel.listPosition.value) {
-                currentSongViewHolder.swipeToOpen()
+                currentSongViewHolder.swipeToOpenQuickActions()
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX =
                     this@SongListFragment.binding.currentSongDisplay.actionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
             } else {
-                currentSongViewHolder.swipeToClose()
+                currentSongViewHolder.swipeToCloseQuickActions()
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX = 0F
 
             }
@@ -293,14 +293,14 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 val songViewHolder =
                     this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
                 if (songViewHolder?.isCurrentSong == false && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToClose()
+                    songViewHolder.swipeToCloseQuickActions()
                 }
             }
         }
     }
 
     override fun onCurrentSongQuickActionClosed() {
-        currentSongViewHolder.swipeToClose()
+        currentSongViewHolder.swipeToCloseQuickActions()
     }
 
     /**

@@ -438,6 +438,6 @@ class SongInfoActions(
             val fieldType = FieldType.valueOf(fieldTypeString)
             val actionType = ActionType.valueOf(actionTypeString)
             getSongAction(songInfo, fieldType, actionType, index)
-        }
+        }.reversed()
     }
 }
