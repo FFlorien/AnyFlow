@@ -5,14 +5,12 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.absoluteValue
 
 abstract class DetailViewHolder<T, B : ViewDataBinding, L : DetailViewHolderListener<T>>(
-    parent: ViewGroup,
     val listener: L,
     val binding: B
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -21,10 +19,6 @@ abstract class DetailViewHolder<T, B : ViewDataBinding, L : DetailViewHolderList
     abstract val itemInfoView: View
     abstract val infoView: View
     abstract val item: T?
-
-    init {
-        setClickListener(parent is RecyclerView)
-    }
 
     abstract fun bind(item: T?)
 
@@ -52,7 +46,7 @@ abstract class DetailViewHolder<T, B : ViewDataBinding, L : DetailViewHolderList
         return false
     }
 
-    private fun setClickListener(isRecyclerView: Boolean) {
+    protected fun setClickListener(isRecyclerView: Boolean) {
         if (isRecyclerView) {
             itemInfoView.setOnClickListener {
                 itemInfoView.translationX = 0F

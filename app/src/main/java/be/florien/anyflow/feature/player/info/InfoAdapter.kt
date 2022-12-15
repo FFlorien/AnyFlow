@@ -21,8 +21,8 @@ class InfoAdapter(
         newItem: InfoActions.InfoRow
     ): Boolean {
         val isSameAction = (oldItem.actionType == newItem.actionType)
-                || (oldItem.actionType == InfoActions.ActionType.EXPANDED_TITLE && newItem.actionType == InfoActions.ActionType.EXPANDABLE_TITLE)
-                || (oldItem.actionType == InfoActions.ActionType.EXPANDABLE_TITLE && newItem.actionType == InfoActions.ActionType.EXPANDED_TITLE)
+                || (oldItem.actionType is InfoActions.ActionType.ExpandedTitle && newItem.actionType is InfoActions.ActionType.ExpandableTitle)
+                || (oldItem.actionType is InfoActions.ActionType.ExpandableTitle && newItem.actionType is InfoActions.ActionType.ExpandedTitle)
         return oldItem.fieldType == newItem.fieldType && isSameAction
     }
 
@@ -79,7 +79,7 @@ class InfoViewHolder(
         binding.root.setOnClickListener {
             executeAction(row.fieldType, row.actionType)
         }
-        if (row.actionType == InfoActions.ActionType.NONE) {
+        if (row.actionType is InfoActions.ActionType.None) {
             binding.root.setBackgroundColor(
                 ResourcesCompat.getColor(
                     parent.context.resources,
@@ -87,7 +87,7 @@ class InfoViewHolder(
                     parent.context.theme
                 )
             )
-        } else if (row.actionType != InfoActions.ActionType.INFO_TITLE && row.actionType != InfoActions.ActionType.EXPANDABLE_TITLE && row.actionType != InfoActions.ActionType.EXPANDED_TITLE) {
+        } else if (row.actionType !is InfoActions.ActionType.InfoTitle && row.actionType !is InfoActions.ActionType.ExpandableTitle && row.actionType !is InfoActions.ActionType.ExpandedTitle) {
             binding.root.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
         } else {
             binding.root.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)

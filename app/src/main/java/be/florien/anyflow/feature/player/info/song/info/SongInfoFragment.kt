@@ -97,7 +97,6 @@ class SongInfoFragment(
                     SelectPlaylistFragment(song.id).show(childFragmentManager, null)
                 }
             }
-
         }
     }
 }

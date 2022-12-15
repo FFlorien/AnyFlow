@@ -31,32 +31,89 @@ abstract class InfoActions<T> {
         )
     }
 
-    enum class FieldType(
+    sealed class FieldType(
         @DrawableRes
         val iconRes: Int
     ) {
-        TITLE(R.drawable.ic_song),
-        TRACK(R.drawable.ic_song),
-        ARTIST(R.drawable.ic_artist),
-        ALBUM(R.drawable.ic_album),
-        ALBUM_ARTIST(R.drawable.ic_album_artist),
-        GENRE(R.drawable.ic_genre),
-        YEAR(R.drawable.ic_album),
-        DURATION(R.drawable.ic_song)
+        override fun equals(other: Any?): Boolean {
+            return this.javaClass.isInstance(other)
+        }
+
+        override fun hashCode(): Int {
+            return iconRes
+        }
     }
 
-    enum class ActionType(
+    sealed class ActionType(
         @DrawableRes
         val iconRes: Int
     ) {
-        NONE(0),
-        INFO_TITLE(0),
-        EXPANDABLE_TITLE(R.drawable.ic_next_occurence),
-        EXPANDED_TITLE(R.drawable.ic_previous_occurence),
-        ADD_TO_FILTER(R.drawable.ic_filter),
-        ADD_TO_PLAYLIST(R.drawable.ic_add_to_playlist),
-        ADD_NEXT(R.drawable.ic_play_next),
-        SEARCH(R.drawable.ic_search),
-        DOWNLOAD(R.drawable.ic_download)
+        class None : SongActionType(0)
+        class InfoTitle : SongActionType(0)
+        class ExpandableTitle : SongActionType(R.drawable.ic_next_occurence)
+        class ExpandedTitle : SongActionType(R.drawable.ic_previous_occurence)
+
+        override fun equals(other: Any?): Boolean {
+            return this.javaClass.isInstance(other)
+        }
+
+        override fun hashCode(): Int {
+            return iconRes
+        }
+    }
+
+    sealed class SongFieldType(
+        @DrawableRes
+        iconRes: Int
+    ) : FieldType(iconRes) {
+
+        class Title : SongFieldType(R.drawable.ic_song)
+        class Track : SongFieldType(R.drawable.ic_song)
+        class Artist : SongFieldType(R.drawable.ic_artist)
+        class Album : SongFieldType(R.drawable.ic_album)
+        class AlbumArtist : SongFieldType(R.drawable.ic_album_artist)
+        class Genre : SongFieldType(R.drawable.ic_genre)
+        class Year : SongFieldType(R.drawable.ic_album)
+        class Duration : SongFieldType(R.drawable.ic_song)
+
+        companion object {
+            fun getClassFromName(name: String) = when (name) {
+                Title().javaClass.name -> Title()
+                Track().javaClass.name -> Track()
+                Artist().javaClass.name -> Artist()
+                Album().javaClass.name -> Album()
+                AlbumArtist().javaClass.name -> AlbumArtist()
+                Genre().javaClass.name -> Genre()
+                Year().javaClass.name -> Year()
+                Duration().javaClass.name -> Duration()
+                else -> null
+            }
+        }
+    }
+
+    sealed class SongActionType(
+        @DrawableRes
+        iconRes: Int
+    ) : ActionType(iconRes) {
+        class AddToFilter : SongActionType(R.drawable.ic_filter)
+        class AddToPlaylist : SongActionType(R.drawable.ic_add_to_playlist)
+        class AddNext : SongActionType(R.drawable.ic_play_next)
+        class Search : SongActionType(R.drawable.ic_search)
+        class Download : SongActionType(R.drawable.ic_download)
+
+        companion object {
+            fun getClassFromName(name: String) = when (name) {
+                None().javaClass.name -> None()
+                InfoTitle().javaClass.name -> InfoTitle()
+                ExpandableTitle().javaClass.name -> ExpandableTitle()
+                ExpandedTitle().javaClass.name -> ExpandedTitle()
+                AddToFilter().javaClass.name -> AddToFilter()
+                AddToPlaylist().javaClass.name -> AddToPlaylist()
+                AddNext().javaClass.name -> AddNext()
+                Search().javaClass.name -> Search()
+                Download().javaClass.name -> Download()
+                else -> null
+            }
+        }
     }
 }

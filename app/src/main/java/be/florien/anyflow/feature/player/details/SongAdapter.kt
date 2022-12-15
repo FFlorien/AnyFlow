@@ -56,7 +56,6 @@ class SongViewHolder(
     binding: ItemSongBinding = ItemSongBinding
         .inflate(LayoutInflater.from(parent.context), parent, false)
 ) : DetailViewHolder<SongInfo, ItemSongBinding, SongListViewHolderListener>(
-    parent,
     listener,
     binding
 ) {
@@ -72,12 +71,12 @@ class SongViewHolder(
 
     init {
         setQuickActions()
+        setClickListener(parent is RecyclerView)
     }
 
     override fun swipeForMove(translateX: Float): Boolean {
         if (!super.swipeForMove(translateX) && provider.getQuickActions().isNotEmpty()) {
-            val translationToSeeActions =
-                (binding.actionsPadding.right - itemView.width).toFloat()
+            val translationToSeeActions = (binding.actionsPadding.right - itemView.width).toFloat()
             val translationToFollowMove = startingTranslationX + translateX
             binding.songLayout.songInfo.translationX =
                 maxOf(translationToSeeActions, translationToFollowMove).coerceAtMost(0f)
@@ -91,7 +90,7 @@ class SongViewHolder(
         if (childCount > 2) {
             binding.songActions.removeViews(2, childCount - 2)
         }
-        val newActions = provider.getQuickActions()
+        val newActions = provider.getQuickActions().reversed()
         for (action in newActions) {
             binding.songActions.addView(
                 (LayoutInflater.from(binding.songLayout.cover.context)

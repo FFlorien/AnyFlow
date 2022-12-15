@@ -36,22 +36,22 @@ class SongInfoActions(
         orderComposer.changeSongPositionForNext(songId)
     }
 
-    suspend fun filterOn(songInfo: SongInfo, fieldType: FieldType) {
+    suspend fun filterOn(songInfo: SongInfo, fieldType: SongFieldType) {
         val filter = when (fieldType) {
-            FieldType.TITLE -> Filter.SongIs(
+            is SongFieldType.Title -> Filter.SongIs(
                 songInfo.id,
                 songInfo.title
             )
-            FieldType.ARTIST -> Filter.ArtistIs(songInfo.artistId, songInfo.artistName)
-            FieldType.ALBUM -> Filter.AlbumIs(
+            is SongFieldType.Artist -> Filter.ArtistIs(songInfo.artistId, songInfo.artistName)
+            is SongFieldType.Album -> Filter.AlbumIs(
                 songInfo.albumId,
                 songInfo.albumName
             )
-            FieldType.ALBUM_ARTIST -> Filter.AlbumArtistIs(
+            is SongFieldType.AlbumArtist -> Filter.AlbumArtistIs(
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
             )
-            FieldType.GENRE -> Filter.GenreIs(
+            is SongFieldType.Genre -> Filter.GenreIs(
                 songInfo.genreIds.first(),
                 songInfo.genreNames.first()
             ) // todo handle multiple genre in info view
@@ -64,11 +64,11 @@ class SongInfoActions(
 
     fun getSearchTerms(songInfo: SongInfo, fieldType: FieldType): String {
         return when (fieldType) {
-            FieldType.TITLE -> songInfo.title
-            FieldType.ARTIST -> songInfo.artistName
-            FieldType.ALBUM -> songInfo.albumName
-            FieldType.ALBUM_ARTIST -> songInfo.albumArtistName
-            FieldType.GENRE -> songInfo.genreNames.first()
+            is SongFieldType.Title -> songInfo.title
+            is SongFieldType.Artist -> songInfo.artistName
+            is SongFieldType.Album -> songInfo.albumName
+            is SongFieldType.AlbumArtist -> songInfo.albumArtistName
+            is SongFieldType.Genre -> songInfo.genreNames.first()
             else -> throw IllegalArgumentException("This field can't be searched on")
         }
     }
@@ -121,14 +121,14 @@ class SongInfoActions(
 
     override fun getInfoRows(infoSource: SongInfo): List<InfoRow> {
         return listOfNotNull(
-            getSongAction(infoSource, FieldType.TITLE, ActionType.EXPANDABLE_TITLE),
-            getSongAction(infoSource, FieldType.ARTIST, ActionType.EXPANDABLE_TITLE),
-            getSongAction(infoSource, FieldType.TRACK, ActionType.INFO_TITLE),
-            getSongAction(infoSource, FieldType.ALBUM, ActionType.EXPANDABLE_TITLE),
-            getSongAction(infoSource, FieldType.ALBUM_ARTIST, ActionType.EXPANDABLE_TITLE),
-            getSongAction(infoSource, FieldType.GENRE, ActionType.EXPANDABLE_TITLE),
-            getSongAction(infoSource, FieldType.DURATION, ActionType.INFO_TITLE),
-            getSongAction(infoSource, FieldType.YEAR, ActionType.INFO_TITLE)
+            getSongAction(infoSource, SongFieldType.Title(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Artist(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Track(), ActionType.InfoTitle()),
+            getSongAction(infoSource, SongFieldType.Album(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.AlbumArtist(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Genre(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Duration(), ActionType.InfoTitle()),
+            getSongAction(infoSource, SongFieldType.Year(), ActionType.InfoTitle())
         )
     }
 
@@ -137,32 +137,32 @@ class SongInfoActions(
         fieldType: FieldType
     ): List<InfoRow> {
         return when (fieldType) {
-            FieldType.TITLE -> listOfNotNull(
-                getSongAction(infoSource, fieldType, ActionType.ADD_NEXT),
-                getSongAction(infoSource, fieldType, ActionType.ADD_TO_PLAYLIST),
-                getSongAction(infoSource, fieldType, ActionType.ADD_TO_FILTER),
-                getSongAction(infoSource, fieldType, ActionType.SEARCH),
+            is SongFieldType.Title -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddNext()),
+                getSongAction(infoSource, fieldType, SongActionType.AddToPlaylist()),
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search()),
                 if (infoSource.local == null) {
-                    getSongAction(infoSource, fieldType, ActionType.DOWNLOAD)
+                    getSongAction(infoSource, fieldType, SongActionType.Download())
                 } else {
-                    getSongAction(infoSource, fieldType, ActionType.NONE)
+                    getSongAction(infoSource, fieldType, ActionType.None())
                 }
             )
-            FieldType.ARTIST -> listOfNotNull(
-                getSongAction(infoSource, fieldType, ActionType.ADD_TO_FILTER),
-                getSongAction(infoSource, fieldType, ActionType.SEARCH)
+            is SongFieldType.Artist -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
             )
-            FieldType.ALBUM -> listOfNotNull(
-                getSongAction(infoSource, fieldType, ActionType.ADD_TO_FILTER),
-                getSongAction(infoSource, fieldType, ActionType.SEARCH)
+            is SongFieldType.Album -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
             )
-            FieldType.ALBUM_ARTIST -> listOfNotNull(
-                getSongAction(infoSource, fieldType, ActionType.ADD_TO_FILTER),
-                getSongAction(infoSource, fieldType, ActionType.SEARCH)
+            is SongFieldType.AlbumArtist -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
             )
-            FieldType.GENRE -> listOfNotNull(
-                getSongAction(infoSource, fieldType, ActionType.ADD_TO_FILTER),
-                getSongAction(infoSource, fieldType, ActionType.SEARCH)
+            is SongFieldType.Genre -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
             )
             else -> listOf()
         }
@@ -173,7 +173,9 @@ class SongInfoActions(
         field: FieldType,
         action: ActionType
     ): InfoRow? {
-        val order = getQuickActions().indexOfFirst { it.actionType == action && it.fieldType == field}.takeIf { it >= 0 }
+        val order =
+            getQuickActions().indexOfFirst { it.actionType == action && it.fieldType == field }
+                .takeIf { it >= 0 }
         return getSongAction(songInfo, field, action, order)
     }
 
@@ -184,227 +186,227 @@ class SongInfoActions(
         order: Int?
     ): InfoRow? {
         return when (action) {
-            ActionType.EXPANDABLE_TITLE -> when (field) {
-                FieldType.TITLE -> InfoRow(
+            is ActionType.ExpandableTitle -> when (field) {
+                is SongFieldType.Title -> InfoRow(
                     R.string.info_title,
                     songInfo.title,
                     null,
-                    FieldType.TITLE,
-                    ActionType.EXPANDABLE_TITLE,
+                    SongFieldType.Title(),
+                    ActionType.ExpandableTitle(),
                     order
                 )
-                FieldType.ARTIST -> InfoRow(
+                is SongFieldType.Artist -> InfoRow(
                     R.string.info_artist,
                     songInfo.artistName,
                     null,
-                    FieldType.ARTIST,
-                    ActionType.EXPANDABLE_TITLE,
+                    SongFieldType.Artist(),
+                    ActionType.ExpandableTitle(),
                     order
                 )
-                FieldType.ALBUM -> InfoRow(
+                is SongFieldType.Album -> InfoRow(
                     R.string.info_album,
                     songInfo.albumName,
                     null,
-                    FieldType.ALBUM,
-                    ActionType.EXPANDABLE_TITLE,
+                    SongFieldType.Album(),
+                    ActionType.ExpandableTitle(),
                     order
                 )
-                FieldType.ALBUM_ARTIST -> InfoRow(
+                is SongFieldType.AlbumArtist -> InfoRow(
                     R.string.info_album_artist,
                     songInfo.albumArtistName,
                     null,
-                    FieldType.ALBUM_ARTIST,
-                    ActionType.EXPANDABLE_TITLE,
+                    SongFieldType.AlbumArtist(),
+                    ActionType.ExpandableTitle(),
                     order
                 )
-                FieldType.GENRE -> InfoRow(
+                is SongFieldType.Genre -> InfoRow(
                     R.string.info_genre,
                     songInfo.genreNames.first(),
                     null,
-                    FieldType.GENRE,
-                    ActionType.EXPANDABLE_TITLE,
+                    SongFieldType.Genre(),
+                    ActionType.ExpandableTitle(),
                     order
                 )
                 else -> null
             }
-            ActionType.EXPANDED_TITLE -> when (field) {
-                FieldType.TITLE -> InfoRow(
+            is ActionType.ExpandedTitle -> when (field) {
+                is SongFieldType.Title -> InfoRow(
                     R.string.info_title,
                     songInfo.title,
                     null,
-                    FieldType.TITLE,
-                    ActionType.EXPANDED_TITLE,
+                    SongFieldType.Title(),
+                    ActionType.ExpandedTitle(),
                     order
                 )
-                FieldType.ARTIST -> InfoRow(
+                is SongFieldType.Artist -> InfoRow(
                     R.string.info_artist,
                     songInfo.artistName,
                     null,
-                    FieldType.ARTIST,
-                    ActionType.EXPANDED_TITLE,
+                    SongFieldType.Artist(),
+                    ActionType.ExpandedTitle(),
                     order
                 )
-                FieldType.ALBUM -> InfoRow(
+                is SongFieldType.Album -> InfoRow(
                     R.string.info_album,
                     songInfo.albumName,
                     null,
-                    FieldType.ALBUM,
-                    ActionType.EXPANDED_TITLE,
+                    SongFieldType.Album(),
+                    ActionType.ExpandedTitle(),
                     order
                 )
-                FieldType.ALBUM_ARTIST -> InfoRow(
+                is SongFieldType.AlbumArtist -> InfoRow(
                     R.string.info_album_artist,
                     songInfo.albumArtistName,
                     null,
-                    FieldType.ALBUM_ARTIST,
-                    ActionType.EXPANDED_TITLE,
+                    SongFieldType.AlbumArtist(),
+                    ActionType.ExpandedTitle(),
                     order
                 )
-                FieldType.GENRE -> InfoRow(
+                is SongFieldType.Genre -> InfoRow(
                     R.string.info_genre,
                     songInfo.genreNames.first(),
                     null,
-                    FieldType.GENRE,
-                    ActionType.EXPANDED_TITLE,
+                    SongFieldType.Genre(),
+                    ActionType.ExpandedTitle(),
                     order
                 )
                 else -> null
             }
-            ActionType.INFO_TITLE -> when (field) {
-                FieldType.TRACK -> InfoRow(
+            is ActionType.InfoTitle -> when (field) {
+                is SongFieldType.Track -> InfoRow(
                     R.string.info_track,
                     songInfo.track.toString(),
                     null,
-                    FieldType.TRACK,
-                    ActionType.INFO_TITLE,
+                    SongFieldType.Track(),
+                    ActionType.InfoTitle(),
                     order
                 )
-                FieldType.DURATION -> InfoRow(
+                is SongFieldType.Duration -> InfoRow(
                     R.string.info_duration,
                     songInfo.timeText,
                     null,
-                    FieldType.DURATION,
-                    ActionType.INFO_TITLE,
+                    SongFieldType.Duration(),
+                    ActionType.InfoTitle(),
                     order
                 )
-                FieldType.YEAR -> InfoRow(
+                is SongFieldType.Year -> InfoRow(
                     R.string.info_year,
                     songInfo.year.toString(),
                     null,
-                    FieldType.YEAR,
-                    ActionType.INFO_TITLE,
+                    SongFieldType.Year(),
+                    ActionType.InfoTitle(),
                     order
                 )
                 else -> null
             }
-            ActionType.NONE -> if (field == FieldType.TITLE) InfoRow(
+            is ActionType.None -> if (field is SongFieldType.Title) InfoRow(
                 R.string.info_action_downloaded,
                 null,
                 R.string.info_action_downloaded_description,
-                FieldType.TITLE,
-                ActionType.NONE,
+                SongFieldType.Title(),
+                ActionType.None(),
                 order
             ) else null
-            ActionType.ADD_TO_FILTER -> when (field) {
-                FieldType.TITLE -> InfoRow(
+            is SongActionType.AddToFilter -> when (field) {
+                is SongFieldType.Title -> InfoRow(
                     R.string.info_action_filter_title,
                     songInfo.title,
                     R.string.info_action_filter_on,
-                    FieldType.TITLE,
-                    ActionType.ADD_TO_FILTER,
+                    SongFieldType.Title(),
+                    SongActionType.AddToFilter(),
                     order
                 )
-                FieldType.ARTIST -> InfoRow(
+                is SongFieldType.Artist -> InfoRow(
                     R.string.info_action_filter_title,
                     songInfo.artistName,
                     R.string.info_action_filter_on,
-                    FieldType.ARTIST,
-                    ActionType.ADD_TO_FILTER,
+                    SongFieldType.Artist(),
+                    SongActionType.AddToFilter(),
                     order
                 )
-                FieldType.ALBUM -> InfoRow(
+                is SongFieldType.Album -> InfoRow(
                     R.string.info_action_filter_title,
                     songInfo.albumName,
                     R.string.info_action_filter_on,
-                    FieldType.ALBUM,
-                    ActionType.ADD_TO_FILTER,
+                    SongFieldType.Album(),
+                    SongActionType.AddToFilter(),
                     order
                 )
-                FieldType.ALBUM_ARTIST -> InfoRow(
+                is SongFieldType.AlbumArtist -> InfoRow(
                     R.string.info_action_filter_title,
                     songInfo.albumArtistName,
                     R.string.info_action_filter_on,
-                    FieldType.ALBUM_ARTIST,
-                    ActionType.ADD_TO_FILTER,
+                    SongFieldType.AlbumArtist(),
+                    SongActionType.AddToFilter(),
                     order
                 )
-                FieldType.GENRE -> InfoRow(
+                is SongFieldType.Genre -> InfoRow(
                     R.string.info_action_filter_title,
                     songInfo.genreNames.first(),
                     R.string.info_action_filter_on,
-                    FieldType.GENRE,
-                    ActionType.ADD_TO_FILTER,
+                    SongFieldType.Genre(),
+                    SongActionType.AddToFilter(),
                     order
                 )
                 else -> null
             }
-            ActionType.ADD_TO_PLAYLIST -> if (field == FieldType.TITLE) InfoRow(
+            is SongActionType.AddToPlaylist -> if (field is SongFieldType.Title) InfoRow(
                 R.string.info_action_add_to_playlist,
                 null,
                 R.string.info_action_add_to_playlist_detail,
-                FieldType.TITLE,
-                ActionType.ADD_TO_PLAYLIST,
+                SongFieldType.Title(),
+                SongActionType.AddToPlaylist(),
                 order
             ) else null
-            ActionType.ADD_NEXT -> if (field == FieldType.TITLE) InfoRow(
+            is SongActionType.AddNext -> if (field is SongFieldType.Title) InfoRow(
                 R.string.info_action_next_title,
                 null,
                 R.string.info_action_track_next,
-                FieldType.TITLE,
-                ActionType.ADD_NEXT,
+                SongFieldType.Title(),
+                SongActionType.AddNext(),
                 order
             ) else null
-            ActionType.SEARCH -> when (field) {
-                FieldType.TITLE -> InfoRow(
+            is SongActionType.Search -> when (field) {
+                is SongFieldType.Title -> InfoRow(
                     R.string.info_action_search_title,
                     songInfo.title,
                     R.string.info_action_search_on,
-                    FieldType.TITLE,
-                    ActionType.SEARCH,
+                    SongFieldType.Title(),
+                    SongActionType.Search(),
                     order
                 )
-                FieldType.ARTIST -> InfoRow(
+                is SongFieldType.Artist -> InfoRow(
                     R.string.info_action_search_title,
                     songInfo.artistName,
                     R.string.info_action_search_on,
-                    FieldType.ARTIST,
-                    ActionType.SEARCH,
+                    SongFieldType.Artist(),
+                    SongActionType.Search(),
                     order
                 )
-                FieldType.ALBUM -> InfoRow(
+                is SongFieldType.Album -> InfoRow(
                     R.string.info_action_search_title,
                     songInfo.albumName,
                     R.string.info_action_search_on,
-                    FieldType.ALBUM,
-                    ActionType.SEARCH,
+                    SongFieldType.Album(),
+                    SongActionType.Search(),
                     order
                 )
-                FieldType.ALBUM_ARTIST -> InfoRow(
+                is SongFieldType.AlbumArtist -> InfoRow(
                     R.string.info_action_search_title,
                     songInfo.albumArtistName,
                     R.string.info_action_search_on,
-                    FieldType.ALBUM_ARTIST,
-                    ActionType.SEARCH,
+                    SongFieldType.AlbumArtist(),
+                    SongActionType.Search(),
                     order
                 )
                 else -> null
             }
-            ActionType.DOWNLOAD -> if (field == FieldType.TITLE) InfoRow(
+            is SongActionType.Download -> if (field is SongFieldType.Title) InfoRow(
                 R.string.info_action_download,
                 null,
                 R.string.info_action_download_description,
-                FieldType.TITLE,
-                ActionType.DOWNLOAD,
+                SongFieldType.Title(),
+                SongActionType.Download(),
                 order
             ) else null
         }
@@ -416,13 +418,13 @@ class SongInfoActions(
             sharedPreferences.edit()
                 .putString(
                     QUICK_ACTIONS_PREF_NAME,
-                    quickActions.joinToString(separator = "#") { "${it.fieldType}|${it.actionType}" }
+                    quickActions.joinToString(separator = "#") { "${it.fieldType.javaClass.name}|${it.actionType.javaClass.name}" }
                 )
                 .apply()
         } else {
             val originalString = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "")
             sharedPreferences.edit()
-                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#$fieldType|$actionType")
+                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#${fieldType.javaClass.name}|${actionType.javaClass.name}")
                 .apply()
         }
     }
@@ -435,9 +437,17 @@ class SongInfoActions(
             val fieldTypeString = it.substringBefore('|')
             val actionTypeString = it.substringAfter('|')
 
-            val fieldType = FieldType.valueOf(fieldTypeString)
-            val actionType = ActionType.valueOf(actionTypeString)
-            getSongAction(songInfo, fieldType, actionType, index)
-        }.reversed()
+            val fieldType = SongFieldType.getClassFromName(fieldTypeString)
+            if (fieldType != null) {
+                val actionType = SongActionType.getClassFromName(actionTypeString)
+                if (actionType != null) {
+                    getSongAction(songInfo, fieldType, actionType, index)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
     }
 }

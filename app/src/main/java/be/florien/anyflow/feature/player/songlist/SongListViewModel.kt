@@ -129,13 +129,16 @@ class SongListViewModel
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
     fun executeSongAction(songInfo: SongInfo, actionType: InfoActions.ActionType, fieldType: InfoActions.FieldType) {
+        if (fieldType !is InfoActions.SongFieldType) {
+            return
+        }
         viewModelScope.launch {
             when (actionType) {
-                InfoActions.ActionType.ADD_NEXT -> songInfoActions.playNext(songInfo.id)
-                InfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList(songInfo.id)
-                InfoActions.ActionType.ADD_TO_FILTER -> songInfoActions.filterOn(songInfo, fieldType)
-                InfoActions.ActionType.SEARCH -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
-                InfoActions.ActionType.DOWNLOAD -> songInfoActions.download(songInfo)
+                is InfoActions.SongActionType.AddNext -> songInfoActions.playNext(songInfo.id)
+                is InfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songInfo.id)
+                is InfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, fieldType)
+                is InfoActions.SongActionType.Search -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
+                is InfoActions.SongActionType.Download -> songInfoActions.download(songInfo)
                 else -> return@launch
             }
         }

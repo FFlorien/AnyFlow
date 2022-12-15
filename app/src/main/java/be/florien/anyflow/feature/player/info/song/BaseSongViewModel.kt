@@ -19,7 +19,7 @@ abstract class BaseSongViewModel(
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
     sharedPreferences: SharedPreferences
-): InfoViewModel<SongInfo>() {
+) : InfoViewModel<SongInfo>() {
     val songInfo: LiveData<SongInfo> = MutableLiveData()
     val songArt: LiveData<String> = MutableLiveData()
     var song: SongInfo = SongInfo.dummySongInfo()
@@ -31,6 +31,12 @@ abstract class BaseSongViewModel(
                 updateRows()
             }
         }
-    override val infoActions= SongInfoActions(context.contentResolver, filtersManager, orderComposer, dataRepository, sharedPreferences)
+    override val infoActions = SongInfoActions(
+        context.contentResolver,
+        filtersManager,
+        orderComposer,
+        dataRepository,
+        sharedPreferences
+    )
 
 }

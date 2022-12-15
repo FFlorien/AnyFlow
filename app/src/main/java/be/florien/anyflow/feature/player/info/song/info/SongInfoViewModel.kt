@@ -35,18 +35,22 @@ class SongInfoViewModel @Inject constructor(
         fieldType: InfoActions.FieldType,
         actionType: InfoActions.ActionType
     ) {
+        if (fieldType !is InfoActions.SongFieldType || actionType !is InfoActions.SongActionType) {
+            return
+        }
+
         viewModelScope.launch {
             when (actionType) {
-                InfoActions.ActionType.ADD_NEXT -> infoActions.playNext(song.id)
-                InfoActions.ActionType.ADD_TO_PLAYLIST -> displayPlaylistList()
-                InfoActions.ActionType.ADD_TO_FILTER -> infoActions.filterOn(
+                is InfoActions.SongActionType.AddNext -> infoActions.playNext(song.id)
+                is InfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
+                is InfoActions.SongActionType.AddToFilter -> infoActions.filterOn(
                     song,
                     fieldType
                 )
-                InfoActions.ActionType.SEARCH -> searchTerm.mutable.value =
+                is InfoActions.SongActionType.Search -> searchTerm.mutable.value =
                     infoActions.getSearchTerms(song, fieldType)
-                InfoActions.ActionType.DOWNLOAD -> infoActions.download(song)
-                InfoActions.ActionType.NONE, InfoActions.ActionType.INFO_TITLE, InfoActions.ActionType.EXPANDABLE_TITLE, InfoActions.ActionType.EXPANDED_TITLE -> return@launch
+                is InfoActions.SongActionType.Download -> infoActions.download(song)
+                else -> return@launch
             }
         }
     }
