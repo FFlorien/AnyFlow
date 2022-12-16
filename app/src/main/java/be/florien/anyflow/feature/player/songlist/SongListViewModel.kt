@@ -13,7 +13,7 @@ import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.info.InfoActions
-import be.florien.anyflow.feature.player.info.song.info.SongInfoActions
+import be.florien.anyflow.feature.player.info.song.SongInfoActions
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer

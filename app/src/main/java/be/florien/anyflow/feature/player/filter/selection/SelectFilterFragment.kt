@@ -24,7 +24,7 @@ import be.florien.anyflow.feature.menu.implementation.SearchMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectAllMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectNoneMenuHolder
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
-import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
+import be.florien.anyflow.feature.player.filter.FilterActions
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ARTIST_ID
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.DOWNLOAD_ID
@@ -45,7 +45,7 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         private const val FILTER_TYPE = "TYPE"
     }
 
-    override val baseViewModel: BaseFilterViewModel
+    override val filterActions: FilterActions
         get() = viewModel
     lateinit var viewModel: SelectFilterViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding

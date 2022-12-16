@@ -4,15 +4,16 @@ import androidx.lifecycle.*
 import androidx.paging.PagingData
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
+import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.player.filter.FilterActions
 import be.florien.anyflow.player.FiltersManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
-    BaseFilterViewModel(filtersManager) {
+abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
+    BaseViewModel(), FilterActions {
     private var searchJob: Job? = null
 
     abstract val itemDisplayType: Int
@@ -54,6 +55,27 @@ abstract class SelectFilterViewModel(filtersManager: FiltersManager) :
                 deleteSearch()
             }
         }
+    }
+
+    override val filtersManager: FiltersManager
+        get() = filterActions.filtersManager
+    override val areFiltersInEdition: LiveData<Boolean>
+        get() = filterActions.areFiltersInEdition
+    override val currentFilters: LiveData<List<Filter<*>>>
+        get() = filterActions.currentFilters
+    override val hasChangeFromCurrentFilters: LiveData<Boolean>
+        get() = filterActions.hasChangeFromCurrentFilters
+
+    override suspend fun confirmChanges() {
+        filterActions.confirmChanges()
+    }
+
+    override fun cancelChanges() {
+        filterActions.cancelChanges()
+    }
+
+    override suspend fun saveFilterGroup(name: String) {
+        filterActions.saveFilterGroup(name)
     }
 
     fun toggleFilterSelection(filterValue: FilterItem) {

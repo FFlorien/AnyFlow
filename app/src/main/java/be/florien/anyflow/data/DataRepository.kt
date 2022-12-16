@@ -330,7 +330,8 @@ class DataRepository
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters()
         .map { filterList ->
-            filterList.map { filter -> filter.toViewFilter(filterList)
+            filterList.map { filter ->
+                filter.toViewFilter(filterList)
             }
         }
 
@@ -352,6 +353,15 @@ class DataRepository
 
     fun hasDownloaded(song: SongInfo): Boolean =
         downloadManager.downloadIndex.getDownload(getSongUrl(song.id)) != null
+
+    /**
+     * Infos
+     */
+
+    suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterCount {
+        val filterList = infoSource?.let { listOf(it) } ?: emptyList()
+        return libraryDatabase.getCountFromQuery(getQueryForCount(filterList)).toViewFilterCount()
+    }
 
     /**
      * Private Method : New data
@@ -573,9 +583,25 @@ class DataRepository
                 constructOrderStatement()
     }
 
+    private fun getQueryForCount(filterList: List<Filter<*>>) = "SELECT " +
+            "SUM(Song.time) AS duration, " +
+            "COUNT(DISTINCT SongGenre.genreId) AS genres, " +
+            "COUNT(DISTINCT Album.artistid) AS albumArtists, " +
+            "COUNT(DISTINCT Song.albumId) AS albums, " +
+            "COUNT(DISTINCT Song.artistId) AS artists, " +
+            "COUNT(Song.id) AS songs, " +
+            "COUNT(DISTINCT PlaylistSongs.playlistId) AS playlists " +
+            "FROM Song " +
+            "LEFT JOIN SongGenre ON Song.id = SongGenre.songId " +
+            "JOIN Album ON Song.albumId = Album.id " +
+            "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
+            constructJoinStatement(filterList) +
+            constructWhereStatement(filterList)
+
+
     private fun constructJoinStatement( //todo traversal of children
         filterList: List<Filter<*>>,
-        orderList: List<Order>
+        orderList: List<Order> = emptyList()
     ): String {
         if (filterList.isEmpty() && orderList.isEmpty()) {
             return " "

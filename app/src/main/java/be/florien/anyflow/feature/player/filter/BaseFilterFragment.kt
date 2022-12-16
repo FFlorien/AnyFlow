@@ -4,18 +4,22 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.ConfirmMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
+import kotlinx.coroutines.launch
 
 abstract class BaseFilterFragment : BaseFragment() {
 
     protected val menuCoordinator = MenuCoordinator()
-    protected abstract val baseViewModel: BaseFilterViewModel
+    protected abstract val filterActions: FilterActions
 
     private val confirmMenuHolder = ConfirmMenuHolder {
-        baseViewModel.confirmChanges()
+        lifecycleScope.launch {
+            filterActions.confirmChanges()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,10 +30,10 @@ abstract class BaseFilterFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        baseViewModel.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
+        filterActions.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
             confirmMenuHolder.isEnabled = it == true
         }
-        baseViewModel.areFiltersInEdition.observe(viewLifecycleOwner) {
+        filterActions.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
                 (requireActivity() as PlayerActivity).displaySongList()
             }
@@ -44,7 +48,7 @@ abstract class BaseFilterFragment : BaseFragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menuCoordinator.prepareMenus(menu)
-        confirmMenuHolder.isEnabled = baseViewModel.hasChangeFromCurrentFilters.value == true
+        confirmMenuHolder.isEnabled = filterActions.hasChangeFromCurrentFilters.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

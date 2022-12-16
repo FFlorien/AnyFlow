@@ -6,9 +6,9 @@ import be.florien.anyflow.R
 
 abstract class InfoActions<T> {
 
-    abstract fun getInfoRows(infoSource: T): List<InfoRow>
+    abstract suspend fun getInfoRows(infoSource: T): List<InfoRow>
 
-    abstract fun getActionsRows(
+    abstract suspend fun getActionsRows(
         infoSource: T,
         fieldType: FieldType
     ): List<InfoRow>
@@ -103,10 +103,6 @@ abstract class InfoActions<T> {
 
         companion object {
             fun getClassFromName(name: String) = when (name) {
-                None().javaClass.name -> None()
-                InfoTitle().javaClass.name -> InfoTitle()
-                ExpandableTitle().javaClass.name -> ExpandableTitle()
-                ExpandedTitle().javaClass.name -> ExpandedTitle()
                 AddToFilter().javaClass.name -> AddToFilter()
                 AddToPlaylist().javaClass.name -> AddToPlaylist()
                 AddNext().javaClass.name -> AddNext()
@@ -115,5 +111,25 @@ abstract class InfoActions<T> {
                 else -> null
             }
         }
+    }
+
+    sealed class FilterFieldType(
+        @DrawableRes
+        iconRes: Int
+    ) : FieldType (iconRes) {
+        class Duration : FilterFieldType(R.drawable.ic_genre) //todo icon
+        class Genre : FilterFieldType(R.drawable.ic_genre)
+        class AlbumArtist : FilterFieldType(R.drawable.ic_album_artist)
+        class Album : FilterFieldType(R.drawable.ic_album)
+        class Artist : FilterFieldType(R.drawable.ic_artist)
+        class Song : FilterFieldType(R.drawable.ic_song)
+        class Playlist : FilterFieldType(R.drawable.ic_playlist)
+    }
+
+    sealed class FilterActionType(
+        @DrawableRes
+        iconRes: Int
+    ) : ActionType(iconRes) {
+        class SubFilter : SongActionType(R.drawable.ic_filter)
     }
 }

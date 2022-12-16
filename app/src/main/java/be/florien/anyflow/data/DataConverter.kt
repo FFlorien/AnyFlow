@@ -3,6 +3,8 @@ package be.florien.anyflow.data
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.view.*
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 /**
@@ -151,6 +153,16 @@ fun DbAlarm.toViewAlarm() = Alarm(
     isRepeating = monday || tuesday || wednesday || thursday || friday || saturday || sunday,
     daysToTrigger = listOf(monday, tuesday, wednesday, thursday, friday, saturday, sunday),
     active = active
+)
+
+fun DbFilterCount.toViewFilterCount() = FilterCount(
+    duration = duration.toDuration(DurationUnit.SECONDS),
+    genres = genres.takeIf { it > 1 },
+    albumArtists = albumArtists.takeIf { it > 1 },
+    albums = albums.takeIf { it > 1 },
+    artists = artists.takeIf { it > 1 },
+    songs = songs.takeIf { it > 1 },
+    playlists = playlists.takeIf { it > 1 }
 )
 
 /**

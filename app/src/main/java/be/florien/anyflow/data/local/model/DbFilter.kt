@@ -38,3 +38,13 @@ data class DbFilter(
         const val NOT_DOWNLOADED = "song.local IS NULL"
     }
 }
+
+data class DbFilterCount(
+    val duration: Int,
+    val genres: Int,
+    val albumArtists: Int,
+    val albums: Int,
+    val artists: Int,
+    val songs: Int,
+    val playlists: Int
+)

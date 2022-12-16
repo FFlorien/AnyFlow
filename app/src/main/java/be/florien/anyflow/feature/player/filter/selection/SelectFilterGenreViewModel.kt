@@ -3,15 +3,15 @@ package be.florien.anyflow.feature.player.filter.selection
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbGenre
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.player.FiltersManager
+import be.florien.anyflow.feature.player.filter.FilterActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SelectFilterGenreViewModel @Inject constructor(
     private val dataRepository: DataRepository,
-    filtersManager: FiltersManager
-) : SelectFilterViewModel(filtersManager) {
+    filterActions: FilterActions
+) : SelectFilterViewModel(filterActions) {
     override val itemDisplayType = ITEM_LIST
 
     override fun getUnfilteredPagingList() = dataRepository.getGenres(::convert)

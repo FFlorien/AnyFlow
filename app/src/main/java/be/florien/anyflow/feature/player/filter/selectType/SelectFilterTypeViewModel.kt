@@ -1,41 +1,64 @@
 package be.florien.anyflow.feature.player.filter.selectType
 
-import be.florien.anyflow.R
-import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
+import androidx.lifecycle.LiveData
+import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.feature.player.filter.FilterActions
+import be.florien.anyflow.feature.player.info.InfoActions
+import be.florien.anyflow.feature.player.info.InfoViewModel
+import be.florien.anyflow.feature.player.info.filter.FilterInfoActions
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
-class SelectFilterTypeViewModel @Inject constructor(filtersManager: FiltersManager) : BaseFilterViewModel(filtersManager) {
-    private val genreName = R.string.filter_type_genre
-    private val artistName = R.string.filter_type_album_artist
-    private val albumName = R.string.filter_type_album
-    private val songName = R.string.filter_type_song
-    private val playlistName = R.string.filter_type_playlist
-    private val downloadedName = R.string.filter_is_downloaded
+class SelectFilterTypeViewModel @Inject constructor(
+    private val filterActions: FilterActions,
+    dataRepository: DataRepository
+) : InfoViewModel<Filter<*>?>(), FilterActions {
 
-    val filtersIds = listOf(
-            GENRE_ID,
-            ARTIST_ID,
-            ALBUM_ID,
-            SONG_ID,
-            PLAYLIST_ID,
-            DOWNLOAD_ID)
+    var filter: Filter<*>? = null
+        set(value) {
+            field = value
+            updateRows()
+        }
 
-    val filtersNames = listOf(
-            genreName,
-            artistName,
-            albumName,
-            songName,
-            playlistName,
-            downloadedName)
+    override val infoActions: InfoActions<Filter<*>?> = FilterInfoActions(dataRepository)
 
-    val filtersImages = listOf(
-            R.drawable.ic_genre,
-            R.drawable.ic_album_artist,
-            R.drawable.ic_album,
-            R.drawable.ic_song,
-            R.drawable.ic_playlist,
-            R.drawable.ic_download)
+    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
+        infoActions.getInfoRows(filter).toMutableList()
+
+    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
+        infoActions.getActionsRows(filter, field)
+
+    override fun executeInfoAction(
+        fieldType: InfoActions.FieldType,
+        actionType: InfoActions.ActionType
+    ) {
+        //todo
+    }
+
+    override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
+        initialList
+
+    override val filtersManager: FiltersManager
+        get() = filterActions.filtersManager
+    override val areFiltersInEdition: LiveData<Boolean>
+        get() = filterActions.areFiltersInEdition
+    override val currentFilters: LiveData<List<Filter<*>>>
+        get() = filterActions.currentFilters
+    override val hasChangeFromCurrentFilters: LiveData<Boolean>
+        get() = filterActions.hasChangeFromCurrentFilters
+
+    override suspend fun confirmChanges() {
+        filterActions.confirmChanges()
+    }
+
+    override fun cancelChanges() {
+        filterActions.cancelChanges()
+    }
+
+    override suspend fun saveFilterGroup(name: String) {
+        filterActions.saveFilterGroup(name)
+    }
 
     companion object {
         const val GENRE_ID = "Genre"

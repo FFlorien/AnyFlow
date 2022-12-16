@@ -28,7 +28,7 @@ import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.details.*
 import be.florien.anyflow.feature.player.info.InfoActions
-import be.florien.anyflow.feature.player.info.song.info.SongInfoFragment
+import be.florien.anyflow.feature.player.info.song.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ActivityScope
 import kotlinx.coroutines.flow.collectLatest

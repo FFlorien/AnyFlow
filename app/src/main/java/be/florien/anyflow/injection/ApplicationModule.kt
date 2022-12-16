@@ -17,6 +17,9 @@ import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
+import be.florien.anyflow.feature.player.filter.FilterActions
+import be.florien.anyflow.feature.player.filter.FilterActionsHelper
+import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.PlayerService
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
@@ -44,23 +47,35 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun providePreferences(context: Context): SharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+    fun providePreferences(context: Context): SharedPreferences =
+        context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 
     @Singleton
     @Provides
-    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build()
+    fun provideOkHttp(): OkHttpClient =
+        OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build()
 
     @Singleton
     @Provides
-    fun provideAuthPersistence(preferences: SharedPreferences, context: Context): AuthPersistence = AuthPersistenceKeystore(preferences, context)
+    fun provideAuthPersistence(preferences: SharedPreferences, context: Context): AuthPersistence =
+        AuthPersistenceKeystore(preferences, context)
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(authPersistence: AuthPersistence, context: Context, sharedPreferences: SharedPreferences): AmpacheDataSource =
-            AmpacheDataSource(authPersistence, (context.applicationContext as AnyFlowApp), sharedPreferences)
+    fun provideAmpacheConnection(
+        authPersistence: AuthPersistence,
+        context: Context,
+        sharedPreferences: SharedPreferences
+    ): AmpacheDataSource =
+        AmpacheDataSource(
+            authPersistence,
+            (context.applicationContext as AnyFlowApp),
+            sharedPreferences
+        )
 
     @Provides
-    fun provideAmpacheConnectionStatus(connection: AmpacheDataSource): LiveData<AmpacheDataSource.ConnectionStatus> = connection.connectionStatusUpdater
+    fun provideAmpacheConnectionStatus(connection: AmpacheDataSource): LiveData<AmpacheDataSource.ConnectionStatus> =
+        connection.connectionStatusUpdater
 
     @Singleton
     @Provides
@@ -68,30 +83,38 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideCacheDataBaseProvider(context: Context): ExoDatabaseProvider = ExoDatabaseProvider(context)
+    fun provideCacheDataBaseProvider(context: Context): ExoDatabaseProvider =
+        ExoDatabaseProvider(context)
 
     @Singleton
     @Provides
     fun provideCache(context: Context, dbProvider: ExoDatabaseProvider): Cache = SimpleCache(
-            context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
-            NoOpCacheEvictor(),
-            dbProvider)
+        context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
+        NoOpCacheEvictor(),
+        dbProvider
+    )
 
     @Singleton
     @Provides
-    fun provideDownloadManager(context: Context, databaseProvider: ExoDatabaseProvider, cache: Cache): DownloadManager {
+    fun provideDownloadManager(
+        context: Context,
+        databaseProvider: ExoDatabaseProvider,
+        cache: Cache
+    ): DownloadManager {
         val dataSourceFactory = DefaultHttpDataSource.Factory()
         val downloadExecutor = Executor { obj: Runnable -> obj.run() }
         return DownloadManager(
-                context,
-                databaseProvider,
-                cache,
-                dataSourceFactory,
-                downloadExecutor)
+            context,
+            databaseProvider,
+            cache,
+            dataSourceFactory,
+            downloadExecutor
+        )
     }
 
     @Provides
-    fun provideAlarmManager(context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    fun provideAlarmManager(context: Context): AlarmManager =
+        context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @Provides
     @Named("player")
@@ -99,9 +122,19 @@ class ApplicationModule {
         val intent = Intent(context, PlayerService::class.java)
         intent.action = "ALARM"
         if (Build.VERSION.SDK_INT >= 26) {
-            return PendingIntent.getForegroundService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getForegroundService(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
-        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getService(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     @Provides
@@ -112,9 +145,18 @@ class ApplicationModule {
     }
 
     @Provides
-    fun provideAlarmsSynchronizer(alarmManager: AlarmManager, dataRepository: DataRepository, @Named("player") playerIntent: PendingIntent, @Named("alarm") alarmIntent: PendingIntent): AlarmsSynchronizer = AlarmsSynchronizer(alarmManager, dataRepository, alarmIntent, playerIntent)
+    fun provideAlarmsSynchronizer(
+        alarmManager: AlarmManager,
+        dataRepository: DataRepository,
+        @Named("player") playerIntent: PendingIntent,
+        @Named("alarm") alarmIntent: PendingIntent
+    ): AlarmsSynchronizer =
+        AlarmsSynchronizer(alarmManager, dataRepository, alarmIntent, playerIntent)
 
     @Provides
-    fun provideAudioManager(context: Context) = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    fun provideAudioManager(context: Context) =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+    @Provides
+    fun provideFiltersScreen(filtersManager: FiltersManager): FilterActions = FilterActionsHelper(filtersManager)
 }

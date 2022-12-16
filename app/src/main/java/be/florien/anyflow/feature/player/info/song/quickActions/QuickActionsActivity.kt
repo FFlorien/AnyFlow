@@ -11,8 +11,8 @@ import be.florien.anyflow.databinding.ActivityQuickActionsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
-import be.florien.anyflow.feature.player.info.song.info.SongInfoActions
-import be.florien.anyflow.feature.player.info.song.info.SongInfoFragment
+import be.florien.anyflow.feature.player.info.song.SongInfoActions
+import be.florien.anyflow.feature.player.info.song.SongInfoFragment
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
 import be.florien.anyflow.injection.QuickActionsComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder

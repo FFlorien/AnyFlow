@@ -1,6 +1,7 @@
 package be.florien.anyflow.data.view
 
 import be.florien.anyflow.data.DataRepository
+import kotlin.time.Duration
 
 sealed class Filter<T>(
         val argument: T,
@@ -66,3 +67,13 @@ sealed class Filter<T>(
 
     class DownloadedStatusIs(argument: Boolean, childFilters: List<Filter<*>> = emptyList()) : Filter<Boolean>(argument, argument.toString(), childrenFilters = childFilters)
 }
+
+data class FilterCount(
+    val duration: Duration,
+    val genres: Int?,
+    val albumArtists: Int?,
+    val albums: Int?,
+    val artists: Int?,
+    val songs: Int?,
+    val playlists: Int?
+)

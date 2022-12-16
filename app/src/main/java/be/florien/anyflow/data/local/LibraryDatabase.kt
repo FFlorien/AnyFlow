@@ -65,6 +65,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getSongsFromQuery(query: String): List<Long> =
         getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
 
+    suspend fun getCountFromQuery(query: String): DbFilterCount = getFilterDao().getCount(SimpleSQLiteQuery(query))
+
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
 

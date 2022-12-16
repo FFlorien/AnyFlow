@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.info.song.info
+package be.florien.anyflow.feature.player.info.song
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.feature.player.info.InfoActions
-import be.florien.anyflow.feature.player.info.song.BaseSongViewModel
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.launch
@@ -22,6 +21,7 @@ class SongInfoViewModel @Inject constructor(
 ) : BaseSongViewModel(context, filtersManager, orderComposer, dataRepository, sharedPreferences) {
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
+
     override val infoActions = SongInfoActions(
         context.contentResolver,
         filtersManager,
@@ -29,7 +29,6 @@ class SongInfoViewModel @Inject constructor(
         dataRepository,
         sharedPreferences
     )
-
 
     override fun executeInfoAction(
         fieldType: InfoActions.FieldType,
@@ -62,11 +61,10 @@ class SongInfoViewModel @Inject constructor(
         isPlaylistListDisplayed.mutable.value = true
     }
 
-    override fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
+    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
         infoActions.getInfoRows(song).toMutableList()
 
 
-    override fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
+    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(song, field)
-
 }

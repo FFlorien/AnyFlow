@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.info.song.info
+package be.florien.anyflow.feature.player.info.song
 
 import android.content.ContentResolver
 import android.content.ContentValues
@@ -23,14 +23,69 @@ class SongInfoActions(
     private val dataRepository: DataRepository,
     private val sharedPreferences: SharedPreferences
 ) : InfoActions<SongInfo>() {
-    companion object {
-        const val DUMMY_SONG_ID = -5L
-        private const val QUICK_ACTIONS_PREF_NAME = "Quick actions"
+
+    /**
+     * Overridden methods
+     */
+
+    override suspend fun getInfoRows(infoSource: SongInfo): List<InfoRow> {
+        return listOfNotNull(
+            getSongAction(infoSource, SongFieldType.Title(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Artist(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Track(), ActionType.InfoTitle()),
+            getSongAction(infoSource, SongFieldType.Album(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.AlbumArtist(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Genre(), ActionType.ExpandableTitle()),
+            getSongAction(infoSource, SongFieldType.Duration(), ActionType.InfoTitle()),
+            getSongAction(infoSource, SongFieldType.Year(), ActionType.InfoTitle())
+        )
     }
 
-    private var lastSongInfo: SongInfo? = null
+    override suspend fun getActionsRows(
+        infoSource: SongInfo,
+        fieldType: FieldType
+    ): List<InfoRow> {
+        return when (fieldType) {
+            is SongFieldType.Title -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddNext()),
+                getSongAction(infoSource, fieldType, SongActionType.AddToPlaylist()),
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search()),
+                if (infoSource.local == null) {
+                    getSongAction(infoSource, fieldType, SongActionType.Download())
+                } else {
+                    getSongAction(infoSource, fieldType, ActionType.None())
+                }
+            )
+            is SongFieldType.Artist -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
+            )
+            is SongFieldType.Album -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
+            )
+            is SongFieldType.AlbumArtist -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
+            )
+            is SongFieldType.Genre -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
+                getSongAction(infoSource, fieldType, SongActionType.Search())
+            )
+            else -> listOf()
+        }
+    }
+
+    /**
+     * Public methods
+     */
 
     fun getAlbumArtUrl(albumId: Long) = dataRepository.getAlbumArtUrl(albumId)
+
+    /**
+     * Action methods
+     */
 
     suspend fun playNext(songId: Long) {
         orderComposer.changeSongPositionForNext(songId)
@@ -98,8 +153,54 @@ class SongInfoActions(
             throw result.exceptionOrNull() ?: return
         }
         dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
-        lastSongInfo = null
     }
+
+    /**
+     * Quick actions
+     */
+
+    fun toggleQuickAction(fieldType: FieldType, actionType: ActionType) {
+        val quickActions = getQuickActions().toMutableList()
+        if (quickActions.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
+            sharedPreferences.edit()
+                .putString(
+                    QUICK_ACTIONS_PREF_NAME,
+                    quickActions.joinToString(separator = "#") { "${it.fieldType.javaClass.name}|${it.actionType.javaClass.name}" }
+                )
+                .apply()
+        } else {
+            val originalString = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "")
+            sharedPreferences.edit()
+                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#${fieldType.javaClass.name}|${actionType.javaClass.name}")
+                .apply()
+        }
+    }
+
+    fun getQuickActions(): List<InfoRow> {
+        val string = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "") ?: return emptyList()
+        val songInfo = SongInfo.dummySongInfo()
+
+        return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
+            val fieldTypeString = it.substringBefore('|')
+            val actionTypeString = it.substringAfter('|')
+
+            val fieldType = SongFieldType.getClassFromName(fieldTypeString)
+            if (fieldType != null) {
+                val actionType = SongActionType.getClassFromName(actionTypeString)
+                if (actionType != null) {
+                    getSongAction(songInfo, fieldType, actionType, index)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+    }
+
+    /**
+     * Private methods
+     */
 
     private fun getNewSongDetails(songInfo: SongInfo): ContentValues {
         return ContentValues().apply {
@@ -116,55 +217,6 @@ class SongInfoActions(
                 put(MediaStore.Audio.Media.GENRE, songInfo.genreNames.first())
                 put(MediaStore.Audio.Media.YEAR, songInfo.year)
             }
-        }
-    }
-
-    override fun getInfoRows(infoSource: SongInfo): List<InfoRow> {
-        return listOfNotNull(
-            getSongAction(infoSource, SongFieldType.Title(), ActionType.ExpandableTitle()),
-            getSongAction(infoSource, SongFieldType.Artist(), ActionType.ExpandableTitle()),
-            getSongAction(infoSource, SongFieldType.Track(), ActionType.InfoTitle()),
-            getSongAction(infoSource, SongFieldType.Album(), ActionType.ExpandableTitle()),
-            getSongAction(infoSource, SongFieldType.AlbumArtist(), ActionType.ExpandableTitle()),
-            getSongAction(infoSource, SongFieldType.Genre(), ActionType.ExpandableTitle()),
-            getSongAction(infoSource, SongFieldType.Duration(), ActionType.InfoTitle()),
-            getSongAction(infoSource, SongFieldType.Year(), ActionType.InfoTitle())
-        )
-    }
-
-    override fun getActionsRows(
-        infoSource: SongInfo,
-        fieldType: FieldType
-    ): List<InfoRow> {
-        return when (fieldType) {
-            is SongFieldType.Title -> listOfNotNull(
-                getSongAction(infoSource, fieldType, SongActionType.AddNext()),
-                getSongAction(infoSource, fieldType, SongActionType.AddToPlaylist()),
-                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search()),
-                if (infoSource.local == null) {
-                    getSongAction(infoSource, fieldType, SongActionType.Download())
-                } else {
-                    getSongAction(infoSource, fieldType, ActionType.None())
-                }
-            )
-            is SongFieldType.Artist -> listOfNotNull(
-                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
-            )
-            is SongFieldType.Album -> listOfNotNull(
-                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
-            )
-            is SongFieldType.AlbumArtist -> listOfNotNull(
-                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
-            )
-            is SongFieldType.Genre -> listOfNotNull(
-                getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
-            )
-            else -> listOf()
         }
     }
 
@@ -409,45 +461,12 @@ class SongInfoActions(
                 SongActionType.Download(),
                 order
             ) else null
+            is FilterActionType.SubFilter -> null
         }
     }
 
-    fun toggleQuickAction(fieldType: FieldType, actionType: ActionType) {
-        val quickActions = getQuickActions().toMutableList()
-        if (quickActions.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
-            sharedPreferences.edit()
-                .putString(
-                    QUICK_ACTIONS_PREF_NAME,
-                    quickActions.joinToString(separator = "#") { "${it.fieldType.javaClass.name}|${it.actionType.javaClass.name}" }
-                )
-                .apply()
-        } else {
-            val originalString = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "")
-            sharedPreferences.edit()
-                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#${fieldType.javaClass.name}|${actionType.javaClass.name}")
-                .apply()
-        }
-    }
-
-    fun getQuickActions(): List<InfoRow> {
-        val string = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "") ?: return emptyList()
-        val songInfo = SongInfo.dummySongInfo()
-
-        return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
-            val fieldTypeString = it.substringBefore('|')
-            val actionTypeString = it.substringAfter('|')
-
-            val fieldType = SongFieldType.getClassFromName(fieldTypeString)
-            if (fieldType != null) {
-                val actionType = SongActionType.getClassFromName(actionTypeString)
-                if (actionType != null) {
-                    getSongAction(songInfo, fieldType, actionType, index)
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
-        }
+    companion object {
+        const val DUMMY_SONG_ID = -5L
+        private const val QUICK_ACTIONS_PREF_NAME = "Quick actions"
     }
 }

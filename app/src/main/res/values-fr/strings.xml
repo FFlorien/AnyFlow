@@ -109,6 +109,14 @@
     <string name="filter_is_not_downloaded">Non téléchargé</string>
     <string name="quick_actions_description">Sélectionnez les actions que vous voulez retrouver en un clin d\'oeil. Il vous suffira de faire glisser une chanson vers la gauche pour retrouver vos actions préférées.</string>
     <string name="quick_actions_count_title">Actions selectionnées:</string>
+    <string name="filter_info_duration">Durée totale</string>
+    <string name="filter_info_genre">Genres</string>
+    <string name="filter_info_album_artist">Artistes de l\'album</string>
+    <string name="filter_info_album">Albums</string>
+    <string name="filter_info_artist">Artistes</string>
+    <string name="filter_info_song">Chansons</string>
+    <string name="filter_info_playlist">Listes de lecture</string>
+    <string name="filter_info_filter_on">Filtrer dessus</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">%d chanson</item>
         <item quantity="many">%d chansons</item>

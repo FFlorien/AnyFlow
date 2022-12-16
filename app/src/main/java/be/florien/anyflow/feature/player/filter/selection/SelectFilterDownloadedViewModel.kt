@@ -6,14 +6,14 @@ import androidx.paging.PagingData
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.player.FiltersManager
+import be.florien.anyflow.feature.player.filter.FilterActions
 import javax.inject.Inject
 
 class SelectFilterDownloadedViewModel @Inject constructor(
     val dataRepository: DataRepository,
-    filtersManager: FiltersManager,
+    filterActions: FilterActions,
     context: Context
-) : SelectFilterViewModel(filtersManager) {
+) : SelectFilterViewModel(filterActions) {
 
     override val hasSearch = false
     override val itemDisplayType = ITEM_LIST

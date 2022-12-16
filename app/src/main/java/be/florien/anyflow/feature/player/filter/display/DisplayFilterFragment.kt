@@ -23,6 +23,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,17 +35,18 @@ import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
-import be.florien.anyflow.feature.player.filter.BaseFilterViewModel
+import be.florien.anyflow.feature.player.filter.FilterActions
 import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupFragment
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeFragment
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+import kotlinx.coroutines.launch
 
 class DisplayFilterFragment : BaseFilterFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
     private val targets: MutableList<Target<Bitmap>> = mutableListOf()
-    override val baseViewModel: BaseFilterViewModel
+    override val filterActions: FilterActions
         get() = viewModel
     lateinit var viewModel: DisplayFilterViewModel
 
@@ -58,7 +60,9 @@ class DisplayFilterFragment : BaseFilterFragment() {
             .setView(editText)
             .setTitle(R.string.filter_group_name)
             .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                baseViewModel.saveFilterGroup(editText.text.toString())
+                lifecycleScope.launch {
+                    filterActions.saveFilterGroup(editText.text.toString())
+                }
             }
             .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
                 dialog.cancel()
@@ -86,19 +90,27 @@ class DisplayFilterFragment : BaseFilterFragment() {
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
         binding.filterList.adapter = filterListAdapter
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
+            val dividerItemDecoration = DividerItemDecoration(
+                requireActivity(),
+                DividerItemDecoration.VERTICAL
+            ).apply { setDrawable(it) }
             binding
                 .filterList
-                .addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL).apply { setDrawable(it) })
+                .addItemDecoration(dividerItemDecoration)
         }
-        baseViewModel.currentFilters.observe(viewLifecycleOwner) {
+        filterActions.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
-            saveMenuHolder.isVisible = baseViewModel.currentFilters.value?.isNotEmpty() == true
+            saveMenuHolder.isVisible = filterActions.currentFilters.value?.isNotEmpty() == true
         }
         binding.fabSavedFilterGroups.setOnClickListener {
             requireActivity()
                 .supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.container, SavedFilterGroupFragment(), SavedFilterGroupFragment::class.java.simpleName)
+                .replace(
+                    R.id.container,
+                    SavedFilterGroupFragment(),
+                    SavedFilterGroupFragment::class.java.simpleName
+                )
                 .addToBackStack(null)
                 .commit()
         }
@@ -130,7 +142,11 @@ class DisplayFilterFragment : BaseFilterFragment() {
                         requireActivity()
                             .supportFragmentManager
                             .beginTransaction()
-                            .replace(R.id.container, SelectFilterTypeFragment(), SelectFilterTypeFragment::class.java.simpleName)
+                            .replace(
+                                R.id.container,
+                                SelectFilterTypeFragment(),
+                                SelectFilterTypeFragment::class.java.simpleName
+                            )
                             .addToBackStack(null)
                             .commit()
                     }
@@ -155,7 +171,11 @@ class DisplayFilterFragment : BaseFilterFragment() {
 
     inner class FilterViewHolder(
         parent: ViewGroup,
-        val binding: ItemFilterActiveBinding = ItemFilterActiveBinding.inflate(layoutInflater, parent, false)
+        val binding: ItemFilterActiveBinding = ItemFilterActiveBinding.inflate(
+            layoutInflater,
+            parent,
+            false
+        )
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private val leftIconSize = resources.getDimensionPixelSize(R.dimen.xLargeDimen)
@@ -164,24 +184,36 @@ class DisplayFilterFragment : BaseFilterFragment() {
         fun bind(filter: Filter<*>) {
             val charSequence: CharSequence = when (filter) {
                 is Filter.TitleIs -> getString(R.string.filter_display_title_is, filter.displayText)
-                is Filter.TitleContain -> getString(R.string.filter_display_title_contain, filter.displayText)
+                is Filter.TitleContain -> getString(
+                    R.string.filter_display_title_contain,
+                    filter.displayText
+                )
                 is Filter.GenreIs -> getString(R.string.filter_display_genre_is, filter.displayText)
                 is Filter.Search -> getString(R.string.filter_display_search, filter.displayText)
                 is Filter.SongIs -> getString(R.string.filter_display_song_is, filter.displayText)
-                is Filter.ArtistIs -> getString(R.string.filter_display_artist_is, filter.displayText)
-                is Filter.AlbumArtistIs -> getString(R.string.filter_display_album_artist_is, filter.displayText)
+                is Filter.ArtistIs -> getString(
+                    R.string.filter_display_artist_is,
+                    filter.displayText
+                )
+                is Filter.AlbumArtistIs -> getString(
+                    R.string.filter_display_album_artist_is,
+                    filter.displayText
+                )
                 is Filter.AlbumIs -> getString(R.string.filter_display_album_is, filter.displayText)
-                is Filter.PlaylistIs -> getString(R.string.filter_display_playlist_is, filter.displayText)
+                is Filter.PlaylistIs -> getString(
+                    R.string.filter_display_playlist_is,
+                    filter.displayText
+                )
                 is Filter.DownloadedStatusIs -> getString(if (filter.argument) R.string.filter_display_is_downloaded else R.string.filter_display_is_not_downloaded)
             }
             if (filter.displayText.isNotBlank() && charSequence.contains(filter.displayText)) {
                 val valueStart = charSequence.lastIndexOf(filter.displayText)
                 val stylizedText = SpannableString(charSequence)
                 stylizedText.setSpan(
-                        StyleSpan(android.graphics.Typeface.BOLD),
-                        valueStart,
-                        charSequence.length,
-                        Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                    StyleSpan(android.graphics.Typeface.BOLD),
+                    valueStart,
+                    charSequence.length,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 )
                 binding.filterName.text = stylizedText
             } else {
@@ -199,28 +231,54 @@ class DisplayFilterFragment : BaseFilterFragment() {
                             override fun onLoadCleared(placeholder: Drawable?) {
                             }
 
-                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                            override fun onResourceReady(
+                                resource: Bitmap,
+                                transition: Transition<in Bitmap>?
+                            ) {
                                 if (context == null) {
                                     return
                                 }
                                 val drawable = BitmapDrawable(resources, resource)
                                 drawable.bounds = Rect(0, 0, leftIconSize, leftIconSize)
-                                binding.filterName.setCompoundDrawables(drawable, null, null, null) //todo verify threading
+                                binding.filterName.setCompoundDrawables(
+                                    drawable,
+                                    null,
+                                    null,
+                                    null
+                                ) //todo verify threading
                             }
                         })
                 )
             } else {
                 when (filter) {
                     is Filter.AlbumArtistIs,
-                    is Filter.ArtistIs -> setCompoundDrawableFromResources(R.drawable.ic_artist, leftIconSize)
-                    is Filter.GenreIs -> setCompoundDrawableFromResources(R.drawable.ic_genre, leftIconSize)
-                    is Filter.AlbumIs -> setCompoundDrawableFromResources(R.drawable.ic_album, leftIconSize)
-                    is Filter.PlaylistIs -> setCompoundDrawableFromResources(R.drawable.ic_playlist, leftIconSize)
-                    is Filter.DownloadedStatusIs -> setCompoundDrawableFromResources(R.drawable.ic_download, leftIconSize)
+                    is Filter.ArtistIs -> setCompoundDrawableFromResources(
+                        R.drawable.ic_artist,
+                        leftIconSize
+                    )
+                    is Filter.GenreIs -> setCompoundDrawableFromResources(
+                        R.drawable.ic_genre,
+                        leftIconSize
+                    )
+                    is Filter.AlbumIs -> setCompoundDrawableFromResources(
+                        R.drawable.ic_album,
+                        leftIconSize
+                    )
+                    is Filter.PlaylistIs -> setCompoundDrawableFromResources(
+                        R.drawable.ic_playlist,
+                        leftIconSize
+                    )
+                    is Filter.DownloadedStatusIs -> setCompoundDrawableFromResources(
+                        R.drawable.ic_download,
+                        leftIconSize
+                    )
                     is Filter.Search,
                     is Filter.TitleIs,
                     is Filter.TitleContain,
-                    is Filter.SongIs -> setCompoundDrawableFromResources(R.drawable.ic_song, leftIconSize)
+                    is Filter.SongIs -> setCompoundDrawableFromResources(
+                        R.drawable.ic_song,
+                        leftIconSize
+                    )
                 }
             }
         }
@@ -235,8 +293,15 @@ class DisplayFilterFragment : BaseFilterFragment() {
 
         private fun setCompoundDrawableFromResources(resId: Int, size: Int) {
             ResourcesCompat.getDrawable(resources, resId, requireActivity().theme)?.apply {
-                val color = ResourcesCompat.getColor(resources, R.color.primaryDark, requireActivity().theme)
-                colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_IN)
+                val color = ResourcesCompat.getColor(
+                    resources,
+                    R.color.primaryDark,
+                    requireActivity().theme
+                )
+                colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    color,
+                    BlendModeCompat.SRC_IN
+                )
                 bounds = Rect(0, 0, size, size)
                 binding.filterName.setCompoundDrawables(this, null, null, null)
             }

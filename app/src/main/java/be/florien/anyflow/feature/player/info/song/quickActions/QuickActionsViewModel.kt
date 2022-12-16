@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.song.BaseSongViewModel
-import be.florien.anyflow.feature.player.info.song.info.SongInfoActions
+import be.florien.anyflow.feature.player.info.song.SongInfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.launch
@@ -64,7 +64,7 @@ class QuickActionsViewModel @Inject constructor(
         currentActionsCountDisplay.mutable.value = "$currentCount/$maxItems"
     }
 
-    override fun getInfoRowList(): MutableList<InfoActions.InfoRow> = infoActions.getInfoRows(song).toMutableList()
+    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> = infoActions.getInfoRows(song).toMutableList()
 
-    override fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> = infoActions.getActionsRows(song, field)
+    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> = infoActions.getActionsRows(song, field)
 }

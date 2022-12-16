@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.feature.BaseViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 abstract class InfoViewModel<T> : BaseViewModel() {
     val infoRows: LiveData<List<InfoActions.InfoRow>> = MutableLiveData(listOf())
@@ -15,9 +17,9 @@ abstract class InfoViewModel<T> : BaseViewModel() {
      * Abstract methods
      */
 
-    abstract fun getInfoRowList(): MutableList<InfoActions.InfoRow>
+    abstract suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow>
 
-    abstract fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow>
+    abstract suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow>
 
     abstract fun executeInfoAction(
         fieldType: InfoActions.FieldType,
@@ -46,23 +48,27 @@ abstract class InfoViewModel<T> : BaseViewModel() {
     }
 
     protected fun updateRows() {
-        val mutableList = getInfoRowList()
-        for (fieldType in expandedSections) {
-            val togglePosition =
-                mutableList.indexOfFirst { it.actionType is InfoActions.ActionType.ExpandableTitle &&  it.fieldType == fieldType }
-            val toggledItem = mutableList.removeAt(togglePosition)
-            val newToggledItem = InfoActions.InfoRow(
-                toggledItem.title,
-                toggledItem.text,
-                null,
-                toggledItem.fieldType,
-                InfoActions.ActionType.ExpandedTitle()
-            )
-            val actionsRows = getActionsRows(fieldType)
-            mutableList.addAll(togglePosition, actionsRows)
-            mutableList.add(togglePosition, newToggledItem)
+        viewModelScope.launch {
+            val mutableList = getInfoRowList()
+            for (fieldType in expandedSections) {
+                val togglePosition =
+                    mutableList.indexOfFirst { it.actionType is InfoActions.ActionType.ExpandableTitle && it.fieldType == fieldType }
+                val toggledItem = mutableList.removeAt(togglePosition)
+                val newToggledItem = InfoActions.InfoRow(
+                    toggledItem.title,
+                    toggledItem.text,
+                    null,
+                    toggledItem.fieldType,
+                    InfoActions.ActionType.ExpandedTitle()
+                )
+                val actionsRows = getActionsRows(fieldType)
+                mutableList.addAll(togglePosition, actionsRows)
+                mutableList.add(togglePosition, newToggledItem)
+            }
+            withContext(Dispatchers.Main) {
+                infoRows.mutable.value = mapActionsRows(mutableList)
+            }
         }
-        infoRows.mutable.value = mapActionsRows(mutableList)
     }
 
     /**
