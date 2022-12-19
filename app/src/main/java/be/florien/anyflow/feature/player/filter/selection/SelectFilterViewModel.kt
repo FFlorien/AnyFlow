@@ -15,8 +15,6 @@ import kotlinx.coroutines.launch
 abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
     BaseViewModel(), FilterActions {
     private var searchJob: Job? = null
-
-    abstract val itemDisplayType: Int
     open val hasSearch = true
 
     val isSearching = MutableLiveData(false)
@@ -151,9 +149,4 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
         val artUrl: String? = null,
         val isSelected: Boolean
     )
-
-    companion object {
-        const val ITEM_GRID = 0
-        const val ITEM_LIST = 1
-    }
 }

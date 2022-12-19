@@ -11,8 +11,11 @@ import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.extension.viewModelFactory
+import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.FilterActions
+import be.florien.anyflow.feature.player.filter.selection.SelectFilterFragment
+import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoAdapter
 
 class SelectFilterTypeFragment : BaseFilterFragment() {
@@ -40,7 +43,7 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
         fragmentBinding.viewModel = viewModel
         fragmentBinding.filterList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        val infoAdapter = InfoAdapter(viewModel::executeAction)
+        val infoAdapter = InfoAdapter(this::executeAction)
         fragmentBinding.filterList.adapter = infoAdapter
         viewModel.infoRows.observe(viewLifecycleOwner) {
             infoAdapter.submitList(it)
@@ -51,5 +54,27 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.filter = null //todo
+    }
+
+    private fun executeAction(field: InfoActions.FieldType, action: InfoActions.ActionType) {
+        when(action) {
+            is InfoActions.FilterActionType.SubFilter -> {
+                val value = when (field) {
+                    is InfoActions.FilterFieldType.Playlist -> SelectFilterTypeViewModel.PLAYLIST_ID
+                    is InfoActions.FilterFieldType.Album -> SelectFilterTypeViewModel.ALBUM_ID
+                    is InfoActions.FilterFieldType.AlbumArtist -> SelectFilterTypeViewModel.ARTIST_ID
+                    // is InfoActions.FilterFieldType.Artist -> SelectFilterTypeViewModel.ARTIST_ID //todo
+                    is InfoActions.FilterFieldType.Genre -> SelectFilterTypeViewModel.GENRE_ID
+                    is InfoActions.FilterFieldType.Song -> SelectFilterTypeViewModel.SONG_ID
+                    else -> SelectFilterTypeViewModel.GENRE_ID
+                }
+                (activity as PlayerActivity).supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.container, SelectFilterFragment(value), SelectFilterFragment::class.java.simpleName)
+                    .addToBackStack(null)
+                    .commit()
+            }
+            else -> viewModel.executeAction(field, action)
+        }
     }
 }

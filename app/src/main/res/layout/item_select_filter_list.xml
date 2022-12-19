@@ -9,47 +9,58 @@
             type="be.florien.anyflow.feature.player.filter.selection.SelectFilterViewModel.FilterItem" />
 
         <variable
-            name="vm"
-            type="be.florien.anyflow.feature.player.filter.selection.SelectFilterViewModel" />
-
-        <variable
             name="selected"
             type="boolean" />
 
         <import type="android.view.View" />
     </data>
 
-    <be.florien.anyflow.extension.CheckableConstrainLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="@dimen/minClickableSize"
-        android:checked="@{selected}"
-        android:background="@drawable/bg_blue_selectable_ripple">
+        android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="@dimen/imageSize"
-            android:layout_height="@dimen/imageSize"
-            android:layout_margin="8dp"
-            android:contentDescription="@null"
-            android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
-            app:coverImageUrl="@{item.artUrl}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:id="@+id/infoView"
+            android:layout_width="@dimen/minClickableSize"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:padding="@dimen/smallDimen"
+            android:background="@color/accentLightPlus"
+            android:src="@drawable/ic_info" />
 
-        <TextView
-            android:id="@+id/filterName"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/imageSize"
-            android:layout_margin="8dp"
-            android:gravity="start|center_vertical"
-            android:text="@{item.displayName}"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-    </be.florien.anyflow.extension.CheckableConstrainLayout>
+        <be.florien.anyflow.extension.CheckableConstrainLayout
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_blue_selectable_ripple"
+            android:checked="@{selected}"
+            android:minHeight="@dimen/minClickableSize">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="@dimen/imageSize"
+                android:layout_height="@dimen/imageSize"
+                android:layout_margin="8dp"
+                android:contentDescription="@null"
+                android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
+                app:coverImageUrl="@{item.artUrl}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/filterName"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/imageSize"
+                android:layout_margin="8dp"
+                android:gravity="start|center_vertical"
+                android:text="@{item.displayName}"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+        </be.florien.anyflow.extension.CheckableConstrainLayout>
+    </FrameLayout>
 </layout>

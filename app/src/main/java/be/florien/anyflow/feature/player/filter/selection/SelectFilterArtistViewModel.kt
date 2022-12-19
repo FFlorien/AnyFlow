@@ -12,8 +12,6 @@ class SelectFilterArtistViewModel @Inject constructor(
     val dataRepository: DataRepository,
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {
-    override val itemDisplayType = ITEM_LIST
-
     override fun getUnfilteredPagingList() = dataRepository.getAlbumArtists(::convert)
     override fun getFilteredPagingList(search: String) =
         dataRepository.getAlbumArtistsFiltered(search, ::convert)

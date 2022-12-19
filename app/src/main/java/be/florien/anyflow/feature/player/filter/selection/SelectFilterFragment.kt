@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -16,21 +17,18 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
-import be.florien.anyflow.databinding.ItemSelectFilterGridBinding
 import be.florien.anyflow.databinding.ItemSelectFilterListBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.implementation.SearchMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectAllMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectNoneMenuHolder
+import be.florien.anyflow.feature.player.details.DetailViewHolder
+import be.florien.anyflow.feature.player.details.DetailViewHolderListener
+import be.florien.anyflow.feature.player.details.ItemInfoTouchAdapter
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.FilterActions
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ALBUM_ID
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.ARTIST_ID
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.DOWNLOAD_ID
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.GENRE_ID
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.PLAYLIST_ID
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel.Companion.SONG_ID
+import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.google.android.material.snackbar.Snackbar
@@ -39,7 +37,9 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 @ActivityScope
 @UserScope
 class SelectFilterFragment @SuppressLint("ValidFragment")
-constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
+constructor(private var filterType: String = SelectFilterTypeViewModel.GENRE_ID) :
+    BaseFilterFragment(),
+    DetailViewHolderListener<SelectFilterViewModel.FilterItem> {
 
     companion object {
         private const val FILTER_TYPE = "TYPE"
@@ -67,18 +67,18 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
     }
 
     override fun getTitle(): String = when (filterType) {
-        ALBUM_ID -> getString(R.string.filter_title_album)
-        ARTIST_ID -> getString(R.string.filter_title_album_artist)
-        GENRE_ID -> getString(R.string.filter_title_genre)
-        SONG_ID -> getString(R.string.filter_title_song)
-        PLAYLIST_ID -> getString(R.string.filter_title_playlist)
-        DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
+        SelectFilterTypeViewModel.ALBUM_ID -> getString(R.string.filter_title_album)
+        SelectFilterTypeViewModel.ARTIST_ID -> getString(R.string.filter_title_album_artist)
+        SelectFilterTypeViewModel.GENRE_ID -> getString(R.string.filter_title_genre)
+        SelectFilterTypeViewModel.SONG_ID -> getString(R.string.filter_title_song)
+        SelectFilterTypeViewModel.PLAYLIST_ID -> getString(R.string.filter_title_playlist)
+        SelectFilterTypeViewModel.DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
         else -> getString(R.string.filter_title_main)
     }
 
     init {
         arguments?.let {
-            filterType = it.getString(FILTER_TYPE, GENRE_ID)
+            filterType = it.getString(FILTER_TYPE, SelectFilterTypeViewModel.GENRE_ID)
         }
         if (arguments == null) {
             arguments = Bundle().apply {
@@ -122,11 +122,11 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         super.onAttach(context)
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[
                 when (filterType) {
-                    ALBUM_ID -> SelectFilterAlbumViewModel::class.java
-                    ARTIST_ID -> SelectFilterArtistViewModel::class.java
-                    GENRE_ID -> SelectFilterGenreViewModel::class.java
-                    SONG_ID -> SelectFilterSongViewModel::class.java
-                    DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
+                    SelectFilterTypeViewModel.ALBUM_ID -> SelectFilterAlbumViewModel::class.java
+                    SelectFilterTypeViewModel.ARTIST_ID -> SelectFilterArtistViewModel::class.java
+                    SelectFilterTypeViewModel.GENRE_ID -> SelectFilterGenreViewModel::class.java
+                    SelectFilterTypeViewModel.SONG_ID -> SelectFilterSongViewModel::class.java
+                    SelectFilterTypeViewModel.DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
                     else -> SelectFilterPlaylistViewModel::class.java
                 }]
     }
@@ -140,31 +140,37 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel
         fragmentBinding.filterList.layoutManager =
-            if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_LIST) {
-                LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-            } else {
-                GridLayoutManager(activity, 3)
-            }
+            LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
         fragmentBinding.filterList.adapter = FilterListAdapter(
-            viewModel.itemDisplayType,
-            viewModel,
             viewModel::hasFilter,
-            viewModel::toggleFilterSelection
+            viewModel::toggleFilterSelection,
+            this
         )
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
             ?.let {
                 fragmentBinding.filterList.addItemDecoration(
                     DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL)
                         .apply { setDrawable(it) })
-                if (viewModel.itemDisplayType == SelectFilterViewModel.ITEM_GRID) {
-                    fragmentBinding.filterList.addItemDecoration(
-                        DividerItemDecoration(requireActivity(), DividerItemDecoration.HORIZONTAL)
-                            .apply { setDrawable(it) })
-                }
             }
         viewModel.values.observe(viewLifecycleOwner) {
             (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
+            fragmentBinding.filterList.addOnItemTouchListener(object : ItemInfoTouchAdapter(),
+                RecyclerView.OnItemTouchListener {
+                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                    return onInterceptTouchEvent(e)
+                }
+
+                override fun onTouchEvent(rv: RecyclerView, event: MotionEvent) {
+                    val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
+                    val viewHolder =
+                        (rv.findContainingViewHolder(childView) as? FilterViewHolder) ?: return
+                    onTouch(viewHolder, event)
+                }
+
+                override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+                }
+            })
         }
         return fragmentBinding.root
     }
@@ -176,32 +182,30 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
         menuCoordinator.removeMenuHolder(selectNoneMenuHolder)
     }
 
-    class FilterListAdapter(
-        private val itemDisplayType: Int,
-        private val viewModel: SelectFilterViewModel,
-        override val isSelected: (SelectFilterViewModel.FilterItem) -> Boolean,
-        override val setSelected: (SelectFilterViewModel.FilterItem) -> Unit
-    ) :
-        PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object :
-            DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
-            override fun areItemsTheSame(
-                oldItem: SelectFilterViewModel.FilterItem,
-                newItem: SelectFilterViewModel.FilterItem
-            ) = oldItem.id == newItem.id
+    override fun onInfoDisplayAsked(item: SelectFilterViewModel.FilterItem) {
+        //TODO("Not yet implemented") SongInfoFragment(item).show(childFragmentManager, "info")
+    }
 
-            override fun areContentsTheSame(
-                oldItem: SelectFilterViewModel.FilterItem,
-                newItem: SelectFilterViewModel.FilterItem
-            ): Boolean =
-                oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
-        }), FastScrollRecyclerView.SectionedAdapter,
+    class FilterListAdapter(
+        override val isSelected: (SelectFilterViewModel.FilterItem) -> Boolean,
+        override val setSelected: (SelectFilterViewModel.FilterItem) -> Unit,
+        private val detailListener: DetailViewHolderListener<SelectFilterViewModel.FilterItem>
+    ) : PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object :
+        DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
+        override fun areItemsTheSame(
+            oldItem: SelectFilterViewModel.FilterItem,
+            newItem: SelectFilterViewModel.FilterItem
+        ) = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(
+            oldItem: SelectFilterViewModel.FilterItem,
+            newItem: SelectFilterViewModel.FilterItem
+        ): Boolean =
+            oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
+    }), FastScrollRecyclerView.SectionedAdapter,
         BaseSelectableAdapter<SelectFilterViewModel.FilterItem> {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =
-            if (itemDisplayType == SelectFilterViewModel.ITEM_LIST) {
-                FilterListViewHolder(parent, viewModel, setSelected)
-            } else {
-                FilterGridViewHolder(parent, viewModel, setSelected)
-            }
+            FilterViewHolder(parent, detailListener, setSelected)
 
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             val filter = getItem(position) ?: return
@@ -213,62 +217,45 @@ constructor(private var filterType: String = GENRE_ID) : BaseFilterFragment() {
             snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: ""
     }
 
-    abstract class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view),
-        BaseSelectableAdapter.BaseSelectableViewHolder<SelectFilterViewModel.FilterItem, SelectFilterViewModel.FilterItem>
-
-    class FilterListViewHolder(
+    class FilterViewHolder(
         parent: ViewGroup,
-        viewModel: SelectFilterViewModel,
+        detailListener: DetailViewHolderListener<SelectFilterViewModel.FilterItem>,
         override val onSelectChange: (SelectFilterViewModel.FilterItem) -> Unit,
-        private val itemFilterTypeBinding: ItemSelectFilterListBinding
-        = ItemSelectFilterListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    ) : FilterViewHolder(itemFilterTypeBinding.root) {
+        private val binding: ItemSelectFilterListBinding = ItemSelectFilterListBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+    ) : DetailViewHolder<SelectFilterViewModel.FilterItem>(
+        detailListener,
+        binding.root
+    ),
+        BaseSelectableAdapter.BaseSelectableViewHolder<SelectFilterViewModel.FilterItem, SelectFilterViewModel.FilterItem> {
+
+        override val itemInfoView: View
+            get() = binding.info
+        override val infoIconView: View
+            get() = binding.infoView
+        override val item: SelectFilterViewModel.FilterItem?
+            get() = binding.item
 
         init {
-            itemFilterTypeBinding.vm = viewModel
-            itemFilterTypeBinding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
+            binding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
+            setClickListener()
         }
 
         override fun bind(item: SelectFilterViewModel.FilterItem, isSelected: Boolean) {
-            itemFilterTypeBinding.item = item
+            binding.item = item
             setSelection(isSelected)
-            itemFilterTypeBinding.root.setOnClickListener {
+            itemInfoView.setOnClickListener {
                 onSelectChange(item)
             }
         }
 
         override fun setSelection(isSelected: Boolean) {
-            itemFilterTypeBinding.selected = isSelected
+            binding.selected = isSelected
         }
 
-        override fun getCurrentId(): SelectFilterViewModel.FilterItem? = itemFilterTypeBinding.item
-    }
-
-    class FilterGridViewHolder(
-        parent: ViewGroup,
-        viewModel: SelectFilterViewModel,
-        override val onSelectChange: (SelectFilterViewModel.FilterItem) -> Unit,
-        private val itemFilterTypeBinding: ItemSelectFilterGridBinding
-        = ItemSelectFilterGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    ) : FilterViewHolder(itemFilterTypeBinding.root) {
-
-        init {
-            itemFilterTypeBinding.vm = viewModel
-        }
-
-        override fun bind(item: SelectFilterViewModel.FilterItem, isSelected: Boolean) {
-            itemFilterTypeBinding.lifecycleOwner = itemFilterTypeBinding.lifecycleOwner
-            itemFilterTypeBinding.item = item
-            setSelection(isSelected)
-            itemFilterTypeBinding.root.setOnClickListener {
-                onSelectChange(item)
-            }
-        }
-
-        override fun setSelection(isSelected: Boolean) {
-            itemFilterTypeBinding.selected = isSelected
-        }
-
-        override fun getCurrentId(): SelectFilterViewModel.FilterItem? = itemFilterTypeBinding.item
+        override fun getCurrentId(): SelectFilterViewModel.FilterItem? = binding.item
     }
 }

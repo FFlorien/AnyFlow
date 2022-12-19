@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.player.details
 
 import android.animation.ObjectAnimator
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
@@ -14,11 +15,13 @@ import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.feature.player.info.InfoActions
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlin.math.absoluteValue
 
 
 class SongAdapter(
     val listener: SongListViewHolderListener,
-    val provider: SongListViewHolderProvider
+    val provider: SongListViewHolderProvider,
+    private val onSongClicked: (Int) -> Unit
 ) : PagingDataAdapter<SongInfo, SongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
     override fun areItemsTheSame(oldItem: SongInfo, newItem: SongInfo) =
         oldItem.id == newItem.id
@@ -38,7 +41,7 @@ class SongAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        SongViewHolder(parent, listener, provider)
+        SongViewHolder(parent, listener, provider, onSongClicked)
 
     fun setSelectedPosition(position: Int) {
         notifyItemChanged(lastPosition)
@@ -53,26 +56,38 @@ class SongViewHolder(
     parent: ViewGroup,
     listener: SongListViewHolderListener,
     val provider: SongListViewHolderProvider,
-    binding: ItemSongBinding = ItemSongBinding
-        .inflate(LayoutInflater.from(parent.context), parent, false)
-) : DetailViewHolder<SongInfo, ItemSongBinding, SongListViewHolderListener>(
-    listener,
-    binding
-) {
+    private val onSongClicked: ((Int) -> Unit)?,
+    val binding: ItemSongBinding = ItemSongBinding.inflate(
+        LayoutInflater.from(parent.context),
+        parent,
+        false
+    )
+) : DetailViewHolder<SongInfo>(listener, binding.root) {
 
     override val itemInfoView: View
         get() = binding.songLayout.songInfo
-    override val infoView: View
+    override val infoIconView: View
         get() = binding.infoView
     override val item: SongInfo?
         get() = binding.song
+
+    private val quickActionListener: SongListViewHolderListener
+        get() = listener as SongListViewHolderListener
 
     var isCurrentSong: Boolean = false
 
     init {
         setQuickActions()
-        setClickListener(parent is RecyclerView)
+        setClickListener()
+        itemInfoView.setOnClickListener {
+            itemInfoView.translationX = 0F
+            onSongClicked?.invoke(absoluteAdapterPosition)
+        }
     }
+
+    /**
+     * Overridden methods
+     */
 
     override fun swipeForMove(translateX: Float): Boolean {
         if (!super.swipeForMove(translateX) && provider.getQuickActions().isNotEmpty()) {
@@ -85,7 +100,29 @@ class SongViewHolder(
         return false
     }
 
-    internal fun setQuickActions() {
+    override fun swipeToClose() {
+        super.swipeToClose()
+        if (isCurrentSong && absoluteAdapterPosition != RecyclerView.NO_POSITION) {
+            quickActionListener.onCurrentSongQuickActionClosed()
+        }
+    }
+
+    /**
+     * Public methods
+     */
+
+    fun bind(item: SongInfo?) {
+        binding.song = item
+        binding.art = item?.albumId?.let { provider.getArtUrl(it) }
+        binding.songLayout.songInfo.translationX = if (isCurrentSong) {
+            provider.getCurrentSongTranslationX()
+        } else {
+            0F
+        }
+        binding.songLayout.current = isCurrentSong
+    }
+
+    fun setQuickActions() {
         val childCount = binding.songActions.childCount
         if (childCount > 2) {
             binding.songActions.removeViews(2, childCount - 2)
@@ -101,55 +138,50 @@ class SongViewHolder(
                         setOnClickListener {
                             val song = binding.song
                             if (song != null)
-                                listener.onQuickAction(
+                                quickActionListener.onQuickAction(
                                     song,
                                     action.actionType,
                                     action.fieldType
                                 )
-                            swipeToCloseQuickActions()
+                            swipeToClose()
                         }
                     })
         }
     }
 
-    override fun bind(item: SongInfo?) {
-        binding.song = item
-        binding.art = item?.albumId?.let { provider.getArtUrl(it) }
-        binding.songLayout.songInfo.translationX = if (isCurrentSong) {
-            provider.getCurrentSongTranslationX()
+    fun openQuickActionWhenSwiped(): Boolean {
+        val quickActionsWidth = binding.actionsPadding.right - binding.songActions.right
+        return if (itemInfoView.translationX < quickActionsWidth + (quickActionsWidth.absoluteValue / 4)) {
+            quickActionListener.onQuickActionOpened(absoluteAdapterPosition.takeIf { it != RecyclerView.NO_POSITION })
+            val translationXEnd = binding.actionsPadding.right - itemView.width.toFloat()
+            ObjectAnimator.ofFloat(binding.songLayout.songInfo, View.TRANSLATION_X, translationXEnd)
+                .apply {
+                    duration = 100L
+                    interpolator = DecelerateInterpolator()
+                    start()
+                }
+            startingTranslationX = translationXEnd
+            true
         } else {
-            0F
+            false
         }
-        binding.songLayout.current = isCurrentSong
     }
+}
 
-    fun swipeToOpenQuickActions() {
-        listener.onQuickActionOpened(absoluteAdapterPosition.takeIf { it != RecyclerView.NO_POSITION })
-        val translationXEnd = binding.actionsPadding.right - itemView.width.toFloat()
-        ObjectAnimator.ofFloat(binding.songLayout.songInfo, View.TRANSLATION_X, translationXEnd)
-            .apply {
-                duration = 100L
-                interpolator = DecelerateInterpolator()
-                start()
-            }
-        startingTranslationX = translationXEnd
-    }
-
-    fun swipeToCloseQuickActions() {
-        ObjectAnimator.ofFloat(binding.songLayout.songInfo, View.TRANSLATION_X, 0f).apply {
-            duration = 300L
-            interpolator = DecelerateInterpolator()
-            start()
+open class SongListTouchAdapter : ItemInfoTouchAdapter() {
+    override fun onTouch(viewHolder: DetailViewHolder<*>, event: MotionEvent): Boolean {
+        val parentOnTouch = super.onTouch(viewHolder, event)
+        val isHandled = if (viewHolder !is SongViewHolder) {
+            parentOnTouch
+        } else if (!parentOnTouch && event.actionMasked == MotionEvent.ACTION_UP) {
+            viewHolder.openQuickActionWhenSwiped()
+        } else {
+            parentOnTouch
         }
-        ObjectAnimator.ofFloat(binding.songActions, View.TRANSLATION_X, 0f).apply {
-            duration = 300L
-            interpolator = DecelerateInterpolator()
-            start()
+        if (!isHandled && event.actionMasked == MotionEvent.ACTION_UP) {
+            viewHolder.swipeToClose()
         }
-        if (isCurrentSong && absoluteAdapterPosition != RecyclerView.NO_POSITION) {
-            listener.onCurrentSongQuickActionClosed()
-        }
-        startingTranslationX = 0F
+        return isHandled
     }
 }
 

@@ -103,7 +103,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         currentSongViewHolder =
-            SongViewHolder(binding.root as ViewGroup, this, this, binding.currentSongDisplay)
+            SongViewHolder(binding.root as ViewGroup, this, this, null, binding.currentSongDisplay)
         currentSongViewHolder.isCurrentSong = true
         (requireActivity() as PlayerActivity).menuCoordinator.addMenuHolder(searchMenuHolder)
         return binding.root
@@ -111,7 +111,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.adapter = SongAdapter(this, this)
+        binding.songList.adapter = SongAdapter(this, this, this::onItemClick)
 
         viewLifecycleOwner.lifecycleScope.launch {
             (binding.songList.adapter as SongAdapter).loadStateFlow.collectLatest {
@@ -125,14 +125,16 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 updateCurrentSongDisplay()
             }
         })
-        binding.songList.addOnItemTouchListener(object : ItemInfoTouchAdapter(),  RecyclerView.OnItemTouchListener  {
+        binding.songList.addOnItemTouchListener(object : SongListTouchAdapter(),
+            RecyclerView.OnItemTouchListener {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 return onInterceptTouchEvent(e)
             }
 
             override fun onTouchEvent(rv: RecyclerView, event: MotionEvent) {
                 val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
-                val viewHolder = (rv.findContainingViewHolder(childView) as? SongViewHolder) ?: return
+                val viewHolder =
+                    (rv.findContainingViewHolder(childView) as? SongViewHolder) ?: return
                 onTouch(viewHolder, event)
             }
 
@@ -143,7 +145,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.currentSongDisplayTouch.setOnClickListener {
             scrollToCurrentSong()
         }
-        binding.currentSongDisplayTouch.setOnTouchListener(object : ItemInfoTouchAdapter(), View.OnTouchListener  {
+        binding.currentSongDisplayTouch.setOnTouchListener(object : SongListTouchAdapter(),
+            View.OnTouchListener {
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 onTouch(currentSongViewHolder, event)
                 when (event.actionMasked) {
@@ -151,9 +154,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                         if (!hasSwiped) {
                             v.performClick()
                         }
-                        if (lastDeltaX < -1.0) {
+                        if (currentSongViewHolder.itemInfoView.translationX < -1.0) {
                             binding.currentSongDisplayTouch.translationX =
-                                binding.currentSongDisplay.actionsPadding.right - binding.currentSongDisplay.root.width.toFloat()
+                                binding.currentSongDisplay.songLayout.songInfo.translationX
                         } else {
                             binding.currentSongDisplayTouch.translationX = 0F
                         }
@@ -248,11 +251,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * ViewHolder listener
      */
 
-    override fun onItemClick(position: Int) {
-        viewModel.play(position)
-        currentSongViewHolder.binding.songLayout.songInfo.translationX = 0F
-    }
-
     override fun onQuickAction(
         item: SongInfo,
         action: InfoActions.ActionType,
@@ -273,16 +271,16 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 val songViewHolder =
                     binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
                 if (i != position && songViewHolder != null && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToCloseQuickActions()
+                    songViewHolder.swipeToClose()
                 }
             }
 
             if (position == viewModel.listPosition.value) {
-                currentSongViewHolder.swipeToOpenQuickActions()
+                currentSongViewHolder.openQuickActionWhenSwiped()
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX =
                     this@SongListFragment.binding.currentSongDisplay.actionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
             } else {
-                currentSongViewHolder.swipeToCloseQuickActions()
+                currentSongViewHolder.swipeToClose()
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX = 0F
 
             }
@@ -293,14 +291,14 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 val songViewHolder =
                     this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
                 if (songViewHolder?.isCurrentSong == false && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToCloseQuickActions()
+                    songViewHolder.swipeToClose()
                 }
             }
         }
     }
 
     override fun onCurrentSongQuickActionClosed() {
-        currentSongViewHolder.swipeToCloseQuickActions()
+        currentSongViewHolder.swipeToClose()
     }
 
     /**
@@ -320,6 +318,11 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     /**
      * Private methods
      */
+
+    private fun onItemClick(position: Int) {
+        viewModel.play(position)
+        currentSongViewHolder.binding.songLayout.songInfo.translationX = 0F
+    }
 
     private fun updateCurrentSongDisplay() {
         val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()

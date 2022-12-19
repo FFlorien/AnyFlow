@@ -12,8 +12,6 @@ class SelectFilterGenreViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {
-    override val itemDisplayType = ITEM_LIST
-
     override fun getUnfilteredPagingList() = dataRepository.getGenres(::convert)
     override fun getFilteredPagingList(search: String) =
         dataRepository.getGenresFiltered(search, ::convert)

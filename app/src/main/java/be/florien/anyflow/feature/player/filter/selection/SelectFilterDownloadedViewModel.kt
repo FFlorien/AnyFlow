@@ -16,7 +16,6 @@ class SelectFilterDownloadedViewModel @Inject constructor(
 ) : SelectFilterViewModel(filterActions) {
 
     override val hasSearch = false
-    override val itemDisplayType = ITEM_LIST
 
     private val downloadedName = context.getString(R.string.filter_is_downloaded)
     private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
