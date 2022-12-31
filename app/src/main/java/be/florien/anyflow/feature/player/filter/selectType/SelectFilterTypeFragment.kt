@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.player.PlayerActivity
@@ -17,8 +18,9 @@ import be.florien.anyflow.feature.player.filter.FilterActions
 import be.florien.anyflow.feature.player.filter.selection.SelectFilterFragment
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoAdapter
+import kotlin.random.Random
 
-class SelectFilterTypeFragment : BaseFilterFragment() {
+class SelectFilterTypeFragment(private var parentFilter: Filter<*>? = null) : BaseFilterFragment() {
     override fun getTitle(): String = getString(R.string.filter_title_main)
     override val filterActions: FilterActions
         get() = viewModel
@@ -30,7 +32,8 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
         viewModel = ViewModelProvider(
             requireActivity(),
             requireActivity().viewModelFactory
-        )[SelectFilterTypeViewModel::class.java]
+        )[Random(23).toString(), SelectFilterTypeViewModel::class.java] //todo handle this gracefully !
+        viewModel.filterNavigation = parentFilter
     }
 
     override fun onCreateView(
@@ -51,13 +54,8 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
         return fragmentBinding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.filter = null //todo
-    }
-
     private fun executeAction(field: InfoActions.FieldType, action: InfoActions.ActionType) {
-        when(action) {
+        when (action) {
             is InfoActions.FilterActionType.SubFilter -> {
                 val value = when (field) {
                     is InfoActions.FilterFieldType.Playlist -> SelectFilterTypeViewModel.PLAYLIST_ID
@@ -70,7 +68,11 @@ class SelectFilterTypeFragment : BaseFilterFragment() {
                 }
                 (activity as PlayerActivity).supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.container, SelectFilterFragment(value), SelectFilterFragment::class.java.simpleName)
+                    .replace(
+                        R.id.container,
+                        SelectFilterFragment(value, viewModel.filterNavigation),
+                        SelectFilterFragment::class.java.simpleName
+                    )
                     .addToBackStack(null)
                     .commit()
             }

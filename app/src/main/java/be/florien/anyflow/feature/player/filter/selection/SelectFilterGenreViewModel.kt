@@ -1,5 +1,7 @@
 package be.florien.anyflow.feature.player.filter.selection
 
+import androidx.lifecycle.LiveData
+import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbGenre
 import be.florien.anyflow.data.view.Filter
@@ -13,22 +15,25 @@ class SelectFilterGenreViewModel @Inject constructor(
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {
     override fun getUnfilteredPagingList() = dataRepository.getGenres(::convert)
-    override fun getFilteredPagingList(search: String) =
-        dataRepository.getGenresFiltered(search, ::convert)
+    override fun getSearchedPagingList(search: String) =
+        dataRepository.getGenresSearched(search, ::convert)
 
-    override fun isThisTypeOfFilter(filter: Filter<*>)= filter is Filter.GenreIs
+    override fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>> = dataRepository.getGenresFiltered(filters, ::convert)
+
+
+    override fun isThisTypeOfFilter(filter: Filter<*>)= filter.type == Filter.FilterType.GENRE_IS
 
     override suspend fun getFoundFilters(search: String): List<FilterItem> =
         withContext(Dispatchers.Default) {
-            dataRepository.getGenresFilteredList(search, ::convert)
+            dataRepository.getGenresSearchedList(search, ::convert)
         }
 
     override fun getFilter(filterValue: FilterItem) =
-        Filter.GenreIs(filterValue.id, filterValue.displayName)
+        Filter(Filter.FilterType.GENRE_IS, filterValue.id, filterValue.displayName)
 
     private fun convert(genre: DbGenre) = FilterItem(
         genre.id,
         genre.name,
-        isSelected = filtersManager.isFilterInEdition(Filter.GenreIs(genre.id, genre.name))
+        isSelected = filtersManager.isFilterInEdition(Filter(Filter.FilterType.GENRE_IS, genre.id, genre.name))
     )
 }

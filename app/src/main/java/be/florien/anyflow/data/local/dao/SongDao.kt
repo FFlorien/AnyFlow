@@ -17,20 +17,23 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @Transaction
-    @Query("SELECT * FROM song ORDER BY title")
+    @Query("SELECT * FROM song ORDER BY title COLLATE UNICODE")
     abstract fun displayInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @Transaction
-    @Query("SELECT * FROM song WHERE title LIKE :filter ORDER BY title COLLATE UNICODE")
-    abstract fun displayFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay>
+    @Query("SELECT * FROM song WHERE title LIKE :search ORDER BY title COLLATE UNICODE")
+    abstract fun displaySearched(search: String): DataSource.Factory<Int, DbSongDisplay>
 
     // List of songs
     @Transaction
-    @Query("SELECT * FROM song WHERE title LIKE :filter ORDER BY title COLLATE UNICODE")
-    abstract suspend fun displayFilteredList(filter: String): List<DbSongDisplay>
+    @Query("SELECT * FROM song WHERE title LIKE :search ORDER BY title COLLATE UNICODE")
+    abstract suspend fun displaySearchedList(search: String): List<DbSongDisplay>
 
     @Query("SELECT song.id, song.local FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     abstract fun songsInQueueOrder(): LiveData<List<DbSongToPlay>>
+
+    @RawQuery(observedEntities = [DbSongDisplay::class])
+    abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbSongDisplay>
 
     // Song
     @Transaction

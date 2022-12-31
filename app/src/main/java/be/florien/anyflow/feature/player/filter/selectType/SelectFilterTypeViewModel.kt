@@ -15,30 +15,6 @@ class SelectFilterTypeViewModel @Inject constructor(
     dataRepository: DataRepository
 ) : InfoViewModel<Filter<*>?>(), FilterActions {
 
-    var filter: Filter<*>? = null
-        set(value) {
-            field = value
-            updateRows()
-        }
-
-    override val infoActions: InfoActions<Filter<*>?> = FilterInfoActions(dataRepository)
-
-    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
-        infoActions.getInfoRows(filter).toMutableList()
-
-    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
-        infoActions.getActionsRows(filter, field)
-
-    override fun executeInfoAction(
-        fieldType: InfoActions.FieldType,
-        actionType: InfoActions.ActionType
-    ) {
-        //todo
-    }
-
-    override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
-        initialList
-
     override val filtersManager: FiltersManager
         get() = filterActions.filtersManager
     override val areFiltersInEdition: LiveData<Boolean>
@@ -47,6 +23,29 @@ class SelectFilterTypeViewModel @Inject constructor(
         get() = filterActions.currentFilters
     override val hasChangeFromCurrentFilters: LiveData<Boolean>
         get() = filterActions.hasChangeFromCurrentFilters
+
+    override val infoActions: InfoActions<Filter<*>?> = FilterInfoActions(dataRepository)
+
+    var filterNavigation: Filter<*>? = null
+        set(value) {
+            field = value
+            updateRows()
+        }
+
+    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
+        infoActions.getInfoRows(filterNavigation).toMutableList()
+
+    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
+        infoActions.getActionsRows(filterNavigation, field)
+
+    override fun executeInfoAction(
+        fieldType: InfoActions.FieldType,
+        actionType: InfoActions.ActionType
+    ) {
+    }
+
+    override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
+        initialList
 
     override suspend fun confirmChanges() {
         filterActions.confirmChanges()

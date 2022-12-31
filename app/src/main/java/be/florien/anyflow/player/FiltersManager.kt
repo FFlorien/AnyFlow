@@ -35,11 +35,17 @@ class FiltersManager
         }
     }
 
-    fun addFilter(filter: Filter<*>) {
+    fun addFilter(filter: Filter<*>, parentFilter: Filter<*>? = null) { //todo several children
         if (unCommittedFilters.size >= MAX_FILTER_NUMBER) {
             throw MaxFiltersNumberExceededException()
         }
-        unCommittedFilters.add(filter)
+        if (parentFilter != null) { //todo check if it works
+            val children = parentFilter.children.toMutableList()
+            children.add(filter)
+            parentFilter.children = children
+        } else {
+            unCommittedFilters.add(filter)
+        }
         (filtersInEdition as MutableLiveData).value = unCommittedFilters
         areFiltersChanged = true
     }
@@ -63,11 +69,16 @@ class FiltersManager
         }
     }
 
-    suspend fun saveCurrentFilterGroup(name: String) = dataRepository.createFilterGroup(unCommittedFilters.toList(), name)
+    suspend fun saveCurrentFilterGroup(name: String) =
+        dataRepository.createFilterGroup(unCommittedFilters.toList(), name)
 
-    suspend fun loadSavedGroup(filterGroup: FilterGroup) = dataRepository.setSavedGroupAsCurrentFilters(filterGroup)
+    suspend fun loadSavedGroup(filterGroup: FilterGroup) =
+        dataRepository.setSavedGroupAsCurrentFilters(filterGroup)
 
-    private fun isFiltersTheSame() = unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(unCommittedFilters)
+    private fun isFiltersTheSame() =
+        unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(
+            unCommittedFilters
+        )
 
     fun abandonChanges() {
         clearFilters()
@@ -83,5 +94,5 @@ class FiltersManager
         private const val MAX_FILTER_NUMBER = 50
     }
 
-    class MaxFiltersNumberExceededException: Exception()
+    class MaxFiltersNumberExceededException : Exception()
 }

@@ -1,28 +1,28 @@
 package be.florien.anyflow.data.view
 
+import android.os.Parcelable
 import be.florien.anyflow.data.DataRepository
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 import kotlin.time.Duration
 
-sealed class Filter<T>(
-        val argument: T,
-        val displayText: String,
-        val imageType: String? = null,
-        val childrenFilters: List<Filter<*>>
-) {
-
+@Parcelize
+data class Filter<T>(
+    val type: FilterType,
+    val argument: @RawValue T,
+    val displayText: String,
+    var children: List<Filter<*>> = emptyList()
+): Parcelable {
 
     suspend fun contains(song: SongInfo, dataRepository: DataRepository): Boolean {
-        return when (this) {
-            is TitleIs -> song.title == argument
-            is AlbumArtistIs -> song.albumArtistId == argument
-            is AlbumIs -> song.albumId == argument
-            is ArtistIs -> song.artistId == argument
-            is GenreIs -> song.genreIds.any{ it == argument }
-            is Search -> song.title.contains(argument, ignoreCase = true) || song.artistName.contains(argument, ignoreCase = true) || song.albumName.contains(argument, ignoreCase = true) || song.genreNames.any { it.contains(argument, ignoreCase = true) }
-            is SongIs -> song.id == argument
-            is TitleContain -> song.title.contains(argument, ignoreCase = true)
-            is PlaylistIs -> dataRepository.isPlaylistContainingSong(argument, song.id)
-            is DownloadedStatusIs -> dataRepository.hasDownloaded(song)
+        return when (this.type) {
+            FilterType.ALBUM_ARTIST_IS -> song.albumArtistId == argument
+            FilterType.ALBUM_IS -> song.albumId == argument
+            FilterType.ARTIST_IS -> song.artistId == argument
+            FilterType.GENRE_IS -> song.genreIds.any { it == argument }
+            FilterType.SONG_IS -> song.id == argument
+            FilterType.PLAYLIST_IS -> dataRepository.isPlaylistContainingSong(argument as Long, song.id)
+            FilterType.DOWNLOADED_STATUS_IS -> dataRepository.hasDownloaded(song)
         }
     }
 
@@ -37,35 +37,22 @@ sealed class Filter<T>(
     }
 
     /**
-     * String filters
-     */
-    class TitleIs(argument: String, childFilters: List<Filter<*>> = emptyList()) : Filter<String>(argument, argument, childrenFilters = childFilters)
-
-    class TitleContain(argument: String, childFilters: List<Filter<*>> = emptyList()) : Filter<String>(argument, argument, childrenFilters = childFilters)
-
-    class Search(argument: String, childFilters: List<Filter<*>> = emptyList()) : Filter<String>(argument, argument, childrenFilters = childFilters)
-
-    /**
      * Long filters
      */
 
-    class SongIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_SONG, childrenFilters = childFilters)
-
-    class ArtistIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST, childrenFilters = childFilters)
-
-    class AlbumArtistIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ARTIST, childrenFilters = childFilters)
-
-    class AlbumIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_ALBUM, childrenFilters = childFilters)
-
-    class GenreIs(argument: Long, name: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, name, childrenFilters = childFilters)
-
-    class PlaylistIs(argument: Long, displayValue: String, childFilters: List<Filter<*>> = emptyList()) : Filter<Long>(argument, displayValue, DataRepository.ART_TYPE_PLAYLIST, childrenFilters = childFilters)
+    enum class FilterType(val artType: String?) {
+        SONG_IS(DataRepository.ART_TYPE_SONG),
+        ARTIST_IS(DataRepository.ART_TYPE_ARTIST),
+        ALBUM_ARTIST_IS(DataRepository.ART_TYPE_ARTIST),
+        ALBUM_IS(DataRepository.ART_TYPE_ALBUM),
+        GENRE_IS(null),
+        PLAYLIST_IS(DataRepository.ART_TYPE_PLAYLIST),
+        DOWNLOADED_STATUS_IS(null)
+    }
 
     /**
      * Boolean filters
      */
-
-    class DownloadedStatusIs(argument: Boolean, childFilters: List<Filter<*>> = emptyList()) : Filter<Boolean>(argument, argument.toString(), childrenFilters = childFilters)
 }
 
 data class FilterCount(

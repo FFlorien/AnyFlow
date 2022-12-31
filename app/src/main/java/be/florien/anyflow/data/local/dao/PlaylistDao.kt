@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Transaction
+import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.local.model.DbPlaylistWithCount
 import be.florien.anyflow.data.local.model.DbPlaylistWithSongs
@@ -21,9 +23,12 @@ abstract class PlaylistDao : BaseDao<DbPlaylist>() {
     @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist ORDER BY name COLLATE UNICODE")
     abstract fun orderByName(): DataSource.Factory<Int, DbPlaylistWithCount>
 
-    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist WHERE playlist.name LIKE :filter ORDER BY name COLLATE UNICODE")
-    abstract fun orderByNameFiltered(filter: String): DataSource.Factory<Int, DbPlaylistWithCount>
+    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist WHERE playlist.name LIKE :search ORDER BY name COLLATE UNICODE")
+    abstract fun orderByNameSearched(search: String): DataSource.Factory<Int, DbPlaylistWithCount>
 
-    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist WHERE playlist.name LIKE :filter ORDER BY name COLLATE UNICODE")
-    abstract suspend fun orderByNameFilteredList(filter: String): List<DbPlaylistWithCount>
+    @Query("SELECT DISTINCT id, name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistId = id) as songCount FROM playlist WHERE playlist.name LIKE :search ORDER BY name COLLATE UNICODE")
+    abstract suspend fun orderByNameSearchedList(search: String): List<DbPlaylistWithCount>
+
+    @RawQuery(observedEntities = [DbPlaylist::class])
+    abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbPlaylistWithCount>
 }

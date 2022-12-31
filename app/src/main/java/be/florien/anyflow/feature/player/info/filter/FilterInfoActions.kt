@@ -27,7 +27,7 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
                     it.toString(),
                     null,
                     FilterFieldType.Genre(),
-                    ActionType.ExpandableTitle()
+                    FilterActionType.SubFilter()
                 )
             },
             filteredInfo.albumArtists?.let {
@@ -36,7 +36,7 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
                     it.toString(),
                     null,
                     FilterFieldType.AlbumArtist(),
-                    ActionType.ExpandableTitle()
+                    FilterActionType.SubFilter()
                 )
             },
             filteredInfo.albums?.let {
@@ -45,7 +45,7 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
                     it.toString(),
                     null,
                     FilterFieldType.Album(),
-                    ActionType.ExpandableTitle()
+                    FilterActionType.SubFilter()
                 )
             },
             filteredInfo.artists?.let {
@@ -54,7 +54,7 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
                     it.toString(),
                     null,
                     FilterFieldType.Artist(),
-                    ActionType.ExpandableTitle()
+                    FilterActionType.SubFilter()
                 )
             },
             filteredInfo.songs?.let {
@@ -63,7 +63,7 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
                     it.toString(),
                     null,
                     FilterFieldType.Song(),
-                    ActionType.ExpandableTitle()
+                    FilterActionType.SubFilter()
                 )
             },
             filteredInfo.playlists?.let {
@@ -72,7 +72,7 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
                     it.toString(),
                     null,
                     FilterFieldType.Playlist(),
-                    ActionType.ExpandableTitle()
+                    FilterActionType.SubFilter()
                 )
             }
         )
@@ -81,13 +81,5 @@ class FilterInfoActions @Inject constructor(private val dataRepository: DataRepo
     override suspend fun getActionsRows(
         infoSource: Filter<*>?,
         fieldType: FieldType
-    ): List<InfoRow> = listOf(
-        InfoRow(
-            R.string.filter_info_filter_on,
-            null,
-            null,
-            fieldType,
-            FilterActionType.SubFilter()
-        )
-    )
+    ): List<InfoRow> = emptyList()
 }

@@ -72,7 +72,10 @@ class DisplayFilterFragment : BaseFilterFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[DisplayFilterViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            requireActivity().viewModelFactory
+        )[DisplayFilterViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,22 +85,27 @@ class DisplayFilterFragment : BaseFilterFragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentDisplayFilterBinding.inflate(inflater, container, false)
         binding.vm = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         filterListAdapter = FilterListAdapter()
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
         binding.filterList.adapter = filterListAdapter
-        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)?.let {
-            val dividerItemDecoration = DividerItemDecoration(
-                requireActivity(),
-                DividerItemDecoration.VERTICAL
-            ).apply { setDrawable(it) }
-            binding
-                .filterList
-                .addItemDecoration(dividerItemDecoration)
-        }
+        ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
+            ?.let {
+                val dividerItemDecoration = DividerItemDecoration(
+                    requireActivity(),
+                    DividerItemDecoration.VERTICAL
+                ).apply { setDrawable(it) }
+                binding
+                    .filterList
+                    .addItemDecoration(dividerItemDecoration)
+            }
         filterActions.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
             saveMenuHolder.isVisible = filterActions.currentFilters.value?.isNotEmpty() == true
@@ -182,29 +190,35 @@ class DisplayFilterFragment : BaseFilterFragment() {
         private val leftActionSize = resources.getDimensionPixelSize(R.dimen.largeDimen)
 
         fun bind(filter: Filter<*>) {
-            val charSequence: CharSequence = when (filter) {
-                is Filter.TitleIs -> getString(R.string.filter_display_title_is, filter.displayText)
-                is Filter.TitleContain -> getString(
-                    R.string.filter_display_title_contain,
+            val charSequence: CharSequence = when (filter.type) {
+                Filter.FilterType.GENRE_IS -> getString(
+                    R.string.filter_display_genre_is,
                     filter.displayText
                 )
-                is Filter.GenreIs -> getString(R.string.filter_display_genre_is, filter.displayText)
-                is Filter.Search -> getString(R.string.filter_display_search, filter.displayText)
-                is Filter.SongIs -> getString(R.string.filter_display_song_is, filter.displayText)
-                is Filter.ArtistIs -> getString(
+                Filter.FilterType.SONG_IS -> getString(
+                    R.string.filter_display_song_is,
+                    filter.displayText
+                )
+                Filter.FilterType.ARTIST_IS -> getString(
                     R.string.filter_display_artist_is,
                     filter.displayText
                 )
-                is Filter.AlbumArtistIs -> getString(
+                Filter.FilterType.ALBUM_ARTIST_IS -> getString(
                     R.string.filter_display_album_artist_is,
                     filter.displayText
                 )
-                is Filter.AlbumIs -> getString(R.string.filter_display_album_is, filter.displayText)
-                is Filter.PlaylistIs -> getString(
+                Filter.FilterType.ALBUM_IS -> getString(
+                    R.string.filter_display_album_is,
+                    filter.displayText
+                )
+                Filter.FilterType.PLAYLIST_IS -> getString(
                     R.string.filter_display_playlist_is,
                     filter.displayText
                 )
-                is Filter.DownloadedStatusIs -> getString(if (filter.argument) R.string.filter_display_is_downloaded else R.string.filter_display_is_not_downloaded)
+                Filter.FilterType.DOWNLOADED_STATUS_IS -> getString(
+                    if (filter.argument as Boolean) R.string.filter_display_is_downloaded
+                    else R.string.filter_display_is_not_downloaded
+                )
             }
             if (filter.displayText.isNotBlank() && charSequence.contains(filter.displayText)) {
                 val valueStart = charSequence.lastIndexOf(filter.displayText)
@@ -222,11 +236,11 @@ class DisplayFilterFragment : BaseFilterFragment() {
             binding.vm = viewModel
             binding.filter = filter
             binding.lifecycleOwner = viewLifecycleOwner
-            if (filter.imageType != null && filter.argument is Long) {
+            if (filter.type.artType != null && filter.argument is Long) {
                 targets.add(
                     GlideApp.with(requireActivity())
                         .asBitmap()
-                        .load(viewModel.getUrlForImage(filter.imageType, filter.argument))
+                        .load(viewModel.getUrlForImage(filter.type.artType, filter.argument))
                         .into(object : CustomTarget<Bitmap>() {
                             override fun onLoadCleared(placeholder: Drawable?) {
                             }
@@ -250,32 +264,29 @@ class DisplayFilterFragment : BaseFilterFragment() {
                         })
                 )
             } else {
-                when (filter) {
-                    is Filter.AlbumArtistIs,
-                    is Filter.ArtistIs -> setCompoundDrawableFromResources(
+                when (filter.type) {
+                    Filter.FilterType.ALBUM_ARTIST_IS,
+                    Filter.FilterType.ARTIST_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_artist,
                         leftIconSize
                     )
-                    is Filter.GenreIs -> setCompoundDrawableFromResources(
+                    Filter.FilterType.GENRE_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_genre,
                         leftIconSize
                     )
-                    is Filter.AlbumIs -> setCompoundDrawableFromResources(
+                    Filter.FilterType.ALBUM_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_album,
                         leftIconSize
                     )
-                    is Filter.PlaylistIs -> setCompoundDrawableFromResources(
+                    Filter.FilterType.PLAYLIST_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_playlist,
                         leftIconSize
                     )
-                    is Filter.DownloadedStatusIs -> setCompoundDrawableFromResources(
+                    Filter.FilterType.DOWNLOADED_STATUS_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_download,
                         leftIconSize
                     )
-                    is Filter.Search,
-                    is Filter.TitleIs,
-                    is Filter.TitleContain,
-                    is Filter.SongIs -> setCompoundDrawableFromResources(
+                    Filter.FilterType.SONG_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_song,
                         leftIconSize
                     )

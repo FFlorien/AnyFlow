@@ -93,20 +93,17 @@ class SongInfoActions(
 
     suspend fun filterOn(songInfo: SongInfo, fieldType: SongFieldType) {
         val filter = when (fieldType) {
-            is SongFieldType.Title -> Filter.SongIs(
-                songInfo.id,
-                songInfo.title
-            )
-            is SongFieldType.Artist -> Filter.ArtistIs(songInfo.artistId, songInfo.artistName)
-            is SongFieldType.Album -> Filter.AlbumIs(
+            is SongFieldType.Title -> Filter(Filter.FilterType.SONG_IS, songInfo.id, songInfo.title)
+            is SongFieldType.Artist -> Filter(Filter.FilterType.ARTIST_IS, songInfo.artistId, songInfo.artistName)
+            is SongFieldType.Album -> Filter(Filter.FilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName
             )
-            is SongFieldType.AlbumArtist -> Filter.AlbumArtistIs(
+            is SongFieldType.AlbumArtist -> Filter(Filter.FilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
             )
-            is SongFieldType.Genre -> Filter.GenreIs(
+            is SongFieldType.Genre -> Filter(Filter.FilterType.GENRE_IS,
                 songInfo.genreIds.first(),
                 songInfo.genreNames.first()
             ) // todo handle multiple genre in info view

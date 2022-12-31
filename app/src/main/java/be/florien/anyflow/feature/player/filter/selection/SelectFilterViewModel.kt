@@ -1,7 +1,9 @@
 package be.florien.anyflow.feature.player.filter.selection
 
+import android.os.Parcelable
 import androidx.lifecycle.*
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.BaseViewModel
@@ -11,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
     BaseViewModel(), FilterActions {
@@ -31,21 +34,23 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
                 searchJob?.cancel()
                 searchJob = viewModelScope.launch {
                     delay(300)
-                    getCurrentPagingList(it)
+                    getCurrentPagingList(it).cachedIn(viewModelScope)
                 }
             }
 
             addSource(filtersManager.filtersInEdition) {
-                getCurrentPagingList(searchedText.value)
+                getCurrentPagingList(searchedText.value).cachedIn(viewModelScope)
             }
         }
+    var parentFilter: Filter<*>? = null
 
     protected abstract fun getUnfilteredPagingList(): LiveData<PagingData<FilterItem>>
-    protected abstract fun getFilteredPagingList(search: String): LiveData<PagingData<FilterItem>>
+    protected abstract fun getSearchedPagingList(search: String): LiveData<PagingData<FilterItem>>
+    protected abstract fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>>
     protected abstract fun isThisTypeOfFilter(filter: Filter<*>): Boolean
     protected abstract suspend fun getFoundFilters(search: String): List<FilterItem>
 
-    protected abstract fun getFilter(filterValue: FilterItem): Filter<*>
+    abstract fun getFilter(filterValue: FilterItem): Filter<*>
 
     init {
         isSearching.observeForever {
@@ -125,11 +130,14 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
     }
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
-        val liveData: LiveData<PagingData<FilterItem>> = if (search.isNullOrEmpty()) {
-            getUnfilteredPagingList()
-        } else {
-            getFilteredPagingList(search)
-        }
+        val liveData: LiveData<PagingData<FilterItem>> =
+            if (parentFilter != null) { //todo searchfiltered
+                getFilteredPagingList(listOfNotNull(parentFilter))
+            } else if (search.isNullOrEmpty()) {
+                getUnfilteredPagingList()
+            } else {
+                getSearchedPagingList(search)
+            }
         if (!liveData.hasActiveObservers()) {
             (values as MediatorLiveData).addSource(liveData) {
                 (values as MediatorLiveData).value = it
@@ -141,6 +149,20 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
     fun hasFilter(filterItem: FilterItem): Boolean {
         val filter = getFilter(filterItem)
         return filtersManager.isFilterInEdition(filter)
+    }
+
+    fun getFilterForNavigation(item: FilterItem): Filter<*> {
+        val nullSafeParentFilter = parentFilter
+        if (nullSafeParentFilter != null) {
+            val filter = nullSafeParentFilter.copy()
+            var currentParent = filter
+            while (currentParent.children.isNotEmpty()) {
+                currentParent = currentParent.children.first()
+            }
+            currentParent.children = listOf(getFilter(item))
+            return filter
+        }
+        return getFilter(item)
     }
 
     class FilterItem(

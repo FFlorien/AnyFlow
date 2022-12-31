@@ -85,46 +85,22 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
 
 fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) = Playlist(id, name, songCount, coverUrl)
 
-fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = when (clause) {
-    DbFilter.TITLE_IS -> Filter.TitleIs(argument, getChildrenFilters(this, filterList))
-    DbFilter.TITLE_CONTAIN -> Filter.TitleContain(argument, getChildrenFilters(this, filterList))
-    DbFilter.GENRE_IS -> Filter.GenreIs(
-        argument.toLong(),
-        displayText,
-        getChildrenFilters(this, filterList)
-    )
-    DbFilter.SONG_ID -> Filter.SongIs(
-        argument.toLong(),
-        displayText,
-        getChildrenFilters(this, filterList)
-    )
-    DbFilter.ARTIST_ID -> Filter.ArtistIs(
-        argument.toLong(),
-        displayText,
-        getChildrenFilters(this, filterList)
-    )
-    DbFilter.ALBUM_ARTIST_ID -> Filter.AlbumArtistIs(
-        argument.toLong(),
-        displayText,
-        getChildrenFilters(this, filterList)
-    )
-    DbFilter.ALBUM_ID -> Filter.AlbumIs(
-        argument.toLong(),
-        displayText,
-        getChildrenFilters(this, filterList)
-    )
-    DbFilter.PLAYLIST_ID -> Filter.PlaylistIs(
-        argument.toLong(),
-        displayText,
-        getChildrenFilters(this, filterList)
-    )
-    DbFilter.DOWNLOADED -> Filter.DownloadedStatusIs(true, getChildrenFilters(this, filterList))
-    DbFilter.NOT_DOWNLOADED -> Filter.DownloadedStatusIs(
-        false,
-        getChildrenFilters(this, filterList)
-    )
-    else -> Filter.TitleIs("", getChildrenFilters(this, filterList))
-}
+fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
+    argument = if (clause == DbFilter.DOWNLOADED || clause == DbFilter.NOT_DOWNLOADED) argument.toBoolean() else argument.toLong(),
+    type = when (clause) {
+        DbFilter.GENRE_IS -> Filter.FilterType.GENRE_IS
+        DbFilter.SONG_ID -> Filter.FilterType.SONG_IS
+        DbFilter.ARTIST_ID -> Filter.FilterType.ARTIST_IS
+        DbFilter.ALBUM_ARTIST_ID -> Filter.FilterType.ALBUM_ARTIST_IS
+        DbFilter.ALBUM_ID -> Filter.FilterType.ALBUM_IS
+        DbFilter.PLAYLIST_ID -> Filter.FilterType.PLAYLIST_IS
+        DbFilter.DOWNLOADED,
+        DbFilter.NOT_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
+        else -> Filter.FilterType.SONG_IS
+    },
+    displayText = displayText,
+    children = getChildrenFilters(this, filterList)
+)
 
 private fun getChildrenFilters( //warning: this hasn't been tested (yet)
     filter: DbFilter,
@@ -176,20 +152,17 @@ fun SongInfo.toDbSongToPlay() = DbSongToPlay(
 
 fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
     id = null,
-    clause = when (this) {
-        is Filter.TitleIs -> DbFilter.TITLE_IS
-        is Filter.TitleContain -> DbFilter.TITLE_CONTAIN
-        is Filter.GenreIs -> DbFilter.GENRE_IS
-        is Filter.Search -> DbFilter.SEARCH
-        is Filter.SongIs -> DbFilter.SONG_ID
-        is Filter.ArtistIs -> DbFilter.ARTIST_ID
-        is Filter.AlbumArtistIs -> DbFilter.ALBUM_ARTIST_ID
-        is Filter.AlbumIs -> DbFilter.ALBUM_ID
-        is Filter.PlaylistIs -> DbFilter.PLAYLIST_ID
-        is Filter.DownloadedStatusIs -> if (this.argument) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
+    clause = when (this.type) {
+        Filter.FilterType.GENRE_IS -> DbFilter.GENRE_IS
+        Filter.FilterType.SONG_IS -> DbFilter.SONG_ID
+        Filter.FilterType.ARTIST_IS -> DbFilter.ARTIST_ID
+        Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.ALBUM_ARTIST_ID
+        Filter.FilterType.ALBUM_IS -> DbFilter.ALBUM_ID
+        Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID
+        Filter.FilterType.DOWNLOADED_STATUS_IS -> if (this.argument == true) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
     },
-    joinClause = when (this) {
-        is Filter.PlaylistIs -> DbFilter.PLAYLIST_ID_JOIN
+    joinClause = when (this.type) {
+        Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID_JOIN
         else -> null
     },
     argument = argument.toString(),

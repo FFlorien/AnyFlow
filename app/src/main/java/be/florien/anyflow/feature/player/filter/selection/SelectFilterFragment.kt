@@ -14,15 +14,18 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.databinding.FragmentSelectFilterBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.menu.implementation.SearchMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectAllMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectNoneMenuHolder
+import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.details.DetailViewHolderListener
 import be.florien.anyflow.feature.player.details.ItemInfoTouchAdapter
 import be.florien.anyflow.feature.player.filter.BaseFilterFragment
 import be.florien.anyflow.feature.player.filter.FilterActions
+import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeFragment
 import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
@@ -31,12 +34,16 @@ import com.google.android.material.snackbar.Snackbar
 @ActivityScope
 @UserScope
 class SelectFilterFragment @SuppressLint("ValidFragment")
-constructor(private var filterType: String = SelectFilterTypeViewModel.GENRE_ID) :
+constructor(
+    private var filterType: String = SelectFilterTypeViewModel.GENRE_ID,
+    private var parentFilter: Filter<*>? = null
+) :
     BaseFilterFragment(),
     DetailViewHolderListener<SelectFilterViewModel.FilterItem> {
 
     companion object {
         private const val FILTER_TYPE = "TYPE"
+        private const val PARENT_FILTER = "PARENT_FILTER"
     }
 
     override val filterActions: FilterActions
@@ -73,10 +80,12 @@ constructor(private var filterType: String = SelectFilterTypeViewModel.GENRE_ID)
     init {
         arguments?.let {
             filterType = it.getString(FILTER_TYPE, SelectFilterTypeViewModel.GENRE_ID)
+            parentFilter = it.getParcelable(PARENT_FILTER)
         }
         if (arguments == null) {
             arguments = Bundle().apply {
                 putString(FILTER_TYPE, filterType)
+                putParcelable(PARENT_FILTER, parentFilter)
             }
         }
     }
@@ -123,6 +132,7 @@ constructor(private var filterType: String = SelectFilterTypeViewModel.GENRE_ID)
                     SelectFilterTypeViewModel.DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
                     else -> SelectFilterPlaylistViewModel::class.java
                 }]
+        viewModel.parentFilter = parentFilter
     }
 
     override fun onCreateView(
@@ -177,6 +187,16 @@ constructor(private var filterType: String = SelectFilterTypeViewModel.GENRE_ID)
     }
 
     override fun onInfoDisplayAsked(item: SelectFilterViewModel.FilterItem) {
+        val filter = viewModel.getFilterForNavigation(item)
+        (activity as PlayerActivity).supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.container,
+                SelectFilterTypeFragment(filter),
+                SelectFilterTypeFragment::class.java.simpleName
+            )
+            .addToBackStack(null)
+            .commit()
         //TODO("Not yet implemented") SongInfoFragment(item).show(childFragmentManager, "info")
     }
 }

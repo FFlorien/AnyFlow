@@ -130,6 +130,6 @@ abstract class InfoActions<T> {
         @DrawableRes
         iconRes: Int
     ) : ActionType(iconRes) {
-        class SubFilter : SongActionType(R.drawable.ic_filter)
+        class SubFilter : SongActionType(R.drawable.ic_go)
     }
 }

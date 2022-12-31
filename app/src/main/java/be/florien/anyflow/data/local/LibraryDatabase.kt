@@ -54,11 +54,13 @@ abstract class LibraryDatabase : RoomDatabase() {
         getSongDao().displayInAlphabeticalOrder()
 
     fun getIdsInQueueOrder(): LiveData<List<DbSongToPlay>> = getSongDao().songsInQueueOrder()
-    fun getSongsFiltered(filter: String): DataSource.Factory<Int, DbSongDisplay> =
-        getSongDao().displayFiltered(filter)
+    fun getSongsSearched(search: String): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().displaySearched(search)
+    fun getSongsFiltered(query:String): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().rawQueryPaging(SimpleSQLiteQuery(query))
 
-    suspend fun getSongsFilteredList(filter: String): List<DbSongDisplay> =
-        getSongDao().displayFilteredList(filter)
+    suspend fun getSongsSearchedList(filter: String): List<DbSongDisplay> =
+        getSongDao().displaySearchedList(filter)
 
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 
@@ -75,37 +77,45 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
 
     fun getGenres(): DataSource.Factory<Int, DbGenre> = getGenreDao().genreOrderByGenre()
-    fun getGenresFiltered(filter: String): DataSource.Factory<Int, DbGenre> =
-        getGenreDao().genreOrderByGenreFiltered(filter)
+    fun getGenresSearched(search: String): DataSource.Factory<Int, DbGenre> =
+        getGenreDao().genreOrderByGenreSearched(search)
+    fun getGenresFiltered(query:String): DataSource.Factory<Int, DbGenre> =
+        getGenreDao().rawQueryPaging(SimpleSQLiteQuery(query))
 
-    suspend fun getGenresFilteredList(filter: String): List<DbGenre> =
-        getGenreDao().genreOrderByGenreFilteredList(filter)
+    suspend fun getGenresSearchedList(filter: String): List<DbGenre> =
+        getGenreDao().genreOrderByGenreSearchedList(filter)
 
     fun getAlbumArtists(): DataSource.Factory<Int, DbArtist> =
         getArtistDao().albumArtistOrderByName()
 
-    fun getAlbumArtistsFiltered(filter: String): DataSource.Factory<Int, DbArtist> =
-        getArtistDao().albumArtistOrderByNameFiltered(filter)
+    fun getAlbumArtistsSearched(search: String): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().albumArtistOrderByNameSearched(search)
+    fun getAlbumArtistsFiltered(query:String): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().rawQueryPaging(SimpleSQLiteQuery(query))
 
-    suspend fun getAlbumArtistsFilteredList(filter: String): List<DbArtist> =
-        getArtistDao().albumArtistOrderByNameFilteredList(filter)
+    suspend fun getAlbumArtistsSearchedList(filter: String): List<DbArtist> =
+        getArtistDao().albumArtistOrderByNameSearchedList(filter)
 
     fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
-    fun getAlbumsFiltered(filter: String): DataSource.Factory<Int, DbAlbumDisplay> =
-        getAlbumDao().orderByNameFiltered(filter)
+    fun getAlbumsSearched(search: String): DataSource.Factory<Int, DbAlbumDisplay> =
+        getAlbumDao().orderByNameSearched(search)
+    fun getAlbumsFiltered(query:String): DataSource.Factory<Int, DbAlbumDisplay> =
+        getAlbumDao().rawQueryPaging(SimpleSQLiteQuery(query))
 
-    suspend fun getAlbumsFilteredList(filter: String): List<DbAlbumDisplay> =
-        getAlbumDao().orderByNameFilteredList(filter)
+    suspend fun getAlbumsSearchedList(filter: String): List<DbAlbumDisplay> =
+        getAlbumDao().orderByNameSearchedList(filter)
 
 
     fun getPlaylists(): DataSource.Factory<Int, DbPlaylistWithCount> =
         getPlaylistDao().orderByName()
 
-    fun getPlaylistsFiltered(filter: String): DataSource.Factory<Int, DbPlaylistWithCount> =
-        getPlaylistDao().orderByNameFiltered(filter)
+    fun getPlaylistsSearched(search: String): DataSource.Factory<Int, DbPlaylistWithCount> =
+        getPlaylistDao().orderByNameSearched(search)
+    fun getPlaylistsFiltered(query:String): DataSource.Factory<Int, DbPlaylistWithCount> =
+        getPlaylistDao().rawQueryPaging(SimpleSQLiteQuery(query))
 
-    suspend fun getPlaylistsFilteredList(filter: String): List<DbPlaylistWithCount> =
-        getPlaylistDao().orderByNameFilteredList(filter)
+    suspend fun getPlaylistsSearchedList(filter: String): List<DbPlaylistWithCount> =
+        getPlaylistDao().orderByNameSearchedList(filter)
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0

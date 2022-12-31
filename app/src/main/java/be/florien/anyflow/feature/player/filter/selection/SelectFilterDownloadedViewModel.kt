@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.player.filter.selection
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.R
@@ -19,24 +20,27 @@ class SelectFilterDownloadedViewModel @Inject constructor(
 
     private val downloadedName = context.getString(R.string.filter_is_downloaded)
     private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
-    private var currentDownloadFilters: List<Filter.DownloadedStatusIs> = listOf()
+    private var currentDownloadFilters: List<Filter<Boolean>> = listOf()
     private val liveData = MutableLiveData(PagingData.from(getFilterList()))
     init {
         filtersManager.filtersInEdition.observeForever {
-            currentDownloadFilters = it.filterIsInstance<Filter.DownloadedStatusIs>()
+            currentDownloadFilters = it.filterIsInstance<Filter<Boolean>>()
             liveData.value = PagingData.from(getFilterList())
         }
     }
 
 
     override fun getUnfilteredPagingList() = liveData
-    override fun getFilteredPagingList(search: String) = liveData
-    override fun isThisTypeOfFilter(filter: Filter<*>) = filter is Filter.DownloadedStatusIs
+    override fun getSearchedPagingList(search: String) = liveData
+
+    override fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>> = liveData
+
+    override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == Filter.FilterType.DOWNLOADED_STATUS_IS
 
     override suspend fun getFoundFilters(search: String): List<FilterItem> = getFilterList()
 
     override fun getFilter(filterValue: FilterItem) =
-        Filter.DownloadedStatusIs(filterValue.id == 0L)
+        Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 0L, "")
 
     private fun getFilterList() = listOf(
         FilterItem(0, downloadedName, null, currentDownloadFilters.any { it.argument }),

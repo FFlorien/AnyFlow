@@ -118,8 +118,8 @@ class ExoPlayerController
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
-            filtersManager.clearFilters()
-            filtersManager.addFilter(Filter.DownloadedStatusIs(true))
+            filtersManager.clearFilters()//todo download as a super (here is a good place)
+            filtersManager.addFilter(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, true, "", emptyList()))
             exoplayerScope.launch(Dispatchers.Default) {
                 filtersManager.commitChanges()
             }
