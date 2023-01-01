@@ -14,18 +14,18 @@ class SelectFilterGenreViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {
-    override fun getUnfilteredPagingList() = dataRepository.getGenres(::convert)
-    override fun getSearchedPagingList(search: String) =
-        dataRepository.getGenresSearched(search, ::convert)
-
-    override fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>> = dataRepository.getGenresFiltered(filters, ::convert)
-
+    override fun getPagingList(
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<FilterItem>> = dataRepository.getGenres(::convert, filters, search)
 
     override fun isThisTypeOfFilter(filter: Filter<*>)= filter.type == Filter.FilterType.GENRE_IS
-
-    override suspend fun getFoundFilters(search: String): List<FilterItem> =
+    override suspend fun getFoundFilters(
+        filters: List<Filter<*>>?,
+        search: String
+    ): List<FilterItem> =
         withContext(Dispatchers.Default) {
-            dataRepository.getGenresSearchedList(search, ::convert)
+            dataRepository.getGenresSearchedList(filters, search, ::convert)
         }
 
     override fun getFilter(filterValue: FilterItem) =

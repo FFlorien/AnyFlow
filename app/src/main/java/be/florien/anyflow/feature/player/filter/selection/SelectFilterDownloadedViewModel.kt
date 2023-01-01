@@ -17,6 +17,10 @@ class SelectFilterDownloadedViewModel @Inject constructor(
 ) : SelectFilterViewModel(filterActions) {
 
     override val hasSearch = false
+    override fun getPagingList(
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<FilterItem>>  = liveData
 
     private val downloadedName = context.getString(R.string.filter_is_downloaded)
     private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
@@ -29,15 +33,11 @@ class SelectFilterDownloadedViewModel @Inject constructor(
         }
     }
 
-
-    override fun getUnfilteredPagingList() = liveData
-    override fun getSearchedPagingList(search: String) = liveData
-
-    override fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>> = liveData
-
     override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == Filter.FilterType.DOWNLOADED_STATUS_IS
-
-    override suspend fun getFoundFilters(search: String): List<FilterItem> = getFilterList()
+    override suspend fun getFoundFilters(
+        filters: List<Filter<*>>?,
+        search: String
+    ): List<FilterItem> = getFilterList()
 
     override fun getFilter(filterValue: FilterItem) =
         Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 0L, "")

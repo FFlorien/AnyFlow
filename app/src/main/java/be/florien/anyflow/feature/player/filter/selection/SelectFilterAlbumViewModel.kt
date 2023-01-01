@@ -1,7 +1,5 @@
 package be.florien.anyflow.feature.player.filter.selection
 
-import androidx.lifecycle.LiveData
-import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.view.Filter
@@ -14,17 +12,13 @@ class SelectFilterAlbumViewModel @Inject constructor(
     val dataRepository: DataRepository,
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {
-    override fun getUnfilteredPagingList() = dataRepository.getAlbums(::convert)
-    override fun getSearchedPagingList(search: String) =
-        dataRepository.getAlbumsSearched(search, ::convert)
-
-    override fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>> = dataRepository.getAlbumsFiltered(filters, ::convert)
+    override fun getPagingList(filters: List<Filter<*>>?, search: String?) = dataRepository.getAlbums(::convert, filters, search)
 
     override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == Filter.FilterType.ALBUM_IS
 
-    override suspend fun getFoundFilters(search: String): List<FilterItem> =
+    override suspend fun getFoundFilters(filters: List<Filter<*>>?, search: String): List<FilterItem> =
         withContext(Dispatchers.Default) {
-            dataRepository.getAlbumsSearchedList(search, ::convert)
+            dataRepository.getAlbumsSearchedList(filters, search, ::convert)
         }
 
     override fun getFilter(filterValue: FilterItem) = Filter(Filter.FilterType.ALBUM_IS, filterValue.id, filterValue.displayName, emptyList())

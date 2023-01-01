@@ -14,18 +14,19 @@ class SelectFilterPlaylistViewModel @Inject constructor(
     val dataRepository: DataRepository,
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {
-    override fun getUnfilteredPagingList() = dataRepository.getPlaylists(::convert)
-    override fun getSearchedPagingList(search: String) =
-        dataRepository.getPlaylistsSearched(search, ::convert)
-
-    override fun getFilteredPagingList(filters: List<Filter<*>>): LiveData<PagingData<FilterItem>> = dataRepository.getPlaylistsFiltered(filters, ::convert)
-
+    override fun getPagingList(
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<FilterItem>> = dataRepository.getPlaylists(::convert, filters, search)
 
     override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == Filter.FilterType.PLAYLIST_IS
 
-    override suspend fun getFoundFilters(search: String): List<FilterItem> =
+    override suspend fun getFoundFilters(
+        filters: List<Filter<*>>?,
+        search: String
+    ): List<FilterItem> =
         withContext(Dispatchers.Default) {
-            dataRepository.getPlaylistsSearchedList(search, ::convert)
+            dataRepository.getPlaylistsSearchedList(filters, search, ::convert)
         }
 
     override fun getFilter(filterValue: FilterItem) =

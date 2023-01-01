@@ -5,8 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.paging.DataSource
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
+import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.data.local.dao.*
@@ -50,72 +53,53 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> =
         getSongDao().displayInQueueOrder()
 
-    fun getSongsInAlphabeticalOrder(): DataSource.Factory<Int, DbSongDisplay> =
-        getSongDao().displayInAlphabeticalOrder()
+    fun getSongsForQuery(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().rawQueryPaging(query)
 
     fun getIdsInQueueOrder(): LiveData<List<DbSongToPlay>> = getSongDao().songsInQueueOrder()
-    fun getSongsSearched(search: String): DataSource.Factory<Int, DbSongDisplay> =
-        getSongDao().displaySearched(search)
-    fun getSongsFiltered(query:String): DataSource.Factory<Int, DbSongDisplay> =
-        getSongDao().rawQueryPaging(SimpleSQLiteQuery(query))
 
-    suspend fun getSongsSearchedList(filter: String): List<DbSongDisplay> =
-        getSongDao().displaySearchedList(filter)
+    suspend fun getSongsListForQuery(query: SimpleSQLiteQuery): List<DbSongDisplay> =
+        getSongDao().rawQueryList(query)
 
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 
-    suspend fun getSongsFromQuery(query: String): List<Long> =
-        getSongDao().forCurrentFilters(SimpleSQLiteQuery(query))
+    suspend fun getSongsFromQuery(query: SimpleSQLiteQuery): List<Long> =
+        getSongDao().forCurrentFilters(query)
 
-    suspend fun getCountFromQuery(query: String): DbFilterCount = getFilterDao().getCount(SimpleSQLiteQuery(query))
+    suspend fun getCountFromQuery(query: SimpleSQLiteQuery): DbFilterCount =
+        getFilterDao().getCount(query)
 
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
 
-    suspend fun getBars(songId: Long): DoubleArray = getSongDao().getDownSamples(songId).downSamplesArray
+    suspend fun getBars(songId: Long): DoubleArray =
+        getSongDao().getDownSamples(songId).downSamplesArray
 
     suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
 
-    fun getGenres(): DataSource.Factory<Int, DbGenre> = getGenreDao().genreOrderByGenre()
-    fun getGenresSearched(search: String): DataSource.Factory<Int, DbGenre> =
-        getGenreDao().genreOrderByGenreSearched(search)
-    fun getGenresFiltered(query:String): DataSource.Factory<Int, DbGenre> =
-        getGenreDao().rawQueryPaging(SimpleSQLiteQuery(query))
+    fun getGenresForQuery(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbGenre> =
+        getGenreDao().rawQueryPaging(query)
 
-    suspend fun getGenresSearchedList(filter: String): List<DbGenre> =
-        getGenreDao().genreOrderByGenreSearchedList(filter)
+    suspend fun getGenresListForQuery(query: SimpleSQLiteQuery): List<DbGenre> =
+        getGenreDao().rawQuery(query)
 
-    fun getAlbumArtists(): DataSource.Factory<Int, DbArtist> =
-        getArtistDao().albumArtistOrderByName()
+    fun getAlbumArtists(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().rawQueryPaging(query)
 
-    fun getAlbumArtistsSearched(search: String): DataSource.Factory<Int, DbArtist> =
-        getArtistDao().albumArtistOrderByNameSearched(search)
-    fun getAlbumArtistsFiltered(query:String): DataSource.Factory<Int, DbArtist> =
-        getArtistDao().rawQueryPaging(SimpleSQLiteQuery(query))
+    suspend fun getAlbumArtistsListForQuery(query: SimpleSQLiteQuery): List<DbArtist> =
+        getArtistDao().rawQuery(query)
 
-    suspend fun getAlbumArtistsSearchedList(filter: String): List<DbArtist> =
-        getArtistDao().albumArtistOrderByNameSearchedList(filter)
+    fun getAlbums(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbAlbumDisplay> =
+        getAlbumDao().rawQueryPaging(query)
 
-    fun getAlbums(): DataSource.Factory<Int, DbAlbumDisplay> = getAlbumDao().orderByName()
-    fun getAlbumsSearched(search: String): DataSource.Factory<Int, DbAlbumDisplay> =
-        getAlbumDao().orderByNameSearched(search)
-    fun getAlbumsFiltered(query:String): DataSource.Factory<Int, DbAlbumDisplay> =
-        getAlbumDao().rawQueryPaging(SimpleSQLiteQuery(query))
+    suspend fun getAlbumsListForQuery(query: SimpleSQLiteQuery): List<DbAlbumDisplay> =
+        getAlbumDao().rawQueryList(query)
 
-    suspend fun getAlbumsSearchedList(filter: String): List<DbAlbumDisplay> =
-        getAlbumDao().orderByNameSearchedList(filter)
+    fun getPlaylists(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbPlaylistWithCount> =
+        getPlaylistDao().rawQueryPaging(query)
 
-
-    fun getPlaylists(): DataSource.Factory<Int, DbPlaylistWithCount> =
-        getPlaylistDao().orderByName()
-
-    fun getPlaylistsSearched(search: String): DataSource.Factory<Int, DbPlaylistWithCount> =
-        getPlaylistDao().orderByNameSearched(search)
-    fun getPlaylistsFiltered(query:String): DataSource.Factory<Int, DbPlaylistWithCount> =
-        getPlaylistDao().rawQueryPaging(SimpleSQLiteQuery(query))
-
-    suspend fun getPlaylistsSearchedList(filter: String): List<DbPlaylistWithCount> =
-        getPlaylistDao().orderByNameSearchedList(filter)
+    suspend fun getPlaylistsSearchedList(query: SimpleSQLiteQuery): List<DbPlaylistWithCount> =
+        getPlaylistDao().rawQueryList(query)
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
@@ -206,7 +190,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     suspend fun updateBars(songId: Long, bars: DoubleArray) {
-        val stringify =  bars.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { "%.3f".format(it) }
+        val stringify =
+            bars.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { "%.3f".format(it) }
         getSongDao().updateWithNewDownSamples(songId, stringify)
     }
 

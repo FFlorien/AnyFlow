@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.*
+import androidx.sqlite.db.SimpleSQLiteQuery
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheDataSource
@@ -132,24 +133,75 @@ class DataRepository
     suspend fun getQueueSize(): Int? =
         withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
 
-    fun <T : Any> getAlbums(mapping: (DbAlbumDisplay) -> T): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getAlbums().map { mapping(it) })
+    fun <T : Any> getAlbums(
+        mapping: (DbAlbumDisplay) -> T,
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(
+            libraryDatabase.getAlbums(
+                getQueryForAlbumFiltered(
+                    filters,
+                    search
+                )
+            ).map { mapping(it) })
 
-    fun <T : Any> getAlbumArtists(mapping: (DbArtist) -> T): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getAlbumArtists().map { mapping(it) })
+    fun <T : Any> getAlbumArtists(
+        mapping: (DbArtist) -> T,
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(
+            libraryDatabase.getAlbumArtists(
+                getQueryForAlbumArtistFiltered(
+                    filters,
+                    search
+                )
+            ).map { mapping(it) })
 
-    fun <T : Any> getGenres(mapping: (DbGenre) -> T): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getGenres().map { mapping(it) })
+    fun <T : Any> getGenres(
+        mapping: (DbGenre) -> T,
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(
+            libraryDatabase.getGenresForQuery(
+                getQueryForGenreFiltered(
+                    filters,
+                    search
+                )
+            ).map { mapping(it) })
 
-    fun <T : Any> getSongs(mapping: (DbSongDisplay) -> T): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getSongsInAlphabeticalOrder().map { mapping(it) })
+    fun <T : Any> getSongs(
+        mapping: (DbSongDisplay) -> T,
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(
+            libraryDatabase.getSongsForQuery(
+                getQueryForSongFiltered(
+                    filters,
+                    search
+                )
+            ).map { mapping(it) })
 
-    fun <T : Any> getPlaylists(mapping: (DbPlaylistWithCount) -> T): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getPlaylists().map { mapping(it) })
+    fun <T : Any> getPlaylists(
+        mapping: (DbPlaylistWithCount) -> T,
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(
+            libraryDatabase.getPlaylists(
+                getQueryForPlaylistFiltered(
+                    filters,
+                    search
+                )
+            ).map { mapping(it) })
 
     fun getPlaylists(): LiveData<PagingData<Playlist>> =
         convertToPagingLiveData(
-            libraryDatabase.getPlaylists().map { it.toViewPlaylist(getPlaylistArtUrl(it.id)) })
+            libraryDatabase.getPlaylists(getQueryForPlaylistFiltered(null, null))
+                .map { it.toViewPlaylist(getPlaylistArtUrl(it.id)) })
 
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
@@ -157,114 +209,65 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(libraryDatabase.getPlaylistSongs(playlistId).map { mapping(it) })
 
-    /**
-     * Searched lists
-     */
-
-    fun <T : Any> getAlbumsSearched(
-        search: String,
-        mapping: (DbAlbumDisplay) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getAlbumsSearched("%$search%").map { mapping(it) })
-
     suspend fun <T : Any> getAlbumsSearchedList(
+        filters: List<Filter<*>>?,
         search: String,
-        mapping: (DbAlbumDisplay) -> T
+        mapping: (DbAlbumDisplay) -> T,
     ): List<T> =
-        libraryDatabase.getAlbumsSearchedList("%$search%").map { item -> (mapping(item)) }
-
-
-    fun <T : Any> getAlbumArtistsSearched(
-        search: String,
-        mapping: (DbArtist) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(
-            libraryDatabase.getAlbumArtistsSearched("%$search%").map { mapping(it) })
+        libraryDatabase.getAlbumsListForQuery(
+            getQueryForAlbumFiltered(
+                filters,
+                search
+            )
+        ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getAlbumArtistsSearchedList(
+        filters: List<Filter<*>>?,
         search: String,
         mapping: (DbArtist) -> T
     ): List<T> =
-        libraryDatabase.getAlbumArtistsSearchedList("%$search%").map { item -> (mapping(item)) }
-
-    fun <T : Any> getGenresSearched(
-        search: String,
-        mapping: (DbGenre) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getGenresSearched("%$search%").map { mapping(it) })
+        libraryDatabase.getAlbumArtistsListForQuery(
+            getQueryForAlbumArtistFiltered(
+                filters,
+                search
+            )
+        ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getGenresSearchedList(
+        filters: List<Filter<*>>?,
         search: String,
         mapping: (DbGenre) -> T
     ): List<T> =
-        libraryDatabase.getGenresSearchedList("%$search%").map { item -> (mapping(item)) }
-
-    fun <T : Any> getSongsSearched(
-        search: String,
-        mapping: (DbSongDisplay) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(libraryDatabase.getSongsSearched("%$search%").map { mapping(it) })
+        libraryDatabase.getGenresListForQuery(
+            getQueryForGenreFiltered(
+                filters,
+                search
+            )
+        ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getSongsSearchedList(
+        filters: List<Filter<*>>?,
         search: String,
         mapping: (DbSongDisplay) -> T
     ): List<T> =
-        libraryDatabase.getSongsSearchedList("%$search%").map { item -> (mapping(item)) }
-
-    fun <T : Any> getPlaylistsSearched(
-        search: String,
-        mapping: (DbPlaylistWithCount) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(
-            libraryDatabase.getPlaylistsSearched("%$search%").map { mapping(it) })
+        libraryDatabase.getSongsListForQuery(
+            getQueryForSongFiltered(
+                filters,
+                search
+            )
+        ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getPlaylistsSearchedList(
+        filters: List<Filter<*>>?,
         search: String,
         mapping: (DbPlaylistWithCount) -> T
     ): List<T> =
-        libraryDatabase.getPlaylistsSearchedList("%$search%").map { item -> (mapping(item)) }
-
-    /**
-     * Filtered lists
-     */
-
-    fun <T : Any> getAlbumsFiltered(
-        filters: List<Filter<*>>,
-        mapping: (DbAlbumDisplay) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(
-            libraryDatabase.getAlbumsFiltered(getQueryForAlbumFiltered(filters))
-                .map { mapping(it) })
-
-    fun <T : Any> getAlbumArtistsFiltered(
-        filters: List<Filter<*>>,
-        mapping: (DbArtist) -> T
-    ): LiveData<PagingData<T>> = convertToPagingLiveData(
-        libraryDatabase.getAlbumArtistsFiltered(getQueryForAlbumArtistFiltered(filters))
-            .map { mapping(it) })
-
-
-    fun <T : Any> getGenresFiltered(
-        filters: List<Filter<*>>,
-        mapping: (DbGenre) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(
-            libraryDatabase.getGenresFiltered(getQueryForGenreFiltered(filters))
-                .map { mapping(it) })
-
-    fun <T : Any> getSongsFiltered(
-        filters: List<Filter<*>>,
-        mapping: (DbSongDisplay) -> T
-    ): LiveData<PagingData<T>> =
-        convertToPagingLiveData(
-            libraryDatabase.getSongsFiltered(getQueryForSongFiltered(filters)).map { mapping(it) })
-
-    fun <T : Any> getPlaylistsFiltered(
-        filters: List<Filter<*>>,
-        mapping: (DbPlaylistWithCount) -> T
-    ): LiveData<PagingData<T>> = convertToPagingLiveData(
-        libraryDatabase.getPlaylistsFiltered(getQueryForPlaylistFiltered(filters))
-            .map { mapping(it) })
+        libraryDatabase.getPlaylistsSearchedList(
+            getQueryForPlaylistFiltered(
+                filters,
+                search
+            )
+        ).map { item -> (mapping(item)) }
 
     /**
      * Playlists modification
@@ -571,7 +574,10 @@ class DataRepository
             dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
         ).liveData
 
-    private fun getQueryForSongs(filters: List<Filter<*>>, orderList: List<Order>): String {
+    private fun getQueryForSongs(
+        filters: List<Filter<*>>,
+        orderList: List<Order>
+    ): SimpleSQLiteQuery {
 
         fun constructOrderStatement(): String {
             val filteredOrderedList =
@@ -618,63 +624,78 @@ class DataRepository
             return orderStatement
         }
 
-        return "SELECT song.id FROM song" +
-                constructJoinStatement(filters, orderList) +
-                constructWhereStatement(filters) +
-                constructOrderStatement()
+        return SimpleSQLiteQuery(
+            "SELECT song.id FROM song" +
+                    constructJoinStatement(filters, orderList) +
+                    constructWhereStatement(filters, "") +
+                    constructOrderStatement()
+        )
     }
 
-    private fun getQueryForAlbumFiltered(filterList: List<Filter<*>>) =
-        "SELECT DISTINCT album.id, album.name, album.artistId, album.year,album.diskcount, artist.id, artist.name, artist.summary FROM album JOIN artist ON album.artistid = artist.id JOIN song ON song.albumId = album.id" +
-                constructJoinStatement(filterList) +
-                constructWhereStatement(filterList) +
-                " ORDER BY album.name COLLATE UNICODE"
+    private fun getQueryForAlbumFiltered(filterList: List<Filter<*>>?, search: String?) =
+        SimpleSQLiteQuery(
+            "SELECT DISTINCT album.id, album.name, album.artistId, album.year,album.diskcount, artist.id, artist.name, artist.summary FROM album JOIN artist ON album.artistid = artist.id JOIN song ON song.albumId = album.id" +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, " album.name LIKE ?", search) +
+                    " ORDER BY album.name COLLATE UNICODE",
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") }
+        )
 
-    private fun getQueryForAlbumArtistFiltered(filterList: List<Filter<*>>) =
-        "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
-                constructJoinStatement(filterList) +
-                constructWhereStatement(filterList) +
-                " ORDER BY artist.name COLLATE UNICODE"
+    private fun getQueryForAlbumArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
+        SimpleSQLiteQuery(
+            "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, " artist.name LIKE ?", search) +
+                    " ORDER BY artist.name COLLATE UNICODE",
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    private fun getQueryForGenreFiltered(filterList: List<Filter<*>>) =
-        "SELECT DISTINCT genre.id, genre.name FROM genre JOIN songgenre ON genre.id = songgenre.genreid JOIN song ON song.id = songgenre.songid " +
-                constructJoinStatement(filterList) +
-                constructWhereStatement(filterList) +
-                " ORDER BY genre.name COLLATE UNICODE"
+    private fun getQueryForGenreFiltered(filterList: List<Filter<*>>?, search: String?) =
+        SimpleSQLiteQuery(
+            "SELECT DISTINCT genre.id, genre.name FROM genre JOIN songgenre ON genre.id = songgenre.genreid JOIN song ON song.id = songgenre.songid " +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, " genre.name LIKE ?", search) +
+                    " ORDER BY genre.name COLLATE UNICODE",
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    private fun getQueryForSongFiltered(filterList: List<Filter<*>>) =
-        "SELECT DISTINCT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local, song.bars FROM song" +
-                constructJoinStatement(filterList) +
-                constructWhereStatement(filterList) +
-                " ORDER BY song.title COLLATE UNICODE"
+    private fun getQueryForSongFiltered(filterList: List<Filter<*>>?, search: String?) =
+        SimpleSQLiteQuery(
+            "SELECT DISTINCT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local, song.bars FROM song" +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, " song.title LIKE ?", search) +
+                    " ORDER BY song.title COLLATE UNICODE",
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    private fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>) =
-        "SELECT DISTINCT playlist.id, playlist.name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount FROM playlist JOIN playlistsongs on playlistsongs.playlistid = playlist.id JOIN song ON playlistsongs.songId = song.id" +
-                constructJoinStatement(filterList) +
-                constructWhereStatement(filterList) +
-                " ORDER BY playlist.name COLLATE UNICODE"
+    private fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?) =
+        SimpleSQLiteQuery(
+            "SELECT DISTINCT playlist.id, playlist.name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount FROM playlist JOIN playlistsongs on playlistsongs.playlistid = playlist.id JOIN song ON playlistsongs.songId = song.id" +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
+                    " ORDER BY playlist.name COLLATE UNICODE",
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    private fun getQueryForCount(filterList: List<Filter<*>>) = "SELECT " +
-            "SUM(Song.time) AS duration, " +
-            "COUNT(DISTINCT SongGenre.genreId) AS genres, " +
-            "COUNT(DISTINCT Album.artistid) AS albumArtists, " +
-            "COUNT(DISTINCT Song.albumId) AS albums, " +
-            "COUNT(DISTINCT Song.artistId) AS artists, " +
-            "COUNT(DISTINCT Song.id) AS songs, " +
-            "COUNT(DISTINCT PlaylistSongs.playlistId) AS playlists " +
-            "FROM Song " +
-            "LEFT JOIN SongGenre ON Song.id = SongGenre.songId " +
-            "JOIN Album ON Song.albumId = Album.id " +
-            "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
-            constructJoinStatement(filterList) +
-            constructWhereStatement(filterList)
+    private fun getQueryForCount(filterList: List<Filter<*>>) = SimpleSQLiteQuery(
+        "SELECT " +
+                "SUM(Song.time) AS duration, " +
+                "COUNT(DISTINCT SongGenre.genreId) AS genres, " +
+                "COUNT(DISTINCT Album.artistid) AS albumArtists, " +
+                "COUNT(DISTINCT Song.albumId) AS albums, " +
+                "COUNT(DISTINCT Song.artistId) AS artists, " +
+                "COUNT(DISTINCT Song.id) AS songs, " +
+                "COUNT(DISTINCT PlaylistSongs.playlistId) AS playlists " +
+                "FROM Song " +
+                "LEFT JOIN SongGenre ON Song.id = SongGenre.songId " +
+                "JOIN Album ON Song.albumId = Album.id " +
+                "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
+                constructJoinStatement(filterList) +
+                constructWhereStatement(filterList, "")
+    )
 
 
     private fun constructJoinStatement(
-        filterList: List<Filter<*>>,
+        filterList: List<Filter<*>>?,
         orderList: List<Order> = emptyList()
     ): String {
-        if (filterList.isEmpty() && orderList.isEmpty()) {
+        if (filterList == null || filterList.isEmpty() && orderList.isEmpty()) {
             return " "
         }
         val isJoiningArtist = orderList.any { it.orderingSubject == Order.Subject.ARTIST }
@@ -727,16 +748,23 @@ class DataRepository
         return baseCount + childrenCount
     }
 
-    private fun constructWhereStatement(filterList: List<Filter<*>>): String {
-        var whereStatement = if (filterList.isNotEmpty()) {
-            " WHERE"
+    private fun constructWhereStatement(
+        filterList: List<Filter<*>>?,
+        searchCondition: String,
+        search: String? = null
+    ): String {
+        return if ((filterList != null && filterList.isNotEmpty()) || search != null && search.isNotBlank()) {
+            var where = " WHERE"
+            if (search != null && search.isNotBlank()) {
+                where += searchCondition
+            }
+            if (filterList != null && filterList.isNotEmpty()) {
+                where += constructWhereSubStatement(filterList, 0, 0, 0)
+            }
+            where
         } else {
             ""
         }
-
-        whereStatement += constructWhereSubStatement(filterList, 0, 0, 0)
-
-        return whereStatement
     }
 
     private fun constructWhereSubStatement(

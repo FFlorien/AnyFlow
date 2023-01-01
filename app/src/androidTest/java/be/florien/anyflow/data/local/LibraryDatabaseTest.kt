@@ -492,7 +492,7 @@ class LibraryDatabaseTest {
             library.addOrUpdateSongs(songsToInsert)
 
             // When Querying Genre
-            val PagingData = LivePagingDataBuilder(library.getGenres(), 40).build()
+            val PagingData = LivePagingDataBuilder(library.getGenresForQuery(), 40).build()
 
             // Then It Is Retrieved
             val genres = PagingData.getValueForTest()
