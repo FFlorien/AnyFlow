@@ -29,11 +29,14 @@ class SelectFilterGenreViewModel @Inject constructor(
         }
 
     override fun getFilter(filterValue: FilterItem) =
-        Filter(Filter.FilterType.GENRE_IS, filterValue.id, filterValue.displayName)
+        getFilterInParent(Filter(Filter.FilterType.GENRE_IS, filterValue.id, filterValue.displayName))
 
-    private fun convert(genre: DbGenre) = FilterItem(
-        genre.id,
-        genre.name,
-        isSelected = filtersManager.isFilterInEdition(Filter(Filter.FilterType.GENRE_IS, genre.id, genre.name))
-    )
+    private fun convert(genre: DbGenre): FilterItem {
+        val filter = getFilterInParent(Filter(Filter.FilterType.GENRE_IS, genre.id, genre.name))
+        return FilterItem(
+            genre.id,
+            genre.name,
+            isSelected = filtersManager.isFilterInEdition(filter)
+        )
+    }
 }

@@ -40,7 +40,7 @@ class SelectFilterDownloadedViewModel @Inject constructor(
     ): List<FilterItem> = getFilterList()
 
     override fun getFilter(filterValue: FilterItem) =
-        Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 0L, "")
+        getFilterInParent(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 0L, ""))
 
     private fun getFilterList() = listOf(
         FilterItem(0, downloadedName, null, currentDownloadFilters.any { it.argument }),

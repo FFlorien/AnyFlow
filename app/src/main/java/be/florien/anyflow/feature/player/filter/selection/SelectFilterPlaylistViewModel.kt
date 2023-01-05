@@ -30,15 +30,16 @@ class SelectFilterPlaylistViewModel @Inject constructor(
         }
 
     override fun getFilter(filterValue: FilterItem) =
-        Filter(Filter.FilterType.PLAYLIST_IS, filterValue.id, filterValue.displayName)
+        getFilterInParent(Filter(Filter.FilterType.PLAYLIST_IS, filterValue.id, filterValue.displayName))
 
     private fun convert(playlist: DbPlaylistWithCount): FilterItem {
         val artUrl = dataRepository.getPlaylistArtUrl(playlist.id)
+        val filter = getFilterInParent(Filter(Filter.FilterType.PLAYLIST_IS, playlist.id, playlist.name))
         return FilterItem(
             playlist.id,
             playlist.name,
             artUrl,
-            filtersManager.isFilterInEdition(Filter(Filter.FilterType.PLAYLIST_IS, playlist.id, playlist.name))
+            filtersManager.isFilterInEdition(filter)
         )
     }
 }

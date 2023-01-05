@@ -42,9 +42,16 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
         }
     var parentFilter: Filter<*>? = null
 
-    protected abstract fun getPagingList(filters: List<Filter<*>>?, search: String?): LiveData<PagingData<FilterItem>>
+    protected abstract fun getPagingList(
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<FilterItem>>
+
     protected abstract fun isThisTypeOfFilter(filter: Filter<*>): Boolean
-    protected abstract suspend fun getFoundFilters(filters: List<Filter<*>>?, search: String): List<FilterItem>
+    protected abstract suspend fun getFoundFilters(
+        filters: List<Filter<*>>?,
+        search: String
+    ): List<FilterItem>
 
     abstract fun getFilter(filterValue: FilterItem): Filter<*>
 
@@ -126,7 +133,8 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
     }
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
-        val liveData: LiveData<PagingData<FilterItem>> = getPagingList(parentFilter?.let { listOf(it) }, search)
+        val liveData: LiveData<PagingData<FilterItem>> =
+            getPagingList(parentFilter?.let { listOf(it) }, search)
         if (!liveData.hasActiveObservers()) {
             (values as MediatorLiveData).addSource(liveData) {
                 (values as MediatorLiveData).value = it
@@ -135,26 +143,12 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
         return liveData
     }
 
-    fun hasFilter(filterItem: FilterItem): Boolean {
-        val filter = getFilter(filterItem)
-        return filtersManager.isFilterInEdition(filter)
-    }
+    fun hasFilter(filterItem: FilterItem) = filtersManager.isFilterInEdition(getFilter(filterItem))
 
-    fun getFilterForNavigation(item: FilterItem): Filter<*> {
-        val nullSafeParentFilter = parentFilter
-        if (nullSafeParentFilter != null) {
-            val filter = nullSafeParentFilter.copy()
-            var currentParent = filter
-            while (currentParent.children.isNotEmpty()) {
-                currentParent = currentParent.children.first()
-            }
-            currentParent.children = listOf(getFilter(item))
-            return filter
-        }
-        return getFilter(item)
-    }
+    protected fun getFilterInParent(filter: Filter<*>): Filter<*> =
+        parentFilter?.deepCopy()?.apply { addToDeepestChild(filter) } ?: filter
 
-    class FilterItem(
+    class FilterItem constructor(
         val id: Long,
         val displayName: String,
         val artUrl: String? = null,

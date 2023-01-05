@@ -35,14 +35,24 @@ class FiltersManager
         }
     }
 
-    fun addFilter(filter: Filter<*>, parentFilter: Filter<*>? = null) { //todo several children
+    fun addFilter(filter: Filter<*>) {
         if (unCommittedFilters.size >= MAX_FILTER_NUMBER) {
             throw MaxFiltersNumberExceededException()
         }
-        if (parentFilter != null) { //todo check if it works
-            val children = parentFilter.children.toMutableList()
-            children.add(filter)
-            parentFilter.children = children
+        if (
+            filter.children.isNotEmpty()
+            && unCommittedFilters.any { it.equalsIgnoreChildren(filter) }
+        ) {
+            var child = filter.children.first()
+            var parent = unCommittedFilters.first { it.equalsIgnoreChildren(filter) }
+            while (
+                child.children.isNotEmpty()
+                && parent.children.any { it.equalsIgnoreChildren(child) }
+            ) {
+                parent = parent.children.first { it.equalsIgnoreChildren(child) }
+                child = child.children.first()
+            }
+            parent.children = parent.children.plus(child)
         } else {
             unCommittedFilters.add(filter)
         }

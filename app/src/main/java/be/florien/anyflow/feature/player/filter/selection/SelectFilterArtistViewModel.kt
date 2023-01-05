@@ -17,9 +17,11 @@ class SelectFilterArtistViewModel @Inject constructor(
     override fun getPagingList(
         filters: List<Filter<*>>?,
         search: String?
-    ): LiveData<PagingData<FilterItem>>  = dataRepository.getAlbumArtists(::convert, filters, search)
+    ): LiveData<PagingData<FilterItem>> = dataRepository.getAlbumArtists(::convert, filters, search)
 
-    override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == Filter.FilterType.ALBUM_ARTIST_IS
+    override fun isThisTypeOfFilter(filter: Filter<*>) =
+        filter.type == Filter.FilterType.ALBUM_ARTIST_IS
+
     override suspend fun getFoundFilters(
         filters: List<Filter<*>>?,
         search: String
@@ -28,14 +30,24 @@ class SelectFilterArtistViewModel @Inject constructor(
             dataRepository.getAlbumArtistsSearchedList(filters, search, ::convert)
         }
 
-    override fun getFilter(filterValue: FilterItem) =
-        Filter(Filter.FilterType.ALBUM_ARTIST_IS, filterValue.id, filterValue.displayName)
+    override fun getFilter(filterValue: FilterItem): Filter<*> {
+        val filter =
+            Filter(Filter.FilterType.ALBUM_ARTIST_IS, filterValue.id, filterValue.displayName)
+        return getFilterInParent(filter)
+    }
 
     private fun convert(artist: DbArtist): FilterItem {
         val artUrl = dataRepository.getArtistArtUrl(artist.id)
+        val filter = getFilterInParent(Filter(
+            Filter.FilterType.ALBUM_ARTIST_IS,
+            artist.id,
+            artist.name
+        ))
         return FilterItem(
-            artist.id, artist.name,
-            artUrl, filtersManager.isFilterInEdition(Filter(Filter.FilterType.ALBUM_ARTIST_IS, artist.id, artist.name))
+            artist.id,
+            artist.name,
+            artUrl,
+            filtersManager.isFilterInEdition(filter)
         )
     }
 }

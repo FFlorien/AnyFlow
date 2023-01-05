@@ -12,7 +12,7 @@ data class Filter<T>(
     val argument: @RawValue T,
     val displayText: String,
     var children: List<Filter<*>> = emptyList()
-): Parcelable {
+) : Parcelable {
 
     suspend fun contains(song: SongInfo, dataRepository: DataRepository): Boolean {
         return when (this.type) {
@@ -21,19 +21,38 @@ data class Filter<T>(
             FilterType.ARTIST_IS -> song.artistId == argument
             FilterType.GENRE_IS -> song.genreIds.any { it == argument }
             FilterType.SONG_IS -> song.id == argument
-            FilterType.PLAYLIST_IS -> dataRepository.isPlaylistContainingSong(argument as Long, song.id)
+            FilterType.PLAYLIST_IS -> dataRepository.isPlaylistContainingSong(
+                argument as Long,
+                song.id
+            )
             FilterType.DOWNLOADED_STATUS_IS -> dataRepository.hasDownloaded(song)
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is Filter<*> && argument == other.argument
-    }
+    fun equalsIgnoreChildren(other: Filter<*>) = argument == other.argument && type == other.type
+
+    override fun equals(other: Any?) =
+        other is Filter<*>
+                && equalsIgnoreChildren(other)
+                && children.all { other.children.contains(it) }
 
     override fun hashCode(): Int {
         var result = argument.hashCode() + javaClass.name.hashCode()
         result = 31 * result + (argument?.hashCode() ?: 0)
         return result
+    }
+
+    fun deepCopy(): Filter<T> {
+        return copy(children = children.map { it.deepCopy() })
+    }
+
+    fun addToDeepestChild(filter: Filter<*>) {
+        var candidateParent = this as Filter<*>
+        while (candidateParent.children.isNotEmpty()) {
+            candidateParent = candidateParent.children.first()
+        }
+
+        candidateParent.children = listOf(filter)
     }
 
     /**

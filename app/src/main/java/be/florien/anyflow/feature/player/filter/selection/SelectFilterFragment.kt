@@ -187,7 +187,7 @@ constructor(
     }
 
     override fun onInfoDisplayAsked(item: SelectFilterViewModel.FilterItem) {
-        val filter = viewModel.getFilterForNavigation(item)
+        val filter = viewModel.getFilter(item)
         (activity as PlayerActivity).supportFragmentManager
             .beginTransaction()
             .replace(
