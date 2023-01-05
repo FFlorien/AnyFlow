@@ -380,9 +380,7 @@ class DataRepository
         }
 
     suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) {
-        libraryDatabase.setCurrentFilters(filterList.map {
-            it.toDbFilter(1)
-        })
+        libraryDatabase.setCurrentFilters(filterList)
     }
 
     fun getSongUrl(id: Long) = ampacheDataSource.getSongUrl(id)
@@ -625,7 +623,7 @@ class DataRepository
         }
 
         return SimpleSQLiteQuery(
-            "SELECT song.id FROM song" +
+            "SELECT DISTINCT song.id FROM song" +
                     constructJoinStatement(filters, orderList) +
                     constructWhereStatement(filters, "") +
                     constructOrderStatement()

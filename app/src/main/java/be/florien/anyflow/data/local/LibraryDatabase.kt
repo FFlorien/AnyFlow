@@ -14,6 +14,8 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.data.local.dao.*
 import be.florien.anyflow.data.local.model.*
+import be.florien.anyflow.data.toDbFilter
+import be.florien.anyflow.data.view.Filter
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
@@ -115,8 +117,12 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getFilterGroups(): LiveData<List<DbFilterGroup>> = getFilterGroupDao().allSavedFilterGroup()
 
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: DbFilterGroup) {
-        val filterForGroup = getFilterDao().filterForGroup(filterGroup.id)
-        setCurrentFilters(filterForGroup)
+        withTransaction {
+            val filterForGroup = getFilterDao().filterForGroup(filterGroup.id)
+            getFilterDao().updateGroup(
+                DbFilterGroup.currentFilterGroup,
+                filterForGroup.map { it.copy(filterGroup = 1) })
+        }
     }
 
     fun getOrders(): LiveData<List<DbOrder>> = getOrderDao().all().distinctUntilChanged()
@@ -195,11 +201,20 @@ abstract class LibraryDatabase : RoomDatabase() {
         getSongDao().updateWithNewDownSamples(songId, stringify)
     }
 
-    suspend fun setCurrentFilters(filters: List<DbFilter>) = asyncUpdate(CHANGE_FILTERS) {
+    suspend fun setCurrentFilters(filters: List<Filter<*>>) = asyncUpdate(CHANGE_FILTERS) {
         withTransaction {
-            getFilterDao().updateGroup(
-                DbFilterGroup.currentFilterGroup,
-                filters.map { it.copy(filterGroup = 1) })
+            getFilterDao().deleteGroupSync(DbFilterGroup.CURRENT_FILTER_GROUP_ID)
+            insertCurrentFilterAndChildren(filters)
+        }
+    }
+
+    private suspend fun insertCurrentFilterAndChildren(
+        filters: List<Filter<*>>,
+        parentId: Long? = null
+    ) {
+        filters.forEach { filter ->
+            val id = getFilterDao().insertSingle(filter.toDbFilter(1, parentId))
+            insertCurrentFilterAndChildren(filter.children, id)
         }
     }
 

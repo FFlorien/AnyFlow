@@ -13,20 +13,17 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE)])
 data class DbFilter(
     @PrimaryKey(autoGenerate = true)
-    val id: Int?,
+    val id: Long?,
     val clause: String,
     val joinClause: String?,
     val argument: String,
     val displayText: String,
     @ColumnInfo(index = true)
     val filterGroup: Long,
-    val parentFilter: Int? = null
+    val parentFilter: Long? = null
 ) {
 
     companion object {
-        const val TITLE_IS = "title ="
-        const val TITLE_CONTAIN = "title LIKE"
-        const val SEARCH = "title AND genre.name AND artist.name AND album.name LIKE"
         const val GENRE_IS = "songgenre.genreId ="
         const val SONG_ID = "song.id ="
         const val ARTIST_ID = "song.artistId ="

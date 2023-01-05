@@ -150,7 +150,7 @@ fun SongInfo.toDbSongToPlay() = DbSongToPlay(
     local = local
 )
 
-fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
+fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     id = null,
     clause = when (this.type) {
         Filter.FilterType.GENRE_IS -> DbFilter.GENRE_IS
@@ -167,7 +167,8 @@ fun Filter<*>.toDbFilter(groupId: Long) = DbFilter(
     },
     argument = argument.toString(),
     displayText = displayText,
-    filterGroup = groupId
+    filterGroup = groupId,
+    parentFilter = parentId
 )
 
 fun FilterGroup.toDbFilterGroup() = DbFilterGroup(
