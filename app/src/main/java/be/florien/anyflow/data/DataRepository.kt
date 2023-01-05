@@ -374,8 +374,12 @@ class DataRepository
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> = libraryDatabase.getCurrentFilters()
         .map { filterList ->
-            filterList.map { filter ->
-                filter.toViewFilter(filterList)
+            filterList.mapNotNull { filter ->
+                if (filter.parentFilter != null) {
+                    null
+                } else {
+                    filter.toViewFilter(filterList)
+                }
             }
         }
 
