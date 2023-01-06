@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class SelectFilterArtistViewModel @Inject constructor(
+class SelectFilterAlbumArtistViewModel @Inject constructor(
     val dataRepository: DataRepository,
     filterActions: FilterActions
 ) : SelectFilterViewModel(filterActions) {

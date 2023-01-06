@@ -126,7 +126,7 @@ constructor(
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[
                 when (filterType) {
                     SelectFilterTypeViewModel.ALBUM_ID -> SelectFilterAlbumViewModel::class.java
-                    SelectFilterTypeViewModel.ARTIST_ID -> SelectFilterArtistViewModel::class.java
+                    SelectFilterTypeViewModel.ARTIST_ID -> SelectFilterAlbumArtistViewModel::class.java
                     SelectFilterTypeViewModel.GENRE_ID -> SelectFilterGenreViewModel::class.java
                     SelectFilterTypeViewModel.SONG_ID -> SelectFilterSongViewModel::class.java
                     SelectFilterTypeViewModel.DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
