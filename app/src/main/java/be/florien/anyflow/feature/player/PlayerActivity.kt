@@ -29,7 +29,7 @@ import be.florien.anyflow.feature.connect.ConnectActivity
 import be.florien.anyflow.feature.menu.implementation.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
-import be.florien.anyflow.feature.player.filter.display.DisplayFilterFragment
+import be.florien.anyflow.feature.player.library.filters.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsActivity

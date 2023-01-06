@@ -3,14 +3,15 @@ package be.florien.anyflow.injection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.feature.player.PlayerViewModel
-import be.florien.anyflow.feature.player.filter.display.DisplayFilterViewModel
-import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupViewModel
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel
-import be.florien.anyflow.feature.player.filter.selection.*
+import be.florien.anyflow.feature.player.library.filters.DisplayFilterViewModel
+import be.florien.anyflow.feature.player.library.saved.SavedFilterGroupViewModel
+import be.florien.anyflow.feature.player.library.info.LibraryInfoViewModel
+import be.florien.anyflow.feature.player.library.list.*
 import be.florien.anyflow.feature.player.info.song.SongInfoViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsViewModel
+import be.florien.anyflow.feature.player.library.list.viewmodels.*
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
@@ -32,43 +33,43 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterTypeViewModel::class)
-    abstract fun bindsSelectFilterTypeViewModel(viewModel: SelectFilterTypeViewModel): ViewModel
+    @ViewModelKey(LibraryInfoViewModel::class)
+    abstract fun bindsSelectFilterTypeViewModel(viewModel: LibraryInfoViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterAlbumViewModel::class)
-    abstract fun bindsSelectFilterFragmentAlbumVM(viewModel: SelectFilterAlbumViewModel): ViewModel
+    @ViewModelKey(LibraryAlbumListViewModel::class)
+    abstract fun bindsSelectFilterFragmentAlbumVM(viewModel: LibraryAlbumListViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterAlbumArtistViewModel::class)
-    abstract fun bindsSelectFilterFragmentAlbumArtistVM(viewModel: SelectFilterAlbumArtistViewModel): ViewModel
+    @ViewModelKey(LibraryAlbumArtistListViewModel::class)
+    abstract fun bindsSelectFilterFragmentAlbumArtistVM(viewModel: LibraryAlbumArtistListViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterArtistViewModel::class)
-    abstract fun bindsSelectFilterFragmentArtistVM(viewModel: SelectFilterArtistViewModel): ViewModel
+    @ViewModelKey(LibraryArtistListViewModel::class)
+    abstract fun bindsSelectFilterFragmentArtistVM(viewModel: LibraryArtistListViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterGenreViewModel::class)
-    abstract fun bindsSelectFilterFragmentGenreVM(viewModel: SelectFilterGenreViewModel): ViewModel
+    @ViewModelKey(LibraryGenreListViewModel::class)
+    abstract fun bindsSelectFilterFragmentGenreVM(viewModel: LibraryGenreListViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterSongViewModel::class)
-    abstract fun bindsSelectFilterFragmentSongVM(viewModel: SelectFilterSongViewModel): ViewModel
+    @ViewModelKey(LibrarySongListViewModel::class)
+    abstract fun bindsSelectFilterFragmentSongVM(viewModel: LibrarySongListViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterPlaylistViewModel::class)
-    abstract fun bindsSelectFilterFragmentPlaylistVM(viewModel: SelectFilterPlaylistViewModel): ViewModel
+    @ViewModelKey(LibraryPlaylistListViewModel::class)
+    abstract fun bindsSelectFilterFragmentPlaylistVM(viewModel: LibraryPlaylistListViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(SelectFilterDownloadedViewModel::class)
-    abstract fun bindsSelectFilterFragmentDownloadedVM(viewModel: SelectFilterDownloadedViewModel): ViewModel
+    @ViewModelKey(LibraryDownloadedListViewModel::class)
+    abstract fun bindsSelectFilterFragmentDownloadedVM(viewModel: LibraryDownloadedListViewModel): ViewModel
 
     @Binds
     @IntoMap

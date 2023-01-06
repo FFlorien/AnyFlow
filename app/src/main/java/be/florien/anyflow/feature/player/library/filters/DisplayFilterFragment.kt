@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter.display
+package be.florien.anyflow.feature.player.library.filters
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -34,19 +34,19 @@ import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
-import be.florien.anyflow.feature.player.filter.BaseFilterFragment
-import be.florien.anyflow.feature.player.filter.FilterActions
-import be.florien.anyflow.feature.player.filter.saved.SavedFilterGroupFragment
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeFragment
+import be.florien.anyflow.feature.player.library.BaseFilteringFragment
+import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.saved.SavedFilterGroupFragment
+import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.coroutines.launch
 
-class DisplayFilterFragment : BaseFilterFragment() {
+class DisplayFilterFragment : BaseFilteringFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
     private val targets: MutableList<Target<Bitmap>> = mutableListOf()
-    override val filterActions: FilterActions
+    override val libraryActions: LibraryActions
         get() = viewModel
     lateinit var viewModel: DisplayFilterViewModel
 
@@ -61,7 +61,7 @@ class DisplayFilterFragment : BaseFilterFragment() {
             .setTitle(R.string.filter_group_name)
             .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
                 lifecycleScope.launch {
-                    filterActions.saveFilterGroup(editText.text.toString())
+                    libraryActions.saveFilterGroup(editText.text.toString())
                 }
             }
             .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
@@ -106,9 +106,9 @@ class DisplayFilterFragment : BaseFilterFragment() {
                     .filterList
                     .addItemDecoration(dividerItemDecoration)
             }
-        filterActions.currentFilters.observe(viewLifecycleOwner) {
+        libraryActions.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
-            saveMenuHolder.isVisible = filterActions.currentFilters.value?.isNotEmpty() == true
+            saveMenuHolder.isVisible = libraryActions.currentFilters.value?.isNotEmpty() == true
         }
         binding.fabSavedFilterGroups.setOnClickListener {
             requireActivity()
@@ -152,8 +152,8 @@ class DisplayFilterFragment : BaseFilterFragment() {
                             .beginTransaction()
                             .replace(
                                 R.id.container,
-                                SelectFilterTypeFragment(),
-                                SelectFilterTypeFragment::class.java.simpleName
+                                LibraryInfoFragment(),
+                                LibraryInfoFragment::class.java.simpleName
                             )
                             .addToBackStack(null)
                             .commit()

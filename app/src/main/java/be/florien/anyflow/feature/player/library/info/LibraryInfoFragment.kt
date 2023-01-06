@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter.selectType
+package be.florien.anyflow.feature.player.library.info
 
 import android.content.Context
 import android.os.Bundle
@@ -13,18 +13,18 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.player.PlayerActivity
-import be.florien.anyflow.feature.player.filter.BaseFilterFragment
-import be.florien.anyflow.feature.player.filter.FilterActions
-import be.florien.anyflow.feature.player.filter.selection.SelectFilterFragment
+import be.florien.anyflow.feature.player.library.BaseFilteringFragment
+import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.list.LibraryListFragment
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoAdapter
 import kotlin.random.Random
 
-class SelectFilterTypeFragment(private var parentFilter: Filter<*>? = null) : BaseFilterFragment() {
+class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFilteringFragment() {
     override fun getTitle(): String = getString(R.string.filter_title_main)
-    override val filterActions: FilterActions
+    override val libraryActions: LibraryActions
         get() = viewModel
-    lateinit var viewModel: SelectFilterTypeViewModel
+    lateinit var viewModel: LibraryInfoViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
 
     override fun onAttach(context: Context) {
@@ -32,7 +32,7 @@ class SelectFilterTypeFragment(private var parentFilter: Filter<*>? = null) : Ba
         viewModel = ViewModelProvider(
             requireActivity(),
             requireActivity().viewModelFactory
-        )[Random(23).toString(), SelectFilterTypeViewModel::class.java] //todo handle this gracefully !
+        )[Random(23).toString(), LibraryInfoViewModel::class.java] //todo handle this gracefully !
         viewModel.filterNavigation = parentFilter
     }
 
@@ -58,20 +58,20 @@ class SelectFilterTypeFragment(private var parentFilter: Filter<*>? = null) : Ba
         when (action) {
             is InfoActions.FilterActionType.SubFilter -> {
                 val value = when (field) {
-                    is InfoActions.FilterFieldType.Playlist -> SelectFilterTypeViewModel.PLAYLIST_ID
-                    is InfoActions.FilterFieldType.Album -> SelectFilterTypeViewModel.ALBUM_ID
-                    is InfoActions.FilterFieldType.AlbumArtist -> SelectFilterTypeViewModel.ALBUM_ARTIST_ID
-                    is InfoActions.FilterFieldType.Artist -> SelectFilterTypeViewModel.ARTIST_ID
-                    is InfoActions.FilterFieldType.Genre -> SelectFilterTypeViewModel.GENRE_ID
-                    is InfoActions.FilterFieldType.Song -> SelectFilterTypeViewModel.SONG_ID
-                    else -> SelectFilterTypeViewModel.GENRE_ID
+                    is InfoActions.FilterFieldType.Playlist -> LibraryInfoViewModel.PLAYLIST_ID
+                    is InfoActions.FilterFieldType.Album -> LibraryInfoViewModel.ALBUM_ID
+                    is InfoActions.FilterFieldType.AlbumArtist -> LibraryInfoViewModel.ALBUM_ARTIST_ID
+                    is InfoActions.FilterFieldType.Artist -> LibraryInfoViewModel.ARTIST_ID
+                    is InfoActions.FilterFieldType.Genre -> LibraryInfoViewModel.GENRE_ID
+                    is InfoActions.FilterFieldType.Song -> LibraryInfoViewModel.SONG_ID
+                    else -> LibraryInfoViewModel.GENRE_ID
                 }
                 (activity as PlayerActivity).supportFragmentManager
                     .beginTransaction()
                     .replace(
                         R.id.container,
-                        SelectFilterFragment(value, viewModel.filterNavigation),
-                        SelectFilterFragment::class.java.simpleName
+                        LibraryListFragment(value, viewModel.filterNavigation),
+                        LibraryListFragment::class.java.simpleName
                     )
                     .addToBackStack(null)
                     .commit()

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter.selection
+package be.florien.anyflow.feature.player.library.list
 
 import android.view.LayoutInflater
 import android.view.View
@@ -14,23 +14,23 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 
 class FilterListAdapter(
-    override val isSelected: (SelectFilterViewModel.FilterItem) -> Boolean,
-    override val setSelected: (SelectFilterViewModel.FilterItem) -> Unit,
-    private val detailListener: DetailViewHolderListener<SelectFilterViewModel.FilterItem>
-) : PagingDataAdapter<SelectFilterViewModel.FilterItem, FilterViewHolder>(object :
-    DiffUtil.ItemCallback<SelectFilterViewModel.FilterItem>() {
+    override val isSelected: (LibraryListViewModel.FilterItem) -> Boolean,
+    override val setSelected: (LibraryListViewModel.FilterItem) -> Unit,
+    private val detailListener: DetailViewHolderListener<LibraryListViewModel.FilterItem>
+) : PagingDataAdapter<LibraryListViewModel.FilterItem, FilterViewHolder>(object :
+    DiffUtil.ItemCallback<LibraryListViewModel.FilterItem>() {
     override fun areItemsTheSame(
-        oldItem: SelectFilterViewModel.FilterItem,
-        newItem: SelectFilterViewModel.FilterItem
+        oldItem: LibraryListViewModel.FilterItem,
+        newItem: LibraryListViewModel.FilterItem
     ) = oldItem.id == newItem.id
 
     override fun areContentsTheSame(
-        oldItem: SelectFilterViewModel.FilterItem,
-        newItem: SelectFilterViewModel.FilterItem
+        oldItem: LibraryListViewModel.FilterItem,
+        newItem: LibraryListViewModel.FilterItem
     ): Boolean =
         oldItem.artConfig == newItem.artConfig && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
 }), FastScrollRecyclerView.SectionedAdapter,
-    BaseSelectableAdapter<SelectFilterViewModel.FilterItem> {
+    BaseSelectableAdapter<LibraryListViewModel.FilterItem> {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =
         FilterViewHolder(parent, detailListener, setSelected)
 
@@ -46,24 +46,24 @@ class FilterListAdapter(
 
 class FilterViewHolder(
     parent: ViewGroup,
-    detailListener: DetailViewHolderListener<SelectFilterViewModel.FilterItem>,
-    override val onSelectChange: (SelectFilterViewModel.FilterItem) -> Unit,
+    detailListener: DetailViewHolderListener<LibraryListViewModel.FilterItem>,
+    override val onSelectChange: (LibraryListViewModel.FilterItem) -> Unit,
     private val binding: ItemSelectFilterListBinding = ItemSelectFilterListBinding.inflate(
         LayoutInflater.from(parent.context),
         parent,
         false
     )
-) : DetailViewHolder<SelectFilterViewModel.FilterItem>(
+) : DetailViewHolder<LibraryListViewModel.FilterItem>(
     detailListener,
     binding.root
 ),
-    BaseSelectableAdapter.BaseSelectableViewHolder<SelectFilterViewModel.FilterItem, SelectFilterViewModel.FilterItem> {
+    BaseSelectableAdapter.BaseSelectableViewHolder<LibraryListViewModel.FilterItem, LibraryListViewModel.FilterItem> {
 
     override val itemInfoView: View
         get() = binding.info
     override val infoIconView: View
         get() = binding.infoView
-    override val item: SelectFilterViewModel.FilterItem?
+    override val item: LibraryListViewModel.FilterItem?
         get() = binding.item
 
     init {
@@ -71,7 +71,7 @@ class FilterViewHolder(
         setClickListener()
     }
 
-    override fun bind(item: SelectFilterViewModel.FilterItem, isSelected: Boolean) {
+    override fun bind(item: LibraryListViewModel.FilterItem, isSelected: Boolean) {
         binding.item = item
         setSelection(isSelected)
         itemInfoView.setOnClickListener {
@@ -83,5 +83,5 @@ class FilterViewHolder(
         binding.selected = isSelected
     }
 
-    override fun getCurrentId(): SelectFilterViewModel.FilterItem? = binding.item
+    override fun getCurrentId(): LibraryListViewModel.FilterItem? = binding.item
 }

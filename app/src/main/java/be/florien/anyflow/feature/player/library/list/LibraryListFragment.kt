@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter.selection
+package be.florien.anyflow.feature.player.library.list
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -23,32 +23,33 @@ import be.florien.anyflow.feature.menu.implementation.SelectNoneMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.details.DetailViewHolderListener
 import be.florien.anyflow.feature.player.details.ItemInfoTouchAdapter
-import be.florien.anyflow.feature.player.filter.BaseFilterFragment
-import be.florien.anyflow.feature.player.filter.FilterActions
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeFragment
-import be.florien.anyflow.feature.player.filter.selectType.SelectFilterTypeViewModel
+import be.florien.anyflow.feature.player.library.BaseFilteringFragment
+import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
+import be.florien.anyflow.feature.player.library.info.LibraryInfoViewModel
+import be.florien.anyflow.feature.player.library.list.viewmodels.*
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.google.android.material.snackbar.Snackbar
 
 @ActivityScope
 @UserScope
-class SelectFilterFragment @SuppressLint("ValidFragment")
+class LibraryListFragment @SuppressLint("ValidFragment")
 constructor(
-    private var filterType: String = SelectFilterTypeViewModel.GENRE_ID,
+    private var filterType: String = LibraryInfoViewModel.GENRE_ID,
     private var parentFilter: Filter<*>? = null
 ) :
-    BaseFilterFragment(),
-    DetailViewHolderListener<SelectFilterViewModel.FilterItem> {
+    BaseFilteringFragment(),
+    DetailViewHolderListener<LibraryListViewModel.FilterItem> {
 
     companion object {
         private const val FILTER_TYPE = "TYPE"
         private const val PARENT_FILTER = "PARENT_FILTER"
     }
 
-    override val filterActions: FilterActions
+    override val libraryActions: LibraryActions
         get() = viewModel
-    lateinit var viewModel: SelectFilterViewModel
+    lateinit var viewModel: LibraryListViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
     private val searchMenuHolder by lazy {
         SearchMenuHolder(viewModel.isSearching.value == true, requireContext()) {
@@ -68,19 +69,19 @@ constructor(
     }
 
     override fun getTitle(): String = when (filterType) {
-        SelectFilterTypeViewModel.ALBUM_ID -> getString(R.string.filter_title_album)
-        SelectFilterTypeViewModel.ALBUM_ARTIST_ID -> getString(R.string.filter_title_album_artist)
-        SelectFilterTypeViewModel.ARTIST_ID -> getString(R.string.filter_title_album_artist)
-        SelectFilterTypeViewModel.GENRE_ID -> getString(R.string.filter_title_genre)
-        SelectFilterTypeViewModel.SONG_ID -> getString(R.string.filter_title_song)
-        SelectFilterTypeViewModel.PLAYLIST_ID -> getString(R.string.filter_title_playlist)
-        SelectFilterTypeViewModel.DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
+        LibraryInfoViewModel.ALBUM_ID -> getString(R.string.filter_title_album)
+        LibraryInfoViewModel.ALBUM_ARTIST_ID -> getString(R.string.filter_title_album_artist)
+        LibraryInfoViewModel.ARTIST_ID -> getString(R.string.filter_title_album_artist)
+        LibraryInfoViewModel.GENRE_ID -> getString(R.string.filter_title_genre)
+        LibraryInfoViewModel.SONG_ID -> getString(R.string.filter_title_song)
+        LibraryInfoViewModel.PLAYLIST_ID -> getString(R.string.filter_title_playlist)
+        LibraryInfoViewModel.DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
         else -> getString(R.string.filter_title_main)
     }
 
     init {
         arguments?.let {
-            filterType = it.getString(FILTER_TYPE, SelectFilterTypeViewModel.GENRE_ID)
+            filterType = it.getString(FILTER_TYPE, LibraryInfoViewModel.GENRE_ID)
             parentFilter = it.getParcelable(PARENT_FILTER)
         }
         if (arguments == null) {
@@ -126,13 +127,13 @@ constructor(
         super.onAttach(context)
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[
                 when (filterType) {
-                    SelectFilterTypeViewModel.ALBUM_ID -> SelectFilterAlbumViewModel::class.java
-                    SelectFilterTypeViewModel.ALBUM_ARTIST_ID -> SelectFilterAlbumArtistViewModel::class.java
-                    SelectFilterTypeViewModel.ARTIST_ID -> SelectFilterArtistViewModel::class.java
-                    SelectFilterTypeViewModel.GENRE_ID -> SelectFilterGenreViewModel::class.java
-                    SelectFilterTypeViewModel.SONG_ID -> SelectFilterSongViewModel::class.java
-                    SelectFilterTypeViewModel.DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java
-                    else -> SelectFilterPlaylistViewModel::class.java
+                    LibraryInfoViewModel.ALBUM_ID -> LibraryAlbumListViewModel::class.java
+                    LibraryInfoViewModel.ALBUM_ARTIST_ID -> LibraryAlbumArtistListViewModel::class.java
+                    LibraryInfoViewModel.ARTIST_ID -> LibraryArtistListViewModel::class.java
+                    LibraryInfoViewModel.GENRE_ID -> LibraryGenreListViewModel::class.java
+                    LibraryInfoViewModel.SONG_ID -> LibrarySongListViewModel::class.java
+                    LibraryInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
+                    else -> LibraryPlaylistListViewModel::class.java
                 }]
         viewModel.parentFilter = parentFilter
     }
@@ -188,14 +189,14 @@ constructor(
         menuCoordinator.removeMenuHolder(selectNoneMenuHolder)
     }
 
-    override fun onInfoDisplayAsked(item: SelectFilterViewModel.FilterItem) {
+    override fun onInfoDisplayAsked(item: LibraryListViewModel.FilterItem) {
         val filter = viewModel.getFilter(item)
         (activity as PlayerActivity).supportFragmentManager
             .beginTransaction()
             .replace(
                 R.id.container,
-                SelectFilterTypeFragment(filter),
-                SelectFilterTypeFragment::class.java.simpleName
+                LibraryInfoFragment(filter),
+                LibraryInfoFragment::class.java.simpleName
             )
             .addToBackStack(null)
             .commit()

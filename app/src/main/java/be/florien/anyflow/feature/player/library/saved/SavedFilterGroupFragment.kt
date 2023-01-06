@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter.saved
+package be.florien.anyflow.feature.player.library.saved
 
 import android.content.Context
 import android.os.Bundle
@@ -13,14 +13,14 @@ import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.databinding.ItemFilterGroupBinding
 import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.player.filter.BaseFilterFragment
-import be.florien.anyflow.feature.player.filter.FilterActions
+import be.florien.anyflow.feature.player.library.BaseFilteringFragment
+import be.florien.anyflow.feature.player.library.LibraryActions
 
-class SavedFilterGroupFragment : BaseFilterFragment() {
+class SavedFilterGroupFragment : BaseFilteringFragment() {
 
     private var singleActionMode: ActionMode? = null
     private lateinit var viewModel: SavedFilterGroupViewModel
-    override val filterActions: FilterActions
+    override val libraryActions: LibraryActions
         get() = viewModel
 
     private lateinit var binding: FragmentSavedFilterGroupBinding

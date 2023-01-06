@@ -1,16 +1,16 @@
-package be.florien.anyflow.feature.player.filter.display
+package be.florien.anyflow.feature.player.library.filters
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.player.filter.FilterActions
+import be.florien.anyflow.feature.player.library.LibraryActions
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
-class DisplayFilterViewModel @Inject constructor(private val filterActions: FilterActions, val dataRepository: DataRepository) :
-   BaseViewModel(), FilterActions {
+class DisplayFilterViewModel @Inject constructor(private val libraryActions: LibraryActions, val dataRepository: DataRepository) :
+   BaseViewModel(), LibraryActions {
 
     val areFilterGroupExisting: LiveData<Boolean> =
         filtersManager.filterGroups.map { it.isNotEmpty() }
@@ -31,23 +31,23 @@ class DisplayFilterViewModel @Inject constructor(private val filterActions: Filt
         dataRepository.getArtUrl(imageType, id)
 
     override val filtersManager: FiltersManager
-        get() = filterActions.filtersManager
+        get() = libraryActions.filtersManager
     override val areFiltersInEdition: LiveData<Boolean>
-        get() = filterActions.areFiltersInEdition
+        get() = libraryActions.areFiltersInEdition
     override val currentFilters: LiveData<List<Filter<*>>>
-        get() = filterActions.currentFilters
+        get() = libraryActions.currentFilters
     override val hasChangeFromCurrentFilters: LiveData<Boolean>
-        get() = filterActions.hasChangeFromCurrentFilters
+        get() = libraryActions.hasChangeFromCurrentFilters
 
     override suspend fun confirmChanges() {
-        filterActions.confirmChanges()
+        libraryActions.confirmChanges()
     }
 
     override fun cancelChanges() {
-        filterActions.cancelChanges()
+        libraryActions.cancelChanges()
     }
 
     override suspend fun saveFilterGroup(name: String) {
-        filterActions.saveFilterGroup(name)
+        libraryActions.saveFilterGroup(name)
     }
 }

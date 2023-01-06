@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter
+package be.florien.anyflow.feature.player.library
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,7 +6,7 @@ import androidx.lifecycle.map
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.player.FiltersManager
 
-interface FilterActions {
+interface LibraryActions {
     val filtersManager: FiltersManager
     val areFiltersInEdition: LiveData<Boolean>
     val currentFilters: LiveData<List<Filter<*>>>
@@ -17,7 +17,7 @@ interface FilterActions {
     suspend fun saveFilterGroup(name: String)
 }
 
-class FilterActionsHelper(override val filtersManager: FiltersManager) : FilterActions {
+class LibraryActionsHelper(override val filtersManager: FiltersManager) : LibraryActions {
 
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
     override val currentFilters: LiveData<List<Filter<*>>> =

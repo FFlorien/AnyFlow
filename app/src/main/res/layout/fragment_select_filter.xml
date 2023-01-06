@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.player.filter.selection.SelectFilterViewModel" />
+            type="be.florien.anyflow.feature.player.library.list.LibraryListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

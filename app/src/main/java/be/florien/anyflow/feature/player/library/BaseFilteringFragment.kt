@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.filter
+package be.florien.anyflow.feature.player.library
 
 import android.os.Bundle
 import android.view.Menu
@@ -11,14 +11,14 @@ import be.florien.anyflow.feature.menu.implementation.ConfirmMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 import kotlinx.coroutines.launch
 
-abstract class BaseFilterFragment : BaseFragment() {
+abstract class BaseFilteringFragment : BaseFragment() {
 
     protected val menuCoordinator = MenuCoordinator()
-    protected abstract val filterActions: FilterActions
+    protected abstract val libraryActions: LibraryActions
 
     private val confirmMenuHolder = ConfirmMenuHolder {
         lifecycleScope.launch {
-            filterActions.confirmChanges()
+            libraryActions.confirmChanges()
         }
     }
 
@@ -30,10 +30,10 @@ abstract class BaseFilterFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        filterActions.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
+        libraryActions.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
             confirmMenuHolder.isEnabled = it == true
         }
-        filterActions.areFiltersInEdition.observe(viewLifecycleOwner) {
+        libraryActions.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
                 (requireActivity() as PlayerActivity).displaySongList()
             }
@@ -48,7 +48,7 @@ abstract class BaseFilterFragment : BaseFragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menuCoordinator.prepareMenus(menu)
-        confirmMenuHolder.isEnabled = filterActions.hasChangeFromCurrentFilters.value == true
+        confirmMenuHolder.isEnabled = libraryActions.hasChangeFromCurrentFilters.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
