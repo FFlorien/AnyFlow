@@ -60,8 +60,8 @@ class SelectFilterTypeFragment(private var parentFilter: Filter<*>? = null) : Ba
                 val value = when (field) {
                     is InfoActions.FilterFieldType.Playlist -> SelectFilterTypeViewModel.PLAYLIST_ID
                     is InfoActions.FilterFieldType.Album -> SelectFilterTypeViewModel.ALBUM_ID
-                    is InfoActions.FilterFieldType.AlbumArtist -> SelectFilterTypeViewModel.ARTIST_ID
-                    // is InfoActions.FilterFieldType.Artist -> SelectFilterTypeViewModel.ARTIST_ID //todo
+                    is InfoActions.FilterFieldType.AlbumArtist -> SelectFilterTypeViewModel.ALBUM_ARTIST_ID
+                    is InfoActions.FilterFieldType.Artist -> SelectFilterTypeViewModel.ARTIST_ID
                     is InfoActions.FilterFieldType.Genre -> SelectFilterTypeViewModel.GENRE_ID
                     is InfoActions.FilterFieldType.Song -> SelectFilterTypeViewModel.SONG_ID
                     else -> SelectFilterTypeViewModel.GENRE_ID

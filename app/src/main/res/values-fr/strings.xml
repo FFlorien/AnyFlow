@@ -22,6 +22,7 @@
     <string name="filter_title_main">Selection de filtres</string>
     <string name="filter_title_album">Selection d’albums</string>
     <string name="filter_title_album_artist">Selection d’artistes de l’album</string>
+    <string name="filter_title_artist">Selection d’artistes</string>
     <string name="filter_title_genre">Selection de genres</string>
     <string name="filter_title_song">Selection de chansons</string>
     <string name="filter_title_playlist">Selection de listes de lecture</string>

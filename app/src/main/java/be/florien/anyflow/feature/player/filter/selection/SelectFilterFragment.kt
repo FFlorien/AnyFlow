@@ -69,6 +69,7 @@ constructor(
 
     override fun getTitle(): String = when (filterType) {
         SelectFilterTypeViewModel.ALBUM_ID -> getString(R.string.filter_title_album)
+        SelectFilterTypeViewModel.ALBUM_ARTIST_ID -> getString(R.string.filter_title_album_artist)
         SelectFilterTypeViewModel.ARTIST_ID -> getString(R.string.filter_title_album_artist)
         SelectFilterTypeViewModel.GENRE_ID -> getString(R.string.filter_title_genre)
         SelectFilterTypeViewModel.SONG_ID -> getString(R.string.filter_title_song)
@@ -126,7 +127,8 @@ constructor(
         viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[
                 when (filterType) {
                     SelectFilterTypeViewModel.ALBUM_ID -> SelectFilterAlbumViewModel::class.java
-                    SelectFilterTypeViewModel.ARTIST_ID -> SelectFilterAlbumArtistViewModel::class.java
+                    SelectFilterTypeViewModel.ALBUM_ARTIST_ID -> SelectFilterAlbumArtistViewModel::class.java
+                    SelectFilterTypeViewModel.ARTIST_ID -> SelectFilterArtistViewModel::class.java
                     SelectFilterTypeViewModel.GENRE_ID -> SelectFilterGenreViewModel::class.java
                     SelectFilterTypeViewModel.SONG_ID -> SelectFilterSongViewModel::class.java
                     SelectFilterTypeViewModel.DOWNLOAD_ID -> SelectFilterDownloadedViewModel::class.java

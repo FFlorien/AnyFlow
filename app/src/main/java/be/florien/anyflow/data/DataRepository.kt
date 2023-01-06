@@ -152,8 +152,21 @@ class DataRepository
         search: String?
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
-            libraryDatabase.getAlbumArtists(
+            libraryDatabase.getArtists(
                 getQueryForAlbumArtistFiltered(
+                    filters,
+                    search
+                )
+            ).map { mapping(it) })
+
+    fun <T : Any> getArtists(
+        mapping: (DbArtist) -> T,
+        filters: List<Filter<*>>?,
+        search: String?
+    ): LiveData<PagingData<T>> =
+        convertToPagingLiveData(
+            libraryDatabase.getArtists(
+                getQueryForArtistFiltered(
                     filters,
                     search
                 )
@@ -226,8 +239,20 @@ class DataRepository
         search: String,
         mapping: (DbArtist) -> T
     ): List<T> =
-        libraryDatabase.getAlbumArtistsListForQuery(
+        libraryDatabase.getArtistsListForQuery(
             getQueryForAlbumArtistFiltered(
+                filters,
+                search
+            )
+        ).map { item -> (mapping(item)) }
+
+    suspend fun <T : Any> getArtistsSearchedList(
+        filters: List<Filter<*>>?,
+        search: String,
+        mapping: (DbArtist) -> T
+    ): List<T> =
+        libraryDatabase.getArtistsListForQuery(
+            getQueryForArtistFiltered(
                 filters,
                 search
             )
@@ -642,7 +667,6 @@ class DataRepository
                     " ORDER BY album.name COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") }
         )
-
     private fun getQueryForAlbumArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
             "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
@@ -650,6 +674,15 @@ class DataRepository
                     constructWhereStatement(filterList, " artist.name LIKE ?", search) +
                     " ORDER BY artist.name COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
+
+    private fun getQueryForArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
+        SimpleSQLiteQuery(
+            "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN song ON song.artistId = artist.id" +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, " artist.name LIKE ?", search) +
+                    " ORDER BY artist.name COLLATE UNICODE",
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
+
 
     private fun getQueryForGenreFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(

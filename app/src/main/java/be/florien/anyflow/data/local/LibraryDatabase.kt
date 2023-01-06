@@ -85,10 +85,10 @@ abstract class LibraryDatabase : RoomDatabase() {
     suspend fun getGenresListForQuery(query: SimpleSQLiteQuery): List<DbGenre> =
         getGenreDao().rawQuery(query)
 
-    fun getAlbumArtists(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbArtist> =
+    fun getArtists(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbArtist> =
         getArtistDao().rawQueryPaging(query)
 
-    suspend fun getAlbumArtistsListForQuery(query: SimpleSQLiteQuery): List<DbArtist> =
+    suspend fun getArtistsListForQuery(query: SimpleSQLiteQuery): List<DbArtist> =
         getArtistDao().rawQuery(query)
 
     fun getAlbums(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbAlbumDisplay> =

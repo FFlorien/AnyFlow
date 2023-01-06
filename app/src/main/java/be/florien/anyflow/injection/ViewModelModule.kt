@@ -43,7 +43,12 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(SelectFilterAlbumArtistViewModel::class)
-    abstract fun bindsSelectFilterFragmentArtistVM(viewModel: SelectFilterAlbumArtistViewModel): ViewModel
+    abstract fun bindsSelectFilterFragmentAlbumArtistVM(viewModel: SelectFilterAlbumArtistViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SelectFilterArtistViewModel::class)
+    abstract fun bindsSelectFilterFragmentArtistVM(viewModel: SelectFilterArtistViewModel): ViewModel
 
     @Binds
     @IntoMap

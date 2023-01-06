@@ -63,6 +63,7 @@ class SelectFilterTypeViewModel @Inject constructor(
 
     companion object {
         const val GENRE_ID = "Genre"
+        const val ALBUM_ARTIST_ID = "AlbumArtist"
         const val ARTIST_ID = "Artist"
         const val ALBUM_ID = "Album"
         const val SONG_ID = "Song"
