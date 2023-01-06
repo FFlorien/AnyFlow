@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.player.filter.selectType
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 class SelectFilterTypeViewModel @Inject constructor(
     private val filterActions: FilterActions,
-    dataRepository: DataRepository
+    dataRepository: DataRepository,
+    context: Context
 ) : InfoViewModel<Filter<*>?>(), FilterActions {
 
     override val filtersManager: FiltersManager
@@ -24,7 +26,7 @@ class SelectFilterTypeViewModel @Inject constructor(
     override val hasChangeFromCurrentFilters: LiveData<Boolean>
         get() = filterActions.hasChangeFromCurrentFilters
 
-    override val infoActions: InfoActions<Filter<*>?> = FilterInfoActions(dataRepository)
+    override val infoActions: InfoActions<Filter<*>?> = FilterInfoActions(dataRepository, context)
 
     var filterNavigation: Filter<*>? = null
         set(value) {

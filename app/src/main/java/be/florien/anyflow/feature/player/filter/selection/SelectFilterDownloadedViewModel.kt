@@ -43,8 +43,8 @@ class SelectFilterDownloadedViewModel @Inject constructor(
         getFilterInParent(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 0L, ""))
 
     private fun getFilterList() = listOf(
-        FilterItem(0, downloadedName, null, currentDownloadFilters.any { it.argument }),
-        FilterItem(1, notDownloadedName, null, currentDownloadFilters.any { !it.argument })
+        FilterItem(0, downloadedName, currentDownloadFilters.any { it.argument }),
+        FilterItem(1, notDownloadedName, currentDownloadFilters.any { !it.argument })
     )
 
 }

@@ -28,8 +28,7 @@
             android:layout_height="@dimen/imageSize"
             android:layout_margin="8dp"
             android:contentDescription="@null"
-            android:visibility="@{item.coverUrl != null ? View.VISIBLE : View.GONE}"
-            app:coverImageUrl="@{item.coverUrl}"
+            app:imageSource="@{item.coverConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

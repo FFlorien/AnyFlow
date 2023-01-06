@@ -4,10 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="art"
-            type="String" />
+            type="be.florien.anyflow.extension.ImageConfig" />
 
         <variable
             name="song"
@@ -38,7 +37,7 @@
             android:layout_height="@dimen/imageSize"
             android:contentDescription="@null"
             android:scaleType="fitXY"
-            app:coverImageUrl="@{art}"
+            app:imageSource="@{art}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/cover_placeholder" />

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.ItemSongBinding
+import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.player.info.InfoActions
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlin.math.absoluteValue
@@ -113,7 +114,10 @@ class SongViewHolder(
 
     fun bind(item: SongInfo?) {
         binding.song = item
-        binding.art = item?.albumId?.let { provider.getArtUrl(it) }
+        binding.art = ImageConfig(
+            url = item?.albumId?.let { provider.getArtUrl(it) },
+            resource = R.drawable.cover_placeholder
+        )
         binding.songLayout.songInfo.translationX = if (isCurrentSong) {
             provider.getCurrentSongTranslationX()
         } else {

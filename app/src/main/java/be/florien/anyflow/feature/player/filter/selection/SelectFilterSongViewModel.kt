@@ -38,8 +38,8 @@ class SelectFilterSongViewModel @Inject constructor(
         return (FilterItem(
             song.song.id,
             "${song.song.title}\nby ${song.artist.name}\nfrom ${song.album.album.name}", //todo wut ? i18n ?
-            artUrl,
-            filtersManager.isFilterInEdition(filter)
+            filtersManager.isFilterInEdition(filter),
+            artUrl
         ))
     }
 }

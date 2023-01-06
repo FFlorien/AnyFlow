@@ -3,6 +3,7 @@ package be.florien.anyflow.data
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.view.*
+import be.florien.anyflow.extension.ImageConfig
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -83,7 +84,7 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
     local = song.local
 )
 
-fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) = Playlist(id, name, songCount, coverUrl)
+fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) = Playlist(id, name, songCount, ImageConfig(url = coverUrl, resource = null))
 
 fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
     argument = if (clause == DbFilter.DOWNLOADED || clause == DbFilter.NOT_DOWNLOADED) argument.toBoolean() else argument.toLong(),

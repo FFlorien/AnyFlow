@@ -7,6 +7,10 @@
         <import type="android.view.View" />
 
         <variable
+            name="imageConfig"
+            type="be.florien.anyflow.extension.ImageConfig" />
+
+        <variable
             name="display"
             type="be.florien.anyflow.feature.player.info.InfoActions.InfoRow" />
 
@@ -24,8 +28,8 @@
         <ImageView
             android:id="@+id/orderBg"
             android:layout_width="@dimen/orderBackgroundWidth"
-            android:layout_marginHorizontal="@dimen/smallDimen"
             android:layout_height="@dimen/orderItemsHeight"
+            android:layout_marginHorizontal="@dimen/smallDimen"
             android:scaleType="fitXY"
             android:src="@drawable/ic_action_order_bg"
             android:visibility="@{display.additionalInfo != null? View.VISIBLE : View.GONE}"
@@ -37,14 +41,14 @@
         <LinearLayout
             android:id="@+id/order"
             android:layout_width="@dimen/orderBackgroundWidth"
-            android:layout_marginHorizontal="@dimen/smallDimen"
             android:layout_height="@dimen/orderItemsHeight"
+            android:layout_marginHorizontal="@dimen/smallDimen"
             android:gravity="end"
             android:orientation="horizontal"
             android:visibility="@{display.additionalInfo != null? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/title"
+            app:layout_constraintRight_toLeftOf="@+id/image"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
@@ -52,9 +56,21 @@
                 android:layout_height="@dimen/orderItemsHeight"
                 android:src="@drawable/ic_action_order_item_fg" />
 
-            <include
-                layout="@layout/item_action_order"/>
+            <include layout="@layout/item_action_order" />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingEnd="@dimen/mediumDimen"
+            android:paddingStart="0dp"
+            app:imageSource="@{imageConfig}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/order"
+            app:layout_constraintRight_toLeftOf="@+id/title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/primaryDarkPlus" />
 
         <ImageView
             android:id="@+id/icon"
@@ -73,7 +89,7 @@
             android:layout_height="wrap_content"
             android:text="@{display.title}"
             android:textStyle="bold"
-            app:layout_constraintLeft_toRightOf="@id/order"
+            app:layout_constraintLeft_toRightOf="@id/image"
             app:layout_constraintRight_toLeftOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent" />
 

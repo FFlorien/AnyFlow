@@ -24,8 +24,8 @@
             android:layout_width="@dimen/minClickableSize"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:padding="@dimen/smallDimen"
             android:background="@color/accentLightPlus"
+            android:padding="@dimen/smallDimen"
             android:src="@drawable/ic_info" />
 
         <be.florien.anyflow.extension.CheckableConstrainLayout
@@ -42,8 +42,7 @@
                 android:layout_height="@dimen/imageSize"
                 android:layout_margin="8dp"
                 android:contentDescription="@null"
-                android:visibility="@{item.artUrl != null ? View.VISIBLE : View.GONE}"
-                app:coverImageUrl="@{item.artUrl}"
+                app:imageSource="@{item.artConfig}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

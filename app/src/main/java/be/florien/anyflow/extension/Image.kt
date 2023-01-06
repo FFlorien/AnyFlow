@@ -1,8 +1,11 @@
 package be.florien.anyflow.extension
 
 import android.net.Uri
+import android.os.Parcelable
+import android.view.View
 import android.widget.ImageView
 import android.widget.TimePicker
+import androidx.annotation.DrawableRes
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
@@ -10,24 +13,39 @@ import be.florien.anyflow.R
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
+import kotlinx.parcelize.Parcelize
 
 
 @GlideModule
 class MyAppGlideModule : AppGlideModule()
 
-@BindingAdapter("coverImageUrl")
-fun ImageView.setCoverImageUrl(url: String?) {
-    if (url == null) {
-        setImageBitmap(null)
-    } else {
+@BindingAdapter("imageSource")
+fun ImageView.setImageSource(config: ImageConfig?) {
+    if (config?.url != null) {
         GlideApp.with(this.rootView)
-            .load(ChangingTokenUrl(url))
-            .placeholder(R.drawable.cover_placeholder)
-            .error(R.drawable.cover_placeholder)
+            .load(ChangingTokenUrl(config.url))
+            .let {
+                if (config.resource != null) {
+                    it.placeholder(config.resource)
+                        .error(R.drawable.cover_placeholder)
+                } else {
+                    it
+                }
+            }
             .fitCenter()
             .into(this)
+        visibility = View.VISIBLE
+    } else if (config?.resource != null) {
+        setImageResource(config.resource)
+        visibility = View.VISIBLE
+    } else {
+        setImageBitmap(null)
+        visibility = config?.stateIfNone ?: View.GONE
     }
 }
+
+@Parcelize
+data class ImageConfig(val url: String?, @DrawableRes val resource: Int?, val stateIfNone: Int = View.GONE): Parcelable
 
 internal class ChangingTokenUrl(val url: String) : GlideUrl(url) {
     override fun getCacheKey(): String {
@@ -51,13 +69,13 @@ fun setImageResource(imageView: ImageView, resource: Int) {
 
 @BindingAdapter("time")
 fun TimePicker.setTimeBinding(time: Int) {
-    currentHour = time / 60
-    currentMinute = time % 60
+    hour = time / 60
+    minute = time % 60
 }
 
 @InverseBindingAdapter(attribute = "time")
 fun TimePicker.getHourBinding(): Int {
-    return currentHour * 60 + currentMinute
+    return hour * 60 + minute
 }
 
 @BindingAdapter("app:timeAttrChanged")

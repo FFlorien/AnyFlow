@@ -49,8 +49,8 @@ class SelectFilterAlbumViewModel @Inject constructor(
         return FilterItem(
             album.album.id,
             "${album.album.name}\nby ${album.artist.name}",
-            artUrl,
-            filtersManager.isFilterInEdition(filter)
+            filtersManager.isFilterInEdition(filter),
+            artUrl
         )
     }
 }

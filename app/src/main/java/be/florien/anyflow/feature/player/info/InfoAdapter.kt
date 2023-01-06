@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ItemInfoBinding
+import be.florien.anyflow.extension.ImageConfig
 
 
 class InfoAdapter(
@@ -87,10 +88,20 @@ class InfoViewHolder(
                     parent.context.theme
                 )
             )
-        } else if (row.actionType !is InfoActions.ActionType.InfoTitle && row.actionType !is InfoActions.ActionType.ExpandableTitle && row.actionType !is InfoActions.ActionType.ExpandedTitle) {
+        } else if (
+            row.actionType !is InfoActions.ActionType.InfoTitle
+            && row.actionType !is InfoActions.ActionType.ExpandableTitle
+            && row.actionType !is InfoActions.ActionType.ExpandedTitle
+            && row.actionType !is InfoActions.FilterActionType.SubFilter
+        ) {
             binding.root.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
         } else {
             binding.root.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)
+        }
+        binding.imageConfig = if (row.actionType is InfoActions.FilterActionType.SubFilter) {
+            ImageConfig(url = null, resource = row.fieldType.iconRes)
+        } else {
+            ImageConfig(null, null)
         }
     }
 

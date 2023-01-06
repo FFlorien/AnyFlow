@@ -28,7 +28,7 @@ class FilterListAdapter(
         oldItem: SelectFilterViewModel.FilterItem,
         newItem: SelectFilterViewModel.FilterItem
     ): Boolean =
-        oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
+        oldItem.artConfig == newItem.artConfig && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
 }), FastScrollRecyclerView.SectionedAdapter,
     BaseSelectableAdapter<SelectFilterViewModel.FilterItem> {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterViewHolder =

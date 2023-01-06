@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.filter.FilterActions
 import be.florien.anyflow.player.FiltersManager
@@ -32,12 +33,12 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
                 searchJob?.cancel()
                 searchJob = viewModelScope.launch {
                     delay(300)
-                    getCurrentPagingList(it).cachedIn(viewModelScope)
+                    getCurrentPagingList(it)
                 }
             }
 
             addSource(filtersManager.filtersInEdition) {
-                getCurrentPagingList(searchedText.value).cachedIn(viewModelScope)
+                getCurrentPagingList(searchedText.value)
             }
         }
     var parentFilter: Filter<*>? = null
@@ -134,7 +135,7 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
         val liveData: LiveData<PagingData<FilterItem>> =
-            getPagingList(parentFilter?.let { listOf(it) }, search)
+            getPagingList(parentFilter?.let { listOf(it) }, search).cachedIn(viewModelScope)
         if (!liveData.hasActiveObservers()) {
             (values as MediatorLiveData).addSource(liveData) {
                 (values as MediatorLiveData).value = it
@@ -151,7 +152,9 @@ abstract class SelectFilterViewModel(private val filterActions: FilterActions) :
     class FilterItem constructor(
         val id: Long,
         val displayName: String,
-        val artUrl: String? = null,
-        val isSelected: Boolean
-    )
+        val isSelected: Boolean,
+        artUrl: String? = null
+    ) {
+        val artConfig = ImageConfig(url = artUrl, resource = null)
+    }
 }

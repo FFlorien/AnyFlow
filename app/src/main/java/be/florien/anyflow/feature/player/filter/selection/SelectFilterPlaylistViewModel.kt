@@ -38,8 +38,8 @@ class SelectFilterPlaylistViewModel @Inject constructor(
         return FilterItem(
             playlist.id,
             playlist.name,
-            artUrl,
-            filtersManager.isFilterInEdition(filter)
+            filtersManager.isFilterInEdition(filter),
+            artUrl
         )
     }
 }

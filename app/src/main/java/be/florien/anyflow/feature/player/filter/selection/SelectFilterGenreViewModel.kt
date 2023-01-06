@@ -36,7 +36,7 @@ class SelectFilterGenreViewModel @Inject constructor(
         return FilterItem(
             genre.id,
             genre.name,
-            isSelected = filtersManager.isFilterInEdition(filter)
+            filtersManager.isFilterInEdition(filter)
         )
     }
 }

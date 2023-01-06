@@ -46,8 +46,8 @@ class SelectFilterArtistViewModel @Inject constructor(
         return FilterItem(
             artist.id,
             artist.name,
-            artUrl,
-            filtersManager.isFilterInEdition(filter)
+            filtersManager.isFilterInEdition(filter),
+            artUrl
         )
     }
 }

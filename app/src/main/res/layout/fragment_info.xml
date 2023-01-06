@@ -15,10 +15,10 @@
 
         <ImageView
             android:id="@+id/cover"
-            coverImageUrl="@{viewModel.songArt}"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
             android:layout_margin="@dimen/mediumDimen"
+            app:imageSource="@{viewModel.coverConfig}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

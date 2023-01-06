@@ -13,6 +13,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.LayoutSongBinding
+import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.BaseSelectableAdapter
@@ -25,7 +26,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     lateinit var recyclerView: RecyclerView
     lateinit var viewModel: PlaylistSongsViewModel
     private val menuCoordinator = MenuCoordinator()
-    private val removeFromPlaylistMenuHolder = RemoveSongsMenuHolder{
+    private val removeFromPlaylistMenuHolder = RemoveSongsMenuHolder {
         requireActivity().removeSongsConfirmation(viewModel)
     }
 
@@ -67,7 +68,11 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = PlaylistSongAdapter(viewModel::getCover, viewModel::isSelected, viewModel::toggleSelection)
+        recyclerView.adapter = PlaylistSongAdapter(
+            viewModel::getCover,
+            viewModel::isSelected,
+            viewModel::toggleSelection
+        )
         viewModel.songList.observe(viewLifecycleOwner) {
             (recyclerView.adapter as PlaylistSongAdapter).submitData(lifecycle, it)
         }
@@ -106,7 +111,8 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
         override val isSelected: (Long) -> Boolean,
         override val setSelected: (Long) -> Unit
     ) :
-        PagingDataAdapter<SongInfo, PlaylistSongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
+        PagingDataAdapter<SongInfo, PlaylistSongViewHolder>(object :
+            DiffUtil.ItemCallback<SongInfo>() {
             override fun areItemsTheSame(
                 oldItem: SongInfo,
                 newItem: SongInfo
@@ -138,7 +144,8 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
             container,
             false
         )
-    ) : RecyclerView.ViewHolder(binding.root), BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongInfo> {
+    ) : RecyclerView.ViewHolder(binding.root),
+        BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongInfo> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -149,7 +156,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
 
         override fun bind(item: SongInfo, isSelected: Boolean) {
             binding.song = item
-            binding.art = getCoverUrl(item.albumId)
+            binding.art = ImageConfig(getCoverUrl(item.albumId), R.drawable.cover_placeholder)
             setSelection(isSelected)
         }
 

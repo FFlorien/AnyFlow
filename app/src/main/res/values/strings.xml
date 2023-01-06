@@ -120,7 +120,25 @@
     <plurals name="playlist_songs_count">
         <item quantity="one">1 song</item>
         <item quantity="other">%d songs</item>
-        <item quantity="many">%d songs</item>
-        <item quantity="zero">No songs</item>
+    </plurals>
+    <plurals name="days_component">
+        <item quantity="one">%d day,\u0020</item>
+        <item quantity="many">%d days,\u0020</item>
+        <item quantity="other">%d days,\u0020</item>
+    </plurals>
+    <plurals name="hours_component">
+        <item quantity="one">%d hour,\u0020</item>
+        <item quantity="many">%d hours,\u0020</item>
+        <item quantity="other">%d hours,\u0020</item>
+    </plurals>
+    <plurals name="minutes_component">
+        <item quantity="one">%d minute,\u0020</item>
+        <item quantity="many">%d minutes,\u0020</item>
+        <item quantity="other">%d minutes,\u0020</item>
+    </plurals>
+    <plurals name="seconds_component">
+        <item quantity="one">%d second</item>
+        <item quantity="many">%d seconds</item>
+        <item quantity="other">%d seconds</item>
     </plurals>
 </resources>

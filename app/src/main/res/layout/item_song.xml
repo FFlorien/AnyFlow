@@ -6,7 +6,7 @@
 
         <variable
             name="art"
-            type="String" />
+            type="be.florien.anyflow.extension.ImageConfig" />
 
         <variable
             name="song"
