@@ -16,6 +16,7 @@ import be.florien.anyflow.data.local.dao.*
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.data.view.Order
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
@@ -40,6 +41,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getOrderDao(): OrderDao
     protected abstract fun getAlarmDao(): AlarmDao
     val changeUpdater: LiveData<Int?> = MutableLiveData()
+    val queryComposer = QueryComposer()
 
     /**
      * Getters
@@ -55,21 +57,25 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun getSongsInQueueOrder(): DataSource.Factory<Int, DbSongDisplay> =
         getSongDao().displayInQueueOrder()
 
-    fun getSongsForQuery(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbSongDisplay> =
-        getSongDao().rawQueryPaging(query)
+    fun getSongsForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): DataSource.Factory<Int, DbSongDisplay> =
+        getSongDao().rawQueryPaging(queryComposer.getQueryForSongFiltered(filters, search))
 
     fun getIdsInQueueOrder(): LiveData<List<DbSongToPlay>> = getSongDao().songsInQueueOrder()
 
-    suspend fun getSongsListForQuery(query: SimpleSQLiteQuery): List<DbSongDisplay> =
-        getSongDao().rawQueryList(query)
+    suspend fun getSongsListForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): List<DbSongDisplay> =
+        getSongDao().rawQueryList(queryComposer.getQueryForSongFiltered(filters, search))
 
     suspend fun getQueueSize(): Int? = getSongDao().queueSize()
 
-    suspend fun getSongsFromQuery(query: SimpleSQLiteQuery): List<Long> =
-        getSongDao().forCurrentFilters(query)
+    suspend fun getSongsFromQuery(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> =
+        getSongDao().forCurrentFilters(queryComposer.getQueryForSongs(filterList, orderList))
 
-    suspend fun getCountFromQuery(query: SimpleSQLiteQuery): DbFilterCount =
-        getFilterDao().getCount(query)
+    suspend fun getCountFromQuery(filters: List<Filter<*>>): DbFilterCount =
+        getFilterDao().getCount(queryComposer.getQueryForCount(filters))
 
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
@@ -79,29 +85,55 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
 
-    fun getGenresForQuery(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbGenre> =
-        getGenreDao().rawQueryPaging(query)
+    fun getGenresForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): DataSource.Factory<Int, DbGenre> =
+        getGenreDao().rawQueryPaging(queryComposer.getQueryForGenreFiltered(filters, search))
 
-    suspend fun getGenresListForQuery(query: SimpleSQLiteQuery): List<DbGenre> =
-        getGenreDao().rawQuery(query)
+    suspend fun getGenresListForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): List<DbGenre> =
+        getGenreDao().rawQuery(queryComposer.getQueryForGenreFiltered(filters, search))
 
-    fun getArtists(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbArtist> =
-        getArtistDao().rawQueryPaging(query)
+    fun getArtists(
+        filters: List<Filter<*>>?,
+        search: String?): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().rawQueryPaging(queryComposer.getQueryForArtistFiltered(filters, search))
 
-    suspend fun getArtistsListForQuery(query: SimpleSQLiteQuery): List<DbArtist> =
-        getArtistDao().rawQuery(query)
+    suspend fun getArtistsListForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): List<DbArtist> =
+        getArtistDao().rawQuery(queryComposer.getQueryForArtistFiltered(filters, search))
 
-    fun getAlbums(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbAlbumDisplay> =
-        getAlbumDao().rawQueryPaging(query)
+    fun getAlbumArtists(
+        filters: List<Filter<*>>?,
+        search: String?): DataSource.Factory<Int, DbArtist> =
+        getArtistDao().rawQueryPaging(queryComposer.getQueryForAlbumArtistFiltered(filters, search))
 
-    suspend fun getAlbumsListForQuery(query: SimpleSQLiteQuery): List<DbAlbumDisplay> =
-        getAlbumDao().rawQueryList(query)
+    suspend fun getAlbumArtistsListForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): List<DbArtist> =
+        getArtistDao().rawQuery(queryComposer.getQueryForAlbumArtistFiltered(filters, search))
 
-    fun getPlaylists(query: SimpleSQLiteQuery): DataSource.Factory<Int, DbPlaylistWithCount> =
-        getPlaylistDao().rawQueryPaging(query)
+    fun getAlbums(
+        filters: List<Filter<*>>?,
+        search: String?): DataSource.Factory<Int, DbAlbumDisplay> =
+        getAlbumDao().rawQueryPaging(queryComposer.getQueryForAlbumFiltered(filters, search))
 
-    suspend fun getPlaylistsSearchedList(query: SimpleSQLiteQuery): List<DbPlaylistWithCount> =
-        getPlaylistDao().rawQueryList(query)
+    suspend fun getAlbumsListForQuery(
+        filters: List<Filter<*>>?,
+        search: String?): List<DbAlbumDisplay> =
+        getAlbumDao().rawQueryList(queryComposer.getQueryForAlbumFiltered(filters, search))
+
+    fun getPlaylists(
+        filters: List<Filter<*>>?,
+        search: String?): DataSource.Factory<Int, DbPlaylistWithCount> =
+        getPlaylistDao().rawQueryPaging(queryComposer.getQueryForPlaylistFiltered(filters, search))
+
+    suspend fun getPlaylistsSearchedList(
+        filters: List<Filter<*>>?,
+        search: String?): List<DbPlaylistWithCount> =
+        getPlaylistDao().rawQueryList(queryComposer.getQueryForPlaylistFiltered(filters, search))
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
