@@ -32,7 +32,8 @@
                 android:background="@color/primary"
                 android:elevation="@dimen/mediumDimen"
                 android:theme="@style/ToolBarStyle"
-                app:titleTextColor="@color/accent" />
+                app:titleTextAppearance="@style/Toolbar.TitleText"
+                app:subtitleTextAppearance="@style/Toolbar.SubTitleText" />
 
             <LinearLayout
                 android:id="@+id/connectionStateView"

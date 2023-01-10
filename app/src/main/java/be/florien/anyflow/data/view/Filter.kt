@@ -29,6 +29,9 @@ data class Filter<T>(
         }
     }
 
+    fun getFullDisplay(): String =
+        displayText + (children.firstOrNull()?.getFullDisplay()?.let { " > $it" } ?: "")
+
     fun equalsIgnoreChildren(other: Filter<*>) = argument == other.argument && type == other.type
 
     override fun equals(other: Any?) =

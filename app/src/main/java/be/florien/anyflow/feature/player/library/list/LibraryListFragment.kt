@@ -68,15 +68,17 @@ constructor(
         }
     }
 
-    override fun getTitle(): String = when (filterType) {
-        LibraryInfoViewModel.ALBUM_ID -> getString(R.string.filter_title_album)
-        LibraryInfoViewModel.ALBUM_ARTIST_ID -> getString(R.string.filter_title_album_artist)
-        LibraryInfoViewModel.ARTIST_ID -> getString(R.string.filter_title_album_artist)
-        LibraryInfoViewModel.GENRE_ID -> getString(R.string.filter_title_genre)
-        LibraryInfoViewModel.SONG_ID -> getString(R.string.filter_title_song)
-        LibraryInfoViewModel.PLAYLIST_ID -> getString(R.string.filter_title_playlist)
-        LibraryInfoViewModel.DOWNLOAD_ID -> getString(R.string.filter_title_downloaded)
-        else -> getString(R.string.filter_title_main)
+    override fun getTitle(): String = getString(R.string.library_title_main)
+
+    override fun getSubtitle(): String? = when (filterType) {
+        LibraryInfoViewModel.ALBUM_ID -> getString(R.string.library_type_album)
+        LibraryInfoViewModel.ALBUM_ARTIST_ID -> getString(R.string.library_type_album_artist)
+        LibraryInfoViewModel.ARTIST_ID -> getString(R.string.library_type_album_artist)
+        LibraryInfoViewModel.GENRE_ID -> getString(R.string.library_type_genre)
+        LibraryInfoViewModel.SONG_ID -> getString(R.string.library_type_song)
+        LibraryInfoViewModel.PLAYLIST_ID -> getString(R.string.library_type_playlist)
+        LibraryInfoViewModel.DOWNLOAD_ID -> getString(R.string.library_type_download)
+        else -> null
     }
 
     init {

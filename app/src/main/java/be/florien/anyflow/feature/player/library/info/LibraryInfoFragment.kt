@@ -24,7 +24,9 @@ import be.florien.anyflow.feature.player.library.list.LibraryListFragment
 import kotlin.random.Random
 
 class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFilteringFragment() {
-    override fun getTitle(): String = getString(R.string.filter_title_main)
+    override fun getTitle(): String = getString(R.string.library_title_main)
+    override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
+
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
     lateinit var viewModel: LibraryInfoViewModel

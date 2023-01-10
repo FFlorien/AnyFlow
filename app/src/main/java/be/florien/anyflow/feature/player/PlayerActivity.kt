@@ -8,11 +8,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
@@ -68,6 +71,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     private lateinit var libraryMenu: LibraryMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
+    private var isSubtitleConfigured = false
 
     /**
      * Lifecycle methods
@@ -104,7 +108,11 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.container, SongListFragment(), SongListFragment::class.java.simpleName)
+                .replace(
+                    R.id.container,
+                    SongListFragment(),
+                    SongListFragment::class.java.simpleName
+                )
                 .runOnCommit {
                     adaptToolbarToCurrentFragment()
                 }
@@ -124,7 +132,11 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 }
                 AmpacheDataSource.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
                 AmpacheDataSource.ConnectionStatus.CONNECTED -> {
-                    bindService(Intent(this, SyncService::class.java), viewModel.updateConnection, Context.BIND_AUTO_CREATE)
+                    bindService(
+                        Intent(this, SyncService::class.java),
+                        viewModel.updateConnection,
+                        Context.BIND_AUTO_CREATE
+                    )
                     animateDisappearance(binding.connectionStateView)
                 }
             }
@@ -211,7 +223,10 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
      */
 
     fun displaySongList() {
-        supportFragmentManager.popBackStack(LIBRARY_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.popBackStack(
+            LIBRARY_STACK_NAME,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
     }
 
     /**
@@ -228,7 +243,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     }
 
     private fun initDrawer() {
-        drawerToggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.info_action_download_description, R.string.info_action_download) // todo strings
+        drawerToggle = ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            binding.toolbar,
+            R.string.info_action_download_description,
+            R.string.info_action_download
+        ) // todo strings
         binding.drawerLayout.addDrawerListener(drawerToggle)
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
@@ -288,11 +309,17 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     }
 
     private fun displayLibrary() {
-        val fragment = supportFragmentManager.findFragmentByTag(LibraryInfoFragment::class.java.simpleName)
-            ?: LibraryInfoFragment()
+        val fragment =
+            supportFragmentManager.findFragmentByTag(LibraryInfoFragment::class.java.simpleName)
+                ?: LibraryInfoFragment()
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
+            .setCustomAnimations(
+                R.anim.slide_in_top,
+                R.anim.slide_backward,
+                R.anim.slide_forward,
+                R.anim.slide_out_top
+            )
             .replace(R.id.container, fragment, LibraryInfoFragment::class.java.simpleName)
             .addToBackStack(LIBRARY_STACK_NAME)
             .commit()
@@ -306,10 +333,20 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     private fun adaptToolbarToCurrentFragment() {
         val isSongListVisible = isSongListVisible()
-        (supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment)?.getTitle()?.let {
+        val baseFragment = supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment
+        baseFragment?.getTitle()?.let {
             supportActionBar?.title = it
         }
+        val subtitle = baseFragment?.getSubtitle()
+        supportActionBar?.subtitle = subtitle
         drawerToggle.isDrawerIndicatorEnabled = isSongListVisible
+        if (subtitle !=  null && !isSubtitleConfigured) {
+            binding.toolbar.children.forEach { toolbarView ->
+                (toolbarView as? TextView)
+                    ?.takeIf { it.text == subtitle }
+                    ?.ellipsize = TextUtils.TruncateAt.START
+            }
+        }
     }
 
     private fun isSongListVisible() =
