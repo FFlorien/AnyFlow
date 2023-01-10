@@ -12,20 +12,33 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.extension.viewModelFactory
+import be.florien.anyflow.feature.menu.implementation.FilterMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
-import be.florien.anyflow.feature.player.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.library.LibraryActions
-import be.florien.anyflow.feature.player.library.list.LibraryListFragment
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoAdapter
+import be.florien.anyflow.feature.player.library.BaseFilteringFragment
+import be.florien.anyflow.feature.player.library.LibraryViewModel
+import be.florien.anyflow.feature.player.library.cancelChanges
+import be.florien.anyflow.feature.player.library.filters.DisplayFilterFragment
+import be.florien.anyflow.feature.player.library.list.LibraryListFragment
 import kotlin.random.Random
 
 class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFilteringFragment() {
     override fun getTitle(): String = getString(R.string.filter_title_main)
-    override val libraryActions: LibraryActions
+    override val libraryViewModel: LibraryViewModel
         get() = viewModel
     lateinit var viewModel: LibraryInfoViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
+    private lateinit var filterMenu: FilterMenuHolder
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        filterMenu = FilterMenuHolder {
+            displayFilters()
+        }
+        menuCoordinator.addMenuHolder(filterMenu)
+        filterMenu.isVisible = parentFilter == null
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -52,6 +65,26 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
             infoAdapter.submitList(it)
         }
         return fragmentBinding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        filterMenu.isVisible = false
+        if (viewModel.filterNavigation == null) {
+            viewModel.cancelChanges()
+        }
+        menuCoordinator.removeMenuHolder(filterMenu)
+    }
+
+    private fun displayFilters() {
+        val fragment = requireActivity().supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
+            ?: DisplayFilterFragment()
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
+            .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun executeAction(field: InfoActions.FieldType, action: InfoActions.ActionType) {

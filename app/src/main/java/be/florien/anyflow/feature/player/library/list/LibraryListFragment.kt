@@ -24,7 +24,7 @@ import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.details.DetailViewHolderListener
 import be.florien.anyflow.feature.player.details.ItemInfoTouchAdapter
 import be.florien.anyflow.feature.player.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.LibraryViewModel
 import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.library.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.player.library.list.viewmodels.*
@@ -47,7 +47,7 @@ constructor(
         private const val PARENT_FILTER = "PARENT_FILTER"
     }
 
-    override val libraryActions: LibraryActions
+    override val libraryViewModel: LibraryViewModel
         get() = viewModel
     lateinit var viewModel: LibraryListViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterBinding
@@ -135,7 +135,7 @@ constructor(
                     LibraryInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
                     else -> LibraryPlaylistListViewModel::class.java
                 }]
-        viewModel.parentFilter = parentFilter
+        viewModel.navigationFilter = parentFilter
     }
 
     override fun onCreateView(

@@ -10,7 +10,7 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_filters"
+        android:id="@+id/menu_library"
         android:icon="@drawable/ic_filter"
         android:title="@string/menu_filters"
         app:showAsAction="always" />

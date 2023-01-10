@@ -14,11 +14,11 @@ import kotlinx.coroutines.launch
 abstract class BaseFilteringFragment : BaseFragment() {
 
     protected val menuCoordinator = MenuCoordinator()
-    protected abstract val libraryActions: LibraryActions
+    protected abstract val libraryViewModel: LibraryViewModel
 
     private val confirmMenuHolder = ConfirmMenuHolder {
         lifecycleScope.launch {
-            libraryActions.confirmChanges()
+            libraryViewModel.confirmChanges()
         }
     }
 
@@ -30,10 +30,10 @@ abstract class BaseFilteringFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        libraryActions.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
+        libraryViewModel.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
             confirmMenuHolder.isEnabled = it == true
         }
-        libraryActions.areFiltersInEdition.observe(viewLifecycleOwner) {
+        libraryViewModel.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
                 (requireActivity() as PlayerActivity).displaySongList()
             }
@@ -48,7 +48,7 @@ abstract class BaseFilteringFragment : BaseFragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menuCoordinator.prepareMenus(menu)
-        confirmMenuHolder.isEnabled = libraryActions.hasChangeFromCurrentFilters.value == true
+        confirmMenuHolder.isEnabled = libraryViewModel.hasChangeFromCurrentFilters.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

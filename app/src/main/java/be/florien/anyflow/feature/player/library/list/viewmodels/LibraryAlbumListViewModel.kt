@@ -3,16 +3,16 @@ package be.florien.anyflow.feature.player.library.list.viewmodels
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.feature.player.library.LibraryActions
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
+import be.florien.anyflow.player.FiltersManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LibraryAlbumListViewModel @Inject constructor(
     val dataRepository: DataRepository,
-    libraryActions: LibraryActions
-) : LibraryListViewModel(libraryActions) {
+    filtersManager: FiltersManager
+) : LibraryListViewModel(filtersManager) {
     override fun getPagingList(filters: List<Filter<*>>?, search: String?) =
         dataRepository.getAlbums(::convert, filters, search)
 

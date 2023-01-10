@@ -7,15 +7,15 @@ import androidx.paging.PagingData
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.feature.player.library.LibraryActions
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
+import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
 class LibraryDownloadedListViewModel @Inject constructor(
     val dataRepository: DataRepository,
-    libraryActions: LibraryActions,
+    filtersManager: FiltersManager,
     context: Context
-) : LibraryListViewModel(libraryActions) {
+) : LibraryListViewModel(filtersManager) {
 
     override val hasSearch = false
     override fun getPagingList(

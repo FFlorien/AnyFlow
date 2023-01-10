@@ -17,9 +17,6 @@ import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
-import be.florien.anyflow.feature.player.library.LibraryActions
-import be.florien.anyflow.feature.player.library.LibraryActionsHelper
-import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.PlayerService
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
@@ -156,7 +153,4 @@ class ApplicationModule {
     @Provides
     fun provideAudioManager(context: Context) =
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-    @Provides
-    fun provideFiltersScreen(filtersManager: FiltersManager): LibraryActions = LibraryActionsHelper(filtersManager)
 }

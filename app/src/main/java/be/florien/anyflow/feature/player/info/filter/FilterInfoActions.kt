@@ -19,7 +19,7 @@ class FilterInfoActions @Inject constructor(
 
     override suspend fun getInfoRows(infoSource: Filter<*>?): List<InfoRow> {
         fun Int?.getDurationString(resource: Int) =
-            this?.let { resources.getQuantityString(resource, it, it) }
+            this?.let { resources.getQuantityString(resource, it, it) } ?: ""
 
         val filteredInfo =
             withContext(Dispatchers.IO) { dataRepository.getFilteredInfo(infoSource) }
@@ -31,7 +31,7 @@ class FilterInfoActions @Inject constructor(
                     val h = hours.takeIf { it > 0 || days > 0 }
                     val m = minutes.takeIf { it > 0 || days > 0 || hours > 0 }
                     val s = seconds.takeIf { it > 0 || days > 0 || hours > 0 || minutes > 0 }
-                    "" + d.getDurationString(R.plurals.days_component) +
+                    d.getDurationString(R.plurals.days_component) +
                             h.getDurationString(R.plurals.hours_component) +
                             m.getDurationString(R.plurals.minutes_component) +
                             s.getDurationString(R.plurals.seconds_component)

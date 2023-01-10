@@ -26,13 +26,13 @@ import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
-import be.florien.anyflow.feature.menu.implementation.FilterMenuHolder
 import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.feature.menu.implementation.LibraryMenuHolder
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
-import be.florien.anyflow.feature.player.library.filters.DisplayFilterFragment
 import be.florien.anyflow.feature.player.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsActivity
+import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
 import be.florien.anyflow.injection.*
 import be.florien.anyflow.player.PlayerService
 import javax.inject.Inject
@@ -66,7 +66,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private lateinit var filterMenu: FilterMenuHolder
+    private lateinit var libraryMenu: LibraryMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
 
     /**
@@ -197,7 +197,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             return
         }
 
-        menuCoordinator.removeMenuHolder(filterMenu)
+        menuCoordinator.removeMenuHolder(libraryMenu)
         menuCoordinator.removeMenuHolder(orderMenu)
         unbindService(viewModel.playerConnection)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
@@ -211,7 +211,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
      */
 
     fun displaySongList() {
-        supportFragmentManager.popBackStack(FILTER_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.popBackStack(LIBRARY_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     /**
@@ -255,8 +255,8 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     }
 
     private fun initMenus() {
-        filterMenu = FilterMenuHolder {
-            displayFilters()
+        libraryMenu = LibraryMenuHolder {
+            displayLibrary()
         }
         orderMenu = OrderMenuHolder(viewModel.isOrdered.value == true, this) {
             if (viewModel.isOrdered.value == true) {
@@ -266,7 +266,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             }
         }
 
-        menuCoordinator.addMenuHolder(filterMenu)
+        menuCoordinator.addMenuHolder(libraryMenu)
         menuCoordinator.addMenuHolder(orderMenu)
     }
 
@@ -287,20 +287,20 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         )
     }
 
-    private fun displayFilters() {
-        val fragment = supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
-            ?: DisplayFilterFragment()
+    private fun displayLibrary() {
+        val fragment = supportFragmentManager.findFragmentByTag(LibraryInfoFragment::class.java.simpleName)
+            ?: LibraryInfoFragment()
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
-            .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
-            .addToBackStack(FILTER_STACK_NAME)
+            .replace(R.id.container, fragment, LibraryInfoFragment::class.java.simpleName)
+            .addToBackStack(LIBRARY_STACK_NAME)
             .commit()
     }
 
     private fun updateMenuItemVisibility() {
         val isSongListVisible = isSongListVisible()
-        filterMenu.isVisible = isSongListVisible
+        libraryMenu.isVisible = isSongListVisible
         orderMenu.isVisible = isSongListVisible
     }
 
@@ -360,7 +360,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     }
 
     companion object {
-        private const val FILTER_STACK_NAME = "filters"
+        private const val LIBRARY_STACK_NAME = "filters"
         private const val HALF_HOUR = 1800000L
     }
 }

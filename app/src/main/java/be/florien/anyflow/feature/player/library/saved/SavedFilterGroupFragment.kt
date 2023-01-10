@@ -14,13 +14,13 @@ import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.databinding.ItemFilterGroupBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.player.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.LibraryViewModel
 
 class SavedFilterGroupFragment : BaseFilteringFragment() {
 
     private var singleActionMode: ActionMode? = null
     private lateinit var viewModel: SavedFilterGroupViewModel
-    override val libraryActions: LibraryActions
+    override val libraryViewModel: LibraryViewModel
         get() = viewModel
 
     private lateinit var binding: FragmentSavedFilterGroupBinding

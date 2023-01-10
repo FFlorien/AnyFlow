@@ -34,10 +34,8 @@ import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
-import be.florien.anyflow.feature.player.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.*
 import be.florien.anyflow.feature.player.library.saved.SavedFilterGroupFragment
-import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
@@ -46,7 +44,7 @@ import kotlinx.coroutines.launch
 class DisplayFilterFragment : BaseFilteringFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
     private val targets: MutableList<Target<Bitmap>> = mutableListOf()
-    override val libraryActions: LibraryActions
+    override val libraryViewModel: LibraryViewModel
         get() = viewModel
     lateinit var viewModel: DisplayFilterViewModel
 
@@ -61,7 +59,7 @@ class DisplayFilterFragment : BaseFilteringFragment() {
             .setTitle(R.string.filter_group_name)
             .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
                 lifecycleScope.launch {
-                    libraryActions.saveFilterGroup(editText.text.toString())
+                    libraryViewModel.saveFilterGroup(editText.text.toString())
                 }
             }
             .setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int ->
@@ -76,11 +74,6 @@ class DisplayFilterFragment : BaseFilteringFragment() {
             this,
             requireActivity().viewModelFactory
         )[DisplayFilterViewModel::class.java]
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.resetFilterChanges()
         menuCoordinator.addMenuHolder(saveMenuHolder)
     }
 
@@ -106,9 +99,9 @@ class DisplayFilterFragment : BaseFilteringFragment() {
                     .filterList
                     .addItemDecoration(dividerItemDecoration)
             }
-        libraryActions.currentFilters.observe(viewLifecycleOwner) {
+        libraryViewModel.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
-            saveMenuHolder.isVisible = libraryActions.currentFilters.value?.isNotEmpty() == true
+            saveMenuHolder.isVisible = libraryViewModel.currentFilters.value?.isNotEmpty() == true
         }
         binding.fabSavedFilterGroups.setOnClickListener {
             requireActivity()
@@ -122,7 +115,7 @@ class DisplayFilterFragment : BaseFilteringFragment() {
                 .addToBackStack(null)
                 .commit()
         }
-        saveMenuHolder.isVisible = viewModel.currentFilters.value?.isNotEmpty() == true
+        saveMenuHolder.isVisible = libraryViewModel.currentFilters.value?.toList()?.isNotEmpty() == true
         ViewCompat.setTranslationZ(binding.root, 1f)
         return binding.root
     }
@@ -131,7 +124,6 @@ class DisplayFilterFragment : BaseFilteringFragment() {
         targets.forEach {
             it.request?.clear()
         }
-        viewModel.cancelChanges()
         menuCoordinator.removeMenuHolder(saveMenuHolder)
         super.onDetach()
     }
@@ -145,26 +137,12 @@ class DisplayFilterFragment : BaseFilteringFragment() {
         override fun onBindViewHolder(holder: FilterViewHolder, position: Int) {
             when (position) {
                 0 -> {
-                    holder.bind(getString(R.string.action_filter_add), R.drawable.ic_add)
-                    holder.itemView.setOnClickListener {
-                        requireActivity()
-                            .supportFragmentManager
-                            .beginTransaction()
-                            .replace(
-                                R.id.container,
-                                LibraryInfoFragment(),
-                                LibraryInfoFragment::class.java.simpleName
-                            )
-                            .addToBackStack(null)
-                            .commit()
-                    }
-                }
-                1 -> {
                     holder.bind(getString(R.string.action_filter_clear), R.drawable.ic_delete)
                     holder.itemView.setOnClickListener { viewModel.clearFilters() }
                 }
                 else -> {
-                    val filter = viewModel.currentFilters.value?.getOrNull(position - 2) ?: return
+                    val filter =
+                        libraryViewModel.currentFilters.value?.toList()?.getOrNull(position - 1) ?: return
                     holder.bind(filter)
                     holder.itemView.setOnClickListener(null)
                 }
@@ -172,8 +150,7 @@ class DisplayFilterFragment : BaseFilteringFragment() {
         }
 
         override fun getItemCount(): Int {
-            val value = viewModel.currentFilters.value ?: return 1
-            return value.size + (if (value.isNotEmpty()) 2 else 1)
+            return viewModel.currentFilters.value?.size?.takeIf { it > 0 }?.plus(1) ?: 0
         }
     }
 

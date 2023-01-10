@@ -7,15 +7,18 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.player.library.LibraryActions
+import be.florien.anyflow.feature.player.library.LibraryViewModel
+import be.florien.anyflow.feature.player.library.currentFilters
 import be.florien.anyflow.player.FiltersManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-abstract class LibraryListViewModel(private val libraryActions: LibraryActions) :
-    BaseViewModel(), LibraryActions {
+abstract class LibraryListViewModel(override val filtersManager: FiltersManager) :
+    BaseViewModel(), LibraryViewModel {
+
+    override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
     private var searchJob: Job? = null
     open val hasSearch = true
 
@@ -41,7 +44,7 @@ abstract class LibraryListViewModel(private val libraryActions: LibraryActions) 
                 getCurrentPagingList(searchedText.value)
             }
         }
-    var parentFilter: Filter<*>? = null
+    var navigationFilter: Filter<*>? = null
 
     protected abstract fun getPagingList(
         filters: List<Filter<*>>?,
@@ -64,27 +67,6 @@ abstract class LibraryListViewModel(private val libraryActions: LibraryActions) 
         }
     }
 
-    override val filtersManager: FiltersManager
-        get() = libraryActions.filtersManager
-    override val areFiltersInEdition: LiveData<Boolean>
-        get() = libraryActions.areFiltersInEdition
-    override val currentFilters: LiveData<List<Filter<*>>>
-        get() = libraryActions.currentFilters
-    override val hasChangeFromCurrentFilters: LiveData<Boolean>
-        get() = libraryActions.hasChangeFromCurrentFilters
-
-    override suspend fun confirmChanges() {
-        libraryActions.confirmChanges()
-    }
-
-    override fun cancelChanges() {
-        libraryActions.cancelChanges()
-    }
-
-    override suspend fun saveFilterGroup(name: String) {
-        libraryActions.saveFilterGroup(name)
-    }
-
     fun toggleFilterSelection(filterValue: FilterItem) {
         val filter = getFilter(filterValue)
         if (filtersManager.isFilterInEdition(filter)) {
@@ -101,7 +83,7 @@ abstract class LibraryListViewModel(private val libraryActions: LibraryActions) 
     fun selectAllInSelection() {
         val search = searchedText.value ?: return
         viewModelScope.launch(Dispatchers.Main) {
-            val changingList = getFoundFilters(parentFilter?.let { listOf(it) }, search)
+            val changingList = getFoundFilters(navigationFilter?.let { listOf(it) }, search)
 
             run listToAdd@{
                 changingList.forEach {
@@ -135,7 +117,7 @@ abstract class LibraryListViewModel(private val libraryActions: LibraryActions) 
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
         val liveData: LiveData<PagingData<FilterItem>> =
-            getPagingList(parentFilter?.let { listOf(it) }, search).cachedIn(viewModelScope)
+            getPagingList(navigationFilter?.let { listOf(it) }, search).cachedIn(viewModelScope)
         if (!liveData.hasActiveObservers()) {
             (values as MediatorLiveData).addSource(liveData) {
                 (values as MediatorLiveData).value = it
@@ -147,7 +129,7 @@ abstract class LibraryListViewModel(private val libraryActions: LibraryActions) 
     fun hasFilter(filterItem: FilterItem) = filtersManager.isFilterInEdition(getFilter(filterItem))
 
     protected fun getFilterInParent(filter: Filter<*>): Filter<*> =
-        parentFilter?.deepCopy()?.apply { addToDeepestChild(filter) } ?: filter
+        navigationFilter?.deepCopy()?.apply { addToDeepestChild(filter) } ?: filter
 
     class FilterItem constructor(
         val id: Long,
