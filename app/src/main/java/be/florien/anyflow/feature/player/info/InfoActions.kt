@@ -3,6 +3,7 @@ package be.florien.anyflow.feature.player.info
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.R
+import be.florien.anyflow.extension.ImageConfig
 
 abstract class InfoActions<T> {
 
@@ -32,9 +33,23 @@ abstract class InfoActions<T> {
     }
 
     sealed class FieldType(
-        @DrawableRes
-        val iconRes: Int
+        val imageConfig: ImageConfig
     ) {
+        override fun equals(other: Any?): Boolean {
+            return this.javaClass.isInstance(other)
+        }
+
+        override fun hashCode(): Int {
+            return imageConfig.hashCode()
+        }
+    }
+
+    sealed class ActionType(@DrawableRes val iconRes: Int) {
+        class None : ActionType(0)
+        class InfoTitle : ActionType(0)
+        class ExpandableTitle : ActionType(R.drawable.ic_next_occurence)
+        class ExpandedTitle : ActionType(R.drawable.ic_previous_occurence)
+
         override fun equals(other: Any?): Boolean {
             return this.javaClass.isInstance(other)
         }
@@ -44,37 +59,16 @@ abstract class InfoActions<T> {
         }
     }
 
-    sealed class ActionType(
-        @DrawableRes
-        val iconRes: Int
-    ) {
-        class None : SongActionType(0)
-        class InfoTitle : SongActionType(0)
-        class ExpandableTitle : SongActionType(R.drawable.ic_next_occurence)
-        class ExpandedTitle : SongActionType(R.drawable.ic_previous_occurence)
-
-        override fun equals(other: Any?): Boolean {
-            return this.javaClass.isInstance(other)
-        }
-
-        override fun hashCode(): Int {
-            return iconRes
-        }
-    }
-
-    sealed class SongFieldType(
-        @DrawableRes
-        iconRes: Int
-    ) : FieldType(iconRes) {
+    sealed class SongFieldType(@DrawableRes iconRes: Int) : FieldType(ImageConfig(null, iconRes)) {
 
         class Title : SongFieldType(R.drawable.ic_song)
-        class Track : SongFieldType(R.drawable.ic_song)
+        class Track : SongFieldType(R.drawable.ic_track)
         class Artist : SongFieldType(R.drawable.ic_artist)
         class Album : SongFieldType(R.drawable.ic_album)
         class AlbumArtist : SongFieldType(R.drawable.ic_album_artist)
         class Genre : SongFieldType(R.drawable.ic_genre)
-        class Year : SongFieldType(R.drawable.ic_album)
-        class Duration : SongFieldType(R.drawable.ic_song)
+        class Year : SongFieldType(R.drawable.ic_year)
+        class Duration : SongFieldType(R.drawable.ic_duration)
 
         companion object {
             fun getClassFromName(name: String) = when (name) {
@@ -113,23 +107,24 @@ abstract class InfoActions<T> {
         }
     }
 
-    sealed class FilterFieldType(
+    sealed class LibraryFieldType(
         @DrawableRes
-        iconRes: Int
-    ) : FieldType (iconRes) {
-        class Duration : FilterFieldType(R.drawable.ic_genre) //todo icon
-        class Genre : FilterFieldType(R.drawable.ic_genre)
-        class AlbumArtist : FilterFieldType(R.drawable.ic_album_artist)
-        class Album : FilterFieldType(R.drawable.ic_album)
-        class Artist : FilterFieldType(R.drawable.ic_artist)
-        class Song : FilterFieldType(R.drawable.ic_song)
-        class Playlist : FilterFieldType(R.drawable.ic_playlist)
+        iconRes: Int,
+        url: String?
+    ) : FieldType(ImageConfig(url, iconRes)) {
+        class Duration : LibraryFieldType(R.drawable.ic_duration, null)
+        class Genre(url: String? = null) : LibraryFieldType(R.drawable.ic_genre, url)
+        class AlbumArtist(url: String? = null) : LibraryFieldType(R.drawable.ic_album_artist, url)
+        class Album(url: String? = null) : LibraryFieldType(R.drawable.ic_album, url)
+        class Artist(url: String? = null) : LibraryFieldType(R.drawable.ic_artist, url)
+        class Song(url: String? = null) : LibraryFieldType(R.drawable.ic_song, url)
+        class Playlist(url: String? = null) : LibraryFieldType(R.drawable.ic_playlist, url)
     }
 
-    sealed class FilterActionType(
+    sealed class LibraryActionType(
         @DrawableRes
         iconRes: Int
     ) : ActionType(iconRes) {
-        class SubFilter : SongActionType(R.drawable.ic_go)
+        class SubFilter : LibraryActionType(R.drawable.ic_go)
     }
 }

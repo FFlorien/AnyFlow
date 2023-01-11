@@ -138,7 +138,7 @@ class SongViewHolder(
                     .inflate(R.layout.item_action, binding.songActions, false))
                     .apply {
                         findViewById<ImageView>(R.id.action).setImageResource(action.actionType.iconRes)
-                        findViewById<ImageView>(R.id.field).setImageResource(action.fieldType.iconRes)
+                        action.fieldType.imageConfig.resource?.let { findViewById<ImageView>(R.id.field).setImageResource(it) }
                         setOnClickListener {
                             val song = binding.song
                             if (song != null)

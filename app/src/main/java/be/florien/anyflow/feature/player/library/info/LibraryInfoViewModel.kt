@@ -8,7 +8,7 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.LibraryViewModel
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoViewModel
-import be.florien.anyflow.feature.player.info.filter.FilterInfoActions
+import be.florien.anyflow.feature.player.info.filter.LibraryInfoActions
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
@@ -18,7 +18,7 @@ class LibraryInfoViewModel @Inject constructor(
     context: Context
 ) : InfoViewModel<Filter<*>?>(), LibraryViewModel {
 
-    override val infoActions: InfoActions<Filter<*>?> = FilterInfoActions(dataRepository, context)
+    override val infoActions: InfoActions<Filter<*>?> = LibraryInfoActions(dataRepository, context)
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 
     var filterNavigation: Filter<*>? = null

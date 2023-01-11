@@ -220,19 +220,8 @@ class SongInfoActions(
     private fun getSongAction(
         songInfo: SongInfo,
         field: FieldType,
-        action: ActionType
-    ): InfoRow? {
-        val order =
-            getQuickActions().indexOfFirst { it.actionType == action && it.fieldType == field }
-                .takeIf { it >= 0 }
-        return getSongAction(songInfo, field, action, order)
-    }
-
-    private fun getSongAction(
-        songInfo: SongInfo,
-        field: FieldType,
         action: ActionType,
-        order: Int?
+        order: Int? = null
     ): InfoRow? {
         return when (action) {
             is ActionType.ExpandableTitle -> when (field) {
@@ -458,7 +447,7 @@ class SongInfoActions(
                 SongActionType.Download(),
                 order
             ) else null
-            is FilterActionType.SubFilter -> null
+            is LibraryActionType.SubFilter -> null
         }
     }
 

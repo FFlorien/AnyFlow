@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class FilterInfoActions @Inject constructor(
+class LibraryInfoActions @Inject constructor(
     private val dataRepository: DataRepository,
     context: Context
 ) : InfoActions<Filter<*>?>() {
@@ -37,7 +37,7 @@ class FilterInfoActions @Inject constructor(
                             s.getDurationString(R.plurals.seconds_component)
                 },
                 null,
-                FilterFieldType.Duration(),
+                LibraryFieldType.Duration(),
                 ActionType.InfoTitle()
             ),
             filteredInfo.genres?.let {
@@ -45,8 +45,8 @@ class FilterInfoActions @Inject constructor(
                     R.string.filter_info_genre,
                     it.toString(),
                     null,
-                    FilterFieldType.Genre(),
-                    FilterActionType.SubFilter()
+                    LibraryFieldType.Genre(),
+                    LibraryActionType.SubFilter()
                 )
             },
             filteredInfo.albumArtists?.let {
@@ -54,8 +54,8 @@ class FilterInfoActions @Inject constructor(
                     R.string.filter_info_album_artist,
                     it.toString(),
                     null,
-                    FilterFieldType.AlbumArtist(),
-                    FilterActionType.SubFilter()
+                    LibraryFieldType.AlbumArtist(),
+                    LibraryActionType.SubFilter()
                 )
             },
             filteredInfo.albums?.let {
@@ -63,8 +63,8 @@ class FilterInfoActions @Inject constructor(
                     R.string.filter_info_album,
                     it.toString(),
                     null,
-                    FilterFieldType.Album(),
-                    FilterActionType.SubFilter()
+                    LibraryFieldType.Album(),
+                    LibraryActionType.SubFilter()
                 )
             },
             filteredInfo.artists?.let {
@@ -72,8 +72,8 @@ class FilterInfoActions @Inject constructor(
                     R.string.filter_info_artist,
                     it.toString(),
                     null,
-                    FilterFieldType.Artist(),
-                    FilterActionType.SubFilter()
+                    LibraryFieldType.Artist(),
+                    LibraryActionType.SubFilter()
                 )
             },
             filteredInfo.songs?.let {
@@ -81,8 +81,8 @@ class FilterInfoActions @Inject constructor(
                     R.string.filter_info_song,
                     it.toString(),
                     null,
-                    FilterFieldType.Song(),
-                    FilterActionType.SubFilter()
+                    LibraryFieldType.Song(),
+                    LibraryActionType.SubFilter()
                 )
             },
             filteredInfo.playlists?.let {
@@ -90,8 +90,8 @@ class FilterInfoActions @Inject constructor(
                     R.string.filter_info_playlist,
                     it.toString(),
                     null,
-                    FilterFieldType.Playlist(),
-                    FilterActionType.SubFilter()
+                    LibraryFieldType.Playlist(),
+                    LibraryActionType.SubFilter()
                 )
             }
         )

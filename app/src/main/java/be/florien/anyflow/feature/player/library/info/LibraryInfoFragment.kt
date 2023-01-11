@@ -91,14 +91,14 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
 
     private fun executeAction(field: InfoActions.FieldType, action: InfoActions.ActionType) {
         when (action) {
-            is InfoActions.FilterActionType.SubFilter -> {
+            is InfoActions.LibraryActionType.SubFilter -> {
                 val value = when (field) {
-                    is InfoActions.FilterFieldType.Playlist -> LibraryInfoViewModel.PLAYLIST_ID
-                    is InfoActions.FilterFieldType.Album -> LibraryInfoViewModel.ALBUM_ID
-                    is InfoActions.FilterFieldType.AlbumArtist -> LibraryInfoViewModel.ALBUM_ARTIST_ID
-                    is InfoActions.FilterFieldType.Artist -> LibraryInfoViewModel.ARTIST_ID
-                    is InfoActions.FilterFieldType.Genre -> LibraryInfoViewModel.GENRE_ID
-                    is InfoActions.FilterFieldType.Song -> LibraryInfoViewModel.SONG_ID
+                    is InfoActions.LibraryFieldType.Playlist -> LibraryInfoViewModel.PLAYLIST_ID
+                    is InfoActions.LibraryFieldType.Album -> LibraryInfoViewModel.ALBUM_ID
+                    is InfoActions.LibraryFieldType.AlbumArtist -> LibraryInfoViewModel.ALBUM_ARTIST_ID
+                    is InfoActions.LibraryFieldType.Artist -> LibraryInfoViewModel.ARTIST_ID
+                    is InfoActions.LibraryFieldType.Genre -> LibraryInfoViewModel.GENRE_ID
+                    is InfoActions.LibraryFieldType.Song -> LibraryInfoViewModel.SONG_ID
                     else -> LibraryInfoViewModel.GENRE_ID
                 }
                 (activity as PlayerActivity).supportFragmentManager

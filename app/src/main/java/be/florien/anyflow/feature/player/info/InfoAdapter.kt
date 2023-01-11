@@ -92,14 +92,14 @@ class InfoViewHolder(
             row.actionType !is InfoActions.ActionType.InfoTitle
             && row.actionType !is InfoActions.ActionType.ExpandableTitle
             && row.actionType !is InfoActions.ActionType.ExpandedTitle
-            && row.actionType !is InfoActions.FilterActionType.SubFilter
+            && row.actionType !is InfoActions.LibraryActionType.SubFilter
         ) {
             binding.root.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
         } else {
             binding.root.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)
         }
-        binding.imageConfig = if (row.actionType is InfoActions.FilterActionType.SubFilter) {
-            ImageConfig(url = null, resource = row.fieldType.iconRes)
+        binding.imageConfig = if (row.actionType !is InfoActions.SongActionType) {
+            row.fieldType.imageConfig
         } else {
             ImageConfig(null, null)
         }
