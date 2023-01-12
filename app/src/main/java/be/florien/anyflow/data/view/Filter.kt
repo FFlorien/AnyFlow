@@ -32,6 +32,10 @@ data class Filter<T>(
     fun getFullDisplay(): String =
         displayText + (children.firstOrNull()?.getFullDisplay()?.let { " > $it" } ?: "")
 
+    fun getFilterIfTypePresent(filterType: FilterType): Filter<*>? =
+        this.takeIf { it.type == filterType }
+            ?: children.firstNotNullOfOrNull { it.getFilterIfTypePresent(filterType) }
+
     fun equalsIgnoreChildren(other: Filter<*>) = argument == other.argument && type == other.type
 
     override fun equals(other: Any?) =
@@ -58,9 +62,10 @@ data class Filter<T>(
         candidateParent.children = listOf(filter)
     }
 
-    /**
-     * Long filters
-     */
+    fun traversal(action: (Filter<*>) -> Unit) {
+        action(this)
+        children.forEach(action)
+    }
 
     enum class FilterType(val artType: String?) {
         SONG_IS(DataRepository.ART_TYPE_SONG),
@@ -71,18 +76,14 @@ data class Filter<T>(
         PLAYLIST_IS(DataRepository.ART_TYPE_PLAYLIST),
         DOWNLOADED_STATUS_IS(null)
     }
-
-    /**
-     * Boolean filters
-     */
 }
 
 data class FilterCount(
     val duration: Duration,
-    val genres: Int?,
-    val albumArtists: Int?,
-    val albums: Int?,
-    val artists: Int?,
-    val songs: Int?,
-    val playlists: Int?
+    val genres: Int,
+    val albumArtists: Int,
+    val albums: Int,
+    val artists: Int,
+    val songs: Int,
+    val playlists: Int
 )

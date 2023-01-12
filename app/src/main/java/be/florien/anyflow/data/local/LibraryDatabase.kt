@@ -117,12 +117,12 @@ abstract class LibraryDatabase : RoomDatabase() {
 
     fun getAlbums(
         filters: List<Filter<*>>?,
-        search: String?): DataSource.Factory<Int, DbAlbumDisplay> =
+        search: String?): DataSource.Factory<Int, DbAlbumDisplayForRaw> =
         getAlbumDao().rawQueryPaging(queryComposer.getQueryForAlbumFiltered(filters, search))
 
     suspend fun getAlbumsListForQuery(
         filters: List<Filter<*>>?,
-        search: String?): List<DbAlbumDisplay> =
+        search: String?): List<DbAlbumDisplayForRaw> =
         getAlbumDao().rawQueryList(queryComposer.getQueryForAlbumFiltered(filters, search))
 
     fun getPlaylists(

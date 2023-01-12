@@ -69,12 +69,13 @@ class QueryComposer {
 
     fun getQueryForAlbumFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT album.id, album.name, album.artistId, album.year,album.diskcount, artist.id, artist.name, artist.summary FROM album JOIN artist ON album.artistid = artist.id JOIN song ON song.albumId = album.id" +
+            "SELECT DISTINCT album.id AS albumId, album.name AS albumName, album.artistId AS albumArtistId, album.year,album.diskcount, artist.name AS albumArtistName, artist.summary FROM album JOIN artist ON album.artistid = artist.id JOIN song ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " album.name LIKE ?", search) +
                     " ORDER BY album.name COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") }
         )
+
     fun getQueryForAlbumArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
             "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
@@ -96,7 +97,12 @@ class QueryComposer {
         SimpleSQLiteQuery(
             "SELECT DISTINCT genre.id, genre.name FROM genre JOIN songgenre ON genre.id = songgenre.genreid JOIN song ON song.id = songgenre.songid " +
                     constructJoinStatement(filterList) +
-                    constructWhereStatement(filterList, " genre.name LIKE ?", search) +
+                    constructWhereStatement(
+                        filterList,
+                        " genre.name LIKE ?",
+                        search,
+                        listOf(Filter.FilterType.GENRE_IS)
+                    ) +
                     " ORDER BY genre.name COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
@@ -108,13 +114,20 @@ class QueryComposer {
                     " ORDER BY song.title COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?) =
-        SimpleSQLiteQuery(
-            "SELECT DISTINCT playlist.id, playlist.name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount FROM playlist JOIN playlistsongs on playlistsongs.playlistid = playlist.id JOIN song ON playlistsongs.songId = song.id" +
-                    constructJoinStatement(filterList) +
-                    constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
-                    " ORDER BY playlist.name COLLATE UNICODE",
-            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
+    fun getQueryForPlaylistFiltered(
+        filterList: List<Filter<*>>?,
+        search: String?
+    ): SimpleSQLiteQuery = SimpleSQLiteQuery(
+        "SELECT DISTINCT playlist.id, playlist.name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount FROM playlist JOIN playlistsongs on playlistsongs.playlistid = playlist.id JOIN song ON playlistsongs.songId = song.id" +
+                constructJoinStatement(filterList) +
+                constructWhereStatement(
+                    filterList,
+                    " playlist.name LIKE ?",
+                    search,
+                    listOf(Filter.FilterType.PLAYLIST_IS)
+                ) +
+                " ORDER BY playlist.name COLLATE UNICODE",
+        search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
     fun getQueryForCount(filterList: List<Filter<*>>) = SimpleSQLiteQuery(
         "SELECT " +
@@ -130,7 +143,11 @@ class QueryComposer {
                 "JOIN Album ON Song.albumId = Album.id " +
                 "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
                 constructJoinStatement(filterList) +
-                constructWhereStatement(filterList, "")
+                constructWhereStatement(
+                    filterList,
+                    "",
+                    excludes = listOf(Filter.FilterType.PLAYLIST_IS, Filter.FilterType.GENRE_IS)
+                )
     )
 
 
@@ -194,7 +211,8 @@ class QueryComposer {
     private fun constructWhereStatement(
         filterList: List<Filter<*>>?,
         searchCondition: String,
-        search: String? = null
+        search: String? = null,
+        excludes: List<Filter.FilterType> = emptyList()
     ): String {
         return if ((filterList != null && filterList.isNotEmpty()) || search != null && search.isNotBlank()) {
             var where = " WHERE"
@@ -202,7 +220,33 @@ class QueryComposer {
                 where += searchCondition
             }
             if (filterList != null && filterList.isNotEmpty()) {
+                if (excludes.isNotEmpty() && (excludes.contains(Filter.FilterType.PLAYLIST_IS) || excludes.contains(
+                        Filter.FilterType.GENRE_IS
+                    ))
+                ) {
+                    val excludeList = mutableListOf<String>()
+                    filterList.forEach { filter ->
+                        filter.traversal { traversedFilter ->
+                            if (excludes.contains(traversedFilter.type)) {
+                                val excludeStatement = when (traversedFilter.type) {
+                                    Filter.FilterType.GENRE_IS -> "genre.id != ${traversedFilter.argument.toString()}"
+                                    Filter.FilterType.PLAYLIST_IS -> "PlaylistSongs.playlistId != ${traversedFilter.argument.toString()}"
+                                    else -> null
+                                }
+                                excludeStatement?.let { excludeList.add(it) }
+                            }
+                        }
+                        where += excludeList.joinToString(" AND ", " ", " AND ")
+                    }
+                    where += " ("
+                }
                 where += constructWhereSubStatement(filterList, 0, 0, 0)
+                if (excludes.isNotEmpty() && (excludes.contains(Filter.FilterType.PLAYLIST_IS) || excludes.contains(
+                        Filter.FilterType.GENRE_IS
+                    ))
+                ) {
+                    where += " )"
+                }
             }
             where
         } else {

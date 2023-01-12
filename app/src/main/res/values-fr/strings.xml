@@ -22,6 +22,7 @@
     <string name="library_title_main">Bibliothèque</string>
     <string name="library_type_genre">Genre</string>
     <string name="library_type_album_artist">Artiste de l’album</string>
+    <string name="library_type_artist">Artiste</string>
     <string name="library_type_album">Album</string>
     <string name="library_type_song">Chanson</string>
     <string name="library_type_playlist">Liste de lecture</string>

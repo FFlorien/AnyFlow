@@ -73,7 +73,7 @@ constructor(
     override fun getSubtitle(): String? = when (filterType) {
         LibraryInfoViewModel.ALBUM_ID -> getString(R.string.library_type_album)
         LibraryInfoViewModel.ALBUM_ARTIST_ID -> getString(R.string.library_type_album_artist)
-        LibraryInfoViewModel.ARTIST_ID -> getString(R.string.library_type_album_artist)
+        LibraryInfoViewModel.ARTIST_ID -> getString(R.string.library_type_artist)
         LibraryInfoViewModel.GENRE_ID -> getString(R.string.library_type_genre)
         LibraryInfoViewModel.SONG_ID -> getString(R.string.library_type_song)
         LibraryInfoViewModel.PLAYLIST_ID -> getString(R.string.library_type_playlist)
@@ -162,8 +162,8 @@ constructor(
                     DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL)
                         .apply { setDrawable(it) })
             }
-        viewModel.values.observe(viewLifecycleOwner) {
-            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
+        viewModel.values.observe(viewLifecycleOwner) { pagingData ->
+            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, pagingData)
             fragmentBinding.filterList.addOnItemTouchListener(object : ItemInfoTouchAdapter(),
                 RecyclerView.OnItemTouchListener {
                 override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {

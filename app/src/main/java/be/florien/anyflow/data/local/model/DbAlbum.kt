@@ -31,3 +31,13 @@ data class DbAlbumDisplay(
     )
     val artist: DbArtist
 )
+
+data class DbAlbumDisplayForRaw(
+    val albumId: Long,
+    val albumName: String,
+    val albumArtistId: Long,
+    val year: Int,
+    val diskcount: Int,
+    val albumArtistName: String,
+    val summary: String?
+)

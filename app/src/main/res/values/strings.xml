@@ -20,6 +20,7 @@
     <string name="library_title_main">Library</string>
     <string name="library_type_genre">Genre</string>
     <string name="library_type_album_artist">Album’s artist</string>
+    <string name="library_type_artist">Artist</string>
     <string name="library_type_album">Album</string>
     <string name="library_type_song">Song</string>
     <string name="library_type_playlist">Playlist</string>

@@ -61,10 +61,10 @@
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingEnd="@dimen/mediumDimen"
-            android:paddingStart="0dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="@dimen/mediumDimen"
+            android:layout_marginStart="0dp"
             app:imageSource="@{imageConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/order"

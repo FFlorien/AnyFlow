@@ -1,5 +1,6 @@
 package be.florien.anyflow.extension
 
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Parcelable
 import android.view.View
@@ -35,9 +36,11 @@ fun ImageView.setImageSource(config: ImageConfig?) {
             .fitCenter()
             .into(this)
         visibility = View.VISIBLE
+        imageTintMode = PorterDuff.Mode.DST
     } else if (config?.resource != null) {
         setImageResource(config.resource)
         visibility = View.VISIBLE
+        imageTintMode = PorterDuff.Mode.SRC_IN
     } else {
         setImageBitmap(null)
         visibility = config?.stateIfNone ?: View.GONE

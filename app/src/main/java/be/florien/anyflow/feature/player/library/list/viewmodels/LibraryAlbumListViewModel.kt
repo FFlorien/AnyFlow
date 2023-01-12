@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.player.library.list.viewmodels
 
 import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.local.model.DbAlbumDisplay
+import be.florien.anyflow.data.local.model.DbAlbumDisplayForRaw
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
 import be.florien.anyflow.player.FiltersManager
@@ -36,20 +36,20 @@ class LibraryAlbumListViewModel @Inject constructor(
             )
         )
 
-    private fun convert(album: DbAlbumDisplay): FilterItem {
-        val artUrl = dataRepository.getAlbumArtUrl(album.album.id)
+    private fun convert(album: DbAlbumDisplayForRaw): FilterItem {
+        val artUrl = dataRepository.getAlbumArtUrl(album.albumId)
         val filter =
             getFilterInParent(
                 Filter(
                     Filter.FilterType.ALBUM_IS,
-                    album.album.id,
-                    album.album.name,
+                    album.albumId,
+                    album.albumName,
                     emptyList()
                 )
             )
         return FilterItem(
-            album.album.id,
-            "${album.album.name}\nby ${album.artist.name}",
+            album.albumId,
+            "${album.albumName}\nby ${album.albumArtistName}",
             filtersManager.isFilterInEdition(filter),
             artUrl
         )

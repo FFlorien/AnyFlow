@@ -134,12 +134,12 @@ fun DbAlarm.toViewAlarm() = Alarm(
 
 fun DbFilterCount.toViewFilterCount() = FilterCount(
     duration = duration.toDuration(DurationUnit.SECONDS),
-    genres = genres.takeIf { it > 1 },
-    albumArtists = albumArtists.takeIf { it > 1 },
-    albums = albums.takeIf { it > 1 },
-    artists = artists.takeIf { it > 1 },
-    songs = songs.takeIf { it > 1 },
-    playlists = playlists.takeIf { it > 1 }
+    genres = genres,
+    albumArtists = albumArtists,
+    albums = albums,
+    artists = artists,
+    songs = songs,
+    playlists = playlists
 )
 
 /**

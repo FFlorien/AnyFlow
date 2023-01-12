@@ -132,7 +132,7 @@ class DataRepository
         withContext(Dispatchers.IO) { libraryDatabase.getQueueSize() }
 
     fun <T : Any> getAlbums(
-        mapping: (DbAlbumDisplay) -> T,
+        mapping: (DbAlbumDisplayForRaw) -> T,
         filters: List<Filter<*>>?,
         search: String?
     ): LiveData<PagingData<T>> =
@@ -211,7 +211,7 @@ class DataRepository
     suspend fun <T : Any> getAlbumsSearchedList(
         filters: List<Filter<*>>?,
         search: String,
-        mapping: (DbAlbumDisplay) -> T,
+        mapping: (DbAlbumDisplayForRaw) -> T,
     ): List<T> =
         libraryDatabase.getAlbumsListForQuery(
                 filters,
