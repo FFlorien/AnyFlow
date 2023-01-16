@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.info.filter
+package be.florien.anyflow.feature.player.info.library
 
 import android.content.Context
 import android.content.res.Resources

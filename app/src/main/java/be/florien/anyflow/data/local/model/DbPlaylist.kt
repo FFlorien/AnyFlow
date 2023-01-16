@@ -8,31 +8,40 @@ import androidx.room.*
 
 @Entity(tableName = "Playlist")
 data class DbPlaylist(
-        @PrimaryKey
-        val id: Long,
-        val name: String,
-        val owner: String)
+    @PrimaryKey
+    val id: Long,
+    val name: String,
+    val owner: String
+)
 
 data class DbPlaylistWithCount(
-        val id: Long,
-        val name: String,
-        val songCount: Int)
+    val id: Long,
+    val name: String,
+    val songCount: Int
+)
 
-@Entity(tableName = "PlaylistSongs",
-        primaryKeys = ["songId", "playlistId"])
+@Entity(
+    tableName = "PlaylistSongs",
+    primaryKeys = ["songId", "playlistId"]
+)
 data class DbPlaylistSongs(
-        val order: Int,
-        @ColumnInfo(index = true)
-        val songId: Long,
-        @ColumnInfo(index = true)
-        val playlistId: Long)
+    val order: Int,
+    @ColumnInfo(index = true)
+    val songId: Long,
+    @ColumnInfo(index = true)
+    val playlistId: Long
+)
 
 data class DbPlaylistWithSongs(
-        @Embedded val playlist: DbPlaylist,
-        @Relation(
-                parentColumn = "id",
-                entityColumn = "id",
-                associateBy = Junction(DbPlaylistSongs::class, parentColumn = "playlistId", entityColumn = "songId")
+    @Embedded val playlist: DbPlaylist,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(
+            DbPlaylistSongs::class,
+            parentColumn = "playlistId",
+            entityColumn = "songId"
         )
-        val songs: List<DbSong>
+    )
+    val songs: List<DbSong>
 )

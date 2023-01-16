@@ -10,6 +10,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -26,6 +27,8 @@ import be.florien.anyflow.feature.refreshVisibleViewHolders
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.UserScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @ActivityScope
 @UserScope
@@ -70,25 +73,29 @@ class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
                         DividerItemDecoration.VERTICAL
                     ).apply { setDrawable(it) })
             }
-        viewModel.values.observe(viewLifecycleOwner) {
-            if (it != null)
-                (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
-        }
-        viewModel.currentSelectionLive.observe(viewLifecycleOwner) {
-            fragmentBinding.filterList.refreshVisibleViewHolders { vh ->
-                val songViewHolder = vh as? PlaylistViewHolder
-                songViewHolder?.setSelection(it.contains(songViewHolder.getCurrentId()))
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.updateSelectionWithPlaylists(songId)
+            viewModel.values.observe(viewLifecycleOwner) {
+                if (it != null)
+                    (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, it)
             }
-        }
-        viewModel.isCreating.observe(viewLifecycleOwner) {
-            if (it) {
-                requireActivity().newPlaylist(viewModel)
+            viewModel.currentSelectionLive.observe(viewLifecycleOwner) {
+                fragmentBinding.filterList.refreshVisibleViewHolders { vh ->
+                    val songViewHolder = vh as? PlaylistViewHolder
+                    songViewHolder?.setSelection(it.contains(songViewHolder.getCurrentId()))
+                }
             }
-        }
-        viewModel.isFinished.observe(viewLifecycleOwner) {
-            if (it) {
-                dismiss()
+            viewModel.isCreating.observe(viewLifecycleOwner) {
+                if (it) {
+                    requireActivity().newPlaylist(viewModel)
+                }
             }
+            viewModel.isFinished.observe(viewLifecycleOwner) {
+                if (it) {
+                    dismiss()
+                }
+            }
+
         }
         return fragmentBinding.root
     }

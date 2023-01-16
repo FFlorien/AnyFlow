@@ -8,7 +8,7 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.LibraryViewModel
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoViewModel
-import be.florien.anyflow.feature.player.info.filter.LibraryInfoActions
+import be.florien.anyflow.feature.player.info.library.LibraryInfoActions
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 

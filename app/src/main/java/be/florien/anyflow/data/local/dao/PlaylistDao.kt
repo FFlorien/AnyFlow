@@ -16,6 +16,9 @@ abstract class PlaylistDao : BaseDao<DbPlaylist>() {
     @Query("SELECT * FROM playlist")
     abstract fun getPlaylists(): LiveData<List<DbPlaylist>>
 
+    @Query("SELECT playlistsongs.playlistId FROM playlistsongs WHERE playlistsongs.songId = :songId")
+    abstract suspend fun getPlaylistsWithCountAndSongPresence(songId: Long): List<Long>
+
     @Transaction
     @Query("SELECT * FROM playlist")
     abstract fun getPlaylistsWithSongs(): LiveData<List<DbPlaylistWithSongs>>

@@ -130,6 +130,9 @@ abstract class LibraryDatabase : RoomDatabase() {
         search: String?): DataSource.Factory<Int, DbPlaylistWithCount> =
         getPlaylistDao().rawQueryPaging(queryComposer.getQueryForPlaylistFiltered(filters, search))
 
+    suspend fun getPlaylistsWithSongPresence(songId: Long): List<Long> =
+        getPlaylistDao().getPlaylistsWithCountAndSongPresence(songId)
+
     suspend fun getPlaylistsSearchedList(
         filters: List<Filter<*>>?,
         search: String?): List<DbPlaylistWithCount> =

@@ -389,9 +389,9 @@ class SongInfoActions(
                 else -> null
             }
             is SongActionType.AddToPlaylist -> if (field is SongFieldType.Title) InfoRow(
-                R.string.info_action_add_to_playlist,
+                R.string.info_action_select_playlist,
                 null,
-                R.string.info_action_add_to_playlist_detail,
+                R.string.info_action_select_playlist_detail,
                 SongFieldType.Title(),
                 SongActionType.AddToPlaylist(),
                 order

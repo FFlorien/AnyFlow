@@ -41,7 +41,7 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     override fun removeSongs() {
         viewModelScope.launch {
             selectionList.value?.forEach {
-                dataRepository.removeSongFromPlaylist(playlistId, it)
+                dataRepository.removeSongFromPlaylist(it, playlistId)
             }
             selectionList.mutable.value = mutableListOf()
         }

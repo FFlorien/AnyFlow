@@ -202,6 +202,9 @@ class DataRepository
             libraryDatabase.getPlaylists(null, null)
                 .map { it.toViewPlaylist(getPlaylistArtUrl(it.id)) })
 
+    suspend fun getPlaylistsWithSongPresence(songId: Long): List<Long> =
+            libraryDatabase.getPlaylistsWithSongPresence(songId)
+
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
         mapping: (DbSongDisplay) -> T
@@ -296,7 +299,7 @@ class DataRepository
         )
     }
 
-    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
+    suspend fun removeSongFromPlaylist(songId: Long, playlistId: Long) {
         ampacheDataSource.removeSongFromPlaylist(playlistId, songId)
         libraryDatabase.removeSongFromPlaylist(playlistId, songId)
     }
