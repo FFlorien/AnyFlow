@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.filter
 import androidx.recyclerview.widget.*
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
@@ -163,7 +164,10 @@ constructor(
                         .apply { setDrawable(it) })
             }
         viewModel.values.observe(viewLifecycleOwner) { pagingData ->
-            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, pagingData)
+            val pagingDataNew = pagingData.filter {
+                !viewModel.shouldFilterOut(it)
+            }
+            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(lifecycle, pagingDataNew)
             fragmentBinding.filterList.addOnItemTouchListener(object : ItemInfoTouchAdapter(),
                 RecyclerView.OnItemTouchListener {
                 override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
@@ -202,6 +206,5 @@ constructor(
             )
             .addToBackStack(null)
             .commit()
-        //TODO("Not yet implemented") SongInfoFragment(item).show(childFragmentManager, "info")
     }
 }

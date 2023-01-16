@@ -45,7 +45,15 @@ class LibraryInfoActions @Inject constructor(
                 R.string.filter_info_genre,
                 infoSource,
                 Filter.FilterType.GENRE_IS,
-                filteredInfo.genres
+                filteredInfo.genres.minus(infoSource?.let { source ->
+                    val genreFilters = mutableSetOf<Long>()
+                    source.traversal { filter ->
+                        if (filter.type == Filter.FilterType.GENRE_IS) {
+                            genreFilters.add(filter.argument as Long)
+                        }
+                    }
+                    genreFilters.size
+                } ?: 0)
             ),
             getInfoRow(
                 R.string.filter_info_album_artist,
@@ -75,7 +83,15 @@ class LibraryInfoActions @Inject constructor(
                 R.string.filter_info_playlist,
                 infoSource,
                 Filter.FilterType.PLAYLIST_IS,
-                filteredInfo.playlists
+                filteredInfo.playlists.minus(infoSource?.let { source ->
+                    val playlistFilters = mutableSetOf<Long>()
+                    source.traversal { filter ->
+                        if (filter.type == Filter.FilterType.PLAYLIST_IS) {
+                            playlistFilters.add(filter.argument as Long)
+                        }
+                    }
+                    playlistFilters.size
+                } ?: 0)
             )
         )
     }
@@ -91,7 +107,7 @@ class LibraryInfoActions @Inject constructor(
         filterType: Filter.FilterType,
         count: Int
     ): InfoRow {
-        val displayData: DisplayData? = if (count == 1) {
+        val displayData: DisplayData? = if (count <= 1) {
             val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
             val filterData: DisplayData? =
                 filterIfTypePresent?.let { DisplayData(it.displayText, it.argument as Long) }
@@ -138,7 +154,7 @@ class LibraryInfoActions @Inject constructor(
         filter: DisplayData?,
         count: Int
     ): String {
-        return if (count == 1 && filter != null) {
+        return if (count <= 1 && filter != null) {
             filter.text
         } else {
             count.toString()
@@ -150,7 +166,7 @@ class LibraryInfoActions @Inject constructor(
         filterType: Filter.FilterType,
         count: Int
     ): LibraryFieldType {
-        val url = if (count == 1 && data != null) {
+        val url = if (count <= 1 && data != null) {
             when (filterType) {
                 Filter.FilterType.PLAYLIST_IS -> dataRepository.getPlaylistArtUrl(data.argument)
                 Filter.FilterType.ALBUM_ARTIST_IS,

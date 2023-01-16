@@ -128,6 +128,14 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
 
     fun hasFilter(filterItem: FilterItem) = filtersManager.isFilterInEdition(getFilter(filterItem))
 
+    fun shouldFilterOut(item: FilterItem): Boolean {
+        var shouldFilterOut = false
+        navigationFilter?.traversal {
+            shouldFilterOut = shouldFilterOut || (isThisTypeOfFilter(it) && it.argument == item.id)
+        }
+        return shouldFilterOut
+    }
+
     protected fun getFilterInParent(filter: Filter<*>): Filter<*> =
         navigationFilter?.deepCopy()?.apply { addToDeepestChild(filter) } ?: filter
 

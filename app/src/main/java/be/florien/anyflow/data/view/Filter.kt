@@ -64,7 +64,7 @@ data class Filter<T>(
 
     fun traversal(action: (Filter<*>) -> Unit) {
         action(this)
-        children.forEach(action)
+        children.forEach { it.traversal(action) }
     }
 
     enum class FilterType(val artType: String?) {
