@@ -13,7 +13,7 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // DataSources
     @Transaction
-    @Query("SELECT * FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, local, bars FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     abstract fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @RawQuery(observedEntities = [DbSong::class])

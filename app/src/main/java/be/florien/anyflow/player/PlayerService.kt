@@ -9,9 +9,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LifecycleService
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.CrashReportingTree
 import be.florien.anyflow.data.DataRepository
-import timber.log.Timber
+import be.florien.anyflow.extension.stopForegroundAndKeepNotification
 import javax.inject.Inject
 
 
@@ -69,7 +68,14 @@ class PlayerService : LifecycleService() {
             isActive = true
         }
     }
-    private val notificationBuilder: PlayerNotificationBuilder by lazy { PlayerNotificationBuilder(this, mediaSession, pendingIntent, dataRepository) }
+    private val notificationBuilder: PlayerNotificationBuilder by lazy {
+        PlayerNotificationBuilder(
+            this,
+            mediaSession,
+            pendingIntent,
+            dataRepository
+        )
+    }
 
     private val isPlaying
         get() = playerController.isPlaying()
@@ -89,7 +95,7 @@ class PlayerService : LifecycleService() {
         (application as AnyFlowApp).userComponent?.inject(this)
         playerController.stateChangeNotifier.observe(this) {
             if (!isPlaying) {
-                stopForeground(false)
+                stopForegroundAndKeepNotification()
             }
             val playbackState = when (it) {
                 PlayerController.State.BUFFER -> PlaybackStateCompat.STATE_BUFFERING

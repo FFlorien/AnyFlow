@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.player.info.song.quickActions
 
 import android.os.Bundle
-import android.util.DisplayMetrics
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -9,6 +8,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.ActivityQuickActionsBinding
 import be.florien.anyflow.extension.anyFlowApp
+import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.connect.ConnectActivity
 import be.florien.anyflow.feature.player.info.song.SongInfoActions
@@ -52,9 +52,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
         viewModel =
             ViewModelProvider(this, viewModelFactory)[QuickActionsViewModel::class.java]
                 .apply {
-                    val displayMetrics = DisplayMetrics()
-                    windowManager.defaultDisplay.getMetrics(displayMetrics)
-                    val width = displayMetrics.widthPixels
+                    val width = getDisplayWidth()
                     val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
                     val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
                     val itemFullWidth = itemWidth + margin + margin

@@ -5,16 +5,16 @@ buildscript {
         google()
         mavenCentral()
     }
-    ext.kotlin_version = '1.7.10'
-    ext.lifecycle_version = '2.6.0-alpha01'
+    ext.kotlin_version = '1.7.20'
+    ext.lifecycle_version = '2.6.0-alpha04'
     ext.dagger_version = '2.42'
     ext.retrofit_version = '2.9.0'
     ext.stetho_version = '1.5.1'
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.3.13'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.1'
+        classpath 'com.google.gms:google-services:4.3.14'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
     }
 }
 

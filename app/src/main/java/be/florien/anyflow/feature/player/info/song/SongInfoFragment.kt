@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.player.info.song
 
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentInfoBinding
+import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.feature.player.info.InfoAdapter
+import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsViewModel
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
-import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsViewModel
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -48,9 +48,7 @@ class SongInfoFragment(
         viewModel = if (song.id == SongInfoActions.DUMMY_SONG_ID) {
             ViewModelProvider(requireActivity(), (requireActivity() as ViewModelFactoryHolder).getFactory())[QuickActionsViewModel::class.java]
                 .apply {
-                    val displayMetrics = DisplayMetrics()
-                    requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-                    val width = displayMetrics.widthPixels
+                    val width = requireActivity().getDisplayWidth()
                     val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
                     val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
                     val itemFullWidth = itemWidth + margin + margin

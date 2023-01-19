@@ -49,7 +49,6 @@ class SongInfoViewModel @Inject constructor(
                 is InfoActions.SongActionType.Search -> searchTerm.mutable.value =
                     infoActions.getSearchTerms(song, fieldType)
                 is InfoActions.SongActionType.Download -> infoActions.download(song)
-                else -> return@launch
             }
         }
     }

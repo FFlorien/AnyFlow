@@ -18,8 +18,7 @@ import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.player.PlayerService
-import com.facebook.stetho.okhttp3.StethoInterceptor
-import com.google.android.exoplayer2.database.ExoDatabaseProvider
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
 import com.google.android.exoplayer2.offline.DownloadManager
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
@@ -50,7 +49,7 @@ class ApplicationModule {
     @Singleton
     @Provides
     fun provideOkHttp(): OkHttpClient =
-        OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build()
+        OkHttpClient.Builder().build()
 
     @Singleton
     @Provides
@@ -80,12 +79,12 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideCacheDataBaseProvider(context: Context): ExoDatabaseProvider =
-        ExoDatabaseProvider(context)
+    fun provideStandaloneDatabaseProvider(context: Context): StandaloneDatabaseProvider =
+        StandaloneDatabaseProvider(context)
 
     @Singleton
     @Provides
-    fun provideCache(context: Context, dbProvider: ExoDatabaseProvider): Cache = SimpleCache(
+    fun provideCache(context: Context, dbProvider: StandaloneDatabaseProvider): Cache = SimpleCache(
         context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
         NoOpCacheEvictor(),
         dbProvider
@@ -95,7 +94,7 @@ class ApplicationModule {
     @Provides
     fun provideDownloadManager(
         context: Context,
-        databaseProvider: ExoDatabaseProvider,
+        databaseProvider: StandaloneDatabaseProvider,
         cache: Cache
     ): DownloadManager {
         val dataSourceFactory = DefaultHttpDataSource.Factory()

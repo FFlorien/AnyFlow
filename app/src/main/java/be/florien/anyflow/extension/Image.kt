@@ -81,7 +81,7 @@ fun TimePicker.getHourBinding(): Int {
     return hour * 60 + minute
 }
 
-@BindingAdapter("app:timeAttrChanged")
+@BindingAdapter("timeAttrChanged")
 fun setListenersForHour(
     view: TimePicker,
     attrChange: InverseBindingListener

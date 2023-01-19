@@ -24,7 +24,8 @@ import java.util.concurrent.Executors
 
 @Database(
     version = 5,
-    entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class]
+    entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class],
+    exportSchema = false //todo ?
 )
 abstract class LibraryDatabase : RoomDatabase() {
 

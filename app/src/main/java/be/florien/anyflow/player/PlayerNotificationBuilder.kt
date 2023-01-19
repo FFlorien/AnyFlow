@@ -13,6 +13,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.GlideApp
+import be.florien.anyflow.extension.stopForegroundAndKeepNotification
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
@@ -124,7 +125,7 @@ private val dataRepository: DataRepository) {
             if (state.isPlaying) {
                 service.startForeground(1, notification)
             } else {
-                service.stopForeground(false)
+                service.stopForegroundAndKeepNotification()
                 NotificationManagerCompat.from(service).notify(1, notification)
             }
         } else {
