@@ -25,7 +25,7 @@ data class Filter<T>(
                 argument as Long,
                 song.id
             )
-            FilterType.DOWNLOADED_STATUS_IS -> dataRepository.hasDownloaded(song)
+            FilterType.DOWNLOADED_STATUS_IS -> !song.local.isNullOrBlank()
         }
     }
 

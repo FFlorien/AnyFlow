@@ -23,7 +23,7 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 5,
+    version = 6,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class],
     exportSchema = false //todo ?
 )
@@ -316,6 +316,8 @@ abstract class LibraryDatabase : RoomDatabase() {
         getPlaylistSongsDao().delete(DbPlaylistSongs(0, songId, playlistId))
     }
 
+    suspend fun getSong(id: Long): DbSongDisplay? = getSongDao().findById(id)
+
     companion object {
         const val CHANGE_SONGS = 0
         const val CHANGE_ALBUMS = 1
@@ -369,6 +371,10 @@ abstract class LibraryDatabase : RoomDatabase() {
                 })
                 .addMigrations(Migration(4, 5) { db ->
                     db.execSQL("ALTER TABLE DbFilter ADD COLUMN parentFilter INTEGER DEFAULT NULL")
+                })
+                .addMigrations(Migration(5, 6) { db ->
+                    db.execSQL("ALTER TABLE Song RENAME COLUMN bars TO waveForm")
+                    db.execSQL("ALTER TABLE Song ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
                 })
                 .build()
         }

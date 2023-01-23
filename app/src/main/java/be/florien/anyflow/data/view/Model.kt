@@ -19,13 +19,14 @@ data class SongInfo(
     val track: Int,
     val time: Int,
     val year: Int,
+    val size: Int,
     val local: String?
 ): Parcelable {
     val timeText: String
         get() = String.format("%d:%02d", time / 60, time % 60)
 
     companion object {
-        fun dummySongInfo(id: Long = 0L) = SongInfo(id, "", "", 0L, "", 0L, "", 0, listOf(""),  listOf(0L), 0, 0, 0, "")
+        fun dummySongInfo(id: Long = 0L) = SongInfo(id, "", "", 0L, "", 0L, "", 0, listOf(""),  listOf(0L), 0, 0, 0, 0, "")
     }
 }
 

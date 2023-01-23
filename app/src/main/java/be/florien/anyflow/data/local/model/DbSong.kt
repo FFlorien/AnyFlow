@@ -18,6 +18,7 @@ data class DbSong(
     val time: Int,
     val year: Int,
     val composer: String,
+    val size: Int,
     val local: String?,
     val waveForm: String
 )
@@ -55,12 +56,12 @@ data class DbSongId(
     val id: Long
 )
 
-data class DbSongBars(
-    val bars: String
+data class DbSongWaveForm(
+    val waveForm: String
 ) {
     val downSamplesArray: DoubleArray
     get() {
-        if (bars.isBlank()) return DoubleArray(0)
-        return bars.split('|').map { it.replace(',', '.').toDouble() }.toDoubleArray()
+        if (waveForm.isBlank()) return DoubleArray(0)
+        return waveForm.split('|').map { it.replace(',', '.').toDouble() }.toDoubleArray()
     }
 }

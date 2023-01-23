@@ -20,6 +20,7 @@ class AmpacheSong {
     var time: Int = 0
     var year: Int = 0
     var composer: String? = null
+    var size: Int = 0
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

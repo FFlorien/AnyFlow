@@ -83,6 +83,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                             1,
                             120,
                             2000,
+                            0,
                             null
                         )
                     ), SongInfoFragment::class.java.simpleName

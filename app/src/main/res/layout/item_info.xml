@@ -63,8 +63,8 @@
             android:id="@+id/image"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginEnd="@dimen/mediumDimen"
             android:layout_marginStart="0dp"
+            android:layout_marginEnd="@dimen/mediumDimen"
             app:imageSource="@{imageConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/order"
@@ -98,10 +98,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{descriptionText}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/progress"
             app:layout_constraintLeft_toLeftOf="@id/title"
             app:layout_constraintRight_toLeftOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            isVisiblePresent="@{display.progress != 0 &amp;&amp; display.progress != 100}"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/smallDimen"
+            android:layout_marginTop="@dimen/smallDimen"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="@{display.progress}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

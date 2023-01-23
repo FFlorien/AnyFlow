@@ -90,24 +90,6 @@ class ApplicationModule {
         dbProvider
     )
 
-    @Singleton
-    @Provides
-    fun provideDownloadManager(
-        context: Context,
-        databaseProvider: StandaloneDatabaseProvider,
-        cache: Cache
-    ): DownloadManager {
-        val dataSourceFactory = DefaultHttpDataSource.Factory()
-        val downloadExecutor = Executor { obj: Runnable -> obj.run() }
-        return DownloadManager(
-            context,
-            databaseProvider,
-            cache,
-            dataSourceFactory,
-            downloadExecutor
-        )
-    }
-
     @Provides
     fun provideAlarmManager(context: Context): AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

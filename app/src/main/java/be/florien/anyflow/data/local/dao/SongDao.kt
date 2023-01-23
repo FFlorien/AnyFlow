@@ -13,7 +13,7 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // DataSources
     @Transaction
-    @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, local, bars FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, size, local, waveForm FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     abstract fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @RawQuery(observedEntities = [DbSong::class])
@@ -29,7 +29,7 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // Song
     @Transaction
-    @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local, song.bars FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
+    @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.size, song.local, song.waveForm FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     abstract suspend fun forPositionInQueue(position: Int): DbSongDisplay?
 
     @Transaction
@@ -53,8 +53,8 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("SELECT COUNT(*) FROM song")
     abstract suspend fun songCount(): Int
 
-    @Query("SELECT bars FROM Song WHERE song.id = :songId")
-    abstract suspend fun getDownSamples(songId: Long): DbSongBars
+    @Query("SELECT waveForm FROM Song WHERE song.id = :songId")
+    abstract suspend fun getWaveForm(songId: Long): DbSongWaveForm
 
     @Query("SELECT time FROM Song WHERE song.id = :songId")
     abstract suspend fun getSongDuration(songId: Long): Int
@@ -67,7 +67,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("UPDATE song SET local = :uri WHERE song.id = :songId")
     abstract suspend fun updateWithLocalUri(songId: Long, uri: String)
 
-    @Query("UPDATE song SET bars = :downSamples WHERE song.id = :songId")
-    abstract suspend fun updateWithNewDownSamples(songId: Long, downSamples: String?)
+    @Query("UPDATE song SET waveForm = :downSamples WHERE song.id = :songId")
+    abstract suspend fun updateWithNewWaveForm(songId: Long, downSamples: String?)
 
 }

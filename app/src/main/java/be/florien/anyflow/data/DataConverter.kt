@@ -21,6 +21,7 @@ fun AmpacheSong.toDbSong() = DbSong(
     year = year,
     composer = composer ?: "",
     disk = disk,
+    size = size,
     local = null,
     waveForm = ""
 )
@@ -81,6 +82,7 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
     genreIds = genres.map { it.id },
     time = song.time,
     year = song.year,
+    size = song.size,
     local = song.local
 )
 

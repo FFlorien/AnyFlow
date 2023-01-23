@@ -9,7 +9,6 @@ import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.applyPutLong
-import com.google.android.exoplayer2.offline.DownloadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -26,8 +25,7 @@ class DataRepository
 @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
-    private val sharedPreferences: SharedPreferences,
-    private val downloadManager: DownloadManager
+    private val sharedPreferences: SharedPreferences
 ) {
 
     /**
@@ -271,6 +269,8 @@ class DataRepository
                 search
         ).map { item -> (mapping(item)) }
 
+    suspend fun getSong(id: Long): SongInfo? = libraryDatabase.getSong(id)?.toViewSongInfo()
+
     /**
      * Playlists modification
      */
@@ -394,13 +394,6 @@ class DataRepository
     fun getArtistArtUrl(id: Long) = ampacheDataSource.getArtUrl(ART_TYPE_ARTIST, id)
     fun getPlaylistArtUrl(id: Long) = ampacheDataSource.getArtUrl(ART_TYPE_PLAYLIST, id)
     fun getArtUrl(type: String, id: Long) = ampacheDataSource.getArtUrl(type, id)
-
-    /**
-     * Download status
-     */
-
-    fun hasDownloaded(song: SongInfo): Boolean =
-        downloadManager.downloadIndex.getDownload(getSongUrl(song.id)) != null
 
     /**
      * Infos

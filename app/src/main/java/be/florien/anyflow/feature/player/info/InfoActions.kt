@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.player.info
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
 import be.florien.anyflow.extension.ImageConfig
 
@@ -14,13 +15,14 @@ abstract class InfoActions<T> {
         fieldType: FieldType
     ): List<InfoRow>
 
-    class InfoRow(
+    data class InfoRow(
         @StringRes val title: Int,
         val text: String?,
         @StringRes val textRes: Int?,
         val fieldType: FieldType,
         val actionType: ActionType,
-        val additionalInfo: Int? = null
+        val additionalInfo: Int? = null,
+        val progress: LiveData<Int>? = null
     ) {
         constructor(other: InfoRow, order: Int? = null) : this(
             other.title,
@@ -28,7 +30,8 @@ abstract class InfoActions<T> {
             other.textRes,
             other.fieldType,
             other.actionType,
-            order ?: other.additionalInfo
+            order ?: other.additionalInfo,
+            other.progress,
         )
     }
 

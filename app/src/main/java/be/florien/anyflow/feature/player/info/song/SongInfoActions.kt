@@ -13,7 +13,12 @@ import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.URL
 
 class SongInfoActions(
@@ -94,16 +99,23 @@ class SongInfoActions(
     suspend fun filterOn(songInfo: SongInfo, fieldType: SongFieldType) {
         val filter = when (fieldType) {
             is SongFieldType.Title -> Filter(Filter.FilterType.SONG_IS, songInfo.id, songInfo.title)
-            is SongFieldType.Artist -> Filter(Filter.FilterType.ARTIST_IS, songInfo.artistId, songInfo.artistName)
-            is SongFieldType.Album -> Filter(Filter.FilterType.ALBUM_IS,
+            is SongFieldType.Artist -> Filter(
+                Filter.FilterType.ARTIST_IS,
+                songInfo.artistId,
+                songInfo.artistName
+            )
+            is SongFieldType.Album -> Filter(
+                Filter.FilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName
             )
-            is SongFieldType.AlbumArtist -> Filter(Filter.FilterType.ALBUM_ARTIST_IS,
+            is SongFieldType.AlbumArtist -> Filter(
+                Filter.FilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
             )
-            is SongFieldType.Genre -> Filter(Filter.FilterType.GENRE_IS,
+            is SongFieldType.Genre -> Filter(
+                Filter.FilterType.GENRE_IS,
                 songInfo.genreIds.first(),
                 songInfo.genreNames.first()
             ) // todo handle multiple genre in info view
@@ -125,7 +137,7 @@ class SongInfoActions(
         }
     }
 
-    suspend fun download(songInfo: SongInfo) {
+    suspend fun download(songInfo: SongInfo): Flow<Int> { //todo download manager which will keep flow in a map, and download wether it is observed or not
         val audioCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
@@ -134,22 +146,35 @@ class SongInfoActions(
 
         val newSongDetails = getNewSongDetails(songInfo)
 
-        val newSongUri = contentResolver.insert(audioCollection, newSongDetails) ?: return
+        val newSongUri =
+            contentResolver.insert(audioCollection, newSongDetails) ?: return emptyFlow()
 
-        val result = kotlin.runCatching {
-            withContext(Dispatchers.IO) {
-                val songUrl = dataRepository.getSongUrl(songInfo.id)
-                URL(songUrl).openStream().use { input ->
-                    contentResolver.openOutputStream(newSongUri)?.use { output ->
-                        input.copyTo(output)
+        return flow {
+            val songUrl = dataRepository.getSongUrl(songInfo.id)
+            var inputStream: InputStream? = null
+            var outputStream: OutputStream? = null
+            try {
+                inputStream = URL(songUrl).openStream()
+                outputStream = contentResolver.openOutputStream(newSongUri)
+                if (outputStream != null) {
+                    var bytesCopied = 0
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var bytes = inputStream.read(buffer)
+                    while (bytes >= 0) {
+                        outputStream.write(buffer, 0, bytes)
+                        bytesCopied += bytes
+                        emit(bytesCopied)
+                        bytes = inputStream.read(buffer)
                     }
                 }
+                dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
+            } catch (exception: Exception) {
+                //todo
+            } finally {
+                inputStream?.close()
+                outputStream?.close()
             }
-        }
-        if (result.isFailure) {
-            throw result.exceptionOrNull() ?: return
-        }
-        dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
+        }.flowOn(Dispatchers.IO)
     }
 
     /**
@@ -168,7 +193,10 @@ class SongInfoActions(
         } else {
             val originalString = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "")
             sharedPreferences.edit()
-                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#${fieldType.javaClass.name}|${actionType.javaClass.name}")
+                .putString(
+                    QUICK_ACTIONS_PREF_NAME,
+                    "$originalString#${fieldType.javaClass.name}|${actionType.javaClass.name}"
+                )
                 .apply()
         }
     }

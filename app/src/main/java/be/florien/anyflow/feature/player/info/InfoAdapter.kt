@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.size
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -103,6 +104,7 @@ class InfoViewHolder(
         } else {
             ImageConfig(null, null)
         }
+        binding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
     }
 
     fun bindChangedData(row: InfoActions.InfoRow) {
