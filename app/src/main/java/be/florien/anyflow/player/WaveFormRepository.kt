@@ -9,27 +9,27 @@ import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.extension.eLog
 import kotlinx.coroutines.*
 
-class WaveFormBarsRepository(
+class WaveFormRepository(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
     private val context: Context
 ) {
 
     //todo clean this after a while ?
-    private val dataMap: HashMap<Long, WaveFormBars> = hashMapOf()
+    private val dataMap: HashMap<Long, WaveForm> = hashMapOf()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         eLog(throwable, "Received an exception in WaveFormBarsRepository's scope")
     }
     private val coroutineScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
-    fun getComputedBars(songId: Long): LiveData<DoubleArray> =
-        getBars(songId).computedLiveData
+    fun getComputedWaveForm(songId: Long): LiveData<DoubleArray> =
+        getWaveForm(songId).computedLiveData
 
-    private fun getBars(songId: Long): WaveFormBars {
+    private fun getWaveForm(songId: Long): WaveForm {
         val dataFromMap = dataMap[songId]
         return if (dataFromMap == null) {
-            val data = WaveFormBars(songId)
+            val data = WaveForm(songId)
             dataMap[songId] = data
             data
         } else {
@@ -37,7 +37,7 @@ class WaveFormBarsRepository(
         }
     }
 
-    inner class WaveFormBars(val songId: Long) {
+    inner class WaveForm(val songId: Long) {
         private lateinit var computedBarList: DoubleArray
         val computedLiveData: LiveData<DoubleArray> = MutableLiveData()
 
@@ -52,7 +52,7 @@ class WaveFormBarsRepository(
         }
 
         private suspend fun fetchDataLocally() = withContext(Dispatchers.IO) {
-            computedBarList = libraryDatabase.getBars(songId)
+            computedBarList = libraryDatabase.getWaveForm(songId)
             updateLiveData()
         }
 
@@ -109,7 +109,7 @@ class WaveFormBarsRepository(
 
         suspend fun save() {
             withContext(Dispatchers.IO) {
-                libraryDatabase.updateBars(songId, computedBarList)
+                libraryDatabase.updateWaveForm(songId, computedBarList)
             }
         }
 

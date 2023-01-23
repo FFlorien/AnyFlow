@@ -25,7 +25,7 @@ constructor(
     private val playingQueue: PlayingQueue,
     private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
-    private val waveFormBarsRepository: WaveFormBarsRepository,
+    private val waveFormRepository: WaveFormRepository,
     val connectionStatus: LiveData<AmpacheDataSource.ConnectionStatus>,
     @Named("Songs")
         val songsUpdatePercentage: LiveData<Int>,
@@ -53,7 +53,7 @@ constructor(
     val totalDuration: LiveData<Int> = playingQueue.currentSong.map { ((it as SongInfo?)?.time ?: 0) * 1000 }
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
-    val bars: LiveData<DoubleArray> = playingQueue.currentSong.switchMap { waveFormBarsRepository.getComputedBars(it.id) }.distinctUntilChanged()
+    val waveForm: LiveData<DoubleArray> = playingQueue.currentSong.switchMap { waveFormRepository.getComputedWaveForm(it.id) }.distinctUntilChanged()
 
     val isSeekable: LiveData<Boolean> = MutableLiveData(false)
 

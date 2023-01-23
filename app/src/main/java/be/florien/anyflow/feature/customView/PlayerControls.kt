@@ -72,14 +72,14 @@ class PlayerControls
             scrollPlayerPainter.totalDuration = field
             playPlayerPainter.totalDuration = field
         }
-    var bars: DoubleArray?
+    var waveForm: DoubleArray?
         set(value) {
             if (value != null) {
-                playPlayerPainter.bars = value
-                scrollPlayerPainter.bars = value
+                playPlayerPainter.waveForm = value
+                scrollPlayerPainter.waveForm = value
             }
         }
-        get() = currentPlayerPainter.bars
+        get() = currentPlayerPainter.waveForm
 
     // Calculations
     private var lastDownEventX = 0f

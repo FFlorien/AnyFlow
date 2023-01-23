@@ -106,7 +106,7 @@
                 app:smallestButtonWidth="@dimen/minClickableSize"
                 app:state="@{viewModel.state}"
                 app:totalDuration="@{viewModel.totalDuration}"
-                app:bars="@{viewModel.bars}"/>
+                app:waveForm="@{viewModel.waveForm}"/>
         </LinearLayout>
 
         <com.google.android.material.navigation.NavigationView

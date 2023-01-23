@@ -11,7 +11,7 @@ import be.florien.anyflow.data.local.model.DbSongDisplay
 abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
 
     @Transaction
-    @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, local, bars FROM song JOIN playlistsongs ON song.id = playlistsongs.songId WHERE playlistsongs.playlistId = :playlistId ORDER BY playlistsongs.`order`")
+    @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, size, local, waveForm FROM song JOIN playlistsongs ON song.id = playlistsongs.songId WHERE playlistsongs.playlistId = :playlistId ORDER BY playlistsongs.`order`")
     abstract fun songsFromPlaylist(playlistId: Long): DataSource.Factory<Int, DbSongDisplay>
 
     @Query("SELECT count(*) FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")

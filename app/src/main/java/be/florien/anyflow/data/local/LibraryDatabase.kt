@@ -81,8 +81,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     fun searchSongs(filter: String): LiveData<List<Long>> =
         getSongDao().searchPositionsWhereFilterPresent(filter)
 
-    suspend fun getBars(songId: Long): DoubleArray =
-        getSongDao().getDownSamples(songId).downSamplesArray
+    suspend fun getWaveForm(songId: Long): DoubleArray =
+        getSongDao().getWaveForm(songId).downSamplesArray
 
     suspend fun getSongDuration(songId: Long): Int = getSongDao().getSongDuration(songId)
 
@@ -231,10 +231,10 @@ abstract class LibraryDatabase : RoomDatabase() {
         getSongDao().updateWithLocalUri(songId, uri)
     }
 
-    suspend fun updateBars(songId: Long, bars: DoubleArray) {
+    suspend fun updateWaveForm(songId: Long, waveForm: DoubleArray) {
         val stringify =
-            bars.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { "%.3f".format(it) }
-        getSongDao().updateWithNewDownSamples(songId, stringify)
+            waveForm.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { "%.3f".format(it) }
+        getSongDao().updateWithNewWaveForm(songId, stringify)
     }
 
     suspend fun setCurrentFilters(filters: List<Filter<*>>) = asyncUpdate(CHANGE_FILTERS) {

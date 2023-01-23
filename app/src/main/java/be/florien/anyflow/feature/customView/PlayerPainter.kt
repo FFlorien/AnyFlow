@@ -11,7 +11,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
-import be.florien.anyflow.player.WaveFormBarsRepository
+import be.florien.anyflow.player.WaveFormRepository
 
 internal abstract class PlayerPainter(
     val context: Context,
@@ -32,14 +32,14 @@ internal abstract class PlayerPainter(
 
             computePlayButtonLeftBound()
             computePlayButtonRightBound()
-            computeBars()
+            computeWaveForm()
             computeTicks()
             onValuesComputed()
         }
-    var bars = DoubleArray(0)
+    var waveForm = DoubleArray(0)
         set(value) {
             field = value
-            computeBars()
+            computeWaveForm()
         }
     var totalDuration = 0
     var currentState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
@@ -93,15 +93,15 @@ internal abstract class PlayerPainter(
 
     // Timeline
     private val ticks = FloatArray(6)
-    private val readBarsLeftValues = FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
-    private val comingBarsLeftValues = FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
-    private var firstBarIndex = 0
-    private var currentBarIndex = 0
-    private var lastBarIndex = 0
-    private var measuredNumberOfBarsInHalf = 0
+    private val readWaveFormLeftValues = FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
+    private val comingWaveFormLeftValues = FloatArray(MAX_DURATION_VISIBLE_IN_SEC + 2) { -1F }
+    private var firstWaveFormBarIndex = 0
+    private var currentWaveFormBarIndex = 0
+    private var lastWaveFormBarIndex = 0
+    private var measuredNumberOfWaveFormBarsInHalf = 0
     private var measuredInformationBaseline = 0F
-    private var measuredBarWidth = 0F
-    private var measuredBarWidthNoMargin = 0F
+    private var measuredWaveFormBarWidth = 0F
+    private var measuredWaveFormBarWidthNoMargin = 0F
     private var measuredCenterX = 0F
     private var measuredTickHeight = 0F
     private var measuredStartEndAnimDuration = 10000
@@ -131,12 +131,12 @@ internal abstract class PlayerPainter(
         setColor(color)
         strokeWidth = 2f
     }
-    private val readBarsColor = Paint().apply {
+    private val readWaveFormBarsColor = Paint().apply {
         val color = ContextCompat.getColor(context, R.color.primaryDark)
         setColor(color)
         strokeWidth = 2f
     }
-    private val comingBarsColor = Paint().apply {
+    private val comingWaveFormBarsColor = Paint().apply {
         val color = ContextCompat.getColor(context, R.color.primaryLight)
         setColor(color)
         strokeWidth = 2f
@@ -178,11 +178,11 @@ internal abstract class PlayerPainter(
             }
         values.getColor(R.styleable.PlayerControls_readBarsColor, PlayerControls.NO_VALUE)
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
-                readBarsColor.color = it
+                readWaveFormBarsColor.color = it
             }
         values.getColor(R.styleable.PlayerControls_comingBarsColor, PlayerControls.NO_VALUE)
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
-                comingBarsColor.color = it
+                comingWaveFormBarsColor.color = it
             }
         values.getColor(R.styleable.PlayerControls_previousBackgroundColor, PlayerControls.NO_VALUE)
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
@@ -210,19 +210,19 @@ internal abstract class PlayerPainter(
             measuredSmallestButtonWidth = width / 3f
         }
         measuredCenterX = width / 2f
-        val availableBarsWidth = width - (measuredSmallestButtonWidth * 2)
-        val numberOfBars = MAX_DURATION_VISIBLE_IN_SEC * 2f
+        val availableWaveFormWidth = width - (measuredSmallestButtonWidth * 2)
+        val numberOfWaveFormBars = MAX_DURATION_VISIBLE_IN_SEC * 2f
         val totalMargin = BAR_MARGIN * 2f
-        measuredBarWidth = availableBarsWidth / numberOfBars
-        measuredBarWidthNoMargin = measuredBarWidth - totalMargin
+        measuredWaveFormBarWidth = availableWaveFormWidth / numberOfWaveFormBars
+        measuredWaveFormBarWidthNoMargin = measuredWaveFormBarWidth - totalMargin
         measuredSmallPlayButtonLeftX = ((width - measuredSmallestButtonWidth) / 2)
         measuredSmallPlayButtonRightX = measuredSmallPlayButtonLeftX + measuredSmallestButtonWidth
         measuredBigPlayButtonRightX = width - measuredSmallestButtonWidth
         measuredPlayButtonOffsetWidth = measuredSmallPlayButtonLeftX - measuredSmallestButtonWidth
         measuredStartEndAnimDuration =
-            ((measuredPlayButtonOffsetWidth * BAR_DURATION_MS) / measuredBarWidth).toInt()
-        measuredNumberOfBarsInHalf =
-            ((width - (measuredSmallestButtonWidth * 2)) / 2 / measuredBarWidth).toInt()
+            ((measuredPlayButtonOffsetWidth * BAR_DURATION_MS) / measuredWaveFormBarWidth).toInt()
+        measuredNumberOfWaveFormBarsInHalf =
+            ((width - (measuredSmallestButtonWidth * 2)) / 2 / measuredWaveFormBarWidth).toInt()
 
         measuredTickHeight = height / 4f * 3f
         val iconMargin = (measuredSmallestButtonWidth / 4).toInt()
@@ -276,37 +276,37 @@ internal abstract class PlayerPainter(
             /* stopY =  */ 0f,
             /* paint =  */ textAndOutlineColor
         )
-        readBarsLeftValues.forEachIndexed { index, value ->
-            if (value < 0 || bars.isEmpty()) {
+        readWaveFormLeftValues.forEachIndexed { index, value ->
+            if (value < 0 || waveForm.isEmpty()) {
                 return@forEachIndexed
             }
-            val barRatio = bars[index + firstBarIndex]
+            val barRatio = waveForm[index + firstWaveFormBarIndex]
             val topBound = (measuredInformationBaseline - (measuredInformationBaseline * barRatio))
             val leftBound = (value + BAR_MARGIN)
-            val rightBound = value + measuredBarWidth - BAR_MARGIN
+            val rightBound = value + measuredWaveFormBarWidth - BAR_MARGIN
 
             canvas.drawRect( // Already played Amplitude bars
                 /* left =   */ leftBound.coerceAtLeast(playButtonLeftBound),
                 /* top =    */ topBound.toFloat(),
                 /* right =  */ rightBound.coerceAtMost(measuredCenterX),
                 /* bottom = */ measuredInformationBaseline,
-                /* paint =  */ readBarsColor
+                /* paint =  */ readWaveFormBarsColor
             )
         }
-        comingBarsLeftValues.forEachIndexed { index, value ->
-            if (value < 0 || bars.isEmpty()) {
+        comingWaveFormLeftValues.forEachIndexed { index, value ->
+            if (value < 0 || waveForm.isEmpty()) {
                 return@forEachIndexed
             }
-            val barRatio = bars[index + currentBarIndex]
+            val barRatio = waveForm[index + currentWaveFormBarIndex]
             val topBound = (measuredInformationBaseline - (measuredInformationBaseline * barRatio))
             val leftBound = (value + BAR_MARGIN)
-            val rightBound = value + measuredBarWidth - BAR_MARGIN
+            val rightBound = value + measuredWaveFormBarWidth - BAR_MARGIN
             canvas.drawRect( // Amplitude bars to read
                 /* left =   */ leftBound.coerceAtLeast(measuredCenterX),
                 /* top =    */ topBound.toFloat(),
                 /* right =  */ rightBound.coerceAtMost(playButtonRightBound),
                 /* bottom = */ measuredInformationBaseline,
-                /* paint =  */ comingBarsColor
+                /* paint =  */ comingWaveFormBarsColor
             )
         }
         playPauseIconAnimator.icon.draw(canvas)
@@ -422,41 +422,41 @@ internal abstract class PlayerPainter(
         }
     }
 
-    private fun computeBars() {
-        if (measuredCenterX == 0F || bars.isEmpty()) {
+    private fun computeWaveForm() {
+        if (measuredCenterX == 0F || waveForm.isEmpty()) {
             return
         }
 
         val barPositionInDuration = duration % BAR_DURATION_MS
         val barProgressPercent = barPositionInDuration.toFloat() / BAR_DURATION_MS
-        val barStartOffset = (barProgressPercent * measuredBarWidth).toInt()
+        val barStartOffset = (barProgressPercent * measuredWaveFormBarWidth).toInt()
 
-        currentBarIndex =
-            (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(bars.size - 1)
-        firstBarIndex = (currentBarIndex - measuredNumberOfBarsInHalf).coerceAtLeast(0)
-        lastBarIndex =
-            (currentBarIndex + measuredNumberOfBarsInHalf + 1).coerceAtMost(bars.size - 1)
-        val firstCurrentDelta = currentBarIndex - firstBarIndex
+        currentWaveFormBarIndex =
+            (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(waveForm.size - 1)
+        firstWaveFormBarIndex = (currentWaveFormBarIndex - measuredNumberOfWaveFormBarsInHalf).coerceAtLeast(0)
+        lastWaveFormBarIndex =
+            (currentWaveFormBarIndex + measuredNumberOfWaveFormBarsInHalf + 1).coerceAtMost(waveForm.size - 1)
+        val firstCurrentDelta = currentWaveFormBarIndex - firstWaveFormBarIndex
 
-        bars.slice(firstBarIndex..currentBarIndex).forEachIndexed { index, _ ->
-            readBarsLeftValues[index] =
-                (measuredCenterX - ((firstCurrentDelta - index) * measuredBarWidth) - barStartOffset)
+        waveForm.slice(firstWaveFormBarIndex..currentWaveFormBarIndex).forEachIndexed { index, _ ->
+            readWaveFormLeftValues[index] =
+                (measuredCenterX - ((firstCurrentDelta - index) * measuredWaveFormBarWidth) - barStartOffset)
         }
 
-        bars.slice(currentBarIndex until lastBarIndex).forEachIndexed { index, _ ->
-            comingBarsLeftValues[index] =
-                (measuredCenterX + (index * measuredBarWidth) - barStartOffset)
+        waveForm.slice(currentWaveFormBarIndex until lastWaveFormBarIndex).forEachIndexed { index, _ ->
+            comingWaveFormLeftValues[index] =
+                (measuredCenterX + (index * measuredWaveFormBarWidth) - barStartOffset)
         }
 
-        val readBarsSize = currentBarIndex - firstBarIndex + 1
-        readBarsLeftValues.fill(-1F, readBarsSize)
+        val readBarsSize = currentWaveFormBarIndex - firstWaveFormBarIndex + 1
+        readWaveFormLeftValues.fill(-1F, readBarsSize)
 
-        val comingBarsSize = (lastBarIndex - currentBarIndex)
-        comingBarsLeftValues.fill(-1F, comingBarsSize)
+        val comingBarsSize = (lastWaveFormBarIndex - currentWaveFormBarIndex)
+        comingWaveFormLeftValues.fill(-1F, comingBarsSize)
     }
 
     private fun computeTicks() {
-        val tickOffset = measuredBarWidth * 10
+        val tickOffset = measuredWaveFormBarWidth * 10
         val tickPositionInDuration = duration % 5000
         val tickProgressPercent = tickPositionInDuration.toFloat() / 5000
         val tickStartOffset = (tickProgressPercent * tickOffset).toInt()
@@ -490,7 +490,7 @@ internal abstract class PlayerPainter(
         private const val VISIBLE_TEXT_SP = 12f
         private const val MAX_DURATION_VISIBLE_IN_SEC = 25
         private const val BAR_MARGIN = 1F
-        private const val BAR_DURATION_MS = WaveFormBarsRepository.BAR_DURATION_MS
+        private const val BAR_DURATION_MS = WaveFormRepository.BAR_DURATION_MS
 
 
         const val CLICK_PREVIOUS = 0

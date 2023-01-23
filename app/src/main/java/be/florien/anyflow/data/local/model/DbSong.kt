@@ -19,7 +19,7 @@ data class DbSong(
     val year: Int,
     val composer: String,
     val local: String?,
-    val bars: String
+    val waveForm: String
 )
 
 data class DbSongDisplay(

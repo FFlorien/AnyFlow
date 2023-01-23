@@ -22,7 +22,7 @@ fun AmpacheSong.toDbSong() = DbSong(
     composer = composer ?: "",
     disk = disk,
     local = null,
-    bars = ""
+    waveForm = ""
 )
 
 fun AmpacheSong.toDbSongGenres(): List<DbSongGenre> {

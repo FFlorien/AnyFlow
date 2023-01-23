@@ -44,11 +44,11 @@ class UserModule {
 
     @Provides
     @UserScope
-    fun provideDownSampleRepository(
+    fun provideWaveFormRepository(
         libraryDatabase: LibraryDatabase,
         ampacheDataSource: AmpacheDataSource,
         context: Context
-    ) = WaveFormBarsRepository(libraryDatabase, ampacheDataSource, context)
+    ) = WaveFormRepository(libraryDatabase, ampacheDataSource, context)
 
     @Provides
     @Named("Songs")
