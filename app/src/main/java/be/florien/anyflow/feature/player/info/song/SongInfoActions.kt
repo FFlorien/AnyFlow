@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.player.info.song
 
 import android.content.SharedPreferences
-import androidx.lifecycle.map
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
@@ -405,7 +404,7 @@ class SongInfoActions(
                         SongFieldType.Title(),
                         SongActionType.Download(),
                         order,
-                        downloadManager.getDownloadState(songInfo)?.map { it * 100 / songInfo.size }
+                        downloadManager.getDownloadState(songInfo)
                     )
                 } else null
             is LibraryActionType.SubFilter -> null

@@ -22,9 +22,10 @@ class DownloadManager @Inject constructor(
 ) {
     private val contentResolver = context.contentResolver
     private val downloadMap = mutableMapOf<Long, LiveData<Int>>()
-    private val downloadScope = CoroutineScope(Dispatchers.IO)//todo should we care about cancellation ?
+    private val downloadScope =
+        CoroutineScope(Dispatchers.IO)//todo should we care about cancellation ?
 
-    suspend fun download(songInfo: SongInfo){
+    suspend fun download(songInfo: SongInfo) {
         val audioCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
         } else {
@@ -42,16 +43,20 @@ class DownloadManager @Inject constructor(
             val songUrl = dataRepository.getSongUrl(songInfo.id)
             URL(songUrl).openStream().use { iStream ->
                 contentResolver.openOutputStream(newSongUri)?.use { oStream ->
-                    var bytesCopied = 0
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    var bytes = iStream.read(buffer)
-                    while (bytes >= 0) {
-                        oStream.write(buffer, 0, bytes)
-                        bytesCopied += bytes
-                        withContext(Dispatchers.Main) {
-                            liveData.value = bytesCopied
+                    try {
+                        var bytesCopied = 0
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        var bytes = iStream.read(buffer)
+                        while (bytes >= 0) {
+                            oStream.write(buffer, 0, bytes)
+                            bytesCopied += bytes
+                            withContext(Dispatchers.Main) {
+                                liveData.value = bytesCopied * 100 / songInfo.size
+                            }
+                            bytes = iStream.read(buffer)
                         }
-                        bytes = iStream.read(buffer)
+                    } catch (exception: Exception) {
+                        contentResolver.delete(newSongUri, null, null)
                     }
                 }
                 dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
