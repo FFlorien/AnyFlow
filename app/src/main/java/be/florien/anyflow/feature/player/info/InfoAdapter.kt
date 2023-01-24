@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.player.info
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -28,13 +29,14 @@ class InfoAdapter(
         return oldItem.fieldType == newItem.fieldType && isSameAction
     }
 
+    @SuppressLint("DiffUtilEquals")
     override fun areContentsTheSame(
         oldItem: InfoActions.InfoRow,
         newItem: InfoActions.InfoRow
     ) = areItemsTheSame(
         oldItem,
         newItem
-    ) && oldItem.actionType == newItem.actionType && oldItem.additionalInfo == newItem.additionalInfo
+    ) && oldItem.actionType == newItem.actionType && oldItem.additionalInfo == newItem.additionalInfo && oldItem.progress === newItem.progress
 }) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder =

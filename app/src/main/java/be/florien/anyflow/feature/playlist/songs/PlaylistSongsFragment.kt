@@ -22,7 +22,7 @@ import be.florien.anyflow.feature.menu.implementation.RemoveSongsMenuHolder
 import be.florien.anyflow.feature.refreshVisibleViewHolders
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
-class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
+class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragment() {
     lateinit var recyclerView: RecyclerView
     lateinit var viewModel: PlaylistSongsViewModel
     private val menuCoordinator = MenuCoordinator()
@@ -41,7 +41,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
         }
     }
 
-    override fun getTitle() = playlist.name
+    override fun getTitle() = playlist?.name ?: throw IllegalStateException("Playlist shouldn't be null !")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +55,7 @@ class PlaylistSongsFragment(private var playlist: Playlist) : BaseFragment() {
             this,
             ViewModelProvider.NewInstanceFactory()
         )[PlaylistSongsViewModel::class.java]
-        viewModel.playlistId = playlist.id
+        viewModel.playlistId = playlist?.id ?: throw IllegalStateException("Playlist shouldn't be null !")
         anyFlowApp.applicationComponent.inject(viewModel)
     }
 

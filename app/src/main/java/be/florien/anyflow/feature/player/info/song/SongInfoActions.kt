@@ -1,32 +1,22 @@
 package be.florien.anyflow.feature.player.info.song
 
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.SharedPreferences
-import android.os.Build
-import android.provider.MediaStore
+import androidx.lifecycle.map
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import java.io.InputStream
-import java.io.OutputStream
-import java.net.URL
 
 class SongInfoActions(
-    private val contentResolver: ContentResolver,
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
     private val dataRepository: DataRepository,
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    private val downloadManager: DownloadManager
 ) : InfoActions<SongInfo>() {
 
     /**
@@ -137,45 +127,7 @@ class SongInfoActions(
         }
     }
 
-    suspend fun download(songInfo: SongInfo): Flow<Int> { //todo download manager which will keep flow in a map, and download wether it is observed or not
-        val audioCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        } else {
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        }
-
-        val newSongDetails = getNewSongDetails(songInfo)
-
-        val newSongUri =
-            contentResolver.insert(audioCollection, newSongDetails) ?: return emptyFlow()
-
-        return flow {
-            val songUrl = dataRepository.getSongUrl(songInfo.id)
-            var inputStream: InputStream? = null
-            var outputStream: OutputStream? = null
-            try {
-                inputStream = URL(songUrl).openStream()
-                outputStream = contentResolver.openOutputStream(newSongUri)
-                if (outputStream != null) {
-                    var bytesCopied = 0
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    var bytes = inputStream.read(buffer)
-                    while (bytes >= 0) {
-                        outputStream.write(buffer, 0, bytes)
-                        bytesCopied += bytes
-                        emit(bytesCopied)
-                        bytes = inputStream.read(buffer)
-                    }
-                }
-                dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
-            } catch (exception: Exception) {
-                //todo
-            } finally {
-                inputStream?.close()
-                outputStream?.close()
-            }
-        }.flowOn(Dispatchers.IO)
-    }
+    suspend fun download(songInfo: SongInfo) = downloadManager.download(songInfo)
 
     /**
      * Quick actions
@@ -219,28 +171,6 @@ class SongInfoActions(
                 }
             } else {
                 null
-            }
-        }
-    }
-
-    /**
-     * Private methods
-     */
-
-    private fun getNewSongDetails(songInfo: SongInfo): ContentValues {
-        return ContentValues().apply {
-            put(MediaStore.Audio.Media.TITLE, songInfo.title)
-            put(MediaStore.Audio.Media.ARTIST, songInfo.artistName)
-            put(MediaStore.Audio.Media.ARTIST_ID, songInfo.artistId)
-            put(MediaStore.Audio.Media.ALBUM, songInfo.albumName)
-            put(MediaStore.Audio.Media.ALBUM_ID, songInfo.albumId)
-            put(MediaStore.Audio.Media.TRACK, songInfo.track)
-            put(MediaStore.Audio.Media.DURATION, songInfo.time)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                put(MediaStore.Audio.Media.ALBUM_ARTIST, songInfo.albumArtistName)
-                put(MediaStore.Audio.Media.GENRE, songInfo.genreNames.first())
-                put(MediaStore.Audio.Media.YEAR, songInfo.year)
             }
         }
     }
@@ -467,14 +397,17 @@ class SongInfoActions(
                 )
                 else -> null
             }
-            is SongActionType.Download -> if (field is SongFieldType.Title) InfoRow(
-                R.string.info_action_download,
-                null,
-                R.string.info_action_download_description,
-                SongFieldType.Title(),
-                SongActionType.Download(),
-                order
-            ) else null
+            is SongActionType.Download -> if (field is SongFieldType.Title) {
+                    InfoRow(
+                        R.string.info_action_download,
+                        null,
+                        R.string.info_action_download_description,
+                        SongFieldType.Title(),
+                        SongActionType.Download(),
+                        order,
+                        downloadManager.getDownloadState(songInfo)?.map { it * 100 / songInfo.size }
+                    )
+                } else null
             is LibraryActionType.SubFilter -> null
         }
     }

@@ -34,7 +34,7 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     @Transaction
     @Query("SELECT * FROM song WHERE song.id = :songId")
-    abstract suspend fun findById(songId: Long): DbSongDisplay?
+    abstract fun findById(songId: Long): LiveData<DbSongDisplay>
 
     // Related to queue or filter
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")

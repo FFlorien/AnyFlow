@@ -1,11 +1,11 @@
 package be.florien.anyflow.feature.player.info.song.quickActions
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.song.BaseSongViewModel
 import be.florien.anyflow.feature.player.info.song.SongInfoActions
@@ -15,14 +15,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class QuickActionsViewModel @Inject constructor(
-    context: Context,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
-    sharedPreferences: SharedPreferences
-) : BaseSongViewModel(context, filtersManager, orderComposer, dataRepository, sharedPreferences) {
+    sharedPreferences: SharedPreferences,
+    downloadManager: DownloadManager
+) : BaseSongViewModel(filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager) {
     override val infoActions = SongInfoActions(
-        context.contentResolver, filtersManager, orderComposer, dataRepository, sharedPreferences
+        filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager
     )
     var maxItems = 3
         set(value) {

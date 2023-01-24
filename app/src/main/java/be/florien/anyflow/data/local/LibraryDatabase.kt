@@ -42,7 +42,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     protected abstract fun getOrderDao(): OrderDao
     protected abstract fun getAlarmDao(): AlarmDao
     val changeUpdater: LiveData<Int?> = MutableLiveData()
-    val queryComposer = QueryComposer()
+    private val queryComposer = QueryComposer()
 
     /**
      * Getters
@@ -316,7 +316,7 @@ abstract class LibraryDatabase : RoomDatabase() {
         getPlaylistSongsDao().delete(DbPlaylistSongs(0, songId, playlistId))
     }
 
-    suspend fun getSong(id: Long): DbSongDisplay? = getSongDao().findById(id)
+    fun getSong(id: Long): LiveData<DbSongDisplay> = getSongDao().findById(id)
 
     companion object {
         const val CHANGE_SONGS = 0

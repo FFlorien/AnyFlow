@@ -1,6 +1,5 @@
 package be.florien.anyflow.feature.player.songlist
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.info.InfoActions
@@ -28,16 +28,16 @@ import javax.inject.Inject
 @ActivityScope
 class SongListViewModel
 @Inject constructor(
-    context: Context,
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     sharedPreferences: SharedPreferences,
+    downloadManager: DownloadManager,
     private val playingQueue: PlayingQueue,
     private val dataRepository: DataRepository,
 ) : BaseViewModel() {
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
-    private val songInfoActions = SongInfoActions(context.contentResolver, filtersManager, orderComposer, dataRepository, sharedPreferences)
+    private val songInfoActions = SongInfoActions(filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager)
     val pagedAudioQueue: LiveData<PagingData<SongInfo>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<SongInfo> = playingQueue.currentSong
 

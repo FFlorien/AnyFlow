@@ -269,7 +269,7 @@ class DataRepository
                 search
         ).map { item -> (mapping(item)) }
 
-    suspend fun getSong(id: Long): SongInfo? = libraryDatabase.getSong(id)?.toViewSongInfo()
+    fun getSong(id: Long): LiveData<SongInfo> = libraryDatabase.getSong(id).map { it.toViewSongInfo() }
 
     /**
      * Playlists modification

@@ -129,6 +129,11 @@ class PlayerService : LifecycleService() {
         return iBinder
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        playerController.onDestroy()
+    }
+
     /**
      * Inner classes
      */

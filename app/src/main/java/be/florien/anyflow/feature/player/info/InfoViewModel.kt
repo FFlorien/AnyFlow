@@ -47,7 +47,7 @@ abstract class InfoViewModel<T> : BaseViewModel() {
         }
     }
 
-    protected fun updateRows() {
+    fun updateRows() {
         viewModelScope.launch {
             val mutableList = getInfoRowList()
             for (fieldType in expandedSections) {

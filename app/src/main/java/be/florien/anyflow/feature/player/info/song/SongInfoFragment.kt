@@ -63,7 +63,10 @@ class SongInfoFragment(
                 (requireActivity() as ViewModelFactoryHolder).getFactory()
             )[SongListViewModel::class.java]
         }
-        viewModel.song = song
+        viewModel.songId = song.id
+        viewModel.songInfo.observe(this) {
+            viewModel.updateRows()
+        }
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
