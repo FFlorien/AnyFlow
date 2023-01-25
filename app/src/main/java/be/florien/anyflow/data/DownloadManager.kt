@@ -6,7 +6,9 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.extension.eLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,9 +25,20 @@ class DownloadManager @Inject constructor(
     private val contentResolver = context.contentResolver
     private val downloadMap = mutableMapOf<Long, LiveData<Int>>()
     private val downloadScope =
-        CoroutineScope(Dispatchers.IO)//todo should we care about cancellation ?
+        CoroutineScope(Dispatchers.IO)//todo should we care about cancellation ? (Yes, yes we should)
 
-    suspend fun download(songInfo: SongInfo) {
+    /*todo list :
+        - saving download list in a db
+        - retrieving different level of download (artist, album, album artist, playlist, genre)
+        - only 2 or 3 download in parallel
+        - check for download state
+        - do not download twice
+        - only one public method ? (download id + FilterType.Song ?)
+        - contentProvider.bulkInsert ?
+        - hasDownloadStarted ?
+     */
+
+    fun download(songInfo: SongInfo) {
         val audioCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
         } else {
@@ -55,16 +68,25 @@ class DownloadManager @Inject constructor(
                             }
                             bytes = iStream.read(buffer)
                         }
+                        dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
                     } catch (exception: Exception) {
+                        eLog(exception, "Could not download a song")
                         contentResolver.delete(newSongUri, null, null)
                     }
                 }
-                dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
             }
             downloadMap.remove(songInfo.id)
-
         }
         downloadMap[songInfo.id] = liveData
+    }
+
+    fun batchDownload(typeId: Long, filterType: Filter.FilterType) {
+        downloadScope.launch(Dispatchers.IO) {
+            val songs = dataRepository.getSongsSearchedList(listOf(Filter(filterType, typeId, "")), "") {
+                it.toViewSongInfo()
+            }
+            songs.forEach(::download)
+        }
     }
 
     fun getDownloadState(songInfo: SongInfo) = downloadMap[songInfo.id]

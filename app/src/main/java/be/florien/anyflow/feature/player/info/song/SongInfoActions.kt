@@ -45,7 +45,7 @@ class SongInfoActions(
                 getSongAction(infoSource, fieldType, SongActionType.AddToPlaylist()),
                 getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
                 getSongAction(infoSource, fieldType, SongActionType.Search()),
-                if (infoSource.local == null) {
+                if (infoSource.local.isNullOrBlank()) {
                     getSongAction(infoSource, fieldType, SongActionType.Download())
                 } else {
                     getSongAction(infoSource, fieldType, ActionType.None())
@@ -53,19 +53,23 @@ class SongInfoActions(
             )
             is SongFieldType.Artist -> listOfNotNull(
                 getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
+                getSongAction(infoSource, fieldType, SongActionType.Search()),
+                getSongAction(infoSource, fieldType, SongActionType.Download())
             )
             is SongFieldType.Album -> listOfNotNull(
                 getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
+                getSongAction(infoSource, fieldType, SongActionType.Search()),
+                getSongAction(infoSource, fieldType, SongActionType.Download())
             )
             is SongFieldType.AlbumArtist -> listOfNotNull(
                 getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
+                getSongAction(infoSource, fieldType, SongActionType.Search()),
+                getSongAction(infoSource, fieldType, SongActionType.Download())
             )
             is SongFieldType.Genre -> listOfNotNull(
                 getSongAction(infoSource, fieldType, SongActionType.AddToFilter()),
-                getSongAction(infoSource, fieldType, SongActionType.Search())
+                getSongAction(infoSource, fieldType, SongActionType.Search()),
+                getSongAction(infoSource, fieldType, SongActionType.Download())
             )
             else -> listOf()
         }
@@ -108,6 +112,7 @@ class SongInfoActions(
                 songInfo.genreIds.first(),
                 songInfo.genreNames.first()
             ) // todo handle multiple genre in info view
+            //todo display multiple playlists in info view
             else -> throw IllegalArgumentException("This field can't be filtered on")
         }
         filtersManager.clearFilters()
@@ -126,7 +131,10 @@ class SongInfoActions(
         }
     }
 
-    suspend fun download(songInfo: SongInfo) = downloadManager.download(songInfo)
+    fun download(songInfo: SongInfo) = downloadManager.download(songInfo)
+
+    fun batchDownload(batchId: Long, type: Filter.FilterType) =
+        downloadManager.batchDownload(batchId, type)
 
     /**
      * Quick actions
@@ -396,17 +404,54 @@ class SongInfoActions(
                 )
                 else -> null
             }
-            is SongActionType.Download -> if (field is SongFieldType.Title) {
-                    InfoRow(
-                        R.string.info_action_download,
-                        null,
-                        R.string.info_action_download_description,
-                        SongFieldType.Title(),
-                        SongActionType.Download(),
-                        order,
-                        downloadManager.getDownloadState(songInfo)
-                    )
-                } else null
+            is SongActionType.Download -> when (field) {
+                is SongFieldType.Title -> InfoRow(
+                    R.string.info_action_download,
+                    null,
+                    R.string.info_action_download_song_description,
+                    SongFieldType.Title(),
+                    SongActionType.Download(),
+                    order,
+                    downloadManager.getDownloadState(songInfo)
+                )
+                is SongFieldType.Album -> InfoRow(
+                    R.string.info_action_download,
+                    null,
+                    R.string.info_action_download_album_description,
+                    SongFieldType.Album(),
+                    SongActionType.Download(),
+                    order,
+                    downloadManager.getDownloadState(songInfo)//todo
+                )
+                is SongFieldType.AlbumArtist -> InfoRow(
+                    R.string.info_action_download,
+                    null,
+                    R.string.info_action_download_album_artist_description,
+                    SongFieldType.AlbumArtist(),
+                    SongActionType.Download(),
+                    order,
+                    downloadManager.getDownloadState(songInfo)//todo
+                )
+                is SongFieldType.Artist -> InfoRow(
+                    R.string.info_action_download,
+                    null,
+                    R.string.info_action_download_artist_description,
+                    SongFieldType.Artist(),
+                    SongActionType.Download(),
+                    order,
+                    downloadManager.getDownloadState(songInfo)//todo
+                )
+                is SongFieldType.Genre -> InfoRow(
+                    R.string.info_action_download,
+                    null,
+                    R.string.info_action_download_genre_description,
+                    SongFieldType.Genre(),
+                    SongActionType.Download(),
+                    order,
+                    downloadManager.getDownloadState(songInfo)//todo
+                )
+                else -> null
+            }
             is LibraryActionType.SubFilter -> null
         }
     }

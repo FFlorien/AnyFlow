@@ -375,7 +375,7 @@ class ExoPlayerController
 
     private fun dbSongToPlayToMediaItem(song: DbSongToPlay?): MediaItem? {
         if (song == null) return null
-        if (song.local != null) {
+        if (!song.local.isNullOrBlank()) {
             return MediaItem.Builder().setUri(song.local).setMediaId(song.id.toString()).build()
         }
         val songUrl = ampacheDataSource.getSongUrl(song.id)

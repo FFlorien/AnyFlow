@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
@@ -50,7 +51,14 @@ class SongInfoViewModel @Inject constructor(
                 is InfoActions.SongActionType.Search -> searchTerm.mutable.value =
                     infoActions.getSearchTerms(song, fieldType)
                 is InfoActions.SongActionType.Download -> {
-                    infoActions.download(song)
+                    when (fieldType) { //todo playlist when displayed in info!
+                        is InfoActions.SongFieldType.Title ->infoActions.download(song)
+                        is InfoActions.SongFieldType.Album -> infoActions.batchDownload(song.albumId, Filter.FilterType.ALBUM_IS)
+                        is InfoActions.SongFieldType.AlbumArtist -> infoActions.batchDownload(song.albumArtistId, Filter.FilterType.ALBUM_ARTIST_IS)
+                        is InfoActions.SongFieldType.Artist -> infoActions.batchDownload(song.artistId, Filter.FilterType.ARTIST_IS)
+                        is InfoActions.SongFieldType.Genre -> infoActions.batchDownload(song.genreIds.first(), Filter.FilterType.GENRE_IS) //todo :-(
+                        else -> return@launch
+                    }
                     updateRows()
                 }
             }

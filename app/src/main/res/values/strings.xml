@@ -82,7 +82,11 @@
     <string name="info_action_search_title">Search</string>
     <string name="info_action_download">Download</string>
     <string name="info_action_downloaded">Downloaded</string>
-    <string name="info_action_download_description">This song will be available for offline listening</string>
+    <string name="info_action_download_song_description">This song will be available for offline listening</string><!-- todo just pass the value and stop "this song/album/..." -->
+    <string name="info_action_download_album_description">This album will be available for offline listening</string>
+    <string name="info_action_download_artist_description">This artist will be available for offline listening</string>
+    <string name="info_action_download_genre_description">This genre will be available for offline listening</string>
+    <string name="info_action_download_album_artist_description">This album\'s artist will be available for offline listening</string>
     <string name="info_action_downloaded_description">This song is available for offline listening</string>
     <string name="alarm_repeat">Repeat</string>
     <string name="weekday_monday">Monday</string>

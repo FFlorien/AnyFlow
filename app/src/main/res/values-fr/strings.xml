@@ -82,7 +82,11 @@
     <string name="info_action_search_title">Rechercher</string>
     <string name="info_action_download">Télécharger</string>
     <string name="info_action_downloaded">Téléchargée</string>
-    <string name="info_action_download_description">Cette chanson sera disponible pour une écoute hors-ligne</string>
+    <string name="info_action_download_song_description">Cette chanson sera disponible pour une écoute hors-ligne</string>
+    <string name="info_action_download_album_description">Cet album sera disponible pour une écoute hors-ligne</string>
+    <string name="info_action_download_artist_description">Cet artiste sera disponible pour une écoute hors-ligne</string>
+    <string name="info_action_download_genre_description">Ce genre sera disponible pour une écoute hors-ligne</string>
+    <string name="info_action_download_album_artist_description">Cet artiste de l\'album sera disponible pour une écoute hors-ligne</string>
     <string name="info_action_downloaded_description">Cette chanson est disponible pour une écoute hors-ligne</string>
     <string name="alarm_repeat">Répétition</string>
     <string name="weekday_monday">Lundi</string>
