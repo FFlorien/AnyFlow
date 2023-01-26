@@ -16,6 +16,7 @@ import be.florien.anyflow.feature.menu.implementation.FilterMenuHolder
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoAdapter
+import be.florien.anyflow.feature.player.info.InfoViewHolder
 import be.florien.anyflow.feature.player.library.BaseFilteringFragment
 import be.florien.anyflow.feature.player.library.LibraryViewModel
 import be.florien.anyflow.feature.player.library.cancelChanges
@@ -61,7 +62,7 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
         fragmentBinding.viewModel = viewModel
         fragmentBinding.filterList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        val infoAdapter = InfoAdapter(this::executeAction)
+        val infoAdapter = LibraryInfoAdapter(this::executeAction)
         fragmentBinding.filterList.adapter = infoAdapter
         viewModel.infoRows.observe(viewLifecycleOwner) {
             infoAdapter.submitList(it)
@@ -79,11 +80,17 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
     }
 
     private fun displayFilters() {
-        val fragment = requireActivity().supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
-            ?: DisplayFilterFragment()
+        val fragment =
+            requireActivity().supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
+                ?: DisplayFilterFragment()
         requireActivity().supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_backward, R.anim.slide_forward, R.anim.slide_out_top)
+            .setCustomAnimations(
+                R.anim.slide_in_top,
+                R.anim.slide_backward,
+                R.anim.slide_forward,
+                R.anim.slide_out_top
+            )
             .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
             .addToBackStack(null)
             .commit()
@@ -112,6 +119,14 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
                     .commit()
             }
             else -> viewModel.executeAction(field, action)
+        }
+    }
+
+
+    class LibraryInfoAdapter(private val executeAction: (InfoActions.FieldType, InfoActions.ActionType) -> Unit) :
+        InfoAdapter<InfoViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder {
+            return InfoViewHolder(parent, executeAction)
         }
     }
 }

@@ -39,9 +39,7 @@ abstract class InfoViewModel<T> : BaseViewModel() {
     ) {
         viewModelScope.launch {
             when (actionType) {
-                is InfoActions.ActionType.ExpandableTitle, is InfoActions.ActionType.ExpandedTitle -> toggleExpansion(
-                    fieldType
-                )
+                is InfoActions.ActionType.ExpandableTitle -> toggleExpansion(fieldType)
                 else -> executeInfoAction(fieldType, actionType)
             }
         }
@@ -51,19 +49,12 @@ abstract class InfoViewModel<T> : BaseViewModel() {
         viewModelScope.launch {
             val mutableList = getInfoRowList()
             for (fieldType in expandedSections) {
-                val togglePosition =
-                    mutableList.indexOfFirst { it.actionType is InfoActions.ActionType.ExpandableTitle && it.fieldType == fieldType }
-                val toggledItem = mutableList.removeAt(togglePosition)
-                val newToggledItem = InfoActions.InfoRow(
-                    toggledItem.title,
-                    toggledItem.text,
-                    null,
-                    toggledItem.fieldType,
-                    InfoActions.ActionType.ExpandedTitle()
-                )
+                val togglePosition = mutableList.indexOfFirst {
+                    it.actionType is InfoActions.ActionType.ExpandableTitle
+                            && it.fieldType == fieldType
+                }
                 val actionsRows = getActionsRows(fieldType)
-                mutableList.addAll(togglePosition, actionsRows)
-                mutableList.add(togglePosition, newToggledItem)
+                mutableList.addAll(togglePosition + 1, actionsRows)
             }
             withContext(Dispatchers.Main) {
                 infoRows.mutable.value = mapActionsRows(mutableList)

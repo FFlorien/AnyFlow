@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="imageConfig"
+            type="be.florien.anyflow.extension.ImageConfig" />
+
+        <variable
+            name="display"
+            type="be.florien.anyflow.feature.player.info.song.SongInfoActions.QuickActionInfoRow" />
+
+        <variable
+            name="descriptionText"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_yellow_selectable_ripple"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/orderBg"
+                android:layout_width="@dimen/orderBackgroundWidth"
+                android:layout_height="@dimen/orderItemsHeight"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="@dimen/smallDimen"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_action_order_bg"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/title"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/order"
+                android:layout_width="@dimen/orderBackgroundWidth"
+                android:layout_height="@dimen/orderItemsHeight"
+                android:layout_marginHorizontal="@dimen/smallDimen"
+                android:gravity="center_vertical|end"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/image"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="@dimen/orderItemsHeight"
+                    android:layout_height="@dimen/orderItemsHeight"
+                    android:src="@drawable/ic_action_order_item_fg" />
+
+                <include layout="@layout/item_action_order" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <include
+            android:id="@+id/info_layout"
+            layout="@layout/item_info" />
+
+    </LinearLayout>
+</layout>

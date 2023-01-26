@@ -39,7 +39,7 @@ class QuickActionsViewModel @Inject constructor(
             val indexOfFirst =
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
-                mutableList[indexOfFirst] = InfoActions.InfoRow(initialList[indexOfFirst], it.additionalInfo)
+                mutableList[indexOfFirst] = SongInfoActions.QuickActionInfoRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList

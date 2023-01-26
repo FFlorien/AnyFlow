@@ -2,7 +2,6 @@ package be.florien.anyflow.feature.player.info
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
 import be.florien.anyflow.extension.ImageConfig
 
@@ -15,24 +14,18 @@ abstract class InfoActions<T> {
         fieldType: FieldType
     ): List<InfoRow>
 
-    data class InfoRow(
-        @StringRes val title: Int,
-        val text: String?,
-        @StringRes val textRes: Int?,
-        val fieldType: FieldType,
-        val actionType: ActionType,
-        val additionalInfo: Int? = null,
-        val progress: LiveData<Int>? = null
+    abstract class InfoRow(
+        @StringRes open val title: Int,
+        open val text: String?,
+        @StringRes open val textRes: Int?,
+        open val fieldType: FieldType,
+        open val actionType: ActionType
     ) {
-        constructor(other: InfoRow, order: Int? = null) : this(
-            other.title,
-            other.text,
-            other.textRes,
-            other.fieldType,
-            other.actionType,
-            order ?: other.additionalInfo,
-            other.progress,
-        )
+        open fun areRowTheSame(other: InfoRow): Boolean {
+            return fieldType == other.fieldType && (actionType == other.actionType)
+        }
+
+        open fun areContentTheSame(other: InfoRow): Boolean = areRowTheSame(other) && actionType == other.actionType
     }
 
     sealed class FieldType(
@@ -51,7 +44,6 @@ abstract class InfoActions<T> {
         class None : ActionType(0)
         class InfoTitle : ActionType(0)
         class ExpandableTitle : ActionType(R.drawable.ic_next_occurence)
-        class ExpandedTitle : ActionType(R.drawable.ic_previous_occurence)
 
         override fun equals(other: Any?): Boolean {
             return this.javaClass.isInstance(other)

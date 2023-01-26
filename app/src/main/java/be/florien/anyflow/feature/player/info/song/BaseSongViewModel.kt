@@ -29,15 +29,20 @@ abstract class BaseSongViewModel(
         set(value) {
             field = value
             viewModelScope.launch {
-                (songInfo as MediatorLiveData).addSource(dataRepository.getSong(value)) {
-                    song = it
-                    songInfo.mutable.value = it
+                if (value == SongInfoActions.DUMMY_SONG_ID) {
+                    song = SongInfo.dummySongInfo()
+                    songInfo.mutable.value = song
+                } else {
+                    (songInfo as MediatorLiveData).addSource(dataRepository.getSong(value)) {
+                        song = it
+                        songInfo.mutable.value = it
 
-                    coverConfig.mutable.value = ImageConfig(
-                        url = infoActions.getAlbumArtUrl(song.albumId),
-                        resource = R.drawable.cover_placeholder
-                    )
-                    updateRows()
+                        coverConfig.mutable.value = ImageConfig(
+                            url = infoActions.getAlbumArtUrl(song.albumId),
+                            resource = R.drawable.cover_placeholder
+                        )
+                        updateRows()
+                    }
                 }
             }
         }

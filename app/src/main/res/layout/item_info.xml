@@ -26,40 +26,6 @@
         android:padding="@dimen/mediumDimen">
 
         <ImageView
-            android:id="@+id/orderBg"
-            android:layout_width="@dimen/orderBackgroundWidth"
-            android:layout_height="@dimen/orderItemsHeight"
-            android:layout_marginHorizontal="@dimen/smallDimen"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_action_order_bg"
-            android:visibility="@{display.additionalInfo != null? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/title"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
-            android:id="@+id/order"
-            android:layout_width="@dimen/orderBackgroundWidth"
-            android:layout_height="@dimen/orderItemsHeight"
-            android:layout_marginHorizontal="@dimen/smallDimen"
-            android:gravity="end"
-            android:orientation="horizontal"
-            android:visibility="@{display.additionalInfo != null? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/image"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="@dimen/orderItemsHeight"
-                android:layout_height="@dimen/orderItemsHeight"
-                android:src="@drawable/ic_action_order_item_fg" />
-
-            <include layout="@layout/item_action_order" />
-        </LinearLayout>
-
-        <ImageView
             android:id="@+id/image"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -67,7 +33,7 @@
             android:layout_marginEnd="@dimen/mediumDimen"
             app:imageSource="@{imageConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/order"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/title"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/primaryDarkPlus" />
@@ -95,27 +61,14 @@
 
         <TextView
             android:id="@+id/text"
+            isVisiblePresent="@{descriptionText != null}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{descriptionText}"
-            app:layout_constraintBottom_toTopOf="@+id/progress"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/title"
             app:layout_constraintRight_toLeftOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@+id/title" />
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            isVisiblePresent="@{display.progress != 0 &amp;&amp; display.progress != 100}"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/smallDimen"
-            android:layout_marginTop="@dimen/smallDimen"
-            android:indeterminate="false"
-            android:max="100"
-            android:progress="@{display.progress}"
-            android:progressDrawable="@drawable/bg_progress_bar"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

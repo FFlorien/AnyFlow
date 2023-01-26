@@ -25,7 +25,7 @@ class LibraryInfoActions @Inject constructor(
         val filteredInfo =
             withContext(Dispatchers.IO) { dataRepository.getFilteredInfo(infoSource) }
         return listOfNotNull(
-            InfoRow(
+            LibraryInfoRow(
                 R.string.filter_info_duration,
                 filteredInfo.duration.toComponents { days, hours, minutes, seconds, _ ->
                     val d = days.toInt().takeIf { it > 0 }
@@ -141,7 +141,7 @@ class LibraryInfoActions @Inject constructor(
                 }.firstOrNull()
         } else null
 
-        return InfoRow(
+        return LibraryInfoRow(
             title,
             getDisplayText(displayData, count),
             null,
@@ -193,4 +193,12 @@ class LibraryInfoActions @Inject constructor(
     }
 
     class DisplayData(val text: String, val argument: Long)
+
+    data class LibraryInfoRow(
+        @StringRes override val title: Int,
+        override val text: String?,
+        @StringRes override val textRes: Int?,
+        override val fieldType: FieldType,
+        override val actionType: ActionType
+    ) : InfoRow(title, text, textRes, fieldType, actionType)
 }
