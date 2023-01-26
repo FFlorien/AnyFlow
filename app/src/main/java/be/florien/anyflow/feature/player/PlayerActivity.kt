@@ -247,7 +247,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             this,
             binding.drawerLayout,
             binding.toolbar,
-            R.string.info_action_download_song_description,
+            R.string.info_action_download_description,
             R.string.info_action_download
         ) // todo strings
         binding.drawerLayout.addDrawerListener(drawerToggle)

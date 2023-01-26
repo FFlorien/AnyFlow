@@ -407,8 +407,8 @@ class SongInfoActions(
             is SongActionType.Download -> when (field) {
                 is SongFieldType.Title -> InfoRow(
                     R.string.info_action_download,
-                    null,
-                    R.string.info_action_download_song_description,
+                    songInfo.title,
+                    R.string.info_action_download_description,
                     SongFieldType.Title(),
                     SongActionType.Download(),
                     order,
@@ -416,8 +416,8 @@ class SongInfoActions(
                 )
                 is SongFieldType.Album -> InfoRow(
                     R.string.info_action_download,
-                    null,
-                    R.string.info_action_download_album_description,
+                    songInfo.albumName,
+                    R.string.info_action_download_description,
                     SongFieldType.Album(),
                     SongActionType.Download(),
                     order,
@@ -425,8 +425,8 @@ class SongInfoActions(
                 )
                 is SongFieldType.AlbumArtist -> InfoRow(
                     R.string.info_action_download,
-                    null,
-                    R.string.info_action_download_album_artist_description,
+                    songInfo.albumArtistName,
+                    R.string.info_action_download_description,
                     SongFieldType.AlbumArtist(),
                     SongActionType.Download(),
                     order,
@@ -434,8 +434,8 @@ class SongInfoActions(
                 )
                 is SongFieldType.Artist -> InfoRow(
                     R.string.info_action_download,
-                    null,
-                    R.string.info_action_download_artist_description,
+                    songInfo.artistName,
+                    R.string.info_action_download_description,
                     SongFieldType.Artist(),
                     SongActionType.Download(),
                     order,
@@ -443,8 +443,8 @@ class SongInfoActions(
                 )
                 is SongFieldType.Genre -> InfoRow(
                     R.string.info_action_download,
-                    null,
-                    R.string.info_action_download_genre_description,
+                    songInfo.genreNames.first(),
+                    R.string.info_action_download_description,
                     SongFieldType.Genre(),
                     SongActionType.Download(),
                     order,
