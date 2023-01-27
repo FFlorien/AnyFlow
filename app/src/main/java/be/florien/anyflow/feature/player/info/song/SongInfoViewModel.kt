@@ -19,19 +19,24 @@ class SongInfoViewModel @Inject constructor(
     dataRepository: DataRepository,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
-) : BaseSongViewModel(filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager) {
+) : BaseSongViewModel(
+    filtersManager,
+    orderComposer,
+    dataRepository,
+    sharedPreferences,
+    downloadManager
+) {
 
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
 
-    override fun executeAction(
-        fieldType: InfoActions.FieldType,
-        actionType: InfoActions.ActionType
-    ): Boolean {
+    override fun executeAction(row: InfoActions.InfoRow): Boolean {
+        val actionType = row.actionType
+        val fieldType = row.fieldType
         if (fieldType !is SongInfoActions.SongFieldType || actionType !is SongInfoActions.SongActionType) {
             return false
         }
-        if (super.executeAction(fieldType, actionType)) {
+        if (super.executeAction(row)) {
             return true
         }
 
@@ -39,26 +44,36 @@ class SongInfoViewModel @Inject constructor(
             when (actionType) {
                 SongInfoActions.SongActionType.AddNext -> infoActions.playNext(song.id)
                 SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
-                SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(
-                    song,
-                    fieldType
-                )
+                SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(song, row)
                 SongInfoActions.SongActionType.Search -> searchTerm.mutable.value =
                     infoActions.getSearchTerms(song, fieldType)
                 SongInfoActions.SongActionType.Download -> {
                     when (fieldType) { //todo playlist when displayed in info!
-                        SongInfoActions.SongFieldType.Title ->infoActions.download(song)
-                        SongInfoActions.SongFieldType.Album -> infoActions.batchDownload(song.albumId, Filter.FilterType.ALBUM_IS)
-                        SongInfoActions.SongFieldType.AlbumArtist -> infoActions.batchDownload(song.albumArtistId, Filter.FilterType.ALBUM_ARTIST_IS)
-                        SongInfoActions.SongFieldType.Artist -> infoActions.batchDownload(song.artistId, Filter.FilterType.ARTIST_IS)
-                        SongInfoActions.SongFieldType.Genre -> infoActions.batchDownload(song.genreIds.first(), Filter.FilterType.GENRE_IS) //todo :-(
+                        SongInfoActions.SongFieldType.Title -> infoActions.download(song)
+                        SongInfoActions.SongFieldType.Album -> infoActions.batchDownload(
+                            song.albumId,
+                            Filter.FilterType.ALBUM_IS
+                        )
+                        SongInfoActions.SongFieldType.AlbumArtist -> infoActions.batchDownload(
+                            song.albumArtistId,
+                            Filter.FilterType.ALBUM_ARTIST_IS
+                        )
+                        SongInfoActions.SongFieldType.Artist -> infoActions.batchDownload(
+                            song.artistId,
+                            Filter.FilterType.ARTIST_IS
+                        )
+                        SongInfoActions.SongFieldType.Genre -> {
+                            val index  = (row as SongInfoActions.SongMultipleInfoRow).index
+                            infoActions.batchDownload(
+                                song.genreIds[index],
+                                Filter.FilterType.GENRE_IS
+                            )
+                        }
                         else -> return@launch
                     }
                     updateRows()
                 }
-                else -> {
-                    super.executeAction(fieldType, actionType)
-                }
+                else -> return@launch
             }
         }
         return true
@@ -72,6 +87,6 @@ class SongInfoViewModel @Inject constructor(
         infoActions.getInfoRows(song).toMutableList()
 
 
-    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
-        infoActions.getActionsRows(song, field)
+    override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
+        infoActions.getActionsRows(song, row)
 }

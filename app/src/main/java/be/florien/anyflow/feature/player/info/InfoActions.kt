@@ -8,7 +8,7 @@ abstract class InfoActions<T> {
 
     abstract suspend fun getActionsRows(
         infoSource: T,
-        fieldType: FieldType
+        row: InfoRow
     ): List<InfoRow>
 
     abstract class InfoRow(

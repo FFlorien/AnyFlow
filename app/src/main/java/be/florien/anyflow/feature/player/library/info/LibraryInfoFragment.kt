@@ -97,7 +97,9 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
             .commit()
     }
 
-    private fun executeAction(field: InfoActions.FieldType, action: InfoActions.ActionType) {
+    private fun executeAction(row: InfoActions.InfoRow) {
+        val action = row.actionType
+        val field = row.fieldType
         when (action) {
             LibraryInfoActions.LibraryActionType.SubFilter -> {
                 val value = when (field) {
@@ -119,12 +121,12 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
                     .addToBackStack(null)
                     .commit()
             }
-            else -> viewModel.executeAction(field, action)
+            else -> viewModel.executeAction(row)
         }
     }
 
 
-    class LibraryInfoAdapter(private val executeAction: (InfoActions.FieldType, InfoActions.ActionType) -> Unit) :
+    class LibraryInfoAdapter(private val executeAction: (row: InfoActions.InfoRow) -> Unit) :
         InfoAdapter<InfoViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder {
             return InfoViewHolder(parent, executeAction)

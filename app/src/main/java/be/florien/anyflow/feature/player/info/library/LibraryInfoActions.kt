@@ -55,7 +55,7 @@ class LibraryInfoActions @Inject constructor(
                         }
                     }
                     genreFilters.size
-                } ?: 0)
+                } ?: 0) // todo "Electro and 3 other genres" instead
             ),
             getInfoRow(
                 R.string.filter_info_album_artist,
@@ -93,14 +93,14 @@ class LibraryInfoActions @Inject constructor(
                         }
                     }
                     playlistFilters.size
-                } ?: 0)
+                } ?: 0) // todo "Motivation and 3 other playlists" instead
             )
         )
     }
 
     override suspend fun getActionsRows(
         infoSource: Filter<*>?,
-        fieldType: FieldType
+        row: InfoRow
     ): List<InfoRow> = emptyList()
 
     private suspend fun getInfoRow(

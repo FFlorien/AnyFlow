@@ -55,12 +55,9 @@ abstract class BaseSongViewModel(
         downloadManager
     )
 
-    override fun executeAction(
-        fieldType: InfoActions.FieldType,
-        actionType: InfoActions.ActionType
-    ) = when (actionType) {
+    override fun executeAction(row: InfoActions.InfoRow) = when (row.actionType) {
         SongInfoActions.SongActionType.ExpandableTitle -> {
-            toggleExpansion(fieldType)
+            toggleExpansion(row)
             true
         }
         SongInfoActions.SongActionType.None,

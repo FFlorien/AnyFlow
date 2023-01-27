@@ -49,17 +49,14 @@ class QuickActionsViewModel @Inject constructor(
         return mutableList
     }
 
-    override fun executeAction(
-        fieldType: InfoActions.FieldType,
-        actionType: InfoActions.ActionType
-    ): Boolean {
-        if (super.executeAction(fieldType, actionType)) {
+    override fun executeAction(row: InfoActions.InfoRow): Boolean {
+        if (super.executeAction(row)) {
             return true
         }
         val quickActions = infoActions.getQuickActions()
-        if (quickActions.size < maxItems || quickActions.any { it.fieldType == fieldType && it.actionType == actionType }) {
+        if (quickActions.size < maxItems || quickActions.any { it.fieldType == row.fieldType && it.actionType == row.actionType }) {
             viewModelScope.launch {
-                infoActions.toggleQuickAction(fieldType, actionType)
+                infoActions.toggleQuickAction(row.fieldType, row.actionType)
                 updateRows()
                 updateCountDisplay()
             }
@@ -76,6 +73,6 @@ class QuickActionsViewModel @Inject constructor(
     override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
         infoActions.getInfoRows(song).toMutableList()
 
-    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
-        infoActions.getActionsRows(song, field)
+    override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
+        infoActions.getActionsRows(song, row)
 }

@@ -117,7 +117,7 @@ class SongInfoFragment(
         }
     }
 
-    class SongInfoAdapter(private val executeAction: (InfoActions.FieldType, InfoActions.ActionType) -> Unit) :
+    class SongInfoAdapter(private val executeAction: (row: InfoActions.InfoRow) -> Unit) :
         InfoAdapter<InfoViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder {
             return when (viewType) {
@@ -138,7 +138,7 @@ class SongInfoFragment(
 
     class QuickActionInfoViewHolder(
         parent: ViewGroup,
-        executeAction: (InfoActions.FieldType, InfoActions.ActionType) -> Unit,
+        executeAction: (row: InfoActions.InfoRow) -> Unit,
         private val parentBinding: ItemQuickActionInfoBinding = ItemQuickActionInfoBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
@@ -170,7 +170,7 @@ class SongInfoFragment(
 
     class DownloadInfoViewHolder(
         parent: ViewGroup,
-        executeAction: (InfoActions.FieldType, InfoActions.ActionType) -> Unit,
+        executeAction: (row: InfoActions.InfoRow) -> Unit,
         private val parentBinding: ItemDownloadInfoBinding = ItemDownloadInfoBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,

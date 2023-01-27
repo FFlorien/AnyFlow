@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 
 abstract class InfoViewModel<T> : BaseViewModel() {
     val infoRows: LiveData<List<InfoActions.InfoRow>> = MutableLiveData(listOf())
-    private val expandedSections = mutableListOf<InfoActions.FieldType>()
+    private val expandedSections = mutableListOf<InfoActions.InfoRow>()
     abstract val infoActions: InfoActions<T>
 
     /**
@@ -20,9 +20,9 @@ abstract class InfoViewModel<T> : BaseViewModel() {
 
     abstract suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow>
 
-    abstract suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow>
+    abstract suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow>
 
-    abstract fun executeAction(fieldType: InfoActions.FieldType, actionType: InfoActions.ActionType): Boolean
+    abstract fun executeAction(row: InfoActions.InfoRow): Boolean
 
     /**
      * Public methods
@@ -31,11 +31,14 @@ abstract class InfoViewModel<T> : BaseViewModel() {
     fun updateRows() {
         viewModelScope.launch {
             val mutableList = getInfoRowList()
-            for (fieldType in expandedSections) {
+            for (expandedRow in expandedSections) {
                 val togglePosition = mutableList.indexOfFirst {
-                    it.actionType == SongInfoActions.SongActionType.ExpandableTitle && it.fieldType == fieldType
+                    it.actionType == SongInfoActions.SongActionType.ExpandableTitle
+                            && it.fieldType == expandedRow.fieldType
+                            && (expandedRow as? SongInfoActions.SongMultipleInfoRow)?.index == (it as? SongInfoActions.SongMultipleInfoRow)?.index
                 }
-                val actionsRows = getActionsRows(fieldType)
+                val infoRow = mutableList[togglePosition]
+                val actionsRows = getActionsRowsFor(infoRow)
                 mutableList.addAll(togglePosition + 1, actionsRows)
             }
             withContext(Dispatchers.Main) {
@@ -44,15 +47,16 @@ abstract class InfoViewModel<T> : BaseViewModel() {
         }
     }
 
-    open fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> = initialList
+    open fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
+        initialList
 
     /**
      * Private methods: actions
      */
 
-    protected fun toggleExpansion(fieldType: InfoActions.FieldType) {
-        if (!expandedSections.remove(fieldType)) {
-            expandedSections.add(fieldType)
+    protected fun toggleExpansion(row: InfoActions.InfoRow) {
+        if (!expandedSections.remove(row)) {
+            expandedSections.add(row)
         }
         updateRows()
     }

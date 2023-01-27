@@ -44,7 +44,7 @@ abstract class InfoAdapter<VH : InfoViewHolder> : ListAdapter<InfoActions.InfoRo
 
 open class InfoViewHolder(
     protected val parent: ViewGroup,
-    private val executeAction: (InfoActions.FieldType, InfoActions.ActionType) -> Unit,
+    private val executeAction: (row: InfoActions.InfoRow) -> Unit,
     protected val binding: ItemInfoBinding = ItemInfoBinding.inflate(
         LayoutInflater.from(parent.context), parent, false
     ),
@@ -72,7 +72,7 @@ open class InfoViewHolder(
             }
         //onClick
         itemView.setOnClickListener {
-            executeAction(row.fieldType, row.actionType)
+            executeAction(row)
         }
         //background
         when (row.actionType.category) {

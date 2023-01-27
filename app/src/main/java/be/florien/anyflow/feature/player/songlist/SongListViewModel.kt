@@ -136,7 +136,7 @@ class SongListViewModel
             when (actionType) {
                 SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songInfo.id)
                 SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songInfo.id)
-                SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, fieldType)
+              // todo selector for multiple values (genre && playlists)  SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, fieldType)
                 SongInfoActions.SongActionType.Search -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
                 SongInfoActions.SongActionType.Download -> songInfoActions.download(songInfo)
                 else -> return@launch
