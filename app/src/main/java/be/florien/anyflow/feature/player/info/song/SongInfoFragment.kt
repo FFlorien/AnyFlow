@@ -80,7 +80,7 @@ class SongInfoFragment(
                 (requireActivity() as ViewModelFactoryHolder).getFactory()
             )[SongListViewModel::class.java]
         }
-        viewModel.songId = song.id
+        viewModel.song = song
         viewModel.songInfo.observe(this) {
             viewModel.updateRows()
         }

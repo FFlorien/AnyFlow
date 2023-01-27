@@ -10,6 +10,7 @@ import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
+import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoViewModel
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
@@ -24,17 +25,17 @@ abstract class BaseSongViewModel(
 ) : InfoViewModel<SongInfo>() {
     val songInfo: LiveData<SongInfo> = MediatorLiveData()
     val coverConfig: LiveData<ImageConfig> = MutableLiveData()
-    protected var song: SongInfo = SongInfo.dummySongInfo()
-    var songId: Long = SongInfoActions.DUMMY_SONG_ID
+    var song: SongInfo
+        get() {
+            val value = songInfo.value
+            return value ?: SongInfo.dummySongInfo()
+        }
         set(value) {
-            field = value
             viewModelScope.launch {
-                if (value == SongInfoActions.DUMMY_SONG_ID) {
-                    song = SongInfo.dummySongInfo()
-                    songInfo.mutable.value = song
+                if (value.id == SongInfoActions.DUMMY_SONG_ID) {
+                    songInfo.mutable.value = value
                 } else {
-                    (songInfo as MediatorLiveData).addSource(dataRepository.getSong(value)) {
-                        song = it
+                    (songInfo as MediatorLiveData).addSource(dataRepository.getSong(value.id)) {
                         songInfo.mutable.value = it
 
                         coverConfig.mutable.value = ImageConfig(
@@ -53,4 +54,17 @@ abstract class BaseSongViewModel(
         sharedPreferences,
         downloadManager
     )
+
+    override fun executeAction(
+        fieldType: InfoActions.FieldType,
+        actionType: InfoActions.ActionType
+    ) = when (actionType) {
+        SongInfoActions.SongActionType.ExpandableTitle -> {
+            toggleExpansion(fieldType)
+            true
+        }
+        SongInfoActions.SongActionType.None,
+        SongInfoActions.SongActionType.InfoTitle -> true
+        else -> false
+    }
 }

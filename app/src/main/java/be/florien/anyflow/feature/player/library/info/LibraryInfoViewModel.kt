@@ -33,14 +33,10 @@ class LibraryInfoViewModel @Inject constructor(
     override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(filterNavigation, field)
 
-    override fun executeInfoAction(
+    override fun executeAction(
         fieldType: InfoActions.FieldType,
         actionType: InfoActions.ActionType
-    ) {
-    }
-
-    override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
-        initialList
+    ) = true
 
     companion object {
         const val GENRE_ID = "Genre"

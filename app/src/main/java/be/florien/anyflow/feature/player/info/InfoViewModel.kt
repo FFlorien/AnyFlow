@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.player.info.song.SongInfoActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,37 +22,18 @@ abstract class InfoViewModel<T> : BaseViewModel() {
 
     abstract suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow>
 
-    abstract fun executeInfoAction(
-        fieldType: InfoActions.FieldType,
-        actionType: InfoActions.ActionType
-    )
-
-    abstract fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow>
-
+    abstract fun executeAction(fieldType: InfoActions.FieldType, actionType: InfoActions.ActionType): Boolean
 
     /**
      * Public methods
      */
-
-    open fun executeAction(
-        fieldType: InfoActions.FieldType,
-        actionType: InfoActions.ActionType
-    ) {
-        viewModelScope.launch {
-            when (actionType) {
-                is InfoActions.ActionType.ExpandableTitle -> toggleExpansion(fieldType)
-                else -> executeInfoAction(fieldType, actionType)
-            }
-        }
-    }
 
     fun updateRows() {
         viewModelScope.launch {
             val mutableList = getInfoRowList()
             for (fieldType in expandedSections) {
                 val togglePosition = mutableList.indexOfFirst {
-                    it.actionType is InfoActions.ActionType.ExpandableTitle
-                            && it.fieldType == fieldType
+                    it.actionType == SongInfoActions.SongActionType.ExpandableTitle && it.fieldType == fieldType
                 }
                 val actionsRows = getActionsRows(fieldType)
                 mutableList.addAll(togglePosition + 1, actionsRows)
@@ -62,11 +44,13 @@ abstract class InfoViewModel<T> : BaseViewModel() {
         }
     }
 
+    open fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> = initialList
+
     /**
      * Private methods: actions
      */
 
-    private fun toggleExpansion(fieldType: InfoActions.FieldType) {
+    protected fun toggleExpansion(fieldType: InfoActions.FieldType) {
         if (!expandedSections.remove(fieldType)) {
             expandedSections.add(fieldType)
         }

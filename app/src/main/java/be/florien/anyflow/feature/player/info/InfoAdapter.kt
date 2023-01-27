@@ -3,7 +3,6 @@ package be.florien.anyflow.feature.player.info
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -65,34 +64,22 @@ open class InfoViewHolder(
             text != null && textRes != null -> resources.getString(textRes, text)
             else -> ""
         }
-        binding.imageConfig = if (row.actionType !is InfoActions.SongActionType) {
-            row.fieldType.imageConfig
-        } else {
-            ImageConfig(null, null)
-        }
+        binding.imageConfig =
+            if (row.actionType.category != InfoActions.ActionTypeCategory.Action) {
+                ImageConfig(row.imageUrl, row.fieldType.iconRes)
+            } else {
+                ImageConfig(null, null)
+            }
         //onClick
-        binding.root.setOnClickListener {
+        itemView.setOnClickListener {
             executeAction(row.fieldType, row.actionType)
         }
         //background
-        if (row.actionType is InfoActions.ActionType.None) {
-            binding.root.setBackgroundColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.primaryBackground,
-                    parent.context.theme
-                )
-            )
-        } else if (
-            row.actionType !is InfoActions.ActionType.InfoTitle
-            && row.actionType !is InfoActions.ActionType.ExpandableTitle
-            && row.actionType !is InfoActions.LibraryActionType.SubFilter
-        ) {
-            binding.root.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
-        } else {
-            binding.root.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)
+        when (row.actionType.category) {
+            InfoActions.ActionTypeCategory.None -> itemView.background = null
+            InfoActions.ActionTypeCategory.Navigation -> itemView.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)
+            InfoActions.ActionTypeCategory.Action -> itemView.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
         }
-        setLifecycleOwner()
     }
 
     protected open fun setLifecycleOwner() {

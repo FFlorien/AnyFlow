@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.details
+package be.florien.anyflow.feature.player.songlist
 
 import android.animation.ObjectAnimator
 import android.view.LayoutInflater
@@ -14,6 +14,9 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.extension.ImageConfig
+import be.florien.anyflow.feature.player.details.DetailViewHolder
+import be.florien.anyflow.feature.player.details.DetailViewHolderListener
+import be.florien.anyflow.feature.player.details.ItemInfoTouchAdapter
 import be.florien.anyflow.feature.player.info.InfoActions
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlin.math.absoluteValue
@@ -138,7 +141,7 @@ class SongViewHolder(
                     .inflate(R.layout.item_action, binding.songActions, false))
                     .apply {
                         findViewById<ImageView>(R.id.action).setImageResource(action.actionType.iconRes)
-                        action.fieldType.imageConfig.resource?.let { findViewById<ImageView>(R.id.field).setImageResource(it) }
+                        findViewById<ImageView>(R.id.field).setImageResource(action.fieldType.iconRes)
                         setOnClickListener {
                             val song = binding.song
                             if (song != null)

@@ -17,6 +17,7 @@ import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.InfoAdapter
 import be.florien.anyflow.feature.player.info.InfoViewHolder
+import be.florien.anyflow.feature.player.info.library.LibraryInfoActions
 import be.florien.anyflow.feature.player.library.BaseFilteringFragment
 import be.florien.anyflow.feature.player.library.LibraryViewModel
 import be.florien.anyflow.feature.player.library.cancelChanges
@@ -98,14 +99,14 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
 
     private fun executeAction(field: InfoActions.FieldType, action: InfoActions.ActionType) {
         when (action) {
-            is InfoActions.LibraryActionType.SubFilter -> {
+            LibraryInfoActions.LibraryActionType.SubFilter -> {
                 val value = when (field) {
-                    is InfoActions.LibraryFieldType.Playlist -> LibraryInfoViewModel.PLAYLIST_ID
-                    is InfoActions.LibraryFieldType.Album -> LibraryInfoViewModel.ALBUM_ID
-                    is InfoActions.LibraryFieldType.AlbumArtist -> LibraryInfoViewModel.ALBUM_ARTIST_ID
-                    is InfoActions.LibraryFieldType.Artist -> LibraryInfoViewModel.ARTIST_ID
-                    is InfoActions.LibraryFieldType.Genre -> LibraryInfoViewModel.GENRE_ID
-                    is InfoActions.LibraryFieldType.Song -> LibraryInfoViewModel.SONG_ID
+                    LibraryInfoActions.LibraryFieldType.Playlist -> LibraryInfoViewModel.PLAYLIST_ID
+                    LibraryInfoActions.LibraryFieldType.Album -> LibraryInfoViewModel.ALBUM_ID
+                    LibraryInfoActions.LibraryFieldType.AlbumArtist -> LibraryInfoViewModel.ALBUM_ARTIST_ID
+                    LibraryInfoActions.LibraryFieldType.Artist -> LibraryInfoViewModel.ARTIST_ID
+                    LibraryInfoActions.LibraryFieldType.Genre -> LibraryInfoViewModel.GENRE_ID
+                    LibraryInfoActions.LibraryFieldType.Song -> LibraryInfoViewModel.SONG_ID
                     else -> LibraryInfoViewModel.GENRE_ID
                 }
                 (activity as PlayerActivity).supportFragmentManager

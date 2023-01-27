@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.player.info.library
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
@@ -38,8 +39,9 @@ class LibraryInfoActions @Inject constructor(
                             s.getDurationString(R.plurals.seconds_component)
                 },
                 null,
-                LibraryFieldType.Duration(),
-                ActionType.InfoTitle()
+                LibraryFieldType.Duration,
+                LibraryActionType.InfoTitle,
+                null
             ),
             getInfoRow(
                 R.string.filter_info_genre,
@@ -111,42 +113,55 @@ class LibraryInfoActions @Inject constructor(
             val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
             val filterData: DisplayData? =
                 filterIfTypePresent?.let { DisplayData(it.displayText, it.argument as Long) }
-            filterData
-                ?: when (filterType) {
-                    Filter.FilterType.SONG_IS ->
-                        dataRepository.getSongsSearchedList(listOfNotNull(filter), "") {
-                            DisplayData(it.song.title, it.song.id)
-                        }
-                    Filter.FilterType.ARTIST_IS ->
-                        dataRepository.getArtistsSearchedList(listOfNotNull(filter), "") {
-                            DisplayData(it.name, it.id)
-                        }
-                    Filter.FilterType.ALBUM_ARTIST_IS ->
-                        dataRepository.getAlbumArtistsSearchedList(listOfNotNull(filter), "") {
-                            DisplayData(it.name, it.id)
-                        }
-                    Filter.FilterType.ALBUM_IS ->
-                        dataRepository.getAlbumsSearchedList(listOfNotNull(filter), "") {
-                            DisplayData(it.albumName, it.albumId)
-                        }
-                    Filter.FilterType.GENRE_IS ->
-                        dataRepository.getGenresSearchedList(listOfNotNull(filter), "") {
-                            DisplayData(it.name, it.id)
-                        }
-                    Filter.FilterType.PLAYLIST_IS ->
-                        dataRepository.getPlaylistsSearchedList(listOfNotNull(filter), "") {
-                            DisplayData(it.name, it.id)
-                        }
-                    Filter.FilterType.DOWNLOADED_STATUS_IS -> listOf(null)
-                }.firstOrNull()
+            filterData ?: when (filterType) {
+                Filter.FilterType.SONG_IS ->
+                    dataRepository.getSongsSearchedList(listOfNotNull(filter), "") {
+                        DisplayData(it.song.title, it.song.id)
+                    }
+                Filter.FilterType.ARTIST_IS ->
+                    dataRepository.getArtistsSearchedList(listOfNotNull(filter), "") {
+                        DisplayData(it.name, it.id)
+                    }
+                Filter.FilterType.ALBUM_ARTIST_IS ->
+                    dataRepository.getAlbumArtistsSearchedList(listOfNotNull(filter), "") {
+                        DisplayData(it.name, it.id)
+                    }
+                Filter.FilterType.ALBUM_IS ->
+                    dataRepository.getAlbumsSearchedList(listOfNotNull(filter), "") {
+                        DisplayData(it.albumName, it.albumId)
+                    }
+                Filter.FilterType.GENRE_IS ->
+                    dataRepository.getGenresSearchedList(listOfNotNull(filter), "") {
+                        DisplayData(it.name, it.id)
+                    }
+                Filter.FilterType.PLAYLIST_IS ->
+                    dataRepository.getPlaylistsSearchedList(listOfNotNull(filter), "") {
+                        DisplayData(it.name, it.id)
+                    }
+                Filter.FilterType.DOWNLOADED_STATUS_IS -> listOf(null)
+            }.firstOrNull()
         } else null
+
+        val url = if (count <= 1 && displayData != null) {
+            when (filterType) {
+                Filter.FilterType.PLAYLIST_IS -> dataRepository.getPlaylistArtUrl(displayData.argument)
+                Filter.FilterType.ALBUM_ARTIST_IS,
+                Filter.FilterType.ARTIST_IS -> dataRepository.getArtistArtUrl(displayData.argument)
+                Filter.FilterType.SONG_IS -> dataRepository.getSongUrl(displayData.argument)
+                Filter.FilterType.ALBUM_IS -> dataRepository.getAlbumArtUrl(displayData.argument)
+                else -> null
+            }
+        } else {
+            null
+        }
 
         return LibraryInfoRow(
             title,
             getDisplayText(displayData, count),
             null,
-            getField(displayData, filterType, count),
-            getAction(count)
+            getField(filterType),
+            getAction(count),
+            url
         )
     }
 
@@ -162,43 +177,51 @@ class LibraryInfoActions @Inject constructor(
     }
 
     private fun getField(
-        data: DisplayData?,
-        filterType: Filter.FilterType,
-        count: Int
+        filterType: Filter.FilterType
     ): LibraryFieldType {
-        val url = if (count <= 1 && data != null) {
-            when (filterType) {
-                Filter.FilterType.PLAYLIST_IS -> dataRepository.getPlaylistArtUrl(data.argument)
-                Filter.FilterType.ALBUM_ARTIST_IS,
-                Filter.FilterType.ARTIST_IS -> dataRepository.getArtistArtUrl(data.argument)
-                Filter.FilterType.SONG_IS -> dataRepository.getSongUrl(data.argument)
-                Filter.FilterType.ALBUM_IS -> dataRepository.getAlbumArtUrl(data.argument)
-                else -> null
-            }
-        } else {
-            null
-        }
         return when (filterType) {
-            Filter.FilterType.SONG_IS -> LibraryFieldType.Song(url)
-            Filter.FilterType.ARTIST_IS -> LibraryFieldType.Artist(url)
-            Filter.FilterType.ALBUM_ARTIST_IS -> LibraryFieldType.AlbumArtist(url)
-            Filter.FilterType.ALBUM_IS -> LibraryFieldType.Album(url)
-            Filter.FilterType.PLAYLIST_IS -> LibraryFieldType.Playlist(url)
-            else -> LibraryFieldType.Genre()
+            Filter.FilterType.SONG_IS -> LibraryFieldType.Song
+            Filter.FilterType.ARTIST_IS -> LibraryFieldType.Artist
+            Filter.FilterType.ALBUM_ARTIST_IS -> LibraryFieldType.AlbumArtist
+            Filter.FilterType.ALBUM_IS -> LibraryFieldType.Album
+            Filter.FilterType.PLAYLIST_IS -> LibraryFieldType.Playlist
+            else -> LibraryFieldType.Genre
         }
     }
 
     private fun getAction(count: Int): ActionType {
-        return if (count > 1) LibraryActionType.SubFilter() else ActionType.InfoTitle()
+        return if (count > 1) LibraryActionType.SubFilter else LibraryActionType.InfoTitle
     }
 
     class DisplayData(val text: String, val argument: Long)
+
+    enum class LibraryFieldType(
+        @DrawableRes override val iconRes: Int,
+        override val couldGetUrl: Boolean
+    ) : FieldType {
+        Duration(R.drawable.ic_duration, false),
+        Genre(R.drawable.ic_genre, false),
+        AlbumArtist(R.drawable.ic_album_artist, true),
+        Album(R.drawable.ic_album, true),
+        Artist(R.drawable.ic_artist, true),
+        Song(R.drawable.ic_song, true),
+        Playlist(R.drawable.ic_playlist, true);
+    }
+
+    enum class LibraryActionType(
+        @DrawableRes override val iconRes: Int,
+        override val category: ActionTypeCategory
+    ) : ActionType {
+        SubFilter(R.drawable.ic_go, ActionTypeCategory.Navigation),
+        InfoTitle(0, ActionTypeCategory.None);
+    }
 
     data class LibraryInfoRow(
         @StringRes override val title: Int,
         override val text: String?,
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
-        override val actionType: ActionType
-    ) : InfoRow(title, text, textRes, fieldType, actionType)
+        override val actionType: ActionType,
+        override val imageUrl: String?
+    ) : InfoRow(title, text, textRes, fieldType, actionType, imageUrl)
 }

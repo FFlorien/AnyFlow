@@ -24,49 +24,45 @@ class SongInfoViewModel @Inject constructor(
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
 
-    override val infoActions = SongInfoActions(
-        filtersManager,
-        orderComposer,
-        dataRepository,
-        sharedPreferences,
-        downloadManager
-    )
-
-    override fun executeInfoAction(
+    override fun executeAction(
         fieldType: InfoActions.FieldType,
         actionType: InfoActions.ActionType
-    ) {
-        if (fieldType !is InfoActions.SongFieldType || actionType !is InfoActions.SongActionType) {
-            return
+    ): Boolean {
+        if (fieldType !is SongInfoActions.SongFieldType || actionType !is SongInfoActions.SongActionType) {
+            return false
+        }
+        if (super.executeAction(fieldType, actionType)) {
+            return true
         }
 
         viewModelScope.launch {
             when (actionType) {
-                is InfoActions.SongActionType.AddNext -> infoActions.playNext(song.id)
-                is InfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
-                is InfoActions.SongActionType.AddToFilter -> infoActions.filterOn(
+                SongInfoActions.SongActionType.AddNext -> infoActions.playNext(song.id)
+                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
+                SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(
                     song,
                     fieldType
                 )
-                is InfoActions.SongActionType.Search -> searchTerm.mutable.value =
+                SongInfoActions.SongActionType.Search -> searchTerm.mutable.value =
                     infoActions.getSearchTerms(song, fieldType)
-                is InfoActions.SongActionType.Download -> {
+                SongInfoActions.SongActionType.Download -> {
                     when (fieldType) { //todo playlist when displayed in info!
-                        is InfoActions.SongFieldType.Title ->infoActions.download(song)
-                        is InfoActions.SongFieldType.Album -> infoActions.batchDownload(song.albumId, Filter.FilterType.ALBUM_IS)
-                        is InfoActions.SongFieldType.AlbumArtist -> infoActions.batchDownload(song.albumArtistId, Filter.FilterType.ALBUM_ARTIST_IS)
-                        is InfoActions.SongFieldType.Artist -> infoActions.batchDownload(song.artistId, Filter.FilterType.ARTIST_IS)
-                        is InfoActions.SongFieldType.Genre -> infoActions.batchDownload(song.genreIds.first(), Filter.FilterType.GENRE_IS) //todo :-(
+                        SongInfoActions.SongFieldType.Title ->infoActions.download(song)
+                        SongInfoActions.SongFieldType.Album -> infoActions.batchDownload(song.albumId, Filter.FilterType.ALBUM_IS)
+                        SongInfoActions.SongFieldType.AlbumArtist -> infoActions.batchDownload(song.albumArtistId, Filter.FilterType.ALBUM_ARTIST_IS)
+                        SongInfoActions.SongFieldType.Artist -> infoActions.batchDownload(song.artistId, Filter.FilterType.ARTIST_IS)
+                        SongInfoActions.SongFieldType.Genre -> infoActions.batchDownload(song.genreIds.first(), Filter.FilterType.GENRE_IS) //todo :-(
                         else -> return@launch
                     }
                     updateRows()
                 }
+                else -> {
+                    super.executeAction(fieldType, actionType)
+                }
             }
         }
+        return true
     }
-
-    override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
-        initialList
 
     private fun displayPlaylistList() {
         isPlaylistListDisplayed.mutable.value = true

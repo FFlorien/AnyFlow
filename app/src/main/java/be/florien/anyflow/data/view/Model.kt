@@ -5,7 +5,7 @@ import be.florien.anyflow.extension.ImageConfig
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class SongInfo(
+data class SongInfo constructor(
     val id: Long,
     val title: String,
     val artistName: String,

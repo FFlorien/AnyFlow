@@ -20,10 +20,13 @@ class QuickActionsViewModel @Inject constructor(
     dataRepository: DataRepository,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
-) : BaseSongViewModel(filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager) {
-    override val infoActions = SongInfoActions(
-        filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager
-    )
+) : BaseSongViewModel(
+    filtersManager,
+    orderComposer,
+    dataRepository,
+    sharedPreferences,
+    downloadManager
+) {
     var maxItems = 3
         set(value) {
             field = value
@@ -39,16 +42,20 @@ class QuickActionsViewModel @Inject constructor(
             val indexOfFirst =
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
-                mutableList[indexOfFirst] = SongInfoActions.QuickActionInfoRow(initialList[indexOfFirst], it.order)
+                mutableList[indexOfFirst] =
+                    SongInfoActions.QuickActionInfoRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList
     }
 
-    override fun executeInfoAction(
+    override fun executeAction(
         fieldType: InfoActions.FieldType,
         actionType: InfoActions.ActionType
-    ) {
+    ): Boolean {
+        if (super.executeAction(fieldType, actionType)) {
+            return true
+        }
         val quickActions = infoActions.getQuickActions()
         if (quickActions.size < maxItems || quickActions.any { it.fieldType == fieldType && it.actionType == actionType }) {
             viewModelScope.launch {
@@ -56,7 +63,9 @@ class QuickActionsViewModel @Inject constructor(
                 updateRows()
                 updateCountDisplay()
             }
+            return true
         }
+        return false
     }
 
     private fun updateCountDisplay() {
@@ -64,7 +73,9 @@ class QuickActionsViewModel @Inject constructor(
         currentActionsCountDisplay.mutable.value = "$currentCount/$maxItems"
     }
 
-    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> = infoActions.getInfoRows(song).toMutableList()
+    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
+        infoActions.getInfoRows(song).toMutableList()
 
-    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> = infoActions.getActionsRows(song, field)
+    override suspend fun getActionsRows(field: InfoActions.FieldType): List<InfoActions.InfoRow> =
+        infoActions.getActionsRows(song, field)
 }
