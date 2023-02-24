@@ -3,6 +3,7 @@ package be.florien.anyflow.data.user
 import android.content.Context
 import android.media.AudioManager
 import androidx.lifecycle.LiveData
+import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -28,6 +29,7 @@ class UserModule {
         ampacheDataSource: AmpacheDataSource,
         filtersManager: FiltersManager,
         audioManager: AudioManager,
+        downloadManager: DownloadManager,
         alarmsSynchronizer: AlarmsSynchronizer,
         cache: Cache,
         okHttpClient: OkHttpClient
@@ -36,6 +38,7 @@ class UserModule {
         ampacheDataSource,
         filtersManager,
         audioManager,
+        downloadManager,
         alarmsSynchronizer,
         context,
         cache,

@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
+import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.view.Filter
@@ -109,5 +110,21 @@ class DownloadManager @Inject constructor(
                 }
             }
         }
+    }
+
+    suspend fun removeDownload(id: Long?) {
+        if (id == null) {
+            return
+        }
+
+        val songInfo = dataRepository.getSongSync(id)
+        val local = songInfo.local
+
+        if (local.isNullOrBlank()) {
+            return
+        }
+
+        contentResolver.delete(local.toUri(), null, null)
+        dataRepository.updateSongLocalUri(id, null)
     }
 }

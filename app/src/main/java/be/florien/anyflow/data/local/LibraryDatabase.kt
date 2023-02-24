@@ -227,7 +227,7 @@ abstract class LibraryDatabase : RoomDatabase() {
             getPlaylistSongsDao().upsert(playlistSongs)
         }
 
-    suspend fun updateSongLocalUri(songId: Long, uri: String) {
+    suspend fun updateSongLocalUri(songId: Long, uri: String?) {
         getSongDao().updateWithLocalUri(songId, uri)
     }
 
@@ -317,6 +317,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     }
 
     fun getSong(id: Long): LiveData<DbSongDisplay> = getSongDao().findById(id)
+
+    suspend fun getSongSync(id: Long): DbSongDisplay = getSongDao().findByIdSync(id)
 
     companion object {
         const val CHANGE_SONGS = 0

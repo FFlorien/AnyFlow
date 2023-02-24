@@ -118,7 +118,7 @@ class DataRepository
 
     fun searchSongs(filter: String) = libraryDatabase.searchSongs("%$filter%")
 
-    suspend fun updateSongLocalUri(songId: Long, uri: String) {
+    suspend fun updateSongLocalUri(songId: Long, uri: String?) {
         libraryDatabase.updateSongLocalUri(songId, uri)
     }
 
@@ -270,6 +270,8 @@ class DataRepository
         ).map { item -> (mapping(item)) }
 
     fun getSong(id: Long): LiveData<SongInfo> = libraryDatabase.getSong(id).map { it.toViewSongInfo() }
+
+    suspend fun getSongSync(id: Long): SongInfo = libraryDatabase.getSongSync(id).toViewSongInfo()
 
     /**
      * Playlists modification

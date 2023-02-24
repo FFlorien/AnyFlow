@@ -36,6 +36,10 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("SELECT * FROM song WHERE song.id = :songId")
     abstract fun findById(songId: Long): LiveData<DbSongDisplay>
 
+    @Transaction
+    @Query("SELECT * FROM song WHERE song.id = :songId")
+    abstract suspend fun findByIdSync(songId: Long): DbSongDisplay
+
     // Related to queue or filter
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")
     abstract suspend fun findPositionInQueue(songId: Long): Int?
@@ -65,7 +69,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract suspend fun deleteWithId(ids: List<DbSongId>)
 
     @Query("UPDATE song SET local = :uri WHERE song.id = :songId")
-    abstract suspend fun updateWithLocalUri(songId: Long, uri: String)
+    abstract suspend fun updateWithLocalUri(songId: Long, uri: String?)
 
     @Query("UPDATE song SET waveForm = :downSamples WHERE song.id = :songId")
     abstract suspend fun updateWithNewWaveForm(songId: Long, downSamples: String?)

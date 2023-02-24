@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
@@ -32,10 +33,11 @@ import javax.inject.Inject
 
 class ExoPlayerController
 @Inject constructor(
-    private var playingQueue: PlayingQueue,
-    private var ampacheDataSource: AmpacheDataSource,
-    private var filtersManager: FiltersManager,
-    private var audioManager: AudioManager,
+    private val playingQueue: PlayingQueue,
+    private val ampacheDataSource: AmpacheDataSource,
+    private val filtersManager: FiltersManager,
+    private val audioManager: AudioManager,
+    private val downloadManager: DownloadManager,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val context: Context,
     cache: Cache,
@@ -119,7 +121,14 @@ class ExoPlayerController
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
             filtersManager.clearFilters()//todo download as a super (here is a good place)
-            filtersManager.addFilter(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, true, "", emptyList()))
+            filtersManager.addFilter(
+                Filter(
+                    Filter.FilterType.DOWNLOADED_STATUS_IS,
+                    true,
+                    "",
+                    emptyList()
+                )
+            )
             exoplayerScope.launch(Dispatchers.Default) {
                 filtersManager.commitChanges()
             }
@@ -172,7 +181,6 @@ class ExoPlayerController
             }
         }
     }
-
 
     private fun getFocusRequest(): AudioFocusRequest? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -267,10 +275,15 @@ class ExoPlayerController
             val songId = uri.getQueryParameter("id")?.toLongOrNull()
             if (songId != null) {
                 exoplayerScope.launch(Dispatchers.IO) {
-                    val ampacheError = ampacheDataSource.getStreamError(songId)
+                    val ampacheError = ampacheDataSource.getStreamError(songId) //todo wow, this is ugly. Intercept and/or incorporate error in object as nullable ?
                     if (ampacheError.error.errorCode == 4701) {
                         reconnect()
                     }
+                }
+            } else if (uri.scheme?.equals("content") == true) {
+                mediaPlayer.clearMediaItems()
+                exoplayerScope.launch { //todo mark as faulty download / try again
+                    downloadManager.removeDownload(playingQueue.stateUpdater.value?.currentSong?.id)
                 }
             }
         }
@@ -378,6 +391,10 @@ class ExoPlayerController
         if (!song.local.isNullOrBlank()) {
             return MediaItem.Builder().setUri(song.local).setMediaId(song.id.toString()).build()
         }
+        return dbSongToPlayToUrlMediaItem(song)
+    }
+
+    private fun dbSongToPlayToUrlMediaItem(song: DbSongToPlay): MediaItem {
         val songUrl = ampacheDataSource.getSongUrl(song.id)
         return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(song.id.toString()).build()
     }

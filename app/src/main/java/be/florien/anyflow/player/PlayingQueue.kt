@@ -8,7 +8,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbSongToPlay
-import be.florien.anyflow.data.toDbSongToPlay
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
@@ -91,13 +90,13 @@ class PlayingQueue
         }
 
     init {
-        songIdsListUpdater.observeForever {
-            queueSize = it.size
+        songIdsListUpdater.observeForever { songToPlayList ->
+            queueSize = songToPlayList.size
 
             val indexOf = if (currentSong.value == null) {
                 listPosition
             } else {
-                it.indexOf(currentSong.value?.toDbSongToPlay())
+                songToPlayList.indexOfFirst{ it.id == currentSong.value?.id }
             }
             listPosition = if (indexOf >= 0) indexOf else 0
         }
