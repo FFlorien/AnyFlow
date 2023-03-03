@@ -13,21 +13,19 @@ import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.player.PlayerService
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
-import com.google.android.exoplayer2.offline.DownloadManager
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.cache.Cache
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
-import java.util.concurrent.Executor
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -48,8 +46,8 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideOkHttp(): OkHttpClient =
-        OkHttpClient.Builder().build()
+    fun provideOkHttp(authPersistence: AuthPersistence): OkHttpClient =
+        OkHttpClient.Builder().addInterceptor(AuthenticationInterceptor(authPersistence)).build()
 
     @Singleton
     @Provides
@@ -58,7 +56,7 @@ class ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideAmpacheConnection(
+    fun provideAmpacheDataSource(
         authPersistence: AuthPersistence,
         context: Context,
         sharedPreferences: SharedPreferences

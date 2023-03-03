@@ -97,7 +97,8 @@ open class AmpacheDataSource
 
     fun ensureConnection() {
         if (userComponent == null) {
-            val savedServerUrl = authPersistence.serverUrl.secret
+            val savedServerUrl =
+                authPersistence.serverUrl.secret //todo use ExpirationSecret's methods ?
             if (savedServerUrl.isNotBlank()) {
                 openConnection(savedServerUrl)
             }
@@ -424,7 +425,7 @@ open class AmpacheDataSource
         var currentOffset = sharedPreferences.getInt(OFFSET_DELETED_SONGS, 0)
         val deletedList =
             ampacheApi.getDeletedSongs(
-                auth = authPersistence.authToken.secret,
+
                 limit = itemLimit,
                 offset = currentOffset
             ).deleted_song
@@ -452,16 +453,15 @@ open class AmpacheDataSource
     }
 
     suspend fun createPlaylist(name: String) {
-        ampacheApi.createPlaylist(auth = authPersistence.authToken.secret, name = name)
+        ampacheApi.createPlaylist(name = name)
     }
 
     suspend fun deletePlaylist(id: Long) {
-        ampacheApi.deletePlaylist(auth = authPersistence.authToken.secret, id = id.toString())
+        ampacheApi.deletePlaylist(id = id.toString())
     }
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheApi.addToPlaylist(
-            auth = authPersistence.authToken.secret,
             filter = playlistId,
             songId = songId
         )
@@ -469,36 +469,32 @@ open class AmpacheDataSource
 
     suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
         ampacheApi.removeFromPlaylist(
-            auth = authPersistence.authToken.secret,
             filter = playlistId,
             song = songId
         )
     }
 
     suspend fun getStreamError(songId: Long) =
-        ampacheApi.streamError(auth = authPersistence.authToken.secret, songId = songId)
+        ampacheApi.streamError(songId = songId)
 
     fun getSongUrl(id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
-        val token = authPersistence.authToken.secret
-        return "${serverUrl}server/json.server.php?action=stream&auth=$token&type=song&id=$id&uid=1"
+        return "${serverUrl}server/json.server.php?action=stream&type=song&id=$id&uid=1"
     }
 
     fun getArtUrl(type: String, id: Long): String {
         val serverUrl = authPersistence.serverUrl.secret
-        val token = authPersistence.authToken.secret
-        return "${serverUrl}server/json.server.php?action=get_art&auth=$token&type=$type&id=$id"
+        return "${serverUrl}server/json.server.php?action=get_art&type=$type&id=$id"
     }
 
     private suspend fun <T> getItems(
-        apiMethod: suspend AmpacheApi.(String, Int, Int, String) -> T?,
+        apiMethod: suspend AmpacheApi.(Int, Int, String) -> T?,
         offsetName: String,
         from: Calendar
     ): T? {
         try {
             val currentOffset = sharedPreferences.getInt(offsetName, 0)
             return ampacheApi.apiMethod(
-                authPersistence.authToken.secret,
                 itemLimit,
                 currentOffset,
                 TimeOperations.getAmpacheCompleteFormatted(from)
@@ -510,13 +506,12 @@ open class AmpacheDataSource
     }
 
     private suspend fun <T> getNewItems(
-        apiMethod: suspend AmpacheApi.(String, Int, Int) -> T?,
+        apiMethod: suspend AmpacheApi.(Int, Int) -> T?,
         offsetName: String
     ): T? {
         try {
             val currentOffset = sharedPreferences.getInt(offsetName, 0)
             return ampacheApi.apiMethod(
-                authPersistence.authToken.secret,
                 itemLimit,
                 currentOffset
             )

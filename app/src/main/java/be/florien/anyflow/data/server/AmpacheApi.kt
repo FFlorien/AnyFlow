@@ -25,7 +25,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getNewSongs(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("action") action: String = "songs"
@@ -33,7 +32,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getNewGenres(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("action") action: String = "genres"
@@ -41,7 +39,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getNewArtists(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("action") action: String = "artists"
@@ -49,7 +46,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getNewAlbums(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("action") action: String = "albums"
@@ -57,7 +53,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getPlaylists(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("action") action: String = "get_indexes",
@@ -68,7 +63,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getAddedSongs(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("add") update: String = "1970-01-01",
@@ -77,7 +71,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getAddedGenres(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("add") update: String = "1970-01-01",
@@ -86,7 +79,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getAddedArtists(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("add") update: String = "1970-01-01",
@@ -95,7 +87,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getAddedAlbums(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("add") update: String = "1970-01-01",
@@ -104,7 +95,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getUpdatedSongs(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("update") update: String = "1970-01-01",
@@ -113,7 +103,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getUpdatedGenres(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("update") update: String = "1970-01-01",
@@ -122,7 +111,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getUpdatedArtists(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("update") update: String = "1970-01-01",
@@ -131,7 +119,6 @@ interface AmpacheApi {
 
     @GET("server/json.server.php")
     suspend fun getUpdatedAlbums(
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
         @Query("update") update: String = "1970-01-01",
@@ -141,7 +128,6 @@ interface AmpacheApi {
     @GET("server/json.server.php")
     suspend fun getDeletedSongs(
         @Query("action") action: String = "deleted_songs",
-        @Query("auth") auth: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int
     ): AmpacheDeletedSongIdResponse
@@ -149,7 +135,6 @@ interface AmpacheApi {
     @GET("server/json.server.php")
     suspend fun createPlaylist(
         @Query("action") action: String = "playlist_create",
-        @Query("auth") auth: String,
         @Query("name") name: String,
         @Query("type") type: String = "private"
     )
@@ -157,7 +142,6 @@ interface AmpacheApi {
     @GET("server/json.server.php")
     suspend fun deletePlaylist(
         @Query("action") action: String = "playlist_delete",
-        @Query("auth") auth: String,
         @Query("filter") id: String
     )
 
@@ -165,7 +149,6 @@ interface AmpacheApi {
     suspend fun addToPlaylist(
         @Query("action") action: String = "playlist_add_song",
         @Query("filter") filter: Long,
-        @Query("auth") auth: String,
         @Query("song") songId: Long,
         @Query("check") check: Int = 1
     )
@@ -174,7 +157,6 @@ interface AmpacheApi {
     suspend fun removeFromPlaylist(
         @Query("action") action: String = "playlist_remove_song",
         @Query("filter") filter: Long,
-        @Query("auth") auth: String,
         @Query("song") song: Long
     )
 
@@ -182,7 +164,6 @@ interface AmpacheApi {
     suspend fun streamError(
         @Query("action") action: String = "stream",
         @Query("type") type: String = "song",
-        @Query("auth") auth: String,
         @Query("id") songId: Long
     ): AmpacheErrorObject
 }

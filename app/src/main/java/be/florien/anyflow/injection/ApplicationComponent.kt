@@ -3,6 +3,7 @@ package be.florien.anyflow.injection
 import android.app.Application
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.user.UserComponent
+import be.florien.anyflow.extension.MyAppGlideModule
 import be.florien.anyflow.feature.alarms.AlarmViewModel
 import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
@@ -32,6 +33,7 @@ interface ApplicationComponent {
     fun inject(viewModel: EditAlarmViewModel)
     fun inject(viewModel: PlaylistSongsViewModel)
     fun inject(viewModel: PlaylistListViewModel)
+    fun inject(myAppGlideModule: MyAppGlideModule)
 
     fun userComponentBuilder(): UserComponent.Builder
 
