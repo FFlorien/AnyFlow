@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.connect.ConnectViewModel" />
+            type="be.florien.anyflow.feature.connect.UserConnectViewModel" />
 
         <import type="android.view.View" />
     </data>
@@ -19,26 +19,7 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="@dimen/activity_horizontal_margin"
-        tools:context="be.florien.anyflow.feature.connect.ConnectActivityBase">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_layout_server"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_server"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textUri"
-                android:hint="@string/connect_server_hint"
-                android:text="@={viewModel.server}" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+        tools:context="be.florien.anyflow.feature.connect.UserConnectActivityBase">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_username"
@@ -47,7 +28,7 @@
             android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/input_layout_server">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_username"

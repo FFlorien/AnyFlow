@@ -6,6 +6,7 @@ import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Order.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.injection.ServerScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -13,9 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@ServerScope
 class OrderComposer @Inject constructor(private val dataRepository: DataRepository) {
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         eLog(throwable, "Received an exception in OrderComposer's scope")

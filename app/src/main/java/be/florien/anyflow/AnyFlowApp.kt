@@ -6,16 +6,12 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.data.SyncService
-import be.florien.anyflow.data.server.AmpacheApi
-import be.florien.anyflow.data.server.AmpacheDataSource
-import be.florien.anyflow.data.user.UserComponent
+import be.florien.anyflow.data.user.AuthPersistence
+import be.florien.anyflow.injection.ServerComponent
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.player.PlayerService
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -24,22 +20,19 @@ import javax.inject.Inject
  * Application class used for initialization of many libraries
  */
 @SuppressLint("Registered")
-open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
+open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
     lateinit var applicationComponent: ApplicationComponent
         protected set
-    override var userComponent: UserComponent? = null
+    override var serverComponent: ServerComponent? = null
 
     @Inject
-    lateinit var ampacheDataSource: AmpacheDataSource
-
-    @Inject
-    lateinit var okHttpClient: OkHttpClient
+    lateinit var authPersistence: AuthPersistence
 
     override fun onCreate() {
         super.onCreate()
         Timber.plant(CrashReportingTree())
         initApplicationComponent()
-        ampacheDataSource.ensureConnection()
+        initServerComponentIfReady()
         createNotificationChannels()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             this@AnyFlowApp.eLog(e, "Unexpected error")
@@ -54,19 +47,18 @@ open class AnyFlowApp : MultiDexApplication(), UserComponentContainer {
         applicationComponent.inject(this)
     }
 
-    override fun createUserScopeForServer(serverUrl: String): AmpacheApi {
-        val ampacheApi = Retrofit
-                .Builder()
-                .baseUrl(serverUrl)
-                .client(okHttpClient)
-                .addConverterFactory(JacksonConverterFactory.create())
+    private fun initServerComponentIfReady() {
+        val serverUrl = authPersistence.serverUrl
+        if (serverUrl.hasSecret()) {
+            createUserScopeForServer(serverUrl.secret)
+        }
+    }
+
+    override fun createUserScopeForServer(serverUrl: String) {
+        serverComponent = applicationComponent
+                .serverComponentBuilder()
+                .ampacheUrl(serverUrl)
                 .build()
-                .create(AmpacheApi::class.java)
-        userComponent = applicationComponent
-                .userComponentBuilder()
-                .ampacheApi(ampacheApi)
-                .build()
-        return ampacheApi
     }
 
     private fun createNotificationChannels() {

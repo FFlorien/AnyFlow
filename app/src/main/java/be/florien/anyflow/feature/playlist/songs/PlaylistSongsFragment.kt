@@ -56,7 +56,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             ViewModelProvider.NewInstanceFactory()
         )[PlaylistSongsViewModel::class.java]
         viewModel.playlistId = playlist?.id ?: throw IllegalStateException("Playlist shouldn't be null !")
-        anyFlowApp.applicationComponent.inject(viewModel)
+        anyFlowApp.serverComponent?.inject(viewModel)
     }
 
     override fun onCreateView(

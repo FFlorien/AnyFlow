@@ -92,7 +92,7 @@ class PlayerService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        (application as AnyFlowApp).userComponent?.inject(this)
+        (application as AnyFlowApp).serverComponent?.inject(this)
         playerController.stateChangeNotifier.observe(this) {
             if (!isPlaying) {
                 stopForegroundAndKeepNotification()

@@ -22,13 +22,13 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
 import be.florien.anyflow.data.PingService
 import be.florien.anyflow.data.SyncService
-import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.server.AmpacheAuthSource
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.connect.ConnectActivity
+import be.florien.anyflow.feature.connect.ServerActivity
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.LibraryMenuHolder
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
@@ -44,7 +44,7 @@ import javax.inject.Inject
  * Activity controlling the queue, play/pause/next/previous on the PlayerService
  */
 @ActivityScope
-@UserScope
+@ServerScope
 class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     /**
@@ -78,13 +78,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val component = anyFlowApp.userComponent
+        val component = anyFlowApp.serverComponent
             ?.playerComponentBuilder()
             ?.build()
         activityComponent = if (component != null) {
             component
         } else {
-            startActivity(ConnectActivity::class)
+            startActivity(ServerActivity::class)
             finish()
             fakeComponent
         }
@@ -125,13 +125,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         viewModel.connectionStatus.observe(this) { status ->
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (status) {
-                AmpacheDataSource.ConnectionStatus.WRONG_SERVER_URL,
-                AmpacheDataSource.ConnectionStatus.WRONG_ID_PAIR -> {
-                    startActivity(ConnectActivity::class)
+                AmpacheAuthSource.ConnectionStatus.WRONG_SERVER_URL,
+                AmpacheAuthSource.ConnectionStatus.WRONG_ID_PAIR -> {
+                    startActivity(ServerActivity::class)
                     finish()
                 }
-                AmpacheDataSource.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
-                AmpacheDataSource.ConnectionStatus.CONNECTED -> {
+                AmpacheAuthSource.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
+                AmpacheAuthSource.ConnectionStatus.CONNECTED -> {
                     bindService(
                         Intent(this, SyncService::class.java),
                         viewModel.updateConnection,
@@ -205,7 +205,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (anyFlowApp.userComponent == null) {
+        if (anyFlowApp.serverComponent == null) {
             return
         }
 

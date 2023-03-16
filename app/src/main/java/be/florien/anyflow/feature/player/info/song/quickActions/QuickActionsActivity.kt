@@ -10,7 +10,7 @@ import be.florien.anyflow.databinding.ActivityQuickActionsBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.extension.startActivity
-import be.florien.anyflow.feature.connect.ConnectActivity
+import be.florien.anyflow.feature.connect.UserConnectActivity
 import be.florien.anyflow.feature.player.info.song.SongInfoActions
 import be.florien.anyflow.feature.player.info.song.SongInfoFragment
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
@@ -32,13 +32,13 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val component = anyFlowApp.userComponent
+        val component = anyFlowApp.serverComponent
             ?.quickActionsComponentBuilder()
             ?.build()
         activityComponent = if (component != null) {
             component
         } else {
-            startActivity(ConnectActivity::class)
+            startActivity(UserConnectActivity::class)
             finish()
             fakeComponent
         }

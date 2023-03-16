@@ -25,13 +25,13 @@ import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.refreshVisibleViewHolders
 import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.injection.UserScope
+import be.florien.anyflow.injection.ServerScope
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @ActivityScope
-@UserScope
+@ServerScope
 class SelectPlaylistFragment(private var songId: Long = 0L) : DialogFragment() {
     lateinit var viewModel: SelectPlaylistViewModel
     private lateinit var fragmentBinding: FragmentSelectPlaylistBinding

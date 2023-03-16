@@ -12,14 +12,14 @@ import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.injection.UserScope
+import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
 /**
  * Event handler for the queue of songs that are playing.
  */
-@UserScope
+@ServerScope
 class PlayingQueue
 @Inject constructor(
     private val dataRepository: DataRepository,

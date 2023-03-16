@@ -10,15 +10,15 @@ import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.URL
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@ServerScope
 class DownloadManager @Inject constructor(
     private val dataRepository: DataRepository,
     context: Context

@@ -30,7 +30,7 @@ class AlarmActivity : AppCompatActivity() {
             this,
             ViewModelProvider.NewInstanceFactory()
         )[AlarmViewModel::class.java]
-        anyFlowApp.applicationComponent.inject(viewModel)
+        anyFlowApp.serverComponent?.inject(viewModel)
         setContentView(R.layout.activity_alarms)
         toolbar = findViewById(R.id.toolbar)
 

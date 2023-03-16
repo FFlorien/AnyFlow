@@ -24,7 +24,7 @@ class AlarmListFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(AlarmListViewModel::class.java)
-        anyFlowApp.applicationComponent.inject(viewModel)
+        anyFlowApp.serverComponent?.inject(viewModel)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

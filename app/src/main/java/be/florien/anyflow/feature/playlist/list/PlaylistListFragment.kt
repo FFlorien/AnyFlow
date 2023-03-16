@@ -57,7 +57,7 @@ class PlaylistListFragment : BaseFragment() {
             this,
             ViewModelProvider.NewInstanceFactory()
         )[PlaylistListViewModel::class.java]
-        anyFlowApp.applicationComponent.inject(viewModel)
+        anyFlowApp.serverComponent?.inject(viewModel)
     }
 
     override fun onCreateView(

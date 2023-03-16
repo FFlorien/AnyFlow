@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.local.model.DbSongToPlay
+import be.florien.anyflow.data.server.AmpacheAuthSource
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class ExoPlayerController
 @Inject constructor(
     private val playingQueue: PlayingQueue,
+    private val ampacheAuthSource: AmpacheAuthSource,
     private val ampacheDataSource: AmpacheDataSource,
     private val filtersManager: FiltersManager,
     private val audioManager: AudioManager,
@@ -120,7 +122,7 @@ class ExoPlayerController
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
-            filtersManager.clearFilters()//todo download as a super (here is a good place)
+            filtersManager.clearFilters()//todo download Filter as a parent (here could a good place)
             filtersManager.addFilter(
                 Filter(
                     Filter.FilterType.DOWNLOADED_STATUS_IS,
@@ -256,7 +258,7 @@ class ExoPlayerController
     override fun onPlayerError(error: PlaybackException) {
 
         suspend fun reconnect() {
-            ampacheDataSource.reconnect {
+            ampacheAuthSource.reconnect {
                 exoplayerScope.launch(Dispatchers.Main) {
                     val firstItem =
                         dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
@@ -320,7 +322,7 @@ class ExoPlayerController
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PAUSE
             }
             Player.STATE_BUFFERING -> {
-                ampacheDataSource.resetReconnectionCount()
+                //todo should I care ? ampacheAuthSource.resetReconnectionCount()
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.BUFFER
             }
             Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value =

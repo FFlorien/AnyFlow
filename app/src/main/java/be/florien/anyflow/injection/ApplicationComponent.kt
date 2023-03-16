@@ -2,15 +2,8 @@ package be.florien.anyflow.injection
 
 import android.app.Application
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.data.user.UserComponent
 import be.florien.anyflow.extension.MyAppGlideModule
-import be.florien.anyflow.feature.alarms.AlarmViewModel
-import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
-import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
-import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
-import be.florien.anyflow.feature.connect.ConnectViewModel
-import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
-import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel
+import be.florien.anyflow.feature.connect.ServerViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -25,17 +18,10 @@ interface ApplicationComponent {
 
     fun inject(anyFlowApp: AnyFlowApp)
 
-    fun inject(connectViewModel: ConnectViewModel)
-
-    fun inject(viewModel: AlarmViewModel)
-    fun inject(viewModel: AddAlarmViewModel)
-    fun inject(viewModel: AlarmListViewModel)
-    fun inject(viewModel: EditAlarmViewModel)
-    fun inject(viewModel: PlaylistSongsViewModel)
-    fun inject(viewModel: PlaylistListViewModel)
+    fun inject(serverViewModel: ServerViewModel)
     fun inject(myAppGlideModule: MyAppGlideModule)
 
-    fun userComponentBuilder(): UserComponent.Builder
+    fun serverComponentBuilder(): ServerComponent.Builder
 
     @Component.Builder
     interface Builder {

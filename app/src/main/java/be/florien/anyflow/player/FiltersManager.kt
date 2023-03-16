@@ -6,10 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
+import be.florien.anyflow.injection.ServerScope
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@ServerScope
 class FiltersManager
 @Inject constructor(private val dataRepository: DataRepository) {
     private var currentFilters: List<Filter<*>> = listOf()

@@ -8,16 +8,11 @@ import android.content.SharedPreferences
 import android.media.AudioManager
 import android.os.Build
 import android.os.Environment
-import androidx.lifecycle.LiveData
-import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.player.PlayerService
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
 import com.google.android.exoplayer2.upstream.cache.Cache
@@ -39,7 +34,6 @@ class ApplicationModule {
         private const val PREFERENCE_NAME = "anyflow_preferences"
     }
 
-    @Singleton
     @Provides
     fun providePreferences(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
@@ -53,23 +47,6 @@ class ApplicationModule {
     @Provides
     fun provideAuthPersistence(preferences: SharedPreferences, context: Context): AuthPersistence =
         AuthPersistenceKeystore(preferences, context)
-
-    @Singleton
-    @Provides
-    fun provideAmpacheDataSource(
-        authPersistence: AuthPersistence,
-        context: Context,
-        sharedPreferences: SharedPreferences
-    ): AmpacheDataSource =
-        AmpacheDataSource(
-            authPersistence,
-            (context.applicationContext as AnyFlowApp),
-            sharedPreferences
-        )
-
-    @Provides
-    fun provideAmpacheConnectionStatus(connection: AmpacheDataSource): LiveData<AmpacheDataSource.ConnectionStatus> =
-        connection.connectionStatusUpdater
 
     @Singleton
     @Provides
@@ -119,15 +96,6 @@ class ApplicationModule {
         val intent = Intent(context, AlarmActivity::class.java)
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
-
-    @Provides
-    fun provideAlarmsSynchronizer(
-        alarmManager: AlarmManager,
-        dataRepository: DataRepository,
-        @Named("player") playerIntent: PendingIntent,
-        @Named("alarm") alarmIntent: PendingIntent
-    ): AlarmsSynchronizer =
-        AlarmsSynchronizer(alarmManager, dataRepository, alarmIntent, playerIntent)
 
     @Provides
     fun provideAudioManager(context: Context) =

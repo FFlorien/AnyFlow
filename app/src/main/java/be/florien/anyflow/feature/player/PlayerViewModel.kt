@@ -4,7 +4,7 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.*
-import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.server.AmpacheAuthSource
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -26,7 +26,7 @@ constructor(
     private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
-    val connectionStatus: LiveData<AmpacheDataSource.ConnectionStatus>,
+    val connectionStatus: LiveData<AmpacheAuthSource.ConnectionStatus>,
     @Named("Songs")
         val songsUpdatePercentage: LiveData<Int>,
     @Named("Genres")

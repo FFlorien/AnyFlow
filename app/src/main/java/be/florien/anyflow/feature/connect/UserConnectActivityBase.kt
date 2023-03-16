@@ -16,15 +16,15 @@ import com.google.android.material.snackbar.Snackbar
  * Simple activity for connection
  */
 @SuppressLint("Registered")
-open class ConnectActivityBase : AppCompatActivity() {
-    lateinit var viewModel: ConnectViewModel
+open class UserConnectActivityBase : AppCompatActivity() {
+    lateinit var viewModel: UserConnectViewModel
     internal lateinit var binding: ActivityConnectBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(ConnectViewModel::class.java)
-        anyFlowApp.applicationComponent.inject(viewModel)
+        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(UserConnectViewModel::class.java)
+        anyFlowApp.serverComponent?.inject(viewModel)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_connect)
         binding.viewModel = viewModel

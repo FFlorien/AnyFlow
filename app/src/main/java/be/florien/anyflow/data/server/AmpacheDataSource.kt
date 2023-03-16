@@ -4,38 +4,28 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.UserComponentContainer
 import be.florien.anyflow.data.TimeOperations
-import be.florien.anyflow.data.server.exception.NotAnAmpacheUrlException
-import be.florien.anyflow.data.server.exception.SessionExpiredException
-import be.florien.anyflow.data.server.exception.WrongFormatServerUrlException
-import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.data.server.model.*
-import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.injection.ServerScope
 import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import retrofit2.HttpException
-import java.math.BigInteger
-import java.security.MessageDigest
+import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Manager for the ampache API server-side
  */
-@Singleton
+@ServerScope
 open class AmpacheDataSource
 @Inject constructor(
-    private var authPersistence: AuthPersistence,
-    private var userComponentContainer: UserComponentContainer,
+    private val retrofit: Retrofit,
     private val sharedPreferences: SharedPreferences
 ) {
     companion object {
@@ -59,18 +49,8 @@ open class AmpacheDataSource
         const val SERVER_CLEAN = "SERVER_CLEAN"
     }
 
-    private var ampacheApi: AmpacheApi = AmpacheApiDisconnected()
-
     private val itemLimit: Int = 250
-    private var reconnectByUserPassword = 0
-
-    private var userComponent
-        get() = userComponentContainer.userComponent
-        set(value) {
-            userComponentContainer.userComponent = value
-        }
-
-    val connectionStatusUpdater = MutableLiveData(ConnectionStatus.CONNEXION)
+    private val ampacheDataApi = retrofit.create(AmpacheDataApi::class.java)
 
     val songsPercentageUpdater = MutableLiveData(-1)
     val genresPercentageUpdater = MutableLiveData(-1)
@@ -79,163 +59,11 @@ open class AmpacheDataSource
     val playlistsPercentageUpdater = MutableLiveData(-1)
 
     /**
-     * Ampache connection handling
-     */
-
-    fun openConnection(serverUrl: String) {
-        val url = try {
-            serverUrl.toHttpUrl()
-        } catch (exception: IllegalArgumentException) {
-            throw WrongFormatServerUrlException(
-                "The provided url was not correctly formed",
-                exception
-            )
-        }
-        ampacheApi = userComponentContainer.createUserScopeForServer(url.toString())
-        authPersistence.saveServerInfo(url.toString())
-    }
-
-    fun ensureConnection() {
-        if (userComponent == null) {
-            val savedServerUrl =
-                authPersistence.serverUrl.secret //todo use ExpirationSecret's methods ?
-            if (savedServerUrl.isNotBlank()) {
-                openConnection(savedServerUrl)
-            }
-        }
-    }
-
-    fun resetReconnectionCount() {
-        reconnectByUserPassword = 0
-    }
-
-    /**
-     * API calls : connection
-     */
-    suspend fun authenticate(user: String, password: String): AmpacheAuthentication {
-        val time = (TimeOperations.getCurrentDate().timeInMillis / 1000).toString()
-        val encoder = MessageDigest.getInstance("SHA-256")
-        encoder.reset()
-        val passwordEncoded =
-            binToHex(encoder.digest(password.toByteArray())).lowercase(Locale.ROOT)
-        encoder.reset()
-        val auth =
-            binToHex(encoder.digest((time + passwordEncoded).toByteArray())).lowercase(Locale.ROOT)
-        connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
-        try {
-            val authentication = ampacheApi.authenticate(user = user, auth = auth, time = time)
-            when (authentication.error.errorCode) {
-                401 -> {
-                    connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
-                    throw WrongIdentificationPairException(authentication.error.errorMessage)
-                }
-                0 -> {
-                    authPersistence.saveConnectionInfo(
-                        user,
-                        password,
-                        authentication.auth,
-                        TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
-                    )
-                    saveDbCount(
-                        authentication.songs,
-                        authentication.albums,
-                        authentication.artists,
-                        authentication.playlists
-                    )
-                    saveServerDates(
-                        TimeOperations.getDateFromAmpacheComplete(authentication.add),
-                        TimeOperations.getDateFromAmpacheComplete(authentication.update),
-                        TimeOperations.getDateFromAmpacheComplete(authentication.clean)
-                    )
-                }
-            }
-            connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
-            return authentication
-        } catch (exception: HttpException) {
-            connectionStatusUpdater.postValue(ConnectionStatus.WRONG_SERVER_URL)
-            ampacheApi = AmpacheApiDisconnected()
-            throw NotAnAmpacheUrlException("The ampache server couldn't be found at provided url")
-        } catch (exception: Exception) {
-            eLog(exception, "Unknown error while trying to login")
-            throw exception
-        }
-    }
-
-    suspend fun ping(): AmpachePing {
-        val authToken: String = authPersistence.authToken.secret
-        if (authToken.isBlank()) {
-            throw IllegalArgumentException("No token available !")
-        }
-        try {
-            connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
-            val ping = ampacheApi.ping(auth = authToken)
-            if (ping.session_expire.isEmpty()) {
-                return ping
-            }
-
-            saveDbCount(ping.songs, ping.albums, ping.artists, ping.playlists)
-            saveServerDates(
-                TimeOperations.getDateFromAmpacheComplete(ping.add),
-                TimeOperations.getDateFromAmpacheComplete(ping.update),
-                TimeOperations.getDateFromAmpacheComplete(ping.clean)
-            )
-            authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.session_expire).timeInMillis)
-            connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
-            return ping
-        } catch (exception: Exception) {
-            eLog(exception)
-            throw exception
-        }
-    }
-
-    suspend fun <T> reconnect(request: suspend () -> T): T {
-        if (!authPersistence.hasConnectionInfo()) {
-            throw SessionExpiredException("Can't reconnect")
-        } else {
-            authPersistence.revokeAuthToken()
-            return if (authPersistence.user.secret.isNotBlank() && authPersistence.password.secret.isNotBlank()) {
-                reconnectByUsernamePassword(request)
-            } else {
-                throw SessionExpiredException("Can't reconnect")
-            }
-        }
-    }
-
-    private suspend fun <T> reconnectByUsernamePassword(request: suspend () -> T): T {
-        reconnectByUserPassword++
-        val auth = authenticate(authPersistence.user.secret, authPersistence.password.secret)
-        return if (auth.error.errorCode == 0) {
-            saveDbCount(auth.songs, auth.albums, auth.artists, auth.playlists)
-            request()
-        } else {
-            throw SessionExpiredException("Can't reconnect")
-        }
-    }
-
-    private fun saveDbCount(songs: Int, albums: Int, artists: Int, playlists: Int) {
-        val edit = sharedPreferences.edit()
-        edit.putInt(COUNT_SONGS, songs)
-        edit.putInt(COUNT_ALBUMS, albums)
-        edit.putInt(COUNT_ARTIST, artists)
-        edit.putInt(COUNT_PLAYLIST, playlists)
-        edit.putInt(COUNT_GENRES, playlists)
-        edit.apply()
-    }
-
-    private fun saveServerDates(add: Calendar, update: Calendar, clean: Calendar) {
-        val edit = sharedPreferences.edit()
-        edit.putLong(SERVER_ADD, add.timeInMillis)
-        edit.putLong(SERVER_UPDATE, update.timeInMillis)
-        edit.putLong(SERVER_CLEAN, clean.timeInMillis)
-        edit.apply()
-    }
-
-    /**
      * API calls : data
      */
 
     fun getNewSongs(): Flow<List<AmpacheSong>> = flow {
-        var list = getNewItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG)
+        var list = getNewItems(AmpacheDataApi::getNewSongs, OFFSET_ADD_SONG)
         while (list != null && list.song.isNotEmpty()) {
             updateRetrievingData(
                 list.song,
@@ -244,13 +72,13 @@ open class AmpacheDataSource
                 songsPercentageUpdater
             )
             emit(list.song)
-            list = getNewItems(AmpacheApi::getNewSongs, OFFSET_ADD_SONG)
+            list = getNewItems(AmpacheDataApi::getNewSongs, OFFSET_ADD_SONG)
         }
     }
 
 
     fun getNewGenres(): Flow<List<AmpacheNameId>> = flow {
-        var list = getNewItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE)
+        var list = getNewItems(AmpacheDataApi::getNewGenres, OFFSET_ADD_GENRE)
         while (list != null && list.genre.isNotEmpty()) {
             updateRetrievingData(
                 list.genre,
@@ -259,12 +87,12 @@ open class AmpacheDataSource
                 genresPercentageUpdater
             )
             emit(list.genre)
-            list = getNewItems(AmpacheApi::getNewGenres, OFFSET_ADD_GENRE)
+            list = getNewItems(AmpacheDataApi::getNewGenres, OFFSET_ADD_GENRE)
         }
     }
 
     fun getNewArtists(): Flow<List<AmpacheArtist>> = flow {
-        var list = getNewItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST)
+        var list = getNewItems(AmpacheDataApi::getNewArtists, OFFSET_ADD_ARTIST)
         while (list != null && list.artist.isNotEmpty()) {
             updateRetrievingData(
                 list.artist,
@@ -273,12 +101,12 @@ open class AmpacheDataSource
                 artistsPercentageUpdater
             )
             emit(list.artist)
-            list = getNewItems(AmpacheApi::getNewArtists, OFFSET_ADD_ARTIST)
+            list = getNewItems(AmpacheDataApi::getNewArtists, OFFSET_ADD_ARTIST)
         }
     }
 
     fun getNewAlbums(): Flow<List<AmpacheAlbum>> = flow {
-        var list = getNewItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM)
+        var list = getNewItems(AmpacheDataApi::getNewAlbums, OFFSET_ADD_ALBUM)
         while (list != null && list.album.isNotEmpty()) {
             updateRetrievingData(
                 list.album,
@@ -287,12 +115,12 @@ open class AmpacheDataSource
                 albumsPercentageUpdater
             )
             emit(list.album)
-            list = getNewItems(AmpacheApi::getNewAlbums, OFFSET_ADD_ALBUM)
+            list = getNewItems(AmpacheDataApi::getNewAlbums, OFFSET_ADD_ALBUM)
         }
     }
 
     fun getPlaylists(): Flow<List<AmpachePlayListWithSongs>> = flow {
-        var list = getNewItems(AmpacheApi::getPlaylists, OFFSET_PLAYLIST)
+        var list = getNewItems(AmpacheDataApi::getPlaylists, OFFSET_PLAYLIST)
         while (list != null && list.playlist.isNotEmpty()) {
             updateRetrievingData(
                 list.playlist,
@@ -301,12 +129,12 @@ open class AmpacheDataSource
                 playlistsPercentageUpdater
             )
             emit(list.playlist)
-            list = getNewItems(AmpacheApi::getPlaylists, OFFSET_PLAYLIST)
+            list = getNewItems(AmpacheDataApi::getPlaylists, OFFSET_PLAYLIST)
         }
     }
 
     fun getAddedSongs(from: Calendar): Flow<List<AmpacheSong>> = flow {
-        var list = getItems(AmpacheApi::getAddedSongs, OFFSET_ADD_SONG, from)
+        var list = getItems(AmpacheDataApi::getAddedSongs, OFFSET_ADD_SONG, from)
         while (list != null && list.song.isNotEmpty()) {
             updateRetrievingData(
                 list.song,
@@ -315,12 +143,12 @@ open class AmpacheDataSource
                 songsPercentageUpdater
             )
             emit(list.song)
-            list = getItems(AmpacheApi::getAddedSongs, OFFSET_ADD_SONG, from)
+            list = getItems(AmpacheDataApi::getAddedSongs, OFFSET_ADD_SONG, from)
         }
     }
 
     fun getAddedGenres(from: Calendar): Flow<List<AmpacheNameId>> = flow {
-        var list = getItems(AmpacheApi::getAddedGenres, OFFSET_ADD_GENRE, from)
+        var list = getItems(AmpacheDataApi::getAddedGenres, OFFSET_ADD_GENRE, from)
         while (list != null && list.genre.isNotEmpty()) {
             updateRetrievingData(
                 list.genre,
@@ -329,12 +157,12 @@ open class AmpacheDataSource
                 genresPercentageUpdater
             )
             emit(list.genre)
-            list = getItems(AmpacheApi::getAddedGenres, OFFSET_ADD_GENRE, from)
+            list = getItems(AmpacheDataApi::getAddedGenres, OFFSET_ADD_GENRE, from)
         }
     }
 
     fun getAddedArtists(from: Calendar): Flow<List<AmpacheArtist>> = flow {
-        var list = getItems(AmpacheApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
+        var list = getItems(AmpacheDataApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
         while (list != null && list.artist.isNotEmpty()) {
             updateRetrievingData(
                 list.artist,
@@ -343,12 +171,12 @@ open class AmpacheDataSource
                 artistsPercentageUpdater
             )
             emit(list.artist)
-            list = getItems(AmpacheApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
+            list = getItems(AmpacheDataApi::getAddedArtists, OFFSET_ADD_ARTIST, from)
         }
     }
 
     fun getAddedAlbums(from: Calendar): Flow<List<AmpacheAlbum>> = flow {
-        var list = getItems(AmpacheApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
+        var list = getItems(AmpacheDataApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
         while (list != null && list.album.isNotEmpty()) {
             updateRetrievingData(
                 list.album,
@@ -357,7 +185,7 @@ open class AmpacheDataSource
                 albumsPercentageUpdater
             )
             emit(list.album)
-            list = getItems(AmpacheApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
+            list = getItems(AmpacheDataApi::getAddedAlbums, OFFSET_ADD_ALBUM, from)
         }
     }
 
@@ -366,7 +194,7 @@ open class AmpacheDataSource
      */
 
     fun getUpdatedSongs(from: Calendar): Flow<List<AmpacheSong>> = flow {
-        var list = getItems(AmpacheApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
+        var list = getItems(AmpacheDataApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
         while (list != null && list.song.isNotEmpty()) {
             updateRetrievingData(
                 list.song,
@@ -375,12 +203,12 @@ open class AmpacheDataSource
                 songsPercentageUpdater
             )
             emit(list.song)
-            list = getItems(AmpacheApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
+            list = getItems(AmpacheDataApi::getUpdatedSongs, OFFSET_UPDATE_SONG, from)
         }
     }
 
     fun getUpdatedGenres(from: Calendar): Flow<List<AmpacheNameId>> = flow {
-        var list = getItems(AmpacheApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
+        var list = getItems(AmpacheDataApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
         while (list != null && list.genre.isNotEmpty()) {
             updateRetrievingData(
                 list.genre,
@@ -389,12 +217,12 @@ open class AmpacheDataSource
                 genresPercentageUpdater
             )
             emit(list.genre)
-            list = getItems(AmpacheApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
+            list = getItems(AmpacheDataApi::getUpdatedGenres, OFFSET_UPDATE_GENRE, from)
         }
     }
 
     fun getUpdatedArtists(from: Calendar): Flow<List<AmpacheArtist>> = flow {
-        var list = getItems(AmpacheApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
+        var list = getItems(AmpacheDataApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
         while (list != null && list.artist.isNotEmpty()) {
             updateRetrievingData(
                 list.artist,
@@ -403,12 +231,12 @@ open class AmpacheDataSource
                 artistsPercentageUpdater
             )
             emit(list.artist)
-            list = getItems(AmpacheApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
+            list = getItems(AmpacheDataApi::getUpdatedArtists, OFFSET_UPDATE_ARTIST, from)
         }
     }
 
     fun getUpdatedAlbums(from: Calendar): Flow<List<AmpacheAlbum>> = flow {
-        var list = getItems(AmpacheApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
+        var list = getItems(AmpacheDataApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
         while (list != null && list.album.isNotEmpty()) {
             updateRetrievingData(
                 list.album,
@@ -417,14 +245,14 @@ open class AmpacheDataSource
                 albumsPercentageUpdater
             )
             emit(list.album)
-            list = getItems(AmpacheApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
+            list = getItems(AmpacheDataApi::getUpdatedAlbums, OFFSET_UPDATE_ALBUM, from)
         }
     }
 
     suspend fun getDeletedSongs(): List<AmpacheSongId>? {
         var currentOffset = sharedPreferences.getInt(OFFSET_DELETED_SONGS, 0)
         val deletedList =
-            ampacheApi.getDeletedSongs(
+            ampacheDataApi.getDeletedSongs(
 
                 limit = itemLimit,
                 offset = currentOffset
@@ -439,7 +267,8 @@ open class AmpacheDataSource
     }
 
     suspend fun getWaveFormImage(songId: Long, context: Context) = withContext(Dispatchers.IO) {
-        val url = "${authPersistence.serverUrl.secret}/waveform.php?song_id=$songId"
+        val serverUrl = retrofit.baseUrl()
+        val url = "$serverUrl/waveform.php?song_id=$songId"
         val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
             .asBitmap()
             .load(url)
@@ -452,49 +281,27 @@ open class AmpacheDataSource
         bitmap
     }
 
-    suspend fun createPlaylist(name: String) {
-        ampacheApi.createPlaylist(name = name)
-    }
-
-    suspend fun deletePlaylist(id: Long) {
-        ampacheApi.deletePlaylist(id = id.toString())
-    }
-
-    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheApi.addToPlaylist(
-            filter = playlistId,
-            songId = songId
-        )
-    }
-
-    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
-        ampacheApi.removeFromPlaylist(
-            filter = playlistId,
-            song = songId
-        )
-    }
-
     suspend fun getStreamError(songId: Long) =
-        ampacheApi.streamError(songId = songId)
+        ampacheDataApi.streamError(songId = songId)
 
     fun getSongUrl(id: Long): String {
-        val serverUrl = authPersistence.serverUrl.secret
+        val serverUrl = retrofit.baseUrl()
         return "${serverUrl}server/json.server.php?action=stream&type=song&id=$id&uid=1"
     }
 
     fun getArtUrl(type: String, id: Long): String {
-        val serverUrl = authPersistence.serverUrl.secret
+        val serverUrl = retrofit.baseUrl()
         return "${serverUrl}server/json.server.php?action=get_art&type=$type&id=$id"
     }
 
     private suspend fun <T> getItems(
-        apiMethod: suspend AmpacheApi.(Int, Int, String) -> T?,
+        apiMethod: suspend AmpacheDataApi.(Int, Int, String) -> T?,
         offsetName: String,
         from: Calendar
     ): T? {
         try {
             val currentOffset = sharedPreferences.getInt(offsetName, 0)
-            return ampacheApi.apiMethod(
+            return ampacheDataApi.apiMethod(
                 itemLimit,
                 currentOffset,
                 TimeOperations.getAmpacheCompleteFormatted(from)
@@ -506,12 +313,12 @@ open class AmpacheDataSource
     }
 
     private suspend fun <T> getNewItems(
-        apiMethod: suspend AmpacheApi.(Int, Int) -> T?,
+        apiMethod: suspend AmpacheDataApi.(Int, Int) -> T?,
         offsetName: String
     ): T? {
         try {
             val currentOffset = sharedPreferences.getInt(offsetName, 0)
-            return ampacheApi.apiMethod(
+            return ampacheDataApi.apiMethod(
                 itemLimit,
                 currentOffset
             )
@@ -538,9 +345,6 @@ open class AmpacheDataSource
             sharedPreferences.applyPutInt(offsetName, currentOffset)
         }
     }
-
-    private fun binToHex(data: ByteArray): String =
-        String.format("%0" + data.size * 2 + "X", BigInteger(1, data))
 
     fun resetAddOffsets() {
         sharedPreferences.edit().apply {
@@ -573,12 +377,5 @@ open class AmpacheDataSource
         albumsPercentageUpdater.postValue(-1)
         songsPercentageUpdater.postValue(-1)
         playlistsPercentageUpdater.postValue(-1)
-    }
-
-    enum class ConnectionStatus {
-        WRONG_SERVER_URL,
-        WRONG_ID_PAIR,
-        CONNEXION,
-        CONNECTED
     }
 }

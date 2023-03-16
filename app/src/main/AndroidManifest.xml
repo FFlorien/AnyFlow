@@ -29,7 +29,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".feature.connect.ConnectActivity" />
+        <activity android:name=".feature.connect.ServerActivity" />
+        <activity android:name=".feature.connect.UserConnectActivity" />
 
         <activity android:name=".feature.alarms.AlarmActivity" />
 

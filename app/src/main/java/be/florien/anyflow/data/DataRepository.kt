@@ -7,24 +7,25 @@ import androidx.paging.*
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.server.AmpacheEditSource
 import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.applyPutLong
+import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Singleton
-
 
 /**
  * Update the local data with the one from the server
  */
-@Singleton
+@ServerScope
 class DataRepository
 @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
+    private val ampacheEditSource: AmpacheEditSource,
     private val sharedPreferences: SharedPreferences
 ) {
 
@@ -278,17 +279,17 @@ class DataRepository
      */
 
     suspend fun createPlaylist(name: String) {
-        ampacheDataSource.createPlaylist(name)
+        ampacheEditSource.createPlaylist(name)
         playlists()
     }
 
     suspend fun deletePlaylist(id: Long) {
-        ampacheDataSource.deletePlaylist(id)
+        ampacheEditSource.deletePlaylist(id)
         libraryDatabase.deletePlaylist(id)
     }
 
     suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheDataSource.addSongToPlaylist(songId, playlistId)
+        ampacheEditSource.addSongToPlaylist(songId, playlistId)
         val playlistLastOrder = libraryDatabase.getPlaylistLastOrder(playlistId)
         libraryDatabase.addOrUpdatePlaylistSongs(
             listOf(
@@ -302,7 +303,7 @@ class DataRepository
     }
 
     suspend fun removeSongFromPlaylist(songId: Long, playlistId: Long) {
-        ampacheDataSource.removeSongFromPlaylist(playlistId, songId)
+        ampacheEditSource.removeSongFromPlaylist(playlistId, songId)
         libraryDatabase.removeSongFromPlaylist(playlistId, songId)
     }
 

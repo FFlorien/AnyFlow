@@ -30,11 +30,11 @@ import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.library.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.player.library.list.viewmodels.*
 import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.injection.UserScope
+import be.florien.anyflow.injection.ServerScope
 import com.google.android.material.snackbar.Snackbar
 
 @ActivityScope
-@UserScope
+@ServerScope
 class LibraryListFragment @SuppressLint("ValidFragment")
 constructor(
     private var filterType: String = LibraryInfoViewModel.GENRE_ID,

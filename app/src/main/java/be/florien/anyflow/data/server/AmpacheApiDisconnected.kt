@@ -6,7 +6,7 @@ import be.florien.anyflow.data.server.model.*
 /**
  * Responses for ampache calls when the server is not set
  */
-class AmpacheApiDisconnected : AmpacheApi {
+class AmpacheApiDisconnected : AmpacheAuthApi, AmpacheDataApi, AmpacheEditApi {
     override suspend fun authenticate(
         action: String,
         time: String,

@@ -25,7 +25,7 @@ class AddAlarmFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[AddAlarmViewModel::class.java]
-        anyFlowApp.applicationComponent.inject(viewModel)
+        anyFlowApp.serverComponent?.inject(viewModel)
         confirmMenuHolder = ConfirmAlarmMenuHolder {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.addAlarm()

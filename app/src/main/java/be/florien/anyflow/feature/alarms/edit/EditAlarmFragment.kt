@@ -44,7 +44,7 @@ class EditAlarmFragment(var alarm: Alarm = Alarm(0L, 0, 0, false, listOf(), fals
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[EditAlarmViewModel::class.java]
         viewModel.alarm = alarm
-        anyFlowApp.applicationComponent.inject(viewModel)
+        anyFlowApp.serverComponent?.inject(viewModel)
         confirmMenuHolder = ConfirmAlarmMenuHolder {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.editAlarm()
