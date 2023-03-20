@@ -7,9 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
-class WaveFormRepository(
+@ServerScope
+class WaveFormRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
     private val context: Context

@@ -2,9 +2,7 @@ package be.florien.anyflow.feature.player
 
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.app.job.JobInfo
 import android.app.job.JobScheduler
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -20,7 +18,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
-import be.florien.anyflow.data.PingService
+import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.server.AmpacheAuthSource
 import be.florien.anyflow.databinding.ActivityPlayerBinding
@@ -32,10 +30,10 @@ import be.florien.anyflow.feature.connect.ServerActivity
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.LibraryMenuHolder
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
-import be.florien.anyflow.feature.player.songlist.SongListFragment
-import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsActivity
 import be.florien.anyflow.feature.player.library.info.LibraryInfoFragment
+import be.florien.anyflow.feature.player.songlist.SongListFragment
+import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.injection.*
 import be.florien.anyflow.player.PlayerService
 import javax.inject.Inject
@@ -102,7 +100,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         initToolbar()
         initDrawer()
         initMenus()
-        initPingJob()
         initPlayerService()
 
         if (savedInstanceState == null) {
@@ -125,13 +122,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         viewModel.connectionStatus.observe(this) { status ->
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (status) {
-                AmpacheAuthSource.ConnectionStatus.WRONG_SERVER_URL,
-                AmpacheAuthSource.ConnectionStatus.WRONG_ID_PAIR -> {
+                AuthRepository.ConnectionStatus.WRONG_SERVER_URL,
+                AuthRepository.ConnectionStatus.WRONG_ID_PAIR -> {
                     startActivity(ServerActivity::class)
                     finish()
                 }
-                AmpacheAuthSource.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
-                AmpacheAuthSource.ConnectionStatus.CONNECTED -> {
+                AuthRepository.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
+                AuthRepository.ConnectionStatus.CONNECTED -> {
                     bindService(
                         Intent(this, SyncService::class.java),
                         viewModel.updateConnection,
@@ -289,15 +286,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
         menuCoordinator.addMenuHolder(libraryMenu)
         menuCoordinator.addMenuHolder(orderMenu)
-    }
-
-    private fun initPingJob() {
-        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        val pingJobInfo = JobInfo.Builder(6, ComponentName(this, PingService::class.java))
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            .setPeriodic(HALF_HOUR)
-            .build()
-        jobScheduler.schedule(pingJobInfo)
     }
 
     private fun initPlayerService() {

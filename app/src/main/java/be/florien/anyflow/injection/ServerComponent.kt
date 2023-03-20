@@ -1,7 +1,8 @@
 package be.florien.anyflow.injection
 
-import be.florien.anyflow.data.PingService
+import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.SyncService
+import be.florien.anyflow.extension.MyAppGlideModule
 import be.florien.anyflow.feature.alarms.AlarmViewModel
 import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
@@ -21,18 +22,20 @@ import javax.inject.Named
 @Subcomponent(modules = [ServerModule::class])
 interface ServerComponent {
 
-    fun inject(userConnectViewModel: UserConnectViewModel)
+    fun inject(validator: AnyFlowApp.ServerValidator)
 
     fun inject(playerService: PlayerService)
     fun inject(syncService: SyncService)
-    fun inject(pingService: PingService)
 
+    fun inject(userConnectViewModel: UserConnectViewModel)
     fun inject(viewModel: AlarmViewModel)
     fun inject(viewModel: AddAlarmViewModel)
     fun inject(viewModel: AlarmListViewModel)
     fun inject(viewModel: EditAlarmViewModel)
     fun inject(viewModel: PlaylistSongsViewModel)
     fun inject(viewModel: PlaylistListViewModel)
+
+    fun inject(myAppGlideModule: MyAppGlideModule)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
     fun quickActionsComponentBuilder(): QuickActionsComponent.Builder

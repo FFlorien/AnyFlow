@@ -18,8 +18,13 @@ interface AmpacheAuthApi {
     ): AmpacheAuthentication
 
     @GET("server/json.server.php")
-    suspend fun ping(
+    suspend fun authenticatedPing(
         @Query("action") action: String = "ping",
         @Query("auth") auth: String
-    ): AmpachePing
+    ): AmpacheAuthenticatedStatus
+
+    @GET("server/json.server.php")
+    suspend fun ping(
+        @Query("action") action: String = "ping"
+    ): AmpacheStatus
 }

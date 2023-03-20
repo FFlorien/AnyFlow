@@ -3,13 +3,14 @@ package be.florien.anyflow.data.server
 import be.florien.anyflow.injection.ServerScope
 import retrofit2.Retrofit
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Manager for the ampache API server-side todo
  */
 @ServerScope
 open class AmpacheEditSource
-@Inject constructor(retrofit: Retrofit) {
+@Inject constructor(@Named("authenticated") retrofit: Retrofit) {
 
     private val ampacheEditApi = retrofit.create(AmpacheEditApi::class.java)
 

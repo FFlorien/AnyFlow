@@ -16,7 +16,13 @@ class AmpacheApiDisconnected : AmpacheAuthApi, AmpacheDataApi, AmpacheEditApi {
     ): AmpacheAuthentication =
         throw NoServerException()
 
-    override suspend fun ping(action: String, auth: String): AmpachePing =
+    override suspend fun authenticatedPing(
+        action: String,
+        auth: String
+    ): AmpacheAuthenticatedStatus  =
+        throw NoServerException()
+
+    override suspend fun ping(action: String): AmpacheStatus =
         throw NoServerException()
 
     override suspend fun getNewSongs(

@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Manager for the ampache API server-side
@@ -25,7 +26,7 @@ import javax.inject.Inject
 @ServerScope
 open class AmpacheDataSource
 @Inject constructor(
-    private val retrofit: Retrofit,
+    @Named("authenticated") private val retrofit: Retrofit,
     private val sharedPreferences: SharedPreferences
 ) {
     companion object {

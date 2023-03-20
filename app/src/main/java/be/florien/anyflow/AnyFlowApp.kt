@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
+import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.injection.ServerComponent
@@ -50,15 +51,29 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
     private fun initServerComponentIfReady() {
         val serverUrl = authPersistence.serverUrl
         if (serverUrl.hasSecret()) {
-            createUserScopeForServer(serverUrl.secret)
+            createServerComponent(serverUrl.secret)
         }
     }
 
-    override fun createUserScopeForServer(serverUrl: String) {
+    override suspend fun createServerComponentIfServerValid(serverUrl: String): Boolean {
+        createServerComponent(serverUrl)
+
+        val validator = ServerValidator()
+        serverComponent?.inject(validator)
+
+        return if (validator.isServerValid()) {
+            true
+        } else {
+            serverComponent = null
+            false
+        }
+    }
+
+    private fun createServerComponent(serverUrl: String) {
         serverComponent = applicationComponent
-                .serverComponentBuilder()
-                .ampacheUrl(serverUrl)
-                .build()
+            .serverComponentBuilder()
+            .ampacheUrl(serverUrl)
+            .build()
     }
 
     private fun createNotificationChannels() {
@@ -91,5 +106,12 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
         } else {
             throw UnsupportedOperationException("This method shouldn't be called from this api")
         }
+    }
+
+    class ServerValidator {
+        @Inject
+        lateinit var authRepository: AuthRepository
+
+        suspend fun isServerValid() = authRepository.ping()
     }
 }

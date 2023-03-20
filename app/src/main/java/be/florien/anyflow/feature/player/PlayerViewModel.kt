@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.*
+import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.server.AmpacheAuthSource
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
@@ -26,17 +27,18 @@ constructor(
     private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
-    val connectionStatus: LiveData<AmpacheAuthSource.ConnectionStatus>,
+    val connectionStatus: LiveData<AuthRepository.ConnectionStatus>,
     @Named("Songs")
-        val songsUpdatePercentage: LiveData<Int>,
+    val songsUpdatePercentage: LiveData<Int>,
     @Named("Genres")
-        val genresUpdatePercentage: LiveData<Int>,
+    val genresUpdatePercentage: LiveData<Int>,
     @Named("Albums")
-        val albumsUpdatePercentage: LiveData<Int>,
+    val albumsUpdatePercentage: LiveData<Int>,
     @Named("Artists")
-        val artistsUpdatePercentage: LiveData<Int>,
+    val artistsUpdatePercentage: LiveData<Int>,
     @Named("Playlists")
-        val playlistsUpdatePercentage: LiveData<Int>) : BaseViewModel(), PlayerControls.OnActionListener {
+    val playlistsUpdatePercentage: LiveData<Int>
+) : BaseViewModel(), PlayerControls.OnActionListener {
 
     internal val playerConnection: PlayerConnection = PlayerConnection()
     internal val updateConnection: UpdateConnection = UpdateConnection()
@@ -50,10 +52,13 @@ constructor(
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
 
     val currentDuration: LiveData<Int> = MediatorLiveData()
-    val totalDuration: LiveData<Int> = playingQueue.currentSong.map { ((it as SongInfo?)?.time ?: 0) * 1000 }
+    val totalDuration: LiveData<Int> =
+        playingQueue.currentSong.map { ((it as SongInfo?)?.time ?: 0) * 1000 }
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
-    val waveForm: LiveData<DoubleArray> = playingQueue.currentSong.switchMap { waveFormRepository.getComputedWaveForm(it.id) }.distinctUntilChanged()
+    val waveForm: LiveData<DoubleArray> =
+        playingQueue.currentSong.switchMap { waveFormRepository.getComputedWaveForm(it.id) }
+            .distinctUntilChanged()
 
     val isSeekable: LiveData<Boolean> = MutableLiveData(false)
 
@@ -63,7 +68,8 @@ constructor(
             (state as MediatorLiveData).removeSource(field.stateChangeNotifier)
             field = value
             currentDuration.addSource(field.playTimeNotifier) {
-                isBackKeyPreviousSong = it.toInt() < 10000 // todo differentiate previous and start from the playercontrol
+                // todo differentiate previous and start from the playercontrol
+                isBackKeyPreviousSong = it.toInt() < 10000
                 currentDuration.mutable.value = it.toInt()
             }
             state.addSource(field.stateChangeNotifier) {
@@ -104,7 +110,9 @@ constructor(
     }
 
     override fun onCurrentDurationChanged(newDuration: Long) {
-        if (player.isSeekable() && ((currentDuration.value?.minus(newDuration))?.absoluteValue ?: 0) > 1000) {
+        if (player.isSeekable() && ((currentDuration.value?.minus(newDuration))?.absoluteValue
+                ?: 0) > 1000
+        ) {
             player.seekTo(newDuration)
         }
     }

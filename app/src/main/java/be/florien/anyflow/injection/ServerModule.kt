@@ -1,18 +1,10 @@
 package be.florien.anyflow.injection
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.media.AudioManager
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.DownloadManager
-import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.AmpacheAuthSource
+import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.server.AmpacheDataSource
-import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
+import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.player.*
-import com.google.android.exoplayer2.upstream.cache.Cache
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -26,60 +18,43 @@ import javax.inject.Named
 @Module
 class ServerModule {
 
+    @ServerScope
+    @Provides
+    @Named("nonAuthenticated")
+    fun provideAuthOkHttp(): OkHttpClient =
+        OkHttpClient.Builder().build()
+
+    @ServerScope
+    @Provides
+    @Named("authenticated")
+    fun provideDataOkHttp(authenticationInterceptor: AuthenticationInterceptor): OkHttpClient =
+        OkHttpClient.Builder().addInterceptor(authenticationInterceptor).build()
+
     @Provides
     @ServerScope
-    fun providesRetrofit(
+    @Named("nonAuthenticated")
+    fun providesAuthRetrofit(
         @Named("serverUrl") serverUrl: String,
-        okHttpClient: OkHttpClient
+        @Named("nonAuthenticated") okHttpClient: OkHttpClient
     ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
         .addConverterFactory(JacksonConverterFactory.create()).build()
 
     @Provides
     @ServerScope
-    fun providePlayerController(
-        context: Context,
-        playingQueue: PlayingQueue,
-        ampacheAuthSource: AmpacheAuthSource,
-        ampacheDataSource: AmpacheDataSource,
-        filtersManager: FiltersManager,
-        audioManager: AudioManager,
-        downloadManager: DownloadManager,
-        alarmsSynchronizer: AlarmsSynchronizer,
-        cache: Cache,
-        okHttpClient: OkHttpClient
-    ): PlayerController = ExoPlayerController(
-        playingQueue,
-        ampacheAuthSource,
-        ampacheDataSource,
-        filtersManager,
-        audioManager,
-        downloadManager,
-        alarmsSynchronizer,
-        context,
-        cache,
-        okHttpClient
-    )
+    @Named("authenticated")
+    fun providesDataRetrofit(
+        @Named("serverUrl") serverUrl: String,
+        @Named("authenticated") okHttpClient: OkHttpClient
+    ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
+        .addConverterFactory(JacksonConverterFactory.create()).build()
 
     @Provides
-    fun provideAlarmsSynchronizer(
-        alarmManager: AlarmManager,
-        dataRepository: DataRepository,
-        @Named("player") playerIntent: PendingIntent,
-        @Named("alarm") alarmIntent: PendingIntent
-    ): AlarmsSynchronizer =
-        AlarmsSynchronizer(alarmManager, dataRepository, alarmIntent, playerIntent)
+    fun bindsPlayerController(exoPlayerController: ExoPlayerController): PlayerController =
+        exoPlayerController
 
     @Provides
-    fun provideConnectionStatus(connection: AmpacheAuthSource): LiveData<AmpacheAuthSource.ConnectionStatus> =
+    fun provideConnectionStatus(connection: AuthRepository): LiveData<AuthRepository.ConnectionStatus> =
         connection.connectionStatusUpdater
-
-    @Provides
-    @ServerScope
-    fun provideWaveFormRepository(
-        libraryDatabase: LibraryDatabase,
-        ampacheDataSource: AmpacheDataSource,
-        context: Context
-    ) = WaveFormRepository(libraryDatabase, ampacheDataSource, context)
 
     @Provides
     @Named("Songs")

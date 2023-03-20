@@ -14,11 +14,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.local.model.DbSongToPlay
-import be.florien.anyflow.data.server.AmpacheAuthSource
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
+import be.florien.anyflow.injection.ServerScope
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
@@ -31,11 +31,12 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import javax.inject.Named
 
+@ServerScope
 class ExoPlayerController
 @Inject constructor(
     private val playingQueue: PlayingQueue,
-    private val ampacheAuthSource: AmpacheAuthSource,
     private val ampacheDataSource: AmpacheDataSource,
     private val filtersManager: FiltersManager,
     private val audioManager: AudioManager,
@@ -43,7 +44,7 @@ class ExoPlayerController
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val context: Context,
     cache: Cache,
-    okHttpClient: OkHttpClient
+    @Named("authenticated") okHttpClient: OkHttpClient
 ) : PlayerController, Player.Listener {
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -237,6 +238,7 @@ class ExoPlayerController
         mediaPlayer.seekTo(duration)
     }
 
+    // todo here is a problem: service.onDestroy is call on configuration changes
     override fun onDestroy() {
         abandonAudioFocus()
         exoplayerScope.cancel()
@@ -257,18 +259,12 @@ class ExoPlayerController
 
     override fun onPlayerError(error: PlaybackException) {
 
-        suspend fun reconnect() {
-            ampacheAuthSource.reconnect {
-                exoplayerScope.launch(Dispatchers.Main) {
-                    val firstItem =
-                        dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.currentSong)
-                    val secondItem =
-                        dbSongToPlayToMediaItem(playingQueue.stateUpdater.value?.nextSong)
-                    mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
-                    mediaPlayer.seekTo(0, C.TIME_UNSET)
-                }
-                prepare()
-            }
+        fun resetItems() {
+            val firstItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+            val secondItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+            mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
+            mediaPlayer.seekTo(0, C.TIME_UNSET)
+            prepare()
         }
 
         if (error is ExoPlaybackException && error.type == ExoPlaybackException.TYPE_SOURCE && error.sourceException is UnrecognizedInputFormatException) {
@@ -277,9 +273,10 @@ class ExoPlayerController
             val songId = uri.getQueryParameter("id")?.toLongOrNull()
             if (songId != null) {
                 exoplayerScope.launch(Dispatchers.IO) {
-                    val ampacheError = ampacheDataSource.getStreamError(songId) //todo wow, this is ugly. Intercept and/or incorporate error in object as nullable ?
+                    //todo wow, this is ugly. Intercept response ?
+                    val ampacheError = ampacheDataSource.getStreamError(songId)
                     if (ampacheError.error.errorCode == 4701) {
-                        reconnect()
+                        resetItems()
                     }
                 }
             } else if (uri.scheme?.equals("content") == true) {
@@ -296,7 +293,7 @@ class ExoPlayerController
         ) {
             (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
             exoplayerScope.launch {
-                reconnect()
+                resetItems()
             }
         } else if (
             error is ExoPlaybackException
@@ -368,8 +365,8 @@ class ExoPlayerController
             mediaPlayer.clearMediaItems()
             mediaPlayer.setMediaItems(
                 listOfNotNull(
-                    dbSongToPlayToMediaItem(state.currentSong),
-                    dbSongToPlayToMediaItem(state.nextSong)
+                    dbSongToMediaItem(state.currentSong),
+                    dbSongToMediaItem(state.nextSong)
                 )
             )
             prepare()
@@ -380,7 +377,7 @@ class ExoPlayerController
         } else if (hasNextItemChanged) {
             mediaPlayer.removeMediaItem(1)
             if (state.nextSong != null) {
-                mediaPlayer.addMediaItem(dbSongToPlayToMediaItem(state.nextSong)!!)
+                mediaPlayer.addMediaItem(dbSongToMediaItem(state.nextSong)!!)
             }
         } else {
             if (state.intent == PlayingQueue.PlayingQueueIntent.START) resume()
@@ -388,7 +385,7 @@ class ExoPlayerController
         }
     }
 
-    private fun dbSongToPlayToMediaItem(song: DbSongToPlay?): MediaItem? {
+    private fun dbSongToMediaItem(song: DbSongToPlay?): MediaItem? {
         if (song == null) return null
         if (!song.local.isNullOrBlank()) {
             return MediaItem.Builder().setUri(song.local).setMediaId(song.id.toString()).build()

@@ -9,7 +9,6 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Environment
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
@@ -20,7 +19,6 @@ import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import dagger.Module
 import dagger.Provides
-import okhttp3.OkHttpClient
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -37,11 +35,6 @@ class ApplicationModule {
     @Provides
     fun providePreferences(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-
-    @Singleton
-    @Provides
-    fun provideOkHttp(authPersistence: AuthPersistence): OkHttpClient =
-        OkHttpClient.Builder().addInterceptor(AuthenticationInterceptor(authPersistence)).build()
 
     @Singleton
     @Provides

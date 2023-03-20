@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
-import be.florien.anyflow.data.server.AmpacheAuthSource
+import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.BaseViewModel
@@ -17,7 +17,7 @@ import javax.inject.Inject
 open class UserConnectViewModel : BaseViewModel() {
 
     @Inject
-    lateinit var ampacheAuthSource: AmpacheAuthSource
+    lateinit var authRepository: AuthRepository
 
     /**
      * Fields
@@ -39,7 +39,7 @@ open class UserConnectViewModel : BaseViewModel() {
         if (pwd?.isNotBlank() == true && user?.isNotBlank() == true) {
             viewModelScope.launch {
                 try {
-                    val it = ampacheAuthSource.authenticate(user, pwd)
+                    val it = authRepository.authenticate(user, pwd)
                     isLoading.mutable.value = false
                     when (it.error.errorCode) {
                         0 -> isConnected.mutable.value = true

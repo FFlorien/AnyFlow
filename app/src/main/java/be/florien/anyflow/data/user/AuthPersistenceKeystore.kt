@@ -63,7 +63,7 @@ class AuthPersistenceKeystore(
             get() {
                 var secretValue = field
                 if (secretValue.isBlank()) {
-                    secretValue = if (keyStore.containsAlias(alias) && isDataValid()) {
+                    secretValue = if (keyStore.containsAlias(alias)) {
                         decryptSecret()
                     } else {
                         ""

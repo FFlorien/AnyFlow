@@ -19,7 +19,6 @@ interface ApplicationComponent {
     fun inject(anyFlowApp: AnyFlowApp)
 
     fun inject(serverViewModel: ServerViewModel)
-    fun inject(myAppGlideModule: MyAppGlideModule)
 
     fun serverComponentBuilder(): ServerComponent.Builder
 

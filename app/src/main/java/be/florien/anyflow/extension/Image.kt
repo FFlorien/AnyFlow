@@ -23,11 +23,13 @@ import kotlinx.parcelize.Parcelize
 import okhttp3.OkHttpClient
 import java.io.InputStream
 import javax.inject.Inject
+import javax.inject.Named
 
 
 @GlideModule
 class MyAppGlideModule : AppGlideModule() {
     @Inject
+    @Named("authenticated")
     lateinit var okHttp: OkHttpClient
 
     override fun isManifestParsingEnabled() = false
@@ -35,8 +37,8 @@ class MyAppGlideModule : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         super.registerComponents(context, glide, registry)
 
-        val applicationComponent  = (context.applicationContext as AnyFlowApp).applicationComponent
-        applicationComponent.inject(this)
+        val serverComponent  = (context.applicationContext as AnyFlowApp).serverComponent
+        serverComponent?.inject(this)
         registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(okHttp))
     }
 }

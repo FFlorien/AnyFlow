@@ -8,23 +8,19 @@ import com.fasterxml.jackson.annotation.JsonInclude
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class AmpacheAuthentication {
-    var session_expire: String = ""
+class AmpacheAuthentication: AmpacheAuthenticatedStatus() {
     var auth: String = ""
-    var songs: Int = 0
-    var albums: Int = 0
-    var artists: Int = 0
-    var playlists: Int = 0
-    var update: String = ""
-    var add: String = ""
-    var clean: String = ""
-    var error: AmpacheError = AmpacheError()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class AmpachePing {
+open class AmpacheAuthenticatedStatus: AmpacheStatus() {
     var session_expire: String = ""
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+open class AmpacheStatus {
     var server: String = ""
     var version: String = ""
     var songs: Int = 0
