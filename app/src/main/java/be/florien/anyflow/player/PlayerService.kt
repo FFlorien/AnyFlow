@@ -37,7 +37,7 @@ class PlayerService : LifecycleService() {
      */
 
     private val iBinder = LocalBinder()
-    private val pendingIntent: PendingIntent by lazy { //todo inject ?
+    private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@PlayerService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }

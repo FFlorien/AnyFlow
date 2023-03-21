@@ -22,7 +22,7 @@ import javax.inject.Inject
 open class AuthRepository
 @Inject constructor(
     private val ampacheAuthSource: AmpacheAuthSource,
-    private var authPersistence: AuthPersistence,
+    private val authPersistence: AuthPersistence,
     private val sharedPreferences: SharedPreferences
 ) {
     companion object {

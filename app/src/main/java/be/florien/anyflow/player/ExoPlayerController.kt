@@ -260,11 +260,13 @@ class ExoPlayerController
     override fun onPlayerError(error: PlaybackException) {
 
         fun resetItems() {
-            val firstItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.currentSong)
-            val secondItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.nextSong)
-            mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
-            mediaPlayer.seekTo(0, C.TIME_UNSET)
-            prepare()
+            exoplayerScope.launch(Dispatchers.Main) {
+                val firstItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+                val secondItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+                mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
+                mediaPlayer.seekTo(0, C.TIME_UNSET)
+                prepare()
+            }
         }
 
         if (error is ExoPlaybackException && error.type == ExoPlaybackException.TYPE_SOURCE && error.sourceException is UnrecognizedInputFormatException) {

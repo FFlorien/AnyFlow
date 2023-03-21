@@ -137,8 +137,8 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getAlbums(
-                    filters,
-                    search
+                filters,
+                search
             ).map { mapping(it) })
 
     fun <T : Any> getAlbumArtists(
@@ -148,8 +148,8 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getAlbumArtists(
-                    filters,
-                    search
+                filters,
+                search
             ).map { mapping(it) })
 
     fun <T : Any> getArtists(
@@ -159,8 +159,8 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getArtists(
-                    filters,
-                    search
+                filters,
+                search
             ).map { mapping(it) })
 
     fun <T : Any> getGenres(
@@ -170,8 +170,8 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getGenresForQuery(
-                    filters,
-                    search
+                filters,
+                search
             ).map { mapping(it) })
 
     fun <T : Any> getSongs(
@@ -181,8 +181,8 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getSongsForQuery(
-                    filters,
-                    search
+                filters,
+                search
             ).map { mapping(it) })
 
     fun <T : Any> getPlaylists(
@@ -192,8 +192,8 @@ class DataRepository
     ): LiveData<PagingData<T>> =
         convertToPagingLiveData(
             libraryDatabase.getPlaylists(
-                    filters,
-                    search
+                filters,
+                search
             ).map { mapping(it) })
 
     fun getPlaylists(): LiveData<PagingData<Playlist>> =
@@ -202,7 +202,7 @@ class DataRepository
                 .map { it.toViewPlaylist(getPlaylistArtUrl(it.id)) })
 
     suspend fun getPlaylistsWithSongPresence(songId: Long): List<Long> =
-            libraryDatabase.getPlaylistsWithSongPresence(songId)
+        libraryDatabase.getPlaylistsWithSongPresence(songId)
 
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
@@ -216,8 +216,8 @@ class DataRepository
         mapping: (DbAlbumDisplayForRaw) -> T,
     ): List<T> =
         libraryDatabase.getAlbumsListForQuery(
-                filters,
-                search
+            filters,
+            search
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getAlbumArtistsSearchedList(
@@ -226,8 +226,8 @@ class DataRepository
         mapping: (DbArtist) -> T
     ): List<T> =
         libraryDatabase.getAlbumArtistsListForQuery(
-                filters,
-                search
+            filters,
+            search
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getArtistsSearchedList(
@@ -236,8 +236,8 @@ class DataRepository
         mapping: (DbArtist) -> T
     ): List<T> =
         libraryDatabase.getArtistsListForQuery(
-                filters,
-                search
+            filters,
+            search
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getGenresSearchedList(
@@ -246,8 +246,8 @@ class DataRepository
         mapping: (DbGenre) -> T
     ): List<T> =
         libraryDatabase.getGenresListForQuery(
-                filters,
-                search
+            filters,
+            search
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getSongsSearchedList(
@@ -256,8 +256,8 @@ class DataRepository
         mapping: (DbSongDisplay) -> T
     ): List<T> =
         libraryDatabase.getSongsListForQuery(
-                filters,
-                search
+            filters,
+            search
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getPlaylistsSearchedList(
@@ -266,11 +266,12 @@ class DataRepository
         mapping: (DbPlaylistWithCount) -> T
     ): List<T> =
         libraryDatabase.getPlaylistsSearchedList(
-                filters,
-                search
+            filters,
+            search
         ).map { item -> (mapping(item)) }
 
-    fun getSong(id: Long): LiveData<SongInfo> = libraryDatabase.getSong(id).map { it.toViewSongInfo() }
+    fun getSong(id: Long): LiveData<SongInfo> =
+        libraryDatabase.getSong(id).map { it.toViewSongInfo() }
 
     suspend fun getSongSync(id: Long): SongInfo = libraryDatabase.getSongSync(id).toViewSongInfo()
 
