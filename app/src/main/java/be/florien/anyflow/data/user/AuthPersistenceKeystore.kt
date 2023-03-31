@@ -74,6 +74,7 @@ class AuthPersistenceKeystore(
             }
             private set(value) {
                 encryptSecret(value, TimeOperations.getDateFromMillis(expiration).timeInMillis)
+                field = value
             }
         override var expiration: Long = 0L
             get() = preference.getLong(alias, field)

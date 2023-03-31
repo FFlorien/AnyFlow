@@ -19,9 +19,10 @@ class AuthenticationInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val nonAuthenticatedRequest = chain.request()
         val authToken = authPersistence.authToken
+        val hasAuthToken = authToken.hasSecret()
 
-        if (!authToken.hasSecret() || !authToken.isDataValid()) {
-            return if (isCurrentTokenValid()) {
+        if (!hasAuthToken || !authToken.isDataValid()) {
+            return if (hasAuthToken && isCurrentTokenExtended()) {
                 chain.proceedWithValidToken(authToken)
             } else {
                 synchronized(this) {
@@ -42,7 +43,7 @@ class AuthenticationInterceptor @Inject constructor(
         return chain.proceedWithValidToken(authToken)
     }
 
-    private fun isCurrentTokenValid(): Boolean {
+    private fun isCurrentTokenExtended(): Boolean {
         return try {
             val status = runBlocking { authRepository.get().authenticatedPing() }
             TimeOperations.getDateFromAmpacheComplete(status.session_expire) > TimeOperations.getCurrentDate()
