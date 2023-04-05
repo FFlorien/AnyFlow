@@ -5,8 +5,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
-import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.player.info.InfoActions
@@ -16,7 +16,7 @@ import be.florien.anyflow.player.OrderComposer
 class SongInfoActions(
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
-    private val dataRepository: DataRepository,
+    private val urlRepository: UrlRepository,
     private val sharedPreferences: SharedPreferences,
     private val downloadManager: DownloadManager
 ) : InfoActions<SongInfo>() {
@@ -91,7 +91,7 @@ class SongInfoActions(
      * Public methods
      */
 
-    fun getAlbumArtUrl(albumId: Long) = dataRepository.getAlbumArtUrl(albumId)
+    fun getAlbumArtUrl(albumId: Long) = urlRepository.getAlbumArtUrl(albumId)
 
     /**
      * Action methods

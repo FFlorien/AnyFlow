@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.player.FiltersManager
@@ -17,12 +18,14 @@ class SongInfoViewModel @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
+    urlRepository: UrlRepository,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : BaseSongViewModel(
     filtersManager,
     orderComposer,
     dataRepository,
+    urlRepository,
     sharedPreferences,
     downloadManager
 ) {

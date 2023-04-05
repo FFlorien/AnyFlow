@@ -1,6 +1,5 @@
 package be.florien.anyflow.player
 
-import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.Order.Companion.RANDOM_MULTIPLIER
@@ -16,7 +15,7 @@ import java.util.*
 import javax.inject.Inject
 
 @ServerScope
-class OrderComposer @Inject constructor(private val dataRepository: DataRepository) {
+class OrderComposer @Inject constructor(private val queueRepository: QueueRepository) {
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         eLog(throwable, "Received an exception in OrderComposer's scope")
     }
@@ -28,8 +27,8 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
     private var areFirstOrdersArrived = false
 
     init {
-        val ordersLiveData = dataRepository.getOrders()
-        val filtersLiveData = dataRepository.getCurrentFilters()
+        val ordersLiveData = queueRepository.getOrders()
+        val filtersLiveData = queueRepository.getCurrentFilters()
 
         ordersLiveData.observeForever {
             FirebaseCrashlytics.getInstance()
@@ -51,13 +50,14 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                     areFirstFiltersArrived = true
                     return@launch
                 }
-                val newOrders = if (areFirstFiltersArrived) { // todo this code is for avoiding current song at first position multiple time, but cause bug with play next
-                    currentOrders
-                        .filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
-                        .toMutableList()
-                } else {
-                    currentOrders.toMutableList()
-                }
+                val newOrders =
+                    if (areFirstFiltersArrived) { // todo this code is for avoiding current song at first position multiple time, but cause bug with play next
+                        currentOrders
+                            .filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
+                            .toMutableList()
+                    } else {
+                        currentOrders.toMutableList()
+                    }
                 areFirstFiltersArrived = true
 
                 if (newOrders.any { it.orderingType == Order.Ordering.RANDOM }) {
@@ -66,7 +66,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                 if (newOrders.containsAll(currentOrders) && currentOrders.containsAll(newOrders)) {
                     saveQueue(filterList, newOrders)
                 } else {
-                    dataRepository.setOrders(newOrders)
+                    queueRepository.setOrders(newOrders)
                 }
             }
         }
@@ -75,7 +75,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
     private suspend fun getCurrentSongPrecisePositionIfPresent(filterList: List<Filter<*>>): Order.Precise? {
         currentSong?.let { songInfo ->
             val isCurrentSongInNewFilters =
-                filterList.any { it.contains(songInfo, dataRepository) }
+                filterList.any { it.contains(songInfo, queueRepository) }
             if (isCurrentSongInNewFilters) {
                 return Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE)
             }
@@ -89,7 +89,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
         }
 
         val newOrders = currentOrders.toMutableList()
-        val songPosition = dataRepository.getPositionForSong(songId)
+        val songPosition = queueRepository.getPositionForSong(songId)
 
         val newPosition = if (songPosition != null && songPosition < currentPosition) {
             currentPosition
@@ -105,7 +105,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
             priority = lastPrecise?.priority?.plus(1) ?: Order.PRIORITY_PRECISE
         )
         newOrders.add(newPrecise)
-        dataRepository.setOrders(newOrders)
+        queueRepository.setOrders(newOrders)
 
     }
 
@@ -120,7 +120,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
         currentSong?.let { song ->
             orders.add(Order.Precise(0, song.id, Order.PRIORITY_PRECISE))
         }
-        dataRepository.setOrders(orders)
+        queueRepository.setOrders(orders)
     }
 
     suspend fun order() {
@@ -137,14 +137,14 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                 order
             )
         }
-        dataRepository.setOrders(dbOrders)
+        queueRepository.setOrders(dbOrders)
     }
 
     private fun saveQueue(filterList: List<Filter<*>>, orderList: List<Order>) {
         FirebaseCrashlytics.getInstance()
             .log("Order for saving queue order: ${orderList.joinToString { it.orderingSubject.name }}")
         coroutineScope.launch {
-            val queue = dataRepository.getOrderlessQueue(filterList, orderList)
+            val queue = queueRepository.getOrderlessQueue(filterList, orderList)
             val randomOrderingSeed = orderList
                 .firstOrNull { it.orderingType == Order.Ordering.RANDOM }
                 ?.argument
@@ -160,7 +160,7 @@ class OrderComposer @Inject constructor(private val dataRepository: DataReposito
                         listToSave.add(preciseOrder.argument, preciseOrder.subject)
                     } // todo else remove order from db
                 }
-            dataRepository.saveQueueOrder(listToSave)
+            queueRepository.saveQueueOrder(listToSave)
         }
     }
 }

@@ -1,7 +1,8 @@
 package be.florien.anyflow.data.view
 
 import android.os.Parcelable
-import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.SyncRepository
+import be.florien.anyflow.player.QueueRepository
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 import kotlin.time.Duration
@@ -14,14 +15,14 @@ data class Filter<T>(
     var children: List<Filter<*>> = emptyList()
 ) : Parcelable {
 
-    suspend fun contains(song: SongInfo, dataRepository: DataRepository): Boolean {
+    suspend fun contains(song: SongInfo, filterRepository: QueueRepository): Boolean {
         return when (this.type) {
             FilterType.ALBUM_ARTIST_IS -> song.albumArtistId == argument
             FilterType.ALBUM_IS -> song.albumId == argument
             FilterType.ARTIST_IS -> song.artistId == argument
             FilterType.GENRE_IS -> song.genreIds.any { it == argument }
             FilterType.SONG_IS -> song.id == argument
-            FilterType.PLAYLIST_IS -> dataRepository.isPlaylistContainingSong(
+            FilterType.PLAYLIST_IS -> filterRepository.isPlaylistContainingSong(
                 argument as Long,
                 song.id
             )
@@ -68,12 +69,12 @@ data class Filter<T>(
     }
 
     enum class FilterType(val artType: String?) {
-        SONG_IS(DataRepository.ART_TYPE_SONG),
-        ARTIST_IS(DataRepository.ART_TYPE_ARTIST),
-        ALBUM_ARTIST_IS(DataRepository.ART_TYPE_ARTIST),
-        ALBUM_IS(DataRepository.ART_TYPE_ALBUM),
+        SONG_IS(SyncRepository.ART_TYPE_SONG),
+        ARTIST_IS(SyncRepository.ART_TYPE_ARTIST),
+        ALBUM_ARTIST_IS(SyncRepository.ART_TYPE_ARTIST),
+        ALBUM_IS(SyncRepository.ART_TYPE_ALBUM),
         GENRE_IS(null),
-        PLAYLIST_IS(DataRepository.ART_TYPE_PLAYLIST),
+        PLAYLIST_IS(SyncRepository.ART_TYPE_PLAYLIST),
         DOWNLOADED_STATUS_IS(null)
     }
 }

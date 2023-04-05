@@ -17,7 +17,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @RawQuery(observedEntities = [DbSong::class])
-    abstract suspend fun rawQueryList(query: SupportSQLiteQuery): List<DbSongDisplay>
+    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbSongDisplay>
 
     // List of songs
 

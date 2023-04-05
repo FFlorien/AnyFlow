@@ -5,26 +5,28 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
+import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataRepository) : BaseViewModel(), NewPlaylistViewModel {
+class SelectPlaylistViewModel @Inject constructor(
+    private val playlistRepository: PlaylistRepository
+) : BaseViewModel(), NewPlaylistViewModel {
 
     private val currentSelection: MutableSet<Long> = mutableSetOf()
     val currentSelectionLive: LiveData<Set<Long>> = MutableLiveData(setOf())
 
-    val values: LiveData<PagingData<Playlist>> = dataRepository.getAllPlaylists().cachedIn(this)
+    val values: LiveData<PagingData<Playlist>> = playlistRepository.getAllPlaylists().cachedIn(this)
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
     suspend fun updateSelectionWithPlaylists(songId: Long) = withContext(Dispatchers.IO) {
-        currentSelection.addAll(dataRepository.getPlaylistsWithSongPresence(songId))
+        currentSelection.addAll(playlistRepository.getPlaylistsWithSongPresence(songId))
         withContext(Dispatchers.Main) {
             currentSelectionLive.mutable.value = currentSelection
         }
@@ -41,15 +43,15 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
 
     fun confirmChanges(songId: Long) {
         viewModelScope.launch {
-            val playlistWithSong = dataRepository.getPlaylistsWithSongPresence(songId)
+            val playlistWithSong = playlistRepository.getPlaylistsWithSongPresence(songId)
             for (playlistId in currentSelection) {
                 if (!playlistWithSong.contains(playlistId)) {
-                    dataRepository.addSongToPlaylist(songId, playlistId)
+                    playlistRepository.addSongToPlaylist(songId, playlistId)
                 }
             }
             for (playlistId in playlistWithSong) {
                 if (!currentSelection.contains(playlistId)) {
-                    dataRepository.removeSongFromPlaylist(songId, playlistId)
+                    playlistRepository.removeSongFromPlaylist(songId, playlistId)
                 }
             }
             isFinished.mutable.value = true
@@ -62,7 +64,7 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
 
     override fun createPlaylist(name: String) {
         viewModelScope.launch {
-            dataRepository.createPlaylist(name)
+            playlistRepository.createPlaylist(name)
         }
     }
 }

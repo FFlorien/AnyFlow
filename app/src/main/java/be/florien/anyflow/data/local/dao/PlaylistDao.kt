@@ -27,5 +27,5 @@ abstract class PlaylistDao : BaseDao<DbPlaylist>() {
     abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbPlaylistWithCount>
 
     @RawQuery(observedEntities = [DbPlaylist::class])
-    abstract suspend fun rawQueryList(query: SupportSQLiteQuery): List<DbPlaylistWithCount>
+    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbPlaylistWithCount>
 }

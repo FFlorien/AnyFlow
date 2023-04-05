@@ -14,5 +14,5 @@ abstract class AlbumDao : BaseDao<DbAlbum>() {
     abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbAlbumDisplayForRaw>
 
     @RawQuery(observedEntities = [DbAlbumDisplay::class])
-    abstract suspend fun rawQueryList(query: SupportSQLiteQuery): List<DbAlbumDisplayForRaw>
+    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbAlbumDisplayForRaw>
 }

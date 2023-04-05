@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.player.info.InfoActions
@@ -20,6 +21,7 @@ abstract class BaseSongViewModel(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     val dataRepository: DataRepository,
+    val urlRepository: UrlRepository,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : InfoViewModel<SongInfo>() {
@@ -50,7 +52,7 @@ abstract class BaseSongViewModel(
     override val infoActions = SongInfoActions(
         filtersManager,
         orderComposer,
-        dataRepository,
+        urlRepository,
         sharedPreferences,
         downloadManager
     )

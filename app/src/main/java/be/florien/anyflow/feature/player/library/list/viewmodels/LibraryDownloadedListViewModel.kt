@@ -5,14 +5,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.R
-import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.SyncRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
 import be.florien.anyflow.player.FiltersManager
 import javax.inject.Inject
 
 class LibraryDownloadedListViewModel @Inject constructor(
-    val dataRepository: DataRepository,
+    val dataRepository: SyncRepository,
     filtersManager: FiltersManager,
     context: Context
 ) : LibraryListViewModel(filtersManager) {

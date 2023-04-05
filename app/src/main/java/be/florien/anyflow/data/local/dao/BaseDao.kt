@@ -22,7 +22,7 @@ abstract class BaseDao<T> {
     abstract suspend fun delete(vararg items: T)
 
     @RawQuery
-    abstract suspend fun rawQuery(query: SupportSQLiteQuery): List<T>
+    abstract suspend fun rawQueryList(query: SupportSQLiteQuery): List<T>
 
     @Transaction
     open suspend fun upsert(obj: T) {

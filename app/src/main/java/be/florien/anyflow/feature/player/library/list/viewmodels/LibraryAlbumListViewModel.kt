@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.player.library.list.viewmodels
 
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.model.DbAlbumDisplayForRaw
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
@@ -11,6 +12,7 @@ import javax.inject.Inject
 
 class LibraryAlbumListViewModel @Inject constructor(
     val dataRepository: DataRepository,
+    val urlRepository: UrlRepository,
     filtersManager: FiltersManager
 ) : LibraryListViewModel(filtersManager) {
     override fun getPagingList(filters: List<Filter<*>>?, search: String?) =
@@ -37,7 +39,7 @@ class LibraryAlbumListViewModel @Inject constructor(
         )
 
     private fun convert(album: DbAlbumDisplayForRaw): FilterItem {
-        val artUrl = dataRepository.getAlbumArtUrl(album.albumId)
+        val artUrl = urlRepository.getAlbumArtUrl(album.albumId)
         val filter =
             getFilterInParent(
                 Filter(

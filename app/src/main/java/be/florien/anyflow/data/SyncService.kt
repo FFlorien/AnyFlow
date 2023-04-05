@@ -33,7 +33,7 @@ class SyncService
     private val serviceScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
     @Inject
-    lateinit var dataRepository: DataRepository
+    lateinit var syncRepository: SyncRepository
 
     @Inject
     @field:Named("Songs")
@@ -64,7 +64,7 @@ class SyncService
         (application as be.florien.anyflow.AnyFlowApp).serverComponent?.inject(this)
         serviceScope.launch {
             try {
-                dataRepository.syncAll()
+                syncRepository.syncAll()
             } catch (throwable: Throwable) {
                 when (throwable) {
                     is SessionExpiredException ->

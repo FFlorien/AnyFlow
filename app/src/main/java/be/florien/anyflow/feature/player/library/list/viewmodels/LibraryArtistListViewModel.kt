@@ -3,6 +3,7 @@ package be.florien.anyflow.feature.player.library.list.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.model.DbArtist
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 class LibraryArtistListViewModel @Inject constructor(
     val dataRepository: DataRepository,
+    val urlRepository: UrlRepository,
     filtersManager: FiltersManager
 ) : LibraryListViewModel(filtersManager) {
     override fun getPagingList(
@@ -38,7 +40,7 @@ class LibraryArtistListViewModel @Inject constructor(
     }
 
     private fun convert(artist: DbArtist): FilterItem {
-        val artUrl = dataRepository.getArtistArtUrl(artist.id)
+        val artUrl = urlRepository.getArtistArtUrl(artist.id)
         val filter = getFilterInParent(Filter(
             Filter.FilterType.ARTIST_IS,
             artist.id,

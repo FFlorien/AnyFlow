@@ -2,10 +2,11 @@ package be.florien.anyflow.feature.playlist.songs
 
 import androidx.lifecycle.*
 import androidx.paging.PagingData
-import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -13,7 +14,10 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     var playlistId: Long = -1
 
     @Inject
-    lateinit var dataRepository: DataRepository
+    lateinit var urlRepository: UrlRepository
+
+    @Inject
+    lateinit var playlistRepository: PlaylistRepository
 
     val selectionList: LiveData<List<Long>> = MutableLiveData(listOf())
     val hasSelection: LiveData<Boolean> = Transformations.map(selectionList) {
@@ -21,9 +25,9 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     }.distinctUntilChanged()
 
     val songList: LiveData<PagingData<SongInfo>>
-        get() = dataRepository.getPlaylistSongs(playlistId) { it.toViewSongInfo() }
+        get() = playlistRepository.getPlaylistSongs(playlistId) { it.toViewSongInfo() }
 
-    fun getCover(long: Long) = dataRepository.getAlbumArtUrl(long)
+    fun getCover(long: Long) = urlRepository.getAlbumArtUrl(long)
 
     fun isSelected(id: Long?) = selectionList.value?.contains(id) ?: false
 
@@ -41,7 +45,7 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     override fun removeSongs() {
         viewModelScope.launch {
             selectionList.value?.forEach {
-                dataRepository.removeSongFromPlaylist(it, playlistId)
+                playlistRepository.removeSongFromPlaylist(it, playlistId)
             }
             selectionList.mutable.value = mutableListOf()
         }

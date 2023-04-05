@@ -9,7 +9,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LifecycleService
 import androidx.media.session.MediaButtonReceiver
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.extension.stopForegroundAndKeepNotification
 import javax.inject.Inject
 
@@ -30,7 +30,7 @@ class PlayerService : LifecycleService() {
     internal lateinit var playingQueue: PlayingQueue
 
     @Inject
-    internal lateinit var dataRepository: DataRepository
+    internal lateinit var urlRepository: UrlRepository
 
     /**
      * Fields
@@ -73,7 +73,7 @@ class PlayerService : LifecycleService() {
             this,
             mediaSession,
             pendingIntent,
-            dataRepository
+            urlRepository
         )
     }
 

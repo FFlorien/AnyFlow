@@ -20,6 +20,8 @@ import javax.inject.Inject
 
 @ServerScope
 class DownloadManager @Inject constructor(
+    private val downloadRepository: DownloadRepository,
+    private val urlRepository: UrlRepository,
     private val dataRepository: DataRepository,
     context: Context
 ) {
@@ -54,7 +56,7 @@ class DownloadManager @Inject constructor(
         val liveData = MutableLiveData(0)
 
         downloadScope.launch(Dispatchers.IO) {
-            val songUrl = dataRepository.getSongUrl(songInfo.id)
+            val songUrl = urlRepository.getSongUrl(songInfo.id)
             URL(songUrl).openStream().use { iStream ->
                 contentResolver.openOutputStream(newSongUri)?.use { oStream ->
                     try {
@@ -69,7 +71,7 @@ class DownloadManager @Inject constructor(
                             }
                             bytes = iStream.read(buffer)
                         }
-                        dataRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
+                        downloadRepository.updateSongLocalUri(songInfo.id, newSongUri.toString())
                     } catch (exception: Exception) {
                         eLog(exception, "Could not download a song")
                         contentResolver.delete(newSongUri, null, null)
@@ -117,7 +119,7 @@ class DownloadManager @Inject constructor(
             return
         }
 
-        val songInfo = dataRepository.getSongSync(id)
+        val songInfo = downloadRepository.getSongSync(id)
         val local = songInfo.local
 
         if (local.isNullOrBlank()) {
@@ -125,6 +127,6 @@ class DownloadManager @Inject constructor(
         }
 
         contentResolver.delete(local.toUri(), null, null)
-        dataRepository.updateSongLocalUri(id, null)
+        downloadRepository.updateSongLocalUri(id, null)
     }
 }

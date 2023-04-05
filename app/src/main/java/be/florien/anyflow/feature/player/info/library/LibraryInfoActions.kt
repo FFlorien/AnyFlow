@@ -6,14 +6,18 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.info.InfoActions
+import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LibraryInfoActions @Inject constructor(
     private val dataRepository: DataRepository,
+    private val playlistRepository: PlaylistRepository,
+    private val urlRepository: UrlRepository,
     context: Context
 ) : InfoActions<Filter<*>?>() {
 
@@ -135,7 +139,7 @@ class LibraryInfoActions @Inject constructor(
                         DisplayData(it.name, it.id)
                     }
                 Filter.FilterType.PLAYLIST_IS ->
-                    dataRepository.getPlaylistsSearchedList(listOfNotNull(filter), "") {
+                    playlistRepository.getPlaylistsSearchedList(listOfNotNull(filter), "") {
                         DisplayData(it.name, it.id)
                     }
                 Filter.FilterType.DOWNLOADED_STATUS_IS -> listOf(null)
@@ -144,11 +148,11 @@ class LibraryInfoActions @Inject constructor(
 
         val url = if (count <= 1 && displayData != null) {
             when (filterType) {
-                Filter.FilterType.PLAYLIST_IS -> dataRepository.getPlaylistArtUrl(displayData.argument)
+                Filter.FilterType.PLAYLIST_IS -> urlRepository.getPlaylistArtUrl(displayData.argument)
                 Filter.FilterType.ALBUM_ARTIST_IS,
-                Filter.FilterType.ARTIST_IS -> dataRepository.getArtistArtUrl(displayData.argument)
-                Filter.FilterType.SONG_IS -> dataRepository.getSongUrl(displayData.argument)
-                Filter.FilterType.ALBUM_IS -> dataRepository.getAlbumArtUrl(displayData.argument)
+                Filter.FilterType.ARTIST_IS -> urlRepository.getArtistArtUrl(displayData.argument)
+                Filter.FilterType.SONG_IS -> urlRepository.getSongUrl(displayData.argument)
+                Filter.FilterType.ALBUM_IS -> urlRepository.getAlbumArtUrl(displayData.argument)
                 else -> null
             }
         } else {

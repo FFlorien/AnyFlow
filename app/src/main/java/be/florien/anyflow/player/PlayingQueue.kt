@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.view.Order
 import be.florien.anyflow.data.view.SongInfo
@@ -22,7 +21,7 @@ import javax.inject.Inject
 @ServerScope
 class PlayingQueue
 @Inject constructor(
-    private val dataRepository: DataRepository,
+    private val queueRepository: QueueRepository,
     private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {
@@ -58,7 +57,7 @@ class PlayingQueue
                     positionUpdater.value = field.position
                     orderComposer.currentPosition = field.position
                     sharedPreferences.applyPutInt(POSITION_PREF, field.position)
-                    val songAtPosition = dataRepository.getSongAtPosition(field.position)
+                    val songAtPosition = queueRepository.getSongAtPosition(field.position)
                     if (songAtPosition != this@PlayingQueue.currentSong.value) {
                         (this@PlayingQueue.currentSong as MutableLiveData).value = songAtPosition
                         orderComposer.currentSong = songAtPosition
@@ -80,11 +79,11 @@ class PlayingQueue
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
     val songDisplayListUpdater: LiveData<PagingData<SongInfo>> =
-        dataRepository.getSongsInQueueOrder().cachedIn(coroutineScope)
+        queueRepository.getSongsInQueueOrder().cachedIn(coroutineScope)
     private val songIdsListUpdater: LiveData<List<DbSongToPlay>> =
-        dataRepository.getIdsInQueueOrder()
+        queueRepository.getIdsInQueueOrder()
     val stateUpdater: LiveData<PlayingQueueState> = MutableLiveData()
-    val isOrderedUpdater: LiveData<Boolean> = dataRepository.getOrders()
+    val isOrderedUpdater: LiveData<Boolean> = queueRepository.getOrders()
         .map { orderList ->
             orderList.none { it.orderingType == Order.Ordering.RANDOM }
         }
@@ -96,12 +95,12 @@ class PlayingQueue
             val indexOf = if (currentSong.value == null) {
                 listPosition
             } else {
-                songToPlayList.indexOfFirst{ it.id == currentSong.value?.id }
+                songToPlayList.indexOfFirst { it.id == currentSong.value?.id }
             }
             listPosition = if (indexOf >= 0) indexOf else 0
         }
         coroutineScope.launch(Dispatchers.IO) {
-            queueSize = dataRepository.getQueueSize() ?: 0
+            queueSize = queueRepository.getQueueSize() ?: 0
         }
     }
 

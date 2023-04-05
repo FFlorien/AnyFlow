@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.player.library.filters
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.library.LibraryViewModel
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class DisplayFilterViewModel @Inject constructor(
     override val filtersManager: FiltersManager,
-    val dataRepository: DataRepository
+    val urlRepository: UrlRepository
 ) : BaseViewModel(), LibraryViewModel {
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 
@@ -32,5 +32,5 @@ class DisplayFilterViewModel @Inject constructor(
     }
 
     fun getUrlForImage(imageType: String, id: Long): String =
-        dataRepository.getArtUrl(imageType, id)
+        urlRepository.getArtUrl(imageType, id)
 }

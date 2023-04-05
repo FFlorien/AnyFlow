@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
+import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.info.InfoActions
@@ -32,12 +33,13 @@ class SongListViewModel
     orderComposer: OrderComposer,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager,
+    urlRepository: UrlRepository,
     private val playingQueue: PlayingQueue,
-    private val dataRepository: DataRepository,
+    private val dataRepository: DataRepository
 ) : BaseViewModel() {
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
-    private val songInfoActions = SongInfoActions(filtersManager, orderComposer, dataRepository, sharedPreferences, downloadManager)
+    private val songInfoActions = SongInfoActions(filtersManager, orderComposer, urlRepository, sharedPreferences, downloadManager)
     val pagedAudioQueue: LiveData<PagingData<SongInfo>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<SongInfo> = playingQueue.currentSong
 
