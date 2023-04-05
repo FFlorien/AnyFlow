@@ -17,7 +17,7 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     lateinit var dataRepository: DataRepository
 
     val playlistList: LiveData<PagingData<Playlist>> by lazy {
-        dataRepository.getPlaylists().cachedIn(this)
+        dataRepository.getAllPlaylists().cachedIn(this)
     }
     val selection: LiveData<List<Long>> = MutableLiveData(mutableListOf())
     private var isForcingSelectMode = false

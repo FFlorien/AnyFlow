@@ -55,7 +55,7 @@ class WaveFormRepository @Inject constructor(
         }
 
         private suspend fun fetchDataLocally() = withContext(Dispatchers.IO) {
-            computedBarList = libraryDatabase.getWaveForm(songId)
+            computedBarList = libraryDatabase.getSongDao().getWaveForm(songId).downSamplesArray
             updateLiveData()
         }
 
@@ -91,7 +91,7 @@ class WaveFormRepository @Inject constructor(
         }
 
         private suspend fun ratioValues(array: DoubleArray) = withContext(Dispatchers.Default) {
-            val duration = libraryDatabase.getSongDuration(songId)
+            val duration = libraryDatabase.getSongDao().getSongDuration(songId)
             val durationMs = duration * 1000
             val numberOfBars = durationMs / BAR_DURATION_MS
             val ratio = array.size.toDouble() / numberOfBars
@@ -112,7 +112,9 @@ class WaveFormRepository @Inject constructor(
 
         suspend fun save() {
             withContext(Dispatchers.IO) {
-                libraryDatabase.updateWaveForm(songId, computedBarList)
+                val stringify =
+                    computedBarList.takeIf { it.isNotEmpty() }?.joinToString(separator = "|") { "%.3f".format(it) }
+                libraryDatabase.getSongDao().updateWithNewWaveForm(songId, stringify)
             }
         }
 

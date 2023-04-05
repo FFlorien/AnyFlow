@@ -19,7 +19,7 @@ class SelectPlaylistViewModel @Inject constructor(val dataRepository: DataReposi
     private val currentSelection: MutableSet<Long> = mutableSetOf()
     val currentSelectionLive: LiveData<Set<Long>> = MutableLiveData(setOf())
 
-    val values: LiveData<PagingData<Playlist>> = dataRepository.getPlaylists().cachedIn(this)
+    val values: LiveData<PagingData<Playlist>> = dataRepository.getAllPlaylists().cachedIn(this)
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
