@@ -36,6 +36,8 @@ fun AmpacheSongId.toDbSongId() = DbSongId(id)
 fun AmpacheArtist.toDbArtist() = DbArtist(
     id = id,
     name = name,
+    prefix = prefix,
+    basename = basename,
     summary = summary
 )
 
@@ -47,6 +49,8 @@ fun AmpacheNameId.toDbGenre() = DbGenre(
 fun AmpacheAlbum.toDbAlbum() = DbAlbum(
     id = id,
     name = name,
+    prefix = prefix,
+    basename = basename,
     artistId = artist.id,
     year = year,
     diskcount = diskcount
@@ -142,15 +146,6 @@ fun DbFilterCount.toViewFilterCount() = FilterCount(
     artists = artists,
     songs = songs,
     playlists = playlists
-)
-
-/**
- * View to database
- */
-
-fun SongInfo.toDbSongToPlay() = DbSongToPlay(
-    id = id,
-    local = local
 )
 
 fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(

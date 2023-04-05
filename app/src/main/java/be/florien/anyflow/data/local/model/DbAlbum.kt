@@ -18,6 +18,8 @@ data class DbAlbum(
     val name: String,
     @ColumnInfo(index = true)
     val artistId: Long,
+    var prefix: String?,
+    var basename: String,
     val year: Int,
     val diskcount: Int
 )

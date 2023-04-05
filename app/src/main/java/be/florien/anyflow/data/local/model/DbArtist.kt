@@ -11,4 +11,6 @@ data class DbArtist(
         @field:PrimaryKey
         val id: Long,
         val name: String,
+        var prefix: String?,
+        var basename: String,
         val summary: String?)

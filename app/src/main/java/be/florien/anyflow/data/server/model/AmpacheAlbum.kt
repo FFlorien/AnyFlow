@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 class AmpacheAlbum {
     var id: Long = 0
     var name: String = ""
+    var prefix: String? = null
+    var basename: String = ""
     var artist: AmpacheNameId = AmpacheNameId()
     var year: Int = 0
     var diskcount: Int = 0

@@ -31,9 +31,9 @@ class QueryComposer {
                 filteredOrderedList.forEachIndexed { index, order ->
                     orderStatement += when (order.orderingSubject) {
                         Order.Subject.ALL -> " song.id"
-                        Order.Subject.ARTIST -> " artist.name"
-                        Order.Subject.ALBUM_ARTIST -> " albumArtist.name"
-                        Order.Subject.ALBUM -> " album.name"
+                        Order.Subject.ARTIST -> " artist.basename"
+                        Order.Subject.ALBUM_ARTIST -> " albumArtist.basename"
+                        Order.Subject.ALBUM -> " album.basename"
                         Order.Subject.ALBUM_ID -> " song.albumId"
                         Order.Subject.YEAR -> " song.year"
                         Order.Subject.GENRE -> " song.genre"
@@ -72,24 +72,24 @@ class QueryComposer {
             "SELECT DISTINCT album.id AS albumId, album.name AS albumName, album.artistId AS albumArtistId, album.year,album.diskcount, artist.name AS albumArtistName, artist.summary FROM album JOIN artist ON album.artistid = artist.id JOIN song ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " album.name LIKE ?", search) +
-                    " ORDER BY album.name COLLATE UNICODE",
+                    " ORDER BY album.basename COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") }
         )
 
     fun getQueryForAlbumArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
+            "SELECT DISTINCT artist.id, artist.name, artist.prefix, artist.basename, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " artist.name LIKE ?", search) +
-                    " ORDER BY artist.name COLLATE UNICODE",
+                    " ORDER BY artist.basename COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
     fun getQueryForArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT artist.id, artist.name, artist.summary FROM artist JOIN song ON song.artistId = artist.id" +
+            "SELECT DISTINCT artist.id, artist.name, artist.prefix, artist.basename, artist.summary FROM artist JOIN song ON song.artistId = artist.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " artist.name LIKE ?", search) +
-                    " ORDER BY artist.name COLLATE UNICODE",
+                    " ORDER BY artist.basename COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
 
@@ -133,7 +133,6 @@ class QueryComposer {
                 constructJoinStatement(filterList) +
                 constructWhereStatement(filterList, "")
     )
-
 
     private fun constructJoinStatement(
         filterList: List<Filter<*>>?,

@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 class AmpacheArtist {
     var id: Long = 0
     var name: String = ""
+    var prefix: String? = null
+    var basename: String = ""
     var summary: String? = null
 }
 

@@ -8,7 +8,6 @@ import androidx.paging.DataSource
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import androidx.room.withTransaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -23,7 +22,7 @@ import java.util.concurrent.Executors
 
 
 @Database(
-    version = 6,
+    version = 1,
     entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class],
     exportSchema = false //todo ?
 )
@@ -361,22 +360,6 @@ abstract class LibraryDatabase : RoomDatabase() {
                         val currentFilterGroup = DbFilterGroup.currentFilterGroup
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
                     }
-                })
-                .addMigrations(Migration(1, 2) { db ->
-                    db.execSQL("ALTER TABLE PlaylistSongs ADD COLUMN 'order' INTEGER NOT NULL DEFAULT 0")
-                })
-                .addMigrations(Migration(2, 3) { db ->
-                    db.execSQL("ALTER TABLE Song ADD COLUMN downSamples TEXT NOT NULL DEFAULT \"\"")
-                })
-                .addMigrations(Migration(3, 4) { db ->
-                    db.execSQL("ALTER TABLE Song RENAME COLUMN downSamples TO bars")
-                })
-                .addMigrations(Migration(4, 5) { db ->
-                    db.execSQL("ALTER TABLE DbFilter ADD COLUMN parentFilter INTEGER DEFAULT NULL")
-                })
-                .addMigrations(Migration(5, 6) { db ->
-                    db.execSQL("ALTER TABLE Song RENAME COLUMN bars TO waveForm")
-                    db.execSQL("ALTER TABLE Song ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
                 })
                 .build()
         }
