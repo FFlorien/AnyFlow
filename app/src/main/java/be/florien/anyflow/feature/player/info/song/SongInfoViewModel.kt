@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.player.FiltersManager
 import be.florien.anyflow.player.OrderComposer
@@ -48,33 +47,11 @@ class SongInfoViewModel @Inject constructor(
                 SongInfoActions.SongActionType.AddNext -> infoActions.playNext(song.id)
                 SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
                 SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(song, row)
-                SongInfoActions.SongActionType.Search -> searchTerm.mutable.value =
-                    infoActions.getSearchTerms(song, fieldType)
+                SongInfoActions.SongActionType.Search ->
+                    searchTerm.mutable.value = infoActions.getSearchTerms(song, fieldType)
                 SongInfoActions.SongActionType.Download -> {
-                    when (fieldType) { //todo playlist when displayed in info!
-                        SongInfoActions.SongFieldType.Title -> infoActions.download(song)
-                        SongInfoActions.SongFieldType.Album -> infoActions.batchDownload(
-                            song.albumId,
-                            Filter.FilterType.ALBUM_IS
-                        )
-                        SongInfoActions.SongFieldType.AlbumArtist -> infoActions.batchDownload(
-                            song.albumArtistId,
-                            Filter.FilterType.ALBUM_ARTIST_IS
-                        )
-                        SongInfoActions.SongFieldType.Artist -> infoActions.batchDownload(
-                            song.artistId,
-                            Filter.FilterType.ARTIST_IS
-                        )
-                        SongInfoActions.SongFieldType.Genre -> {
-                            val index  = (row as SongInfoActions.SongMultipleInfoRow).index
-                            infoActions.batchDownload(
-                                song.genreIds[index],
-                                Filter.FilterType.GENRE_IS
-                            )
-                        }
-                        else -> return@launch
-                    }
-                    updateRows()
+                    val index = (row as? SongInfoActions.SongMultipleInfoRow)?.index
+                    infoActions.queueDownload(song, fieldType, index)
                 }
                 else -> return@launch
             }

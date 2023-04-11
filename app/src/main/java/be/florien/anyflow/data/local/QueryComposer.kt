@@ -69,7 +69,16 @@ class QueryComposer {
 
     fun getQueryForAlbumFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT album.id AS albumId, album.name AS albumName, album.artistId AS albumArtistId, album.year,album.diskcount, artist.name AS albumArtistName, artist.summary FROM album JOIN artist ON album.artistid = artist.id JOIN song ON song.albumId = album.id" +
+            "SELECT " +
+                    "DISTINCT album.id AS albumId, " +
+                    "album.name AS albumName, " +
+                    "album.artistId AS albumArtistId, " +
+                    "album.year,album.diskcount, " +
+                    "artist.name AS albumArtistName, " +
+                    "artist.summary " +
+                    "FROM album " +
+                    "JOIN artist ON album.artistid = artist.id " +
+                    "JOIN song ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " album.name LIKE ?", search) +
                     " ORDER BY album.basename COLLATE UNICODE",
@@ -78,7 +87,15 @@ class QueryComposer {
 
     fun getQueryForAlbumArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT artist.id, artist.name, artist.prefix, artist.basename, artist.summary FROM artist JOIN album ON album.artistId = artist.id JOIN song ON song.albumId = album.id" +
+            "SELECT " +
+                    "DISTINCT artist.id, " +
+                    "artist.name, " +
+                    "artist.prefix, " +
+                    "artist.basename, " +
+                    "artist.summary " +
+                    "FROM artist " +
+                    "JOIN album ON album.artistId = artist.id " +
+                    "JOIN song ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " artist.name LIKE ?", search) +
                     " ORDER BY artist.basename COLLATE UNICODE",
@@ -86,7 +103,14 @@ class QueryComposer {
 
     fun getQueryForArtistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT artist.id, artist.name, artist.prefix, artist.basename, artist.summary FROM artist JOIN song ON song.artistId = artist.id" +
+            "SELECT " +
+                    "DISTINCT artist.id, " +
+                    "artist.name, " +
+                    "artist.prefix, " +
+                    "artist.basename, " +
+                    "artist.summary " +
+                    "FROM artist " +
+                    "JOIN song ON song.artistId = artist.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " artist.name LIKE ?", search) +
                     " ORDER BY artist.basename COLLATE UNICODE",
@@ -95,7 +119,12 @@ class QueryComposer {
 
     fun getQueryForGenreFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT genre.id, genre.name FROM genre JOIN songgenre ON genre.id = songgenre.genreid JOIN song ON song.id = songgenre.songid " +
+            "SELECT " +
+                    "DISTINCT genre.id, " +
+                    "genre.name " +
+                    "FROM genre " +
+                    "JOIN songgenre ON genre.id = songgenre.genreid " +
+                    "JOIN song ON song.id = songgenre.songid " +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " genre.name LIKE ?", search) +
                     " ORDER BY genre.name COLLATE UNICODE",
@@ -103,7 +132,20 @@ class QueryComposer {
 
     fun getQueryForSongFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.local, song.waveForm, song.size FROM song" +
+            "SELECT DISTINCT " +
+                    "song.id, " +
+                    "song.title, " +
+                    "song.artistId, " +
+                    "song.albumId, " +
+                    "song.track, " +
+                    "song.disk, " +
+                    "song.time, " +
+                    "song.year, " +
+                    "song.composer, " +
+                    "song.local, " +
+                    "song.waveForm, " +
+                    "song.size " +
+                    "FROM song" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " song.title LIKE ?", search) +
                     " ORDER BY song.title COLLATE UNICODE",
@@ -111,7 +153,13 @@ class QueryComposer {
 
     fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT playlist.id, playlist.name, (SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount FROM playlist LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id LEFT JOIN song ON playlistsongs.songId = song.id" +
+            "SELECT " +
+                    "DISTINCT playlist.id, " +
+                    "playlist.name, " +
+                    "(SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
+                    "FROM playlist " +
+                    "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
+                    "LEFT JOIN song ON playlistsongs.songId = song.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
                     " ORDER BY playlist.name COLLATE UNICODE",
@@ -132,6 +180,25 @@ class QueryComposer {
                 "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
                 constructJoinStatement(filterList) +
                 constructWhereStatement(filterList, "")
+    )
+
+    fun getQueryForDownload(filterList: List<Filter<*>>?) = SimpleSQLiteQuery(
+        "INSERT INTO Download (songId) SELECT Song.id FROM Song"
+                + constructJoinStatement(filterList)
+                + constructWhereStatement(filterList, "")
+                + " AND Song.local IS NULL "
+                + "AND Song.id NOT IN (SELECT Download.songId FROM Download)"
+    )
+
+    fun getQueryForDownloadProgress(filterList: List<Filter<*>>?) = SimpleSQLiteQuery(
+        "SELECT " +
+                "COUNT(DISTINCT Song.id) as total, " +
+                "COUNT(DISTINCT download.songId) as queued, " +
+                "COUNT(DISTINCT song.local) AS downloaded " +
+                "FROM song " +
+                "LEFT JOIN download ON song.id = download.songId"
+                + constructJoinStatement(filterList)
+                + constructWhereStatement(filterList, "")
     )
 
     private fun constructJoinStatement(

@@ -11,7 +11,21 @@ import be.florien.anyflow.data.local.model.*
 
 @Database(
     version = 1,
-    entities = [DbAlbum::class, DbArtist::class, DbPlaylist::class, DbQueueOrder::class, DbSong::class, DbGenre::class, DbSongGenre::class, DbFilter::class, DbFilterGroup::class, DbOrder::class, DbPlaylistSongs::class, DbAlarm::class],
+    entities = [
+        DbAlbum::class,
+        DbArtist::class,
+        DbPlaylist::class,
+        DbQueueOrder::class,
+        DbSong::class,
+        DbGenre::class,
+        DbSongGenre::class,
+        DbFilter::class,
+        DbFilterGroup::class,
+        DbOrder::class,
+        DbPlaylistSongs::class,
+        DbAlarm::class,
+        DbDownload::class
+    ],
     exportSchema = false //todo ?
 )
 abstract class LibraryDatabase : RoomDatabase() {
@@ -28,6 +42,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     abstract fun getFilterGroupDao(): FilterGroupDao
     abstract fun getOrderDao(): OrderDao
     abstract fun getAlarmDao(): AlarmDao
+    abstract fun getDownloadDao(): DownloadDao
 
     companion object {
 

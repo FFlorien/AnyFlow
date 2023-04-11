@@ -3,10 +3,7 @@ package be.florien.anyflow.feature.player.songlist
 import android.content.SharedPreferences
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
@@ -43,7 +40,7 @@ class SongListViewModel
     val pagedAudioQueue: LiveData<PagingData<SongInfo>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<SongInfo> = playingQueue.currentSong
 
-    val listPosition: LiveData<Int> = playingQueue.positionUpdater
+    val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
     val searchResults: MutableLiveData<LiveData<List<Long>>?> = MutableLiveData()
@@ -140,7 +137,7 @@ class SongListViewModel
                 SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songInfo.id)
               // todo selector for multiple values (genre && playlists)  SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, fieldType)
                 SongInfoActions.SongActionType.Search -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
-                SongInfoActions.SongActionType.Download -> songInfoActions.download(songInfo)
+                SongInfoActions.SongActionType.Download -> songInfoActions.queueDownload(songInfo, fieldType, null) // todo right index
                 else -> return@launch
             }
         }

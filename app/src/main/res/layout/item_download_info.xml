@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
-
-        <import type="android.view.View" />
-
-        <variable
-            name="imageConfig"
-            type="be.florien.anyflow.extension.ImageConfig" />
-
-        <variable
-            name="display"
-            type="be.florien.anyflow.feature.player.info.song.SongInfoActions.SongDownloadInfoRow" />
-
-        <variable
-            name="descriptionText"
-            type="String" />
-    </data>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,14 +13,11 @@
         <ProgressBar
             android:id="@+id/progress"
             style="@android:style/Widget.ProgressBar.Horizontal"
-            isVisiblePresent="@{display.progress != 0 &amp;&amp; display.progress != 100}"
             android:layout_width="match_parent"
             android:layout_height="@dimen/smallDimen"
             android:layout_marginHorizontal="@dimen/smallDimen"
             android:layout_marginBottom="@dimen/smallDimen"
             android:indeterminate="false"
-            android:max="100"
-            android:progress="@{display.progress}"
             android:progressDrawable="@drawable/bg_progress_bar" />
 
     </LinearLayout>

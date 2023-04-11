@@ -130,7 +130,7 @@ class SongInfoFragment(
         override fun getItemViewType(position: Int): Int {
             return when (getItem(position)) {
                 is SongInfoActions.QuickActionInfoRow -> ITEM_VIEW_TYPE_QUICK_ACTION
-                is SongInfoActions.SongDownloadInfoRow -> ITEM_VIEW_TYPE_DOWNLOAD
+                is SongInfoActions.SongDownload -> ITEM_VIEW_TYPE_DOWNLOAD
                 else -> ITEM_VIEW_TYPE_DEFAULT
             }
         }
@@ -180,8 +180,15 @@ class SongInfoFragment(
 
         override fun bindChangedData(row: InfoActions.InfoRow) {
             super.bindChangedData(row)
-            if (row is SongInfoActions.SongDownloadInfoRow) {
-                parentBinding.display = row
+            if (row is SongInfoActions.SongDownload) {
+                parent.findViewTreeLifecycleOwner()?.let {
+                    row.progress.observe(it) { progress ->
+                        parentBinding.progress.max = progress.total
+                        parentBinding.progress.progress = progress.downloaded
+                        parentBinding.progress.secondaryProgress =
+                            progress.downloaded + progress.queued
+                    }
+                }
             }
         }
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.UrlRepository
+import be.florien.anyflow.data.local.model.DownloadProgressState
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.player.info.InfoActions
@@ -33,7 +34,12 @@ class SongInfoActions(
             getSongAction(infoSource, SongFieldType.Album, SongActionType.ExpandableTitle),
             getSongAction(infoSource, SongFieldType.AlbumArtist, SongActionType.ExpandableTitle),
             *List(infoSource.genreNames.size) { index ->
-                getSongAction(infoSource, SongFieldType.Genre, SongActionType.ExpandableTitle, index = index)
+                getSongAction(
+                    infoSource,
+                    SongFieldType.Genre,
+                    SongActionType.ExpandableTitle,
+                    index = index
+                )
             }.toTypedArray(),
             getSongAction(infoSource, SongFieldType.Duration, SongActionType.InfoTitle),
             getSongAction(infoSource, SongFieldType.Year, SongActionType.InfoTitle)
@@ -120,7 +126,7 @@ class SongInfoActions(
                 songInfo.albumArtistName
             )
             SongFieldType.Genre -> {
-                val index  = (row as SongMultipleInfoRow).index
+                val index = (row as SongMultipleInfoRow).index
                 Filter(
                     Filter.FilterType.GENRE_IS,
                     songInfo.genreIds[index],
@@ -146,10 +152,23 @@ class SongInfoActions(
         }
     }
 
-    fun download(songInfo: SongInfo) = downloadManager.download(songInfo)
-
-    fun batchDownload(batchId: Long, type: Filter.FilterType) =
-        downloadManager.batchDownload(batchId, type)
+    fun queueDownload(songInfo: SongInfo, fieldType: SongFieldType, index: Int?) {
+        val data = when (fieldType) { //todo playlist when displayed in info!
+            SongFieldType.Title -> Pair(songInfo.id, Filter.FilterType.SONG_IS)
+            SongFieldType.Artist -> Pair(songInfo.artistId, Filter.FilterType.ARTIST_IS)
+            SongFieldType.Album -> Pair(songInfo.albumId, Filter.FilterType.ALBUM_IS)
+            SongFieldType.AlbumArtist -> Pair(
+                songInfo.albumArtistId,
+                Filter.FilterType.ALBUM_ARTIST_IS
+            )
+            SongFieldType.Genre -> {
+                val trueIndex = index ?: return
+                Pair(songInfo.genreIds[trueIndex], Filter.FilterType.GENRE_IS)
+            }
+            else -> return
+        }
+        downloadManager.queueDownload(data.first, data.second)
+    }
 
     /**
      * Quick actions
@@ -249,17 +268,15 @@ class SongInfoActions(
                     SongActionType.ExpandableTitle,
                     order = order
                 )
-                SongFieldType.Genre -> {
-                    getInfoRow(
-                        R.string.info_genre,
-                        songInfo.genreNames[index],
-                        null,
-                        SongFieldType.Genre,
-                        SongActionType.ExpandableTitle,
-                        order = order,
-                        index = index
-                    )
-                }
+                SongFieldType.Genre -> getInfoRow(
+                    R.string.info_genre,
+                    songInfo.genreNames[index],
+                    null,
+                    SongFieldType.Genre,
+                    SongActionType.ExpandableTitle,
+                    order = order,
+                    index = index
+                )
                 else -> null
             }
             SongActionType.InfoTitle -> when (field) {
@@ -296,7 +313,10 @@ class SongInfoActions(
                 SongFieldType.Title,
                 SongActionType.None,
                 order = order
-            ) else null
+            ) else null //todo Change to Delete from local behaviour
+            // if not present -> download
+            // if partially present (and not song) -> both actions (download & delete)
+            // if complete -> delete from local
             SongActionType.AddToFilter -> when (field) {
                 SongFieldType.Title -> getInfoRow(
                     R.string.info_action_filter_title,
@@ -400,7 +420,10 @@ class SongInfoActions(
                     SongFieldType.Title,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(songInfo)
+                    progress = downloadManager.getDownloadState(
+                        songInfo.id,
+                        Filter.FilterType.SONG_IS
+                    )
                 )
                 SongFieldType.Album -> getInfoRow(
                     R.string.info_action_download,
@@ -409,7 +432,10 @@ class SongInfoActions(
                     SongFieldType.Album,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(songInfo)//todo
+                    progress = downloadManager.getDownloadState(
+                        songInfo.albumId,
+                        Filter.FilterType.ALBUM_IS
+                    )
                 )
                 SongFieldType.AlbumArtist -> getInfoRow(
                     R.string.info_action_download,
@@ -418,7 +444,10 @@ class SongInfoActions(
                     SongFieldType.AlbumArtist,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(songInfo)//todo
+                    progress = downloadManager.getDownloadState(
+                        songInfo.albumArtistId,
+                        Filter.FilterType.ALBUM_ARTIST_IS
+                    )
                 )
                 SongFieldType.Artist -> getInfoRow(
                     R.string.info_action_download,
@@ -427,7 +456,10 @@ class SongInfoActions(
                     SongFieldType.Artist,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(songInfo)//todo
+                    progress = downloadManager.getDownloadState(
+                        songInfo.artistId,
+                        Filter.FilterType.ARTIST_IS
+                    )
                 )
                 SongFieldType.Genre -> getInfoRow(
                     R.string.info_action_download,
@@ -436,8 +468,11 @@ class SongInfoActions(
                     SongFieldType.Genre,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(songInfo),//todo
-                            index = index
+                    progress = downloadManager.getDownloadState(
+                        songInfo.genreIds[index],
+                        Filter.FilterType.GENRE_IS
+                    ),
+                    index = index
                 )
                 else -> null
             }
@@ -450,11 +485,13 @@ class SongInfoActions(
         textRes: Int?,
         fieldType: FieldType,
         actionType: ActionType,
-        progress: LiveData<Int>? = null,
+        progress: LiveData<DownloadProgressState>? = null,
         order: Int? = null,
         index: Int? = null
-    ): InfoRow = if (index != null) {
-        SongMultipleInfoRow(title, text, textRes, fieldType, actionType, index)
+    ): InfoRow = if (index != null && progress != null) {
+        SongDownloadMultipleInfoRow(title, text, textRes, fieldType, actionType, index, progress)
+    } else  if (index != null) {
+        SongActionMultipleInfoRow(title, text, textRes, fieldType, actionType, index)
     } else if (order != null) {
         QuickActionInfoRow(title, text, textRes, fieldType, actionType, order)
     } else if (progress != null) {
@@ -491,6 +528,19 @@ class SongInfoActions(
         Download(R.drawable.ic_download, ActionTypeCategory.Action);
     }
 
+    abstract class SongMultipleInfoRow(
+        @StringRes override val title: Int,
+        override val text: String?,
+        @StringRes override val textRes: Int?,
+        override val fieldType: FieldType,
+        override val actionType: ActionType,
+        open val index: Int
+    ) : InfoRow(title, text, textRes, fieldType, actionType, null)
+
+    interface SongDownload {
+        val progress: LiveData<DownloadProgressState>
+    }
+
     data class SongInfoRow(
         @StringRes override val title: Int,
         override val text: String?,
@@ -499,14 +549,24 @@ class SongInfoActions(
         override val actionType: ActionType
     ) : InfoRow(title, text, textRes, fieldType, actionType, null)
 
-    data class SongMultipleInfoRow(
+    data class SongActionMultipleInfoRow(
         @StringRes override val title: Int,
         override val text: String?,
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
         override val actionType: ActionType,
-        val index: Int
-    ) : InfoRow(title, text, textRes, fieldType, actionType, null)
+        override val index: Int
+    ) : SongMultipleInfoRow(title, text, textRes, fieldType, actionType, index)
+
+    data class SongDownloadMultipleInfoRow(
+        @StringRes override val title: Int,
+        override val text: String?,
+        @StringRes override val textRes: Int?,
+        override val fieldType: FieldType,
+        override val actionType: ActionType,
+        override val index: Int,
+        override val progress: LiveData<DownloadProgressState>
+    ) : SongMultipleInfoRow(title, text, textRes, fieldType, actionType, index), SongDownload
 
     data class SongDownloadInfoRow(
         @StringRes override val title: Int,
@@ -514,8 +574,8 @@ class SongInfoActions(
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
         override val actionType: ActionType,
-        val progress: LiveData<Int>
-    ) : InfoRow(title, text, textRes, fieldType, actionType, null) {
+        override val progress: LiveData<DownloadProgressState>
+    ) : InfoRow(title, text, textRes, fieldType, actionType, null), SongDownload {
         override fun areContentTheSame(other: InfoRow): Boolean =
             super.areContentTheSame(other) && other is SongDownloadInfoRow && other.progress === progress
     }

@@ -90,7 +90,8 @@ fun DbSongDisplay.toViewSongInfo() = SongInfo(
     local = song.local
 )
 
-fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) = Playlist(id, name, songCount, ImageConfig(url = coverUrl, resource = null))
+fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) =
+    Playlist(id, name, songCount, ImageConfig(url = coverUrl, resource = null))
 
 fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
     argument = if (clause == DbFilter.DOWNLOADED || clause == DbFilter.NOT_DOWNLOADED) argument.toBoolean() else argument.toLong(),
@@ -148,17 +149,23 @@ fun DbFilterCount.toViewFilterCount() = FilterCount(
     playlists = playlists
 )
 
+/**
+ * Views to Database
+ */
+
+fun Filter.FilterType.toDbFilterType(argument: Boolean?) = when (this) {
+    Filter.FilterType.GENRE_IS -> DbFilter.GENRE_IS
+    Filter.FilterType.SONG_IS -> DbFilter.SONG_ID
+    Filter.FilterType.ARTIST_IS -> DbFilter.ARTIST_ID
+    Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.ALBUM_ARTIST_ID
+    Filter.FilterType.ALBUM_IS -> DbFilter.ALBUM_ID
+    Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID
+    Filter.FilterType.DOWNLOADED_STATUS_IS -> if (argument == true) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
+}
+
 fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     id = null,
-    clause = when (this.type) {
-        Filter.FilterType.GENRE_IS -> DbFilter.GENRE_IS
-        Filter.FilterType.SONG_IS -> DbFilter.SONG_ID
-        Filter.FilterType.ARTIST_IS -> DbFilter.ARTIST_ID
-        Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.ALBUM_ARTIST_ID
-        Filter.FilterType.ALBUM_IS -> DbFilter.ALBUM_ID
-        Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID
-        Filter.FilterType.DOWNLOADED_STATUS_IS -> if (this.argument == true) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
-    },
+    clause = this.type.toDbFilterType(this.argument as? Boolean),
     joinClause = when (this.type) {
         Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID_JOIN
         else -> null
@@ -167,11 +174,6 @@ fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     displayText = displayText,
     filterGroup = groupId,
     parentFilter = parentId
-)
-
-fun FilterGroup.toDbFilterGroup() = DbFilterGroup(
-    id = id,
-    name = name
 )
 
 fun Order.toDbOrder() = DbOrder(

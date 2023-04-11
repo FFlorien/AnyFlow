@@ -27,6 +27,7 @@ abstract class InfoAdapter<VH : InfoViewHolder> : ListAdapter<InfoActions.InfoRo
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.bindNewData(getItem(position))
+        holder.setLifecycleOwner()
     }
 
     override fun onBindViewHolder(
@@ -82,7 +83,7 @@ open class InfoViewHolder(
         }
     }
 
-    protected open fun setLifecycleOwner() {
+    open fun setLifecycleOwner() {
         binding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
     }
 

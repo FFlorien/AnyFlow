@@ -4,11 +4,19 @@
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="@dimen/smallDimen" />
-            <solid android:color="@color/primaryLight" />
+            <solid android:color="@color/accentLight" />
         </shape>
     </item>
 
     <!-- Define the progress properties like start color, end color etc -->
+    <item android:id="@android:id/secondaryProgress">
+        <clip>
+            <shape>
+                <corners android:radius="@dimen/smallDimen" />
+                <solid android:color="@color/primaryLight" />
+            </shape>
+        </clip>
+    </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
