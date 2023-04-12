@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/accent</item>
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="bottomSheetDialogTheme">@style/NoBackgroundDialogTheme</item>
     </style>
 
     <style name="ToolBarStyle" parent="Theme.AppCompat">
@@ -31,6 +32,10 @@
     <style name="Toolbar.SubTitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textColor">@color/accent</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="NoBackgroundDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@null</item>
     </style>
 
 </resources>

@@ -11,7 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:minHeight="500dp">
+        android:background="@drawable/bg_white_corner_radius">
 
         <ImageView
             android:id="@+id/cover"
@@ -20,14 +20,13 @@
             android:layout_margin="@dimen/mediumDimen"
             app:imageSource="@{viewModel.coverConfig}"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/songInfo"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:minHeight="500dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/mediumDimen"
             app:layout_constraintTop_toBottomOf="@+id/cover" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
