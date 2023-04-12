@@ -44,7 +44,15 @@ data class DbSongDisplay(
         parentColumn = "songId",
         entityColumn = "genreId")
     )
-    var genres: List<DbGenre>
+    var genres: List<DbGenre>,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(DbPlaylistSongs::class,
+            parentColumn = "songId",
+            entityColumn = "playlistId")
+    )
+    var playlists: List<DbPlaylist>
 )
 
 data class DbSongToPlay(

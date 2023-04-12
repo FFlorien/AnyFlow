@@ -41,6 +41,14 @@ class SongInfoActions(
                     index = index
                 )
             }.toTypedArray(),
+            *List(infoSource.playlistNames.size) { index ->
+                getSongAction(
+                    infoSource,
+                    SongFieldType.Playlist,
+                    SongActionType.ExpandableTitle,
+                    index = index
+                )
+            }.toTypedArray(),
             getSongAction(infoSource, SongFieldType.Duration, SongActionType.InfoTitle),
             getSongAction(infoSource, SongFieldType.Year, SongActionType.InfoTitle)
         )
@@ -89,6 +97,13 @@ class SongInfoActions(
                     getSongAction(infoSource, fieldType, SongActionType.Download, index = index)
                 )
             }
+            SongFieldType.Playlist -> {
+                val index = (row as SongMultipleInfoRow).index
+                listOfNotNull(
+                    getSongAction(infoSource, fieldType, SongActionType.AddToFilter, index = index),
+                    getSongAction(infoSource, fieldType, SongActionType.Download, index = index)
+                )
+            }
             else -> listOf()
         }
     }
@@ -133,7 +148,14 @@ class SongInfoActions(
                     songInfo.genreNames[index]
                 )
             }
-            //todo display multiple playlists in info view
+            SongFieldType.Playlist -> {
+                val index = (row as SongMultipleInfoRow).index
+                Filter(
+                    Filter.FilterType.PLAYLIST_IS,
+                    songInfo.playlistIds[index],
+                    songInfo.playlistNames[index]
+                )
+            }
             else -> throw IllegalArgumentException("This field can't be filtered on")
         }
         filtersManager.clearFilters()
@@ -153,7 +175,7 @@ class SongInfoActions(
     }
 
     fun queueDownload(songInfo: SongInfo, fieldType: SongFieldType, index: Int?) {
-        val data = when (fieldType) { //todo playlist when displayed in info!
+        val data = when (fieldType) {
             SongFieldType.Title -> Pair(songInfo.id, Filter.FilterType.SONG_IS)
             SongFieldType.Artist -> Pair(songInfo.artistId, Filter.FilterType.ARTIST_IS)
             SongFieldType.Album -> Pair(songInfo.albumId, Filter.FilterType.ALBUM_IS)
@@ -164,6 +186,10 @@ class SongInfoActions(
             SongFieldType.Genre -> {
                 val trueIndex = index ?: return
                 Pair(songInfo.genreIds[trueIndex], Filter.FilterType.GENRE_IS)
+            }
+            SongFieldType.Playlist -> {
+                val trueIndex = index ?: return
+                Pair(songInfo.playlistIds[trueIndex], Filter.FilterType.PLAYLIST_IS)
             }
             else -> return
         }
@@ -277,6 +303,15 @@ class SongInfoActions(
                     order = order,
                     index = index
                 )
+                SongFieldType.Playlist -> getInfoRow(
+                    R.string.info_playlist,
+                    songInfo.playlistNames[index],
+                    null,
+                    SongFieldType.Playlist,
+                    SongActionType.ExpandableTitle,
+                    order = order,
+                    index = index
+                )
                 else -> null
             }
             SongActionType.InfoTitle -> when (field) {
@@ -355,6 +390,15 @@ class SongInfoActions(
                     songInfo.genreNames[index],
                     R.string.info_action_filter_on,
                     SongFieldType.Genre,
+                    SongActionType.AddToFilter,
+                    order = order,
+                    index = index
+                )
+                SongFieldType.Playlist -> getInfoRow(
+                    R.string.info_action_filter_title,
+                    songInfo.playlistNames[index],
+                    R.string.info_action_filter_on,
+                    SongFieldType.Playlist,
                     SongActionType.AddToFilter,
                     order = order,
                     index = index
@@ -474,6 +518,19 @@ class SongInfoActions(
                     ),
                     index = index
                 )
+                SongFieldType.Playlist -> getInfoRow(
+                    R.string.info_action_download,
+                    songInfo.playlistNames[index],
+                    R.string.info_action_download_description,
+                    SongFieldType.Playlist,
+                    SongActionType.Download,
+                    order = order,
+                    progress = downloadManager.getDownloadState(
+                        songInfo.playlistIds[index],
+                        Filter.FilterType.PLAYLIST_IS
+                    ),
+                    index = index
+                )
                 else -> null
             }
         }
@@ -501,17 +558,17 @@ class SongInfoActions(
     }
 
     enum class SongFieldType(
-        @DrawableRes override val iconRes: Int,
-        override val couldGetUrl: Boolean
+        @DrawableRes override val iconRes: Int
     ) : FieldType {
-        Title(R.drawable.ic_song, false),
-        Track(R.drawable.ic_track, false),
-        Artist(R.drawable.ic_artist, false),
-        Album(R.drawable.ic_album, false),
-        AlbumArtist(R.drawable.ic_album_artist, false),
-        Genre(R.drawable.ic_genre, false),
-        Year(R.drawable.ic_year, false),
-        Duration(R.drawable.ic_duration, false);
+        Title(R.drawable.ic_song),
+        Track(R.drawable.ic_track),
+        Artist(R.drawable.ic_artist),
+        Album(R.drawable.ic_album),
+        AlbumArtist(R.drawable.ic_album_artist),
+        Genre(R.drawable.ic_genre),
+        Playlist(R.drawable.ic_playlist),
+        Year(R.drawable.ic_year),
+        Duration(R.drawable.ic_duration);
     }
 
     enum class SongActionType(

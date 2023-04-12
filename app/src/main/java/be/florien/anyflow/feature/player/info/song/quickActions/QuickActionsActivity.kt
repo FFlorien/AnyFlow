@@ -68,7 +68,8 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
             supportFragmentManager
                 .beginTransaction()
                 .add(
-                    R.id.fragment_container_view, SongInfoFragment(
+                    R.id.fragment_container_view,
+                    SongInfoFragment(
                         SongInfo(
                             SongInfoActions.DUMMY_SONG_ID,
                             getString(R.string.info_title),
@@ -80,13 +81,16 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                             0L,
                             listOf(getString(R.string.info_genre)),
                             listOf(0L),
+                            listOf(getString(R.string.info_playlist)),
+                            listOf(0L),
                             1,
                             120,
                             2000,
                             0,
                             null
                         )
-                    ), SongInfoFragment::class.java.simpleName
+                    ),
+                    SongInfoFragment::class.java.simpleName
                 )
                 .commit()
         }

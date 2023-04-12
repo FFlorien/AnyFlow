@@ -200,16 +200,15 @@ class LibraryInfoActions @Inject constructor(
     class DisplayData(val text: String, val argument: Long)
 
     enum class LibraryFieldType(
-        @DrawableRes override val iconRes: Int,
-        override val couldGetUrl: Boolean
+        @DrawableRes override val iconRes: Int
     ) : FieldType {
-        Duration(R.drawable.ic_duration, false),
-        Genre(R.drawable.ic_genre, false),
-        AlbumArtist(R.drawable.ic_album_artist, true),
-        Album(R.drawable.ic_album, true),
-        Artist(R.drawable.ic_artist, true),
-        Song(R.drawable.ic_song, true),
-        Playlist(R.drawable.ic_playlist, true);
+        Duration(R.drawable.ic_duration),
+        Genre(R.drawable.ic_genre),
+        AlbumArtist(R.drawable.ic_album_artist),
+        Album(R.drawable.ic_album),
+        Artist(R.drawable.ic_artist),
+        Song(R.drawable.ic_song),
+        Playlist(R.drawable.ic_playlist);
     }
 
     enum class LibraryActionType(

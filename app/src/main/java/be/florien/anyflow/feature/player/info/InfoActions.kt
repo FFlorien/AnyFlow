@@ -29,7 +29,6 @@ abstract class InfoActions<T> {
 
     interface FieldType {
         val iconRes: Int
-        val couldGetUrl: Boolean
     }
 
     interface ActionType {

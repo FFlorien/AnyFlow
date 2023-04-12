@@ -69,6 +69,7 @@
     <string name="info_year">Year</string>
     <string name="info_album_artist">Album\'s artist</string>
     <string name="info_genre">Genre</string>
+    <string name="info_playlist">Playlist</string>
     <string name="info_action_track_next">Play this song next</string>
     <string name="info_action_next_title">Play next</string>
     <string name="info_action_select_playlist">Select playlists</string>
