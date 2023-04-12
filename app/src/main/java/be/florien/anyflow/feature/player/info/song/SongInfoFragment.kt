@@ -1,6 +1,9 @@
 package be.florien.anyflow.feature.player.info.song
 
+import android.app.Activity
+import android.app.Dialog
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +25,10 @@ import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsView
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ViewModelFactoryHolder
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+
 
 class SongInfoFragment(
     private var song: SongInfo = SongInfo.dummySongInfo(SongInfoActions.DUMMY_SONG_ID)
@@ -34,6 +40,7 @@ class SongInfoFragment(
         private const val ITEM_VIEW_TYPE_DEFAULT = 0
         private const val ITEM_VIEW_TYPE_QUICK_ACTION = 1
         private const val ITEM_VIEW_TYPE_DOWNLOAD = 2
+        private const val TOP_PADDING = 200
     }
 
     private lateinit var viewModel: BaseSongViewModel
@@ -49,6 +56,15 @@ class SongInfoFragment(
                 putParcelable(SONG, song)
             }
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.window?.attributes?.windowAnimations = R.style.BottomSheetDialogAnimation
+        dialog.setOnShowListener {
+            setupFullHeight()
+        }
+        return dialog
     }
 
     override fun onCreateView(
@@ -87,6 +103,7 @@ class SongInfoFragment(
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        binding.root.minimumHeight = dialog?.window?.attributes?.height ?: binding.root.height
         return binding.root
     }
 
@@ -115,6 +132,22 @@ class SongInfoFragment(
                 }
             }
         }
+    }
+
+    private fun setupFullHeight() {
+        val layoutParams = binding.root.layoutParams
+        val height = getWindowHeight() - TOP_PADDING
+        if (layoutParams != null) {
+            layoutParams.height = height
+        }
+        binding.root.layoutParams = layoutParams
+    }
+
+    private fun getWindowHeight(): Int {
+        // Calculate window height for fullscreen use
+        val displayMetrics = DisplayMetrics()
+        (context as Activity?)!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return displayMetrics.heightPixels
     }
 
     class SongInfoAdapter(private val executeAction: (row: InfoActions.InfoRow) -> Unit) :

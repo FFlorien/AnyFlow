@@ -8,7 +8,8 @@
             type="be.florien.anyflow.feature.player.info.song.BaseSongViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/bg_white_corner_radius">
@@ -18,16 +19,13 @@
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
             android:layout_margin="@dimen/mediumDimen"
-            app:imageSource="@{viewModel.coverConfig}"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:imageSource="@{viewModel.coverConfig}"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/songInfo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/mediumDimen"
-            app:layout_constraintTop_toBottomOf="@+id/cover" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="@dimen/mediumDimen"/>
+    </LinearLayout>
 </layout>
