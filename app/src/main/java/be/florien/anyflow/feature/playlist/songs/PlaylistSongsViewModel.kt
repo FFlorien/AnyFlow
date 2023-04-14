@@ -3,8 +3,8 @@ package be.florien.anyflow.feature.playlist.songs
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.toViewSongInfo
-import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.data.toViewSongDisplay
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.launch
@@ -24,8 +24,8 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
         it.isNotEmpty()
     }.distinctUntilChanged()
 
-    val songList: LiveData<PagingData<SongInfo>>
-        get() = playlistRepository.getPlaylistSongs(playlistId) { it.toViewSongInfo() }
+    val songList: LiveData<PagingData<SongDisplay>>
+        get() = playlistRepository.getPlaylistSongs(playlistId) { it.toViewSongDisplay() }
 
     fun getCover(long: Long) = urlRepository.getAlbumArtUrl(long)
 

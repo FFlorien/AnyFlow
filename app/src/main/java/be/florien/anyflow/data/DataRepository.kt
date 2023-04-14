@@ -5,10 +5,7 @@ import androidx.lifecycle.map
 import androidx.paging.PagingData
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.QueryComposer
-import be.florien.anyflow.data.local.model.DbAlbumDisplayForRaw
-import be.florien.anyflow.data.local.model.DbArtist
-import be.florien.anyflow.data.local.model.DbGenre
-import be.florien.anyflow.data.local.model.DbSongInfo
+import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterCount
 import be.florien.anyflow.data.view.SongInfo
@@ -27,7 +24,7 @@ class DataRepository @Inject constructor(
      */
 
     fun <T : Any> getSongs(
-        mapping: (DbSongInfo) -> T,
+        mapping: (DbSongDisplay) -> T,
         filters: List<Filter<*>>?,
         search: String?
     ): LiveData<PagingData<T>> =
@@ -78,7 +75,7 @@ class DataRepository @Inject constructor(
     suspend fun <T : Any> getSongsSearchedList(
         filters: List<Filter<*>>?,
         search: String,
-        mapping: (DbSongInfo) -> T
+        mapping: (DbSongDisplay) -> T
     ): List<T> =
         libraryDatabase.getSongDao().rawQueryListDisplay(
             queryComposer.getQueryForSongFiltered(filters, search)

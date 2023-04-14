@@ -120,7 +120,7 @@ class LibraryInfoActions @Inject constructor(
             filterData ?: when (filterType) {
                 Filter.FilterType.SONG_IS ->
                     dataRepository.getSongsSearchedList(listOfNotNull(filter), "") {
-                        DisplayData(it.song.title, it.song.id)
+                        DisplayData(it.title, it.id)
                     }
                 Filter.FilterType.ARTIST_IS ->
                     dataRepository.getArtistsSearchedList(listOfNotNull(filter), "") {

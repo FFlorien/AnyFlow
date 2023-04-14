@@ -132,20 +132,16 @@ class QueryComposer {
 
     fun getQueryForSongFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
-            "SELECT DISTINCT " +
-                    "song.id, " +
-                    "song.title, " +
-                    "song.artistId, " +
-                    "song.albumId, " +
-                    "song.track, " +
-                    "song.disk, " +
-                    "song.time, " +
-                    "song.year, " +
-                    "song.composer, " +
-                    "song.local, " +
-                    "song.waveForm, " +
-                    "song.size " +
-                    "FROM song" +
+            "SELECT " +
+                    "DISTINCT song.id AS id," +
+                    "song.title AS title," +
+                    "artist.name AS artistName," +
+                    "album.name AS albumName," +
+                    "album.id AS albumId," +
+                    "song.time AS time " +
+                    "FROM song " +
+                    "JOIN artist ON song.artistId = artist.id " +
+                    "JOIN album ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " song.title LIKE ?", search) +
                     " ORDER BY song.title COLLATE UNICODE",

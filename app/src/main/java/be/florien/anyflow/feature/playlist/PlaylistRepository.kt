@@ -6,10 +6,7 @@ import be.florien.anyflow.data.SyncRepository
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.QueryComposer
-import be.florien.anyflow.data.local.model.DbPlaylist
-import be.florien.anyflow.data.local.model.DbPlaylistSongs
-import be.florien.anyflow.data.local.model.DbPlaylistWithCount
-import be.florien.anyflow.data.local.model.DbSongInfo
+import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.AmpacheEditSource
 import be.florien.anyflow.data.toViewPlaylist
 import be.florien.anyflow.data.view.Filter
@@ -46,7 +43,7 @@ class PlaylistRepository @Inject constructor(
 
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
-        mapping: (DbSongInfo) -> T
+        mapping: (DbSongDisplay) -> T
     ): LiveData<PagingData<T>> =
 
         libraryDatabase.getPlaylistSongsDao().songsFromPlaylist(playlistId).map { mapping(it) }

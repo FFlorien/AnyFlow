@@ -10,9 +10,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.toViewDisplay
 import be.florien.anyflow.data.view.Playlist
-import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.LayoutSongBinding
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.extension.anyFlowApp
@@ -112,16 +111,16 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
         override val isSelected: (Long) -> Boolean,
         override val setSelected: (Long) -> Unit
     ) :
-        PagingDataAdapter<SongInfo, PlaylistSongViewHolder>(object :
-            DiffUtil.ItemCallback<SongInfo>() {
+        PagingDataAdapter<SongDisplay, PlaylistSongViewHolder>(object :
+            DiffUtil.ItemCallback<SongDisplay>() {
             override fun areItemsTheSame(
-                oldItem: SongInfo,
-                newItem: SongInfo
+                oldItem: SongDisplay,
+                newItem: SongDisplay
             ) = oldItem.id == newItem.id
 
             override fun areContentsTheSame(
-                oldItem: SongInfo,
-                newItem: SongInfo
+                oldItem: SongDisplay,
+                newItem: SongDisplay
             ) = areItemsTheSame(oldItem, newItem)
         }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Long> {
 
@@ -146,7 +145,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             false
         )
     ) : RecyclerView.ViewHolder(binding.root),
-        BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongInfo> { //todo songdisplay in all lists
+        BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongDisplay> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -155,8 +154,8 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             }
         }
 
-        override fun bind(item: SongInfo, isSelected: Boolean) {
-            binding.song = item.toViewDisplay()
+        override fun bind(item: SongDisplay, isSelected: Boolean) {
+            binding.song = item
             binding.art = ImageConfig(getCoverUrl(item.albumId), R.drawable.cover_placeholder)
             setSelection(isSelected)
         }
