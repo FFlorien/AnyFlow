@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.UrlRepository
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.song.BaseSongViewModel
 import be.florien.anyflow.feature.player.info.song.SongInfoActions
@@ -37,6 +38,11 @@ class QuickActionsViewModel @Inject constructor(
         }
     val currentActionsCountDisplay: LiveData<String> =
         MutableLiveData("${infoActions.getQuickActions().size}/$maxItems")
+    var dummySongInfo: SongInfo
+        get() = songInfoMediator.value ?: SongInfo.dummySongInfo(SongInfoActions.DUMMY_SONG_ID)
+        set(value) {
+            songInfoMediator.value = value
+        }
 
     override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> {
         val mutableList = initialList.toMutableList()
@@ -74,8 +80,8 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
-        infoActions.getInfoRows(song).toMutableList()
+        infoActions.getInfoRows(songInfo).toMutableList()
 
     override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
-        infoActions.getActionsRows(song, row)
+        infoActions.getActionsRows(songInfo, row)
 }

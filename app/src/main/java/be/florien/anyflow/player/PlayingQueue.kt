@@ -8,6 +8,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
@@ -81,7 +82,7 @@ class PlayingQueue
     val positionUpdater = MutableLiveData<Int>()
     val currentSong: LiveData<SongInfo> = MutableLiveData()
 
-    val songDisplayListUpdater: LiveData<PagingData<SongInfo>> =
+    val songDisplayListUpdater: LiveData<PagingData<SongDisplay>> =
         queueRepository.getSongsInQueueOrder().cachedIn(coroutineScope)
     private val songIdsListUpdater: LiveData<List<DbSongToPlay>> =
         queueRepository.getIdsInQueueOrder()

@@ -8,7 +8,7 @@ import be.florien.anyflow.data.local.QueryComposer
 import be.florien.anyflow.data.local.model.DbAlbumDisplayForRaw
 import be.florien.anyflow.data.local.model.DbArtist
 import be.florien.anyflow.data.local.model.DbGenre
-import be.florien.anyflow.data.local.model.DbSongDisplay
+import be.florien.anyflow.data.local.model.DbSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterCount
 import be.florien.anyflow.data.view.SongInfo
@@ -27,7 +27,7 @@ class DataRepository @Inject constructor(
      */
 
     fun <T : Any> getSongs(
-        mapping: (DbSongDisplay) -> T,
+        mapping: (DbSongInfo) -> T,
         filters: List<Filter<*>>?,
         search: String?
     ): LiveData<PagingData<T>> =
@@ -78,7 +78,7 @@ class DataRepository @Inject constructor(
     suspend fun <T : Any> getSongsSearchedList(
         filters: List<Filter<*>>?,
         search: String,
-        mapping: (DbSongDisplay) -> T
+        mapping: (DbSongInfo) -> T
     ): List<T> =
         libraryDatabase.getSongDao().rawQueryListDisplay(
             queryComposer.getQueryForSongFiltered(filters, search)
@@ -129,6 +129,9 @@ class DataRepository @Inject constructor(
 
     fun getSong(id: Long): LiveData<SongInfo> =
         libraryDatabase.getSongDao().findById(id).map { it.toViewSongInfo() }
+
+    suspend fun getSongSync(id: Long): SongInfo =
+        libraryDatabase.getSongDao().findByIdSync(id).toViewSongInfo()
 
     /**
      * Infos

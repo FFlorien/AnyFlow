@@ -13,32 +13,32 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // DataSources
     @Transaction
-    @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, size, local, waveForm FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
+    @Query("SELECT song.id AS id, song.title AS title, artist.name AS artistName, album.name AS albumName, album.id AS albumId, song.time AS time FROM song JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     abstract fun displayInQueueOrder(): DataSource.Factory<Int, DbSongDisplay>
 
     @RawQuery(observedEntities = [DbSong::class])
-    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbSongDisplay>
+    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbSongInfo>
 
     // List of songs
 
     @Query("SELECT song.id, song.local FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     abstract fun songsInQueueOrder(): LiveData<List<DbSongToPlay>>
 
-    @RawQuery(observedEntities = [DbSongDisplay::class])
-    abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbSongDisplay>
+    @RawQuery(observedEntities = [DbSongInfo::class])
+    abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbSongInfo>
 
     // Song
     @Transaction
     @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.size, song.local, song.waveForm FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
-    abstract suspend fun forPositionInQueue(position: Int): DbSongDisplay?
+    abstract suspend fun forPositionInQueue(position: Int): DbSongInfo?
 
     @Transaction
     @Query("SELECT * FROM song WHERE song.id = :songId")
-    abstract fun findById(songId: Long): LiveData<DbSongDisplay>
+    abstract fun findById(songId: Long): LiveData<DbSongInfo>
 
     @Transaction
     @Query("SELECT * FROM song WHERE song.id = :songId")
-    abstract suspend fun findByIdSync(songId: Long): DbSongDisplay
+    abstract suspend fun findByIdSync(songId: Long): DbSongInfo
 
     // Related to queue or filter
     @Query("SELECT `order` FROM queueorder WHERE queueorder.songId = :songId")

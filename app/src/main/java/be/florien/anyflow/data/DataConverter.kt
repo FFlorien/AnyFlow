@@ -72,7 +72,15 @@ fun AmpachePlaylistSong.toDbPlaylistSong(playlistId: Long) = DbPlaylistSongs(
  * Database to view
  */
 
-fun DbSongDisplay.toViewSongInfo() = SongInfo(
+fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
+    id = id,
+    title = title,
+    artistName = artistName,
+    albumName = albumName,
+    albumId = albumId,
+    time = time
+)
+fun DbSongInfo.toViewSongInfo() = SongInfo(
     id = song.id,
     track = song.track,
     title = song.title,
@@ -197,4 +205,17 @@ fun Alarm.toDbAlarm() = DbAlarm(
     friday = daysToTrigger[4],
     saturday = daysToTrigger[5],
     sunday = daysToTrigger[6]
+)
+
+/**
+ * View to view
+ */
+
+fun SongInfo.toViewDisplay() = SongDisplay(
+    id = id,
+    title = title,
+    artistName = artistName,
+    albumName = albumName,
+    albumId = albumId,
+    time = time
 )

@@ -5,14 +5,14 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import be.florien.anyflow.data.local.model.DbPlaylistSongs
-import be.florien.anyflow.data.local.model.DbSongDisplay
+import be.florien.anyflow.data.local.model.DbSongInfo
 
 @Dao
 abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
 
     @Transaction
     @Query("SELECT id, title, artistId, albumId, track, disk, time, year, composer, size, local, waveForm FROM song JOIN playlistsongs ON song.id = playlistsongs.songId WHERE playlistsongs.playlistId = :playlistId ORDER BY playlistsongs.`order`")
-    abstract fun songsFromPlaylist(playlistId: Long): DataSource.Factory<Int, DbSongDisplay>
+    abstract fun songsFromPlaylist(playlistId: Long): DataSource.Factory<Int, DbSongInfo>
 
     @Query("SELECT count(*) FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")
     abstract suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Int

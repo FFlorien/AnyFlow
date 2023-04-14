@@ -25,23 +25,27 @@ abstract class BaseSongViewModel(
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : InfoViewModel<SongInfo>() {
-    val songInfo: LiveData<SongInfo> = MediatorLiveData()
+    protected val songInfoMediator = MediatorLiveData<SongInfo>()
+    val songInfoObservable: LiveData<SongInfo> = songInfoMediator
     val coverConfig: LiveData<ImageConfig> = MutableLiveData()
-    var song: SongInfo
+    val songInfo: SongInfo
         get() {
-            val value = songInfo.value
+            val value = songInfoMediator.value
             return value ?: SongInfo.dummySongInfo()
+        }
+    var songId: Long
+        get() {
+            val value = songInfoMediator.value?.id
+            return value ?: SongInfo.dummySongInfo().id
         }
         set(value) {
             viewModelScope.launch {
-                if (value.id == SongInfoActions.DUMMY_SONG_ID) {
-                    songInfo.mutable.value = value
-                } else {
-                    (songInfo as MediatorLiveData).addSource(dataRepository.getSong(value.id)) {
-                        songInfo.mutable.value = it
+                if (value != SongInfoActions.DUMMY_SONG_ID) {
+                    songInfoMediator.addSource(dataRepository.getSong(value)) {
+                        songInfoMediator.mutable.value = it
 
                         coverConfig.mutable.value = ImageConfig(
-                            url = infoActions.getAlbumArtUrl(song.albumId),
+                            url = infoActions.getAlbumArtUrl(it.albumId),
                             resource = R.drawable.cover_placeholder
                         )
                         updateRows()

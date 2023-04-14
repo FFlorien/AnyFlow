@@ -11,7 +11,7 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.player.details.DetailViewHolder
@@ -26,11 +26,11 @@ class SongAdapter(
     val listener: SongListViewHolderListener,
     val provider: SongListViewHolderProvider,
     private val onSongClicked: (Int) -> Unit
-) : PagingDataAdapter<SongInfo, SongViewHolder>(object : DiffUtil.ItemCallback<SongInfo>() {
-    override fun areItemsTheSame(oldItem: SongInfo, newItem: SongInfo) =
+) : PagingDataAdapter<SongDisplay, SongViewHolder>(object : DiffUtil.ItemCallback<SongDisplay>() {
+    override fun areItemsTheSame(oldItem: SongDisplay, newItem: SongDisplay) =
         oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: SongInfo, newItem: SongInfo): Boolean =
+    override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean =
         oldItem.artistName == newItem.artistName
                 && oldItem.albumName == newItem.albumName
                 && oldItem.title == newItem.title
@@ -66,13 +66,13 @@ class SongViewHolder(
         parent,
         false
     )
-) : DetailViewHolder<SongInfo>(listener, binding.root) {
+) : DetailViewHolder<SongDisplay>(listener, binding.root) {
 
     override val itemInfoView: View
         get() = binding.songLayout.songInfo
     override val infoIconView: View
         get() = binding.infoView
-    override val item: SongInfo?
+    override val item: SongDisplay?
         get() = binding.song
 
     private val quickActionListener: SongListViewHolderListener
@@ -115,7 +115,7 @@ class SongViewHolder(
      * Public methods
      */
 
-    fun bind(item: SongInfo?) {
+    fun bind(item: SongDisplay?) {
         binding.song = item
         binding.art = ImageConfig(
             url = item?.albumId?.let { provider.getArtUrl(it) },
@@ -192,8 +192,8 @@ open class SongListTouchAdapter : ItemInfoTouchAdapter() {
     }
 }
 
-interface SongListViewHolderListener : DetailViewHolderListener<SongInfo> {
-    fun onQuickAction(item: SongInfo, action: InfoActions.ActionType, field: InfoActions.FieldType)
+interface SongListViewHolderListener : DetailViewHolderListener<SongDisplay> {
+    fun onQuickAction(item: SongDisplay, action: InfoActions.ActionType, field: InfoActions.FieldType)
     fun onQuickActionOpened(position: Int?)
     fun onCurrentSongQuickActionClosed()
 }

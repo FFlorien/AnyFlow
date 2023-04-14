@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.DbSongDisplay
+import be.florien.anyflow.data.local.model.DbSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.library.list.LibraryListViewModel
 import be.florien.anyflow.player.FiltersManager
@@ -35,7 +35,7 @@ class LibrarySongListViewModel @Inject constructor(
     override fun getFilter(filterValue: FilterItem) =
         getFilterInParent(Filter(Filter.FilterType.SONG_IS, filterValue.id, filterValue.displayName))
 
-    private fun convert(song: DbSongDisplay): FilterItem {
+    private fun convert(song: DbSongInfo): FilterItem {
         val artUrl = urlRepository.getAlbumArtUrl(song.album.album.id)
         val filter = getFilterInParent(Filter(Filter.FilterType.SONG_IS, song.song.id, song.song.title))
         return (FilterItem(

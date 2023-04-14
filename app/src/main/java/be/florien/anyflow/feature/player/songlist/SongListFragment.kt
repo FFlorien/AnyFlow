@@ -21,7 +21,8 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.data.toViewDisplay
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
@@ -30,6 +31,8 @@ import be.florien.anyflow.feature.player.info.InfoActions
 import be.florien.anyflow.feature.player.info.song.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ActivityScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -50,6 +53,11 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     private var shouldScrollToCurrent = false
     private var shouldHideLoading = false
     private var isLoadingVisible = false
+    private var visibilityJob: Job? = null
+    private var currentLoadState: LoadState = LoadState.Loading
+
+    private val songAdapter: SongAdapter
+        get() = binding.songList.adapter as SongAdapter
 
     private val searchMenuHolder by lazy {
         SearchSongMenuHolder(viewModel.isSearching.value == true, requireContext()) {
@@ -112,9 +120,17 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         super.onViewCreated(view, savedInstanceState)
         binding.songList.adapter = SongAdapter(this, this, this::onItemClick)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            (binding.songList.adapter as SongAdapter).loadStateFlow.collectLatest {
-                updateLoadingVisibility(it.refresh is LoadState.Loading)
+        lifecycleScope.launch {
+            (songAdapter).loadStateFlow.collectLatest {
+                if (it.refresh == currentLoadState) {
+                    visibilityJob?.cancel()
+                } else {
+                    visibilityJob = lifecycleScope.launch {
+                        delay(50)
+                        currentLoadState = it.refresh
+                        updateLoadingVisibility(it.refresh is LoadState.Loading)
+                    }
+                }
             }
         }
         linearLayoutManager = LinearLayoutManager(activity)
@@ -175,16 +191,15 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
             if (it != null) {
-                (binding.songList.adapter as SongAdapter)
-                    .submitData(viewLifecycleOwner.lifecycle, it)
+                songAdapter.submitData(viewLifecycleOwner.lifecycle, it)
                 shouldScrollToCurrent = true
             }
         }
         viewModel.currentSong.observe(viewLifecycleOwner) {
-            currentSongViewHolder.bind(it)
+            currentSongViewHolder.bind(it.toViewDisplay())
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
-            (binding.songList.adapter as SongAdapter).setSelectedPosition(it)
+            songAdapter.setSelectedPosition(it)
             updateCurrentSongDisplay()
             if (shouldScrollToCurrent) {
                 scrollToCurrentSong()
@@ -251,15 +266,15 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      */
 
     override fun onQuickAction(
-        item: SongInfo,
+        item: SongDisplay,
         action: InfoActions.ActionType,
         field: InfoActions.FieldType
     ) {
         viewModel.executeSongAction(item, action, field)
     }
 
-    override fun onInfoDisplayAsked(item: SongInfo) {
-        SongInfoFragment(item).show(childFragmentManager, "info")
+    override fun onInfoDisplayAsked(item: SongDisplay) {
+        SongInfoFragment(item.id).show(childFragmentManager, "info")
     }
 
     override fun onQuickActionOpened(position: Int?) {

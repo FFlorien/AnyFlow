@@ -29,7 +29,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
 class SongInfoFragment(
-    private var song: SongInfo = SongInfo.dummySongInfo(SongInfoActions.DUMMY_SONG_ID)
+    private var songId: Long = SongInfoActions.DUMMY_SONG_ID
 ) : BottomSheetDialogFragment() {
 
     companion object {
@@ -47,11 +47,11 @@ class SongInfoFragment(
 
     init {
         arguments?.let {
-            song = it.getParcelable(SONG) ?: song
+            songId = it.getLong(SONG, songId)
         }
         if (arguments == null) {
             arguments = Bundle().apply {
-                putParcelable(SONG, song)
+                putLong(SONG, songId)
             }
         }
     }
@@ -70,7 +70,7 @@ class SongInfoFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = if (song.id == SongInfoActions.DUMMY_SONG_ID) {
+        viewModel = if (songId == SongInfoActions.DUMMY_SONG_ID) {
             ViewModelProvider(
                 requireActivity(),
                 (requireActivity() as ViewModelFactoryHolder).getFactory()
@@ -81,6 +81,26 @@ class SongInfoFragment(
                     val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
                     val itemFullWidth = itemWidth + margin + margin
                     maxItems = (width / itemFullWidth) - 1
+                    dummySongInfo =
+                        SongInfo(
+                            SongInfoActions.DUMMY_SONG_ID,
+                            getString(R.string.info_title),
+                            getString(R.string.info_artist),
+                            0L,
+                            getString(R.string.info_album),
+                            0L,
+                            getString(R.string.info_album_artist),
+                            0L,
+                            listOf(getString(R.string.info_genre)),
+                            listOf(0L),
+                            listOf(getString(R.string.info_playlist)),
+                            listOf(0L),
+                            1,
+                            120,
+                            2000,
+                            0,
+                            null
+                        )
                 }
         } else {
             ViewModelProvider(
@@ -94,8 +114,8 @@ class SongInfoFragment(
                 (requireActivity() as ViewModelFactoryHolder).getFactory()
             )[SongListViewModel::class.java]
         }
-        viewModel.song = song
-        viewModel.songInfo.observe(this) {
+        viewModel.songId = songId
+        viewModel.songInfoObservable.observe(this) {
             viewModel.updateRows()
         }
         binding = FragmentInfoBinding.inflate(inflater, container, false)
@@ -126,7 +146,7 @@ class SongInfoFragment(
             }
             isPlaylistListDisplayed.observe(viewLifecycleOwner) {
                 if (it) {
-                    SelectPlaylistFragment(song.id).show(childFragmentManager, null)
+                    SelectPlaylistFragment(songId).show(childFragmentManager, null)
                 }
             }
         }

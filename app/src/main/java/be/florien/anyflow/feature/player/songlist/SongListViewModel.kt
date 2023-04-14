@@ -8,6 +8,8 @@ import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.UrlRepository
+import be.florien.anyflow.data.toViewDisplay
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.player.info.InfoActions
@@ -37,8 +39,9 @@ class SongListViewModel
 
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     private val songInfoActions = SongInfoActions(filtersManager, orderComposer, urlRepository, sharedPreferences, downloadManager)
-    val pagedAudioQueue: LiveData<PagingData<SongInfo>> = playingQueue.songDisplayListUpdater
+    val pagedAudioQueue: LiveData<PagingData<SongDisplay>> = playingQueue.songDisplayListUpdater
     val currentSong: LiveData<SongInfo> = playingQueue.currentSong
+    val currentSongDisplay: LiveData<SongDisplay> = playingQueue.currentSong.map { it.toViewDisplay() }
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -127,14 +130,17 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songInfo: SongInfo, actionType: InfoActions.ActionType, fieldType: InfoActions.FieldType) {
+    fun executeSongAction(songDisplay: SongDisplay, actionType: InfoActions.ActionType, fieldType: InfoActions.FieldType) {
         if (fieldType !is SongInfoActions.SongFieldType) {
             return
         }
         viewModelScope.launch {
+            val songInfo = runBlocking(Dispatchers.IO) {
+                dataRepository.getSongSync(songDisplay.id)
+            }
             when (actionType) {
-                SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songInfo.id)
-                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songInfo.id)
+                SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
+                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songDisplay.id)
               // todo selector for multiple values (genre && playlists)  SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, fieldType)
                 SongInfoActions.SongActionType.Search -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
                 SongInfoActions.SongActionType.Download -> songInfoActions.queueDownload(songInfo, fieldType, null) // todo right index

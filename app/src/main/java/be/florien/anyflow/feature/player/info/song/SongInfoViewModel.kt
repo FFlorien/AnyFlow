@@ -44,14 +44,14 @@ class SongInfoViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (actionType) {
-                SongInfoActions.SongActionType.AddNext -> infoActions.playNext(song.id)
+                SongInfoActions.SongActionType.AddNext -> infoActions.playNext(songId)
                 SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
-                SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(song, row)
+                SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(songInfo, row)
                 SongInfoActions.SongActionType.Search ->
-                    searchTerm.mutable.value = infoActions.getSearchTerms(song, fieldType)
+                    searchTerm.mutable.value = infoActions.getSearchTerms(songInfo, fieldType)
                 SongInfoActions.SongActionType.Download -> {
                     val index = (row as? SongInfoActions.SongMultipleInfoRow)?.index
-                    infoActions.queueDownload(song, fieldType, index)
+                    infoActions.queueDownload(songInfo, fieldType, index)
                 }
                 else -> return@launch
             }
@@ -64,9 +64,9 @@ class SongInfoViewModel @Inject constructor(
     }
 
     override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
-        infoActions.getInfoRows(song).toMutableList()
+        infoActions.getInfoRows(songInfo).toMutableList()
 
 
     override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
-        infoActions.getActionsRows(song, row)
+        infoActions.getActionsRows(songInfo, row)
 }

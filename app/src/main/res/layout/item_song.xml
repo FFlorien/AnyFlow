@@ -10,7 +10,7 @@
 
         <variable
             name="song"
-            type="be.florien.anyflow.data.view.SongInfo" />
+            type="be.florien.anyflow.data.view.SongDisplay" />
     </data>
 
     <FrameLayout

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
+import be.florien.anyflow.data.toViewDisplay
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.LayoutSongBinding
@@ -145,7 +146,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             false
         )
     ) : RecyclerView.ViewHolder(binding.root),
-        BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongInfo> {
+        BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongInfo> { //todo songdisplay in all lists
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -155,7 +156,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
         }
 
         override fun bind(item: SongInfo, isSelected: Boolean) {
-            binding.song = item
+            binding.song = item.toViewDisplay()
             binding.art = ImageConfig(getCoverUrl(item.albumId), R.drawable.cover_placeholder)
             setSelection(isSelected)
         }

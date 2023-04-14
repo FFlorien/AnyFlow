@@ -110,7 +110,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:song="@{viewModel.currentSong}"
+            app:song="@{viewModel.currentSongDisplay}"
             tools:visibility="visible" />
 
         <View

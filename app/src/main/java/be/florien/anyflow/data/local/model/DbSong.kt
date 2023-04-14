@@ -23,7 +23,7 @@ data class DbSong(
     val waveForm: String
 )
 
-data class DbSongDisplay(
+data class DbSongInfo(
     @Embedded
     var song: DbSong,
     @Relation(
@@ -53,6 +53,15 @@ data class DbSongDisplay(
             entityColumn = "playlistId")
     )
     var playlists: List<DbPlaylist>
+)
+
+data class DbSongDisplay(
+    val id: Long,
+    val title: String,
+    val artistName: String,
+    val albumName: String,
+    val albumId: Long,
+    val time: Int
 )
 
 data class DbSongToPlay(

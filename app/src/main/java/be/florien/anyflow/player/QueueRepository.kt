@@ -123,7 +123,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
      */
 
     fun getSongsInQueueOrder() =
-            libraryDatabase.getSongDao().displayInQueueOrder().map { it.toViewSongInfo() }.convertToPagingLiveData()
+            libraryDatabase.getSongDao().displayInQueueOrder().map { it.toViewSongDisplay() }.convertToPagingLiveData()
 
     fun getIdsInQueueOrder() = libraryDatabase.getSongDao().songsInQueueOrder()
 
