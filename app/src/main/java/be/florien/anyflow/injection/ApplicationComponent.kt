@@ -2,7 +2,6 @@ package be.florien.anyflow.injection
 
 import android.app.Application
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.extension.MyAppGlideModule
 import be.florien.anyflow.feature.connect.ServerViewModel
 import dagger.BindsInstance
 import dagger.Component

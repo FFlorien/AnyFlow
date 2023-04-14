@@ -25,8 +25,6 @@ import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsView
 import be.florien.anyflow.feature.player.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ViewModelFactoryHolder
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
@@ -144,7 +142,6 @@ class SongInfoFragment(
     }
 
     private fun getWindowHeight(): Int {
-        // Calculate window height for fullscreen use
         val displayMetrics = DisplayMetrics()
         (context as Activity?)!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.heightPixels

@@ -58,7 +58,10 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract suspend fun songCount(): Int
 
     @Query("SELECT waveForm FROM Song WHERE song.id = :songId")
-    abstract suspend fun getWaveForm(songId: Long): DbSongWaveForm
+    abstract fun getWaveForm(songId: Long): LiveData<DbSongWaveForm>
+
+    @Query("SELECT waveForm FROM Song WHERE song.id = :songId")
+    abstract suspend fun getWaveFormSync(songId: Long): DbSongWaveForm
 
     @Query("SELECT time FROM Song WHERE song.id = :songId")
     abstract suspend fun getSongDuration(songId: Long): Int

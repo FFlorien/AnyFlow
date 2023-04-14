@@ -273,11 +273,9 @@ open class AmpacheDataSource
         val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
             .asBitmap()
             .load(url)
-            .timeout(60000)//it may need some time to generate those
             .submit()
 
         val bitmap: Bitmap = futureTarget.get()
-
         GlideApp.with(context).clear(futureTarget)
         bitmap
     }

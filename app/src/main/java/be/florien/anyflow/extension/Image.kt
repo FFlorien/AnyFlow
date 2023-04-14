@@ -29,7 +29,7 @@ import javax.inject.Named
 @GlideModule
 class MyAppGlideModule : AppGlideModule() {
     @Inject
-    @Named("authenticated")
+    @Named("glide")
     lateinit var okHttp: OkHttpClient
 
     override fun isManifestParsingEnabled() = false

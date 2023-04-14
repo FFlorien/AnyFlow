@@ -23,7 +23,8 @@ class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
     private val sharedPreferences: SharedPreferences,
-    private val orderComposer: OrderComposer
+    private val orderComposer: OrderComposer,
+    private val waveFormRepository: WaveFormRepository
 ) {
     companion object {
         private const val POSITION_NOT_SET = -5
@@ -57,6 +58,8 @@ class PlayingQueue
                     positionUpdater.value = field.position
                     orderComposer.currentPosition = field.position
                     sharedPreferences.applyPutInt(POSITION_PREF, field.position)
+                    waveFormRepository.checkWaveForm(currentSongId.id)
+                    waveFormRepository.checkWaveForm(nextSongId.id)
                     val songAtPosition = queueRepository.getSongAtPosition(field.position)
                     if (songAtPosition != this@PlayingQueue.currentSong.value) {
                         (this@PlayingQueue.currentSong as MutableLiveData).value = songAtPosition

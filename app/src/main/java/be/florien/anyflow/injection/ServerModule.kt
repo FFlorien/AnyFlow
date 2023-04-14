@@ -10,6 +10,7 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 
 /**
@@ -29,6 +30,19 @@ class ServerModule {
     @Named("authenticated")
     fun provideDataOkHttp(authenticationInterceptor: AuthenticationInterceptor): OkHttpClient =
         OkHttpClient.Builder().addInterceptor(authenticationInterceptor).build()
+
+    @ServerScope
+    @Provides
+    @Named("glide")
+    fun provideGlideOkHttp(authenticationInterceptor: AuthenticationInterceptor): OkHttpClient =
+        OkHttpClient
+            .Builder()
+            .addInterceptor(authenticationInterceptor)
+            .callTimeout(60, TimeUnit.SECONDS)//it may need some time to generate those
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build()
 
     @Provides
     @ServerScope
