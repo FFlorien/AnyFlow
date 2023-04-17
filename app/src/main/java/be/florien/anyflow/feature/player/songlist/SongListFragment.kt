@@ -50,7 +50,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     private lateinit var binding: FragmentSongListBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var currentSongViewHolder: SongViewHolder
-    private var shouldScrollToCurrent = false
     private var shouldHideLoading = false
     private var isLoadingVisible = false
     private var visibilityJob: Job? = null
@@ -192,7 +191,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
             if (it != null) {
                 songAdapter.submitData(viewLifecycleOwner.lifecycle, it)
-                shouldScrollToCurrent = true
             }
         }
         viewModel.currentSong.observe(viewLifecycleOwner) {
@@ -201,10 +199,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         viewModel.listPosition.observe(viewLifecycleOwner) {
             songAdapter.setSelectedPosition(it)
             updateCurrentSongDisplay()
-            if (shouldScrollToCurrent) {
-                scrollToCurrentSong()
-                shouldScrollToCurrent = false
-            }
         }
         viewModel.isSearching.observe(viewLifecycleOwner) {
             searchMenuHolder.changeState(!it)
