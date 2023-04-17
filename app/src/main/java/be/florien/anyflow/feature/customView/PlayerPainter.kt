@@ -222,7 +222,7 @@ internal abstract class PlayerPainter(
         measuredStartEndAnimDuration =
             ((measuredPlayButtonOffsetWidth * BAR_DURATION_MS) / measuredWaveFormBarWidth).toInt()
         measuredNumberOfWaveFormBarsInHalf =
-            ((width - (measuredSmallestButtonWidth * 2)) / 2 / measuredWaveFormBarWidth).toInt()
+            (((width - (measuredSmallestButtonWidth * 2)) / 2 / measuredWaveFormBarWidth) + 1).toInt()
 
         measuredTickHeight = height / 4f * 3f
         val iconMargin = (measuredSmallestButtonWidth / 4).toInt()
