@@ -28,7 +28,7 @@
             android:padding="@dimen/smallDimen"
             android:src="@drawable/ic_info" />
 
-        <be.florien.anyflow.extension.CheckableConstrainLayout
+        <be.florien.anyflow.extension.CheckableConstraintLayout
             android:id="@+id/info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -60,6 +60,6 @@
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0" />
-        </be.florien.anyflow.extension.CheckableConstrainLayout>
+        </be.florien.anyflow.extension.CheckableConstraintLayout>
     </FrameLayout>
 </layout>

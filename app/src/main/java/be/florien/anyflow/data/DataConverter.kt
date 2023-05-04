@@ -4,6 +4,7 @@ import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.data.view.*
 import be.florien.anyflow.extension.ImageConfig
+import be.florien.anyflow.feature.player.info.song.SongInfoActions
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -80,6 +81,7 @@ fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
     albumId = albumId,
     time = time
 )
+
 fun DbSongInfo.toViewSongInfo() = SongInfo(
     id = song.id,
     track = song.track,
@@ -102,6 +104,9 @@ fun DbSongInfo.toViewSongInfo() = SongInfo(
 
 fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) =
     Playlist(id, name, songCount, ImageConfig(url = coverUrl, resource = null))
+
+fun DbPlaylistWithCountAndPresence.toViewPlaylist(coverUrl: String) =
+    PlaylistWithPresence(id, name, songCount, presence, ImageConfig(url = coverUrl, resource = null))
 
 fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
     argument = if (clause == DbFilter.DOWNLOADED || clause == DbFilter.NOT_DOWNLOADED) argument.toBoolean() else argument.toLong(),
@@ -219,3 +224,15 @@ fun SongInfo.toViewDisplay() = SongDisplay(
     albumId = albumId,
     time = time
 )
+
+fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (this) {
+    SongInfoActions.SongFieldType.Genre -> Filter.FilterType.GENRE_IS
+    SongInfoActions.SongFieldType.Title -> Filter.FilterType.SONG_IS
+    SongInfoActions.SongFieldType.Artist -> Filter.FilterType.ARTIST_IS
+    SongInfoActions.SongFieldType.AlbumArtist -> Filter.FilterType.ALBUM_ARTIST_IS
+    SongInfoActions.SongFieldType.Album -> Filter.FilterType.ALBUM_IS
+    SongInfoActions.SongFieldType.Playlist -> Filter.FilterType.PLAYLIST_IS
+    SongInfoActions.SongFieldType.Year,
+    SongInfoActions.SongFieldType.Duration,
+    SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
+}

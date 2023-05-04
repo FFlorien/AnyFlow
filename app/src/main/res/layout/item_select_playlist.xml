@@ -6,20 +6,18 @@
 
         <variable
             name="item"
-            type="be.florien.anyflow.data.view.Playlist" />
+            type="be.florien.anyflow.data.view.PlaylistWithPresence" />
 
         <variable
-            name="selected"
-            type="boolean" />
+            name="total"
+            type="int" />
 
         <import type="android.view.View" />
     </data>
 
-    <be.florien.anyflow.extension.CheckableConstrainLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_blue_selectable_ripple"
-        android:checked="@{selected}"
         android:minHeight="@dimen/minClickableSize">
 
         <ImageView
@@ -61,5 +59,18 @@
             app:layout_constraintStart_toEndOf="@id/imageView"
             app:layout_constraintTop_toBottomOf="@id/filterName"
             app:layout_constraintVertical_bias="0.0" />
-    </be.florien.anyflow.extension.CheckableConstrainLayout>
+
+        <TextView
+            android:id="@+id/presence"
+            style="@style/Chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginVertical="8dp"
+            android:text="@{@string/playlist_presence(item.presence, total)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintVertical_bias="0.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

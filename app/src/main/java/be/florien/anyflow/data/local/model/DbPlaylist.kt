@@ -20,6 +20,13 @@ data class DbPlaylistWithCount(
     val songCount: Int
 )
 
+data class DbPlaylistWithCountAndPresence(
+    val id: Long,
+    val name: String,
+    val songCount: Int,
+    val presence: Int
+)
+
 @Entity(
     tableName = "PlaylistSongs",
     primaryKeys = ["songId", "playlistId"]

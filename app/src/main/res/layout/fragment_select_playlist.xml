@@ -9,10 +9,6 @@
         <variable
             name="viewModel"
             type="be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel" />
-
-        <variable
-            name="songId"
-            type="Long" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,7 +30,7 @@
             android:background="@drawable/bg_blue_button"
             app:layout_constraintTop_toTopOf="@id/toolbarBackground"
             app:layout_constraintEnd_toEndOf="@+id/toolbarBackground"
-            android:onClick="@{() -> viewModel.confirmChanges(songId)}"/>
+            android:onClick="@{() -> viewModel.confirmChanges()}"/>
 
         <ImageButton
             android:id="@+id/newPlaylistButton"

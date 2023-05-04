@@ -161,6 +161,37 @@ class QueryComposer {
                     " ORDER BY playlist.name COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
+    fun getQueryForPlaylistWithPresence(filter: Filter<*>): SimpleSQLiteQuery {
+        val filterList = listOf(filter)
+        val selectForPresence = "SELECT " +
+                "COUNT(*) " +
+                "FROM playlistSongs " +
+                "JOIN song ON PlaylistSongs.songId = song.id" +
+                constructJoinStatement(filterList) +
+                constructWhereStatement(filterList, "") +
+                " AND playlistsongs.playlistId = playlist.id"
+        return SimpleSQLiteQuery(
+            "SELECT " +
+                    "DISTINCT playlist.id, " +
+                    "playlist.name, " +
+                    "(SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount, " +
+                    "($selectForPresence) as presence " +
+                    "FROM playlist " +
+                    "ORDER BY playlist.name COLLATE UNICODE"
+        )
+    }
+
+    fun getQueryForSongCount(filter: Filter<*>): SimpleSQLiteQuery {
+        val filterList = listOf(filter)
+        return SimpleSQLiteQuery(
+            "SELECT " +
+                    "COUNT(DISTINCT Song.id) " +
+                    "FROM Song " +
+                    constructJoinStatement(filterList) +
+                    constructWhereStatement(filterList, "")
+        )
+    }
+
     fun getQueryForCount(filterList: List<Filter<*>>) = SimpleSQLiteQuery(
         "SELECT " +
                 "SUM(Song.time) AS duration, " +

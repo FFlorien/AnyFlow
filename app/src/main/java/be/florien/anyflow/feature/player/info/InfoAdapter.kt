@@ -78,7 +78,7 @@ open class InfoViewHolder(
         //background
         when (row.actionType.category) {
             InfoActions.ActionTypeCategory.None -> itemView.background = null
-            InfoActions.ActionTypeCategory.Navigation -> itemView.setBackgroundResource(R.drawable.bg_blue_light_selectable_ripple)
+            InfoActions.ActionTypeCategory.Navigation -> itemView.setBackgroundResource(R.drawable.bg_transparent_ripple)
             InfoActions.ActionTypeCategory.Action -> itemView.setBackgroundResource(R.drawable.bg_yellow_selectable_ripple)
         }
     }

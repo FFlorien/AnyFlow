@@ -56,3 +56,12 @@ data class Playlist(
     val count: Int,
     val coverConfig: ImageConfig
 ) : Parcelable
+
+@Parcelize
+data class PlaylistWithPresence(
+    val id: Long,
+    val name: String,
+    val count: Int,
+    val presence: Int,
+    val coverConfig: ImageConfig
+) : Parcelable

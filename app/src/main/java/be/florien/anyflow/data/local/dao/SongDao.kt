@@ -53,6 +53,9 @@ abstract class SongDao : BaseDao<DbSong>() {
     @RawQuery(observedEntities = [DbSong::class])
     abstract suspend fun forCurrentFilters(query: SupportSQLiteQuery): List<Long>
 
+    @RawQuery(observedEntities = [DbSong::class])
+    abstract suspend fun countForFilters(query: SupportSQLiteQuery): Int
+
     //Data
     @Query("SELECT COUNT(*) FROM song")
     abstract suspend fun songCount(): Int

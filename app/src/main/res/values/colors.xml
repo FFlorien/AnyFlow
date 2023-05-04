@@ -16,6 +16,7 @@
     <color name="iconInApp">@color/accent</color>
     <color name="onPrimaryText">#ffffff</color>
     <color name="onSecondaryText">#000000</color>
+    <color name="delete">#fde3e8</color>
     <color name="error">#880205</color>
     <color name="selected">#e3f2fd</color>
     <color name="unselected">#fafafa</color>

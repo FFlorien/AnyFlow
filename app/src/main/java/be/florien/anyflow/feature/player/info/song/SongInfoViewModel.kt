@@ -30,7 +30,7 @@ class SongInfoViewModel @Inject constructor(
 ) {
 
     val searchTerm: LiveData<String> = MutableLiveData(null)
-    val isPlaylistListDisplayed: LiveData<Boolean> = MutableLiveData(false)
+    val isPlaylistListDisplayed: LiveData<PlaylistSelectionData> = MutableLiveData(null)
 
     override fun executeAction(row: InfoActions.InfoRow): Boolean {
         val actionType = row.actionType
@@ -45,7 +45,7 @@ class SongInfoViewModel @Inject constructor(
         viewModelScope.launch {
             when (actionType) {
                 SongInfoActions.SongActionType.AddNext -> infoActions.playNext(songId)
-                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList()
+                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(fieldType, (row as? SongInfoActions.SongMultipleInfoRow)?.index ?: 0)
                 SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(songInfo, row)
                 SongInfoActions.SongActionType.Search ->
                     searchTerm.mutable.value = infoActions.getSearchTerms(songInfo, fieldType)
@@ -59,8 +59,17 @@ class SongInfoViewModel @Inject constructor(
         return true
     }
 
-    private fun displayPlaylistList() {
-        isPlaylistListDisplayed.mutable.value = true
+    private fun displayPlaylistList(fieldType: SongInfoActions.SongFieldType, order: Int) {
+        val id = when (fieldType) {
+             SongInfoActions.SongFieldType.Title -> songInfo.id
+            SongInfoActions.SongFieldType.Artist -> songInfo.artistId
+            SongInfoActions.SongFieldType.Album -> songInfo.albumId
+            SongInfoActions.SongFieldType.AlbumArtist -> songInfo.albumArtistId
+            SongInfoActions.SongFieldType.Genre -> songInfo.genreIds[order]
+            SongInfoActions.SongFieldType.Playlist -> songInfo.playlistIds[order]
+            else -> return
+        }
+        isPlaylistListDisplayed.mutable.value = PlaylistSelectionData(id, fieldType)
     }
 
     override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
@@ -69,4 +78,6 @@ class SongInfoViewModel @Inject constructor(
 
     override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(songInfo, row)
+
+    class PlaylistSelectionData(val id: Long, val type: SongInfoActions.SongFieldType)
 }

@@ -145,8 +145,8 @@ class SongInfoFragment(
                 }
             }
             isPlaylistListDisplayed.observe(viewLifecycleOwner) {
-                if (it) {
-                    SelectPlaylistFragment(songId).show(childFragmentManager, null)
+                if (it != null) {
+                    SelectPlaylistFragment(it.id, it.type).show(childFragmentManager, null)
                 }
             }
         }

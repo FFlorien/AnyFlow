@@ -1,12 +1,14 @@
 package be.florien.anyflow.feature.playlist.selection
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import be.florien.anyflow.data.view.Playlist
+import be.florien.anyflow.data.toViewFilterType
+import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.player.info.song.SongInfoActions
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.Dispatchers
@@ -18,41 +20,68 @@ class SelectPlaylistViewModel @Inject constructor(
     private val playlistRepository: PlaylistRepository
 ) : BaseViewModel(), NewPlaylistViewModel {
 
-    private val currentSelection: MutableSet<Long> = mutableSetOf()
-    val currentSelectionLive: LiveData<Set<Long>> = MutableLiveData(setOf())
+    enum class PlaylistAction {
+        NONE, DELETION, ADDITION
+    }
 
-    val values: LiveData<PagingData<Playlist>> = playlistRepository.getAllPlaylists().cachedIn(this)
+    class PlaylistWithAction(val playlist: PlaylistWithPresence, val action: PlaylistAction)
+
+    private val actions = mutableMapOf<Long, PlaylistAction>()
+    lateinit var playlists: LiveData<List<PlaylistWithPresence>>
+    val values: LiveData<List<PlaylistWithAction>> = MediatorLiveData(emptyList())
+    val filterCount: LiveData<Int> = MutableLiveData()
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = MutableLiveData(false)
 
-    suspend fun updateSelectionWithPlaylists(songId: Long) = withContext(Dispatchers.IO) {
-        currentSelection.addAll(playlistRepository.getPlaylistsWithSongPresence(songId))
-        withContext(Dispatchers.Main) {
-            currentSelectionLive.mutable.value = currentSelection
-        }
-    }
+    private var id: Long = 0L
+    private var filterType: Filter.FilterType = Filter.FilterType.SONG_IS
 
-    fun toggleSelection(selectionValue: Long) {
-        if (!currentSelection.remove(selectionValue)) {
-            currentSelection.add(selectionValue)
-        }
-        currentSelectionLive.mutable.value = currentSelection.toSet()
-    }
-
-    fun isSelected(id: Long) = currentSelection.contains(id)
-
-    fun confirmChanges(songId: Long) {
-        viewModelScope.launch {
-            val playlistWithSong = playlistRepository.getPlaylistsWithSongPresence(songId)
-            for (playlistId in currentSelection) {
-                if (!playlistWithSong.contains(playlistId)) {
-                    playlistRepository.addSongToPlaylist(songId, playlistId)
-                }
+    suspend fun initViewModel(id: Long, type: SongInfoActions.SongFieldType) {
+        this.id = id
+        this.filterType = type.toViewFilterType()
+        withContext(Dispatchers.IO) {
+            filterCount.mutable.postValue(playlistRepository.getSongCountForFilter(id, filterType))
+            playlists = playlistRepository.getPlaylistsWithPresence(id, filterType)
+            (values as MediatorLiveData).addSource(playlists) { _ ->
+                updateValues()
             }
-            for (playlistId in playlistWithSong) {
-                if (!currentSelection.contains(playlistId)) {
-                    playlistRepository.removeSongFromPlaylist(songId, playlistId)
+        }
+    }
+
+    fun rotateActionForPlaylist(selectionValue: Long) {
+        val playlist = playlists.value?.first { it.id == selectionValue } ?: return
+        val currentAction = actions[selectionValue] ?: PlaylistAction.NONE
+
+        val nextAction =
+            if (currentAction == PlaylistAction.NONE) { // this all if else is ugly but I'm tired
+                if (playlist.presence < (filterCount.value ?: 0)) {
+                    PlaylistAction.ADDITION
+                } else if (playlist.presence > 0) {
+                    PlaylistAction.DELETION
+                } else {
+                    PlaylistAction.NONE
                 }
+            } else if (currentAction == PlaylistAction.ADDITION) {
+                if (playlist.presence > 0) {
+                    PlaylistAction.DELETION
+                } else {
+                    PlaylistAction.NONE
+                }
+            } else {
+                PlaylistAction.NONE
+            }
+
+        actions[selectionValue] = nextAction
+        updateValues()
+    }
+
+    fun confirmChanges() {
+        viewModelScope.launch {
+            for (playlistId in actions.filter { it.value == PlaylistAction.ADDITION }.keys) {
+                playlistRepository.addSongsToPlaylist(Filter(filterType, id, ""), playlistId)
+            }
+            for (playlistId in actions.filter { it.value == PlaylistAction.DELETION }.keys) {
+                playlistRepository.removeSongsFromPlaylist(Filter(filterType, id, ""), playlistId)
             }
             isFinished.mutable.value = true
         }
@@ -60,6 +89,12 @@ class SelectPlaylistViewModel @Inject constructor(
 
     fun getNewPlaylistName() {
         isCreating.mutable.value = true
+    }
+
+    private fun updateValues() {
+        values.mutable.value = playlists.value?.map { playlist ->
+            PlaylistWithAction(playlist, actions[playlist.id] ?: PlaylistAction.NONE)
+        }
     }
 
     override fun createPlaylist(name: String) {

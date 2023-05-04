@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.playlist
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import androidx.paging.PagingData
 import be.florien.anyflow.data.SyncRepository
 import be.florien.anyflow.data.UrlRepository
@@ -11,6 +12,7 @@ import be.florien.anyflow.data.server.AmpacheEditSource
 import be.florien.anyflow.data.toViewPlaylist
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Playlist
+import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.extension.convertToPagingLiveData
 import be.florien.anyflow.injection.ServerScope
 import javax.inject.Inject
@@ -30,7 +32,6 @@ class PlaylistRepository @Inject constructor(
         filters: List<Filter<*>>?,
         search: String?
     ): LiveData<PagingData<T>> =
-
         libraryDatabase.getPlaylistDao().rawQueryPaging(
             queryComposer.getQueryForPlaylistFiltered(filters, search)
         ).map { mapping(it) }.convertToPagingLiveData()
@@ -38,14 +39,21 @@ class PlaylistRepository @Inject constructor(
     fun getAllPlaylists(): LiveData<PagingData<Playlist>> =
         getPlaylists({ it.toViewPlaylist(urlRepository.getPlaylistArtUrl(it.id)) }, null, null)
 
-    suspend fun getPlaylistsWithSongPresence(songId: Long): List<Long> =
-        libraryDatabase.getPlaylistDao().getPlaylistsWithCountAndSongPresence(songId)
+    fun getPlaylistsWithPresence(
+        id: Long,
+        type: Filter.FilterType
+    ): LiveData<List<PlaylistWithPresence>> =
+        libraryDatabase
+            .getPlaylistDao()
+            .rawQueryListPlaylistsWithPresence(
+                queryComposer.getQueryForPlaylistWithPresence(Filter(type, id, ""))
+            )
+            .map { list -> list.map { it.toViewPlaylist(urlRepository.getPlaylistArtUrl(it.id)) } }
 
     fun <T : Any> getPlaylistSongs(
         playlistId: Long,
         mapping: (DbSongDisplay) -> T
     ): LiveData<PagingData<T>> =
-
         libraryDatabase.getPlaylistSongsDao().songsFromPlaylist(playlistId).map { mapping(it) }
             .convertToPagingLiveData()
 
@@ -57,6 +65,15 @@ class PlaylistRepository @Inject constructor(
         libraryDatabase.getPlaylistDao().rawQueryListDisplay(
             queryComposer.getQueryForPlaylistFiltered(filters, search)
         ).map { item -> (mapping(item)) }
+
+    suspend fun getSongCountForFilter(
+        id: Long,
+        type: Filter.FilterType
+    ) = libraryDatabase
+        .getSongDao()
+        .countForFilters(
+            queryComposer.getQueryForSongCount(Filter(type, id, ""))
+        )
 
     /**
      * Playlists modification
@@ -72,7 +89,7 @@ class PlaylistRepository @Inject constructor(
         libraryDatabase.getPlaylistDao().delete(DbPlaylist(id, "", ""))
     }
 
-    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
+    private suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheEditSource.addSongToPlaylist(songId, playlistId)
         val playlistLastOrder = libraryDatabase.getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
         libraryDatabase.getPlaylistSongsDao().upsert(
@@ -86,8 +103,26 @@ class PlaylistRepository @Inject constructor(
         )
     }
 
+    suspend fun addSongsToPlaylist(filter: Filter<*>, playlistId: Long) {
+        val songList = libraryDatabase
+            .getSongDao()
+            .forCurrentFilters(queryComposer.getQueryForSongs(listOf(filter), emptyList()))
+        for (songId in songList) {
+            addSongToPlaylist(songId, playlistId)
+        }
+    }
+
     suspend fun removeSongFromPlaylist(songId: Long, playlistId: Long) {
         ampacheEditSource.removeSongFromPlaylist(playlistId, songId)
         libraryDatabase.getPlaylistSongsDao().delete(DbPlaylistSongs(0, songId, playlistId))
+    }
+
+    suspend fun removeSongsFromPlaylist(filter: Filter<*>, playlistId: Long) {
+        val songList = libraryDatabase
+            .getSongDao()
+            .forCurrentFilters(queryComposer.getQueryForSongs(listOf(filter), emptyList()))
+        for (songId in songList) {
+            removeSongFromPlaylist(songId, playlistId)
+        }
     }
 }

@@ -22,7 +22,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_blue_light_selectable_ripple"
+        android:background="@drawable/bg_transparent_ripple"
         android:padding="@dimen/mediumDimen">
 
         <ImageView

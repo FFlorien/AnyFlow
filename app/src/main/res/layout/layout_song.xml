@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="art"
             type="be.florien.anyflow.extension.ImageConfig" />
@@ -22,7 +23,7 @@
 
     </data>
 
-    <be.florien.anyflow.extension.CheckableConstrainLayout
+    <be.florien.anyflow.extension.CheckableConstraintLayout
         android:id="@+id/songInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -90,14 +91,12 @@
 
         <TextView
             android:id="@+id/songDuration"
+            style="@style/Chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_corner_radius"
-            android:paddingHorizontal="@dimen/smallDimen"
             android:text="@{song.timeText}"
-            android:textColor="@color/onPrimaryText"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="3:45" />
-    </be.florien.anyflow.extension.CheckableConstrainLayout>
+    </be.florien.anyflow.extension.CheckableConstraintLayout>
 </layout>

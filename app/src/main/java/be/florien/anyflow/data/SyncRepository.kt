@@ -36,7 +36,7 @@ class SyncRepository
     /*
         todo:
         - First: check if it work, and verify what the deal is with Caravan Palace - Caravan Palace
-        - remove addAll and updateAll: it didn't worked well...
+        - remove *addAll* and updateAll(edit: we have to keep updateAll for tag edits): it didn't worked well...
         - Check how it works with genre, and if it works:
         - Clean deleted songs (and unused album/artist ?)
         - add a method to verify by browsing

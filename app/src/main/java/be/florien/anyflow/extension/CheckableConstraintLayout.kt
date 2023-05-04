@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.widget.Checkable
 import androidx.constraintlayout.widget.ConstraintLayout
 
-class CheckableConstrainLayout @JvmOverloads constructor(
+class CheckableConstraintLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
