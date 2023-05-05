@@ -18,6 +18,7 @@ import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.DeletePlaylistMenuHolder
 import be.florien.anyflow.feature.menu.implementation.NewPlaylistMenuHolder
+import be.florien.anyflow.feature.menu.implementation.PlayPlaylistMenuHolder
 import be.florien.anyflow.feature.menu.implementation.SelectionModeMenuHolder
 import be.florien.anyflow.feature.playlist.deletePlaylistConfirmation
 import be.florien.anyflow.feature.playlist.newPlaylist
@@ -31,6 +32,10 @@ class PlaylistListFragment : BaseFragment() {
     private val menuCoordinator = MenuCoordinator()
     private val newPlaylistMenuHolder = NewPlaylistMenuHolder {
         requireActivity().newPlaylist(viewModel)
+    }
+    private val playPlaylistMenuHolder = PlayPlaylistMenuHolder {
+        viewModel.filterOnSelection()
+        requireActivity().finish()
     }
     private val deletePlaylistMenuHolder = DeletePlaylistMenuHolder {
         requireActivity().deletePlaylistConfirmation(viewModel)
@@ -46,6 +51,7 @@ class PlaylistListFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         menuCoordinator.addMenuHolder(newPlaylistMenuHolder)
+        menuCoordinator.addMenuHolder(playPlaylistMenuHolder)
         menuCoordinator.addMenuHolder(deletePlaylistMenuHolder)
         menuCoordinator.addMenuHolder(selectPlaylistMenuHolder)
         setHasOptionsMenu(true)
@@ -85,6 +91,7 @@ class PlaylistListFragment : BaseFragment() {
             selectPlaylistMenuHolder.changeState(!it)
         }
         viewModel.hasSelection.observe(viewLifecycleOwner) {
+            playPlaylistMenuHolder.isVisible = it
             deletePlaylistMenuHolder.isVisible = it
         }
     }
@@ -106,13 +113,14 @@ class PlaylistListFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         menuCoordinator.removeMenuHolder(newPlaylistMenuHolder)
+        menuCoordinator.removeMenuHolder(playPlaylistMenuHolder)
         menuCoordinator.removeMenuHolder(deletePlaylistMenuHolder)
         menuCoordinator.removeMenuHolder(selectPlaylistMenuHolder)
     }
 
     private fun onItemClicked(item: Playlist?) {
         if (viewModel.isInSelectionMode.value == true) {
-            item?.id?.let { viewModel.toggleSelection(it) }
+            item?.let { viewModel.toggleSelection(it) }
         } else {
             if (item != null)
                 parentFragmentManager.beginTransaction()
@@ -123,8 +131,8 @@ class PlaylistListFragment : BaseFragment() {
 
     class PlaylistAdapter(
         private val onItemClickListener: (Playlist?) -> Unit,
-        override val isSelected: (Long) -> Boolean,
-        override val setSelected: (Long) -> Unit
+        override val isSelected: (Playlist) -> Boolean,
+        override val setSelected: (Playlist) -> Unit
     ) :
         PagingDataAdapter<Playlist, PlaylistViewHolder>(object : DiffUtil.ItemCallback<Playlist>() {
             override fun areItemsTheSame(
@@ -136,10 +144,10 @@ class PlaylistListFragment : BaseFragment() {
                 oldItem: Playlist,
                 newItem: Playlist
             ) = areItemsTheSame(oldItem, newItem) && oldItem.name == newItem.name
-        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Long> {
+        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Playlist> {
         override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
             val item = getItem(position) ?: return
-            holder.bind(item, isSelected(item.id))
+            holder.bind(item, isSelected(item))
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -153,14 +161,14 @@ class PlaylistListFragment : BaseFragment() {
     class PlaylistViewHolder(
         container: ViewGroup,
         val onItemClickListener: (Playlist?) -> Unit,
-        override val onSelectChange: (Long) -> Unit,
+        override val onSelectChange: (Playlist) -> Unit,
         private val binding: ItemPlaylistBinding = ItemPlaylistBinding.inflate(
             LayoutInflater.from(container.context),
             container,
             false
         )
     ) : RecyclerView.ViewHolder(binding.root),
-        BaseSelectableAdapter.BaseSelectableViewHolder<Long, Playlist> {
+        BaseSelectableAdapter.BaseSelectableViewHolder<Playlist, Playlist> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -169,7 +177,7 @@ class PlaylistListFragment : BaseFragment() {
             }
             binding.root.setOnLongClickListener {
                 val item = binding.item ?: return@setOnLongClickListener false
-                onSelectChange(item.id)
+                onSelectChange(item)
                 true
             }
         }
@@ -182,6 +190,6 @@ class PlaylistListFragment : BaseFragment() {
             binding.selected = isSelected
         }
 
-        override fun getCurrentId(): Long? = binding.item?.id
+        override fun getCurrentId(): Playlist? = binding.item
     }
 }

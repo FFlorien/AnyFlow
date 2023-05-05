@@ -3,11 +3,14 @@ package be.florien.anyflow.feature.playlist.list
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.playlist.DeletePlaylistViewModel
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.PlaylistRepository
+import be.florien.anyflow.player.FiltersManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,10 +19,13 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     @Inject
     lateinit var playlistRepository: PlaylistRepository
 
+    @Inject
+    lateinit var filtersManager: FiltersManager
+
     val playlistList: LiveData<PagingData<Playlist>> by lazy {
         playlistRepository.getAllPlaylists().cachedIn(this)
     }
-    val selection: LiveData<List<Long>> = MutableLiveData(mutableListOf())
+    val selection: LiveData<List<Playlist>> = MutableLiveData(mutableListOf())
     private var isForcingSelectMode = false
     val isInSelectionMode: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(selection) {
@@ -30,12 +36,12 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
         it.isNotEmpty()
     }
 
-    fun isSelected(id: Long) = selection.value?.contains(id) ?: false
+    fun isSelected(playlist: Playlist) = selection.value?.contains(playlist) ?: false
 
-    fun toggleSelection(id: Long) {
+    fun toggleSelection(playlist: Playlist) {
         val newList = selection.value?.toMutableList() ?: mutableListOf()
-        if (!newList.remove(id)) {
-            newList.add(id)
+        if (!newList.remove(playlist)) {
+            newList.add(playlist)
         }
         selection.mutable.value = newList
     }
@@ -49,7 +55,7 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     override fun deletePlaylist() {
         viewModelScope.launch {
             selection.value?.forEach {
-                playlistRepository.deletePlaylist(it)
+                playlistRepository.deletePlaylist(it.id)
             }
             selection.mutable.value = mutableListOf()
         }
@@ -62,6 +68,16 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
         } else {
             selection.mutable.value = mutableListOf()
             false
+        }
+    }
+
+    fun filterOnSelection() {
+        filtersManager.clearFilters()
+        selection.value?.forEach {
+            filtersManager.addFilter(Filter(Filter.FilterType.PLAYLIST_IS, it.id, it.name))
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            filtersManager.commitChanges()
         }
     }
 }

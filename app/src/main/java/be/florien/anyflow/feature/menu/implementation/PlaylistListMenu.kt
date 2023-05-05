@@ -18,6 +18,12 @@ class DeletePlaylistMenuHolder(action: () -> Unit) : MenuHolder(
     action
 )
 
+class PlayPlaylistMenuHolder(action: () -> Unit) : MenuHolder(
+    R.menu.menu_playlist_list,
+    R.id.menu_play_playlist,
+    action
+)
+
 class SelectionModeMenuHolder(isSelectMode: Boolean, context: Context, action: () -> Unit) : AnimatedMenuHolder(
     R.menu.menu_playlist_list,
     R.id.menu_select_playlist,

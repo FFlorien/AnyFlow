@@ -61,5 +61,5 @@
             app:layout_constraintStart_toEndOf="@id/imageView"
             app:layout_constraintTop_toBottomOf="@id/filterName"
             app:layout_constraintVertical_bias="0.0" />
-    </be.florien.anyflow.extension.CheckableConstrainLayout>
+    </be.florien.anyflow.extension.CheckableConstraintLayout>
 </layout>

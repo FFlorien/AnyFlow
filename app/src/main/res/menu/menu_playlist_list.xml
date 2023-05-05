@@ -9,6 +9,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/menu_play_playlist"
+        android:title="@string/menu_playlist_play"
+        android:icon="@drawable/ic_play"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/menu_delete_playlist"
         android:title="@string/menu_playlist_delete"
         android:icon="@drawable/ic_delete_yellow"
