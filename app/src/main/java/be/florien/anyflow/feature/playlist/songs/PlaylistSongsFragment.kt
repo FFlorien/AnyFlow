@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.playlist.songs
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +19,9 @@ import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.feature.menu.implementation.PlayPlaylistSongsMenuHolder
 import be.florien.anyflow.feature.menu.implementation.RemoveSongsMenuHolder
+import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.feature.refreshVisibleViewHolders
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
@@ -26,6 +29,12 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
     lateinit var recyclerView: RecyclerView
     lateinit var viewModel: PlaylistSongsViewModel
     private val menuCoordinator = MenuCoordinator()
+    private val playPlaylistMenuHolder = PlayPlaylistSongsMenuHolder {
+        viewModel.filterOnPlaylist()
+        val intent  = Intent(requireContext(), PlayerActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        requireActivity().startActivity(intent)
+    }
     private val removeFromPlaylistMenuHolder = RemoveSongsMenuHolder {
         requireActivity().removeSongsConfirmation(viewModel)
     }
@@ -45,6 +54,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        menuCoordinator.addMenuHolder(playPlaylistMenuHolder)
         menuCoordinator.addMenuHolder(removeFromPlaylistMenuHolder)
         setHasOptionsMenu(true)
     }
@@ -55,7 +65,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             this,
             ViewModelProvider.NewInstanceFactory()
         )[PlaylistSongsViewModel::class.java]
-        viewModel.playlistId = playlist?.id ?: throw IllegalStateException("Playlist shouldn't be null !")
+        viewModel.playlist = playlist ?: throw IllegalStateException("Playlist shouldn't be null !")
         anyFlowApp.serverComponent?.inject(viewModel)
     }
 
@@ -103,6 +113,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
 
     override fun onDestroy() {
         super.onDestroy()
+        menuCoordinator.removeMenuHolder(playPlaylistMenuHolder)
         menuCoordinator.removeMenuHolder(removeFromPlaylistMenuHolder)
     }
 
