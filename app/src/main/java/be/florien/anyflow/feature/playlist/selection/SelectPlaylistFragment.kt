@@ -151,6 +151,13 @@ class SelectPlaylistFragment(
         fun bind(item: SelectPlaylistViewModel.PlaylistWithAction, total: Int) {
             itemPlaylistBinding.item = item.playlist
             itemPlaylistBinding.total = total
+            itemPlaylistBinding.presenceBg = if (item.playlist.presence == 0) {
+                R.drawable.bg_corner_radius_none
+            } else if (item.playlist.presence == total) {
+                R.drawable.bg_corner_radius_all
+            } else {
+                R.drawable.bg_corner_radius_partial
+            }
             setAction(item.action)
             itemPlaylistBinding.root.setOnClickListener {
                 onActionChange(item.playlist.id)

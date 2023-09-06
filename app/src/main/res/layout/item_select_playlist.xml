@@ -12,6 +12,10 @@
             name="total"
             type="int" />
 
+        <variable
+            name="presenceBg"
+            type="int" />
+
         <import type="android.view.View" />
     </data>
 
@@ -67,6 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:layout_marginVertical="8dp"
+            android:background="@{presenceBg != 0x0 ? context.getDrawable(presenceBg) : @drawable/bg_corner_radius_all}"
             android:text="@{@string/playlist_presence(item.presence, total)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

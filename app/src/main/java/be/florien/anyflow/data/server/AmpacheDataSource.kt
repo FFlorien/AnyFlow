@@ -334,7 +334,7 @@ open class AmpacheDataSource
         percentageUpdater: MutableLiveData<Int>
     ) {
         var currentOffset = sharedPreferences.getInt(offsetName, 0)
-        val totalSongs = sharedPreferences.getInt(countName, 1)
+        val totalSongs = sharedPreferences.getInt(countName, 1).takeIf { it > 0 } ?: 1
         if (itemList.isNullOrEmpty()) {
             percentageUpdater.postValue(-1)
         } else {

@@ -44,7 +44,6 @@
     </style>
 
     <style name="Chip">
-        <item name="android:background">@drawable/bg_corner_radius</item>
         <item name="android:paddingStart">@dimen/smallDimen</item>
         <item name="android:paddingEnd">@dimen/smallDimen</item>
         <item name="android:textColor">@color/onPrimaryText</item>
