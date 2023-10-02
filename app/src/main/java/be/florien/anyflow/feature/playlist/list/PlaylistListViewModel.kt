@@ -32,7 +32,7 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
             value = isForcingSelectMode || it.isNotEmpty()
         }
     }.distinctUntilChanged()
-    val hasSelection: LiveData<Boolean> = Transformations.map(selection) {
+    val hasSelection: LiveData<Boolean> = selection.map {
         it.isNotEmpty()
     }
 

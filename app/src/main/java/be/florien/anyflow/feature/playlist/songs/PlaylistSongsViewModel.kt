@@ -27,7 +27,7 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     lateinit var filtersManager: FiltersManager
 
     val selectionList: LiveData<List<Long>> = MutableLiveData(listOf())
-    val hasSelection: LiveData<Boolean> = Transformations.map(selectionList) {
+    val hasSelection: LiveData<Boolean> = selectionList.map {
         it.isNotEmpty()
     }.distinctUntilChanged()
 

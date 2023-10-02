@@ -8,7 +8,6 @@ import android.os.Build
 import android.util.DisplayMetrics
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleService
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.feature.player.PlayerActivity
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
@@ -32,7 +31,7 @@ fun Context.startActivity(activityClass: KClass<*>) {
 
 fun Service.stopForegroundAndKeepNotification() {
     if (Build.VERSION.SDK_INT >= 24) {
-        stopForeground(LifecycleService.STOP_FOREGROUND_DETACH)
+        stopForeground(Service.STOP_FOREGROUND_DETACH)
     } else {
         @Suppress("DEPRECATION")
         stopForeground(false)
