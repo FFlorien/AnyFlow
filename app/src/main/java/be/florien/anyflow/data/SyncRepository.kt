@@ -44,7 +44,7 @@ class SyncRepository
             - check with database
             - if there's any difference
                 - either the difference between DB and Server is below a defined treshold, then get the filtered data immediately (E.G: 125 songs in db and 145 on server)
-                - or it's above the treshold (2467 in db, 3367 on server) and we browse down
+                - or it's above the threshold (2467 in db, 3367 on server) and we browse down
      */
 
     suspend fun syncAll() {
@@ -231,7 +231,12 @@ class SyncRepository
     private suspend fun updateSongs(from: Calendar) =
         updateList(from, AmpacheDataSource::getUpdatedSongs) { ampacheSongList ->
             if (ampacheSongList != null) {
-                val songs = ampacheSongList.map { it.toDbSong() }
+                val songIds = ampacheSongList.map { it.id }
+                val songsToUpdate = libraryDatabase.getSongDao().songsToUpdate(songIds)
+                val songs = ampacheSongList.map { new ->
+                    val localUri = songsToUpdate.firstOrNull { old -> old.id == new.id }?.local
+                    new.toDbSong(localUri)
+                }
                 asyncUpdate(CHANGE_SONGS) {
                     libraryDatabase.getSongDao().upsert(songs)
                     val songGenres = ampacheSongList.map { it.toDbSongGenres() }.flatten()

@@ -12,7 +12,7 @@ import kotlin.time.toDuration
 /**
  * Server to Database
  */
-fun AmpacheSong.toDbSong() = DbSong(
+fun AmpacheSong.toDbSong(local: String? = null) = DbSong(
     id = id,
     title = title,
     artistId = artist.id,
@@ -23,7 +23,7 @@ fun AmpacheSong.toDbSong() = DbSong(
     composer = composer ?: "",
     disk = disk,
     size = size,
-    local = null,
+    local = local,
     waveForm = ""
 )
 

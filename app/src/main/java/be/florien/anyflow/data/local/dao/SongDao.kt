@@ -24,6 +24,9 @@ abstract class SongDao : BaseDao<DbSong>() {
     @Query("SELECT song.id, song.local FROM song JOIN queueorder ON song.id = queueorder.songId ORDER BY queueorder.`order`")
     abstract fun songsInQueueOrder(): LiveData<List<DbSongToPlay>>
 
+    @Query("SELECT song.id, song.local FROM song WHERE song.id IN (:ids)")
+    abstract suspend fun songsToUpdate(ids: List<Long>): List<DbSongToPlay>
+
     @RawQuery(observedEntities = [DbSong::class])
     abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbSongDisplay>
 
