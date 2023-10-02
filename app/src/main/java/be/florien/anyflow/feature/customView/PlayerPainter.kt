@@ -60,15 +60,11 @@ internal abstract class PlayerPainter(
         set(value) {
             field = value
             if (value) {
-                nextIcon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                    iconColor,
-                    BlendModeCompat.SRC_IN
-                )
+                nextIcon.colorFilter = BlendModeColorFilterCompat
+                    .createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
             } else {
-                nextIcon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                    disabledColor,
-                    BlendModeCompat.SRC_IN
-                )
+                nextIcon.colorFilter = BlendModeColorFilterCompat
+                    .createBlendModeColorFilterCompat(disabledColor, BlendModeCompat.SRC_IN)
             }
         }
     var onValuesComputed: () -> Unit = {}
@@ -163,10 +159,12 @@ internal abstract class PlayerPainter(
      * Widget Methods
      */
     open fun retrieveLayoutProperties(values: TypedArray) {
-        measuredSmallestButtonWidth = values.getDimensionPixelSize(
-            R.styleable.PlayerControls_smallestButtonWidth,
-            measuredSmallestButtonWidth.toInt()
-        ).toFloat()
+        measuredSmallestButtonWidth = values
+            .getDimensionPixelSize(
+                R.styleable.PlayerControls_smallestButtonWidth,
+                measuredSmallestButtonWidth.toInt()
+            )
+            .toFloat()
         values.getColor(R.styleable.PlayerControls_iconColor, PlayerControls.NO_VALUE)
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
                 iconColor = it
@@ -285,6 +283,10 @@ internal abstract class PlayerPainter(
             val leftBound = (value + BAR_MARGIN)
             val rightBound = value + measuredWaveFormBarWidth - BAR_MARGIN
 
+            if (rightBound < playButtonLeftBound) {
+                return@forEachIndexed
+            }
+
             canvas.drawRect( // Already played Amplitude bars
                 /* left =   */ leftBound.coerceAtLeast(playButtonLeftBound),
                 /* top =    */ topBound.toFloat(),
@@ -301,6 +303,11 @@ internal abstract class PlayerPainter(
             val topBound = (measuredInformationBaseline - (measuredInformationBaseline * barRatio))
             val leftBound = (value + BAR_MARGIN)
             val rightBound = value + measuredWaveFormBarWidth - BAR_MARGIN
+
+            if (leftBound > playButtonRightBound) {
+                return@forEachIndexed
+            }
+
             canvas.drawRect( // Amplitude bars to read
                 /* left =   */ leftBound.coerceAtLeast(measuredCenterX),
                 /* top =    */ topBound.toFloat(),
@@ -411,7 +418,8 @@ internal abstract class PlayerPainter(
             val remainingTime = (totalDuration - duration).toFloat()
             val endProgressPercent = remainingTime / measuredStartEndAnimDuration
             val offsetOfPlayButton = (endProgressPercent * measuredPlayButtonOffsetWidth).toInt()
-            val maybeRightBound = (measuredSmallPlayButtonRightX + offsetOfPlayButton).coerceAtLeast(measuredSmallPlayButtonRightX)
+            val maybeRightBound = (measuredSmallPlayButtonRightX + offsetOfPlayButton)
+                .coerceAtLeast(measuredSmallPlayButtonRightX)
             if (maybeRightBound < measuredBigPlayButtonRightX) {
                 maybeRightBound
             } else {
@@ -431,22 +439,28 @@ internal abstract class PlayerPainter(
         val barProgressPercent = barPositionInDuration.toFloat() / BAR_DURATION_MS
         val barStartOffset = (barProgressPercent * measuredWaveFormBarWidth).toInt()
 
-        currentWaveFormBarIndex =
-            (duration / BAR_DURATION_MS).coerceAtLeast(0).coerceAtMost(waveForm.size - 1)
-        firstWaveFormBarIndex = (currentWaveFormBarIndex - measuredNumberOfWaveFormBarsInHalf).coerceAtLeast(0)
-        lastWaveFormBarIndex =
-            (currentWaveFormBarIndex + measuredNumberOfWaveFormBarsInHalf + 1).coerceAtMost(waveForm.size - 1)
+        currentWaveFormBarIndex = (duration / BAR_DURATION_MS)
+            .coerceAtLeast(0)
+            .coerceAtMost(waveForm.size - 1)
+        firstWaveFormBarIndex = (currentWaveFormBarIndex - measuredNumberOfWaveFormBarsInHalf)
+            .coerceAtLeast(0)
+        lastWaveFormBarIndex = (currentWaveFormBarIndex + measuredNumberOfWaveFormBarsInHalf + 1)
+            .coerceAtMost(waveForm.size - 1)
         val firstCurrentDelta = currentWaveFormBarIndex - firstWaveFormBarIndex
 
-        waveForm.slice(firstWaveFormBarIndex..currentWaveFormBarIndex).forEachIndexed { index, _ ->
-            readWaveFormLeftValues[index] =
-                (measuredCenterX - ((firstCurrentDelta - index) * measuredWaveFormBarWidth) - barStartOffset)
-        }
+        waveForm
+            .slice(firstWaveFormBarIndex..currentWaveFormBarIndex)
+            .forEachIndexed { index, _ ->
+                val position = (firstCurrentDelta - index) * measuredWaveFormBarWidth
+                readWaveFormLeftValues[index] = (measuredCenterX - position - barStartOffset)
+            }
 
-        waveForm.slice(currentWaveFormBarIndex until lastWaveFormBarIndex).forEachIndexed { index, _ ->
-            comingWaveFormLeftValues[index] =
-                (measuredCenterX + (index * measuredWaveFormBarWidth) - barStartOffset)
-        }
+        waveForm
+            .slice(currentWaveFormBarIndex until lastWaveFormBarIndex)
+            .forEachIndexed { index, _ ->
+                val previousWidth = index * measuredWaveFormBarWidth
+                comingWaveFormLeftValues[index] = (measuredCenterX + previousWidth - barStartOffset)
+            }
 
         val readBarsSize = currentWaveFormBarIndex - firstWaveFormBarIndex + 1
         readWaveFormLeftValues.fill(-1F, readBarsSize)
@@ -478,10 +492,8 @@ internal abstract class PlayerPainter(
         val icon = AnimatedVectorDrawableCompat.create(context, R.drawable.ic_next)
             ?: throw IllegalArgumentException("Icon wasn't found !")
         icon.bounds = bounds
-        icon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-            iconColor,
-            BlendModeCompat.SRC_IN
-        )
+        icon.colorFilter = BlendModeColorFilterCompat
+            .createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
         icon.start()
         return icon
     }
