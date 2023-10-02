@@ -12,6 +12,21 @@ import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.HttpDataSource
+import androidx.media3.datasource.cache.Cache
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlaybackException
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.source.UnrecognizedInputFormatException
 import be.florien.anyflow.data.DownloadManager
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.server.AmpacheDataSource
@@ -19,20 +34,12 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.injection.ServerScope
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSource
-import com.google.android.exoplayer2.upstream.HttpDataSource
-import com.google.android.exoplayer2.upstream.cache.Cache
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 import javax.inject.Named
 
+@androidx.media3.common.util.UnstableApi
 @ServerScope
 class ExoPlayerController
 @Inject constructor(
@@ -177,6 +184,7 @@ class ExoPlayerController
                 AudioManager.AUDIOFOCUS_REQUEST_DELAYED -> {
                     shouldPlayOnFocusChange = true
                 }
+
                 AudioManager.AUDIOFOCUS_REQUEST_GRANTED -> {
                     mediaPlayer.playWhenReady = true
                     (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PLAY
@@ -207,15 +215,18 @@ class ExoPlayerController
                 if (!isPlaying() && shouldPlayOnFocusChange) resume()
                 shouldPlayOnFocusChange = false
             }
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     mediaPlayer.volume = 0.2f
                 }
             }
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 pause()
                 shouldPlayOnFocusChange = true
             }
+
             AudioManager.AUDIOFOCUS_LOSS -> {
                 stop()
                 shouldPlayOnFocusChange = false
@@ -320,12 +331,15 @@ class ExoPlayerController
             Player.STATE_ENDED -> {
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.PAUSE
             }
+
             Player.STATE_BUFFERING -> {
                 //todo should I care ? ampacheAuthSource.resetReconnectionCount()
                 (stateChangeNotifier as MutableLiveData).value = PlayerController.State.BUFFER
             }
+
             Player.STATE_IDLE -> (stateChangeNotifier as MutableLiveData).value =
                 PlayerController.State.NO_MEDIA
+
             Player.STATE_READY -> (stateChangeNotifier as MutableLiveData).value =
                 if (playWhenReady) PlayerController.State.PLAY else PlayerController.State.PAUSE
         }
