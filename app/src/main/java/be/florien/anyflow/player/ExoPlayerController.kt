@@ -16,7 +16,6 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.cache.Cache
@@ -59,7 +58,6 @@ class ExoPlayerController
     }
     private val exoplayerScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
-    private val dataSourceFactory: DataSource.Factory
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
     override val playTimeNotifier: LiveData<Long> = MutableLiveData()
 
@@ -85,7 +83,7 @@ class ExoPlayerController
      */
 
     init {
-        dataSourceFactory = DefaultDataSource.Factory(
+        val dataSourceFactory = DefaultDataSource.Factory(
             context, CacheDataSource.Factory()
                 .setCache(cache)
                 .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
@@ -111,8 +109,7 @@ class ExoPlayerController
             while (true) {
                 delay(10)
                 withContext(Dispatchers.Main) {
-                    val contentPosition = mediaPlayer.contentPosition
-                    (playTimeNotifier as MutableLiveData).value = contentPosition
+                    (playTimeNotifier as MutableLiveData).value = mediaPlayer.contentPosition
                 }
             }
         }
