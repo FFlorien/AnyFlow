@@ -6,6 +6,7 @@ import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.extension.iLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class QueryComposer {
@@ -233,6 +234,7 @@ class QueryComposer {
         orderList: List<Order> = emptyList()
     ): String {
         if (filterList == null || filterList.isEmpty() && orderList.isEmpty()) {
+            iLog("return of the bug")
             return " "
         }
         val isJoiningArtist = orderList.any { it.orderingSubject == Order.Subject.ARTIST }
@@ -270,9 +272,10 @@ class QueryComposer {
             join += " JOIN songgenre AS songgenre$i ON songgenre$i.songId = song.id"
         }
         for (i in 0 until playlistSongsJointCount) {
-            join += " JOIN playlistsongs AS playlistsongs$i ON playlistsongs$i.songId = song.id"
+            join += " LEFT JOIN playlistsongs AS playlistsongs$i ON playlistsongs$i.songId = song.id"
         }
 
+        iLog("Join statement: [$join]")
         return join
     }
 
@@ -290,14 +293,15 @@ class QueryComposer {
         searchCondition: String,
         search: String? = null
     ): String {
-        return if ((filterList != null && filterList.isNotEmpty()) || search != null && search.isNotBlank()) {
+        return if (!filterList.isNullOrEmpty() || !search.isNullOrBlank()) {
             var where = " WHERE"
-            if (search != null && search.isNotBlank()) {
+            if (!search.isNullOrBlank()) {
                 where += searchCondition
             }
-            if (filterList != null && filterList.isNotEmpty()) {
+            if (!filterList.isNullOrEmpty()) {
                 where += constructWhereSubStatement(filterList, 0, 0, 0)
             }
+            iLog("Where statement: [$where]")
             where
         } else {
             ""
