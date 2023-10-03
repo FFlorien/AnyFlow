@@ -8,7 +8,7 @@ import be.florien.anyflow.data.toViewFilterType
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.feature.BaseViewModel
-import be.florien.anyflow.feature.player.info.song.SongInfoActions
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.Dispatchers

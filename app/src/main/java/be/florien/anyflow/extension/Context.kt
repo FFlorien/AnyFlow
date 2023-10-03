@@ -9,7 +9,7 @@ import android.util.DisplayMetrics
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
 import kotlin.reflect.KClass
 
@@ -54,4 +54,4 @@ private fun Activity.getDisplayWidthLegacy(): Int {
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
-private fun Activity.getDisplayWidthNew() =windowManager.currentWindowMetrics.bounds.width()
+private fun Activity.getDisplayWidthNew() = windowManager.currentWindowMetrics.bounds.width()

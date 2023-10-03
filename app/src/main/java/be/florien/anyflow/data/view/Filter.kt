@@ -1,8 +1,8 @@
 package be.florien.anyflow.data.view
 
 import android.os.Parcelable
-import be.florien.anyflow.data.SyncRepository
-import be.florien.anyflow.player.QueueRepository
+import be.florien.anyflow.feature.player.services.queue.QueueRepository
+import be.florien.anyflow.feature.sync.SyncRepository
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 import kotlin.time.Duration
@@ -26,6 +26,7 @@ data class Filter<T>(
                 argument as Long,
                 song.id
             )
+
             FilterType.DOWNLOADED_STATUS_IS -> !song.local.isNullOrBlank()
         }
     }

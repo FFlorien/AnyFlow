@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.player.library.list.LibraryListViewModel" />
+            type="be.florien.anyflow.feature.player.ui.library.list.LibraryListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,35 +19,35 @@
             android:id="@+id/search"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:singleLine="true"
-            android:inputType="text"
+            android:autofillHints="@string/filter_type_search"
             android:background="@color/primary"
-            android:textColor="@android:color/white"
-            android:textColorHint="@color/accentLight"
+            android:hint="@string/filter_type_search"
+            android:inputType="text"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:autofillHints="@string/filter_type_search"
-            android:hint="@string/filter_type_search"
+            android:singleLine="true"
             android:text="@={viewModel.searchedText}"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/accentLight"
             android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/search_erase"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/search_erase"
-            android:src="@drawable/ic_erase"
-            app:tint="@color/accent"
-            android:background="@drawable/bg_blue_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:background="@drawable/bg_blue_button"
+            android:onClick="@{() -> viewModel.deleteSearch()}"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:src="@drawable/ic_erase"
             android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
-            android:onClick="@{() -> viewModel.deleteSearch()}"
-            app:layout_constraintStart_toEndOf="@+id/search"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/search"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/accent" />
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/filterList"

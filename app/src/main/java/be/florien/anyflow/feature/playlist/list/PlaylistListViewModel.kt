@@ -1,15 +1,20 @@
 package be.florien.anyflow.feature.playlist.list
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.playlist.DeletePlaylistViewModel
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.PlaylistRepository
-import be.florien.anyflow.player.FiltersManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject

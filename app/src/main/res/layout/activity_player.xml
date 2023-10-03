@@ -3,7 +3,7 @@
 
     <data>
 
-        <import type="be.florien.anyflow.player.PlayerController.State" />
+        <import type="be.florien.anyflow.feature.player.services.controller.PlayerController" />
 
         <import type="be.florien.anyflow.R" />
 
@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.player.PlayerViewModel" />
+            type="be.florien.anyflow.feature.player.ui.PlayerViewModel" />
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,8 +32,8 @@
                 android:background="@color/primary"
                 android:elevation="@dimen/mediumDimen"
                 android:theme="@style/ToolBarStyle"
-                app:titleTextAppearance="@style/Toolbar.TitleText"
-                app:subtitleTextAppearance="@style/Toolbar.SubTitleText" />
+                app:subtitleTextAppearance="@style/Toolbar.SubTitleText"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
 
             <LinearLayout
                 android:id="@+id/connectionStateView"
@@ -84,7 +84,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <be.florien.anyflow.feature.customView.PlayerControls
+            <be.florien.anyflow.feature.player.ui.controls.PlayerControls
                 android:id="@+id/playerControls"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
@@ -106,7 +106,7 @@
                 app:smallestButtonWidth="@dimen/minClickableSize"
                 app:state="@{viewModel.state}"
                 app:totalDuration="@{viewModel.totalDuration}"
-                app:waveForm="@{viewModel.waveForm}"/>
+                app:waveForm="@{viewModel.waveForm}" />
         </LinearLayout>
 
         <com.google.android.material.navigation.NavigationView

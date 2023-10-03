@@ -12,15 +12,15 @@
 
         <variable
             name="vm"
-            type="be.florien.anyflow.feature.player.library.filters.DisplayFilterViewModel" />
+            type="be.florien.anyflow.feature.player.ui.library.filters.DisplayFilterViewModel" />
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_transparent_ripple"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:background="@drawable/bg_transparent_ripple"
         android:padding="@dimen/listItemPadding">
 
         <TextView

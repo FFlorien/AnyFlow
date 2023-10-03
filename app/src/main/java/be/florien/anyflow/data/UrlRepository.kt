@@ -1,6 +1,7 @@
 package be.florien.anyflow.data
 
 import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.feature.sync.SyncRepository
 import be.florien.anyflow.injection.ServerScope
 import javax.inject.Inject
 

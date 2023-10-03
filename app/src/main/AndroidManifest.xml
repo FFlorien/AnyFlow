@@ -19,7 +19,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".feature.player.PlayerActivity"
+            android:name=".feature.player.ui.PlayerActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme">
@@ -29,16 +29,16 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".feature.connect.ServerActivity" />
-        <activity android:name=".feature.connect.UserConnectActivity" />
+        <activity android:name=".feature.auth.ServerActivity" />
+        <activity android:name=".feature.auth.UserConnectActivity" />
 
         <activity android:name=".feature.alarms.AlarmActivity" />
 
-        <activity android:name=".feature.player.info.song.quickActions.QuickActionsActivity" />
+        <activity android:name=".feature.player.ui.info.song.quickActions.QuickActionsActivity" />
         <activity android:name=".feature.playlist.PlaylistsActivity" />
 
         <service
-            android:name=".player.PlayerService"
+            android:name=".feature.player.services.PlayerService"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
@@ -46,7 +46,7 @@
         </service>
 
         <service
-            android:name=".data.SyncService"
+            android:name=".feature.sync.SyncService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

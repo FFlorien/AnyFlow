@@ -1,10 +1,11 @@
 package be.florien.anyflow.injection
 
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.server.AuthenticationInterceptor
-import be.florien.anyflow.player.*
+import be.florien.anyflow.feature.auth.AuthRepository
+import be.florien.anyflow.feature.player.services.controller.ExoPlayerController
+import be.florien.anyflow.feature.player.services.controller.PlayerController
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient

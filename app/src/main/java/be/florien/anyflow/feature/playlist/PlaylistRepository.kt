@@ -3,17 +3,20 @@ package be.florien.anyflow.feature.playlist
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.PagingData
-import be.florien.anyflow.data.SyncRepository
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.QueryComposer
-import be.florien.anyflow.data.local.model.*
+import be.florien.anyflow.data.local.model.DbPlaylist
+import be.florien.anyflow.data.local.model.DbPlaylistSongs
+import be.florien.anyflow.data.local.model.DbPlaylistWithCount
+import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.server.AmpacheEditSource
 import be.florien.anyflow.data.toViewPlaylist
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.extension.convertToPagingLiveData
+import be.florien.anyflow.feature.sync.SyncRepository
 import be.florien.anyflow.injection.ServerScope
 import javax.inject.Inject
 
@@ -91,7 +94,8 @@ class PlaylistRepository @Inject constructor(
 
     private suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
         ampacheEditSource.addSongToPlaylist(songId, playlistId)
-        val playlistLastOrder = libraryDatabase.getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
+        val playlistLastOrder =
+            libraryDatabase.getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
         libraryDatabase.getPlaylistSongsDao().upsert(
             listOf(
                 DbPlaylistSongs(

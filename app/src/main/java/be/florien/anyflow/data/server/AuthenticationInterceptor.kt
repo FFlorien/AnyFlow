@@ -1,8 +1,8 @@
 package be.florien.anyflow.data.server
 
-import be.florien.anyflow.data.AuthRepository
 import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.user.AuthPersistence
+import be.florien.anyflow.feature.auth.AuthRepository
 import be.florien.anyflow.injection.ServerScope
 import dagger.Lazy
 import kotlinx.coroutines.runBlocking

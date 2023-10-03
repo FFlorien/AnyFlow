@@ -1,10 +1,40 @@
 package be.florien.anyflow.data
 
-import be.florien.anyflow.data.local.model.*
-import be.florien.anyflow.data.server.model.*
-import be.florien.anyflow.data.view.*
+import be.florien.anyflow.data.local.model.DbAlarm
+import be.florien.anyflow.data.local.model.DbAlbum
+import be.florien.anyflow.data.local.model.DbArtist
+import be.florien.anyflow.data.local.model.DbFilter
+import be.florien.anyflow.data.local.model.DbFilterCount
+import be.florien.anyflow.data.local.model.DbFilterGroup
+import be.florien.anyflow.data.local.model.DbGenre
+import be.florien.anyflow.data.local.model.DbOrder
+import be.florien.anyflow.data.local.model.DbPlaylist
+import be.florien.anyflow.data.local.model.DbPlaylistSongs
+import be.florien.anyflow.data.local.model.DbPlaylistWithCount
+import be.florien.anyflow.data.local.model.DbPlaylistWithCountAndPresence
+import be.florien.anyflow.data.local.model.DbSong
+import be.florien.anyflow.data.local.model.DbSongDisplay
+import be.florien.anyflow.data.local.model.DbSongGenre
+import be.florien.anyflow.data.local.model.DbSongId
+import be.florien.anyflow.data.local.model.DbSongInfo
+import be.florien.anyflow.data.server.model.AmpacheAlbum
+import be.florien.anyflow.data.server.model.AmpacheArtist
+import be.florien.anyflow.data.server.model.AmpacheNameId
+import be.florien.anyflow.data.server.model.AmpachePlayListWithSongs
+import be.florien.anyflow.data.server.model.AmpachePlaylistSong
+import be.florien.anyflow.data.server.model.AmpacheSong
+import be.florien.anyflow.data.server.model.AmpacheSongId
+import be.florien.anyflow.data.view.Alarm
+import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.data.view.FilterCount
+import be.florien.anyflow.data.view.FilterGroup
+import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.Playlist
+import be.florien.anyflow.data.view.PlaylistWithPresence
+import be.florien.anyflow.data.view.SongDisplay
+import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
-import be.florien.anyflow.feature.player.info.song.SongInfoActions
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -106,7 +136,13 @@ fun DbPlaylistWithCount.toViewPlaylist(coverUrl: String) =
     Playlist(id, name, songCount, ImageConfig(url = coverUrl, resource = null))
 
 fun DbPlaylistWithCountAndPresence.toViewPlaylist(coverUrl: String) =
-    PlaylistWithPresence(id, name, songCount, presence, ImageConfig(url = coverUrl, resource = null))
+    PlaylistWithPresence(
+        id,
+        name,
+        songCount,
+        presence,
+        ImageConfig(url = coverUrl, resource = null)
+    )
 
 fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
     argument = if (clause == DbFilter.DOWNLOADED || clause == DbFilter.NOT_DOWNLOADED) argument.toBoolean() else argument.toLong(),
@@ -119,6 +155,7 @@ fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
         DbFilter.PLAYLIST_ID -> Filter.FilterType.PLAYLIST_IS
         DbFilter.DOWNLOADED,
         DbFilter.NOT_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
+
         else -> Filter.FilterType.SONG_IS
     },
     displayText = displayText,

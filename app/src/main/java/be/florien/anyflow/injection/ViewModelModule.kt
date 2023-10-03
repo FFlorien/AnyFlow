@@ -2,16 +2,21 @@ package be.florien.anyflow.injection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.feature.player.PlayerViewModel
-import be.florien.anyflow.feature.player.library.filters.DisplayFilterViewModel
-import be.florien.anyflow.feature.player.library.saved.SavedFilterGroupViewModel
-import be.florien.anyflow.feature.player.library.info.LibraryInfoViewModel
-import be.florien.anyflow.feature.player.library.list.*
-import be.florien.anyflow.feature.player.info.song.SongInfoViewModel
+import be.florien.anyflow.feature.player.ui.PlayerViewModel
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
+import be.florien.anyflow.feature.player.ui.info.song.quickActions.QuickActionsViewModel
+import be.florien.anyflow.feature.player.ui.library.filters.DisplayFilterViewModel
+import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryAlbumArtistListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryAlbumListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryArtistListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryDownloadedListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryGenreListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPlaylistListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibrarySongListViewModel
+import be.florien.anyflow.feature.player.ui.library.saved.SavedFilterGroupViewModel
+import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel
-import be.florien.anyflow.feature.player.songlist.SongListViewModel
-import be.florien.anyflow.feature.player.info.song.quickActions.QuickActionsViewModel
-import be.florien.anyflow.feature.player.library.list.viewmodels.*
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
@@ -101,9 +106,9 @@ abstract class ViewModelModule {
 }
 
 @Target(
-        AnnotationTarget.FUNCTION,
-        AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.RUNTIME)
 @MapKey

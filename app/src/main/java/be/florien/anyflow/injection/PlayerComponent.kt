@@ -1,6 +1,6 @@
 package be.florien.anyflow.injection
 
-import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.feature.player.ui.PlayerActivity
 import dagger.Subcomponent
 
 @Subcomponent(modules = [ViewModelModule::class])

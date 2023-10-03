@@ -1,16 +1,16 @@
 package be.florien.anyflow.injection
 
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.extension.MyAppGlideModule
 import be.florien.anyflow.feature.alarms.AlarmViewModel
 import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
-import be.florien.anyflow.feature.connect.UserConnectViewModel
+import be.florien.anyflow.feature.auth.UserConnectViewModel
+import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel
-import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.feature.sync.SyncService
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named

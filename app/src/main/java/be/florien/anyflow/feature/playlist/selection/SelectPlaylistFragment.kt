@@ -16,7 +16,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
 import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.player.info.song.SongInfoActions.SongFieldType
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldType
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.ServerScope

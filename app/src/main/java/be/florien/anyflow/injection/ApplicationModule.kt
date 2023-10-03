@@ -17,13 +17,13 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.feature.player.services.PlayerService
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
 import javax.inject.Singleton
 
- /**
+/**
  * Provide elements used through all the application state
  */
 @UnstableApi

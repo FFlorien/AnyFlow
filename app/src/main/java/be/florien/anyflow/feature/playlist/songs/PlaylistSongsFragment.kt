@@ -3,7 +3,12 @@ package be.florien.anyflow.feature.playlist.songs
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
@@ -21,7 +26,7 @@ import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.PlayPlaylistSongsMenuHolder
 import be.florien.anyflow.feature.menu.implementation.RemoveSongsMenuHolder
-import be.florien.anyflow.feature.player.PlayerActivity
+import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.feature.refreshVisibleViewHolders
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
@@ -31,7 +36,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
     private val menuCoordinator = MenuCoordinator()
     private val playPlaylistMenuHolder = PlayPlaylistSongsMenuHolder {
         viewModel.filterOnPlaylist()
-        val intent  = Intent(requireContext(), PlayerActivity::class.java)
+        val intent = Intent(requireContext(), PlayerActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         requireActivity().startActivity(intent)
     }
@@ -50,7 +55,8 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
         }
     }
 
-    override fun getTitle() = playlist?.name ?: throw IllegalStateException("Playlist shouldn't be null !")
+    override fun getTitle() =
+        playlist?.name ?: throw IllegalStateException("Playlist shouldn't be null !")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -4,22 +4,24 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import androidx.media3.common.util.UnstableApi
 import androidx.multidex.MultiDexApplication
-import be.florien.anyflow.data.AuthRepository
-import be.florien.anyflow.data.SyncService
 import be.florien.anyflow.data.user.AuthPersistence
-import be.florien.anyflow.injection.ServerComponent
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.feature.auth.AuthRepository
+import be.florien.anyflow.feature.player.services.PlayerService
+import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
-import be.florien.anyflow.player.PlayerService
+import be.florien.anyflow.injection.ServerComponent
 import timber.log.Timber
 import javax.inject.Inject
 
 
-/**
+ /**
  * Application class used for initialization of many libraries
  */
+@UnstableApi
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
     lateinit var applicationComponent: ApplicationComponent
@@ -42,9 +44,9 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
 
     protected open fun initApplicationComponent() {
         applicationComponent = DaggerApplicationComponent
-                .builder()
-                .application(this)
-                .build()
+            .builder()
+            .application(this)
+            .build()
         applicationComponent.inject(this)
     }
 
@@ -88,7 +90,11 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
 
     private fun getPlayerChannel(): NotificationChannel {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(PlayerService.MEDIA_SESSION_NAME, "Music", NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(
+                PlayerService.MEDIA_SESSION_NAME,
+                "Music",
+                NotificationManager.IMPORTANCE_LOW
+            )
             channel.description = "It play music"
             channel.vibrationPattern = null
             channel.enableVibration(false)
@@ -100,7 +106,11 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
 
     private fun getUpdateChannel(): NotificationChannel {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(SyncService.UPDATE_SESSION_NAME, "Update", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(
+                SyncService.UPDATE_SESSION_NAME,
+                "Update",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
             channel.description = "It update your music database"
             return channel
         } else {

@@ -12,7 +12,7 @@
 
         <variable
             name="display"
-            type="be.florien.anyflow.feature.player.info.song.SongInfoActions.QuickActionInfoRow" />
+            type="be.florien.anyflow.feature.player.ui.info.song.SongInfoActions" />
 
         <variable
             name="descriptionText"
@@ -45,9 +45,9 @@
                 android:id="@+id/order"
                 android:layout_width="@dimen/orderBackgroundWidth"
                 android:layout_height="@dimen/orderItemsHeight"
+                android:layout_gravity="center_vertical"
                 android:layout_marginHorizontal="@dimen/smallDimen"
                 android:gravity="center_vertical|end"
-                android:layout_gravity="center_vertical"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"

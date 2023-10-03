@@ -6,7 +6,7 @@
 
         <variable
             name="item"
-            type="be.florien.anyflow.feature.player.library.list.LibraryListViewModel.FilterItem" />
+            type="be.florien.anyflow.feature.player.ui.library.list.LibraryListViewModel.FilterItem" />
 
         <variable
             name="selected"
