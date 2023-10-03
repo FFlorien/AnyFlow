@@ -130,7 +130,8 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songDisplay: SongDisplay, actionType: InfoActions.ActionType, fieldType: InfoActions.FieldType) {
+    fun executeSongAction(songDisplay: SongDisplay, row: InfoActions.InfoRow) {
+        val fieldType = row.fieldType
         if (fieldType !is SongInfoActions.SongFieldType) {
             return
         }
@@ -138,10 +139,11 @@ class SongListViewModel
             val songInfo = runBlocking(Dispatchers.IO) {
                 dataRepository.getSongSync(songDisplay.id)
             }
-            when (actionType) {
+            when (row.actionType) {
                 SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
                 SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songDisplay.id)
-              // todo selector for multiple values (genre && playlists)  SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, fieldType)
+              // todo selector for multiple values (genre && playlists)
+                SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(songInfo, row)
                 SongInfoActions.SongActionType.Search -> searchText(songInfoActions.getSearchTerms(songInfo, fieldType))
                 SongInfoActions.SongActionType.Download -> songInfoActions.queueDownload(songInfo, fieldType, null) // todo right index
                 else -> return@launch

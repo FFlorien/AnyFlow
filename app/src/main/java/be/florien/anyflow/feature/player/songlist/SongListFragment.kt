@@ -261,10 +261,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onQuickAction(
         item: SongDisplay,
-        action: InfoActions.ActionType,
-        field: InfoActions.FieldType
+        row: InfoActions.InfoRow
     ) {
-        viewModel.executeSongAction(item, action, field)
+        viewModel.executeSongAction(item, row)
     }
 
     override fun onInfoDisplayAsked(item: SongDisplay) {

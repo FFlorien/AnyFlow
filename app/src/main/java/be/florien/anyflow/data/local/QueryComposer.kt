@@ -234,7 +234,6 @@ class QueryComposer {
         orderList: List<Order> = emptyList()
     ): String {
         if (filterList == null || filterList.isEmpty() && orderList.isEmpty()) {
-            iLog("return of the bug")
             return " "
         }
         val isJoiningArtist = orderList.any { it.orderingSubject == Order.Subject.ARTIST }
@@ -275,7 +274,6 @@ class QueryComposer {
             join += " LEFT JOIN playlistsongs AS playlistsongs$i ON playlistsongs$i.songId = song.id"
         }
 
-        iLog("Join statement: [$join]")
         return join
     }
 
@@ -301,7 +299,6 @@ class QueryComposer {
             if (!filterList.isNullOrEmpty()) {
                 where += constructWhereSubStatement(filterList, 0, 0, 0)
             }
-            iLog("Where statement: [$where]")
             where
         } else {
             ""

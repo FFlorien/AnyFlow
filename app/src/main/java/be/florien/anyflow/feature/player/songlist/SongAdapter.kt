@@ -145,11 +145,7 @@ class SongViewHolder(
                         setOnClickListener {
                             val song = binding.song
                             if (song != null)
-                                quickActionListener.onQuickAction(
-                                    song,
-                                    action.actionType,
-                                    action.fieldType
-                                )
+                                quickActionListener.onQuickAction(song, action)
                             swipeToClose()
                         }
                     })
@@ -193,7 +189,7 @@ open class SongListTouchAdapter : ItemInfoTouchAdapter() {
 }
 
 interface SongListViewHolderListener : DetailViewHolderListener<SongDisplay> {
-    fun onQuickAction(item: SongDisplay, action: InfoActions.ActionType, field: InfoActions.FieldType)
+    fun onQuickAction(item: SongDisplay, row: InfoActions.InfoRow)
     fun onQuickActionOpened(position: Int?)
     fun onCurrentSongQuickActionClosed()
 }
