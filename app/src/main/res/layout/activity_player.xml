@@ -56,6 +56,15 @@
                     android:textColor="@color/onPrimaryText" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/internetStateView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/accent"
+                android:text="@string/no_internet"
+                android:gravity="center"
+                android:visibility="gone"/>
+
             <LinearLayout
                 android:id="@+id/updatingStateView"
                 android:layout_width="match_parent"

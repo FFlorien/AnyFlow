@@ -53,6 +53,7 @@ constructor(
      */
     val shouldShowBuffering: LiveData<Boolean> = MutableLiveData(false)
     val state: LiveData<Int> = MediatorLiveData()
+    val hasInternet: LiveData<Boolean> = MediatorLiveData()
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
 
     val currentDuration: LiveData<Int> = MediatorLiveData()
@@ -70,6 +71,7 @@ constructor(
         set(value) {
             (currentDuration as MediatorLiveData).removeSource(field.playTimeNotifier)
             (state as MediatorLiveData).removeSource(field.stateChangeNotifier)
+            (hasInternet as MediatorLiveData).removeSource(field.internetChangeNotifier)
             field = value
             currentDuration.addSource(field.playTimeNotifier) {
                 // todo differentiate previous and start from the playercontrol
@@ -80,12 +82,13 @@ constructor(
                 shouldShowBuffering.mutable.value = it == PlayerController.State.BUFFER
                 state.mutable.value = when (it) {
                     PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
-                    PlayerController.State.BUFFER,
                     PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
-
                     else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
                 }
                 isSeekable.mutable.value = player.isSeekable()
+            }
+            hasInternet.addSource(field.internetChangeNotifier) {
+                hasInternet.mutable.value = it
             }
         }
 

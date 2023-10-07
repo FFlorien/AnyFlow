@@ -138,6 +138,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 }
             }
         }
+        viewModel.hasInternet.observe(this) { hasInternet ->
+            if (hasInternet) {
+                animateDisappearance(binding.internetStateView)
+            } else {
+                animateAppearance(binding.internetStateView)
+            }
+        }
         viewModel.songsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_songs, it)
@@ -345,45 +352,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     private fun animateAppearance(view: View) {
         if (view.visibility != View.VISIBLE) {
-            val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
-            ValueAnimator.ofInt(0, maxHeight).apply {
-                addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationRepeat(p0: Animator) {}
-
-                    override fun onAnimationEnd(p0: Animator) {}
-
-                    override fun onAnimationCancel(p0: Animator) {}
-
-                    override fun onAnimationStart(p0: Animator) {
-                        view.visibility = View.VISIBLE
-                    }
-
-                })
-                addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
-                duration = 150
-            }.start()
+            view.visibility = View.VISIBLE
         }
     }
 
     private fun animateDisappearance(view: View) {
         if (view.visibility != View.GONE) {
-            val maxHeight = resources.getDimensionPixelOffset(R.dimen.infoTextViewHeight)
-            ValueAnimator.ofInt(maxHeight, 0).apply {
-                addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationRepeat(p0: Animator) {}
-
-                    override fun onAnimationEnd(p0: Animator) {
-                        view.visibility = View.GONE
-                    }
-
-                    override fun onAnimationCancel(p0: Animator) {}
-
-                    override fun onAnimationStart(p0: Animator) {}
-
-                })
-                addUpdateListener { view.layoutParams.height = it.animatedValue as Int }
-                duration = 150
-            }.start()
+            view.visibility = View.GONE
         }
     }
 

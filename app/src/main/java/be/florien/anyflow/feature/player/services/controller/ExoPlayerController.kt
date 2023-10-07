@@ -8,6 +8,9 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.LiveData
@@ -30,6 +33,7 @@ import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
@@ -61,6 +65,7 @@ class ExoPlayerController
     private val exoplayerScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
 
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData()
+    override val internetChangeNotifier: LiveData<Boolean> = MutableLiveData()
     override val playTimeNotifier: LiveData<Long> = MutableLiveData()
 
     private val mediaPlayer: ExoPlayer
@@ -115,6 +120,47 @@ class ExoPlayerController
                 }
             }
         }
+        observeNetwork()
+    }
+
+    private fun observeNetwork() {
+        val networkRequest = NetworkRequest
+            .Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                val hasInternet =
+                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                (internetChangeNotifier as MutableLiveData).postValueIfChanged(hasInternet)
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                (internetChangeNotifier as MutableLiveData).postValueIfChanged(false)
+            }
+
+        }
+
+        val connectivityManager =
+            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        val hasInternet =
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
+        val isWifi =
+            networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
+        val isCellular =
+            networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false
+        (internetChangeNotifier as MutableLiveData).postValueIfChanged(hasInternet && (isWifi || isCellular))
     }
 
     override fun isPlaying() = mediaPlayer.playWhenReady
@@ -126,9 +172,10 @@ class ExoPlayerController
             alarmsSynchronizer.syncAlarms()
         }
         val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetworkInfo = connectivityManager.activeNetworkInfo
-        if (activeNetworkInfo == null || !activeNetworkInfo.isConnected) {
+            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true) {
             filtersManager.clearFilters()//todo download Filter as a parent (here could a good place)
             filtersManager.addFilter(
                 Filter(

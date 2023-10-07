@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 interface PlayerController {
     val playTimeNotifier: LiveData<Long>
     val stateChangeNotifier: LiveData<State>
+    val internetChangeNotifier: LiveData<Boolean>
 
     fun isPlaying(): Boolean
     fun isSeekable(): Boolean

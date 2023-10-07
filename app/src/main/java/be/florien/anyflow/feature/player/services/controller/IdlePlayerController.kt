@@ -11,6 +11,7 @@ class IdlePlayerController : PlayerController {
     override val stateChangeNotifier: LiveData<PlayerController.State> = MutableLiveData(
         PlayerController.State.NO_MEDIA
     )
+    override val internetChangeNotifier: LiveData<Boolean> = MutableLiveData(true)
 
     override val playTimeNotifier: LiveData<Long> = MutableLiveData(0)
 
