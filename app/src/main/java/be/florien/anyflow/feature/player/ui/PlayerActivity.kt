@@ -1,7 +1,5 @@
 package be.florien.anyflow.feature.player.ui
 
-import android.animation.Animator
-import android.animation.ValueAnimator
 import android.app.job.JobScheduler
 import android.content.Context
 import android.content.Intent
@@ -9,7 +7,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
+import be.florien.anyflow.extension.isVisiblePresent
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
@@ -127,62 +125,54 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                     finish()
                 }
 
-                AuthRepository.ConnectionStatus.CONNEXION -> animateAppearance(binding.connectionStateView)
+                AuthRepository.ConnectionStatus.CONNEXION -> return@observe
                 AuthRepository.ConnectionStatus.CONNECTED -> {
                     bindService(
                         Intent(this, SyncService::class.java),
                         viewModel.updateConnection,
                         Context.BIND_AUTO_CREATE
                     )
-                    animateDisappearance(binding.connectionStateView)
                 }
-            }
-        }
-        viewModel.hasInternet.observe(this) { hasInternet ->
-            if (hasInternet) {
-                animateDisappearance(binding.internetStateView)
-            } else {
-                animateAppearance(binding.internetStateView)
             }
         }
         viewModel.songsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_songs, it)
-                animateAppearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(true)
             } else {
-                animateDisappearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(false)
             }
         }
         viewModel.genresUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_genres, it)
-                animateAppearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(true)
             } else {
-                animateDisappearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(false)
             }
         }
         viewModel.albumsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_albums, it)
-                animateAppearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(true)
             } else {
-                animateDisappearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(false)
             }
         }
         viewModel.artistsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_artists, it)
-                animateAppearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(true)
             } else {
-                animateDisappearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(false)
             }
         }
         viewModel.playlistsUpdatePercentage.observe(this) {
             if (it in 0..100) {
                 binding.updatingText.text = getString(R.string.update_playlists, it)
-                animateAppearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(true)
             } else {
-                animateDisappearance(binding.updatingStateView)
+                binding.updatingStateView.isVisiblePresent(false)
             }
         }
     }
@@ -350,20 +340,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     private fun isSongListVisible() =
         supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
 
-    private fun animateAppearance(view: View) {
-        if (view.visibility != View.VISIBLE) {
-            view.visibility = View.VISIBLE
-        }
-    }
-
-    private fun animateDisappearance(view: View) {
-        if (view.visibility != View.GONE) {
-            view.visibility = View.GONE
-        }
-    }
-
     companion object {
         private const val LIBRARY_STACK_NAME = "filters"
-        private const val HALF_HOUR = 1800000L
     }
 }

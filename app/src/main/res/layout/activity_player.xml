@@ -37,6 +37,7 @@
 
             <LinearLayout
                 android:id="@+id/connectionStateView"
+                isVisiblePresent="@{viewModel.isConnecting()}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/error"
@@ -58,12 +59,13 @@
 
             <TextView
                 android:id="@+id/internetStateView"
+                isVisiblePresent="@{!viewModel.hasInternet}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/accent"
-                android:text="@string/no_internet"
                 android:gravity="center"
-                android:visibility="gone"/>
+                android:text="@string/no_internet"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/updatingStateView"

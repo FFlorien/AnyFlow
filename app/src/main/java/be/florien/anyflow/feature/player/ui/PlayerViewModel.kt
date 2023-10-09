@@ -46,6 +46,7 @@ constructor(
 
     internal val playerConnection: PlayerConnection = PlayerConnection()
     internal val updateConnection: UpdateConnection = UpdateConnection()
+    val isConnecting = connectionStatus.map { it == AuthRepository.ConnectionStatus.CONNEXION }
     private var isBackKeyPreviousSong: Boolean = false
 
     /**
