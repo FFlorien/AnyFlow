@@ -193,6 +193,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
             if (it != null) {
                 songAdapter.submitData(viewLifecycleOwner.lifecycle, it)
+                scrollToCurrentSong()
             }
         }
         viewModel.currentSong.observe(viewLifecycleOwner) {
