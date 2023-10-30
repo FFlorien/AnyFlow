@@ -45,9 +45,6 @@ open class AmpacheDataSource
         private const val COUNT_ALBUMS = "COUNT_ALBUMS"
         private const val COUNT_ARTIST = "COUNT_ARTIST"
         private const val COUNT_PLAYLIST = "COUNT_PLAYLIST"
-        const val SERVER_UPDATE = "SERVER_UPDATE"
-        const val SERVER_ADD = "SERVER_ADD"
-        const val SERVER_CLEAN = "SERVER_CLEAN"
     }
 
     private val itemLimit: Int = 250

@@ -79,9 +79,6 @@ class SyncRepository
         playlists()
         val currentMillis = TimeOperations.getCurrentDate().timeInMillis
         sharedPreferences.edit().apply {
-            putLong(AmpacheDataSource.SERVER_ADD, currentMillis)
-            putLong(AmpacheDataSource.SERVER_UPDATE, currentMillis)
-            putLong(AmpacheDataSource.SERVER_CLEAN, currentMillis)
             putLong(LAST_ADD_QUERY, currentMillis)
             putLong(LAST_UPDATE_QUERY, currentMillis)
             putLong(LAST_CLEAN_QUERY, currentMillis)
@@ -89,7 +86,7 @@ class SyncRepository
     }
 
     private suspend fun addAll() =
-        syncIfOutdated(AmpacheDataSource.SERVER_ADD, LAST_ADD_QUERY) { lastSync ->
+        syncIfOutdated(LAST_ADD_QUERY) { lastSync ->
             addGenres(lastSync)
             addArtists(lastSync)
             addAlbums(lastSync)
@@ -98,7 +95,7 @@ class SyncRepository
         }
 
     private suspend fun updateAll() =
-        syncIfOutdated(AmpacheDataSource.SERVER_UPDATE, LAST_UPDATE_QUERY) { lastSync ->
+        syncIfOutdated(LAST_UPDATE_QUERY) { lastSync ->
             updateGenres(lastSync)
             updateArtists(lastSync)
             updateAlbums(lastSync)
@@ -107,24 +104,19 @@ class SyncRepository
         }
 
     private suspend fun cleanAll() =
-        syncIfOutdated(AmpacheDataSource.SERVER_CLEAN, LAST_CLEAN_QUERY) {
+        syncIfOutdated(LAST_CLEAN_QUERY) {
             updateDeletedSongs()
         }
 
     private suspend fun syncIfOutdated(
-        lastServerSyncName: String,
         lastDbSyncName: String,
         sync: suspend (Calendar) -> Unit
     ) = withContext(Dispatchers.IO) {
         val nowDate = TimeOperations.getCurrentDate()
-        val lastSyncMillis = sharedPreferences.getLong(lastServerSyncName, 0L)
-        val lastServerSync = TimeOperations.getDateFromMillis(lastSyncMillis)
-        val lastSync =
-            TimeOperations.getDateFromMillis(sharedPreferences.getLong(lastDbSyncName, 0L))
-        if (lastServerSync.after(lastSync) || lastSyncMillis == 0L) {
-            sync(lastSync)
-            sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
-        }
+        val lastSyncMillis = sharedPreferences.getLong(lastDbSyncName, 0L)
+        val lastSync = TimeOperations.getDateFromMillis(lastSyncMillis)
+        sync(lastSync)
+        sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
     }
 
     /**
