@@ -83,6 +83,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:21.3.0'
     //debug
     implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'com.github.bastienpaulfr:Treessence:1.1.2'
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"

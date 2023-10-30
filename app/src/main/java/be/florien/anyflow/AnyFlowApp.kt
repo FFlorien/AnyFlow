@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.data.user.AuthPersistence
@@ -14,7 +15,9 @@ import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
+import fr.bipi.treessence.file.FileLoggerTree
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 
@@ -34,6 +37,18 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
     override fun onCreate() {
         super.onCreate()
         Timber.plant(CrashReportingTree())
+        val file = File(filesDir.absolutePath + "/logs")
+        if (!file.exists()) {
+            file.mkdir()
+        }
+        Timber.plant(FileLoggerTree
+            .Builder()
+            .withDir(file)
+            .withFileName("anyflow_log_%g.log")
+            .withSizeLimit(20000)
+            .withFileLimit(1)
+            .withMinPriority(Log.DEBUG)
+            .build())
         initApplicationComponent()
         initServerComponentIfReady()
         createNotificationChannels()
