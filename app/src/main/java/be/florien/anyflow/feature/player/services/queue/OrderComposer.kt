@@ -128,7 +128,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
             Order.SUBJECT_ALBUM_ARTIST,
             Order.SUBJECT_YEAR,
             Order.SUBJECT_ALBUM,
-            Order.SUBJECT_ALBUM_ID,
+            Order.SUBJECT_DISC,
             Order.SUBJECT_TRACK,
             Order.SUBJECT_TITLE
         ).mapIndexed { index, order ->

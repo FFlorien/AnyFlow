@@ -6,7 +6,6 @@ import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Order
-import be.florien.anyflow.extension.iLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class QueryComposer {
@@ -36,6 +35,7 @@ class QueryComposer {
                         Order.Subject.ALBUM_ARTIST -> " albumArtist.basename"
                         Order.Subject.ALBUM -> " album.basename"
                         Order.Subject.ALBUM_ID -> " song.albumId"
+                        Order.Subject.DISC -> " song.disk"
                         Order.Subject.YEAR -> " song.year"
                         Order.Subject.GENRE -> " song.genre"
                         Order.Subject.TRACK -> " song.track"
