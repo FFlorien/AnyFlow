@@ -264,7 +264,7 @@ class ExoPlayerController
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    mediaPlayer.volume = 0.2f
+                    mediaPlayer.volume = 0.1f
                 }
             }
 
