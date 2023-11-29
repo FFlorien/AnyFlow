@@ -21,7 +21,7 @@ import java.io.File
 import javax.inject.Inject
 
 
- /**
+/**
  * Application class used for initialization of many libraries
  */
 @UnstableApi
@@ -37,18 +37,20 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
     override fun onCreate() {
         super.onCreate()
         Timber.plant(CrashReportingTree())
-        val file = File(filesDir.absolutePath + "/logs")
-        if (!file.exists()) {
-            file.mkdir()
+        val logDirectory = File(filesDir.absolutePath + "/logs")
+        if (!logDirectory.exists()) {
+            logDirectory.mkdir()
         }
-        Timber.plant(FileLoggerTree
-            .Builder()
-            .withDir(file)
-            .withFileName("anyflow_log_%g.log")
-            .withSizeLimit(20000)
-            .withFileLimit(1)
-            .withMinPriority(Log.DEBUG)
-            .build())
+        Timber.plant(
+            FileLoggerTree
+                .Builder()
+                .withDir(logDirectory)
+                .withFileName("anyflow_log_%g.log")
+                .withFileLimit(5)
+                .withMinPriority(Log.DEBUG)
+                .appendToFile(true)
+                .build()
+        )
         initApplicationComponent()
         initServerComponentIfReady()
         createNotificationChannels()
