@@ -199,6 +199,11 @@ class DisplayFilterFragment : BaseFilteringFragment() {
                     filter.displayText
                 )
 
+                Filter.FilterType.DISK_IS -> getString( //todo is not displayed correctly for now because it is a subfilter
+                    R.string.filter_display_disk_is,
+                    filter.displayText
+                )
+
                 Filter.FilterType.PLAYLIST_IS -> getString(
                     R.string.filter_display_playlist_is,
                     filter.displayText
@@ -267,6 +272,11 @@ class DisplayFilterFragment : BaseFilteringFragment() {
 
                     Filter.FilterType.ALBUM_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_album,
+                        leftIconSize
+                    )
+
+                    Filter.FilterType.DISK_IS -> setCompoundDrawableFromResources(
+                        R.drawable.ic_disk,
                         leftIconSize
                     )
 

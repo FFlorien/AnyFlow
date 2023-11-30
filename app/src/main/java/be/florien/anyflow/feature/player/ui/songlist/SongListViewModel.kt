@@ -66,7 +66,7 @@ class SongListViewModel
     val searchResults: MutableLiveData<LiveData<List<Long>>?> = MutableLiveData()
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
-    val playlistListDisplayedFor: LiveData<Long> = MutableLiveData(-1L)
+    val playlistListDisplayedFor: LiveData<Triple<Long, SongInfoActions.SongFieldType, Int>> = MutableLiveData(null)
     val quickActions: LiveData<List<InfoActions.InfoRow>> =
         MutableLiveData(songInfoActions.getQuickActions())
     var searchJob: Job? = null
@@ -151,7 +151,7 @@ class SongListViewModel
     }
 
     fun clearPlaylistDisplay() {
-        playlistListDisplayedFor.mutable.value = -1L
+        playlistListDisplayedFor.mutable.value = null
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
@@ -166,7 +166,7 @@ class SongListViewModel
             }
             when (row.actionType) {
                 SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
-                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songDisplay.id)
+                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songInfo.albumId, fieldType, songInfo.disk )
                 // todo selector for multiple values (genre && playlists)
                 SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(
                     songInfo,
@@ -218,7 +218,7 @@ class SongListViewModel
         searchedText.mutable.value = text
     }
 
-    private fun displayPlaylistList(songId: Long) {
-        playlistListDisplayedFor.mutable.value = songId
+    private fun displayPlaylistList(songId: Long, fieldType: SongInfoActions.SongFieldType, secondId: Int) {
+        playlistListDisplayedFor.mutable.value = Triple(songId, fieldType, secondId)
     }
 }

@@ -28,7 +28,8 @@ import kotlinx.coroutines.launch
 @ServerScope
 class SelectPlaylistFragment(
     private var id: Long = 0L,
-    private var type: SongFieldType = SongFieldType.Title
+    private var type: SongFieldType = SongFieldType.Title,
+    private var secondId: Int = -1
 ) : DialogFragment() {
     lateinit var viewModel: SelectPlaylistViewModel
     private lateinit var fragmentBinding: FragmentSelectPlaylistBinding
@@ -37,11 +38,13 @@ class SelectPlaylistFragment(
         arguments?.let {
             id = it.getLong("id")
             type = SongFieldType.valueOf(it.getString("type") ?: SongFieldType.Title.name)
+            secondId = it.getInt("secondId")
         }
         if (arguments == null) {
             arguments = Bundle().apply {
                 putLong("id", id)
                 putString("type", type.name)
+                putInt("secondId", secondId)
             }
         }
     }
@@ -71,7 +74,7 @@ class SelectPlaylistFragment(
                     ).apply { setDrawable(it) })
             }
         lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.initViewModel(id, type)
+            viewModel.initViewModel(id, type, secondId)
             viewModel.values.observe(viewLifecycleOwner) {
                 if (it != null)
                     (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(it)

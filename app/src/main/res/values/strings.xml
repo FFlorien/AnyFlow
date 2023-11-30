@@ -13,6 +13,7 @@
     <string name="filter_display_artist_is">Artist is\n%s</string>
     <string name="filter_display_album_artist_is">Album artist is\n%s</string>
     <string name="filter_display_album_is">Album is\n%s</string>
+    <string name="filter_display_disk_is">Disk is\n%s</string>
     <string name="filter_display_title_contain">Song title contain\n%s</string>
     <string name="filter_display_playlist_is">Song is in playlist\n%s</string>
     <string name="filter_display_is_downloaded">Song is downloaded</string>
@@ -67,6 +68,7 @@
     <string name="info_artist">Artist</string>
     <string name="info_track">Track</string>
     <string name="info_album">Album</string>
+    <string name="info_disk">Disk</string>
     <string name="info_year">Year</string>
     <string name="info_album_artist">Album\'s artist</string>
     <string name="info_genre">Genre</string>

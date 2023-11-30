@@ -19,12 +19,17 @@ class DownloadRepository @Inject constructor(
     suspend fun getSongSync(id: Long): SongInfo =
         libraryDatabase.getSongDao().findByIdSync(id).toViewSongInfo()
 
-    suspend fun queueDownload(id: Long, type: Filter.FilterType) {
+    suspend fun queueDownload(id: Long, type: Filter.FilterType, secondId: Int?) {
+        val filter = if (type == Filter.FilterType.DISK_IS) {
+            Filter(Filter.FilterType.ALBUM_IS, id, "", listOf(Filter(type, secondId, " ")))
+        } else {
+            Filter(type, id, "")
+        }
         libraryDatabase
             .getDownloadDao()
             .rawQueryInsert(
                 queryComposer
-                    .getQueryForDownload(listOfNotNull(Filter(type, id, "")))
+                    .getQueryForDownload(listOfNotNull(filter))
             )
     }
 
@@ -37,14 +42,21 @@ class DownloadRepository @Inject constructor(
 
     fun getProgressForDownloadCandidate(
         id: Long,
-        type: Filter.FilterType
-    ): LiveData<DownloadProgressState> =
-        libraryDatabase
+        type: Filter.FilterType,
+        secondId: Int? = null
+    ): LiveData<DownloadProgressState> {
+        val filter = if (type == Filter.FilterType.DISK_IS) {
+            Filter(Filter.FilterType.ALBUM_IS, id, "", listOf(Filter(type, secondId, "")))
+        } else {
+            Filter(type, id, "")
+        }
+        return libraryDatabase
             .getDownloadDao()
             .rawQueryProgress(
                 queryComposer
-                    .getQueryForDownloadProgress(listOfNotNull(Filter(type, id, "")))
+                    .getQueryForDownloadProgress(listOfNotNull(filter))
             )
+    }
 
     suspend fun concludeDownload(songId: Long, uri: String?) {
         libraryDatabase.withTransaction {

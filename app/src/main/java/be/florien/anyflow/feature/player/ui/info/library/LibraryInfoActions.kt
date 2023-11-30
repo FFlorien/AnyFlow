@@ -148,7 +148,8 @@ class LibraryInfoActions @Inject constructor(
                         DisplayData(it.name, it.id)
                     }
 
-                Filter.FilterType.DOWNLOADED_STATUS_IS -> listOf(null)
+                Filter.FilterType.DOWNLOADED_STATUS_IS,
+                Filter.FilterType.DISK_IS-> listOf(null)
             }.firstOrNull()
         } else null
 

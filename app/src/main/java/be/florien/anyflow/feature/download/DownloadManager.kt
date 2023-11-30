@@ -39,14 +39,14 @@ class DownloadManager @Inject constructor(
         nextDownload()
     }
 
-    fun queueDownload(typeId: Long, filterType: Filter.FilterType) {
+    fun queueDownload(typeId: Long, filterType: Filter.FilterType, secondId: Int? = null) {
         downloadScope.launch(Dispatchers.IO) {
-            downloadRepository.queueDownload(typeId, filterType)
+            downloadRepository.queueDownload(typeId, filterType, secondId)
             nextDownload()
         }
     }
 
-    fun getDownloadState(id: Long, filterType: Filter.FilterType): LiveData<DownloadProgressState> =
+    fun getDownloadState(id: Long, filterType: Filter.FilterType, secondId: Int? = null): LiveData<DownloadProgressState> =
         if (filterType == Filter.FilterType.SONG_IS) {
             val livedata = downloadProgressMap[id] ?: MutableLiveData()
             downloadProgressMap[id] = livedata
@@ -55,7 +55,7 @@ class DownloadManager @Inject constructor(
             }
             livedata
         } else {
-            downloadRepository.getProgressForDownloadCandidate(id, filterType)
+            downloadRepository.getProgressForDownloadCandidate(id, filterType, secondId)
         }
 
     private fun nextDownload() {

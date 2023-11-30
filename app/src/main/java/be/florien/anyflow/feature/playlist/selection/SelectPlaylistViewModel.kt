@@ -35,13 +35,22 @@ class SelectPlaylistViewModel @Inject constructor(
 
     private var id: Long = 0L
     private var filterType: Filter.FilterType = Filter.FilterType.SONG_IS
+    private var secondId: Int = -1
+    private val filter by lazy {
+        if (filterType == Filter.FilterType.DISK_IS) {
+            Filter(Filter.FilterType.ALBUM_IS, id, "", listOf(Filter(filterType, secondId.toLong(), "")))
+        } else {
+            Filter(filterType, id, "")
+        }
+    }
 
-    suspend fun initViewModel(id: Long, type: SongInfoActions.SongFieldType) {
+    suspend fun initViewModel(id: Long, type: SongInfoActions.SongFieldType, secondId: Int) {
         this.id = id
         this.filterType = type.toViewFilterType()
+        this.secondId = secondId
         withContext(Dispatchers.IO) {
-            filterCount.mutable.postValue(playlistRepository.getSongCountForFilter(id, filterType))
-            playlists = playlistRepository.getPlaylistsWithPresence(id, filterType)
+            filterCount.mutable.postValue(playlistRepository.getSongCountForFilter(filter))
+            playlists = playlistRepository.getPlaylistsWithPresence(filter)
             (values as MediatorLiveData).addSource(playlists) { _ ->
                 updateValues()
             }
@@ -78,10 +87,10 @@ class SelectPlaylistViewModel @Inject constructor(
     fun confirmChanges() {
         viewModelScope.launch {
             for (playlistId in actions.filter { it.value == PlaylistAction.ADDITION }.keys) {
-                playlistRepository.addSongsToPlaylist(Filter(filterType, id, ""), playlistId)
+                playlistRepository.addSongsToPlaylist(filter, playlistId)
             }
             for (playlistId in actions.filter { it.value == PlaylistAction.DELETION }.keys) {
-                playlistRepository.removeSongsFromPlaylist(Filter(filterType, id, ""), playlistId)
+                playlistRepository.removeSongsFromPlaylist(filter, playlistId)
             }
             isFinished.mutable.value = true
         }

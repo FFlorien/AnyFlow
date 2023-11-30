@@ -19,6 +19,7 @@ data class Filter<T>(
         return when (this.type) {
             FilterType.ALBUM_ARTIST_IS -> song.albumArtistId == argument
             FilterType.ALBUM_IS -> song.albumId == argument
+            FilterType.DISK_IS -> song.disk == argument
             FilterType.ARTIST_IS -> song.artistId == argument
             FilterType.GENRE_IS -> song.genreIds.any { it == argument }
             FilterType.SONG_IS -> song.id == argument
@@ -76,7 +77,8 @@ data class Filter<T>(
         ALBUM_IS(SyncRepository.ART_TYPE_ALBUM),
         GENRE_IS(null),
         PLAYLIST_IS(SyncRepository.ART_TYPE_PLAYLIST),
-        DOWNLOADED_STATUS_IS(null)
+        DOWNLOADED_STATUS_IS(null),
+        DISK_IS(SyncRepository.ART_TYPE_ALBUM)
     }
 }
 

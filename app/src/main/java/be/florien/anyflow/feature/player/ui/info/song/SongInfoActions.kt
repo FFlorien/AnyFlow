@@ -32,6 +32,7 @@ class SongInfoActions(
             getSongAction(infoSource, SongFieldType.Artist, SongActionType.ExpandableTitle),
             getSongAction(infoSource, SongFieldType.Track, SongActionType.InfoTitle),
             getSongAction(infoSource, SongFieldType.Album, SongActionType.ExpandableTitle),
+            getSongAction(infoSource, SongFieldType.Disk, SongActionType.ExpandableTitle),
             getSongAction(infoSource, SongFieldType.AlbumArtist, SongActionType.ExpandableTitle),
             *List(infoSource.genreNames.size) { index ->
                 getSongAction(
@@ -85,6 +86,12 @@ class SongInfoActions(
             SongFieldType.Album -> listOfNotNull(
                 getSongAction(infoSource, fieldType, SongActionType.AddToFilter),
                 getSongAction(infoSource, fieldType, SongActionType.Search),
+                getSongAction(infoSource, fieldType, SongActionType.AddToPlaylist),
+                getSongAction(infoSource, fieldType, SongActionType.Download)
+            )
+
+            SongFieldType.Disk -> listOfNotNull(
+                getSongAction(infoSource, fieldType, SongActionType.AddToFilter),
                 getSongAction(infoSource, fieldType, SongActionType.AddToPlaylist),
                 getSongAction(infoSource, fieldType, SongActionType.Download)
             )
@@ -158,6 +165,19 @@ class SongInfoActions(
                 songInfo.albumName
             )
 
+            SongFieldType.Disk -> Filter(
+                Filter.FilterType.ALBUM_IS,
+                songInfo.albumId,
+                songInfo.albumName,
+                listOf(
+                    Filter(
+                        Filter.FilterType.DISK_IS,
+                        songInfo.disk,
+                        songInfo.disk.toString()
+                    )
+                )
+            )
+
             SongFieldType.AlbumArtist -> Filter(
                 Filter.FilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
@@ -202,27 +222,29 @@ class SongInfoActions(
 
     fun queueDownload(songInfo: SongInfo, fieldType: SongFieldType, index: Int?) {
         val data = when (fieldType) {
-            SongFieldType.Title -> Pair(songInfo.id, Filter.FilterType.SONG_IS)
-            SongFieldType.Artist -> Pair(songInfo.artistId, Filter.FilterType.ARTIST_IS)
-            SongFieldType.Album -> Pair(songInfo.albumId, Filter.FilterType.ALBUM_IS)
-            SongFieldType.AlbumArtist -> Pair(
+            SongFieldType.Title -> Triple(songInfo.id, Filter.FilterType.SONG_IS, -1)
+            SongFieldType.Artist -> Triple(songInfo.artistId, Filter.FilterType.ARTIST_IS, -1)
+            SongFieldType.Album -> Triple(songInfo.albumId, Filter.FilterType.ALBUM_IS, -1)
+            SongFieldType.Disk -> Triple(songInfo.albumId, Filter.FilterType.DISK_IS, songInfo.disk)
+            SongFieldType.AlbumArtist -> Triple(
                 songInfo.albumArtistId,
-                Filter.FilterType.ALBUM_ARTIST_IS
+                Filter.FilterType.ALBUM_ARTIST_IS,
+                -1
             )
 
             SongFieldType.Genre -> {
                 val trueIndex = index ?: return
-                Pair(songInfo.genreIds[trueIndex], Filter.FilterType.GENRE_IS)
+                Triple(songInfo.genreIds[trueIndex], Filter.FilterType.GENRE_IS, -1)
             }
 
             SongFieldType.Playlist -> {
                 val trueIndex = index ?: return
-                Pair(songInfo.playlistIds[trueIndex], Filter.FilterType.PLAYLIST_IS)
+                Triple(songInfo.playlistIds[trueIndex], Filter.FilterType.PLAYLIST_IS, -1)
             }
 
             else -> return
         }
-        downloadManager.queueDownload(data.first, data.second)
+        downloadManager.queueDownload(data.first, data.second, data.third)
     }
 
     /**
@@ -314,6 +336,15 @@ class SongInfoActions(
                     songInfo.albumName,
                     null,
                     SongFieldType.Album,
+                    SongActionType.ExpandableTitle,
+                    order = order
+                )
+
+                SongFieldType.Disk -> getInfoRow(
+                    R.string.info_disk,
+                    songInfo.disk.toString(),
+                    null,
+                    SongFieldType.Disk,
                     SongActionType.ExpandableTitle,
                     order = order
                 )
@@ -420,6 +451,15 @@ class SongInfoActions(
                     order = order
                 )
 
+                SongFieldType.Disk -> getInfoRow(
+                    R.string.info_action_filter_title,
+                    "${songInfo.albumName} #${songInfo.disk}",
+                    R.string.info_action_filter_on,
+                    SongFieldType.Disk,
+                    SongActionType.AddToFilter,
+                    order = order
+                )
+
                 SongFieldType.AlbumArtist -> getInfoRow(
                     R.string.info_action_filter_title,
                     songInfo.albumArtistName,
@@ -476,6 +516,15 @@ class SongInfoActions(
                     songInfo.albumName,
                     R.string.info_action_select_playlist_detail,
                     SongFieldType.Album,
+                    SongActionType.AddToPlaylist,
+                    order = order
+                )
+
+                SongFieldType.Disk -> getInfoRow(
+                    R.string.info_action_select_playlist,
+                    "${songInfo.albumName} #${songInfo.disk}",
+                    R.string.info_action_select_playlist_detail,
+                    SongFieldType.Disk,
                     SongActionType.AddToPlaylist,
                     order = order
                 )
@@ -586,6 +635,20 @@ class SongInfoActions(
                     )
                 )
 
+                SongFieldType.Disk -> getInfoRow(
+                    R.string.info_action_download,
+                    "${songInfo.albumName} #${songInfo.disk}",
+                    R.string.info_action_download_description,
+                    SongFieldType.Disk,
+                    SongActionType.Download,
+                    order = order,
+                    progress = downloadManager.getDownloadState(
+                        songInfo.albumId,
+                        Filter.FilterType.DISK_IS,
+                        songInfo.disk
+                    )
+                )
+
                 SongFieldType.AlbumArtist -> getInfoRow(
                     R.string.info_action_download,
                     songInfo.albumArtistName,
@@ -673,6 +736,7 @@ class SongInfoActions(
         Track(R.drawable.ic_track),
         Artist(R.drawable.ic_artist),
         Album(R.drawable.ic_album),
+        Disk(R.drawable.ic_disk),
         AlbumArtist(R.drawable.ic_album_artist),
         Genre(R.drawable.ic_genre),
         Playlist(R.drawable.ic_playlist),

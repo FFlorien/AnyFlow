@@ -120,6 +120,7 @@ fun DbSongInfo.toViewSongInfo() = SongInfo(
     artistId = song.artistId,
     albumName = album.album.name,
     albumId = song.albumId,
+    disk = song.disk,
     albumArtistName = album.artist.name,
     albumArtistId = album.artist.id,
     genreNames = genres.map { it.name },
@@ -152,6 +153,7 @@ fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
         DbFilter.ARTIST_ID -> Filter.FilterType.ARTIST_IS
         DbFilter.ALBUM_ARTIST_ID -> Filter.FilterType.ALBUM_ARTIST_IS
         DbFilter.ALBUM_ID -> Filter.FilterType.ALBUM_IS
+        DbFilter.DISK -> Filter.FilterType.DISK_IS
         DbFilter.PLAYLIST_ID -> Filter.FilterType.PLAYLIST_IS
         DbFilter.DOWNLOADED,
         DbFilter.NOT_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
@@ -211,6 +213,7 @@ fun Filter.FilterType.toDbFilterType(argument: Boolean?) = when (this) {
     Filter.FilterType.ARTIST_IS -> DbFilter.ARTIST_ID
     Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.ALBUM_ARTIST_ID
     Filter.FilterType.ALBUM_IS -> DbFilter.ALBUM_ID
+    Filter.FilterType.DISK_IS -> DbFilter.DISK
     Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID
     Filter.FilterType.DOWNLOADED_STATUS_IS -> if (argument == true) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
 }
@@ -268,6 +271,7 @@ fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (
     SongInfoActions.SongFieldType.Artist -> Filter.FilterType.ARTIST_IS
     SongInfoActions.SongFieldType.AlbumArtist -> Filter.FilterType.ALBUM_ARTIST_IS
     SongInfoActions.SongFieldType.Album -> Filter.FilterType.ALBUM_IS
+    SongInfoActions.SongFieldType.Disk -> Filter.FilterType.DISK_IS
     SongInfoActions.SongFieldType.Playlist -> Filter.FilterType.PLAYLIST_IS
     SongInfoActions.SongFieldType.Year,
     SongInfoActions.SongFieldType.Duration,

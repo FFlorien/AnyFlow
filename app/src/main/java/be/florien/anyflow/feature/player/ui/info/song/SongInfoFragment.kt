@@ -89,6 +89,7 @@ class SongInfoFragment(
                             0L,
                             getString(R.string.info_album),
                             0L,
+                            1,
                             getString(R.string.info_album_artist),
                             0L,
                             listOf(getString(R.string.info_genre)),
@@ -146,7 +147,7 @@ class SongInfoFragment(
             }
             isPlaylistListDisplayed.observe(viewLifecycleOwner) {
                 if (it != null) {
-                    SelectPlaylistFragment(it.id, it.type).show(childFragmentManager, null)
+                    SelectPlaylistFragment(it.id, it.type, it.secondId ?: -1).show(childFragmentManager, null)
                 }
             }
         }

@@ -43,13 +43,12 @@ class PlaylistRepository @Inject constructor(
         getPlaylists({ it.toViewPlaylist(urlRepository.getPlaylistArtUrl(it.id)) }, null, null)
 
     fun getPlaylistsWithPresence(
-        id: Long,
-        type: Filter.FilterType
+        filter: Filter<*>
     ): LiveData<List<PlaylistWithPresence>> =
         libraryDatabase
             .getPlaylistDao()
             .rawQueryListPlaylistsWithPresence(
-                queryComposer.getQueryForPlaylistWithPresence(Filter(type, id, ""))
+                queryComposer.getQueryForPlaylistWithPresence(filter)
             )
             .map { list -> list.map { it.toViewPlaylist(urlRepository.getPlaylistArtUrl(it.id)) } }
 
@@ -69,13 +68,10 @@ class PlaylistRepository @Inject constructor(
             queryComposer.getQueryForPlaylistFiltered(filters, search)
         ).map { item -> (mapping(item)) }
 
-    suspend fun getSongCountForFilter(
-        id: Long,
-        type: Filter.FilterType
-    ) = libraryDatabase
+    suspend fun getSongCountForFilter(filter: Filter<*>) = libraryDatabase
         .getSongDao()
         .countForFilters(
-            queryComposer.getQueryForSongCount(Filter(type, id, ""))
+            queryComposer.getQueryForSongCount(filter)
         )
 
     /**

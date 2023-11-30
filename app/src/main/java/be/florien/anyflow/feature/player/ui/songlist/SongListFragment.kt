@@ -227,8 +227,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             updateCurrentSongDisplay()
         }
         viewModel.playlistListDisplayedFor.observe(viewLifecycleOwner) {
-            if (it > 0 && childFragmentManager.findFragmentByTag("playlist") == null) {
-                SelectPlaylistFragment(it).show(childFragmentManager, "playlist")
+            if (it != null && childFragmentManager.findFragmentByTag("playlist") == null) {
+                SelectPlaylistFragment(it.first, it.second, it.third).show(childFragmentManager, "playlist")
             }
         }
         viewModel.quickActions.observe(viewLifecycleOwner) {

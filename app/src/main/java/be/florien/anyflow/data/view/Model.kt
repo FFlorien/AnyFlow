@@ -12,6 +12,7 @@ data class SongInfo constructor(
     val artistId: Long,
     val albumName: String,
     val albumId: Long,
+    val disk: Int,
     val albumArtistName: String,
     val albumArtistId: Long,
     val genreNames: List<String>,
@@ -28,7 +29,7 @@ data class SongInfo constructor(
         get() = String.format("%d:%02d", time / 60, time % 60)
 
     companion object {
-        fun dummySongInfo(id: Long = 0L) = SongInfo(id, "", "", 0L, "", 0L, "", 0, listOf(""),  listOf(0L), listOf(""),  listOf(0L), 0, 0, 0, 0, "")
+        fun dummySongInfo(id: Long = 0L) = SongInfo(id, "", "", 0L, "", 0L, 1, "", 0, listOf(""),  listOf(0L), listOf(""),  listOf(0L), 0, 0, 0, 0, "")
     }
 }
 
