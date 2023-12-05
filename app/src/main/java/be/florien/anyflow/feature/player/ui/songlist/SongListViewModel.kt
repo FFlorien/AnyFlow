@@ -166,7 +166,8 @@ class SongListViewModel
             }
             when (row.actionType) {
                 SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
-                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songInfo.albumId, fieldType, songInfo.disk )
+                //todo get correct id depending on the fieldType
+                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(songDisplay.id, fieldType, songInfo.disk )
                 // todo selector for multiple values (genre && playlists)
                 SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(
                     songInfo,

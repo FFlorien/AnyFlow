@@ -10,6 +10,7 @@ import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.playlist.PlaylistRepository
+import be.florien.anyflow.feature.sync.SyncRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -154,13 +155,11 @@ class LibraryInfoActions @Inject constructor(
         } else null
 
         val url = if (count <= 1 && displayData != null) {
-            when (filterType) {
-                Filter.FilterType.PLAYLIST_IS -> urlRepository.getPlaylistArtUrl(displayData.argument)
-                Filter.FilterType.ALBUM_ARTIST_IS,
-                Filter.FilterType.ARTIST_IS -> urlRepository.getArtistArtUrl(displayData.argument)
-
-                Filter.FilterType.SONG_IS -> urlRepository.getSongUrl(displayData.argument)
-                Filter.FilterType.ALBUM_IS -> urlRepository.getAlbumArtUrl(displayData.argument)
+            when (filterType.artType) {
+                SyncRepository.ART_TYPE_PLAYLIST -> urlRepository.getPlaylistArtUrl(displayData.argument)
+                SyncRepository.ART_TYPE_ARTIST -> urlRepository.getArtistArtUrl(displayData.argument)
+                SyncRepository.ART_TYPE_SONG -> urlRepository.getSongUrl(displayData.argument)
+                SyncRepository.ART_TYPE_ALBUM -> urlRepository.getAlbumArtUrl(displayData.argument)
                 else -> null
             }
         } else {
