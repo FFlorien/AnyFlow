@@ -21,10 +21,9 @@ import be.florien.anyflow.data.toDbSongGenres
 import be.florien.anyflow.data.toDbSongId
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.extension.iLog
 import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
@@ -68,62 +67,61 @@ class SyncRepository
 
     suspend fun syncAll() {
         if (libraryDatabase.getSongDao().songCount() == 0) {
+            //todo come on, there has to be a better way to do this check!
             getFromScratch()
         } else {
-            addAll()
-            updateAll()
-            cleanAll()
+            iLog("update")
+            update()
         }
         playlists()
-        resetOffsets()
         cancelPercentageUpdaters()
     }
 
     private suspend fun getFromScratch() = withContext(Dispatchers.IO) {
+        notifyUpdate(CHANGE_GENRES)
         newGenres()
+        notifyUpdate(CHANGE_GENRES)
         newArtists()
+        notifyUpdate(CHANGE_GENRES)
         newAlbums()
+        notifyUpdate(CHANGE_GENRES)
         newSongs()
-        playlists()
+        val initialDeletedCount = (ampacheDataSource.getDeletedSongs(0, 0) as? NetSuccess)
+            ?.data
+            ?.total_count
+            ?: 0
         val currentMillis = TimeOperations.getCurrentDate().timeInMillis
         sharedPreferences.edit().apply {
-            putLong(LAST_ADD_QUERY, currentMillis)
             putLong(LAST_UPDATE_QUERY, currentMillis)
-            putLong(LAST_CLEAN_QUERY, currentMillis)
+            putInt(OFFSET_DELETED, initialDeletedCount)
         }.apply()
     }
 
-    private suspend fun addAll() =
-        sync(LAST_ADD_QUERY) { lastSync ->
-            addGenres(lastSync)
-            addArtists(lastSync)
-            addAlbums(lastSync)
-            addSongs(lastSync)
+    private suspend fun update() =
+        sync { lastUpdate ->
+            notifyUpdate(CHANGE_GENRES)
+            addGenres(lastUpdate)
+            updateGenres(lastUpdate)
+            notifyUpdate(CHANGE_ARTISTS)
+            addArtists(lastUpdate)
+            updateArtists(lastUpdate)
+            notifyUpdate(CHANGE_ALBUMS)
+            addAlbums(lastUpdate)
+            updateAlbums(lastUpdate)
+            notifyUpdate(CHANGE_SONGS)
+            addSongs(lastUpdate)
+            updateSongs(lastUpdate)
+            updateDeletedSongs() //todo remove unused artists/albums/genres
         }
 
-    private suspend fun updateAll() =
-        sync(LAST_UPDATE_QUERY) { lastSync ->
-            updateGenres(lastSync)
-            updateArtists(lastSync)
-            updateAlbums(lastSync)
-            updateSongs(lastSync)
+    private suspend fun sync(sync: suspend (Calendar) -> Unit) =
+        withContext(Dispatchers.IO) {
+            val nowDate = TimeOperations.getCurrentDate()
+            val lastUpdateMillis = sharedPreferences.getLong(LAST_UPDATE_QUERY, 0L)
+            val lastUpdate = TimeOperations.getDateFromMillis(lastUpdateMillis)
+            sync(lastUpdate)
+            sharedPreferences.applyPutLong(LAST_UPDATE_QUERY, nowDate.timeInMillis)
         }
-
-    private suspend fun cleanAll() =
-        sync(LAST_CLEAN_QUERY) {
-            updateDeletedSongs()
-        }
-
-    private suspend fun sync(
-        lastDbSyncName: String,
-        sync: suspend (Calendar) -> Unit
-    ) = withContext(Dispatchers.IO) {
-        val nowDate = TimeOperations.getCurrentDate()
-        val lastSyncMillis = sharedPreferences.getLong(lastDbSyncName, 0L)
-        val lastSync = TimeOperations.getDateFromMillis(lastSyncMillis)
-        sync(lastSync)
-        sharedPreferences.applyPutLong(lastDbSyncName, nowDate.timeInMillis)
-    }
 
     /**
      * Private Method : New data
@@ -135,9 +133,7 @@ class SyncRepository
             genresPercentageUpdater,
             AmpacheDataSource::getNewGenres
         ) { success ->
-            asyncUpdate(CHANGE_GENRES) {
-                libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
-            }
+            libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
         }
 
     private suspend fun newArtists() =
@@ -146,9 +142,7 @@ class SyncRepository
             artistsPercentageUpdater,
             AmpacheDataSource::getNewArtists
         ) { success ->
-            asyncUpdate(CHANGE_ARTISTS) {
-                libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
-            }
+            libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
         }
 
     private suspend fun newAlbums() =
@@ -157,39 +151,39 @@ class SyncRepository
             albumsPercentageUpdater,
             AmpacheDataSource::getNewAlbums
         ) { success ->
-            asyncUpdate(CHANGE_ALBUMS) {
-                libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
-            }
+            libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
         }
 
     private suspend fun newSongs() =
-        getNewData(OFFSET_SONG, songsPercentageUpdater, AmpacheDataSource::getNewSongs) { success ->
-            asyncUpdate(CHANGE_SONGS) {
-                libraryDatabase.getSongDao().upsert(success.data.list.map { it.toDbSong() })
-                val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
-                libraryDatabase.getSongGenreDao().upsert(songGenres)
-            }
+        getNewData(
+            OFFSET_SONG,
+            songsPercentageUpdater,
+            AmpacheDataSource::getNewSongs
+        ) { success ->
+            libraryDatabase.getSongDao().upsert(success.data.list.map { it.toDbSong() })
+            val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
+            libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
     suspend fun playlists() {
-        //todo review this methods, suspicious: how does it handle deleted playlists and deleted from playlist ?
+        //todo review this methods, suspicious: how does it handle deleted playlists and deleted from playlist ? check api
+        notifyUpdate(CHANGE_PLAYLISTS)
         getNewData(
             OFFSET_PLAYLIST,
             playlistsPercentageUpdater,
             AmpacheDataSource::getPlaylists
         ) { success ->
-            asyncUpdate(CHANGE_PLAYLISTS) {
-                libraryDatabase.getPlaylistDao()
-                    .upsert(success.data.list.map { it.toDbPlaylist() })
+            libraryDatabase.getPlaylistDao()
+                .upsert(success.data.list.map { it.toDbPlaylist() })
 
-                for (playlist in success.data.list) {
-                    libraryDatabase.getPlaylistSongsDao().deleteSongsFromPlaylist(playlist.id)
-                    libraryDatabase.getPlaylistSongsDao().upsert(playlist.items.map {
-                        it.toDbPlaylistSong(playlist.id)
-                    })
-                }
+            for (playlist in success.data.list) {
+                libraryDatabase.getPlaylistSongsDao().deleteSongsFromPlaylist(playlist.id)
+                libraryDatabase.getPlaylistSongsDao().upsert(playlist.items.map {
+                    it.toDbPlaylistSong(playlist.id)
+                })
             }
         }
+
     }
 
     /**
@@ -203,9 +197,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedGenres
         ) { success ->
-            asyncUpdate(CHANGE_GENRES) {
-                libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
-            }
+            libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
         }
 
     private suspend fun addArtists(from: Calendar) =
@@ -215,9 +207,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedArtists
         ) { success ->
-            asyncUpdate(CHANGE_ARTISTS) {
-                libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
-            }
+            libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
         }
 
     private suspend fun addAlbums(from: Calendar) =
@@ -227,9 +217,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedAlbums
         ) { success ->
-            asyncUpdate(CHANGE_ALBUMS) {
-                libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
-            }
+            libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
         }
 
     private suspend fun addSongs(from: Calendar) =
@@ -239,12 +227,9 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedSongs
         ) { success ->
-            asyncUpdate(CHANGE_SONGS) {
-                libraryDatabase.getSongDao().upsert(success.data.list.map { it.toDbSong() })
-
-                val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
-                libraryDatabase.getSongGenreDao().upsert(songGenres)
-            }
+            libraryDatabase.getSongDao().upsert(success.data.list.map { it.toDbSong() })
+            val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
+            libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
     /**
@@ -258,9 +243,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getUpdatedGenres
         ) { success ->
-            asyncUpdate(CHANGE_GENRES) {
-                libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
-            }
+            libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
         }
 
     private suspend fun updateArtists(from: Calendar) =
@@ -270,9 +253,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getUpdatedArtists
         ) { success ->
-            asyncUpdate(CHANGE_ARTISTS) {
-                libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
-            }
+            libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
         }
 
     private suspend fun updateAlbums(from: Calendar) =
@@ -282,9 +263,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getUpdatedAlbums
         ) { success ->
-            asyncUpdate(CHANGE_ALBUMS) {
-                libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
-            }
+            libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
         }
 
     private suspend fun updateSongs(from: Calendar) =
@@ -300,16 +279,14 @@ class SyncRepository
                 val localUri = songsToUpdate.firstOrNull { old -> old.id == new.id }?.local
                 new.toDbSong(localUri)
             }
-            asyncUpdate(CHANGE_SONGS) {
-                libraryDatabase.getSongDao().upsert(songs)
-                val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
-                libraryDatabase.getSongGenreDao().upsert(songGenres)
-            }
+            libraryDatabase.getSongDao().upsert(songs)
+            val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
+            libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
     private suspend fun updateDeletedSongs() =
         getNewData(
-            OFFSET_SONG,
+            OFFSET_DELETED,
             songsPercentageUpdater,
             AmpacheDataSource::getDeletedSongs
         ) { success ->
@@ -326,8 +303,13 @@ class SyncRepository
         getData(
             offsetKey,
             percentageUpdater,
-            { offset, limit -> ampacheDataSource.getFromApi(offset, limit) },
-            updateDb
+            { offset, limit ->
+                ampacheDataSource.getFromApi(offset, limit)
+            },
+            { netResult, newOffset ->
+                updateDb(netResult)
+                sharedPreferences.edit().putInt(offsetKey, newOffset).apply()
+            }
         )
     }
 
@@ -341,8 +323,13 @@ class SyncRepository
         getData(
             offsetKey,
             percentageUpdater,
-            { offset, limit -> ampacheDataSource.getFromApi(offset, limit, calendar) },
-            updateDb
+            { offset, limit ->
+                ampacheDataSource.getFromApi(offset, limit, calendar)
+            },
+            { netResult, newOffset ->
+                updateDb(netResult)
+                sharedPreferences.edit().putInt(offsetKey, newOffset).apply()
+            }
         )
     }
 
@@ -350,7 +337,7 @@ class SyncRepository
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         getFromApi: suspend (Int, Int) -> NetResult<T>,
-        updateDb: suspend (NetSuccess<T>) -> Unit
+        updateLocalData: suspend (NetSuccess<T>, Int) -> Unit
     ) {
         var offset = sharedPreferences.getInt(offsetKey, 0)
         var count = Int.MAX_VALUE
@@ -360,9 +347,8 @@ class SyncRepository
             when (result) {
                 is NetSuccess -> {
                     count = result.data.total_count
-                    updateDb(result)
                     offset += result.data.list.size
-                    sharedPreferences.edit().putInt(offsetKey, offset).apply()
+                    updateLocalData(result, offset)
                 }
 
                 is NetApiError -> { //todo better handling of ALL error codes
@@ -381,30 +367,14 @@ class SyncRepository
                     break
                 }
             }
-            val percentage = (offset * 100) / count
+            val percentage = if (count == 0) 100 else (offset * 100) / count
             percentageUpdater.postValue(percentage)
             result = getFromApi(offset, limit)
         }
     }
 
-    private suspend fun asyncUpdate(changeSubject: Int, action: suspend () -> Unit) {
-        MainScope().launch {
-            (changeUpdater as MutableLiveData).value = changeSubject
-        }
-        action()
-        MainScope().launch {
-            (changeUpdater as MutableLiveData).value = null
-        }
-    }
-
-    private fun resetOffsets() {
-        sharedPreferences.edit().apply {
-            remove(OFFSET_SONG)
-            remove(OFFSET_GENRE)
-            remove(OFFSET_ARTIST)
-            remove(OFFSET_ALBUM)
-            remove(OFFSET_PLAYLIST)
-        }.apply()
+    private fun notifyUpdate(changeSubject: Int) {
+        (changeUpdater as MutableLiveData).postValue(changeSubject)
     }
 
     private fun cancelPercentageUpdaters() {
@@ -424,9 +394,7 @@ class SyncRepository
 
         private const val ITEM_LIMIT: Int = 250
 
-        private const val LAST_ADD_QUERY = "LAST_ADD_QUERY"
         private const val LAST_UPDATE_QUERY = "LAST_UPDATE_QUERY"
-        private const val LAST_CLEAN_QUERY = "LAST_CLEAN_QUERY"
 
         const val ART_TYPE_SONG = "song"
         const val ART_TYPE_ALBUM = "album"
@@ -438,5 +406,8 @@ class SyncRepository
         private const val OFFSET_ARTIST = "OFFSET_ARTIST"
         private const val OFFSET_ALBUM = "OFFSET_ALBUM"
         private const val OFFSET_PLAYLIST = "OFFSET_PLAYLIST"
+
+        //Don't reset this value, deleted doesn't have a "from" parameter
+        private const val OFFSET_DELETED = "OFFSET_DELETED"
     }
 }
