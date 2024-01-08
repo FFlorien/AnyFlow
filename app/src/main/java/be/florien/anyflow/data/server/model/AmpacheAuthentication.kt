@@ -32,10 +32,3 @@ open class AmpacheStatus {
     var clean: String = ""
     var error: AmpacheError = AmpacheError()
 }
-
-class AmpacheError {
-    var errorAction : String = ""
-    var errorType : String = ""
-    var errorCode: Int = 0
-    var errorMessage: String = "success"
-}

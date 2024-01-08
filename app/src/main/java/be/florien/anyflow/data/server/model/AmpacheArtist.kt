@@ -2,6 +2,7 @@ package be.florien.anyflow.data.server.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Server-side data structures that relates to artists
@@ -17,7 +18,7 @@ class AmpacheArtist {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheArtistResponse {
-    var artist: List<AmpacheArtist> = mutableListOf()
-    var error: AmpacheError? = null
+class AmpacheArtistResponse: AmpacheApiResponse<AmpacheArtist>() {
+    @JsonProperty("artist")
+    override var list: List<AmpacheArtist> = mutableListOf()
 }

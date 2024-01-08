@@ -1,9 +1,10 @@
 package be.florien.anyflow.data.server.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheGenreResponse {
-    var genre: List<AmpacheNameId> = mutableListOf()
-    var error: AmpacheError? = null
+class AmpacheGenreResponse: AmpacheApiResponse<AmpacheNameId>() {
+    @JsonProperty("genre")
+    override var list: List<AmpacheNameId> = mutableListOf()
 }

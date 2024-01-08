@@ -1,11 +1,11 @@
 package be.florien.anyflow.injection
 
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.feature.auth.AuthRepository
 import be.florien.anyflow.feature.player.services.controller.ExoPlayerController
 import be.florien.anyflow.feature.player.services.controller.PlayerController
+import be.florien.anyflow.feature.sync.SyncRepository
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -74,30 +74,30 @@ class ServerModule {
     @Provides
     @Named("Songs")
     @ServerScope
-    fun provideSongsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> =
-        ampacheDataSource.songsPercentageUpdater
+    fun provideSongsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
+        syncRepository.songsPercentageUpdater
 
     @Provides
     @Named("Genres")
     @ServerScope
-    fun provideGenresPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> =
-        ampacheDataSource.genresPercentageUpdater
+    fun provideGenresPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
+        syncRepository.genresPercentageUpdater
 
     @Provides
     @Named("Artists")
     @ServerScope
-    fun provideArtistsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> =
-        ampacheDataSource.artistsPercentageUpdater
+    fun provideArtistsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
+        syncRepository.artistsPercentageUpdater
 
     @Provides
     @Named("Albums")
     @ServerScope
-    fun provideAlbumsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> =
-        ampacheDataSource.albumsPercentageUpdater
+    fun provideAlbumsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
+        syncRepository.albumsPercentageUpdater
 
     @Provides
     @Named("Playlists")
     @ServerScope
-    fun providePlaylistsPercentageUpdater(ampacheDataSource: AmpacheDataSource): LiveData<Int> =
-        ampacheDataSource.playlistsPercentageUpdater
+    fun providePlaylistsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
+        syncRepository.playlistsPercentageUpdater
 }

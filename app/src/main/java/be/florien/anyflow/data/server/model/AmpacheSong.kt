@@ -2,6 +2,7 @@ package be.florien.anyflow.data.server.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Server-side data structures that relates to accounts
@@ -35,19 +36,13 @@ class AmpachePlaylistSong {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheSongResponse {
-    var song: List<AmpacheSong> = mutableListOf()
-    var error: AmpacheError? = null
+class AmpacheSongResponse: AmpacheApiResponse<AmpacheSong>() {
+    @JsonProperty(value = "song")
+    override var list: List<AmpacheSong> = mutableListOf()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheSongIdResponse {
-    var song: List<AmpacheSongId> = mutableListOf()
-    var error: AmpacheError? = null
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheDeletedSongIdResponse {
-    var deleted_song: List<AmpacheSongId> = mutableListOf()
-    var error: AmpacheError? = null
+class AmpacheDeletedSongIdResponse: AmpacheApiResponse<AmpacheSongId>() {
+    @JsonProperty("deleted_song")
+    override var list: List<AmpacheSongId> = mutableListOf()
 }

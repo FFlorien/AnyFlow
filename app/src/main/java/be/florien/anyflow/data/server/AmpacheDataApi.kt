@@ -113,9 +113,9 @@ interface AmpacheDataApi {
 
     @GET("server/json.server.php")
     suspend fun getDeletedSongs(
-        @Query("action") action: String = "deleted_songs",
         @Query("limit") limit: Int,
-        @Query("offset") offset: Int
+        @Query("offset") offset: Int,
+        @Query("action") action: String = "deleted_songs"
     ): AmpacheDeletedSongIdResponse
 
     @GET("server/json.server.php")
