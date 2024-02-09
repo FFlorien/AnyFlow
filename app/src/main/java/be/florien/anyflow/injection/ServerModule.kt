@@ -3,8 +3,6 @@ package be.florien.anyflow.injection
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.feature.auth.AuthRepository
-import be.florien.anyflow.feature.player.services.controller.ExoPlayerController
-import be.florien.anyflow.feature.player.services.controller.PlayerController
 import be.florien.anyflow.feature.sync.SyncRepository
 import dagger.Module
 import dagger.Provides
@@ -62,10 +60,6 @@ class ServerModule {
         @Named("authenticated") okHttpClient: OkHttpClient
     ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
         .addConverterFactory(JacksonConverterFactory.create()).build()
-
-    @Provides
-    fun bindsPlayerController(exoPlayerController: ExoPlayerController): PlayerController =
-        exoPlayerController
 
     @Provides
     fun provideConnectionStatus(connection: AuthRepository): LiveData<AuthRepository.ConnectionStatus> =

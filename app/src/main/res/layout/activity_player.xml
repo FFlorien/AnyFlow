@@ -2,9 +2,6 @@
 <layout>
 
     <data>
-
-        <import type="be.florien.anyflow.feature.player.services.controller.PlayerController" />
-
         <import type="be.florien.anyflow.R" />
 
         <import type="android.view.View" />
@@ -115,7 +112,7 @@
                 app:seekable="@{viewModel.isSeekable}"
                 app:shouldShowBuffering="@{viewModel.shouldShowBuffering}"
                 app:smallestButtonWidth="@dimen/minClickableSize"
-                app:state="@{viewModel.state}"
+                app:state="@{viewModel.playbackState}"
                 app:totalDuration="@{viewModel.totalDuration}"
                 app:waveForm="@{viewModel.waveForm}" />
         </LinearLayout>

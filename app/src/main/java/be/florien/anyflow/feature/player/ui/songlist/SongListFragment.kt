@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.player.ui.songlist
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.content.ComponentName
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -17,6 +18,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,11 +29,13 @@ import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
+import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ActivityScope
+import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -89,6 +94,16 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                     ConstraintSet.BOTTOM
                 )
             }
+
+    override fun onStart() {
+        super.onStart()
+        val sessionToken = SessionToken(requireContext(), ComponentName(requireContext(), PlayerService::class.java))
+        val oui = MediaController.Builder(requireContext(), sessionToken).buildAsync()
+        oui.addListener({
+            viewModel.player = oui.get()
+        }, MoreExecutors.directExecutor())
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -330,7 +345,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      */
 
     private fun onItemClick(position: Int) {
-        viewModel.play(position)
+        viewModel.select(position)
         currentSongViewHolder.binding.songLayout.songInfo.translationX = 0F
     }
 

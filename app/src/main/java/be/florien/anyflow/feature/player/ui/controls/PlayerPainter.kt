@@ -42,6 +42,14 @@ internal abstract class PlayerPainter(
             computeWaveForm()
         }
     var totalDuration = 0
+        set(value) {
+            field = value
+            computePlayButtonLeftBound()
+            computePlayButtonRightBound()
+            computeRemainingDurationText()
+            computeTicks()
+            onValuesComputed()
+        }
     var currentState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
         set(value) {
             oldState = field

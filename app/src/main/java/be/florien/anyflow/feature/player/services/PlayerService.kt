@@ -2,149 +2,373 @@ package be.florien.anyflow.feature.player.services
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.os.Binder
-import android.os.IBinder
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import androidx.lifecycle.LifecycleService
-import androidx.media.session.MediaButtonReceiver
+import android.net.Uri
+import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.cache.Cache
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaSessionService
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.extension.stopForegroundAndKeepNotification
-import be.florien.anyflow.feature.player.services.controller.PlayerController
+import be.florien.anyflow.data.local.model.DbSongToPlay
+import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
+import be.florien.anyflow.feature.player.ui.PlayerActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import javax.inject.Inject
+import javax.inject.Named
 
 
 /**
  * Service used to handle the media player.
  */
-class PlayerService : LifecycleService() {
+class PlayerService : MediaSessionService(), Player.Listener {
 
-    /**
-     * Injection
-     */
+    private var mediaSession: MediaSession? = null
 
-    @Inject
-    internal lateinit var playerController: PlayerController
-
+    //region injection
     @Inject
     internal lateinit var playingQueue: PlayingQueue
 
     @Inject
+    internal lateinit var ampacheDataSource: AmpacheDataSource
+
+    @Inject
+    internal lateinit var waveFormRepository: WaveFormRepository
+
+    @Inject
     internal lateinit var urlRepository: UrlRepository
 
-    /**
-     * Fields
-     */
+    @Named("authenticated")
+    @Inject
+    internal lateinit var okHttpClient: OkHttpClient
 
-    private val iBinder = LocalBinder()
-    private val pendingIntent: PendingIntent by lazy {
-        val intent = packageManager?.getLaunchIntentForPackage(packageName)
-        PendingIntent.getActivity(this@PlayerService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-    }
-    private val mediaSession: MediaSessionCompat by lazy {
-        MediaSessionCompat(this, MEDIA_SESSION_NAME).apply {
-            setSessionActivity(pendingIntent)
-            setCallback(object : MediaSessionCompat.Callback() {
-                override fun onSeekTo(pos: Long) {
-                    playerController.seekTo(pos)
-                }
+    @Inject
+    internal lateinit var cache: Cache
+    //endregion
 
-                override fun onSkipToPrevious() {
-                    playingQueue.listPosition--
-                }
-
-                override fun onPlay() {
-                    playerController.resume()
-                }
-
-                override fun onSkipToNext() {
-                    playingQueue.listPosition++
-                }
-
-                override fun onPause() {
-                    playerController.pause()
-                }
-            })
-            isActive = true
-        }
-    }
-    private val notificationBuilder: PlayerNotificationBuilder by lazy {
-        PlayerNotificationBuilder(
-            this,
-            mediaSession,
-            pendingIntent,
-            urlRepository
-        )
-    }
-
-    private val isPlaying
-        get() = playerController.isPlaying()
-
-    private val hasPrevious
-        get() = playingQueue.listPosition > 0
-
-    private val hasNext
-        get() = playingQueue.listPosition < playingQueue.queueSize - 1
-
-    /**
-     * Lifecycle
-     */
-
+    //region MediaSessionService
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        initPlayer()
+        listenToQueueChanges()
+    }
+
+    // The user dismissed the app from the recent tasks
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        val player = mediaSession?.player
+        if (player?.playWhenReady == false || player?.mediaItemCount == 0) {
+            // Stop the service if not playing, continue playing in the background
+            // otherwise.
+            stopSelf()
+        }
+    }
+
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
+        mediaSession
+
+    // Remember to release the player and media session in onDestroy
+    override fun onDestroy() {
+        mediaSession?.run {
+            player.release()
+            release()
+            mediaSession = null
+        }
+        super.onDestroy()
+    }
+    //endregion
+
+    //region Player.Listener
+    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        MainScope().launch {
+            playingQueue.listPosition =
+                mediaSession?.player?.currentMediaItemIndex ?: playingQueue.listPosition
+            playingQueue.songIdsListUpdater.last()[playingQueue.listPosition]
+                .let { waveFormRepository.checkWaveForm(it.id) }
+            playingQueue.songIdsListUpdater.last().getOrNull(playingQueue.listPosition + 1)
+                ?.let { waveFormRepository.checkWaveForm(it.id) }
+        }
+    }
+    //endregion
+
+    //region private methods
+    @OptIn(UnstableApi::class)
+    private fun initPlayer() {
         (application as AnyFlowApp).serverComponent?.inject(this)
-        playerController.stateChangeNotifier.observe(this) {
-            if (!isPlaying) {
-                stopForegroundAndKeepNotification()
+        val dataSourceFactory = DefaultDataSource.Factory(
+            this, CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(OkHttpDataSource.Factory(okHttpClient))
+        )
+
+        val exoPlayer = ExoPlayer
+            .Builder(this, DefaultRenderersFactory(this))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
+            .setHandleAudioBecomingNoisy(true)
+            .setAudioAttributes(
+                AudioAttributes
+                    .Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                    .build(),
+                true
+            )
+            .build()
+            .apply {
+                addListener(this@PlayerService)
             }
-            val playbackState = when (it) {
-                PlayerController.State.BUFFER -> PlaybackStateCompat.STATE_BUFFERING
-                PlayerController.State.RECONNECT -> PlaybackStateCompat.STATE_BUFFERING
-                PlayerController.State.PLAY -> PlaybackStateCompat.STATE_PLAYING
-                PlayerController.State.PAUSE -> PlaybackStateCompat.STATE_PAUSED
-                else -> PlaybackStateCompat.STATE_NONE
+
+        val intent = Intent(this, PlayerActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        mediaSession =
+            MediaSession
+                .Builder(this, exoPlayer)
+                .setSessionActivity(pendingIntent)
+                .build()
+    }
+
+    private fun listenToQueueChanges() {
+        MainScope().launch {
+            playingQueue
+                .songIdsListUpdater
+                .distinctUntilChanged()
+                .map { songList -> songList.map { it.toMediaItem() } }
+                .flowOn(Dispatchers.Default)
+                .map { songList ->
+                    mediaSession?.player?.run {
+                        val currentItem = currentMediaItem
+                        val state = if (playbackState == Player.STATE_IDLE || currentItem == null) {
+                            PlayerPlaylistState.Unprepared
+                        } else {
+                            PlayerPlaylistState.Prepared(
+                                currentMediaItem = currentItem,
+                                currentPosition = currentMediaItemIndex,
+                                isFirst = currentMediaItemIndex == 0,
+                                isLast = currentMediaItemIndex == mediaItemCount - 1
+
+                            )
+                        }
+                        StateAndSongs(state, songList)
+                    }
+                }
+                .filterNotNull()
+                .flowOn(Dispatchers.Main)
+                .map {
+                    PlaylistModification.Factory.getImplementation(
+                        it.songList,
+                        it.playlistState,
+                        playingQueue.listPosition
+                    )
+                }
+                .flowOn(Dispatchers.Default)
+                .collect { playlistModification ->
+                    mediaSession?.player?.let {
+                        playlistModification.applyModification(it)
+                        playingQueue.listPosition = it.currentMediaItemIndex
+                    }
+                }
+        }
+    }
+
+    private fun DbSongToPlay.toMediaItem(): MediaItem {
+        val songUrl = ampacheDataSource.getSongUrl(id)
+        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(id.toString()).build()
+    }
+    //endregion
+}
+
+private data class StateAndSongs(
+    val playlistState: PlayerPlaylistState,
+    val songList: List<MediaItem>
+)
+
+private sealed interface PlayerPlaylistState {
+    data object Unprepared : PlayerPlaylistState
+    data class Prepared(
+        val currentMediaItem: MediaItem,
+        val currentPosition: Int,
+        val isFirst: Boolean,
+        val isLast: Boolean
+    ) : PlayerPlaylistState
+}
+
+private sealed interface PlaylistModification {
+    suspend fun applyModification(player: Player)
+
+    data class InitialSetup(val songList: List<MediaItem>, val position: Int) :
+        PlaylistModification {
+        override suspend fun applyModification(player: Player) {
+            withContext(Dispatchers.Main) {
+                player.setMediaItems(songList)
+                player.seekToDefaultPosition(position)
+                player.prepare()
             }
-
-            notificationBuilder.lastPlaybackState = playbackState
-            notificationBuilder.updateNotification(isPlaying, hasPrevious, hasNext)
-        }
-        playerController.playTimeNotifier.observe(this) {
-            notificationBuilder.lastPosition = it
-        }
-        playingQueue.currentSong.observe(this) {
-            notificationBuilder.updateMediaSession(it)
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent != null && intent.action == "ALARM") {
-            playerController.playForAlarm()
+    data class SongNotPresent(val songList: List<MediaItem>) : PlaylistModification {
+        override suspend fun applyModification(player: Player) {
+            player.setMediaItems(songList)
         }
-        MediaButtonReceiver.handleIntent(mediaSession, intent)
-        return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        super.onBind(intent)
-        return iBinder
+    data class SongPresent(
+        val futurePosition: Int,
+        val previousSongs: List<MediaItem>,
+        val nextSongs: List<MediaItem>
+    ) : PlaylistModification {
+        override suspend fun applyModification(player: Player) {
+            if (previousSongs.isNotEmpty()) {
+                if (player.currentMediaItemIndex == 0) {
+                    player.addMediaItems(0, previousSongs)
+                } else {
+                    player.replaceMediaItems(0, player.currentMediaItemIndex, previousSongs)
+                }
+            }
+            if (nextSongs.isNotEmpty()) {
+                if (player.currentMediaItemIndex == player.mediaItemCount - 1) {
+                    player.addMediaItems(nextSongs)
+                } else {
+                    player.replaceMediaItems(
+                        player.currentMediaItemIndex + 1,
+                        Int.MAX_VALUE,
+                        nextSongs
+                    )
+                }
+            }
+        }
     }
 
-    /**
-     * Inner classes
-     */
-
-    inner class LocalBinder : Binder() {
-        val service: PlayerController
-            get() = playerController
-    }
-
-    /**
-     * Private Methods
-     */
-
-    companion object {
-        const val MEDIA_SESSION_NAME = "AnyFlow player"
+    object Factory {
+        fun getImplementation(
+            songList: List<MediaItem>,
+            playlistState: PlayerPlaylistState,
+            savedPosition: Int
+        ): PlaylistModification =
+            if (playlistState is PlayerPlaylistState.Prepared) {
+                val nextPosition = songList.indexOf(playlistState.currentMediaItem)
+                if (nextPosition == -1) {
+                    SongNotPresent(songList)
+                } else {
+                    val previousSongs =
+                        songList.takeIf { nextPosition > 0 }?.subList(0, nextPosition)
+                            ?: emptyList()
+                    val nextSongs = songList.takeIf { nextPosition < songList.size - 1 }
+                        ?.subList(nextPosition + 1, songList.size) ?: emptyList()
+                    SongPresent(nextPosition, previousSongs, nextSongs)
+                }
+            } else {
+                InitialSetup(songList, savedPosition)
+            }
     }
 }
+
+/*
+
+
+    override fun playForAlarm() {
+        exoplayerScope.launch(Dispatchers.Default) {
+            alarmsSynchronizer.syncAlarms()
+        }
+        val connectivityManager =
+            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true) {
+            filtersManager.clearFilters()
+            filtersManager.addFilter(
+                Filter(
+                    Filter.FilterType.DOWNLOADED_STATUS_IS,
+                    true,
+                    "",
+                    emptyList()
+                )
+            )
+            exoplayerScope.launch(Dispatchers.Default) {
+                filtersManager.commitChanges()
+            }
+        }
+        val streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamMaxVolume.div(3), 0)
+        prepare()
+        resume()
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+
+        fun resetItems() {
+            exoplayerScope.launch(Dispatchers.Main) {
+                val firstItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.currentSong)
+                val secondItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.nextSong)
+                mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
+                mediaPlayer.seekTo(0, C.TIME_UNSET)
+                prepare()
+            }
+        }
+
+        if (error is ExoPlaybackException && error.type == ExoPlaybackException.TYPE_SOURCE && error.sourceException is UnrecognizedInputFormatException) {
+            val sourceException = error.sourceException as UnrecognizedInputFormatException
+            val uri = sourceException.uri
+            val songId = uri.getQueryParameter("id")?.toLongOrNull()
+            if (songId != null) {
+                exoplayerScope.launch(Dispatchers.IO) {
+                    //todo wow, this is ugly. Intercept response ?
+                    val ampacheError = ampacheDataSource.getStreamError(songId)
+                    if (ampacheError.error.errorCode == 4701) {
+                        resetItems()
+                    }
+                }
+            } else if (uri.scheme?.equals("content") == true) {
+                mediaPlayer.clearMediaItems()
+                exoplayerScope.launch { //todo mark as faulty download / try again
+                    downloadManager.removeDownload(playingQueue.stateUpdater.value?.currentSong?.id)
+                }
+            }
+        }
+
+        if (
+            (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 403
+            || (error.cause as? HttpDataSource.InvalidResponseCodeException)?.responseCode == 400
+        ) {
+            (stateChangeNotifier as MutableLiveData).value = PlayerController.State.RECONNECT
+            exoplayerScope.launch {
+                resetItems()
+            }
+        } else if (
+            error is ExoPlaybackException
+            && error.cause is IllegalStateException
+            && error.cause?.message?.contains(
+                "Playback stuck buffering and not loading",
+                false
+            ) == true
+        ) {
+            val position = mediaPlayer.currentPosition
+            prepare()
+            seekTo(position)
+            resume()
+        } else {
+            eLog(error, "Error while playback")
+        }
+    }
+ */

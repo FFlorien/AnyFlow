@@ -10,7 +10,6 @@ import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.feature.auth.AuthRepository
-import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
@@ -97,27 +96,9 @@ open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val playerChannel = getPlayerChannel()
             val updateChannel = getUpdateChannel()
             val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager?.createNotificationChannel(playerChannel)
             notificationManager?.createNotificationChannel(updateChannel)
-        }
-    }
-
-    private fun getPlayerChannel(): NotificationChannel {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                PlayerService.MEDIA_SESSION_NAME,
-                "Music",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            channel.description = "It play music"
-            channel.vibrationPattern = null
-            channel.enableVibration(false)
-            return channel
-        } else {
-            throw UnsupportedOperationException("This method shouldn't be called from this api")
         }
     }
 

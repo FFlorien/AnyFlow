@@ -1,8 +1,12 @@
 package be.florien.anyflow.feature.player.ui
 
 import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
@@ -13,7 +17,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
@@ -32,7 +40,15 @@ import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.sync.SyncService
-import be.florien.anyflow.injection.*
+import be.florien.anyflow.injection.ActivityScope
+import be.florien.anyflow.injection.AnyFlowViewModelFactory
+import be.florien.anyflow.injection.PlayerComponent
+import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.injection.ViewModelFactoryHolder
+import com.google.common.util.concurrent.MoreExecutors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -72,6 +88,17 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
      * Lifecycle methods
      */
 
+    override fun onStart() {
+        super.onStart()
+        val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
+        val mediaControllerListenableFuture = MediaController
+            .Builder(this, sessionToken)
+            .buildAsync()
+        mediaControllerListenableFuture.addListener({
+            viewModel.player = mediaControllerListenableFuture.get()
+        }, MoreExecutors.directExecutor())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val component = anyFlowApp.serverComponent
             ?.playerComponentBuilder()
@@ -97,7 +124,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         initToolbar()
         initDrawer()
         initMenus()
-        initPlayerService()
+        observeNetwork()
 
         if (savedInstanceState == null) {
             supportFragmentManager
@@ -181,6 +208,15 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         super.onResume()
         updateMenuItemVisibility()
         adaptToolbarToCurrentFragment()
+        lifecycleScope.launch(Dispatchers.Default) {//todo better handling of lifecycle and resource ?
+            viewModel.currentDuration.collect {
+                if (lifecycle.currentState == Lifecycle.State.RESUMED) {
+                    withContext(Dispatchers.Main) {
+                        binding.playerControls.currentDuration = it
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -205,7 +241,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
         menuCoordinator.removeMenuHolder(libraryMenu)
         menuCoordinator.removeMenuHolder(orderMenu)
-        unbindService(viewModel.playerConnection)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
     }
@@ -288,12 +323,26 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         menuCoordinator.addMenuHolder(orderMenu)
     }
 
-    private fun initPlayerService() {
-        bindService(
-            Intent(this, PlayerService::class.java),
-            viewModel.playerConnection,
-            BIND_AUTO_CREATE
-        )
+    private fun observeNetwork() {
+        val networkRequest = NetworkRequest
+            .Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
+
+        val connectivityManager =
+            getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        connectivityManager.registerNetworkCallback(networkRequest, viewModel.networkCallback)
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        val hasInternet =
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
+        val isWifi =
+            networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
+        val isCellular =
+            networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false
+        viewModel.setInternetPresence(hasInternet && (isWifi || isCellular))
     }
 
     private fun displayLibrary() {

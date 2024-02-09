@@ -2,20 +2,28 @@ package be.florien.anyflow.feature.player.ui
 
 import android.content.ComponentName
 import android.content.ServiceConnection
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.IBinder
 import androidx.lifecycle.*
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
 import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.auth.AuthRepository
-import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.player.services.WaveFormRepository
-import be.florien.anyflow.feature.player.services.controller.IdlePlayerController
-import be.florien.anyflow.feature.player.services.controller.PlayerController
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.controls.PlayPauseIconAnimator
 import be.florien.anyflow.feature.player.ui.controls.PlayerControls
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -27,7 +35,7 @@ import kotlin.math.absoluteValue
 class PlayerViewModel
 @Inject
 constructor(
-    private val playingQueue: PlayingQueue,
+    playingQueue: PlayingQueue,
     private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
@@ -42,24 +50,18 @@ constructor(
     val artistsUpdatePercentage: LiveData<Int>,
     @Named("Playlists")
     val playlistsUpdatePercentage: LiveData<Int>
-) : BaseViewModel(), PlayerControls.OnActionListener {
-
-    internal val playerConnection: PlayerConnection = PlayerConnection()
-    internal val updateConnection: UpdateConnection = UpdateConnection()
+) : BaseViewModel(), PlayerControls.OnActionListener, Player.Listener {
+    //region observable fields
+    val hasInternet: LiveData<Boolean> = MutableLiveData()
     val isConnecting = connectionStatus.map { it == AuthRepository.ConnectionStatus.CONNEXION }
-    private var isBackKeyPreviousSong: Boolean = false
-
-    /**
-     * Bindables
-     */
     val shouldShowBuffering: LiveData<Boolean> = MutableLiveData(false)
-    val state: LiveData<Int> = MediatorLiveData()
-    val hasInternet: LiveData<Boolean> = MediatorLiveData()
+    val playbackState: LiveData<Int> =
+        MutableLiveData(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
-
-    val currentDuration: LiveData<Int> = MediatorLiveData()
-    val totalDuration: LiveData<Int> =
-        playingQueue.currentSong.map { ((it as SongInfo?)?.time ?: 0) * 1000 }
+    val currentDuration: StateFlow<Int> = MutableStateFlow(0)
+    val totalDuration: LiveData<Int> = playingQueue
+        .currentSong
+        .map { ((it as SongInfo?)?.time ?: 0) * 1000 }
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
     val waveForm: LiveData<DoubleArray> =
@@ -67,62 +69,77 @@ constructor(
             .distinctUntilChanged()
 
     val isSeekable: LiveData<Boolean> = MutableLiveData(false)
+    //endregion
 
-    var player: PlayerController = IdlePlayerController()
-        set(value) {
-            (currentDuration as MediatorLiveData).removeSource(field.playTimeNotifier)
-            (state as MediatorLiveData).removeSource(field.stateChangeNotifier)
-            (hasInternet as MediatorLiveData).removeSource(field.internetChangeNotifier)
-            field = value
-            currentDuration.addSource(field.playTimeNotifier) {
-                // todo differentiate previous and start from the playercontrol
-                isBackKeyPreviousSong = it.toInt() < 10000
-                currentDuration.mutable.value = it.toInt()
-            }
-            state.addSource(field.stateChangeNotifier) {
-                shouldShowBuffering.mutable.value = it == PlayerController.State.BUFFER
-                state.mutable.value = when (it) {
-                    PlayerController.State.PLAY -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
-                    PlayerController.State.PAUSE -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
-                    else -> PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
-                }
-                isSeekable.mutable.value = player.isSeekable()
-            }
-            hasInternet.addSource(field.internetChangeNotifier) {
-                hasInternet.mutable.value = it
-            }
+    //region public fields
+    val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onCapabilitiesChanged(
+            network: Network,
+            networkCapabilities: NetworkCapabilities
+        ) {
+            super.onCapabilitiesChanged(network, networkCapabilities)
+            val hasNet =
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            hasInternet.mutable.postValueIfChanged(hasNet)
         }
 
-    /**
-     * PlayerControls.OnActionListener methods
-     */
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            hasInternet.mutable.postValueIfChanged(false)
+        }
+    }
+    internal val updateConnection: UpdateConnection = UpdateConnection()
+    var player: MediaController? = null
+        set(value) {
+            field?.removeListener(this@PlayerViewModel)
+            field = value
+            value?.addListener(this@PlayerViewModel)
+
+        }
+    //endregion
+
+    init {
+        viewModelScope.launch(Dispatchers.Default) {//todo safer, look for the lifecycle ?
+            while (true) {
+                delay(10)
+                (currentDuration as MutableStateFlow).emit(
+                    getFromPlayer(0) { contentPosition }.toInt()
+                )
+            }
+        }
+    }
+
+    // region PlayerControls.OnActionListener methods
     override fun onPreviousClicked() {
-        if (isBackKeyPreviousSong) {
-            playingQueue.listPosition -= 1
+        if (currentDuration.value < 10 * 1000) {
+            doOnPlayer { seekToPrevious() }
         } else {
-            player.seekTo(0L)
+            doOnPlayer { seekTo(0L) }
         }
     }
 
     override fun onNextClicked() {
-        playingQueue.listPosition += 1
+        doOnPlayer { seekToNext() }
     }
 
     override fun onPlayPauseClicked() {
-        player.apply {
-            if (isPlaying()) {
+        doOnPlayer {
+            if (isPlaying) {
                 pause()
             } else {
-                resume()
+                play()
             }
         }
     }
 
     override fun onCurrentDurationChanged(newDuration: Long) {
-        if (player.isSeekable() && ((currentDuration.value?.minus(newDuration))?.absoluteValue
-                ?: 0) > 1000
-        ) {
-            player.seekTo(newDuration)
+        doOnPlayer {
+            if (
+                isCurrentMediaItemSeekable
+                && ((contentPosition - newDuration).absoluteValue) > 1000
+            ) {
+                seekTo(newDuration)
+            }
         }
     }
 
@@ -144,18 +161,46 @@ constructor(
         }
     }
 
-    /**
-     * Inner class
-     */
-    inner class PlayerConnection : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            player = (service as PlayerService.LocalBinder).service
-        }
+    //endregion
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        var iconPlaybackState: Int = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+        viewModelScope.launch(Dispatchers.Main) {
+            when (playbackState) {
+                Player.STATE_BUFFERING, Player.STATE_IDLE -> {
+                    shouldShowBuffering.mutable.postValueIfChanged(true)
+                    iconPlaybackState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER
+                }
 
-        override fun onServiceDisconnected(name: ComponentName?) {
-            player = IdlePlayerController()
+                Player.STATE_READY -> {
+                    isSeekable.mutable.postValueIfChanged(getFromPlayer(false) { isCurrentMediaItemSeekable })
+                    shouldShowBuffering.mutable.postValueIfChanged(false)
+                    iconPlaybackState = if (getFromPlayer(false) { playWhenReady }) {
+                        PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+                    } else {
+                        PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+                    }
+                }
+
+                else -> {
+                    shouldShowBuffering.mutable.postValueIfChanged(false)
+                }
+            }
+        }
+        this@PlayerViewModel.playbackState.mutable.postValueIfChanged(iconPlaybackState)
+    }
+
+    fun setInternetPresence(hasNet: Boolean) {
+        hasInternet.mutable.postValueIfChanged(hasNet)
+    }
+
+    private fun doOnPlayer(action: Player.() -> Unit) { //todo put that in a specific class to avoid direct access to player
+        viewModelScope.launch(Dispatchers.Main) {
+            player?.action()
         }
     }
+
+    private suspend fun <T> getFromPlayer(defaultValue: T, getter: Player.() -> T) =
+        viewModelScope.async(Dispatchers.Main) { player?.getter() ?: defaultValue }.await()
 
     inner class UpdateConnection : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
