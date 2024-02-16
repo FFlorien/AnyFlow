@@ -29,7 +29,7 @@ class PlayerControls
         ScrollPlayerPainter(context, playPauseIconAnimator, previousIconAnimator)
     private var currentPlayerPainter: PlayerPainter = playPlayerPainter
         set(value) {
-            field.onValuesComputed = {}
+            field.onValuesComputed = null
             value.onValuesComputed = {
                 invalidate()
             }

@@ -23,7 +23,7 @@
     <target android:name="path">
         <aapt:attr name="android:animation">
             <objectAnimator
-                android:duration="100"
+                android:duration="150"
                 android:interpolator="@android:anim/linear_interpolator"
                 android:propertyName="pathData"
                 android:valueFrom="M200,200L200,200L200,200L200,200ZM200,200L200,200L200,200L200,200Z"

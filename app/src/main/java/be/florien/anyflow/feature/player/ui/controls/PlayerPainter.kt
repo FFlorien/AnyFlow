@@ -34,7 +34,7 @@ internal abstract class PlayerPainter(
             computePlayButtonRightBound()
             computeWaveForm()
             computeTicks()
-            onValuesComputed()
+            onValuesComputed?.invoke()
         }
     var waveForm = DoubleArray(0)
         set(value) {
@@ -48,14 +48,14 @@ internal abstract class PlayerPainter(
             computePlayButtonRightBound()
             computeRemainingDurationText()
             computeTicks()
-            onValuesComputed()
+            onValuesComputed?.invoke()
         }
     var currentState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
         set(value) {
             oldState = field
             field = value
             computePlayPauseIcon()
-            onValuesComputed()
+            onValuesComputed?.invoke()
         }
     var hasPrevious: Boolean = false
         set(value) {
@@ -75,7 +75,11 @@ internal abstract class PlayerPainter(
                     .createBlendModeColorFilterCompat(disabledColor, BlendModeCompat.SRC_IN)
             }
         }
-    var onValuesComputed: () -> Unit = {}
+    var onValuesComputed: (() -> Unit)? = null
+        set(value) {
+            field = value
+            playPauseIconAnimator.onIconChanged = value
+        }
 
     // State
     private var oldState = PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
@@ -324,8 +328,8 @@ internal abstract class PlayerPainter(
                 /* paint =  */ comingWaveFormBarsColor
             )
         }
-        playPauseIconAnimator.icon.draw(canvas)
-        previousIconAnimator.icon.draw(canvas)
+        playPauseIconAnimator.icon?.draw(canvas)
+        previousIconAnimator.icon?.draw(canvas)
         nextIcon.draw(canvas)
         ticks.filter { it > 0 }.forEach {
             canvas.drawLine( // Ticks

@@ -174,7 +174,7 @@ constructor(
                 Player.STATE_READY -> {
                     isSeekable.mutable.postValueIfChanged(getFromPlayer(false) { isCurrentMediaItemSeekable })
                     shouldShowBuffering.mutable.postValueIfChanged(false)
-                    iconPlaybackState = if (getFromPlayer(false) { playWhenReady }) {
+                    iconPlaybackState = if (getFromPlayer(false) { isPlaying }) {
                         PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
                     } else {
                         PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
@@ -186,7 +186,15 @@ constructor(
                 }
             }
         }
-        this@PlayerViewModel.playbackState.mutable.postValueIfChanged(iconPlaybackState)
+        this.playbackState.mutable.postValueIfChanged(iconPlaybackState)
+    }
+
+    override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+        this.playbackState.mutable.postValueIfChanged(if (playWhenReady) {
+            PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+        } else {
+            PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+        })
     }
 
     fun setInternetPresence(hasNet: Boolean) {

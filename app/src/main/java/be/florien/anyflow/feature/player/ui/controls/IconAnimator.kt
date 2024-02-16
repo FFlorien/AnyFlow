@@ -13,12 +13,16 @@ import be.florien.anyflow.R
 
 
 abstract class IconAnimator(val context: Context) {
-    lateinit var icon: Drawable
+    var icon: Drawable? = null
+    var onIconChanged: (() -> Unit)? = null
     protected var oldState: Int = -1
-    private var oldCallback: Animatable2Compat.AnimationCallback? = null
     protected var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
 
     open fun computeIcon(newState: Int, iconPosition: Rect) {
+        if (newState == oldState) {
+            return
+        }
+
         val startIcon = getStartAnimation(newState)
         val endIcon = getEndAnimation(newState)
         val fixedIcon = getFixedIcon(newState)
@@ -54,43 +58,35 @@ abstract class IconAnimator(val context: Context) {
         playPausePosition: Rect,
         onAnimationEndAction: (() -> Unit)? = null
     ) {
-        val nullSafeCallback = oldCallback
-        if (nullSafeCallback != null) {
-            (icon as? AnimatedVectorDrawableCompat)?.unregisterAnimationCallback(nullSafeCallback)
-        }
+        (icon as? AnimatedVectorDrawableCompat)?.clearAnimationCallbacks()
+        icon = newIcon
         if (onAnimationEndAction != null && newIcon is AnimatedVectorDrawableCompat) {
             val callback = object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable) {
                     onAnimationEndAction()
                 }
             }
-            oldCallback = callback
             newIcon.registerAnimationCallback(callback)
-        } else {
-            oldCallback = null
         }
-        icon = newIcon
-        icon.bounds = playPausePosition
-        (icon as? AnimatedVectorDrawableCompat)?.start()
+
+        newIcon.bounds = playPausePosition
+        onIconChanged?.invoke()
+        (newIcon as? AnimatedVectorDrawableCompat)?.start()
     }
 
     protected fun getIcon(animIconRes: Int): VectorDrawableCompat {
         val icon = VectorDrawableCompat.create(context.resources, animIconRes, context.theme)
             ?: throw IllegalArgumentException("Icon wasn't found !")
-        icon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-            iconColor,
-            BlendModeCompat.SRC_IN
-        )
+        icon.colorFilter = BlendModeColorFilterCompat
+            .createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
         return icon
     }
 
     protected fun getAnimatedIcon(animIconRes: Int): AnimatedVectorDrawableCompat {
         val icon = AnimatedVectorDrawableCompat.create(context, animIconRes)
             ?: throw IllegalArgumentException("Icon wasn't found !")
-        icon.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-            iconColor,
-            BlendModeCompat.SRC_IN
-        )
+        icon.colorFilter = BlendModeColorFilterCompat
+            .createBlendModeColorFilterCompat(iconColor, BlendModeCompat.SRC_IN)
         return icon
     }
 
