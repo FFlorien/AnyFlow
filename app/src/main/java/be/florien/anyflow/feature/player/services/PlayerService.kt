@@ -22,6 +22,7 @@ import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,6 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,7 +43,10 @@ import javax.inject.Named
  */
 class PlayerService : MediaSessionService(), Player.Listener {
 
+    //todo Own coroutineScope
     private var mediaSession: MediaSession? = null
+    private val player: Player?
+        get() = mediaSession?.player
 
     //region injection
     @Inject
@@ -57,6 +60,9 @@ class PlayerService : MediaSessionService(), Player.Listener {
 
     @Inject
     internal lateinit var urlRepository: UrlRepository
+
+    @Inject
+    internal lateinit var downloadManager: DownloadManager
 
     @Named("authenticated")
     @Inject
@@ -76,7 +82,6 @@ class PlayerService : MediaSessionService(), Player.Listener {
 
     // The user dismissed the app from the recent tasks
     override fun onTaskRemoved(rootIntent: Intent?) {
-        val player = mediaSession?.player
         if (player?.playWhenReady == false || player?.mediaItemCount == 0) {
             // Stop the service if not playing, continue playing in the background
             // otherwise.
@@ -100,13 +105,18 @@ class PlayerService : MediaSessionService(), Player.Listener {
 
     //region Player.Listener
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        fun MediaItem.checkWaveForm() {
+            mediaId
+                .toLongOrNull()
+                ?.let { waveFormRepository.checkWaveForm(it) }
+        }
+
         MainScope().launch {
-            playingQueue.listPosition =
-                mediaSession?.player?.currentMediaItemIndex ?: playingQueue.listPosition
-            playingQueue.songIdsListUpdater.last()[playingQueue.listPosition]
-                .let { waveFormRepository.checkWaveForm(it.id) }
-            playingQueue.songIdsListUpdater.last().getOrNull(playingQueue.listPosition + 1)
-                ?.let { waveFormRepository.checkWaveForm(it.id) }
+            playingQueue.listPosition = player?.currentMediaItemIndex ?: playingQueue.listPosition
+            player?.run {
+                currentMediaItem?.checkWaveForm()
+                player?.getMediaItemAt(nextMediaItemIndex)?.checkWaveForm()
+            }
         }
     }
     //endregion
@@ -156,7 +166,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
                 .map { songList -> songList.map { it.toMediaItem() } }
                 .flowOn(Dispatchers.Default)
                 .map { songList ->
-                    mediaSession?.player?.run {
+                    player?.run {
                         val currentItem = currentMediaItem
                         val state = if (playbackState == Player.STATE_IDLE || currentItem == null) {
                             PlayerPlaylistState.Unprepared
@@ -183,7 +193,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
                 }
                 .flowOn(Dispatchers.Default)
                 .collect { playlistModification ->
-                    mediaSession?.player?.let {
+                    player?.let {
                         playlistModification.applyModification(it)
                         playingQueue.listPosition = it.currentMediaItemIndex
                     }
@@ -314,11 +324,11 @@ private sealed interface PlaylistModification {
         prepare()
         resume()
     }
-
+    @OptIn(UnstableApi::class)
     override fun onPlayerError(error: PlaybackException) {
 
         fun resetItems() {
-            exoplayerScope.launch(Dispatchers.Main) {
+            MainScope().launch {
                 val firstItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.currentSong)
                 val secondItem = dbSongToMediaItem(playingQueue.stateUpdater.value?.nextSong)
                 mediaPlayer.setMediaItems(listOfNotNull(firstItem, secondItem))
@@ -327,24 +337,12 @@ private sealed interface PlaylistModification {
             }
         }
 
-        if (error is ExoPlaybackException && error.type == ExoPlaybackException.TYPE_SOURCE && error.sourceException is UnrecognizedInputFormatException) {
-            val sourceException = error.sourceException as UnrecognizedInputFormatException
-            val uri = sourceException.uri
-            val songId = uri.getQueryParameter("id")?.toLongOrNull()
-            if (songId != null) {
-                exoplayerScope.launch(Dispatchers.IO) {
-                    //todo wow, this is ugly. Intercept response ?
-                    val ampacheError = ampacheDataSource.getStreamError(songId)
-                    if (ampacheError.error.errorCode == 4701) {
-                        resetItems()
-                    }
-                }
-            } else if (uri.scheme?.equals("content") == true) {
-                mediaPlayer.clearMediaItems()
-                exoplayerScope.launch { //todo mark as faulty download / try again
-                    downloadManager.removeDownload(playingQueue.stateUpdater.value?.currentSong?.id)
-                }
-            }
+        if (
+            error is ExoPlaybackException
+            && error.type == ExoPlaybackException.TYPE_SOURCE
+            && error.sourceException is UnrecognizedInputFormatException
+        ) {
+            fixSourceError(error)
         }
 
         if (
@@ -369,6 +367,35 @@ private sealed interface PlaylistModification {
             resume()
         } else {
             eLog(error, "Error while playback")
+        }
+    }
+
+    @OptIn(UnstableApi::class)
+    private fun fixSourceError(error: ExoPlaybackException) {
+        val sourceException = error.sourceException as UnrecognizedInputFormatException
+        val uri = sourceException.uri
+        val songId = uri.getQueryParameter("id")?.toLongOrNull()
+        if (songId != null) {
+            fixRemoteSourceError(songId)
+        } else if (uri.scheme?.equals("content") == true) {
+            fixLocalSourceError()
+        }
+    }
+
+    private fun fixLocalSourceError() {
+        mediaSession?.player?.clearMediaItems()
+        MainScope().launch { //todo mark as faulty download / try again
+            downloadManager.removeDownload(playingQueue.currentSong.value?.id)
+        }
+    }
+
+    private fun fixRemoteSourceError(songId: Long) {
+        MainScope().launch(Dispatchers.IO) { //todo this is probably ugly
+            //todo wow, this is ugly. Intercept response ?
+            val ampacheError = ampacheDataSource.getStreamError(songId)
+            if (ampacheError.error.errorCode == 4701) {
+                resetItems()
+            }
         }
     }
  */

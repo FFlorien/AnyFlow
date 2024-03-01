@@ -36,10 +36,10 @@ class WaveFormRepository @Inject constructor(
 
     fun checkWaveForm(songId: Long) {
         coroutineScope.launch(Dispatchers.IO) {
-            val waveFormSync = libraryDatabase
+            val waveFormLocal = libraryDatabase
                 .getSongDao()
                 .getWaveFormSync(songId)
-            val isWaveFormMissing = waveFormSync == null || waveFormSync.downSamplesArray.isEmpty()
+            val isWaveFormMissing = waveFormLocal == null || waveFormLocal.downSamplesArray.isEmpty()
             if (isWaveFormMissing && currentDownloads.add(songId)) {
                 getWaveFormFromAmpache(songId)
                 currentDownloads.remove(songId)

@@ -55,8 +55,8 @@ constructor(
     val hasInternet: LiveData<Boolean> = MutableLiveData()
     val isConnecting = connectionStatus.map { it == AuthRepository.ConnectionStatus.CONNEXION }
     val shouldShowBuffering: LiveData<Boolean> = MutableLiveData(false)
-    val playbackState: LiveData<Int> =
-        MutableLiveData(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
+    val playbackState: StateFlow<Int> =
+        MutableStateFlow(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
     val currentDuration: StateFlow<Int> = MutableStateFlow(0)
     val totalDuration: LiveData<Int> = playingQueue
@@ -185,16 +185,18 @@ constructor(
                     shouldShowBuffering.mutable.postValueIfChanged(false)
                 }
             }
+            this@PlayerViewModel.playbackState.mutable.emit(iconPlaybackState)
         }
-        this.playbackState.mutable.postValueIfChanged(iconPlaybackState)
     }
 
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-        this.playbackState.mutable.postValueIfChanged(if (playWhenReady) {
-            PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
-        } else {
-            PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
-        })
+        viewModelScope.launch(Dispatchers.Main) {
+            playbackState.mutable.emit(if (playWhenReady) {
+                PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+            } else {
+                PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+            })
+        }
     }
 
     fun setInternetPresence(hasNet: Boolean) {

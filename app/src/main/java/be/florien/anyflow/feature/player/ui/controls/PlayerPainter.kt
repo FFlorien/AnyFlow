@@ -79,6 +79,7 @@ internal abstract class PlayerPainter(
         set(value) {
             field = value
             playPauseIconAnimator.onIconChanged = value
+            previousIconAnimator.onIconChanged = value
         }
 
     // State
