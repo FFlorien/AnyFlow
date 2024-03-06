@@ -27,7 +27,7 @@
             android:layout_width="@dimen/xxLargeDimen"
             android:layout_height="@dimen/xxLargeDimen"
             android:src="@drawable/ic_confirm"
-            android:background="@drawable/bg_blue_corner_radius_ripple"
+            android:background="@drawable/bg_blue_corner_big_radius_ripple"
             app:layout_constraintTop_toTopOf="@id/toolbarBackground"
             app:layout_constraintEnd_toEndOf="@+id/toolbarBackground"
             android:onClick="@{() -> viewModel.confirmChanges()}"/>
@@ -37,7 +37,7 @@
             android:layout_width="@dimen/xxLargeDimen"
             android:layout_height="@dimen/xxLargeDimen"
             android:src="@drawable/ic_new_playlist"
-            android:background="@drawable/bg_blue_corner_radius_ripple"
+            android:background="@drawable/bg_blue_corner_big_radius_ripple"
             app:layout_constraintTop_toTopOf="@id/toolbarBackground"
             app:layout_constraintEnd_toStartOf="@id/confirmButton"
             android:onClick="@{() -> viewModel.getNewPlaylistName()}"/>

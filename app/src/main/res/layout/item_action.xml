@@ -5,7 +5,7 @@
     android:layout_height="@dimen/minClickableSize"
     android:layout_margin="@dimen/smallDimen"
     android:padding="@dimen/smallDimen"
-    android:background="@drawable/bg_blue_button">
+    android:background="@drawable/bg_blue_corner_small_radius_ripple">
 
     <ImageView
         android:id="@+id/action"
