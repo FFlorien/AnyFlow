@@ -19,7 +19,7 @@
             android:id="@+id/toolbarBackground"
             android:layout_width="match_parent"
             android:layout_height="@dimen/xxLargeDimen"
-            android:background="@color/primary"
+            android:background="@drawable/bg_blue_corner_radius"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
@@ -27,7 +27,7 @@
             android:layout_width="@dimen/xxLargeDimen"
             android:layout_height="@dimen/xxLargeDimen"
             android:src="@drawable/ic_confirm"
-            android:background="@drawable/bg_blue_button"
+            android:background="@drawable/bg_blue_corner_radius_ripple"
             app:layout_constraintTop_toTopOf="@id/toolbarBackground"
             app:layout_constraintEnd_toEndOf="@+id/toolbarBackground"
             android:onClick="@{() -> viewModel.confirmChanges()}"/>
@@ -37,7 +37,7 @@
             android:layout_width="@dimen/xxLargeDimen"
             android:layout_height="@dimen/xxLargeDimen"
             android:src="@drawable/ic_new_playlist"
-            android:background="@drawable/bg_blue_button"
+            android:background="@drawable/bg_blue_corner_radius_ripple"
             app:layout_constraintTop_toTopOf="@id/toolbarBackground"
             app:layout_constraintEnd_toStartOf="@id/confirmButton"
             android:onClick="@{() -> viewModel.getNewPlaylistName()}"/>
@@ -58,7 +58,7 @@
             android:text="@string/info_action_select_playlist" />
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-            android:id="@+id/filterList"
+            android:id="@+id/playlistList"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:fastScrollPopupBgColor="@color/accent"

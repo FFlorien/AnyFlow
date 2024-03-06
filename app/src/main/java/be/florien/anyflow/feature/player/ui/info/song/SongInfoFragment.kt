@@ -122,7 +122,6 @@ class SongInfoFragment(
         binding = FragmentInfoBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-        binding.root.minimumHeight = dialog?.window?.attributes?.height ?: binding.root.height
         return binding.root
     }
 

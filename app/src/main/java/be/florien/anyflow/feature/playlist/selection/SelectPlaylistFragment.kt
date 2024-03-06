@@ -20,6 +20,7 @@ import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldT
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.ServerScope
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +31,7 @@ class SelectPlaylistFragment(
     private var id: Long = 0L,
     private var type: SongFieldType = SongFieldType.Title,
     private var secondId: Int = -1
-) : DialogFragment() {
+) : BottomSheetDialogFragment() {
     lateinit var viewModel: SelectPlaylistViewModel
     private lateinit var fragmentBinding: FragmentSelectPlaylistBinding
 
@@ -62,12 +63,12 @@ class SelectPlaylistFragment(
         fragmentBinding = FragmentSelectPlaylistBinding.inflate(inflater, container, false)
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.viewModel = viewModel
-        fragmentBinding.filterList.layoutManager =
+        fragmentBinding.playlistList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        fragmentBinding.filterList.adapter = FilterListAdapter(viewModel::rotateActionForPlaylist)
+        fragmentBinding.playlistList.adapter = FilterListAdapter(viewModel::rotateActionForPlaylist)
         ResourcesCompat.getDrawable(resources, R.drawable.sh_divider, requireActivity().theme)
             ?.let {
-                fragmentBinding.filterList.addItemDecoration(
+                fragmentBinding.playlistList.addItemDecoration(
                     DividerItemDecoration(
                         requireActivity(),
                         DividerItemDecoration.VERTICAL
@@ -77,11 +78,11 @@ class SelectPlaylistFragment(
             viewModel.initViewModel(id, type, secondId)
             viewModel.values.observe(viewLifecycleOwner) {
                 if (it != null)
-                    (fragmentBinding.filterList.adapter as FilterListAdapter).submitList(it)
+                    (fragmentBinding.playlistList.adapter as FilterListAdapter).submitList(it)
             }
             viewModel.filterCount.observe(viewLifecycleOwner) {
                 if (it != null)
-                    (fragmentBinding.filterList.adapter as FilterListAdapter).total = it
+                    (fragmentBinding.playlistList.adapter as FilterListAdapter).total = it
             }
             viewModel.isCreating.observe(viewLifecycleOwner) {
                 if (it) {
