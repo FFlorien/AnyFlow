@@ -9,15 +9,35 @@ import be.florien.anyflow.R
 class PlayPauseIconAnimator(context: Context) : IconAnimator(context) {
 
     override fun getStartAnimation(newState: Int): AnimatedVectorDrawableCompat? = when (oldState) {
-        STATE_PLAY_PAUSE_PAUSE -> getAnimatedIcon(R.drawable.ic_from_play)
-        STATE_PLAY_PAUSE_PLAY -> getAnimatedIcon(R.drawable.ic_from_pause)
+        STATE_PLAY_PAUSE_PAUSE -> if (newState == STATE_PLAY_PAUSE_PLAY) {
+            getAnimatedIcon(R.drawable.ic_play_to_pause)
+        } else {
+            getAnimatedIcon(R.drawable.ic_from_play)
+        }
+
+        STATE_PLAY_PAUSE_PLAY -> if (newState == STATE_PLAY_PAUSE_PAUSE) {
+            getAnimatedIcon(R.drawable.ic_pause_to_play)
+        } else {
+            getAnimatedIcon(R.drawable.ic_from_pause)
+        }
+
         STATE_PLAY_PAUSE_SCROLL -> null
         else -> null
     }
 
     override fun getEndAnimation(newState: Int): AnimatedVectorDrawableCompat? = when (newState) {
-        STATE_PLAY_PAUSE_PAUSE -> getAnimatedIcon(R.drawable.ic_to_play)
-        STATE_PLAY_PAUSE_PLAY -> getAnimatedIcon(R.drawable.ic_to_pause)
+        STATE_PLAY_PAUSE_PAUSE -> if (oldState == STATE_PLAY_PAUSE_PLAY) {
+            null
+        } else {
+            getAnimatedIcon(R.drawable.ic_to_play)
+        }
+
+        STATE_PLAY_PAUSE_PLAY -> if (oldState == STATE_PLAY_PAUSE_PAUSE) {
+            null
+        } else {
+            getAnimatedIcon(R.drawable.ic_to_pause)
+        }
+
         STATE_PLAY_PAUSE_SCROLL -> null
         else -> null
     }
