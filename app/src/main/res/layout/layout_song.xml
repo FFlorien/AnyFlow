@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/smallDimen"
             android:text="@{song.title}"
-            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="This song's title" />
@@ -72,7 +72,7 @@
             android:paddingHorizontal="@dimen/smallDimen"
             android:text="@{song.artistName}"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
             app:layout_constraintTop_toBottomOf="@+id/songTitle"
             tools:text="This artist's name" />
@@ -84,7 +84,7 @@
             android:paddingHorizontal="@dimen/smallDimen"
             android:text="@{song.albumName}"
             android:textStyle="italic"
-            app:layout_constraintEnd_toEndOf="@id/songInfo"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
             app:layout_constraintTop_toBottomOf="@+id/songArtist"
             tools:text="This album's name" />
