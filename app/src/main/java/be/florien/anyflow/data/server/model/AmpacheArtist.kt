@@ -18,7 +18,7 @@ class AmpacheArtist {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheArtistResponse: AmpacheApiResponse<AmpacheArtist>() {
+class AmpacheArtistResponse: AmpacheApiListResponse<AmpacheArtist>() {
     @JsonProperty("artist")
     override var list: List<AmpacheArtist> = mutableListOf()
 }

@@ -41,39 +41,74 @@ open class AmpacheDataSource
     suspend fun getNewAlbums(offset: Int, limit: Int): NetResult<AmpacheAlbumResponse> =
         getNetResult(AmpacheDataApi::getNewAlbums, offset, limit)
 
-    suspend fun getPlaylists(offset: Int, limit: Int): NetResult<AmpachePlaylistResponse> =
-        getNetResult(AmpacheDataApi::getPlaylists, offset, limit)
+    suspend fun getPlaylists(): NetResult<AmpachePlaylistResponse> =
+        getNetResult(AmpacheDataApi::getPlaylists)
 
-    suspend fun getAddedSongs(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheSongResponse> =
+    suspend fun getPlaylistsWithSongs(): NetResult<AmpachePlaylistsWithSongsResponse> =
+        getNetResult(AmpacheDataApi::getPlaylistsSongs)
+
+    suspend fun getAddedSongs(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheSongResponse> =
         getUpdatedNetResult(AmpacheDataApi::getAddedSongs, offset, limit, from)
 
-    suspend fun getAddedGenres(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheGenreResponse> =
+    suspend fun getAddedGenres(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheGenreResponse> =
         getUpdatedNetResult(AmpacheDataApi::getAddedGenres, offset, limit, from)
 
-    suspend fun getAddedArtists(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheArtistResponse> =
+    suspend fun getAddedArtists(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheArtistResponse> =
         getUpdatedNetResult(AmpacheDataApi::getAddedArtists, offset, limit, from)
 
-    suspend fun getAddedAlbums(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheAlbumResponse> =
+    suspend fun getAddedAlbums(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheAlbumResponse> =
         getUpdatedNetResult(AmpacheDataApi::getAddedAlbums, offset, limit, from)
 
     /**
      * API calls : updated data
      */
 
-    suspend fun getUpdatedSongs(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheSongResponse> =
+    suspend fun getUpdatedSongs(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheSongResponse> =
         getUpdatedNetResult(AmpacheDataApi::getUpdatedSongs, offset, limit, from)
 
-    suspend fun getUpdatedGenres(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheGenreResponse> =
+    suspend fun getUpdatedGenres(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheGenreResponse> =
         getUpdatedNetResult(AmpacheDataApi::getUpdatedGenres, offset, limit, from)
 
-    suspend fun getUpdatedArtists(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheArtistResponse> =
+    suspend fun getUpdatedArtists(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheArtistResponse> =
         getUpdatedNetResult(AmpacheDataApi::getUpdatedArtists, offset, limit, from)
 
-    suspend fun getUpdatedAlbums(offset: Int, limit: Int, from: Calendar): NetResult<AmpacheAlbumResponse> =
+    suspend fun getUpdatedAlbums(
+        offset: Int,
+        limit: Int,
+        from: Calendar
+    ): NetResult<AmpacheAlbumResponse> =
         getUpdatedNetResult(AmpacheDataApi::getUpdatedAlbums, offset, limit, from)
 
     suspend fun getDeletedSongs(offset: Int, limit: Int): NetResult<AmpacheDeletedSongIdResponse> =
-            getNetResult(AmpacheDataApi::getDeletedSongs, offset, limit)
+        getNetResult(AmpacheDataApi::getDeletedSongs, offset, limit)
 
     suspend fun getWaveFormImage(songId: Long, context: Context) = withContext(Dispatchers.IO) {
         val serverUrl = retrofit.baseUrl()
@@ -101,24 +136,34 @@ open class AmpacheDataSource
         return "${serverUrl}server/json.server.php?action=get_art&type=$type&id=$id"
     }
 
-    private suspend fun <V, T : AmpacheApiResponse<V>> getNetResult(
+    private suspend fun <T : AmpacheApiResponse> getNetResult(
         apiMethod: suspend AmpacheDataApi.(Int, Int) -> T,
         offset: Int,
         limit: Int
     ): NetResult<T> = try {
-        ampacheDataApi.apiMethod(limit, offset).let {
-            if (it.error == null) {
-                NetSuccess(it)
-            } else {
-                NetApiError(it.error)
-            }
-        }
+        ampacheDataApi.apiMethod(limit, offset).toNetResult()
     } catch (ex: Exception) {
         eLog(ex)
         NetThrowable(ex)
     }
 
-    private suspend fun <V, T : AmpacheApiResponse<V>> getUpdatedNetResult(
+    private suspend fun <T : AmpacheApiResponse> getNetResult(
+        apiMethod: suspend AmpacheDataApi.() -> T
+    ): NetResult<T> = try {
+        ampacheDataApi.apiMethod().toNetResult()
+    } catch (ex: Exception) {
+        eLog(ex)
+        NetThrowable(ex)
+    }
+
+    private fun <T : AmpacheApiResponse> T.toNetResult(): NetResult<T> =
+        if (error == null) {
+            NetSuccess(this)
+        } else {
+            NetApiError(error)
+        }
+
+    private suspend fun <V, T : AmpacheApiListResponse<V>> getUpdatedNetResult(
         apiMethod: suspend AmpacheDataApi.(Int, Int, String) -> T,
         offset: Int,
         limit: Int,

@@ -30,19 +30,13 @@ class AmpacheSongId {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpachePlaylistSong {
-    var id: Long = 0
-    var playlisttrack: Int = 0
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheSongResponse: AmpacheApiResponse<AmpacheSong>() {
+class AmpacheSongResponse: AmpacheApiListResponse<AmpacheSong>() {
     @JsonProperty(value = "song")
     override var list: List<AmpacheSong> = mutableListOf()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheDeletedSongIdResponse: AmpacheApiResponse<AmpacheSongId>() {
+class AmpacheDeletedSongIdResponse: AmpacheApiListResponse<AmpacheSongId>() {
     @JsonProperty("deleted_song")
     override var list: List<AmpacheSongId> = mutableListOf()
 }

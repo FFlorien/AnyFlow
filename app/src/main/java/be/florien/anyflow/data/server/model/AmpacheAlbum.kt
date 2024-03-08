@@ -20,7 +20,7 @@ class AmpacheAlbum {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheAlbumResponse: AmpacheApiResponse<AmpacheAlbum>() {
+class AmpacheAlbumResponse: AmpacheApiListResponse<AmpacheAlbum>() {
     @JsonProperty("album")
     override var list: List<AmpacheAlbum> = mutableListOf()
 }

@@ -10,12 +10,18 @@ import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.NetThrowable
-import be.florien.anyflow.data.server.model.AmpacheApiResponse
+import be.florien.anyflow.data.server.model.AmpacheAlbum
+import be.florien.anyflow.data.server.model.AmpacheApiListResponse
+import be.florien.anyflow.data.server.model.AmpacheArtist
+import be.florien.anyflow.data.server.model.AmpacheNameId
+import be.florien.anyflow.data.server.model.AmpachePlayList
+import be.florien.anyflow.data.server.model.AmpacheSong
+import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.data.toDbAlbum
 import be.florien.anyflow.data.toDbArtist
 import be.florien.anyflow.data.toDbGenre
 import be.florien.anyflow.data.toDbPlaylist
-import be.florien.anyflow.data.toDbPlaylistSong
+import be.florien.anyflow.data.toDbPlaylistSongs
 import be.florien.anyflow.data.toDbSong
 import be.florien.anyflow.data.toDbSongGenres
 import be.florien.anyflow.data.toDbSongId
@@ -133,7 +139,7 @@ class SyncRepository
             genresPercentageUpdater,
             AmpacheDataSource::getNewGenres
         ) { success ->
-            libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
+            libraryDatabase.getGenreDao().upsert(success.data.list.map(AmpacheNameId::toDbGenre))
         }
 
     private suspend fun newArtists() =
@@ -142,7 +148,7 @@ class SyncRepository
             artistsPercentageUpdater,
             AmpacheDataSource::getNewArtists
         ) { success ->
-            libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
+            libraryDatabase.getArtistDao().upsert(success.data.list.map(AmpacheArtist::toDbArtist))
         }
 
     private suspend fun newAlbums() =
@@ -151,7 +157,7 @@ class SyncRepository
             albumsPercentageUpdater,
             AmpacheDataSource::getNewAlbums
         ) { success ->
-            libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
+            libraryDatabase.getAlbumDao().upsert(success.data.list.map(AmpacheAlbum::toDbAlbum))
         }
 
     private suspend fun newSongs() =
@@ -160,30 +166,38 @@ class SyncRepository
             songsPercentageUpdater,
             AmpacheDataSource::getNewSongs
         ) { success ->
-            libraryDatabase.getSongDao().upsert(success.data.list.map { it.toDbSong() })
-            val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
+            libraryDatabase.getSongDao().upsert(success.data.list.map(AmpacheSong::toDbSong))
+            val songGenres = success.data.list.map(AmpacheSong::toDbSongGenres).flatten()
             libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
     suspend fun playlists() {
-        //todo review this methods, suspicious: how does it handle deleted playlists and deleted from playlist ? check api
         notifyUpdate(CHANGE_PLAYLISTS)
-        getNewData(
-            OFFSET_PLAYLIST,
-            playlistsPercentageUpdater,
-            AmpacheDataSource::getPlaylists
-        ) { success ->
-            libraryDatabase.getPlaylistDao()
-                .upsert(success.data.list.map { it.toDbPlaylist() })
+        val playlists = ampacheDataSource.getPlaylists()
+        val playlistSongs = ampacheDataSource.getPlaylistsWithSongs()
+        if (playlists is NetSuccess && playlistSongs is NetSuccess) {
+            val currentLocalPlaylists = libraryDatabase.getPlaylistDao().getPlaylistsSync()
+            libraryDatabase.getPlaylistSongsDao().deleteAllPlaylistSongs()
 
-            for (playlist in success.data.list) {
-                libraryDatabase.getPlaylistSongsDao().deleteSongsFromPlaylist(playlist.id)
-                libraryDatabase.getPlaylistSongsDao().upsert(playlist.items.map {
-                    it.toDbPlaylistSong(playlist.id)
-                })
+            val deletedPlaylists = currentLocalPlaylists.filter { localPlaylist ->
+                playlists.data.list.none { localPlaylist.id == it.id }
             }
-        }
+            libraryDatabase.getPlaylistDao().delete(*deletedPlaylists.toTypedArray())
 
+            val addedPlaylists = playlists.data.list.filter { remotePlaylist ->
+                currentLocalPlaylists.none { remotePlaylist.id == it.id }
+            }
+            libraryDatabase.getPlaylistDao().upsert(addedPlaylists.map(AmpachePlayList::toDbPlaylist))
+
+            val renamedPlaylists = playlists.data.list.filter { remotePlaylist ->
+                val localPlaylist = currentLocalPlaylists.firstOrNull { it.id == remotePlaylist.id }
+                localPlaylist?.name != remotePlaylist.name
+            }
+            libraryDatabase.getPlaylistDao().upsert(renamedPlaylists.map(AmpachePlayList::toDbPlaylist))
+
+            val playlistSongsDb = playlistSongs.data.playlistList.toDbPlaylistSongs()
+            libraryDatabase.getPlaylistSongsDao().upsert(playlistSongsDb)
+        }
     }
 
     /**
@@ -197,7 +211,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedGenres
         ) { success ->
-            libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
+            libraryDatabase.getGenreDao().upsert(success.data.list.map(AmpacheNameId::toDbGenre))
         }
 
     private suspend fun addArtists(from: Calendar) =
@@ -207,7 +221,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedArtists
         ) { success ->
-            libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
+            libraryDatabase.getArtistDao().upsert(success.data.list.map(AmpacheArtist::toDbArtist))
         }
 
     private suspend fun addAlbums(from: Calendar) =
@@ -217,7 +231,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedAlbums
         ) { success ->
-            libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
+            libraryDatabase.getAlbumDao().upsert(success.data.list.map(AmpacheAlbum::toDbAlbum))
         }
 
     private suspend fun addSongs(from: Calendar) =
@@ -227,8 +241,8 @@ class SyncRepository
             from,
             AmpacheDataSource::getAddedSongs
         ) { success ->
-            libraryDatabase.getSongDao().upsert(success.data.list.map { it.toDbSong() })
-            val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
+            libraryDatabase.getSongDao().upsert(success.data.list.map(AmpacheSong::toDbSong))
+            val songGenres = success.data.list.map(AmpacheSong::toDbSongGenres).flatten()
             libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
@@ -243,7 +257,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getUpdatedGenres
         ) { success ->
-            libraryDatabase.getGenreDao().upsert(success.data.list.map { it.toDbGenre() })
+            libraryDatabase.getGenreDao().upsert(success.data.list.map(AmpacheNameId::toDbGenre))
         }
 
     private suspend fun updateArtists(from: Calendar) =
@@ -253,7 +267,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getUpdatedArtists
         ) { success ->
-            libraryDatabase.getArtistDao().upsert(success.data.list.map { it.toDbArtist() })
+            libraryDatabase.getArtistDao().upsert(success.data.list.map(AmpacheArtist::toDbArtist))
         }
 
     private suspend fun updateAlbums(from: Calendar) =
@@ -263,7 +277,7 @@ class SyncRepository
             from,
             AmpacheDataSource::getUpdatedAlbums
         ) { success ->
-            libraryDatabase.getAlbumDao().upsert(success.data.list.map { it.toDbAlbum() })
+            libraryDatabase.getAlbumDao().upsert(success.data.list.map(AmpacheAlbum::toDbAlbum))
         }
 
     private suspend fun updateSongs(from: Calendar) =
@@ -280,7 +294,7 @@ class SyncRepository
                 new.toDbSong(localUri)
             }
             libraryDatabase.getSongDao().upsert(songs)
-            val songGenres = success.data.list.map { it.toDbSongGenres() }.flatten()
+            val songGenres = success.data.list.map(AmpacheSong::toDbSongGenres).flatten()
             libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
@@ -291,10 +305,10 @@ class SyncRepository
             AmpacheDataSource::getDeletedSongs
         ) { success ->
             libraryDatabase.getSongDao()
-                .deleteWithId(success.data.list.map { it.toDbSongId() })
+                .deleteWithId(success.data.list.map(AmpacheSongId::toDbSongId))
         }
 
-    private suspend fun <V, T : AmpacheApiResponse<V>> getNewData(
+    private suspend fun <V, T : AmpacheApiListResponse<V>> getNewData(
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         getFromApi: suspend AmpacheDataSource.(Int, Int) -> NetResult<T>,
@@ -313,7 +327,7 @@ class SyncRepository
         )
     }
 
-    private suspend fun <V, T : AmpacheApiResponse<V>> getUpdatedData(
+    private suspend fun <V, T : AmpacheApiListResponse<V>> getUpdatedData(
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         calendar: Calendar,
@@ -333,7 +347,7 @@ class SyncRepository
         )
     }
 
-    private suspend fun <V, T : AmpacheApiResponse<V>> getData(
+    private suspend fun <V, T : AmpacheApiListResponse<V>> getData(
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         getFromApi: suspend (Int, Int) -> NetResult<T>,
@@ -405,7 +419,6 @@ class SyncRepository
         private const val OFFSET_GENRE = "OFFSET_GENRE"
         private const val OFFSET_ARTIST = "OFFSET_ARTIST"
         private const val OFFSET_ALBUM = "OFFSET_ALBUM"
-        private const val OFFSET_PLAYLIST = "OFFSET_PLAYLIST"
 
         //Don't reset this value, deleted doesn't have a "from" parameter
         private const val OFFSET_DELETED = "OFFSET_DELETED"

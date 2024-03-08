@@ -4,10 +4,12 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveData
+import androidx.media3.common.util.UnstableApi
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
@@ -59,6 +61,7 @@ class SyncService
         PendingIntent.getActivity(this@SyncService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
         (application as be.florien.anyflow.AnyFlowApp).serverComponent?.inject(this)

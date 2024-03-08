@@ -22,4 +22,7 @@ abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
 
     @Query("DELETE FROM playlistsongs WHERE playlistId = :playlistId")
     abstract suspend fun deleteSongsFromPlaylist(playlistId: Long)
+
+    @Query("DELETE FROM playlistsongs")
+    abstract suspend fun deleteAllPlaylistSongs()
 }

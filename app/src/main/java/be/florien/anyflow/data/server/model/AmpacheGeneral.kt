@@ -8,8 +8,11 @@ class AmpacheNameId {
     var name: String = ""
 }
 
-abstract class AmpacheApiResponse<T> {
+abstract class AmpacheApiResponse {
     val error: AmpacheError? = null
+}
+
+abstract class AmpacheApiListResponse<T>: AmpacheApiResponse() {
     val total_count: Int = 0
     abstract var list: List<T>
 }

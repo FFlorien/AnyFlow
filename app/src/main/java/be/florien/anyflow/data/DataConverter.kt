@@ -20,8 +20,8 @@ import be.florien.anyflow.data.local.model.DbSongInfo
 import be.florien.anyflow.data.server.model.AmpacheAlbum
 import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheNameId
-import be.florien.anyflow.data.server.model.AmpachePlayListWithSongs
-import be.florien.anyflow.data.server.model.AmpachePlaylistSong
+import be.florien.anyflow.data.server.model.AmpachePlayList
+import be.florien.anyflow.data.server.model.AmpachePlaylistsWithSongs
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.data.view.Alarm
@@ -87,17 +87,18 @@ fun AmpacheAlbum.toDbAlbum() = DbAlbum(
     diskcount = diskcount
 )
 
-fun AmpachePlayListWithSongs.toDbPlaylist() = DbPlaylist(
+fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
     id = id,
     name = name,
     owner = owner
 )
 
-fun AmpachePlaylistSong.toDbPlaylistSong(playlistId: Long) = DbPlaylistSongs(
-    order = playlisttrack,
-    songId = id,
-    playlistId = playlistId
-)
+fun AmpachePlaylistsWithSongs.toDbPlaylistSongs() = playlists.flatMap { playlist ->
+    val playlistId = playlist.key.toLongOrNull() ?: return@flatMap emptyList()
+    playlist.value.songsId.mapIndexed { index: Int, id: Long ->
+        DbPlaylistSongs(index, id, playlistId)
+    }
+}
 
 /**
  * Database to view

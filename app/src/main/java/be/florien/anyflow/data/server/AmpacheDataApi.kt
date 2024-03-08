@@ -39,13 +39,17 @@ interface AmpacheDataApi {
 
     @GET("server/json.server.php")
     suspend fun getPlaylists(
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int,
-        @Query("action") action: String = "get_indexes",
+        @Query("action") action: String = "playlists",
+        @Query("hide_search") hideSearch: Int = 1
+    ): AmpachePlaylistResponse
+
+    @GET("server/json.server.php")
+    suspend fun getPlaylistsSongs(
+        @Query("action") action: String = "index",
         @Query("type") type: String = "playlist",
         @Query("include") include: Int = 1,
         @Query("hide_search") hideSearch: Int = 1
-    ): AmpachePlaylistResponse
+    ): AmpachePlaylistsWithSongsResponse
 
     @GET("server/json.server.php")
     suspend fun getAddedSongs(
