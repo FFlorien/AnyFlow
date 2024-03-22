@@ -212,7 +212,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             }
         }
         viewModel.currentSong.observe(viewLifecycleOwner) {
-            currentSongViewHolder.bind(it.toViewDisplay())
+            if (it != null) {
+                currentSongViewHolder.bind(it.toViewDisplay())
+            }
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             songAdapter.setSelectedPosition(it)

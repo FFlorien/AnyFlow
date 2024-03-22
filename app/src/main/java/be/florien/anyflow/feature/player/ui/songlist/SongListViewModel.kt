@@ -58,9 +58,9 @@ class SongListViewModel
         downloadManager
     )
     val pagedAudioQueue: LiveData<PagingData<SongDisplay>> = playingQueue.songDisplayListUpdater
-    val currentSong: LiveData<SongInfo> = playingQueue.currentSong
-    val currentSongDisplay: LiveData<SongDisplay> =
-        playingQueue.currentSong.map { it.toViewDisplay() }
+    val currentSong: LiveData<SongInfo?> = playingQueue.currentSong
+    val currentSongDisplay: LiveData<SongDisplay?> =
+        playingQueue.currentSong.map { it?.toViewDisplay() }
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)

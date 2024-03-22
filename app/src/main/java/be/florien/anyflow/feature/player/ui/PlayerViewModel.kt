@@ -9,7 +9,6 @@ import android.os.IBinder
 import androidx.lifecycle.*
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -61,11 +60,11 @@ constructor(
     val currentDuration: StateFlow<Int> = MutableStateFlow(0)
     val totalDuration: LiveData<Int> = playingQueue
         .currentSong
-        .map { ((it as SongInfo?)?.time ?: 0) * 1000 }
+        .map { (it?.time ?: 0) * 1000 }
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
     val waveForm: LiveData<DoubleArray> =
-        playingQueue.currentSong.switchMap { waveFormRepository.getComputedWaveForm(it.id) }
+        playingQueue.currentSong.switchMap { it?.let { waveFormRepository.getComputedWaveForm(it.id) } }
             .distinctUntilChanged()
 
     val isSeekable: LiveData<Boolean> = MutableLiveData(false)

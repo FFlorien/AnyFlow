@@ -57,7 +57,7 @@ class PlayingQueue
         }
 
     val positionUpdater: LiveData<Int> = MutableLiveData(listPosition)
-    val currentSong: LiveData<SongInfo> = MutableLiveData()
+    val currentSong: LiveData<SongInfo?> = MutableLiveData(null)
 
     val songDisplayListUpdater: LiveData<PagingData<SongDisplay>> =
         queueRepository.getSongsInQueueOrder().cachedIn(coroutineScope)
