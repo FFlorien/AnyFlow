@@ -1,9 +1,11 @@
 package be.florien.anyflow.data.server
 
 import be.florien.anyflow.data.TimeOperations
+import be.florien.anyflow.data.server.model.AmpacheErrorObject
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.feature.auth.AuthRepository
 import be.florien.anyflow.injection.ServerScope
+import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Lazy
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -71,6 +73,20 @@ class AuthenticationInterceptor @Inject constructor(
             .newBuilder()
             .url(authenticatedUrl)
             .build()
-        return proceed(authenticatedRequest)
+        val response = proceed(authenticatedRequest)
+        checkError(response)
+        return response
+    }
+
+    private fun checkError(response: Response) {
+        try {
+            val peekBody = response.peekBody(1000).byteStream()
+            val error = ObjectMapper().readValue(peekBody, AmpacheErrorObject::class.java)
+            if (error.error.errorCode == 4701) {
+                authPersistence.revokeAuthToken()
+            }
+        } catch (exception: Exception) {
+            // ignore
+        }
     }
 }

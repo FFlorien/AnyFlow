@@ -7,17 +7,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldType
 import be.florien.anyflow.feature.playlist.newPlaylist
+import be.florien.anyflow.feature.progress.ProgressDialog
+import be.florien.anyflow.feature.progress.ProgressDialog.Progress
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.ServerScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -34,6 +39,7 @@ class SelectPlaylistFragment(
 ) : BottomSheetDialogFragment() {
     lateinit var viewModel: SelectPlaylistViewModel
     private lateinit var fragmentBinding: FragmentSelectPlaylistBinding
+    private var progressDialog: ProgressDialog? = null
 
     init {
         arguments?.let {
@@ -89,9 +95,24 @@ class SelectPlaylistFragment(
                     requireActivity().newPlaylist(viewModel)
                 }
             }
-            viewModel.isFinished.observe(viewLifecycleOwner) {
-                if (it) {
-                    dismiss()
+            viewModel.progressLiveData.observe(viewLifecycleOwner) { progressState ->
+                if (progressState == null) {
+                    return@observe
+                }
+
+                if (progressDialog == null) {
+                    progressDialog = ProgressDialog(getString(R.string.playlist_progress_title))
+                    progressDialog?.show(childFragmentManager, "progress")
+                }
+                when (progressState) {
+                    is SelectPlaylistViewModel.ModificationProgress.InModificationProgress ->
+                        progressDialog?.updateProgress(progressState.toProgressRunning())
+
+                    SelectPlaylistViewModel.ModificationProgress.Finished ->
+                        progressDialog?.finish { dismiss() }
+
+                    SelectPlaylistViewModel.ModificationProgress.Cancelled ->
+                        dismiss()
                 }
             }
 
@@ -155,12 +176,10 @@ class SelectPlaylistFragment(
         fun bind(item: SelectPlaylistViewModel.PlaylistWithAction, total: Int) {
             itemPlaylistBinding.item = item.playlist
             itemPlaylistBinding.total = total
-            itemPlaylistBinding.presenceBg = if (item.playlist.presence == 0) {
-                R.drawable.bg_corner_radius_none
-            } else if (item.playlist.presence == total) {
-                R.drawable.bg_corner_radius_all
-            } else {
-                R.drawable.bg_corner_radius_partial
+            itemPlaylistBinding.presenceBg = when (item.playlist.presence) {
+                0 -> R.drawable.bg_corner_radius_none
+                total -> R.drawable.bg_corner_radius_all
+                else -> R.drawable.bg_corner_radius_partial
             }
             setAction(item.action)
             itemPlaylistBinding.root.setOnClickListener {
@@ -178,4 +197,7 @@ class SelectPlaylistFragment(
             )
         }
     }
+
+    private fun SelectPlaylistViewModel.ModificationProgress.InModificationProgress.toProgressRunning() =
+        Progress(playlistIndex, playlistCount)
 }

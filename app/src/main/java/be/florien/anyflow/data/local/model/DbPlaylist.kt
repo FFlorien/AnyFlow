@@ -29,7 +29,7 @@ data class DbPlaylistWithCountAndPresence(
 
 @Entity(
     tableName = "PlaylistSongs",
-    primaryKeys = ["songId", "playlistId"]
+    primaryKeys = ["order", "songId", "playlistId"]
 )
 data class DbPlaylistSongs(
     val order: Int,

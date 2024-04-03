@@ -21,6 +21,7 @@ import be.florien.anyflow.data.server.model.AmpacheAlbum
 import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheNameId
 import be.florien.anyflow.data.server.model.AmpachePlayList
+import be.florien.anyflow.data.server.model.AmpachePlaylistObject
 import be.florien.anyflow.data.server.model.AmpachePlaylistsWithSongs
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
@@ -95,8 +96,8 @@ fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
 
 fun AmpachePlaylistsWithSongs.toDbPlaylistSongs() = playlists.flatMap { playlist ->
     val playlistId = playlist.key.toLongOrNull() ?: return@flatMap emptyList()
-    playlist.value.songsId.mapIndexed { index: Int, id: Long ->
-        DbPlaylistSongs(index, id, playlistId)
+    playlist.value.mapIndexed { index: Int, playlistObject: AmpachePlaylistObject ->
+        DbPlaylistSongs(index, playlistObject.id, playlistId)
     }
 }
 

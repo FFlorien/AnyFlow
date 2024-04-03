@@ -118,6 +118,8 @@
     <string name="filter_info_song">Chansons</string>
     <string name="filter_info_playlist">Listes de lecture</string>
     <string name="no_internet">Pas d\'internet</string>
+    <string name="playlist_progress_title">Modification des playlists</string>
+    <string name="playlist_playlist_title">Playlists</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">%d chanson</item>
         <item quantity="many">%d chansons</item>

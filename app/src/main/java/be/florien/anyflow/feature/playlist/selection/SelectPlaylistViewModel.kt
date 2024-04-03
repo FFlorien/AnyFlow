@@ -31,14 +31,20 @@ class SelectPlaylistViewModel @Inject constructor(
     val values: LiveData<List<PlaylistWithAction>> = MediatorLiveData(emptyList())
     val filterCount: LiveData<Int> = MutableLiveData()
     val isCreating: LiveData<Boolean> = MutableLiveData(false)
-    val isFinished: LiveData<Boolean> = MutableLiveData(false)
+    val progressLiveData: LiveData<ModificationProgress?> =
+        MutableLiveData(null)
 
     private var id: Long = 0L
     private var filterType: Filter.FilterType = Filter.FilterType.SONG_IS
     private var secondId: Int = -1
     private val filter by lazy {
         if (filterType == Filter.FilterType.DISK_IS) {
-            Filter(Filter.FilterType.ALBUM_IS, id, "", listOf(Filter(filterType, secondId.toLong(), "")))
+            Filter(
+                Filter.FilterType.ALBUM_IS,
+                id,
+                "",
+                listOf(Filter(filterType, secondId.toLong(), ""))
+            )
         } else {
             Filter(filterType, id, "")
         }
@@ -86,13 +92,27 @@ class SelectPlaylistViewModel @Inject constructor(
 
     fun confirmChanges() {
         viewModelScope.launch {
+            if (actions.isEmpty()) {
+                progressLiveData.mutable.value = ModificationProgress.Cancelled
+                return@launch
+            }
+
+            var index = 0
+            fun updateProgress() {
+                progressLiveData.mutable.value =
+                    ModificationProgress.InModificationProgress(index, actions.size)
+                index++
+            }
+            updateProgress()
             for (playlistId in actions.filter { it.value == PlaylistAction.ADDITION }.keys) {
                 playlistRepository.addSongsToPlaylist(filter, playlistId)
+                updateProgress()
             }
             for (playlistId in actions.filter { it.value == PlaylistAction.DELETION }.keys) {
                 playlistRepository.removeSongsFromPlaylist(filter, playlistId)
+                updateProgress()
             }
-            isFinished.mutable.value = true
+            progressLiveData.mutable.value = ModificationProgress.Finished
         }
     }
 
@@ -110,5 +130,15 @@ class SelectPlaylistViewModel @Inject constructor(
         viewModelScope.launch {
             playlistRepository.createPlaylist(name)
         }
+    }
+
+    sealed interface ModificationProgress {
+        data class InModificationProgress(
+            val playlistIndex: Int,
+            val playlistCount: Int
+        ) : ModificationProgress
+
+        data object Finished : ModificationProgress
+        data object Cancelled : ModificationProgress
     }
 }

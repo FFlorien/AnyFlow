@@ -119,6 +119,8 @@
     <string name="filter_info_playlist">Playlists</string>
     <string name="playlist_presence" translatable="false">%1$d/%2$d</string>
     <string name="no_internet">No internet</string>
+    <string name="playlist_progress_title">Playlists changes</string>
+    <string name="playlist_playlist_title">Playlists</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">1 song</item>
         <item quantity="other">%d songs</item>

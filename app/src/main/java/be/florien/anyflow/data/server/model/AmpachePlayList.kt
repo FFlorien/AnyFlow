@@ -23,20 +23,22 @@ class AmpachePlaylistResponse: AmpacheApiListResponse<AmpachePlayList>() {
 }
 
 class AmpachePlaylistsWithSongsResponse: AmpacheApiResponse() {
-    @JsonProperty("type")
+    @JsonProperty("playlist")
     var playlistList: AmpachePlaylistsWithSongs = AmpachePlaylistsWithSongs()
 }
 
 class AmpachePlaylistsWithSongs {
-    val playlists: Map<String, AmpachePlaylistWithSongs> = mutableMapOf()
+    val playlists: Map<String, List<AmpachePlaylistObject>> = mutableMapOf()
 
     @JsonAnySetter
-    fun addToPlaylistMap(playlistId: String, songsId: AmpachePlaylistWithSongs) {
+    fun addToPlaylistMap(playlistId: String, songsId: List<AmpachePlaylistObject>) {
         (playlists as MutableMap)[playlistId] = songsId
     }
 }
 
-class AmpachePlaylistWithSongs {
-    @JsonProperty("song")
-    var songsId: List<Long> = mutableListOf()
+class AmpachePlaylistObject {
+    @JsonProperty("id")
+    var id: Long = 0
+    @JsonProperty("type")
+    var type: String = ""
 }
