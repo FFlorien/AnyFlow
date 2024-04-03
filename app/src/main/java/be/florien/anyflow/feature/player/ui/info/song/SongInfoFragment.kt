@@ -130,6 +130,7 @@ class SongInfoFragment(
         binding.songInfo.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.songInfo.adapter = SongInfoAdapter(viewModel::executeAction)
+        binding.cover.setOnClickListener { CoverDisplayFragment(viewModel.coverConfig.value?.url ?: "").show(childFragmentManager, null)}
         viewModel.infoRows.observe(viewLifecycleOwner) {
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)

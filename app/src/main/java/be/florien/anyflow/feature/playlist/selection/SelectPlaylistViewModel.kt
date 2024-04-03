@@ -92,7 +92,8 @@ class SelectPlaylistViewModel @Inject constructor(
 
     fun confirmChanges() {
         viewModelScope.launch {
-            if (actions.isEmpty()) {
+            val confirmedAction = actions.filterNot { it.value == PlaylistAction.NONE }
+            if (confirmedAction.isEmpty()) {
                 progressLiveData.mutable.value = ModificationProgress.Cancelled
                 return@launch
             }
@@ -100,15 +101,15 @@ class SelectPlaylistViewModel @Inject constructor(
             var index = 0
             fun updateProgress() {
                 progressLiveData.mutable.value =
-                    ModificationProgress.InModificationProgress(index, actions.size)
+                    ModificationProgress.InModificationProgress(index, confirmedAction.size)
                 index++
             }
             updateProgress()
-            for (playlistId in actions.filter { it.value == PlaylistAction.ADDITION }.keys) {
+            for (playlistId in confirmedAction.filter { it.value == PlaylistAction.ADDITION }.keys) {
                 playlistRepository.addSongsToPlaylist(filter, playlistId)
                 updateProgress()
             }
-            for (playlistId in actions.filter { it.value == PlaylistAction.DELETION }.keys) {
+            for (playlistId in confirmedAction.filter { it.value == PlaylistAction.DELETION }.keys) {
                 playlistRepository.removeSongsFromPlaylist(filter, playlistId)
                 updateProgress()
             }
