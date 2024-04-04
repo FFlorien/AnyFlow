@@ -1,6 +1,5 @@
 package be.florien.anyflow.data.server
 
-import be.florien.anyflow.data.server.model.*
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -23,17 +22,17 @@ interface AmpacheEditApi {
     )
 
     @GET("server/json.server.php")
-    suspend fun addToPlaylist(
-        @Query("action") action: String = "playlist_add_song",
-        @Query("filter") filter: Long,
-        @Query("song") songId: Long,
-        @Query("check") check: Int = 1
-    )
-
-    @GET("server/json.server.php")
     suspend fun removeFromPlaylist(
         @Query("action") action: String = "playlist_remove_song",
         @Query("filter") filter: Long,
         @Query("song") song: Long
+    )
+
+    @GET("server/json.server.php")
+    suspend fun editPlaylist(
+        @Query("action") action: String = "playlist_edit",
+        @Query("filter") playlistId: String,
+        @Query("items") items: String,
+        @Query("tracks") tracks: String,
     )
 }

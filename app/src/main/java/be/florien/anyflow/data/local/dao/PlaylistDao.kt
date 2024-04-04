@@ -18,6 +18,9 @@ abstract class PlaylistDao : BaseDao<DbPlaylist>() {
     @Query("SELECT * FROM playlist")
     abstract suspend fun getPlaylistsSync(): List<DbPlaylist>
 
+    @Query("SELECT COUNT(*) FROM playlistsongs WHERE playlistId = :playlistId")
+    abstract suspend fun getPlaylistCount(playlistId: Long): Int
+
     @RawQuery(observedEntities = [DbPlaylist::class])
     abstract fun rawQueryListPlaylistsWithPresence(query: SupportSQLiteQuery): LiveData<List<DbPlaylistWithCountAndPresence>>
 

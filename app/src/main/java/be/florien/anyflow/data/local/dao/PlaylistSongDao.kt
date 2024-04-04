@@ -20,6 +20,9 @@ abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
     @Query("SELECT max(`order`) FROM playlistsongs WHERE playlistId = :playlistId")
     abstract suspend fun playlistLastOrder(playlistId: Long): Int?
 
+    @Query("DELETE FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")
+    abstract suspend fun deleteSongFromPlaylist(playlistId: Long, songId: Long)
+
     @Query("DELETE FROM playlistsongs WHERE playlistId = :playlistId")
     abstract suspend fun deleteSongsFromPlaylist(playlistId: Long)
 

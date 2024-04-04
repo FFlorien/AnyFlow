@@ -22,10 +22,11 @@ open class AmpacheEditSource
         ampacheEditApi.deletePlaylist(id = id.toString())
     }
 
-    suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheEditApi.addToPlaylist(
-            filter = playlistId,
-            songId = songId
+    suspend fun addToPlaylist(playlistId: Long, songIds: List<Long>, fromPosition: Int) {
+        ampacheEditApi.editPlaylist(
+            playlistId = playlistId.toString(),
+            items = songIds.joinToString(","),
+            tracks = fromPosition.rangeUntil(fromPosition + songIds.size).joinToString(",")
         )
     }
 

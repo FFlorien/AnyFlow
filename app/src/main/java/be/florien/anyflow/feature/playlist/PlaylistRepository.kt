@@ -25,7 +25,7 @@ class PlaylistRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheEditSource: AmpacheEditSource,
     private val urlRepository: UrlRepository,
-    private val dataRepository: SyncRepository
+    private val syncRepository: SyncRepository
 ) {
 
     private val queryComposer = QueryComposer()
@@ -80,7 +80,7 @@ class PlaylistRepository @Inject constructor(
 
     suspend fun createPlaylist(name: String) {
         ampacheEditSource.createPlaylist(name)
-        dataRepository.playlists()
+        syncRepository.playlists()
     }
 
     suspend fun deletePlaylist(id: Long) {
@@ -88,41 +88,33 @@ class PlaylistRepository @Inject constructor(
         libraryDatabase.getPlaylistDao().delete(DbPlaylist(id, "", ""))
     }
 
-    private suspend fun addSongToPlaylist(songId: Long, playlistId: Long) {
-        ampacheEditSource.addSongToPlaylist(songId, playlistId)
-        val playlistLastOrder =
-            libraryDatabase.getPlaylistSongsDao().playlistLastOrder(playlistId) ?: -1
-        libraryDatabase.getPlaylistSongsDao().upsert(
-            listOf(
-                DbPlaylistSongs(
-                    playlistLastOrder + 1,
-                    songId,
-                    playlistId
-                )
-            )
-        )
-    }
-
     suspend fun addSongsToPlaylist(filter: Filter<*>, playlistId: Long) {
-        val songList = libraryDatabase
+        val newSongsList = libraryDatabase
             .getSongDao()
             .forCurrentFilters(queryComposer.getQueryForSongs(listOf(filter), emptyList()))
-        for (songId in songList) {
-            addSongToPlaylist(songId, playlistId)
-        }
-    }
-
-    suspend fun removeSongFromPlaylist(songId: Long, playlistId: Long) {
-        ampacheEditSource.removeSongFromPlaylist(playlistId, songId)
-        libraryDatabase.getPlaylistSongsDao().delete(DbPlaylistSongs(0, songId, playlistId))
+        val total = libraryDatabase.getPlaylistDao().getPlaylistCount(playlistId)
+        ampacheEditSource.addToPlaylist(playlistId, newSongsList, total)
+        libraryDatabase.getPlaylistSongsDao().upsert(
+            newSongsList.mapIndexed { index, song ->
+                DbPlaylistSongs(total + index, song, playlistId)
+            }
+        )
     }
 
     suspend fun removeSongsFromPlaylist(filter: Filter<*>, playlistId: Long) {
         val songList = libraryDatabase
             .getSongDao()
             .forCurrentFilters(queryComposer.getQueryForSongs(listOf(filter), emptyList()))
-        for (songId in songList) {
-            removeSongFromPlaylist(songId, playlistId)
+        removeSongsFromPlaylist(playlistId, songList)
+    }
+
+    suspend fun removeSongsFromPlaylist(
+        playlistId: Long,
+        songList: List<Long>
+    ) {
+        songList.forEach {
+            ampacheEditSource.removeSongFromPlaylist(playlistId, it)
+            libraryDatabase.getPlaylistSongsDao().deleteSongFromPlaylist(playlistId, it)
         }
     }
 }
