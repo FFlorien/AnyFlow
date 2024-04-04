@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.progress
+package be.florien.anyflow.feature.info.progress
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,6 +19,7 @@ class ProgressDialog(
 ) : DialogFragment() {
 
     private var binding: FragmentProgressBinding? = null
+    private var currentProgress: Progress? = null
 
     init {
         val args = arguments
@@ -50,6 +51,9 @@ class ProgressDialog(
         binding = inflate
         inflate.title = title
         inflate.isRunning = true
+        currentProgress?.let {
+            inflate.progress = it
+        }
         return inflate.root
     }
 
@@ -63,7 +67,13 @@ class ProgressDialog(
     }
 
     fun updateProgress(progress: Progress) {
-        binding?.progress = progress
+        val nullSafeBinding = binding
+        if (nullSafeBinding == null) {
+            currentProgress = progress
+            return
+        }
+        nullSafeBinding.progress = progress
+
     }
 
     fun finish(onFinishEnd: (() -> Unit)) {

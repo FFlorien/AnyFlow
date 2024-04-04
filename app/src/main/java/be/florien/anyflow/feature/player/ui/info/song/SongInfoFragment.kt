@@ -18,6 +18,7 @@ import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemDownloadInfoBinding
 import be.florien.anyflow.databinding.ItemQuickActionInfoBinding
 import be.florien.anyflow.extension.getDisplayWidth
+import be.florien.anyflow.feature.info.image.ImageDisplayFragment
 import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.InfoAdapter
 import be.florien.anyflow.feature.player.ui.info.InfoViewHolder
@@ -130,7 +131,7 @@ class SongInfoFragment(
         binding.songInfo.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.songInfo.adapter = SongInfoAdapter(viewModel::executeAction)
-        binding.cover.setOnClickListener { CoverDisplayFragment(viewModel.coverConfig.value?.url ?: "").show(childFragmentManager, null)}
+        binding.cover.setOnClickListener { ImageDisplayFragment(viewModel.coverConfig.value?.url ?: "").show(childFragmentManager, null)}
         viewModel.infoRows.observe(viewLifecycleOwner) {
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)

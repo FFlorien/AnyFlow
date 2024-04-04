@@ -14,7 +14,7 @@
 
         <variable
             name="progress"
-            type="be.florien.anyflow.feature.progress.ProgressDialog.Progress" />
+            type="be.florien.anyflow.feature.info.progress.ProgressDialog.Progress" />
     </data>
 
     <LinearLayout

@@ -21,8 +21,8 @@ import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
 import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldType
 import be.florien.anyflow.feature.playlist.newPlaylist
-import be.florien.anyflow.feature.progress.ProgressDialog
-import be.florien.anyflow.feature.progress.ProgressDialog.Progress
+import be.florien.anyflow.feature.info.progress.ProgressDialog
+import be.florien.anyflow.feature.info.progress.ProgressDialog.Progress
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.ServerScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
