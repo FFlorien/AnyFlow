@@ -7,12 +7,11 @@ import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.core.view.size
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.florien.anyflow.R
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemDownloadInfoBinding
@@ -82,27 +81,39 @@ class SongInfoFragment(
                     val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
                     val itemFullWidth = itemWidth + margin + margin
                     maxItems = (width / itemFullWidth) - 1
+                    val title = getString(R.string.dummy_title)
+                    val artistName = getString(R.string.dummy_artist)
+                    val albumName = getString(R.string.dummy_album)
+                    val time = 120
                     dummySongInfo =
                         SongInfo(
                             SongInfoActions.DUMMY_SONG_ID,
-                            getString(R.string.info_title),
-                            getString(R.string.info_artist),
+                            title,
+                            artistName,
                             0L,
-                            getString(R.string.info_album),
+                            albumName,
                             0L,
                             1,
-                            getString(R.string.info_album_artist),
+                            artistName,
                             0L,
-                            listOf(getString(R.string.info_genre)),
+                            listOf(getString(R.string.dummy_genre)),
                             listOf(0L),
-                            listOf(getString(R.string.info_playlist)),
+                            listOf(getString(R.string.dummy_playlist)),
                             listOf(0L),
                             1,
-                            120,
+                            time,
                             2000,
                             0,
                             null
                         )
+                    dummySongDisplay = SongDisplay(
+                        SongInfoActions.DUMMY_SONG_ID,
+                        title,
+                        artistName,
+                        albumName,
+                        0L,
+                        time
+                    )
                 }
         } else {
             ViewModelProvider(
@@ -197,23 +208,6 @@ class SongInfoFragment(
             false
         )
     ) : InfoViewHolder(parent, executeAction, parentBinding.infoLayout, parentBinding.root) {
-        override fun bindChangedData(row: InfoActions.InfoRow) {
-            super.bindChangedData(row)
-            if (row is SongInfoActions.ShortcutInfoRow) {
-                parentBinding.order.removeViews(2, parentBinding.order.size - 2)
-                val inflater = LayoutInflater.from(parentBinding.root.context)
-                for (i in 0 until row.order) {
-                    val unselectedView = inflater
-                        .inflate(
-                            R.layout.item_action_order,
-                            parentBinding.order,
-                            false
-                        ) as ImageView
-                    unselectedView.setImageResource(R.drawable.ic_action_order_item_unselected)
-                    parentBinding.order.addView(unselectedView)
-                }
-            }
-        }
 
         override fun setLifecycleOwner() {
             parentBinding.lifecycleOwner = parent.findViewTreeLifecycleOwner()

@@ -1,12 +1,16 @@
 package be.florien.anyflow.feature.player.ui.info.song.shortcuts
 
 import android.content.SharedPreferences
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.UrlRepository
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
@@ -43,6 +47,17 @@ class ShortcutsViewModel @Inject constructor(
         set(value) {
             songInfoMediator.value = value
         }
+    var dummySongDisplay = SongDisplay(
+        SongInfoActions.DUMMY_SONG_ID,
+        "",
+        "",
+        "",
+        0L,
+        0
+    )
+    val dummyCover = ImageConfig(null, R.drawable.cover_placeholder, View.VISIBLE)
+    val shortcutsList: List<SongInfoActions.ShortcutInfoRow>
+        get() = infoActions.getShortcuts()
 
     override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> {
         val mutableList = initialList.toMutableList()

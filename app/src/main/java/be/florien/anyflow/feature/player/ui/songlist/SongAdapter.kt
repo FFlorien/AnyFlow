@@ -65,7 +65,8 @@ class SongViewHolder(
         LayoutInflater.from(parent.context),
         parent,
         false
-    )
+    ),
+    private val shouldAlwaysShowShortcuts: Boolean = false
 ) : DetailViewHolder<SongDisplay>(listener, binding.root) {
 
     override val itemInfoView: View
@@ -84,8 +85,14 @@ class SongViewHolder(
         setShortcuts()
         setClickListener()
         itemInfoView.setOnClickListener {
-            itemInfoView.translationX = 0F
+            if (!shouldAlwaysShowShortcuts)
+                itemInfoView.translationX = 0F
             onSongClicked?.invoke(absoluteAdapterPosition)
+        }
+        if (shouldAlwaysShowShortcuts) {
+            binding.songActions.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                openShortcuts()
+            }
         }
     }
 
@@ -146,7 +153,8 @@ class SongViewHolder(
                             val song = binding.song
                             if (song != null)
                                 shortcutListener.onShortcut(song, action)
-                            swipeToClose()
+                            if (!shouldAlwaysShowShortcuts)
+                                swipeToClose()
                         }
                     })
         }
@@ -168,6 +176,12 @@ class SongViewHolder(
         } else {
             false
         }
+    }
+
+    private fun openShortcuts() {
+        val translationXEnd = binding.actionsPadding.right - itemView.width.toFloat()
+        binding.songLayout.songInfo.translationX = translationXEnd
+        startingTranslationX = translationXEnd
     }
 }
 

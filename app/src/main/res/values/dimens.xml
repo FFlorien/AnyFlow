@@ -16,7 +16,4 @@
     <dimen name="activity_horizontal_margin">@dimen/mediumDimen</dimen>
     <dimen name="minClickableSize">@dimen/xLargeDimen</dimen>
     <dimen name="infoTextViewHeight">@dimen/largeDimen</dimen>
-
-    <dimen name="orderBackgroundWidth">@dimen/xLargeDimen</dimen>
-    <dimen name="orderItemsHeight">10dp</dimen>
 </resources>

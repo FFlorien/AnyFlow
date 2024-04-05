@@ -50,15 +50,26 @@
             android:layout_margin="@dimen/activity_horizontal_margin"
             android:text="@{viewModel.currentActionsCountDisplay}"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/fragment_container_view"
             app:layout_constraintLeft_toRightOf="@+id/countTitle"
             app:layout_constraintTop_toBottomOf="@id/description" />
+
+        <include
+            android:id="@+id/songExample"
+            layout="@layout/item_song"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:art="@{viewModel.dummyCover}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/countTitle"
+            app:selected="@{false}"
+            app:song="@{viewModel.dummySongDisplay}" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/count" />
+            app:layout_constraintTop_toBottomOf="@id/songExample" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

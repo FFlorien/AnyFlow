@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
@@ -23,46 +22,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/orderBg"
-                android:layout_width="@dimen/orderBackgroundWidth"
-                android:layout_height="@dimen/orderItemsHeight"
-                android:layout_gravity="center_vertical"
-                android:layout_marginHorizontal="@dimen/smallDimen"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_action_order_bg"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/title"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <LinearLayout
-                android:id="@+id/order"
-                android:layout_width="@dimen/orderBackgroundWidth"
-                android:layout_height="@dimen/orderItemsHeight"
-                android:layout_gravity="center_vertical"
-                android:layout_marginHorizontal="@dimen/smallDimen"
-                android:gravity="center_vertical|end"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/image"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:layout_width="@dimen/orderItemsHeight"
-                    android:layout_height="@dimen/orderItemsHeight"
-                    android:src="@drawable/ic_action_order_item_fg" />
-
-                <include layout="@layout/item_action_order" />
-            </LinearLayout>
-
-        </FrameLayout>
 
         <include
             android:id="@+id/info_layout"
