@@ -97,7 +97,7 @@ class WaveFormRepository @Inject constructor(
 
     private suspend fun enhanceBarsHeight(ratioArray: DoubleArray) =
         withContext(Dispatchers.Default) {
-            val maxRatio = ratioArray.max()
+            val maxRatio = ratioArray.maxOrNull() ?: return@withContext DoubleArray(0)
             val multiplier = 1 / maxRatio
             ratioArray.map { it * multiplier }.toDoubleArray()
         }

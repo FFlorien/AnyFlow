@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.alarms
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.os.Build
 import be.florien.anyflow.data.view.Alarm
 import java.util.*
 import javax.inject.Inject
@@ -10,8 +11,8 @@ import javax.inject.Named
 class AlarmsSynchronizer @Inject constructor(
     private val alarmManager: AlarmManager,
     private val alarmRepository: AlarmRepository,
-    @Named("player") private val alarmIntent: PendingIntent,
-    @Named("alarm") private val playerIntent: PendingIntent
+    @Named("player") private val playerIntent: PendingIntent,
+    @Named("alarm") private val alarmIntent: PendingIntent
 ) {
     fun canScheduleExactAlarms() =
         true // Build.VERSION.SDK_INT >= 31 && alarmManager.canScheduleExactAlarms()
@@ -88,7 +89,7 @@ class AlarmsSynchronizer @Inject constructor(
     }
 
     suspend fun syncAlarms() {
-        alarmManager.cancel(playerIntent)
+        alarmManager.cancel(alarmIntent)
         val alarmList = alarmRepository.getAlarmList()
         val nextOccurrence = alarmList
             .mapNotNull { it.getNextOccurrence() }
@@ -114,9 +115,15 @@ class AlarmsSynchronizer @Inject constructor(
             date.add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        alarmManager.setAlarmClock(
-            AlarmManager.AlarmClockInfo(date.timeInMillis, alarmIntent),
-            playerIntent
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setAlarmClock(
+                    AlarmManager.AlarmClockInfo(date.timeInMillis, alarmIntent),
+                    playerIntent
+                )
+            }
+        } else {
+            //TODO("VERSION.SDK_INT < S")
+        }
     }
 }

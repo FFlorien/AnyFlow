@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.media.AudioManager
-import android.os.Build
 import android.os.Environment
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.database.StandaloneDatabaseProvider
@@ -17,7 +16,7 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.data.user.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.player.services.PlayerService
+import be.florien.anyflow.feature.alarms.AlarmReceiver
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -67,22 +66,8 @@ class ApplicationModule {
     @Provides
     @Named("player")
     fun providePlayerPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, PlayerService::class.java)
-        intent.action = "ALARM"
-        if (Build.VERSION.SDK_INT >= 26) {
-            return PendingIntent.getForegroundService(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-        }
-        return PendingIntent.getService(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val alarmIntent = Intent(context, AlarmReceiver::class.java)
+        return PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     @Provides

@@ -1,9 +1,19 @@
 package be.florien.anyflow.feature.alarms.add
 
+import android.app.AlarmManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.registerReceiver
+import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.R
@@ -24,12 +34,21 @@ class AddAlarmFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[AddAlarmViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.NewInstanceFactory()
+        )[AddAlarmViewModel::class.java]
         anyFlowApp.serverComponent?.inject(viewModel)
         confirmMenuHolder = ConfirmAlarmMenuHolder {
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.addAlarm()
-                requireActivity().supportFragmentManager.popBackStack()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val alarmManager: AlarmManager = requireContext().getSystemService()
+                    ?: return@ConfirmAlarmMenuHolder
+                when {
+                    alarmManager.canScheduleExactAlarms() -> setAlarm()
+                    else -> startActivity(Intent(ACTION_REQUEST_SCHEDULE_EXACT_ALARM)) //todo popup to ward the user
+                }
+            } else {
+                setAlarm()
             }
         }
         (requireActivity() as AlarmActivity).menuCoordinator.addMenuHolder(confirmMenuHolder)
@@ -37,7 +56,18 @@ class AddAlarmFragment : BaseFragment() {
         confirmMenuHolder.isVisible = true
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    private fun setAlarm() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.addAlarm()
+            requireActivity().supportFragmentManager.popBackStack()
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentAddAlarmBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -47,6 +77,29 @@ class AddAlarmFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.time.setIs24HourView(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmPermissionReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    if (intent.action == AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED) {
+                        setAlarm()
+                    }
+                }
+            }
+
+            val filter = IntentFilter(
+                AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED
+            )
+            registerReceiver(
+                requireContext(),
+                alarmPermissionReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        }
     }
 
     override fun onDetach() {

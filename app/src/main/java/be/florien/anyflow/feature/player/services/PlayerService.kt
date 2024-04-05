@@ -2,6 +2,9 @@ package be.florien.anyflow.feature.player.services
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.media.AudioManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
@@ -22,7 +25,10 @@ import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.model.DbSongToPlay
 import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.download.DownloadManager
+import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import kotlinx.coroutines.Dispatchers
@@ -37,10 +43,12 @@ import okhttp3.OkHttpClient
 import javax.inject.Inject
 import javax.inject.Named
 
+const val ALARM_ACTION = "ALARM"
 
 /**
  * Service used to handle the media player.
  */
+@UnstableApi
 class PlayerService : MediaSessionService(), Player.Listener {
 
     //todo Own coroutineScope
@@ -64,6 +72,15 @@ class PlayerService : MediaSessionService(), Player.Listener {
     @Inject
     internal lateinit var downloadManager: DownloadManager
 
+    @Inject
+    internal lateinit var alarmsSynchronizer: AlarmsSynchronizer
+
+    @Inject
+    internal lateinit var filtersManager: FiltersManager
+
+    @Inject
+    internal lateinit var audioManager: AudioManager
+
     @Named("authenticated")
     @Inject
     internal lateinit var okHttpClient: OkHttpClient
@@ -78,6 +95,13 @@ class PlayerService : MediaSessionService(), Player.Listener {
         super.onCreate()
         initPlayer()
         listenToQueueChanges()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ALARM_ACTION) {
+            playForAlarm()
+        }
+        return super.onStartCommand(intent, flags, startId)
     }
 
     // The user dismissed the app from the recent tasks
@@ -115,7 +139,9 @@ class PlayerService : MediaSessionService(), Player.Listener {
             playingQueue.listPosition = player?.currentMediaItemIndex ?: playingQueue.listPosition
             player?.run {
                 currentMediaItem?.checkWaveForm()
-                player?.getMediaItemAt(nextMediaItemIndex)?.checkWaveForm()
+                if (nextMediaItemIndex in 0..<mediaItemCount) {
+                    player?.getMediaItemAt(nextMediaItemIndex)?.checkWaveForm()
+                }
             }
         }
     }
@@ -198,6 +224,35 @@ class PlayerService : MediaSessionService(), Player.Listener {
                         playingQueue.listPosition = it.currentMediaItemIndex
                     }
                 }
+        }
+    }
+
+    private fun playForAlarm() {
+        MainScope().launch(Dispatchers.Default) {
+            alarmsSynchronizer.syncAlarms()
+        }
+        val connectivityManager = applicationContext.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) != true) {
+            filtersManager.clearFilters()
+            filtersManager.addFilter(
+                Filter(
+                    Filter.FilterType.DOWNLOADED_STATUS_IS,
+                    true,
+                    "",
+                    emptyList()
+                )
+            )
+            MainScope().launch(Dispatchers.Default) {
+                filtersManager.commitChanges()
+            }
+        }
+        val streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamMaxVolume.div(3), 0)
+        player?.run {
+            prepare()
+            play()
         }
     }
 
@@ -297,33 +352,6 @@ private sealed interface PlaylistModification {
 /*
 
 
-    override fun playForAlarm() {
-        exoplayerScope.launch(Dispatchers.Default) {
-            alarmsSynchronizer.syncAlarms()
-        }
-        val connectivityManager =
-            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        val activeNetwork = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-        if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true) {
-            filtersManager.clearFilters()
-            filtersManager.addFilter(
-                Filter(
-                    Filter.FilterType.DOWNLOADED_STATUS_IS,
-                    true,
-                    "",
-                    emptyList()
-                )
-            )
-            exoplayerScope.launch(Dispatchers.Default) {
-                filtersManager.commitChanges()
-            }
-        }
-        val streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamMaxVolume.div(3), 0)
-        prepare()
-        resume()
-    }
     @OptIn(UnstableApi::class)
     override fun onPlayerError(error: PlaybackException) {
 

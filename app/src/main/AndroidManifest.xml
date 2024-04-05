@@ -58,6 +58,7 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".feature.alarms.AlarmReceiver" />
     </application>
 
 </manifest>
