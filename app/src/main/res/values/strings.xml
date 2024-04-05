@@ -121,6 +121,11 @@
     <string name="no_internet">No internet</string>
     <string name="playlist_progress_title">Playlists changes</string>
     <string name="playlist_playlist_title">Playlists</string>
+    <string name="dummy_title">Song\'s Title</string>
+    <string name="dummy_artist">My Favorite Artist</string>
+    <string name="dummy_album">Their Best Album</string>
+    <string name="dummy_genre">Classical</string>
+    <string name="dummy_playlist">Road trip</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">1 song</item>
         <item quantity="other">%d songs</item>

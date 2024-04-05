@@ -120,6 +120,11 @@
     <string name="no_internet">Pas d\'internet</string>
     <string name="playlist_progress_title">Modification des playlists</string>
     <string name="playlist_playlist_title">Playlists</string>
+    <string name="dummy_title">Titre de la chanson</string>
+    <string name="dummy_artist">Mon Artiste Préféré</string>
+    <string name="dummy_album">Leur Meilleur Album</string>
+    <string name="dummy_genre">Classique</string>
+    <string name="dummy_playlist">Pour la route</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">%d chanson</item>
         <item quantity="many">%d chansons</item>
