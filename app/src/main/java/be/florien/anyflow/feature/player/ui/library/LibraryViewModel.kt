@@ -12,8 +12,6 @@ interface LibraryViewModel {
 
 val LibraryViewModel.currentFilters: LiveData<Set<Filter<*>>>
     get() = filtersManager.filtersInEdition
-val LibraryViewModel.hasChangeFromCurrentFilters: LiveData<Boolean>
-    get() = filtersManager.hasChange
 
 suspend fun LibraryViewModel.confirmChanges() {
     filtersManager.commitChanges()

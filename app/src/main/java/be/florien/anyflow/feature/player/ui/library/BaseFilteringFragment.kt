@@ -30,9 +30,6 @@ abstract class BaseFilteringFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        libraryViewModel.hasChangeFromCurrentFilters.observe(viewLifecycleOwner) {
-            confirmMenuHolder.isEnabled = it == true
-        }
         libraryViewModel.areFiltersInEdition.observe(viewLifecycleOwner) {
             if (!it) {
                 (requireActivity() as PlayerActivity).displaySongList()
@@ -48,7 +45,6 @@ abstract class BaseFilteringFragment : BaseFragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menuCoordinator.prepareMenus(menu)
-        confirmMenuHolder.isEnabled = libraryViewModel.hasChangeFromCurrentFilters.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

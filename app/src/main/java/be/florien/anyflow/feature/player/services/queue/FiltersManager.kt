@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.player.services.queue
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
@@ -16,11 +15,6 @@ class FiltersManager
     private var areFiltersChanged = false
     val filtersInEdition: LiveData<Set<Filter<*>>> = MutableLiveData(setOf())
     val filterGroups = queueRepository.getFilterGroups()
-    val hasChange: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
-        addSource(filtersInEdition) {
-            value = !currentFilters.toTypedArray().contentEquals(it.toTypedArray())
-        }
-    }
 
     init {
         queueRepository.getCurrentFilters().observeForever { filters ->
