@@ -31,7 +31,7 @@
     <string name="library_type_download">Téléchargée</string>
     <string name="filter_add_error">Vous ne pouvez pas ajouter plus de filtres</string>
     <string name="menu_alarms">Alarmes</string>
-    <string name="menu_quick_actions">Actions rapides</string>
+    <string name="menu_shortcuts">Raccourcis</string>
     <string name="menu_playlist">Listes de lecture</string>
     <string name="menu_filters">Filtres</string>
     <string name="menu_library">Library</string>
@@ -108,8 +108,8 @@
     <string name="alarm_active">Actif</string>
     <string name="filter_is_downloaded">Téléchargé</string>
     <string name="filter_is_not_downloaded">Non téléchargé</string>
-    <string name="quick_actions_description">Sélectionnez les actions que vous voulez retrouver en un clin d\'oeil. Il vous suffira de faire glisser une chanson vers la gauche pour retrouver vos actions préférées.</string>
-    <string name="quick_actions_count_title">Actions selectionnées:</string>
+    <string name="shortcuts_description">Sélectionnez les actions que vous voulez retrouver en un clin d\'oeil. Il vous suffira de faire glisser une chanson vers la gauche pour retrouver vos actions préférées.</string>
+    <string name="shortcut_count_title">Actions selectionnées:</string>
     <string name="filter_info_duration">Durée totale</string>
     <string name="filter_info_genre">Genres</string>
     <string name="filter_info_album_artist">Artistes de l\'album</string>

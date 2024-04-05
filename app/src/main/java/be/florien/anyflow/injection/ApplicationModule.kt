@@ -1,5 +1,6 @@
 package be.florien.anyflow.injection
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -7,7 +8,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.os.Environment
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.NoOpCacheEvictor
@@ -25,7 +25,6 @@ import javax.inject.Singleton
 /**
  * Provide elements used through all the application state
  */
-@UnstableApi
 @Module
 class ApplicationModule {
 
@@ -46,14 +45,16 @@ class ApplicationModule {
     @Provides
     fun provideLibrary(context: Context): LibraryDatabase = LibraryDatabase.getInstance(context)
 
+    @SuppressLint("UnsafeOptInUsageError")
     @Singleton
     @Provides
     fun provideStandaloneDatabaseProvider(context: Context): StandaloneDatabaseProvider =
         StandaloneDatabaseProvider(context)
 
+    @SuppressLint("UnsafeOptInUsageError")
     @Singleton
     @Provides
-    fun provideCache(context: Context, dbProvider: StandaloneDatabaseProvider): Cache = SimpleCache(
+    fun provideCache(context: Context,  dbProvider: StandaloneDatabaseProvider): Cache = SimpleCache(
         context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
         NoOpCacheEvictor(),
         dbProvider

@@ -1,11 +1,11 @@
-package be.florien.anyflow.feature.player.ui.info.song.quickActions
+package be.florien.anyflow.feature.player.ui.info.song.shortcuts
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
-import be.florien.anyflow.databinding.ActivityQuickActionsBinding
+import be.florien.anyflow.databinding.ActivityShortcutBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.extension.startActivity
@@ -13,26 +13,26 @@ import be.florien.anyflow.feature.auth.UserConnectActivity
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
-import be.florien.anyflow.injection.QuickActionsComponent
+import be.florien.anyflow.injection.ShortcutsComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import javax.inject.Inject
 
-class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
+class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
-    private lateinit var binding: ActivityQuickActionsBinding
-    private lateinit var activityComponent: QuickActionsComponent
-    private lateinit var viewModel: QuickActionsViewModel
+    private lateinit var binding: ActivityShortcutBinding
+    private lateinit var activityComponent: ShortcutsComponent
+    private lateinit var viewModel: ShortcutsViewModel
 
     @Inject
     lateinit var viewModelFactory: AnyFlowViewModelFactory
 
-    private val fakeComponent = object : QuickActionsComponent {
-        override fun inject(quickActionsActivity: QuickActionsActivity) {}
+    private val fakeComponent = object : ShortcutsComponent {
+        override fun inject(shortcutsActivity: ShortcutsActivity) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val component = anyFlowApp.serverComponent
-            ?.quickActionsComponentBuilder()
+            ?.shortcutsComponentBuilder()
             ?.build()
         activityComponent = if (component != null) {
             component
@@ -49,7 +49,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
         activityComponent.inject(this)
 
         viewModel =
-            ViewModelProvider(this, viewModelFactory)[QuickActionsViewModel::class.java]
+            ViewModelProvider(this, viewModelFactory)[ShortcutsViewModel::class.java]
                 .apply {
                     val width = getDisplayWidth()
                     val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
@@ -57,7 +57,7 @@ class QuickActionsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                     val itemFullWidth = itemWidth + margin + margin
                     maxItems = (width / itemFullWidth) - 1
                 }
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_quick_actions)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_shortcut)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initToolbar()

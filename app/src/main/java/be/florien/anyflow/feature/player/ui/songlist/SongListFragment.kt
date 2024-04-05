@@ -248,8 +248,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 SelectPlaylistFragment(it.first, it.second, it.third).show(childFragmentManager, "playlist")
             }
         }
-        viewModel.quickActions.observe(viewLifecycleOwner) {
-            updateQuickActions()
+        viewModel.shortcuts.observe(viewLifecycleOwner) {
+            updateShortcuts()
         }
         shouldHideLoading = true
     }
@@ -257,7 +257,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     override fun onResume() {
         super.onResume()
         viewModel.refreshSongs()
-        viewModel.refreshQuickActions()
+        viewModel.refreshShortcuts()
         searchMenuHolder.isVisible = true
     }
 
@@ -279,7 +279,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * ViewHolder listener
      */
 
-    override fun onQuickAction(
+    override fun onShortcut(
         item: SongDisplay,
         row: InfoActions.InfoRow
     ) {
@@ -290,7 +290,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         SongInfoFragment(item.id).show(childFragmentManager, "info")
     }
 
-    override fun onQuickActionOpened(position: Int?) {
+    override fun onShortcutOpened(position: Int?) {
         if (position != null) {
             val start = linearLayoutManager.findFirstVisibleItemPosition()
             val stop = linearLayoutManager.findLastVisibleItemPosition()
@@ -303,7 +303,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             }
 
             if (position == viewModel.listPosition.value) {
-                currentSongViewHolder.openQuickActionWhenSwiped()
+                currentSongViewHolder.openShortcutWhenSwiped()
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX =
                     this@SongListFragment.binding.currentSongDisplay.actionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
             } else {
@@ -324,7 +324,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         }
     }
 
-    override fun onCurrentSongQuickActionClosed() {
+    override fun onCurrentSongShortcutsClosed() {
         currentSongViewHolder.swipeToClose()
     }
 
@@ -334,8 +334,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun getArtUrl(id: Long): String = viewModel.getArtUrl(id)
 
-    override fun getQuickActions(): List<InfoActions.InfoRow> =
-        viewModel.quickActions.value ?: emptyList()
+    override fun getShortcuts(): List<InfoActions.InfoRow> =
+        viewModel.shortcuts.value ?: emptyList()
 
     override fun getCurrentPosition() = viewModel.listPosition.value ?: -1
 
@@ -417,12 +417,12 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         }, 300)
     }
 
-    private fun updateQuickActions() {
+    private fun updateShortcuts() {
         for (childIndex in 0 until binding.songList.childCount) {
             val holder =
                 (binding.songList.getChildViewHolder(binding.songList.getChildAt(childIndex)) as SongViewHolder)
-            holder.setQuickActions()
+            holder.setShortcuts()
         }
-        currentSongViewHolder.setQuickActions()
+        currentSongViewHolder.setShortcuts()
     }
 }

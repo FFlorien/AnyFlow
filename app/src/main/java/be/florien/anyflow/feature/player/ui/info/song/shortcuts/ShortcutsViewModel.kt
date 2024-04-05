@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.info.song.quickActions
+package be.florien.anyflow.feature.player.ui.info.song.shortcuts
 
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
@@ -16,7 +16,7 @@ import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class QuickActionsViewModel @Inject constructor(
+class ShortcutsViewModel @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
@@ -37,7 +37,7 @@ class QuickActionsViewModel @Inject constructor(
             updateCountDisplay()
         }
     val currentActionsCountDisplay: LiveData<String> =
-        MutableLiveData("${infoActions.getQuickActions().size}/$maxItems")
+        MutableLiveData("${infoActions.getShortcuts().size}/$maxItems")
     var dummySongInfo: SongInfo
         get() = songInfoMediator.value ?: SongInfo.dummySongInfo(SongInfoActions.DUMMY_SONG_ID)
         set(value) {
@@ -46,13 +46,13 @@ class QuickActionsViewModel @Inject constructor(
 
     override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> {
         val mutableList = initialList.toMutableList()
-        val quickActions = infoActions.getQuickActions()
-        quickActions.forEach {
+        val shortcuts = infoActions.getShortcuts()
+        shortcuts.forEach {
             val indexOfFirst =
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] =
-                    SongInfoActions.QuickActionInfoRow(initialList[indexOfFirst], it.order)
+                    SongInfoActions.ShortcutInfoRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList
@@ -62,10 +62,10 @@ class QuickActionsViewModel @Inject constructor(
         if (super.executeAction(row)) {
             return true
         }
-        val quickActions = infoActions.getQuickActions()
-        if (quickActions.size < maxItems || quickActions.any { it.fieldType == row.fieldType && it.actionType == row.actionType }) {
+        val shortcuts = infoActions.getShortcuts()
+        if (shortcuts.size < maxItems || shortcuts.any { it.fieldType == row.fieldType && it.actionType == row.actionType }) {
             viewModelScope.launch {
-                infoActions.toggleQuickAction(row.fieldType, row.actionType)
+                infoActions.toggleShortcut(row.fieldType, row.actionType)
                 updateRows()
                 updateCountDisplay()
             }
@@ -75,7 +75,7 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     private fun updateCountDisplay() {
-        val currentCount = infoActions.getQuickActions().size
+        val currentCount = infoActions.getShortcuts().size
         currentActionsCountDisplay.mutable.value = "$currentCount/$maxItems"
     }
 

@@ -248,16 +248,16 @@ class SongInfoActions(
     }
 
     /**
-     * Quick actions
+     * Shortcuts
      */
 
-    fun toggleQuickAction(fieldType: FieldType, actionType: ActionType) {
-        val quickActions = getQuickActions().toMutableList()
-        if (quickActions.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
+    fun toggleShortcut(fieldType: FieldType, actionType: ActionType) {
+        val shortcuts = getShortcuts().toMutableList()
+        if (shortcuts.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
             sharedPreferences.edit()
                 .putString(
-                    QUICK_ACTIONS_PREF_NAME,
-                    quickActions.joinToString(separator = "#") {
+                    SHORTCUTS_PREF_NAME,
+                    shortcuts.joinToString(separator = "#") {
                         val fieldName = (it.fieldType as Enum<*>).name
                         val actionName = (it.actionType as Enum<*>).name
                         "$fieldName|$actionName"
@@ -267,31 +267,31 @@ class SongInfoActions(
         } else {
             val fieldName = (fieldType as Enum<*>).name
             val actionName = (actionType as Enum<*>).name
-            val originalString = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "")
+            val originalString = sharedPreferences.getString(SHORTCUTS_PREF_NAME, "")
             sharedPreferences.edit()
-                .putString(QUICK_ACTIONS_PREF_NAME, "$originalString#$fieldName|$actionName")
+                .putString(SHORTCUTS_PREF_NAME, "$originalString#$fieldName|$actionName")
                 .apply()
         }
     }
 
-    fun getQuickActions(): List<QuickActionInfoRow> {
-        val string = sharedPreferences.getString(QUICK_ACTIONS_PREF_NAME, "") ?: return emptyList()
+    fun getShortcuts(): List<ShortcutInfoRow> {
+        val string = sharedPreferences.getString(SHORTCUTS_PREF_NAME, "") ?: return emptyList()
         val songInfo = SongInfo.dummySongInfo()
 
         return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
             val fieldTypeString = it.substringBefore('|')
             val actionTypeString = it.substringAfter('|')
 
-            val fieldType = SongFieldType.values().firstOrNull { it.name == fieldTypeString }
+            val fieldType = SongFieldType.entries.firstOrNull { it.name == fieldTypeString }
             if (fieldType != null) {
-                val actionType = SongActionType.values().firstOrNull { it.name == actionTypeString }
+                val actionType = SongActionType.entries.firstOrNull { it.name == actionTypeString }
                 if (actionType != null) {
                     getSongAction(
                         songInfo,
                         fieldType,
                         actionType,
                         order = index
-                    ) as? QuickActionInfoRow
+                    ) as? ShortcutInfoRow
                 } else {
                     null
                 }
@@ -722,7 +722,7 @@ class SongInfoActions(
     } else if (index != null) {
         SongActionMultipleInfoRow(title, text, textRes, fieldType, actionType, index)
     } else if (order != null) {
-        QuickActionInfoRow(title, text, textRes, fieldType, actionType, order)
+        ShortcutInfoRow(title, text, textRes, fieldType, actionType, order)
     } else if (progress != null) {
         SongDownloadInfoRow(title, text, textRes, fieldType, actionType, progress)
     } else {
@@ -810,7 +810,7 @@ class SongInfoActions(
             super.areContentTheSame(other) && other is SongDownloadInfoRow && other.progress === progress
     }
 
-    data class QuickActionInfoRow(
+    data class ShortcutInfoRow(
         @StringRes override val title: Int,
         override val text: String?,
         @StringRes override val textRes: Int?,
@@ -828,11 +828,11 @@ class SongInfoActions(
         )
 
         override fun areContentTheSame(other: InfoRow): Boolean =
-            super.areContentTheSame(other) && other is QuickActionInfoRow && other.order == order
+            super.areContentTheSame(other) && other is ShortcutInfoRow && other.order == order
     }
 
     companion object {
         const val DUMMY_SONG_ID = -5L
-        private const val QUICK_ACTIONS_PREF_NAME = "Quick actions"
+        private const val SHORTCUTS_PREF_NAME = "Shortcuts"
     }
 }

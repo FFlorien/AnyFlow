@@ -38,7 +38,7 @@ interface ServerComponent {
     fun inject(myAppGlideModule: MyAppGlideModule)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
-    fun quickActionsComponentBuilder(): QuickActionsComponent.Builder
+    fun shortcutsComponentBuilder(): ShortcutsComponent.Builder
 
     @Subcomponent.Builder
     interface Builder {

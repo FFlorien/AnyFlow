@@ -15,8 +15,8 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_quick_actions"
-        android:title="@string/menu_quick_actions"
-        android:icon="@drawable/ic_quick_actions"
+        android:id="@+id/menu_shortcut"
+        android:title="@string/menu_shortcuts"
+        android:icon="@drawable/ic_shortcut"
         app:showAsAction="ifRoom" />
 </menu>

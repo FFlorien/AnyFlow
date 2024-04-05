@@ -16,13 +16,13 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemDownloadInfoBinding
-import be.florien.anyflow.databinding.ItemQuickActionInfoBinding
+import be.florien.anyflow.databinding.ItemShortcutInfoBinding
 import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.feature.info.image.ImageDisplayFragment
 import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.InfoAdapter
 import be.florien.anyflow.feature.player.ui.info.InfoViewHolder
-import be.florien.anyflow.feature.player.ui.info.song.quickActions.QuickActionsViewModel
+import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.injection.ViewModelFactoryHolder
@@ -37,7 +37,7 @@ class SongInfoFragment(
         private const val SONG = "SONG"
 
         private const val ITEM_VIEW_TYPE_DEFAULT = 0
-        private const val ITEM_VIEW_TYPE_QUICK_ACTION = 1
+        private const val ITEM_VIEW_TYPE_SHORTCUT = 1
         private const val ITEM_VIEW_TYPE_DOWNLOAD = 2
         private const val TOP_PADDING = 200
     }
@@ -75,7 +75,7 @@ class SongInfoFragment(
             ViewModelProvider(
                 requireActivity(),
                 (requireActivity() as ViewModelFactoryHolder).getFactory()
-            )[QuickActionsViewModel::class.java]
+            )[ShortcutsViewModel::class.java]
                 .apply {
                     val width = requireActivity().getDisplayWidth()
                     val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
@@ -173,7 +173,7 @@ class SongInfoFragment(
         InfoAdapter<InfoViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoViewHolder {
             return when (viewType) {
-                ITEM_VIEW_TYPE_QUICK_ACTION -> QuickActionInfoViewHolder(parent, executeAction)
+                ITEM_VIEW_TYPE_SHORTCUT -> ShortcutInfoViewHolder(parent, executeAction)
                 ITEM_VIEW_TYPE_DOWNLOAD -> DownloadInfoViewHolder(parent, executeAction)
                 else -> InfoViewHolder(parent, executeAction)
             }
@@ -181,17 +181,17 @@ class SongInfoFragment(
 
         override fun getItemViewType(position: Int): Int {
             return when (getItem(position)) {
-                is SongInfoActions.QuickActionInfoRow -> ITEM_VIEW_TYPE_QUICK_ACTION
+                is SongInfoActions.ShortcutInfoRow -> ITEM_VIEW_TYPE_SHORTCUT
                 is SongInfoActions.SongDownload -> ITEM_VIEW_TYPE_DOWNLOAD
                 else -> ITEM_VIEW_TYPE_DEFAULT
             }
         }
     }
 
-    class QuickActionInfoViewHolder(
+    class ShortcutInfoViewHolder(
         parent: ViewGroup,
         executeAction: (row: InfoActions.InfoRow) -> Unit,
-        private val parentBinding: ItemQuickActionInfoBinding = ItemQuickActionInfoBinding.inflate(
+        private val parentBinding: ItemShortcutInfoBinding = ItemShortcutInfoBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -199,7 +199,7 @@ class SongInfoFragment(
     ) : InfoViewHolder(parent, executeAction, parentBinding.infoLayout, parentBinding.root) {
         override fun bindChangedData(row: InfoActions.InfoRow) {
             super.bindChangedData(row)
-            if (row is SongInfoActions.QuickActionInfoRow) {
+            if (row is SongInfoActions.ShortcutInfoRow) {
                 parentBinding.order.removeViews(2, parentBinding.order.size - 2)
                 val inflater = LayoutInflater.from(parentBinding.root.context)
                 for (i in 0 until row.order) {

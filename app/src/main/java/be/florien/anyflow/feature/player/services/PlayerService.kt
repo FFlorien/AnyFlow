@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.player.services
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.media.AudioManager
@@ -48,7 +49,7 @@ const val ALARM_ACTION = "ALARM"
 /**
  * Service used to handle the media player.
  */
-@UnstableApi
+//@UnstableApi
 class PlayerService : MediaSessionService(), Player.Listener {
 
     //todo Own coroutineScope
@@ -85,6 +86,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
     @Inject
     internal lateinit var okHttpClient: OkHttpClient
 
+    @SuppressLint("UnsafeOptInUsageError")
     @Inject
     internal lateinit var cache: Cache
     //endregion
@@ -148,7 +150,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
     //endregion
 
     //region private methods
-    @OptIn(UnstableApi::class)
+    @SuppressLint("UnsafeOptInUsageError")
     private fun initPlayer() {
         (application as AnyFlowApp).serverComponent?.inject(this)
         val dataSourceFactory = DefaultDataSource.Factory(

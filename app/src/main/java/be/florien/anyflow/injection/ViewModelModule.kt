@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.feature.player.ui.PlayerViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
-import be.florien.anyflow.feature.player.ui.info.song.quickActions.QuickActionsViewModel
+import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
 import be.florien.anyflow.feature.player.ui.library.filters.DisplayFilterViewModel
 import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryAlbumArtistListViewModel
@@ -93,8 +93,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(QuickActionsViewModel::class)
-    abstract fun bindsInfoActionsSelectionViewModel(viewModel: QuickActionsViewModel): ViewModel
+    @ViewModelKey(ShortcutsViewModel::class)
+    abstract fun bindsInfoActionsSelectionViewModel(viewModel: ShortcutsViewModel): ViewModel
 
     @Binds
     @IntoMap

@@ -35,7 +35,7 @@ import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.LibraryMenuHolder
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
-import be.florien.anyflow.feature.player.ui.info.song.quickActions.QuickActionsActivity
+import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
 import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
@@ -292,8 +292,8 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                     true
                 }
 
-                R.id.menu_quick_actions -> {
-                    startActivity(Intent(this, QuickActionsActivity::class.java))
+                R.id.menu_shortcut -> {
+                    startActivity(Intent(this, ShortcutsActivity::class.java))
                     true
                 }
 

@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.util.Log
-import androidx.media3.common.util.UnstableApi
 import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.extension.eLog
@@ -23,7 +22,6 @@ import javax.inject.Inject
 /**
  * Application class used for initialization of many libraries
  */
-@UnstableApi
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
     lateinit var applicationComponent: ApplicationComponent

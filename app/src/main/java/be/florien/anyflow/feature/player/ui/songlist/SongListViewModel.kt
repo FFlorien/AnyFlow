@@ -70,8 +70,8 @@ class SongListViewModel
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     val playlistListDisplayedFor: LiveData<Triple<Long, SongInfoActions.SongFieldType, Int>> =
         MutableLiveData(null)
-    val quickActions: LiveData<List<InfoActions.InfoRow>> =
-        MutableLiveData(songInfoActions.getQuickActions())
+    val shortcuts: LiveData<List<InfoActions.InfoRow>> =
+        MutableLiveData(songInfoActions.getShortcuts())
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
         private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -197,14 +197,14 @@ class SongListViewModel
         }
     }
 
-    fun refreshQuickActions() {
-        val oldValue = quickActions.value
-        val newValue = songInfoActions.getQuickActions()
+    fun refreshShortcuts() {
+        val oldValue = shortcuts.value
+        val newValue = songInfoActions.getShortcuts()
         if (!newValue.containsAll(
                 oldValue ?: listOf()
             ) || oldValue?.containsAll(newValue) == false
         ) {
-            quickActions.mutable.value = songInfoActions.getQuickActions()
+            shortcuts.mutable.value = songInfoActions.getShortcuts()
         }
     }
 
