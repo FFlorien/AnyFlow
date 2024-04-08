@@ -64,14 +64,9 @@ class AuthenticationInterceptor @Inject constructor(
     }
 
     private fun Interceptor.Chain.proceedWithValidToken(authToken: AuthPersistence.ExpirationSecret): Response {
-        val nonAuthenticatedUrl = request().url
-        val authenticatedUrl = nonAuthenticatedUrl
-            .newBuilder()
-            .addQueryParameter("auth", authToken.secret)
-            .build()
         val authenticatedRequest = request()
             .newBuilder()
-            .url(authenticatedUrl)
+            .header("Authorization", "Bearer ${authToken.secret}")
             .build()
         val response = proceed(authenticatedRequest)
         checkError(response)
