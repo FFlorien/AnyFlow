@@ -187,7 +187,9 @@ constructor(
                     val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
                     val viewHolder =
                         (rv.findContainingViewHolder(childView) as? FilterViewHolder) ?: return
-                    onTouch(viewHolder, event)
+                    if (!onTouch(viewHolder, event)) {
+                        viewHolder.swipeToClose()
+                    }
                 }
 
                 override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {

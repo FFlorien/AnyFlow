@@ -104,10 +104,7 @@ abstract class ItemInfoTouchAdapter {
             }
 
             MotionEvent.ACTION_UP -> {
-                if (!viewHolder.openInfoWhenSwiped()) {
-                    viewHolder.swipeToClose()
-                }
-                true
+                viewHolder.openInfoWhenSwiped()
             }
 
             else -> false
