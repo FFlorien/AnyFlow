@@ -9,9 +9,16 @@ abstract class AuthPersistence {
     abstract val authToken: ExpirationSecret
     abstract val user: ExpirationSecret
     abstract val password: ExpirationSecret
+    abstract val apiToken: ExpirationSecret
 
 
-    fun hasConnectionInfo() = serverUrl.hasSecret() && (authToken.hasSecret() && authToken.isDataValid()) || (user.hasSecret() && user.isDataValid())
+    fun hasConnectionInfo() = serverUrl.hasSecret() && (hasAuthToken() || hasUser() || hasApiToken())
+
+    private fun hasAuthToken() = (authToken.hasSecret() && authToken.isDataValid())
+
+    private fun hasUser() = (user.hasSecret() && user.isDataValid())
+
+    private fun hasApiToken() = (apiToken.hasSecret() && apiToken.isDataValid())
 
     fun saveServerInfo(serverUrl: String) {
         val oneYearDate = TimeOperations.getCurrentDatePlus(Calendar.YEAR, 1)
@@ -22,6 +29,12 @@ abstract class AuthPersistence {
         val oneYearDate = TimeOperations.getCurrentDatePlus(Calendar.YEAR, 1)
         this.user.setSecretData(user, oneYearDate.timeInMillis)
         this.password.setSecretData(password, oneYearDate.timeInMillis)
+        this.authToken.setSecretData(authToken, expirationDate)
+    }
+
+    fun saveConnectionInfo(apiToken: String, authToken: String, expirationDate: Long) {
+        val oneYearDate = TimeOperations.getCurrentDatePlus(Calendar.YEAR, 1)
+        this.apiToken.setSecretData(apiToken, oneYearDate.timeInMillis)
         this.authToken.setSecretData(authToken, expirationDate)
     }
 

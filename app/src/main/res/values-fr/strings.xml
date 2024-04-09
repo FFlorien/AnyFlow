@@ -3,6 +3,7 @@
     <string name="connect_server_hint">Serveur</string>
     <string name="connect_username_hint">Nom d’utilisateur</string>
     <string name="connect_password_hint">Mot de passe</string>
+    <string name="connect_api_token_hint">Clé API</string>
     <string name="connect_connect_action">Connexion</string>
     <string name="connect_wait_label">Connexion, veuillez patienter…</string>
     <string name="connect_error_extends">Impossible de prolonger la session</string>
@@ -125,6 +126,7 @@
     <string name="dummy_album">Leur Meilleur Album</string>
     <string name="dummy_genre">Classique</string>
     <string name="dummy_playlist">Pour la route</string>
+    <string name="or">Ou</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">%d chanson</item>
         <item quantity="many">%d chansons</item>

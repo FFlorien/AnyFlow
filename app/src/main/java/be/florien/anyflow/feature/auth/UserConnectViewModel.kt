@@ -22,8 +22,9 @@ open class UserConnectViewModel : BaseViewModel() {
      * Fields
      */
 
-    var username = MutableLiveData("")
-    var password = MutableLiveData("")
+    val username = MutableLiveData("")
+    val password = MutableLiveData("")
+    val apiToken = MutableLiveData("")
     val isLoading: LiveData<Boolean> = MutableLiveData(false)
     val isConnected: LiveData<Boolean> = MutableLiveData(false)
     val errorMessage: LiveData<Int> = MutableLiveData(-1)
@@ -35,10 +36,16 @@ open class UserConnectViewModel : BaseViewModel() {
         isLoading.mutable.value = true
         val pwd = password.value
         val user = username.value
-        if (pwd?.isNotBlank() == true && user?.isNotBlank() == true) {
+        val apiToken = apiToken.value
+        val isUserPwd = pwd?.isNotBlank() == true && user?.isNotBlank() == true //todo : what if everything is filled ?
+        if (isUserPwd || apiToken?.isNotBlank() == true) {
             viewModelScope.launch {
                 try {
-                    val it = authRepository.authenticate(user, pwd)
+                    val it = if (isUserPwd) {
+                        authRepository.authenticate(user!!, pwd!!)
+                    } else {
+                        authRepository.authenticate(apiToken!!)
+                    }
                     isLoading.mutable.value = false
                     when (it.error.errorCode) {
                         0 -> isConnected.mutable.value = true

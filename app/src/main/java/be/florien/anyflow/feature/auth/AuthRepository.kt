@@ -37,7 +37,7 @@ open class AuthRepository
         const val SERVER_CLEAN = "SERVER_CLEAN"
     }
 
-    private var reconnectByUserPassword = 0
+    private var reconnectByAuth = 0
 
     val connectionStatusUpdater = MutableLiveData(ConnectionStatus.CONNECTED)
 
@@ -45,9 +45,37 @@ open class AuthRepository
      * API calls : connection
      */
     suspend fun authenticate(user: String, password: String): AmpacheAuthentication {
+        return authentication(
+            authenticate = { ampacheAuthSource.authenticate(user, password) },
+            saveAuthData = {
+                authPersistence.saveConnectionInfo(
+                    user,
+                    password,
+                    it.auth,
+                    TimeOperations.getDateFromAmpacheComplete(it.session_expire).timeInMillis
+                )
+            })
+    }
+
+    suspend fun authenticate(apiToken: String): AmpacheAuthentication {
+        return authentication(
+            authenticate = { ampacheAuthSource.authenticate(apiToken) },
+            saveAuthData = {
+                authPersistence.saveConnectionInfo(
+                    apiToken,
+                    it.auth,
+                    TimeOperations.getDateFromAmpacheComplete(it.session_expire).timeInMillis
+                )
+            })
+    }
+
+    private suspend fun authentication(
+        authenticate: suspend () -> AmpacheAuthentication,
+        saveAuthData: suspend (AmpacheAuthentication) -> Unit,
+    ): AmpacheAuthentication {
         connectionStatusUpdater.postValue(ConnectionStatus.CONNEXION)
         try {
-            val authentication = ampacheAuthSource.authenticate(user, password)
+            val authentication = authenticate()
             when (authentication.error.errorCode) {
                 401 -> {
                     connectionStatusUpdater.postValue(ConnectionStatus.WRONG_ID_PAIR)
@@ -55,12 +83,7 @@ open class AuthRepository
                 }
 
                 0 -> {
-                    authPersistence.saveConnectionInfo(
-                        user,
-                        password,
-                        authentication.auth,
-                        TimeOperations.getDateFromAmpacheComplete(authentication.session_expire).timeInMillis
-                    )
+                    saveAuthData(authentication)
                     saveData(authentication)
                 }
             }
@@ -79,12 +102,12 @@ open class AuthRepository
         val authToken: String = authPersistence.authToken.secret
         try {
             val ping = ampacheAuthSource.authenticatedPing(authToken)
-            if (ping.session_expire.isEmpty()) {
-                return ping
+
+            if (ping.session_expire.isNotEmpty()) {
+                saveData(ping)
+                authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.session_expire).timeInMillis)
             }
 
-            saveData(ping)
-            authPersistence.setNewAuthExpiration(TimeOperations.getDateFromAmpacheComplete(ping.session_expire).timeInMillis)
             return ping
         } catch (exception: Exception) {
             eLog(exception)
@@ -109,6 +132,8 @@ open class AuthRepository
             authPersistence.revokeAuthToken()
             return if (authPersistence.user.secret.isNotBlank() && authPersistence.password.secret.isNotBlank()) {
                 reconnectByUsernamePassword(request)
+            } else if (authPersistence.apiToken.secret.isNotBlank()) {
+                reconnectByApiToken(request)
             } else {
                 throw SessionExpiredException("Can't reconnect")
             }
@@ -116,8 +141,19 @@ open class AuthRepository
     }
 
     private suspend fun <T> reconnectByUsernamePassword(request: suspend () -> T): T {
-        reconnectByUserPassword++
+        reconnectByAuth++
         val auth = authenticate(authPersistence.user.secret, authPersistence.password.secret)
+        return if (auth.error.errorCode == 0) {
+            saveData(auth)
+            request()
+        } else {
+            throw SessionExpiredException("Can't reconnect")
+        }
+    }
+
+    private suspend fun <T> reconnectByApiToken(request: suspend () -> T): T {
+        reconnectByAuth++
+        val auth = authenticate(authPersistence.apiToken.secret)
         return if (auth.error.errorCode == 0) {
             saveData(auth)
             request()

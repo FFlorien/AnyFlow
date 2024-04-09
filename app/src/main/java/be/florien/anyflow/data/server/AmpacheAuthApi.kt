@@ -9,12 +9,17 @@ import retrofit2.http.Query
  */
 interface AmpacheAuthApi {
     @GET("server/json.server.php")
-    suspend fun authenticate(
+    suspend fun authenticateUserPassword(
         @Query("action") action: String = "handshake",
         @Query("timestamp") time: String,
-        @Query("version") version: String = "380001",
         @Query("auth") auth: String,
         @Query("user") user: String
+    ): AmpacheAuthentication
+
+    @GET("server/json.server.php")
+    suspend fun authenticateApiToken(
+        @Query("action") action: String = "handshake",
+        @Query("auth") auth: String
     ): AmpacheAuthentication
 
     @GET("server/json.server.php")

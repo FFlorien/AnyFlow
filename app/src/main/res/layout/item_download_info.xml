@@ -15,8 +15,6 @@
             style="@android:style/Widget.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="@dimen/smallDimen"
-            android:layout_marginHorizontal="@dimen/smallDimen"
-            android:layout_marginBottom="@dimen/smallDimen"
             android:indeterminate="false"
             android:progressDrawable="@drawable/bg_progress_bar" />
 

@@ -35,7 +35,16 @@ open class AmpacheAuthSource
         val auth =
             binToHex(encoder.digest((time + passwordEncoded).toByteArray())).lowercase(Locale.ROOT)
         try {
-            return ampacheAuthApi.authenticate(user = user, auth = auth, time = time)
+            return ampacheAuthApi.authenticateUserPassword(user = user, auth = auth, time = time)
+        } catch (exception: Exception) {
+            eLog(exception, "Unknown error while trying to login")
+            throw exception
+        }
+    }
+
+    suspend fun authenticate(apiToken: String): AmpacheAuthentication {
+        try {
+            return ampacheAuthApi.authenticateApiToken(auth = apiToken)
         } catch (exception: Exception) {
             eLog(exception, "Unknown error while trying to login")
             throw exception
