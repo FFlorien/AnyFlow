@@ -102,7 +102,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
                     val filterForGroup = getFilterDao().filterForGroup(filterGroup.id)
                     getFilterDao().updateGroup(
                         DbFilterGroup.currentFilterGroup,
-                        filterForGroup.map { it.copy(filterGroup = 1) })
+                        filterForGroup.map { it.copy(id = null, filterGroup = 1) })
                 }
             }
         }
@@ -134,9 +134,6 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             .convertToPagingLiveData()
 
     fun getIdsInQueueOrder() = libraryDatabase.getSongDao().songsInQueueOrder()
-
-    suspend fun getQueueSize(): Int? =
-        withContext(Dispatchers.IO) { libraryDatabase.getSongDao().queueSize() }
 
     suspend fun getPositionForSong(songId: Long) =
         withContext(Dispatchers.IO) { libraryDatabase.getSongDao().findPositionInQueue(songId) }
