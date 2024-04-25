@@ -1,17 +1,17 @@
 package be.florien.anyflow.data.view
 
-sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
-    class Random(priority: Int, subject: Long, randomSeed: Int) : Order(priority, subject, RANDOM, randomSeed)
-    class Ordered(priority: Int, subject: Long) : Order(priority, subject, ASCENDING)
-    class Precise(precisePosition: Int, songId: Long, priority: Int) : Order(priority, songId, PRECISE_POSITION, precisePosition)
+sealed class Ordering(val priority: Int, val subject: Long, val ordering: Int, val argument: Int = -1) {
+    class Random(priority: Int, subject: Long, randomSeed: Int) : Ordering(priority, subject, RANDOM, randomSeed)
+    class Ordered(priority: Int, subject: Long) : Ordering(priority, subject, ASCENDING)
+    class Precise(precisePosition: Int, songId: Long, priority: Int) : Ordering(priority, songId, PRECISE_POSITION, precisePosition)
 
     val orderingType
         get() = when (ordering) {
-            ASCENDING -> Ordering.ASCENDING
-            DESCENDING -> Ordering.DESCENDING
-            PRECISE_POSITION -> Ordering.PRECISE_POSITION
-            RANDOM -> Ordering.RANDOM
-            else -> Ordering.RANDOM
+            ASCENDING -> OrderingType.ASCENDING
+            DESCENDING -> OrderingType.DESCENDING
+            PRECISE_POSITION -> OrderingType.PRECISE_POSITION
+            RANDOM -> OrderingType.RANDOM
+            else -> OrderingType.RANDOM
         }
 
     val orderingSubject
@@ -29,7 +29,15 @@ sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val 
             else -> Subject.TRACK
         }
 
-    override fun equals(other: Any?) = other is Order && priority == other.priority && subject == other.subject && ordering == other.ordering && argument == other.argument
+    override fun equals(other: Any?) = other is Ordering && priority == other.priority && subject == other.subject && ordering == other.ordering && argument == other.argument
+
+    override fun hashCode(): Int {
+        var result = priority
+        result = 31 * result + subject.hashCode()
+        result = 31 * result + ordering
+        result = 31 * result + argument
+        return result
+    }
 
     companion object {
 
@@ -64,7 +72,7 @@ sealed class Order(val priority: Int, val subject: Long, val ordering: Int, val 
         TITLE
     }
 
-    enum class Ordering {
+    enum class OrderingType {
         ASCENDING,
         DESCENDING,
         PRECISE_POSITION,

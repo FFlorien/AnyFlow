@@ -7,7 +7,7 @@ import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterCount
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.local.model.DbGenre
-import be.florien.anyflow.data.local.model.DbOrder
+import be.florien.anyflow.data.local.model.DbOrdering
 import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.local.model.DbPlaylistSongs
 import be.florien.anyflow.data.local.model.DbPlaylistWithCount
@@ -29,7 +29,7 @@ import be.florien.anyflow.data.view.Alarm
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterCount
 import be.florien.anyflow.data.view.FilterGroup
-import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.data.view.SongDisplay
@@ -177,12 +177,12 @@ fun DbFilterGroup.toViewFilterGroup() = FilterGroup(
     name = name
 )
 
-fun DbOrder.toViewOrder(): Order {
+fun DbOrdering.toViewOrdering(): Ordering {
     return when (orderingType) {
-        Order.ASCENDING -> Order.Ordered(priority, subject)
-        Order.PRECISE_POSITION -> Order.Precise(orderingArgument, subject, priority)
-        Order.RANDOM -> Order.Random(priority, subject, orderingArgument)
-        else -> Order.Ordered(priority, subject)
+        Ordering.ASCENDING -> Ordering.Ordered(priority, subject)
+        Ordering.PRECISE_POSITION -> Ordering.Precise(orderingArgument, subject, priority)
+        Ordering.RANDOM -> Ordering.Random(priority, subject, orderingArgument)
+        else -> Ordering.Ordered(priority, subject)
     }
 }
 
@@ -233,7 +233,7 @@ fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     parentFilter = parentId
 )
 
-fun Order.toDbOrder() = DbOrder(
+fun Ordering.toDbOrdering() = DbOrdering(
     priority = priority,
     subject = subject,
     orderingType = ordering,

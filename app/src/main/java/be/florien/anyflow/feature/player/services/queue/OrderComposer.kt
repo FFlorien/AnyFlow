@@ -1,8 +1,8 @@
 package be.florien.anyflow.feature.player.services.queue
 
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.Order
-import be.florien.anyflow.data.view.Order.Companion.RANDOM_MULTIPLIER
+import be.florien.anyflow.data.view.Ordering
+import be.florien.anyflow.data.view.Ordering.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ServerScope
@@ -20,24 +20,24 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
         eLog(throwable, "Received an exception in OrderComposer's scope")
     }
     private val coroutineScope = CoroutineScope(Dispatchers.Main + exceptionHandler)
-    private var currentOrders = listOf<Order>()
+    private var currentOrderings = listOf<Ordering>()
     var currentSong: SongInfo? = null
     var currentPosition: Int = -1
     private var areFirstFiltersArrived = false
     private var areFirstOrdersArrived = false
 
     init {
-        val ordersLiveData = queueRepository.getOrders()
+        val ordersLiveData = queueRepository.getOrderings()
         val filtersLiveData = queueRepository.getCurrentFilters()
 
         ordersLiveData.observeForever {
             FirebaseCrashlytics.getInstance()
                 .log("We will maybe save queue order form ordersLiveData.observeForever")
             areFirstOrdersArrived = true
-            currentOrders = it
+            currentOrderings = it
             val filterList = filtersLiveData.value
             if (areFirstFiltersArrived && filterList != null) {
-                saveQueue(filterList, currentOrders)
+                saveQueue(filterList, currentOrderings)
             }
         }
 
@@ -50,34 +50,34 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
                     areFirstFiltersArrived = true
                     return@launch
                 }
-                val newOrders =
+                val newOrderings =
                     if (areFirstFiltersArrived) { // todo this code is for avoiding current song at first position multiple time, but cause bug with play next
-                        currentOrders
-                            .filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
+                        currentOrderings
+                            .filter { it.orderingType != Ordering.OrderingType.PRECISE_POSITION }
                             .toMutableList()
                     } else {
-                        currentOrders.toMutableList()
+                        currentOrderings.toMutableList()
                     }
                 areFirstFiltersArrived = true
 
-                if (newOrders.any { it.orderingType == Order.Ordering.RANDOM }) {
-                    getCurrentSongPrecisePositionIfPresent(filterList)?.let { newOrders.add(it) }
+                if (newOrderings.any { it.orderingType == Ordering.OrderingType.RANDOM }) {
+                    getCurrentSongPrecisePositionIfPresent(filterList)?.let { newOrderings.add(it) }
                 }
-                if (newOrders.containsAll(currentOrders) && currentOrders.containsAll(newOrders)) {
-                    saveQueue(filterList, newOrders)
+                if (newOrderings.containsAll(currentOrderings) && currentOrderings.containsAll(newOrderings)) {
+                    saveQueue(filterList, newOrderings)
                 } else {
-                    queueRepository.setOrders(newOrders)
+                    queueRepository.setOrderings(newOrderings)
                 }
             }
         }
     }
 
-    private suspend fun getCurrentSongPrecisePositionIfPresent(filterList: List<Filter<*>>): Order.Precise? {
+    private suspend fun getCurrentSongPrecisePositionIfPresent(filterList: List<Filter<*>>): Ordering.Precise? {
         currentSong?.let { songInfo ->
             val isCurrentSongInNewFilters =
                 filterList.any { it.contains(songInfo, queueRepository) }
             if (isCurrentSongInNewFilters) {
-                return Order.Precise(0, songId = songInfo.id, priority = Order.PRIORITY_PRECISE)
+                return Ordering.Precise(0, songId = songInfo.id, priority = Ordering.PRIORITY_PRECISE)
             }
         }
         return null
@@ -88,7 +88,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
             return
         }
 
-        val newOrders = currentOrders.toMutableList()
+        val newOrders = currentOrderings.toMutableList()
         val songPosition = queueRepository.getPositionForSong(songId)
 
         val newPosition = if (songPosition != null && songPosition < currentPosition) {
@@ -98,69 +98,69 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
         }
 
         val lastPrecise =
-            newOrders.lastOrNull { it.orderingType == Order.Ordering.PRECISE_POSITION && it.argument == newPosition }
-        val newPrecise = Order.Precise(
+            newOrders.lastOrNull { it.orderingType == Ordering.OrderingType.PRECISE_POSITION && it.argument == newPosition }
+        val newPrecise = Ordering.Precise(
             precisePosition = newPosition,
             songId = songId,
-            priority = lastPrecise?.priority?.plus(1) ?: Order.PRIORITY_PRECISE
+            priority = lastPrecise?.priority?.plus(1) ?: Ordering.PRIORITY_PRECISE
         )
         newOrders.add(newPrecise)
-        queueRepository.setOrders(newOrders)
+        queueRepository.setOrderings(newOrders)
 
     }
 
     suspend fun randomize() {
-        val orders = mutableListOf<Order>(
-            Order.Random(
+        val orderings = mutableListOf<Ordering>(
+            Ordering.Random(
                 0,
-                Order.SUBJECT_ALL,
+                Ordering.SUBJECT_ALL,
                 Math.random().times(RANDOM_MULTIPLIER).toInt()
             )
         )
         currentSong?.let { song ->
-            orders.add(Order.Precise(0, song.id, Order.PRIORITY_PRECISE))
+            orderings.add(Ordering.Precise(0, song.id, Ordering.PRIORITY_PRECISE))
         }
-        queueRepository.setOrders(orders)
+        queueRepository.setOrderings(orderings)
     }
 
     suspend fun order() {
         val dbOrders = listOf(
-            Order.SUBJECT_ALBUM_ARTIST,
-            Order.SUBJECT_YEAR,
-            Order.SUBJECT_ALBUM,
-            Order.SUBJECT_DISC,
-            Order.SUBJECT_TRACK,
-            Order.SUBJECT_TITLE
+            Ordering.SUBJECT_ALBUM_ARTIST,
+            Ordering.SUBJECT_YEAR,
+            Ordering.SUBJECT_ALBUM,
+            Ordering.SUBJECT_DISC,
+            Ordering.SUBJECT_TRACK,
+            Ordering.SUBJECT_TITLE
         ).mapIndexed { index, order ->
-            Order.Ordered(
+            Ordering.Ordered(
                 index,
                 order
             )
         }
-        queueRepository.setOrders(dbOrders)
+        queueRepository.setOrderings(dbOrders)
     }
 
-    private fun saveQueue(filterList: List<Filter<*>>, orderList: List<Order>) {
+    private fun saveQueue(filterList: List<Filter<*>>, orderingList: List<Ordering>) {
         FirebaseCrashlytics.getInstance()
-            .log("Order for saving queue order: ${orderList.joinToString { it.orderingSubject.name }}")
+            .log("Order for saving queue order: ${orderingList.joinToString { it.orderingSubject.name }}")
         coroutineScope.launch {
-            val queue = queueRepository.getOrderlessQueue(filterList, orderList)
-            val randomOrderingSeed = orderList
-                .firstOrNull { it.orderingType == Order.Ordering.RANDOM }
+            val queue = queueRepository.getOrderlessQueue(filterList, orderingList)
+            val randomOrderingSeed = orderingList
+                .firstOrNull { it.orderingType == Ordering.OrderingType.RANDOM }
                 ?.argument
             val listToSave = if (randomOrderingSeed != null) {
                 queue.shuffled(Random(randomOrderingSeed.toLong())).toMutableList()
             } else {
                 queue.toMutableList()
             }
-            currentOrders
-                .filter { it.orderingType == Order.Ordering.PRECISE_POSITION }
+            currentOrderings
+                .filter { it.orderingType == Ordering.OrderingType.PRECISE_POSITION }
                 .forEach { preciseOrder ->
                     if (listToSave.remove(preciseOrder.subject)) {
                         listToSave.add(preciseOrder.argument, preciseOrder.subject)
                     } // todo else remove order from db
                 }
-            queueRepository.saveQueueOrder(listToSave)
+            queueRepository.saveQueueOrdering(listToSave)
         }
     }
 }

@@ -73,7 +73,7 @@ class FiltersManager
     }
 
     suspend fun saveCurrentFilterGroup(name: String) =
-        queueRepository.createFilterGroup(unCommittedFilters.toList(), name)
+        queueRepository.saveFilterGroup(unCommittedFilters.toList(), name)
 
     suspend fun loadSavedGroup(filterGroup: FilterGroup) =
         queueRepository.setSavedGroupAsCurrentFilters(filterGroup)

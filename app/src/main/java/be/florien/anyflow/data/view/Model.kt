@@ -5,7 +5,7 @@ import be.florien.anyflow.extension.ImageConfig
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class SongInfo constructor(
+data class SongInfo(
     val id: Long,
     val title: String,
     val artistName: String,
@@ -24,12 +24,31 @@ data class SongInfo constructor(
     val year: Int,
     val size: Int,
     val local: String?
-): Parcelable {
+) : Parcelable {
     val timeText: String
         get() = String.format("%d:%02d", time / 60, time % 60)
 
     companion object {
-        fun dummySongInfo(id: Long = 0L) = SongInfo(id, "", "", 0L, "", 0L, 1, "", 0, listOf(""),  listOf(0L), listOf(""),  listOf(0L), 0, 0, 0, 0, "")
+        fun dummySongInfo(id: Long = 0L) = SongInfo(
+            id,
+            "",
+            "",
+            0L,
+            "",
+            0L,
+            1,
+            "",
+            0,
+            listOf(""),
+            listOf(0L),
+            listOf(""),
+            listOf(0L),
+            0,
+            0,
+            0,
+            0,
+            ""
+        )
     }
 }
 
@@ -39,7 +58,8 @@ data class SongDisplay(
     val artistName: String,
     val albumName: String,
     val albumId: Long,
-    val time: Int) {
+    val time: Int
+) {
 
     val timeText: String
         get() = String.format("%d:%02d", time / 60, time % 60)

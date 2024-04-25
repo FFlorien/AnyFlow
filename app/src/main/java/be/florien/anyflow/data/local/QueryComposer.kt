@@ -5,21 +5,21 @@ import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.Ordering
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class QueryComposer {
     fun getQueryForSongs(
         filters: List<Filter<*>>,
-        orderList: List<Order>
+        orderingList: List<Ordering>
     ): SimpleSQLiteQuery {
 
         fun constructOrderStatement(): String {
             val filteredOrderedList =
-                orderList.filter { it.orderingType != Order.Ordering.PRECISE_POSITION }
+                orderingList.filter { it.orderingType != Ordering.OrderingType.PRECISE_POSITION }
 
             val isSorted =
-                filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Order.Ordering.RANDOM }
+                filteredOrderedList.isNotEmpty() && filteredOrderedList.all { it.orderingType != Ordering.OrderingType.RANDOM }
 
             var orderStatement = if (isSorted) {
                 " ORDER BY"
@@ -30,20 +30,20 @@ class QueryComposer {
             if (isSorted) {
                 filteredOrderedList.forEachIndexed { index, order ->
                     orderStatement += when (order.orderingSubject) {
-                        Order.Subject.ALL -> " song.id"
-                        Order.Subject.ARTIST -> " artist.basename"
-                        Order.Subject.ALBUM_ARTIST -> " albumArtist.basename"
-                        Order.Subject.ALBUM -> " album.basename"
-                        Order.Subject.ALBUM_ID -> " song.albumId"
-                        Order.Subject.DISC -> " song.disk"
-                        Order.Subject.YEAR -> " song.year"
-                        Order.Subject.GENRE -> " song.genre"
-                        Order.Subject.TRACK -> " song.track"
-                        Order.Subject.TITLE -> " song.title"
+                        Ordering.Subject.ALL -> " song.id"
+                        Ordering.Subject.ARTIST -> " artist.basename"
+                        Ordering.Subject.ALBUM_ARTIST -> " albumArtist.basename"
+                        Ordering.Subject.ALBUM -> " album.basename"
+                        Ordering.Subject.ALBUM_ID -> " song.albumId"
+                        Ordering.Subject.DISC -> " song.disk"
+                        Ordering.Subject.YEAR -> " song.year"
+                        Ordering.Subject.GENRE -> " song.genre"
+                        Ordering.Subject.TRACK -> " song.track"
+                        Ordering.Subject.TITLE -> " song.title"
                     }
                     orderStatement += when (order.orderingType) {
-                        Order.Ordering.ASCENDING -> " ASC"
-                        Order.Ordering.DESCENDING -> " DESC"
+                        Ordering.OrderingType.ASCENDING -> " ASC"
+                        Ordering.OrderingType.DESCENDING -> " DESC"
                         else -> ""
                     }
                     if (index < filteredOrderedList.size - 1 && orderStatement.last() != ',') {
@@ -52,7 +52,7 @@ class QueryComposer {
                 }
             }
 
-            if (orderList.isEmpty() || (orderList.size == 1 && orderList[0].orderingType != Order.Ordering.RANDOM) || orderList.any { it.orderingSubject == Order.Subject.ALL }) {
+            if (orderingList.isEmpty() || (orderingList.size == 1 && orderingList[0].orderingType != Ordering.OrderingType.RANDOM) || orderingList.any { it.orderingSubject == Ordering.Subject.ALL }) {
                 FirebaseCrashlytics.getInstance()
                     .recordException(Exception("This is not the order you looking for (orderStatement: $orderStatement)"))
             }
@@ -62,7 +62,7 @@ class QueryComposer {
 
         return SimpleSQLiteQuery(
             "SELECT DISTINCT song.id FROM song" +
-                    constructJoinStatement(filters, orderList) +
+                    constructJoinStatement(filters, orderingList) +
                     constructWhereStatement(filters, "") +
                     constructOrderStatement()
         )
@@ -231,19 +231,19 @@ class QueryComposer {
 
     private fun constructJoinStatement(
         filterList: List<Filter<*>>?,
-        orderList: List<Order> = emptyList()
+        orderingList: List<Ordering> = emptyList()
     ): String {
-        if (filterList == null || filterList.isEmpty() && orderList.isEmpty()) {
+        if (filterList == null || filterList.isEmpty() && orderingList.isEmpty()) {
             return " "
         }
-        val isJoiningArtist = orderList.any { it.orderingSubject == Order.Subject.ARTIST }
+        val isJoiningArtist = orderingList.any { it.orderingSubject == Ordering.Subject.ARTIST }
         val albumJoinCount =
             filterList.countFilter { it.type == Filter.FilterType.ALBUM_ARTIST_IS }
-        val isJoiningAlbum = orderList.any { it.orderingSubject == Order.Subject.ALBUM }
+        val isJoiningAlbum = orderingList.any { it.orderingSubject == Ordering.Subject.ALBUM }
         val isJoiningAlbumArtist =
-            orderList.any { it.orderingSubject == Order.Subject.ALBUM_ARTIST }
-        val isJoiningSongGenre = orderList.any { it.orderingSubject == Order.Subject.GENRE }
-        val isJoiningGenreForOrder = orderList.any { it.orderingSubject == Order.Subject.GENRE }
+            orderingList.any { it.orderingSubject == Ordering.Subject.ALBUM_ARTIST }
+        val isJoiningSongGenre = orderingList.any { it.orderingSubject == Ordering.Subject.GENRE }
+        val isJoiningGenreForOrdering = orderingList.any { it.orderingSubject == Ordering.Subject.GENRE }
         val songGenreJoinCount = filterList.countFilter { it.type == Filter.FilterType.GENRE_IS }
         val playlistSongsJointCount =
             filterList.countFilter { it.type == Filter.FilterType.PLAYLIST_IS }
@@ -261,7 +261,7 @@ class QueryComposer {
         if (isJoiningSongGenre) {
             join += " JOIN songgenre ON songgenre.songId = song.id"
         }
-        if (isJoiningGenreForOrder) {
+        if (isJoiningGenreForOrdering) {
             join += " JOIN genre ON songgenre.genreId = genre.id"
         }
         for (i in 0 until albumJoinCount) {

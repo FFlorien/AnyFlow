@@ -12,13 +12,13 @@ import be.florien.anyflow.data.local.model.DbFilterGroup
 
 @Dao
 abstract class FilterDao : BaseDao<DbFilter>() {
-    @Query("SELECT * FROM dbfilter WHERE filterGroup = 1")
+    @Query("SELECT * FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.dateAdded = null AND filterGroup.name = null")
     abstract fun currentFilters(): LiveData<List<DbFilter>>
 
-    @Query("SELECT * FROM dbfilter WHERE filterGroup = :groupId")
+    @Query("SELECT * FROM filter WHERE filterGroup = :groupId")
     abstract suspend fun filterForGroup(groupId: Long): List<DbFilter>
 
-    @Query("DELETE FROM dbfilter WHERE filterGroup = :groupId")
+    @Query("DELETE FROM filter WHERE filterGroup = :groupId")
     abstract suspend fun deleteGroupSync(groupId: Long)
 
     @Transaction

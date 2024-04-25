@@ -21,7 +21,7 @@ import be.florien.anyflow.data.local.model.*
         DbSongGenre::class,
         DbFilter::class,
         DbFilterGroup::class,
-        DbOrder::class,
+        DbOrdering::class,
         DbPlaylistSongs::class,
         DbAlarm::class,
         DbDownload::class
@@ -40,7 +40,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     abstract fun getQueueOrderDao(): QueueOrderDao
     abstract fun getFilterDao(): FilterDao
     abstract fun getFilterGroupDao(): FilterGroupDao
-    abstract fun getOrderDao(): OrderDao
+    abstract fun getOrderingDao(): OrderingDao
     abstract fun getAlarmDao(): AlarmDao
     abstract fun getDownloadDao(): DownloadDao
 

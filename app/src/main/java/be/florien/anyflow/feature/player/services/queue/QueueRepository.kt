@@ -9,15 +9,15 @@ import be.florien.anyflow.data.local.QueryComposer
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.local.model.DbQueueOrder
 import be.florien.anyflow.data.toDbFilter
-import be.florien.anyflow.data.toDbOrder
+import be.florien.anyflow.data.toDbOrdering
 import be.florien.anyflow.data.toViewFilter
 import be.florien.anyflow.data.toViewFilterGroup
-import be.florien.anyflow.data.toViewOrder
+import be.florien.anyflow.data.toViewOrdering
 import be.florien.anyflow.data.toViewSongDisplay
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
-import be.florien.anyflow.data.view.Order
+import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.extension.convertToPagingLiveData
 import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.Dispatchers
@@ -80,10 +80,10 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
      * FilterGroups
      */
 
-    suspend fun createFilterGroup(filterList: List<Filter<*>>, name: String) =
+    suspend fun saveFilterGroup(filterList: List<Filter<*>>, name: String) =
         withContext(Dispatchers.IO) {
             if (libraryDatabase.getFilterGroupDao().withNameIgnoreCase(name).isEmpty()) {
-                val filterGroup = DbFilterGroup(0, name)
+                val filterGroup = DbFilterGroup(0, name, System.currentTimeMillis())
                 val newId = libraryDatabase.getFilterGroupDao().insertSingle(filterGroup)
                 val filtersUpdated = filterList.map { it.toDbFilter(newId) }
                 libraryDatabase.getFilterDao().insert(filtersUpdated)
@@ -92,7 +92,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             }
         }
 
-    fun getFilterGroups() = libraryDatabase.getFilterGroupDao().allSavedFilterGroup()
+    fun getFilterGroups() = libraryDatabase.getFilterGroupDao().allFromRange(SAVED_START_INDEX_INCL, SAVED_END_INDEX_EXCL + 1)
         .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
@@ -108,19 +108,19 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
         }
 
     /**
-     * Orders
+     * Ordering
      */
 
-    fun getOrders() =
-        libraryDatabase.getOrderDao().all().distinctUntilChanged()
-            .map { list -> list.map { item -> item.toViewOrder() } }
+    fun getOrderings() =
+        libraryDatabase.getOrderingDao().all().distinctUntilChanged()
+            .map { list -> list.map { item -> item.toViewOrdering() } }
 
-    suspend fun setOrders(orders: List<Order>) =
+    suspend fun setOrderings(orderings: List<Ordering>) =
         withContext(Dispatchers.IO) {
-            libraryDatabase.getOrderDao().replaceBy(orders.map { it.toDbOrder() })
+            libraryDatabase.getOrderingDao().replaceBy(orderings.map { it.toDbOrdering() })
         }
 
-    suspend fun saveQueueOrder(listToSave: MutableList<Long>) {
+    suspend fun saveQueueOrdering(listToSave: MutableList<Long>) {
         libraryDatabase.getQueueOrderDao()
             .setOrder(listToSave.mapIndexed { index, id -> DbQueueOrder(index, id) })
     }
@@ -138,10 +138,10 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     suspend fun getPositionForSong(songId: Long) =
         withContext(Dispatchers.IO) { libraryDatabase.getSongDao().findPositionInQueue(songId) }
 
-    suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderList: List<Order>): List<Long> =
+    suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderingList: List<Ordering>): List<Long> =
         withContext(Dispatchers.IO) {
             libraryDatabase.getSongDao().forCurrentFilters(
-                queryComposer.getQueryForSongs(filterList, orderList)
+                queryComposer.getQueryForSongs(filterList, orderingList)
             )
         }
 }
