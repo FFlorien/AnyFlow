@@ -6,11 +6,6 @@ import be.florien.anyflow.feature.menu.AnimatedMenuHolder
 import be.florien.anyflow.feature.menu.MenuHolder
 
 
-class LibraryMenuHolder(action: () -> Unit) : MenuHolder(
-        R.menu.menu_player,
-        R.id.menu_library,
-        action)
-
 class SearchSongMenuHolder(isSearching: Boolean, context: Context, action: () -> Unit) : AnimatedMenuHolder(
         R.menu.menu_player,
         R.id.menu_search_songs,

@@ -32,9 +32,9 @@ import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.auth.AuthRepository
 import be.florien.anyflow.feature.auth.ServerActivity
 import be.florien.anyflow.feature.menu.MenuCoordinator
-import be.florien.anyflow.feature.menu.implementation.LibraryMenuHolder
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
+import be.florien.anyflow.feature.player.ui.filters.DisplayFilterFragment
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
 import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
@@ -80,7 +80,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private lateinit var libraryMenu: LibraryMenuHolder
     private lateinit var orderMenu: OrderMenuHolder
     private var isSubtitleConfigured = false
 
@@ -123,6 +122,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
         initToolbar()
         initDrawer()
+        initBottomNavigation()
         initMenus()
         observeNetwork()
 
@@ -239,7 +239,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             return
         }
 
-        menuCoordinator.removeMenuHolder(libraryMenu)
         menuCoordinator.removeMenuHolder(orderMenu)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
@@ -307,10 +306,29 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         }
     }
 
-    private fun initMenus() {
-        libraryMenu = LibraryMenuHolder {
-            displayLibrary()
+    private fun initBottomNavigation() {
+        binding.bottomNavigationView.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.menu_library -> {
+                    displayLibrary()
+                    true
+                }
+
+                R.id.menu_filters -> {
+                    displayFilters()
+                    true
+                }
+
+                else -> {
+                    displaySongList()
+                    true
+                }
+            }
         }
+    }
+
+
+    private fun initMenus() {
         orderMenu = OrderMenuHolder(viewModel.isOrdered.value == true, this) {
             if (viewModel.isOrdered.value == true) {
                 viewModel.randomOrder()
@@ -319,7 +337,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             }
         }
 
-        menuCoordinator.addMenuHolder(libraryMenu)
         menuCoordinator.addMenuHolder(orderMenu)
     }
 
@@ -362,21 +379,34 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             .commit()
     }
 
+    private fun displayFilters() {
+        val fragment =
+            supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
+                ?: DisplayFilterFragment()
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_top,
+                R.anim.slide_backward,
+                R.anim.slide_forward,
+                R.anim.slide_out_top
+            )
+            .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
+            .addToBackStack(LIBRARY_STACK_NAME)
+            .commit()
+    }
+
     private fun updateMenuItemVisibility() {
-        val isSongListVisible = isSongListVisible()
-        libraryMenu.isVisible = isSongListVisible
-        orderMenu.isVisible = isSongListVisible
+        orderMenu.isVisible = isSongListVisible()
     }
 
     private fun adaptToolbarToCurrentFragment() {
-        val isSongListVisible = isSongListVisible()
         val baseFragment = supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment
         baseFragment?.getTitle()?.let {
             supportActionBar?.title = it
         }
         val subtitle = baseFragment?.getSubtitle()
         supportActionBar?.subtitle = subtitle
-        drawerToggle.isDrawerIndicatorEnabled = isSongListVisible
         if (subtitle != null && !isSubtitleConfigured) {
             binding.toolbar.children.forEach { toolbarView ->
                 (toolbarView as? TextView)

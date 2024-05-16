@@ -23,11 +23,19 @@ open class AmpacheEditSource
     }
 
     suspend fun addToPlaylist(playlistId: Long, songIds: List<Long>, fromPosition: Int) {
-        ampacheEditApi.editPlaylist(
-            playlistId = playlistId.toString(),
-            items = songIds.joinToString(","),
-            tracks = fromPosition.rangeUntil(fromPosition + songIds.size).joinToString(",")
-        )
+        if (songIds.isEmpty()) {
+            return
+        } else if (songIds.size > 75) {
+            val middleIndex = songIds.size / 2
+            addToPlaylist(playlistId, songIds.subList(0, middleIndex), fromPosition)
+            addToPlaylist(playlistId, songIds.subList(middleIndex, songIds.size), fromPosition + middleIndex)
+        } else {
+            ampacheEditApi.editPlaylist(
+                playlistId = playlistId.toString(),
+                items = songIds.joinToString(","),
+                tracks = fromPosition.rangeUntil(fromPosition + songIds.size).joinToString(",")
+            )
+        }
     }
 
     suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
