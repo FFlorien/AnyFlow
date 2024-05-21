@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.data.local.dao.*
 import be.florien.anyflow.data.local.model.*
+import java.util.Date
 
 
 @Database(
@@ -64,8 +65,8 @@ abstract class LibraryDatabase : RoomDatabase() {
             return databaseBuilder
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
-                        val currentFilterGroup = DbFilterGroup.currentFilterGroup
-                        db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\")")
+                        val currentFilterGroup = DbFilterGroup(DbFilterGroup.CURRENT_FILTER_GROUP_ID, null, Date().time)
+                        db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\", ${currentFilterGroup.dateAdded})")
                     }
                 })
                 .build()

@@ -36,6 +36,7 @@ import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
+import java.util.Calendar
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -172,10 +173,11 @@ private fun getChildrenFilters( //warning: this hasn't been tested (yet)
 ): List<Filter<*>> = filterList.filter { dbFilter -> filter.id == dbFilter.parentFilter }
     .map { dbFilter -> dbFilter.toViewFilter(filterList) }
 
-fun DbFilterGroup.toViewFilterGroup() = FilterGroup(
-    id = id,
-    name = name
-)
+fun DbFilterGroup.toViewFilterGroup(): FilterGroup = when {
+    dateAdded == null -> FilterGroup.CurrentFilterGroup(id)
+    name == null -> FilterGroup.HistoryFilterGroup(id, Calendar.getInstance().apply { timeInMillis = dateAdded })
+    else -> FilterGroup.SavedFilterGroup(id, Calendar.getInstance().apply { timeInMillis = dateAdded }, name)
+}
 
 fun DbOrdering.toViewOrdering(): Ordering {
     return when (orderingType) {

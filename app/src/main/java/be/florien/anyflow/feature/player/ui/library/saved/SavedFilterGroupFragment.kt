@@ -86,7 +86,7 @@ class SavedFilterGroupFragment : BaseFilteringFragment() {
         override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
             val group = viewModel.filterGroups.value ?: return
             holder.bind(
-                group[position],
+                group[position] as FilterGroup.SavedFilterGroup,
                 selectedList.contains(position)
             ) // todo don't change images, only selection
         }
@@ -129,7 +129,7 @@ class SavedFilterGroupFragment : BaseFilteringFragment() {
             binding.savedList.adapter?.notifyItemChanged(bindingAdapterPosition)
         }
 
-        fun bind(filterGroup: FilterGroup, isSelected: Boolean) {
+        fun bind(filterGroup: FilterGroup.SavedFilterGroup, isSelected: Boolean) {
             itemBinding.filterGroup = filterGroup
             itemBinding.isSelected = isSelected
         }

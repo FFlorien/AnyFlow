@@ -15,11 +15,6 @@ class SearchMenuHolder(isSearching: Boolean, context: Context, action: () -> Uni
         action
     )
 
-class FilterMenuHolder(action: () -> Unit) : MenuHolder(
-    R.menu.menu_filter_display,
-    R.id.menu_filters,
-    action)
-
 class ConfirmMenuHolder(action: () -> Unit) :
     MenuHolder(R.menu.menu_filter_display, R.id.menu_confirm, action)
 

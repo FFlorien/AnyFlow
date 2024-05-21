@@ -153,11 +153,10 @@ class QueryComposer {
             "SELECT " +
                     "DISTINCT playlist.id, " +
                     "playlist.name, " +
-                    "(SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
+                    "(SELECT COUNT(songId) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
                     "FROM playlist " +
                     "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
-                    "LEFT JOIN song ON playlistsongs.songId = song.id" +
-                    constructJoinStatement(filterList) +
+                    constructJoinStatement(filterList, joinSong = "playlistsongs.songid") +
                     constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
                     " ORDER BY playlist.name COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
@@ -231,7 +230,8 @@ class QueryComposer {
 
     private fun constructJoinStatement(
         filterList: List<Filter<*>>?,
-        orderingList: List<Ordering> = emptyList()
+        orderingList: List<Ordering> = emptyList(),
+        joinSong: String? = null
     ): String {
         if (filterList == null || filterList.isEmpty() && orderingList.isEmpty()) {
             return " "
@@ -263,6 +263,9 @@ class QueryComposer {
         }
         if (isJoiningGenreForOrdering) {
             join += " JOIN genre ON songgenre.genreId = genre.id"
+        }
+        if (joinSong != null && filterList.isNotEmpty()) {
+            join += " LEFT JOIN song ON song.id = $joinSong"
         }
         for (i in 0 until albumJoinCount) {
             join += " JOIN album AS album$i ON album$i.id = song.albumid"

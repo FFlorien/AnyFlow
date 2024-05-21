@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.library.filters
+package be.florien.anyflow.feature.player.ui.filters
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.databinding.FragmentDisplayFilterBinding
+import be.florien.anyflow.databinding.FragmentCurrentFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.extension.viewModelFactory
@@ -38,20 +38,19 @@ import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
 import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
 import be.florien.anyflow.feature.player.ui.library.currentFilters
 import be.florien.anyflow.feature.player.ui.library.saveFilterGroup
-import be.florien.anyflow.feature.player.ui.library.saved.SavedFilterGroupFragment
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.coroutines.launch
 
-class DisplayFilterFragment : BaseFilteringFragment() {
+class CurrentFilterFragment : BaseFilteringFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
     private val targets: MutableList<Target<Bitmap>> = mutableListOf()
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
-    lateinit var viewModel: DisplayFilterViewModel
+    lateinit var viewModel: CurrentFilterViewModel
 
-    private lateinit var binding: FragmentDisplayFilterBinding
+    private lateinit var binding: FragmentCurrentFilterBinding
     private lateinit var filterListAdapter: FilterListAdapter
 
     private val saveMenuHolder = SaveFilterGroupMenuHolder {
@@ -76,7 +75,7 @@ class DisplayFilterFragment : BaseFilteringFragment() {
         viewModel = ViewModelProvider(
             this,
             requireActivity().viewModelFactory
-        )[DisplayFilterViewModel::class.java]
+        )[CurrentFilterViewModel::class.java]
         menuCoordinator.addMenuHolder(saveMenuHolder)
     }
 
@@ -86,8 +85,7 @@ class DisplayFilterFragment : BaseFilteringFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDisplayFilterBinding.inflate(inflater, container, false)
-        binding.vm = viewModel
+        binding = FragmentCurrentFilterBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         filterListAdapter = FilterListAdapter()
         binding.filterList.layoutManager = LinearLayoutManager(requireContext())
@@ -105,18 +103,6 @@ class DisplayFilterFragment : BaseFilteringFragment() {
         libraryViewModel.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
             saveMenuHolder.isVisible = libraryViewModel.currentFilters.value?.isNotEmpty() == true
-        }
-        binding.fabSavedFilterGroups.setOnClickListener {
-            requireActivity()
-                .supportFragmentManager
-                .beginTransaction()
-                .replace(
-                    R.id.container,
-                    SavedFilterGroupFragment(),
-                    SavedFilterGroupFragment::class.java.simpleName
-                )
-                .addToBackStack(null)
-                .commit()
         }
         saveMenuHolder.isVisible =
             libraryViewModel.currentFilters.value?.toList()?.isNotEmpty() == true

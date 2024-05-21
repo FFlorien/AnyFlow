@@ -6,6 +6,7 @@ import androidx.lifecycle.map
 import androidx.room.withTransaction
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.QueryComposer
+import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.local.model.DbQueueOrder
 import be.florien.anyflow.data.toDbFilter
@@ -22,6 +23,7 @@ import be.florien.anyflow.extension.convertToPagingLiveData
 import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 import javax.inject.Inject
 
 @ServerScope
@@ -58,12 +60,31 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             }
 
     suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) {
+        //todo verify if first sync not showing anything at install isn't originating from here
         libraryDatabase.apply {
             withTransaction {
-                getFilterDao().deleteGroupSync(DbFilterGroup.CURRENT_FILTER_GROUP_ID)
+                val currentFilters = getFilterDao().currentFiltersSync()
+                val currentFilterGroup = getFilterGroupDao().currentSync()
+                updateHistory(currentFilters, currentFilterGroup)
+
                 insertCurrentFilterAndChildren(filterList)
+                getFilterGroupDao().update(currentFilterGroup.copy(dateAdded = Date().time))
             }
         }
+    }
+
+    private suspend fun LibraryDatabase.updateHistory(
+        currentFilters: List<DbFilter>, currentFilterGroup: DbFilterGroup
+    ) {
+        val history = getFilterGroupDao().historySync()
+        if (history.size > HISTORY_SIZE) {
+            getFilterGroupDao().deleteGroup(history.first().id)
+        }
+
+        val newHistoryItem = currentFilterGroup.copy(id = 0)
+        val newId = getFilterGroupDao().insertSingle(newHistoryItem)
+        val newHistoryFilters = currentFilters.map { it.copy(filterGroup = newId) }
+        getFilterDao().updateAll(newHistoryFilters)
     }
 
     private suspend fun insertCurrentFilterAndChildren(
@@ -71,7 +92,8 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
         parentId: Long? = null
     ) {
         filters.forEach { filter ->
-            val id = libraryDatabase.getFilterDao().insertSingle(filter.toDbFilter(1, parentId))
+            val id = libraryDatabase.getFilterDao()
+                .insertSingle(filter.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID, parentId))
             insertCurrentFilterAndChildren(filter.children, id)
         }
     }
@@ -92,7 +114,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             }
         }
 
-    fun getFilterGroups() = libraryDatabase.getFilterGroupDao().allFromRange(SAVED_START_INDEX_INCL, SAVED_END_INDEX_EXCL + 1)
+    fun getSavedGroups() = libraryDatabase.getFilterGroupDao().saved()
         .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
@@ -100,8 +122,11 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             libraryDatabase.apply {
                 withTransaction {
                     val filterForGroup = getFilterDao().filterForGroup(filterGroup.id)
+                    val currentFilters = getFilterDao().currentFiltersSync()
+                    val currentFilterGroup = getFilterGroupDao().currentSync()
+                    updateHistory(currentFilters, currentFilterGroup)
                     getFilterDao().updateGroup(
-                        DbFilterGroup.currentFilterGroup,
+                        currentFilterGroup,
                         filterForGroup.map { it.copy(id = null, filterGroup = 1) })
                 }
             }
@@ -138,10 +163,18 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     suspend fun getPositionForSong(songId: Long) =
         withContext(Dispatchers.IO) { libraryDatabase.getSongDao().findPositionInQueue(songId) }
 
-    suspend fun getOrderlessQueue(filterList: List<Filter<*>>, orderingList: List<Ordering>): List<Long> =
+    suspend fun getOrderlessQueue(
+        filterList: List<Filter<*>>,
+        orderingList: List<Ordering>
+    ): List<Long> =
         withContext(Dispatchers.IO) {
             libraryDatabase.getSongDao().forCurrentFilters(
                 queryComposer.getQueryForSongs(filterList, orderingList)
             )
         }
+
+    companion object {
+        private const val HISTORY_SIZE = 100
+        private const val SAVED_SIZE = 100
+    }
 }

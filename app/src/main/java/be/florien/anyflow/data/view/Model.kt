@@ -3,6 +3,7 @@ package be.florien.anyflow.data.view
 import android.os.Parcelable
 import be.florien.anyflow.extension.ImageConfig
 import kotlinx.parcelize.Parcelize
+import java.util.Calendar
 
 @Parcelize
 data class SongInfo(
@@ -65,10 +66,14 @@ data class SongDisplay(
         get() = String.format("%d:%02d", time / 60, time % 60)
 }
 
-data class FilterGroup(
-    val id: Long,
-    val name: String
-)
+sealed class FilterGroup(
+    open val id: Long
+) {
+    data class CurrentFilterGroup(override val id: Long) : FilterGroup(id)
+    data class HistoryFilterGroup(override val id: Long, val dateAdded: Calendar) : FilterGroup(id)
+    data class SavedFilterGroup(override val id: Long, val dateAdded: Calendar, val name: String) :
+        FilterGroup(id)
+}
 
 @Parcelize
 data class Playlist(

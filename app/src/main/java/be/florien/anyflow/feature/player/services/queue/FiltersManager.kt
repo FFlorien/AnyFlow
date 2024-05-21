@@ -14,7 +14,7 @@ class FiltersManager
     private val unCommittedFilters = mutableSetOf<Filter<*>>()
     private var areFiltersChanged = false
     val filtersInEdition: LiveData<Set<Filter<*>>> = MutableLiveData(setOf())
-    val filterGroups = queueRepository.getFilterGroups()
+    val filterGroups = queueRepository.getSavedGroups()
 
     init {
         queueRepository.getCurrentFilters().observeForever { filters ->

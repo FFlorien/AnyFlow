@@ -12,7 +12,6 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.menu.implementation.FilterMenuHolder
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.InfoAdapter
@@ -21,7 +20,6 @@ import be.florien.anyflow.feature.player.ui.info.library.LibraryInfoActions
 import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
 import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
 import be.florien.anyflow.feature.player.ui.library.cancelChanges
-import be.florien.anyflow.feature.player.ui.library.filters.DisplayFilterFragment
 import be.florien.anyflow.feature.player.ui.library.list.LibraryListFragment
 import kotlin.random.Random
 
@@ -33,16 +31,6 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
         get() = viewModel
     lateinit var viewModel: LibraryInfoViewModel
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
-    private lateinit var filterMenu: FilterMenuHolder
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        filterMenu = FilterMenuHolder {
-            displayFilters()
-        }
-        menuCoordinator.addMenuHolder(filterMenu)
-        filterMenu.isVisible = parentFilter == null
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -73,28 +61,9 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
 
     override fun onDestroy() {
         super.onDestroy()
-        filterMenu.isVisible = false
         if (viewModel.filterNavigation == null) {
             viewModel.cancelChanges()
         }
-        menuCoordinator.removeMenuHolder(filterMenu)
-    }
-
-    private fun displayFilters() {
-        val fragment =
-            requireActivity().supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
-                ?: DisplayFilterFragment()
-        requireActivity().supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_top,
-                R.anim.slide_backward,
-                R.anim.slide_forward,
-                R.anim.slide_out_top
-            )
-            .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
-            .addToBackStack(null)
-            .commit()
     }
 
     private fun executeAction(row: InfoActions.InfoRow) {

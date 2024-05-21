@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.library.filters
+package be.florien.anyflow.feature.player.ui.filters
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +10,7 @@ import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
 import javax.inject.Inject
 
-class DisplayFilterViewModel @Inject constructor(
+class CurrentFilterViewModel @Inject constructor(
     override val filtersManager: FiltersManager,
     val urlRepository: UrlRepository
 ) : BaseViewModel(), LibraryViewModel {

@@ -8,7 +8,7 @@
 
         <variable
             name="filterGroup"
-            type="be.florien.anyflow.data.view.FilterGroup" />
+            type="be.florien.anyflow.data.view.FilterGroup.SavedFilterGroup" />
 
         <variable
             name="cover1Url"

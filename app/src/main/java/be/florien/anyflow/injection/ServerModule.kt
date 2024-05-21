@@ -28,7 +28,13 @@ class ServerModule {
     @Provides
     @Named("authenticated")
     fun provideDataOkHttp(authenticationInterceptor: AuthenticationInterceptor): OkHttpClient =
-        OkHttpClient.Builder().addInterceptor(authenticationInterceptor).build()
+        OkHttpClient
+            .Builder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .addInterceptor(authenticationInterceptor)
+            .build()
 
     @ServerScope
     @Provides

@@ -19,13 +19,6 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_filters"
-        android:icon="@drawable/ic_filter"
-        android:title="@string/menu_filters"
-        android:visible="false"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/menu_search_filters"
         android:checkable="true"
         android:icon="@drawable/ic_search"

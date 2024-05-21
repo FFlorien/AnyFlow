@@ -34,8 +34,9 @@ import be.florien.anyflow.feature.auth.ServerActivity
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
-import be.florien.anyflow.feature.player.ui.filters.DisplayFilterFragment
+import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
+import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
 import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
@@ -136,6 +137,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 )
                 .runOnCommit {
                     adaptToolbarToCurrentFragment()
+                    adaptBottomNavigationToCurrentFragment()
                 }
                 .commit()
         }
@@ -208,6 +210,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         super.onResume()
         updateMenuItemVisibility()
         adaptToolbarToCurrentFragment()
+        adaptBottomNavigationToCurrentFragment()
         lifecycleScope.launch(Dispatchers.Default) {//todo better handling of lifecycle and resource ?
             viewModel.currentDuration.collect {
                 if (lifecycle.currentState == Lifecycle.State.RESUMED) {
@@ -267,6 +270,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
         supportFragmentManager.addOnBackStackChangedListener {
             updateMenuItemVisibility()
             adaptToolbarToCurrentFragment()
+            adaptBottomNavigationToCurrentFragment()
         }
     }
 
@@ -368,12 +372,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 ?: LibraryInfoFragment()
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_top,
-                R.anim.slide_backward,
-                R.anim.slide_forward,
-                R.anim.slide_out_top
-            )
             .replace(R.id.container, fragment, LibraryInfoFragment::class.java.simpleName)
             .addToBackStack(LIBRARY_STACK_NAME)
             .commit()
@@ -381,17 +379,11 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     private fun displayFilters() {
         val fragment =
-            supportFragmentManager.findFragmentByTag(DisplayFilterFragment::class.java.simpleName)
-                ?: DisplayFilterFragment()
+            supportFragmentManager.findFragmentByTag(CurrentFilterFragment::class.java.simpleName)
+                ?: CurrentFilterFragment()
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_top,
-                R.anim.slide_backward,
-                R.anim.slide_forward,
-                R.anim.slide_out_top
-            )
-            .replace(R.id.container, fragment, DisplayFilterFragment::class.java.simpleName)
+            .replace(R.id.container, fragment, CurrentFilterFragment::class.java.simpleName)
             .addToBackStack(LIBRARY_STACK_NAME)
             .commit()
     }
@@ -413,6 +405,14 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                     ?.takeIf { it.text == subtitle }
                     ?.ellipsize = TextUtils.TruncateAt.START
             }
+        }
+    }
+
+    private fun adaptBottomNavigationToCurrentFragment() {
+        when (supportFragmentManager.findFragmentById(R.id.container)) {
+            is CurrentFilterFragment  -> binding.bottomNavigationView.menu.findItem(R.id.menu_filters).isChecked = true
+            is BaseFilteringFragment -> binding.bottomNavigationView.menu.findItem(R.id.menu_library).isChecked = true
+            else -> binding.bottomNavigationView.menu.findItem(R.id.menu_song_list).isChecked = true
         }
     }
 
