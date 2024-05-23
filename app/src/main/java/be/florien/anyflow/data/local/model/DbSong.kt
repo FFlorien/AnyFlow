@@ -9,6 +9,7 @@ data class DbSong(
     @PrimaryKey
     val id: Long,
     val title: String,
+    val titleForSort: String,
     @ColumnInfo(index = true)
     val artistId: Long,
     @ColumnInfo(index = true)

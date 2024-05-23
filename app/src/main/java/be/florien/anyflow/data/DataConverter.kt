@@ -47,6 +47,7 @@ import kotlin.time.toDuration
 fun AmpacheSong.toDbSong(local: String? = null) = DbSong(
     id = id,
     title = title,
+    titleForSort = title.transformToSortFriendly(),
     artistId = artist.id,
     albumId = album.id,
     track = track,
@@ -70,7 +71,7 @@ fun AmpacheArtist.toDbArtist() = DbArtist(
     id = id,
     name = name,
     prefix = prefix,
-    basename = basename,
+    basename = basename.transformToSortFriendly(),
     summary = summary
 )
 
@@ -83,11 +84,12 @@ fun AmpacheAlbum.toDbAlbum() = DbAlbum(
     id = id,
     name = name,
     prefix = prefix,
-    basename = basename,
+    basename = basename.transformToSortFriendly(),
     artistId = artist.id,
     year = year,
     diskcount = diskcount
 )
+
 
 fun AmpachePlayList.toDbPlaylist() = DbPlaylist(
     id = id,
@@ -175,8 +177,15 @@ private fun getChildrenFilters( //warning: this hasn't been tested (yet)
 
 fun DbFilterGroup.toViewFilterGroup(): FilterGroup = when {
     dateAdded == null -> FilterGroup.CurrentFilterGroup(id)
-    name == null -> FilterGroup.HistoryFilterGroup(id, Calendar.getInstance().apply { timeInMillis = dateAdded })
-    else -> FilterGroup.SavedFilterGroup(id, Calendar.getInstance().apply { timeInMillis = dateAdded }, name)
+    name == null -> FilterGroup.HistoryFilterGroup(
+        id,
+        Calendar.getInstance().apply { timeInMillis = dateAdded })
+
+    else -> FilterGroup.SavedFilterGroup(
+        id,
+        Calendar.getInstance().apply { timeInMillis = dateAdded },
+        name
+    )
 }
 
 fun DbOrdering.toViewOrdering(): Ordering {
@@ -280,4 +289,104 @@ fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (
     SongInfoActions.SongFieldType.Year,
     SongInfoActions.SongFieldType.Duration,
     SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
+}
+
+/**
+ * Utilities
+ */
+
+private fun String.transformToSortFriendly() = padNumbers()
+
+@Suppress("unused")
+private fun String.convertRomanNumerals() = replace(
+    Regex("\\b(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)\\b")
+) { match ->
+    val values = match.value.map { romanChar ->
+        when (romanChar) {
+            'M' -> 1000
+            'D' -> 500
+            'C' -> 100
+            'L' -> 50
+            'X' -> 10
+            'V' -> 5
+            'I' -> 1
+            else -> 0
+        }
+    }
+    var added1 = 0
+    var added10 = 0
+    var added100 = 0
+    var result = 0
+
+    values.forEach { value ->
+        when (value) {
+            1 -> added1 += value
+
+            5 -> {
+                if (added1 == 1) {
+                    result += 4
+                    added1 = 0
+                } else {
+                    result += 5
+                }
+            }
+
+            10 -> {
+                if (added1 == 1) {
+                    result += 9
+                    added1 = 0
+                } else {
+                    added10 += 10
+                }
+            }
+
+            50 -> {
+                if (added10 == 10) {
+                    result += 40
+                    added10 = 0
+                } else {
+                    result += 50
+                }
+            }
+
+            100 -> {
+                if (added10 == 10) {
+                    result += 90
+                    added10 = 0
+                } else {
+                    added100 += 100
+                }
+            }
+
+            500 -> {
+                if (added100 == 100) {
+                    result += 400
+                    added100 = 0
+                } else {
+                    result += 500
+                }
+            }
+
+            1000 -> {
+                if (added100 == 100) {
+                    result += 900
+                    added100 = 0
+                } else {
+                    result += 1000
+                }
+            }
+        }
+    }
+
+    result += added1 + added10 + added100
+
+
+    result.takeIf { it > 0 }?.toString() ?: match.value
+}
+
+private fun String.padNumbers(): String = replace(
+    Regex("[0-9]+")
+) {
+    println(it.value)
+    it.value.padStart(5, '0')
 }

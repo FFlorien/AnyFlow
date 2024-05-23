@@ -39,7 +39,7 @@ class QueryComposer {
                         Ordering.Subject.YEAR -> " song.year"
                         Ordering.Subject.GENRE -> " song.genre"
                         Ordering.Subject.TRACK -> " song.track"
-                        Ordering.Subject.TITLE -> " song.title"
+                        Ordering.Subject.TITLE -> " song.titleForSort"
                     }
                     orderStatement += when (order.orderingType) {
                         Ordering.OrderingType.ASCENDING -> " ASC"
@@ -145,7 +145,7 @@ class QueryComposer {
                     "JOIN album ON song.albumId = album.id" +
                     constructJoinStatement(filterList) +
                     constructWhereStatement(filterList, " song.title LIKE ?", search) +
-                    " ORDER BY song.title COLLATE UNICODE",
+                    " ORDER BY song.titleForSort COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
     fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?) =

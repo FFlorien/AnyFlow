@@ -32,7 +32,7 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // Song
     @Transaction
-    @Query("SELECT song.id, song.title, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.size, song.local, song.waveForm FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
+    @Query("SELECT song.id, song.title, song.titleForSort, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.size, song.local, song.waveForm FROM song JOIN queueorder ON song.id = queueorder.songId WHERE queueorder.`order` = :position")
     abstract suspend fun forPositionInQueue(position: Int): DbSongInfo?
 
     @Transaction
