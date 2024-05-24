@@ -188,13 +188,8 @@ class SelectPlaylistFragment(
         }
 
         private fun setAction(action: SelectPlaylistViewModel.PlaylistAction) {
-            itemPlaylistBinding.root.setBackgroundResource(
-                when (action) {
-                    SelectPlaylistViewModel.PlaylistAction.NONE -> R.drawable.bg_white_ripple
-                    SelectPlaylistViewModel.PlaylistAction.DELETION -> R.drawable.bg_red_ripple
-                    SelectPlaylistViewModel.PlaylistAction.ADDITION -> R.drawable.bg_blue_ripple
-                }
-            )
+            itemPlaylistBinding.isAdding = action == SelectPlaylistViewModel.PlaylistAction.ADDITION
+            itemPlaylistBinding.isRemoving = action == SelectPlaylistViewModel.PlaylistAction.DELETION
         }
     }
 

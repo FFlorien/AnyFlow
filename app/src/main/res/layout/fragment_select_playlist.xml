@@ -26,47 +26,48 @@
             android:id="@+id/confirmButton"
             android:layout_width="@dimen/xxLargeDimen"
             android:layout_height="@dimen/xxLargeDimen"
-            android:src="@drawable/ic_confirm"
             android:background="@drawable/bg_blue_corner_big_radius_ripple"
-            app:layout_constraintTop_toTopOf="@id/toolbarBackground"
+            android:onClick="@{() -> viewModel.confirmChanges()}"
+            android:src="@drawable/ic_confirm"
             app:layout_constraintEnd_toEndOf="@+id/toolbarBackground"
-            android:onClick="@{() -> viewModel.confirmChanges()}"/>
+            app:layout_constraintTop_toTopOf="@id/toolbarBackground" />
 
         <ImageButton
             android:id="@+id/newPlaylistButton"
             android:layout_width="@dimen/xxLargeDimen"
             android:layout_height="@dimen/xxLargeDimen"
-            android:src="@drawable/ic_new_playlist"
             android:background="@drawable/bg_blue_corner_big_radius_ripple"
-            app:layout_constraintTop_toTopOf="@id/toolbarBackground"
+            android:onClick="@{() -> viewModel.getNewPlaylistName()}"
+            android:src="@drawable/ic_new_playlist"
             app:layout_constraintEnd_toStartOf="@id/confirmButton"
-            android:onClick="@{() -> viewModel.getNewPlaylistName()}"/>
+            app:layout_constraintTop_toTopOf="@id/toolbarBackground" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="@+id/toolbarBackground"
-            app:layout_constraintBottom_toBottomOf="@id/toolbarBackground"
-            app:layout_constraintStart_toStartOf="@id/toolbarBackground"
-            app:layout_constraintEnd_toStartOf="@id/newPlaylistButton"
-            android:textColor="@android:color/white"
             android:gravity="center_vertical"
-            android:textSize="@dimen/textLarge"
-            android:paddingVertical="@dimen/smallDimen"
             android:paddingHorizontal="@dimen/mediumDimen"
-            android:text="@string/info_action_select_playlist" />
+            android:paddingVertical="@dimen/smallDimen"
+            android:text="@string/info_action_select_playlist"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/textLarge"
+            app:layout_constraintBottom_toBottomOf="@id/toolbarBackground"
+            app:layout_constraintEnd_toStartOf="@id/newPlaylistButton"
+            app:layout_constraintStart_toStartOf="@id/toolbarBackground"
+            app:layout_constraintTop_toTopOf="@+id/toolbarBackground" />
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/playlistList"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="@color/unselected"
             app:fastScrollPopupBgColor="@color/accent"
             app:fastScrollPopupTextColor="@color/onSecondaryText"
             app:fastScrollThumbColor="@color/accent"
-            app:layout_constraintHeight_default="wrap"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_default="wrap"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbarBackground" />
     </androidx.constraintlayout.widget.ConstraintLayout>

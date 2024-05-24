@@ -16,12 +16,21 @@
             name="presenceBg"
             type="int" />
 
+        <variable
+            name="isAdding"
+            type="boolean" />
+
+        <variable
+            name="isRemoving"
+            type="boolean" />
+
         <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_white_ripple"
         android:minHeight="@dimen/minClickableSize">
 
         <ImageView
@@ -75,6 +84,36 @@
             android:text="@{@string/playlist_presence(item.presence, total)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ImageView
+            android:id="@+id/action_add"
+            style="@style/Chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:src="@drawable/ic_add_circle"
+            android:background="@drawable/bg_corner_radius_all"
+            app:isVisiblePresent="@{isAdding}"
+            app:layout_constraintTop_toTopOf="@id/presence"
+            app:layout_constraintBottom_toBottomOf="@id/presence"
+            app:layout_constraintEnd_toStartOf="@id/presence"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ImageView
+            android:id="@+id/action_remove"
+            style="@style/Chip"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="8dp"
+            android:src="@drawable/ic_remove_circle"
+            android:background="@drawable/bg_corner_radius_remove"
+            app:isVisiblePresent="@{isRemoving}"
+            app:layout_constraintTop_toTopOf="@id/presence"
+            app:layout_constraintBottom_toBottomOf="@id/presence"
+            app:layout_constraintEnd_toStartOf="@id/presence"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintVertical_bias="0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
