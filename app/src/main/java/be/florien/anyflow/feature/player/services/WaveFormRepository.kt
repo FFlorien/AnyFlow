@@ -39,7 +39,8 @@ class WaveFormRepository @Inject constructor(
             val waveFormLocal = libraryDatabase
                 .getSongDao()
                 .getWaveFormSync(songId)
-            val isWaveFormMissing = waveFormLocal == null || waveFormLocal.downSamplesArray.isEmpty()
+            val isWaveFormMissing =
+                waveFormLocal == null || waveFormLocal.downSamplesArray.isEmpty()
             if (isWaveFormMissing && currentDownloads.add(songId)) {
                 getWaveFormFromAmpache(songId)
                 currentDownloads.remove(songId)
@@ -104,10 +105,14 @@ class WaveFormRepository @Inject constructor(
 
     private suspend fun save(songId: Long, computedBarList: DoubleArray) {
         withContext(Dispatchers.IO) {
-            val stringify =
-                computedBarList.takeIf { it.isNotEmpty() }
-                    ?.joinToString(separator = "|") { "%.3f".format(it) }
-            libraryDatabase.getSongDao().updateWithNewWaveForm(songId, stringify)
+            val stringify = computedBarList
+                .takeIf { it.isNotEmpty() }
+                ?.joinToString(separator = "|") {
+                    "%.3f".format(it)
+                }
+            if (stringify != null) {
+                libraryDatabase.getSongDao().updateWithNewWaveForm(songId, stringify)
+            }
         }
     }
 

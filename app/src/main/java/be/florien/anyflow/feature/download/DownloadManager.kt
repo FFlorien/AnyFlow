@@ -29,7 +29,12 @@ class DownloadManager @Inject constructor(
 ) {
     private val contentResolver = context.contentResolver
     private val downloadProgressMap = mutableMapOf<Long, LiveData<DownloadProgressState>>()
-    private lateinit var currentDownloads: List<Long>
+    private var _currentDownloads: List<Long>? = null
+    private var currentDownloads: List<Long>
+        get() = _currentDownloads ?: emptyList()
+        set(value) {
+            _currentDownloads = value
+        }
     private var currentDownload = -1L
 
     //todo should we care about cancellation ? (Yes, yes we should)

@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.player.ui.library.list.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.DbPlaylistWithCount
+import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.ui.library.list.LibraryListViewModel
@@ -43,7 +43,7 @@ class LibraryPlaylistListViewModel @Inject constructor(
             )
         )
 
-    private fun convert(playlist: DbPlaylistWithCount): FilterItem {
+    private fun convert(playlist: DbPlaylist): FilterItem {
         val artUrl = urlRepository.getPlaylistArtUrl(playlist.id)
         val filter =
             getFilterInParent(Filter(Filter.FilterType.PLAYLIST_IS, playlist.id, playlist.name))

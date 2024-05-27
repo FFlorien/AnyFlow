@@ -8,7 +8,6 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.QueryComposer
 import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.local.model.DbPlaylistSongs
-import be.florien.anyflow.data.local.model.DbPlaylistWithCount
 import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.server.AmpacheEditSource
 import be.florien.anyflow.data.toViewPlaylist
@@ -31,7 +30,7 @@ class PlaylistRepository @Inject constructor(
     private val queryComposer = QueryComposer()
 
     fun <T : Any> getPlaylists(
-        mapping: (DbPlaylistWithCount) -> T,
+        mapping: (DbPlaylist) -> T,
         filters: List<Filter<*>>?,
         search: String?
     ): LiveData<PagingData<T>> =
@@ -40,7 +39,9 @@ class PlaylistRepository @Inject constructor(
         ).map { mapping(it) }.convertToPagingLiveData()
 
     fun getAllPlaylists(): LiveData<PagingData<Playlist>> =
-        getPlaylists({ it.toViewPlaylist(urlRepository.getPlaylistArtUrl(it.id)) }, null, null)
+        libraryDatabase.getPlaylistDao().rawQueryPagingWithCount(
+            queryComposer.getQueryForPlaylistWithCountFiltered(null, null)
+        ).map { it.toViewPlaylist(urlRepository.getPlaylistArtUrl(it.id)) }.convertToPagingLiveData()
 
     fun getPlaylistsWithPresence(
         filter: Filter<*>
@@ -62,7 +63,7 @@ class PlaylistRepository @Inject constructor(
     suspend fun <T : Any> getPlaylistsSearchedList(
         filters: List<Filter<*>>?,
         search: String,
-        mapping: (DbPlaylistWithCount) -> T
+        mapping: (DbPlaylist) -> T
     ): List<T> =
         libraryDatabase.getPlaylistDao().rawQueryListDisplay(
             queryComposer.getQueryForPlaylistFiltered(filters, search)

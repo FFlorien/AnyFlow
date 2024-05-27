@@ -6,6 +6,7 @@ import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Ordering
+import be.florien.anyflow.extension.iLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class QueryComposer {
@@ -148,18 +149,38 @@ class QueryComposer {
                     " ORDER BY song.titleForSort COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?) =
-        SimpleSQLiteQuery(
-            "SELECT " +
-                    "DISTINCT playlist.id, " +
-                    "playlist.name, " +
-                    "(SELECT COUNT(songId) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
-                    "FROM playlist " +
-                    "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
-                    constructJoinStatement(filterList, joinSong = "playlistsongs.songid") +
-                    constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
-                    " ORDER BY playlist.name COLLATE UNICODE",
+    fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?): SimpleSQLiteQuery {
+        val query = "SELECT " +
+                "DISTINCT playlist.id, " +
+                "playlist.name, " +
+                "playlist.owner " +
+                "FROM playlist " +
+                "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
+                constructJoinStatement(filterList, joinSong = "playlistsongs.songid") +
+                constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
+                " ORDER BY playlist.name COLLATE UNICODE"
+        iLog("Query for playlist filtered:\n$query")
+        return SimpleSQLiteQuery(
+            query,
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
+    }
+
+    fun getQueryForPlaylistWithCountFiltered(filterList: List<Filter<*>>?, search: String?): SimpleSQLiteQuery {
+        val query = "SELECT " +
+                "DISTINCT playlist.id, " +
+                "playlist.name, " +
+                "playlist.owner, " +
+                "(SELECT COUNT(songId) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
+                "FROM playlist " +
+                "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
+                constructJoinStatement(filterList, joinSong = "playlistsongs.songid") +
+                constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
+                " ORDER BY playlist.name COLLATE UNICODE"
+        iLog("Query for playlist filtered:\n$query")
+        return SimpleSQLiteQuery(
+            query,
+            search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
+    }
 
     fun getQueryForPlaylistWithPresence(filter: Filter<*>): SimpleSQLiteQuery {
         val filterList = listOf(filter)
@@ -170,14 +191,16 @@ class QueryComposer {
                 constructJoinStatement(filterList) +
                 constructWhereStatement(filterList, "") +
                 " AND playlistsongs.playlistId = playlist.id"
+        val query = "SELECT " +
+                "DISTINCT playlist.id, " +
+                "playlist.name, " +
+                "(SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount, " +
+                "($selectForPresence) as presence " +
+                "FROM playlist " +
+                "ORDER BY playlist.name COLLATE UNICODE"
+        iLog("Query for playlist with presence:\n$query")
         return SimpleSQLiteQuery(
-            "SELECT " +
-                    "DISTINCT playlist.id, " +
-                    "playlist.name, " +
-                    "(SELECT COUNT(*) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount, " +
-                    "($selectForPresence) as presence " +
-                    "FROM playlist " +
-                    "ORDER BY playlist.name COLLATE UNICODE"
+            query
         )
     }
 

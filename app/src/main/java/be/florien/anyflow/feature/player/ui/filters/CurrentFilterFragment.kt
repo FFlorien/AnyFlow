@@ -8,9 +8,7 @@ import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.StyleSpan
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +34,7 @@ import be.florien.anyflow.extension.viewModelFactory
 import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
 import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
 import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
-import be.florien.anyflow.feature.player.ui.library.currentFilters
+import be.florien.anyflow.feature.player.ui.library.currentFiltersForDisplay
 import be.florien.anyflow.feature.player.ui.library.saveFilterGroup
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
@@ -100,12 +98,17 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                     .filterList
                     .addItemDecoration(dividerItemDecoration)
             }
-        libraryViewModel.currentFilters.observe(viewLifecycleOwner) {
+        libraryViewModel.currentFiltersForDisplay.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
-            saveMenuHolder.isVisible = libraryViewModel.currentFilters.value?.isNotEmpty() == true
+            saveMenuHolder.isVisible = libraryViewModel
+                .currentFiltersForDisplay
+                .value
+                ?.isNotEmpty() == true
         }
-        saveMenuHolder.isVisible =
-            libraryViewModel.currentFilters.value?.toList()?.isNotEmpty() == true
+        saveMenuHolder.isVisible = libraryViewModel
+            .currentFiltersForDisplay
+            .value
+            ?.isNotEmpty() == true
         ViewCompat.setTranslationZ(binding.root, 1f)
         return binding.root
     }
@@ -133,7 +136,11 @@ class CurrentFilterFragment : BaseFilteringFragment() {
 
                 else -> {
                     val filter =
-                        libraryViewModel.currentFilters.value?.toList()?.getOrNull(position - 1)
+                        libraryViewModel
+                            .currentFiltersForDisplay
+                            .value
+                            ?.toList()
+                            ?.getOrNull(position - 1)
                             ?: return
                     holder.bind(filter)
                     holder.itemView.setOnClickListener(null)
@@ -142,7 +149,7 @@ class CurrentFilterFragment : BaseFilteringFragment() {
         }
 
         override fun getItemCount(): Int {
-            return viewModel.currentFilters.value?.size?.takeIf { it > 0 }?.plus(1) ?: 0
+            return viewModel.currentFiltersForDisplay.value?.size?.takeIf { it > 0 }?.plus(1) ?: 0
         }
     }
 
@@ -159,68 +166,87 @@ class CurrentFilterFragment : BaseFilteringFragment() {
         private val leftActionSize = resources.getDimensionPixelSize(R.dimen.largeDimen)
 
         fun bind(filter: Filter<*>) {
-            val charSequence: CharSequence = when (filter.type) {
-                Filter.FilterType.GENRE_IS -> getString(
-                    R.string.filter_display_genre_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.SONG_IS -> getString(
-                    R.string.filter_display_song_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.ARTIST_IS -> getString(
-                    R.string.filter_display_artist_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.ALBUM_ARTIST_IS -> getString(
-                    R.string.filter_display_album_artist_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.ALBUM_IS -> getString(
-                    R.string.filter_display_album_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.DISK_IS -> getString( //todo is not displayed correctly for now because it is a subfilter
-                    R.string.filter_display_disk_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.PLAYLIST_IS -> getString(
-                    R.string.filter_display_playlist_is,
-                    filter.displayText
-                )
-
-                Filter.FilterType.DOWNLOADED_STATUS_IS -> getString(
-                    if (filter.argument as Boolean) R.string.filter_display_is_downloaded
-                    else R.string.filter_display_is_not_downloaded
-                )
-            }
-            if (filter.displayText.isNotBlank() && charSequence.contains(filter.displayText)) {
-                val valueStart = charSequence.lastIndexOf(filter.displayText)
-                val stylizedText = SpannableString(charSequence)
-                stylizedText.setSpan(
-                    StyleSpan(android.graphics.Typeface.BOLD),
-                    valueStart,
-                    charSequence.length,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE
-                )
-                binding.filterName.text = stylizedText
-            } else {
-                binding.filterName.text = charSequence
-            }
+            val deepestChild = getFiltersText(filter)
+            val artType = deepestChild.type.artType
+            val argument = deepestChild.argument
+            setImage(artType, argument, filter)
             binding.vm = viewModel
             binding.filter = filter
             binding.lifecycleOwner = viewLifecycleOwner
-            if (filter.type.artType != null && filter.argument is Long) {
+        }
+
+        private fun getFiltersText(filter: Filter<*>): Filter<*> {
+            var filterToTransform: Filter<*>? = filter
+            var charSequence = ""
+            var isFirstLine = true
+            var deepestChild = filter
+            while (filterToTransform != null) {
+                if (!isFirstLine) {
+                    charSequence += "<br>"
+                }
+                charSequence += getFilterText(filterToTransform)
+                filterToTransform = filterToTransform.children.firstOrNull()
+                if (filterToTransform != null) {
+                    deepestChild = filterToTransform
+                }
+                isFirstLine = false
+            }
+            binding.filterName.text = Html.fromHtml(charSequence)
+            return deepestChild
+        }
+
+        private fun getFilterText(filter: Filter<*>) = when (filter.type) {
+            Filter.FilterType.GENRE_IS -> getString(
+                R.string.filter_display_genre_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.SONG_IS -> getString(
+                R.string.filter_display_song_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.ARTIST_IS -> getString(
+                R.string.filter_display_artist_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.ALBUM_ARTIST_IS -> getString(
+                R.string.filter_display_album_artist_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.ALBUM_IS -> getString(
+                R.string.filter_display_album_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.DISK_IS -> getString( //todo is not displayed correctly for now because it is a subfilter
+                R.string.filter_display_disk_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.PLAYLIST_IS -> getString(
+                R.string.filter_display_playlist_is,
+                filter.displayText
+            )
+
+            Filter.FilterType.DOWNLOADED_STATUS_IS -> getString(
+                if (filter.argument as Boolean) R.string.filter_display_is_downloaded
+                else R.string.filter_display_is_not_downloaded
+            )
+        }
+
+        private fun setImage(
+            artType: String?,
+            argument: Any?,
+            filter: Filter<*>
+        ) {
+            if (artType != null && argument is Long) {
                 targets.add(
                     GlideApp.with(requireActivity())
                         .asBitmap()
-                        .load(viewModel.getUrlForImage(filter.type.artType, filter.argument))
+                        .load(viewModel.getUrlForImage(artType, argument))
                         .into(object : CustomTarget<Bitmap>() {
                             override fun onLoadCleared(placeholder: Drawable?) {
                             }
