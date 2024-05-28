@@ -110,12 +110,12 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             finish()
             fakeComponent
         }
-        super.onCreate(savedInstanceState)
-
         if (activityComponent == fakeComponent) {
             return
         }
         activityComponent.inject(this)
+        super.onCreate(savedInstanceState)
+
         viewModel = ViewModelProvider(this, viewModelFactory)[PlayerViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this
