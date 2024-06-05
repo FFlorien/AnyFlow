@@ -31,9 +31,8 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
 
     private val queryComposer = QueryComposer()
 
-    /**
-     * Filters
-     */
+
+    //region Filters
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         libraryDatabase.getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
@@ -42,10 +41,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
         withContext(Dispatchers.IO) {
             libraryDatabase.getSongDao().forPositionInQueue(position)?.toViewSongInfo()
         }
+    // endregion
 
-    /**
-     * Current filters
-     */
+    //region Current filters
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> =
         libraryDatabase.getFilterDao().currentFilters().distinctUntilChanged()
@@ -97,10 +95,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             insertCurrentFilterAndChildren(filter.children, id)
         }
     }
+    //endregion
 
-    /**
-     * FilterGroups
-     */
+    //region FilterGroups
 
     suspend fun saveFilterGroup(filterList: List<Filter<*>>, name: String) =
         withContext(Dispatchers.IO) {
@@ -131,10 +128,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
                 }
             }
         }
+    //endregion
 
-    /**
-     * Ordering
-     */
+    //region Ordering
 
     fun getOrderings() =
         libraryDatabase.getOrderingDao().all().distinctUntilChanged()
@@ -149,10 +145,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
         libraryDatabase.getQueueOrderDao()
             .setOrder(listToSave.mapIndexed { index, id -> DbQueueOrder(index, id) })
     }
+    //endregion
 
-    /**
-     * Queue
-     */
+    //region Queue
 
     fun getSongsInQueueOrder() =
         libraryDatabase.getSongDao().displayInQueueOrder().map { it.toViewSongDisplay() }
@@ -172,9 +167,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
                 queryComposer.getQueryForSongs(filterList, orderingList)
             )
         }
+    //endregion
 
     companion object {
         private const val HISTORY_SIZE = 100
-        private const val SAVED_SIZE = 100
     }
 }

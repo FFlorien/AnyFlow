@@ -45,6 +45,7 @@ data class Filter<T>(
         other is Filter<*>
                 && equalsIgnoreChildren(other)
                 && children.all { other.children.contains(it) }
+                && other.children.all { children.contains(it) }
 
     override fun hashCode(): Int {
         var result = argument.hashCode() + javaClass.name.hashCode()

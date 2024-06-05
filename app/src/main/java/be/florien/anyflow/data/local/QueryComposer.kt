@@ -118,7 +118,6 @@ class QueryComposer {
                     " ORDER BY artist.basename COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-
     fun getQueryForGenreFiltered(filterList: List<Filter<*>>?, search: String?) =
         SimpleSQLiteQuery(
             "SELECT " +

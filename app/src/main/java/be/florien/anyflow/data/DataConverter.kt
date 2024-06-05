@@ -387,6 +387,5 @@ private fun String.convertRomanNumerals() = replace(
 private fun String.padNumbers(): String = replace(
     Regex("[0-9]+")
 ) {
-    println(it.value)
     it.value.padStart(5, '0')
 }

@@ -88,18 +88,9 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
      * Lifecycle methods
      */
 
-    override fun onStart() {
-        super.onStart()
-        val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
-        val mediaControllerListenableFuture = MediaController
-            .Builder(this, sessionToken)
-            .buildAsync()
-        mediaControllerListenableFuture.addListener({
-            viewModel.player = mediaControllerListenableFuture.get()
-        }, MoreExecutors.directExecutor())
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         val component = anyFlowApp.serverComponent
             ?.playerComponentBuilder()
             ?.build()
@@ -109,13 +100,9 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
             startActivity(ServerActivity::class)
             finish()
             fakeComponent
-        }
-        if (activityComponent == fakeComponent) {
             return
         }
         activityComponent.inject(this)
-        super.onCreate(savedInstanceState)
-
         viewModel = ViewModelProvider(this, viewModelFactory)[PlayerViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this
@@ -204,6 +191,17 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 binding.updatingStateView.isVisiblePresent(false)
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val sessionToken = SessionToken(this, ComponentName(this, PlayerService::class.java))
+        val mediaControllerListenableFuture = MediaController
+            .Builder(this, sessionToken)
+            .buildAsync()
+        mediaControllerListenableFuture.addListener({
+            viewModel.player = mediaControllerListenableFuture.get()
+        }, MoreExecutors.directExecutor())
     }
 
     override fun onResume() {
@@ -410,8 +408,16 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
 
     private fun adaptBottomNavigationToCurrentFragment() {
         when (supportFragmentManager.findFragmentById(R.id.container)) {
-            is CurrentFilterFragment  -> binding.bottomNavigationView.menu.findItem(R.id.menu_filters).isChecked = true
-            is BaseFilteringFragment -> binding.bottomNavigationView.menu.findItem(R.id.menu_library).isChecked = true
+            is CurrentFilterFragment -> binding.bottomNavigationView
+                .menu
+                .findItem(R.id.menu_filters)
+                .isChecked = true
+
+            is BaseFilteringFragment -> binding.bottomNavigationView
+                .menu
+                .findItem(R.id.menu_library)
+                .isChecked = true
+
             else -> binding.bottomNavigationView.menu.findItem(R.id.menu_song_list).isChecked = true
         }
     }
