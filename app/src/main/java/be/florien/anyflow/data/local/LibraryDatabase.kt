@@ -11,7 +11,7 @@ import java.util.Date
 
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [
         DbAlbum::class,
         DbArtist::class,
@@ -25,7 +25,9 @@ import java.util.Date
         DbOrdering::class,
         DbPlaylistSongs::class,
         DbAlarm::class,
-        DbDownload::class
+        DbDownload::class,
+        DbPodcast::class,
+        DbPodcastEpisode::class
     ],
     exportSchema = false //todo ?
 )
@@ -44,6 +46,8 @@ abstract class LibraryDatabase : RoomDatabase() {
     abstract fun getOrderingDao(): OrderingDao
     abstract fun getAlarmDao(): AlarmDao
     abstract fun getDownloadDao(): DownloadDao
+    abstract fun getPodcastDao(): PodcastDao
+    abstract fun getPodcastEpisodeDao(): PodcastEpisodeDao
 
     companion object {
 
@@ -65,7 +69,8 @@ abstract class LibraryDatabase : RoomDatabase() {
             return databaseBuilder
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
-                        val currentFilterGroup = DbFilterGroup(DbFilterGroup.CURRENT_FILTER_GROUP_ID, null, Date().time)
+                        val currentFilterGroup =
+                            DbFilterGroup(DbFilterGroup.CURRENT_FILTER_GROUP_ID, null, Date().time)
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\", ${currentFilterGroup.dateAdded})")
                     }
                 })

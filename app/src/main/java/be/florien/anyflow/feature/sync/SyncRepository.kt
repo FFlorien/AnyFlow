@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.server.AmpachePodcastSource
 import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.NetSuccess
@@ -15,6 +16,7 @@ import be.florien.anyflow.data.server.model.AmpacheApiListResponse
 import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheNameId
 import be.florien.anyflow.data.server.model.AmpachePlayList
+import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.data.toDbAlbum
@@ -22,6 +24,8 @@ import be.florien.anyflow.data.toDbArtist
 import be.florien.anyflow.data.toDbGenre
 import be.florien.anyflow.data.toDbPlaylist
 import be.florien.anyflow.data.toDbPlaylistSongs
+import be.florien.anyflow.data.toDbPodcast
+import be.florien.anyflow.data.toDbPodcastEpisode
 import be.florien.anyflow.data.toDbSong
 import be.florien.anyflow.data.toDbSongGenres
 import be.florien.anyflow.data.toDbSongId
@@ -42,6 +46,7 @@ class SyncRepository
 @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
+    private val ampachePodcastSource: AmpachePodcastSource,
     private val sharedPreferences: SharedPreferences
 ) {
     val songsPercentageUpdater = MutableLiveData(-1)
@@ -80,6 +85,7 @@ class SyncRepository
             update()
         }
         playlists()
+        podcasts()
         cancelPercentageUpdaters()
     }
 
@@ -187,16 +193,51 @@ class SyncRepository
             val addedPlaylists = playlists.data.list.filter { remotePlaylist ->
                 currentLocalPlaylists.none { remotePlaylist.id == it.id }
             }
-            libraryDatabase.getPlaylistDao().upsert(addedPlaylists.map(AmpachePlayList::toDbPlaylist))
+            libraryDatabase.getPlaylistDao()
+                .upsert(addedPlaylists.map(AmpachePlayList::toDbPlaylist))
 
             val renamedPlaylists = playlists.data.list.filter { remotePlaylist ->
                 val localPlaylist = currentLocalPlaylists.firstOrNull { it.id == remotePlaylist.id }
                 localPlaylist?.name != remotePlaylist.name
             }
-            libraryDatabase.getPlaylistDao().upsert(renamedPlaylists.map(AmpachePlayList::toDbPlaylist))
+            libraryDatabase.getPlaylistDao()
+                .upsert(renamedPlaylists.map(AmpachePlayList::toDbPlaylist))
 
             val playlistSongsDb = playlistSongs.data.playlistList.toDbPlaylistSongs()
             libraryDatabase.getPlaylistSongsDao().upsert(playlistSongsDb)
+        }
+    }
+
+    private suspend fun podcasts() {
+        notifyUpdate(CHANGE_PLAYLISTS)
+        val podcasts = ampachePodcastSource.getPodcasts()
+        if (podcasts is NetSuccess) {
+            val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastsSync()
+            libraryDatabase.getPlaylistSongsDao().deleteAllPlaylistSongs()
+
+            val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->
+                podcasts.data.none { localPodcast.id == it.id }
+            }
+            libraryDatabase.getPodcastDao().delete(*deletedPodcasts.toTypedArray())
+
+            val addedPodcasts = podcasts.data.filter { remotePodcast ->
+                currentLocalPodcasts.none { remotePodcast.id == it.id }
+            }
+            libraryDatabase.getPodcastDao().upsert(addedPodcasts.map(AmpachePodcast::toDbPodcast))
+
+            val renamedPodcasts = podcasts.data.filter { remotePodcast ->
+                val localPodcast = currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id }
+                localPodcast?.name != remotePodcast.name
+            }
+            libraryDatabase.getPodcastDao().upsert(renamedPodcasts.map(AmpachePodcast::toDbPodcast))
+
+            val podcastEpisodes =
+                podcasts.data.flatMap { podcast ->
+                    podcast.podcast_episode.map { episode ->
+                        episode.toDbPodcastEpisode()
+                    }
+                }
+            libraryDatabase.getPodcastEpisodeDao().upsert(podcastEpisodes)
         }
     }
 

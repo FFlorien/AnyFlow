@@ -91,3 +91,28 @@ data class PlaylistWithPresence(
     val presence: Int,
     val coverConfig: ImageConfig
 ) : Parcelable
+
+@Parcelize
+data class Podcast(
+    val id: String,
+    val name: String,
+    val description: String,
+    val syncDate: String,
+    val art: String?,
+    val episodes: List<PodcastEpisode>? = null
+) : Parcelable
+
+@Parcelize
+data class PodcastEpisode(
+    val id: String,
+    val title: String,
+    val description: String,
+    val authorFull: String,
+    val publicationDate: String,
+    val state: String,
+    val time: Int,
+    val url: String,
+    val art: String?,
+    val playCount: Int,
+    val played: String
+) : Parcelable

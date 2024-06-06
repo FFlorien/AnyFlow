@@ -12,6 +12,9 @@ import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.local.model.DbPlaylistSongs
 import be.florien.anyflow.data.local.model.DbPlaylistWithCount
 import be.florien.anyflow.data.local.model.DbPlaylistWithCountAndPresence
+import be.florien.anyflow.data.local.model.DbPodcast
+import be.florien.anyflow.data.local.model.DbPodcastEpisode
+import be.florien.anyflow.data.local.model.DbPodcastWithEpisodes
 import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.local.model.DbSongGenre
@@ -23,6 +26,8 @@ import be.florien.anyflow.data.server.model.AmpacheNameId
 import be.florien.anyflow.data.server.model.AmpachePlayList
 import be.florien.anyflow.data.server.model.AmpachePlaylistObject
 import be.florien.anyflow.data.server.model.AmpachePlaylistsWithSongs
+import be.florien.anyflow.data.server.model.AmpachePodcast
+import be.florien.anyflow.data.server.model.AmpachePodcastEpisode
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.data.view.Alarm
@@ -32,6 +37,8 @@ import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
+import be.florien.anyflow.data.view.Podcast
+import be.florien.anyflow.data.view.PodcastEpisode
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
@@ -41,9 +48,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 
-/**
- * Server to Database
- */
+//region Server to Database
 fun AmpacheSong.toDbSong(local: String? = null) = DbSong(
     id = id,
     title = title,
@@ -104,9 +109,47 @@ fun AmpachePlaylistsWithSongs.toDbPlaylistSongs() = playlists.flatMap { playlist
     }
 }
 
-/**
- * Database to view
- */
+fun AmpachePodcast.toDbPodcast() = DbPodcast(
+    id = id,
+    name = name,
+    description = description,
+    language = language,
+    feedUrl = feed_url,
+    website = website,
+    buildDate = build_date,
+    syncDate = sync_date,
+    publicUrl = public_url,
+    art = art,
+    hasArt = has_art
+)
+
+fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
+    id = id,
+    title = title,
+    name = name,
+    podcastId = podcast.id,
+    description = description,
+    category = category,
+    author = author,
+    authorFull = author_full,
+    website = website,
+    publicationDate = pubdate,
+    state = state,
+    filelength = filelength,
+    filesize = filesize,
+    filename = filename,
+    time = time,
+    size = size,
+    url = url,
+    art = art,
+    hasArt = has_art,
+    playcount = playcount,
+    played = played
+)
+
+//endregion
+
+//region Database to view
 
 fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
     id = id,
@@ -216,9 +259,33 @@ fun DbFilterCount.toViewFilterCount() = FilterCount(
     playlists = playlists
 )
 
-/**
- * Views to Database
- */
+fun DbPodcast.toViewPodcast() = Podcast(
+    id = id,
+    name = name,
+    description = description,
+    syncDate = syncDate,
+    art = if (hasArt) art else null
+)
+
+fun DbPodcastEpisode.toViewPodcastEpisode() = PodcastEpisode(
+    id = id,
+    title = title,
+    description = description,
+    authorFull = authorFull,
+    publicationDate = publicationDate,
+    state = state,
+    time = time,
+    url = url,
+    art = if (hasArt) art else null,
+    playCount = playcount,
+    played = played
+)
+
+fun DbPodcastWithEpisodes.toViewPodcast() = podcast.toViewPodcast().copy(episodes = episodes.map { it.toViewPodcastEpisode() })
+
+//endregion
+
+//region Views to Database
 
 fun Filter.FilterType.toDbFilterType(argument: Boolean?) = when (this) {
     Filter.FilterType.GENRE_IS -> DbFilter.GENRE_IS
@@ -265,9 +332,9 @@ fun Alarm.toDbAlarm() = DbAlarm(
     sunday = daysToTrigger[6]
 )
 
-/**
- * View to view
- */
+//endregion
+
+//region View to view
 
 fun SongInfo.toViewDisplay() = SongDisplay(
     id = id,
@@ -291,9 +358,9 @@ fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (
     SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
 }
 
-/**
- * Utilities
- */
+//endregion
+
+//region Utilities
 
 private fun String.transformToSortFriendly() = padNumbers()
 
@@ -389,3 +456,5 @@ private fun String.padNumbers(): String = replace(
 ) {
     it.value.padStart(5, '0')
 }
+
+//endregion
