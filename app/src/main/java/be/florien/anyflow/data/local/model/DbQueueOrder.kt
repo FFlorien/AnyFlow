@@ -17,6 +17,11 @@ data class DbQueueOrder(
         val id: Long,
         val mediaType: Int)
 
+data class DbQueueItem(
+        val id: Long,
+        val mediaType: Int
+)
+
 data class DbMediaToPlay(
         val id: Long,
         val local: String?,

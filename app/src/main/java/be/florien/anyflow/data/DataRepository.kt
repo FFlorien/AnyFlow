@@ -139,4 +139,6 @@ class DataRepository @Inject constructor(
         return libraryDatabase.getFilterDao().getCount(queryComposer.getQueryForCount(filterList))
             .toViewFilterCount()
     }
+
+     suspend fun getSongDuration(id: Long): Int = libraryDatabase.getSongDao().getSongDuration(id)
 }

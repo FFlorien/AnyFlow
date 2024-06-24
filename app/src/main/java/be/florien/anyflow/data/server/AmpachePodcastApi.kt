@@ -11,12 +11,17 @@ interface AmpachePodcastApi {
     @GET("server/json.server.php")
     suspend fun getPodcasts(
         @Query("action") action: String = "podcasts",
+    ): AmpachePodcastsResponse
+
+    @GET("server/json.server.php")
+    suspend fun getPodcastsWithEpisode(
+        @Query("action") action: String = "podcasts",
         @Query("include") auth: String = "episodes"
     ): AmpachePodcastsResponse
 
     @GET("server/json.server.php")
     suspend fun updatePodcast(
         @Query("action") action: String = "update_podcast",
-        @Query("id") id: String
-    ): AmpacheApiResponse
+        @Query("filter") id: String
+    )
 }

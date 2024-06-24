@@ -24,4 +24,7 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
 
     @Query("DELETE FROM PodcastEpisode")
     abstract fun deleteAllPlaylistSongs()
+
+    @Query("SELECT time FROM PodcastEpisode WHERE id = :id")
+    abstract suspend fun getPodcastDuration(id: Long): Int
 }

@@ -9,6 +9,10 @@ import android.os.IBinder
 import androidx.lifecycle.*
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
+import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.PodcastRepository
+import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -23,6 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -38,6 +43,8 @@ constructor(
     private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
+    private val dataRepository: DataRepository,
+    private val podcastRepository: PodcastRepository,
     val connectionStatus: LiveData<AuthRepository.ConnectionStatus>,
     @Named("Songs")
     val songsUpdatePercentage: LiveData<Int>,
@@ -58,13 +65,29 @@ constructor(
         MutableStateFlow(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
     val currentDuration: StateFlow<Int> = MutableStateFlow(0)
-    val totalDuration: LiveData<Int> = playingQueue
+    val totalDuration: LiveData<Int> = playingQueue//todo awful
         .currentSong
-        .map { (it?.time ?: 0) * 1000 }
+        .asFlow()
+        .map { queueItem ->
+            if (queueItem == null) {
+                0
+            } else if (queueItem.mediaType == PODCAST_MEDIA_TYPE) {
+                queueItem.id.let { podcastRepository.getPodcastDuration(it) } * 1000
+            } else {
+                queueItem.id.let { dataRepository.getSongDuration(it) } * 1000
+            }
+        }
+        .asLiveData()
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
     val waveForm: LiveData<DoubleArray> =
-        playingQueue.currentSong.switchMap { it?.let { waveFormRepository.getComputedWaveForm(it.id) } }
+        playingQueue.currentSong.switchMap {
+            if (it?.mediaType == SONG_MEDIA_TYPE) {
+                it.let { waveFormRepository.getComputedWaveForm(it.id) }
+            } else {
+                null
+            }
+        }
             .distinctUntilChanged()
 
     val isSeekable: LiveData<Boolean> = MutableLiveData(false)
@@ -190,11 +213,13 @@ constructor(
 
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
         viewModelScope.launch(Dispatchers.Main) {
-            playbackState.mutable.emit(if (playWhenReady) {
-                PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
-            } else {
-                PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
-            })
+            playbackState.mutable.emit(
+                if (playWhenReady) {
+                    PlayPauseIconAnimator.STATE_PLAY_PAUSE_PLAY
+                } else {
+                    PlayPauseIconAnimator.STATE_PLAY_PAUSE_PAUSE
+                }
+            )
         }
     }
 

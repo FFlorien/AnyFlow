@@ -26,12 +26,6 @@ abstract class SongDao : BaseDao<DbSong>() {
 
     // Song
     @Transaction
-    @Query("SELECT song.id, song.title, song.titleForSort, song.artistId, song.albumId, song.track, song.disk, song.time, song.year, song.composer, song.size, song.local, song.waveForm " +
-            "FROM song JOIN queueorder ON song.id = queueorder.id " +
-            "WHERE queueorder.`order` = :position")
-    abstract suspend fun forPositionInQueue(position: Int): DbSongInfo?
-
-    @Transaction
     @Query("SELECT * FROM song WHERE song.id = :songId")
     abstract fun findById(songId: Long): LiveData<DbSongInfo>
 

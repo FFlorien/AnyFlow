@@ -7,10 +7,11 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.local.model.DbMediaToPlay
+import be.florien.anyflow.data.local.model.DbQueueItem
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.QueueItemDisplay
-import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ServerScope
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -29,6 +31,7 @@ import javax.inject.Inject
 class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
+    private val dataRepository: DataRepository,
     private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {
@@ -48,16 +51,20 @@ class PlayingQueue
                 (positionUpdater as MutableLiveData).value = value
                 orderComposer.currentPosition = value
                 sharedPreferences.applyPutInt(POSITION_PREF, value)
-                val songAtPosition = queueRepository.getSongAtPosition(value)
+                val songAtPosition = queueRepository.getMediaItemAtPosition(value)
                 if (songAtPosition != this@PlayingQueue.currentSong.value) {
                     (this@PlayingQueue.currentSong as MutableLiveData).value = songAtPosition
-                    orderComposer.currentSong = songAtPosition
+                    withContext(Dispatchers.IO) {
+                        orderComposer.currentSong = songAtPosition?.let {
+                            dataRepository.getSongSync(it.id)
+                        }
+                    }
                 }
             }
         }
 
     val positionUpdater: LiveData<Int> = MutableLiveData(listPosition)
-    val currentSong: LiveData<SongInfo?> = MutableLiveData(null)
+    val currentSong: LiveData<DbQueueItem?> = MutableLiveData(null)
 
     val queueItemDisplayListUpdater: LiveData<PagingData<QueueItemDisplay>> =
         queueRepository.getQueueItems().cachedIn(coroutineScope)
@@ -69,7 +76,7 @@ class PlayingQueue
 
     init {
         coroutineScope.launch {
-            (currentSong as MutableLiveData).postValue(queueRepository.getSongAtPosition(listPosition))
+            (currentSong as MutableLiveData).postValue(queueRepository.getMediaItemAtPosition(listPosition))
         }
     }
 }

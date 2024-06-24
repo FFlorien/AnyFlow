@@ -17,7 +17,6 @@ import be.florien.anyflow.data.toViewFilter
 import be.florien.anyflow.data.toViewFilterGroup
 import be.florien.anyflow.data.toViewOrdering
 import be.florien.anyflow.data.toViewQueueItemDisplay
-import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Ordering
@@ -39,9 +38,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
         libraryDatabase.getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
 
-    suspend fun getSongAtPosition(position: Int) =
+    suspend fun getMediaItemAtPosition(position: Int) =
         withContext(Dispatchers.IO) {
-            libraryDatabase.getSongDao().forPositionInQueue(position)?.toViewSongInfo()
+            libraryDatabase.getQueueOrderDao().forPositionInQueue(position)
         }
     // endregion
 

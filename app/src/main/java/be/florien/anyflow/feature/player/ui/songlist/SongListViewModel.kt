@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
 import androidx.paging.PagingData
@@ -16,7 +17,6 @@ import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.toViewDisplay
 import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongDisplay
-import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
@@ -59,9 +59,8 @@ class SongListViewModel
         downloadManager
     )
     val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> = playingQueue.queueItemDisplayListUpdater
-    val currentSong: LiveData<SongInfo?> = playingQueue.currentSong
     val currentSongDisplay: LiveData<SongDisplay?> =
-        playingQueue.currentSong.map { it?.toViewDisplay() }
+        playingQueue.currentSong.switchMap { song -> song?.id?.let {dataRepository.getSong(it)} }.map { it.toViewDisplay() }
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)

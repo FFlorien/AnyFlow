@@ -174,7 +174,6 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay() =
         mediaType == PODCAST_MEDIA_TYPE &&
         podcastEpisodeId != null &&
         podcastTitle != null &&
-        podcastName != null &&
         podcastTime != null &&
         podcastId != null) {
         PodcastEpisodeDisplay(
@@ -182,7 +181,7 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay() =
             title = podcastTitle,
             author = podcastAuthor ?: "",
             time = podcastTime,
-            album = podcastName,
+            album = podcastName ?: "",
             albumId = podcastId
         )
     } else {

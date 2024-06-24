@@ -13,4 +13,9 @@ class AmpachePodcastSource @Inject constructor(@Named("authenticated") retrofit:
 
     suspend fun getPodcasts(): NetResult<List<AmpachePodcast>> =
         api.getPodcasts().toNetResult()
+
+    suspend fun getPodcastsWithEpisodes(): NetResult<List<AmpachePodcast>> =
+        api.getPodcastsWithEpisode().toNetResult()
+
+    suspend fun updatePodcast(id: String) = api.updatePodcast(id = id)
 }

@@ -8,6 +8,7 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbMediaToPlay
+import be.florien.anyflow.data.local.model.DbQueueItem
 import be.florien.anyflow.data.local.model.DbQueueItemDisplay
 import be.florien.anyflow.data.local.model.DbQueueOrder
 import be.florien.anyflow.data.local.model.DbSong
@@ -38,6 +39,12 @@ abstract class QueueOrderDao : BaseDao<DbQueueOrder>() {
 
     @Query("DELETE FROM queueorder")
     abstract suspend fun deleteAll()
+
+    @Transaction
+    @Query("SELECT queueorder.id AS id, queueorder.mediaType AS mediaType " +
+            "FROM queueorder " +
+            "WHERE queueorder.`order` = :position")
+    abstract suspend fun forPositionInQueue(position: Int): DbQueueItem?
 
     @Transaction
     open suspend fun setOrder(orderList: List<DbQueueOrder>) {

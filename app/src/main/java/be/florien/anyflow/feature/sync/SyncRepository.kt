@@ -214,32 +214,41 @@ class SyncRepository
         notifyUpdate(CHANGE_PLAYLISTS)
         val podcasts = ampachePodcastSource.getPodcasts()
         if (podcasts is NetSuccess) {
-            val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastsSync()
-            libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
-
-            val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->
-                podcasts.data.none { localPodcast.id == it.id.toLong() }
+            podcasts.data.forEach {
+                ampachePodcastSource.updatePodcast(it.id)
             }
-            libraryDatabase.getPodcastDao().delete(*deletedPodcasts.toTypedArray())
+            val podcastsWithEpisodes = ampachePodcastSource.getPodcastsWithEpisodes()
+            if (podcastsWithEpisodes is NetSuccess) {
+                val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastsSync()
+                libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
 
-            val addedPodcasts = podcasts.data.filter { remotePodcast ->
-                currentLocalPodcasts.none { remotePodcast.id.toLong() == it.id }
-            }
-            libraryDatabase.getPodcastDao().upsert(addedPodcasts.map(AmpachePodcast::toDbPodcast))
-
-            val renamedPodcasts = podcasts.data.filter { remotePodcast ->
-                val localPodcast = currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id.toLong() }
-                localPodcast?.name != remotePodcast.name
-            }
-            libraryDatabase.getPodcastDao().upsert(renamedPodcasts.map(AmpachePodcast::toDbPodcast))
-
-            val podcastEpisodes =
-                podcasts.data.flatMap { podcast ->
-                    podcast.podcast_episode.map { episode ->
-                        episode.toDbPodcastEpisode()
-                    }
+                val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->
+                    podcastsWithEpisodes.data.none { localPodcast.id == it.id.toLong() }
                 }
-            libraryDatabase.getPodcastEpisodeDao().upsert(podcastEpisodes)
+                libraryDatabase.getPodcastDao().delete(*deletedPodcasts.toTypedArray())
+
+                val addedPodcasts = podcastsWithEpisodes.data.filter { remotePodcast ->
+                    currentLocalPodcasts.none { remotePodcast.id.toLong() == it.id }
+                }
+                libraryDatabase.getPodcastDao()
+                    .upsert(addedPodcasts.map(AmpachePodcast::toDbPodcast))
+
+                val renamedPodcasts = podcastsWithEpisodes.data.filter { remotePodcast ->
+                    val localPodcast =
+                        currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id.toLong() }
+                    localPodcast?.name != remotePodcast.name
+                }
+                libraryDatabase.getPodcastDao()
+                    .upsert(renamedPodcasts.map(AmpachePodcast::toDbPodcast))
+
+                val podcastEpisodes =
+                    podcastsWithEpisodes.data.flatMap { podcast ->
+                        podcast.podcast_episode.map { episode ->
+                            episode.toDbPodcastEpisode()
+                        }
+                    }
+                libraryDatabase.getPodcastEpisodeDao().upsert(podcastEpisodes)
+            }
         }
     }
 
