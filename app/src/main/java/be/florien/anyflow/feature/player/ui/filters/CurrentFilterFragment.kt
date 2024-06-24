@@ -235,6 +235,11 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                 if (filter.argument as Boolean) R.string.filter_display_is_downloaded
                 else R.string.filter_display_is_not_downloaded
             )
+
+            Filter.FilterType.PODCAST_EPISODE_IS -> getString(
+                R.string.filter_display_podcast_episode_is,
+                filter.displayText
+            )
         }
 
         private fun setImage(
@@ -304,6 +309,11 @@ class CurrentFilterFragment : BaseFilteringFragment() {
 
                     Filter.FilterType.SONG_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_song,
+                        leftIconSize
+                    )
+
+                    Filter.FilterType.PODCAST_EPISODE_IS -> setCompoundDrawableFromResources(
+                        R.drawable.ic_podcast_episode,
                         leftIconSize
                     )
                 }

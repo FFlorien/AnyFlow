@@ -61,12 +61,26 @@ class QueryComposer {
             return orderStatement
         }
 
+        val filterList = filters.filterNot { it.type == Filter.FilterType.PODCAST_EPISODE_IS }
         return SimpleSQLiteQuery(
             "SELECT DISTINCT song.id FROM song" +
-                    constructJoinStatement(filters, orderingList) +
-                    constructWhereStatement(filters, "") +
+                    constructJoinStatement(filterList, orderingList) +
+                    constructWhereStatement(filterList, "") +
                     constructOrderStatement()
         )
+    }
+
+    fun getQueryForPodcastEpisodes(
+        filters: List<Filter<*>>,
+        orderingList: List<Ordering>//todo: add ordering handling
+    ): SimpleSQLiteQuery {
+
+        val podcastFilters = filters.filterIsInstance<Filter<Long>>()
+            .filter { it.type == Filter.FilterType.PODCAST_EPISODE_IS }
+        val whereStatement =
+            " WHERE podcastEpisode.id IN (${podcastFilters.joinToString(separator = ", ") { it.argument.toString() }})"
+
+        return SimpleSQLiteQuery("SELECT DISTINCT podcastEpisode.id FROM podcastEpisode $whereStatement")
     }
 
     fun getQueryForAlbumFiltered(filterList: List<Filter<*>>?, search: String?) =
@@ -148,7 +162,10 @@ class QueryComposer {
                     " ORDER BY song.titleForSort COLLATE UNICODE",
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
 
-    fun getQueryForPlaylistFiltered(filterList: List<Filter<*>>?, search: String?): SimpleSQLiteQuery {
+    fun getQueryForPlaylistFiltered(
+        filterList: List<Filter<*>>?,
+        search: String?
+    ): SimpleSQLiteQuery {
         val query = "SELECT " +
                 "DISTINCT playlist.id, " +
                 "playlist.name, " +
@@ -164,7 +181,10 @@ class QueryComposer {
             search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
     }
 
-    fun getQueryForPlaylistWithCountFiltered(filterList: List<Filter<*>>?, search: String?): SimpleSQLiteQuery {
+    fun getQueryForPlaylistWithCountFiltered(
+        filterList: List<Filter<*>>?,
+        search: String?
+    ): SimpleSQLiteQuery {
         val query = "SELECT " +
                 "DISTINCT playlist.id, " +
                 "playlist.name, " +
@@ -265,7 +285,8 @@ class QueryComposer {
         val isJoiningAlbumArtist =
             orderingList.any { it.orderingSubject == Ordering.Subject.ALBUM_ARTIST }
         val isJoiningSongGenre = orderingList.any { it.orderingSubject == Ordering.Subject.GENRE }
-        val isJoiningGenreForOrdering = orderingList.any { it.orderingSubject == Ordering.Subject.GENRE }
+        val isJoiningGenreForOrdering =
+            orderingList.any { it.orderingSubject == Ordering.Subject.GENRE }
         val songGenreJoinCount = filterList.countFilter { it.type == Filter.FilterType.GENRE_IS }
         val playlistSongsJointCount =
             filterList.countFilter { it.type == Filter.FilterType.PLAYLIST_IS }
@@ -350,18 +371,22 @@ class QueryComposer {
                     DbFilter.SONG_ID,
                     DbFilter.ARTIST_ID,
                     DbFilter.ALBUM_ID -> " ${dbFilter.clause} ${dbFilter.argument.toLong()}"
+
                     DbFilter.ALBUM_ARTIST_ID -> {
                         futureAlbumArtistLevel = albumArtistLevel + 1
                         " album${albumArtistLevel}.artistid = ${dbFilter.argument.toLong()}"
                     }
+
                     DbFilter.GENRE_IS -> {
                         futureGenreLevel = genreLevel + 1
                         " songgenre${genreLevel}.genreid = ${dbFilter.argument.toLong()}"
                     }
+
                     DbFilter.PLAYLIST_ID -> {
                         futurePlaylistLevel = playlistLevel + 1
                         " playlistsongs${playlistLevel}.playlistid = ${dbFilter.argument.toLong()}"
                     }
+
                     DbFilter.DOWNLOADED -> " ${DbFilter.DOWNLOADED}"
                     DbFilter.NOT_DOWNLOADED -> " ${DbFilter.NOT_DOWNLOADED}"
                     else -> " ${dbFilter.clause} \"${dbFilter.argument}\""

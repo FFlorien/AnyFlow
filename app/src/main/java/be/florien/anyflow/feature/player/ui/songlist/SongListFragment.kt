@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.data.toViewDisplay
-import be.florien.anyflow.data.view.SongDisplay
+import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
@@ -60,8 +60,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     private var visibilityJob: Job? = null
     private var currentLoadState: LoadState = LoadState.Loading
 
-    private val songAdapter: SongAdapter
-        get() = binding.songList.adapter as SongAdapter
+    private val queueItemAdapter: QueueItemAdapter
+        get() = binding.songList.adapter as QueueItemAdapter
 
     private val searchMenuHolder by lazy {
         SearchSongMenuHolder(viewModel.isSearching.value == true, requireContext()) {
@@ -132,10 +132,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.adapter = SongAdapter(this, this, this::onItemClick)
+        binding.songList.adapter = QueueItemAdapter(this, this, this::onItemClick)
 
         lifecycleScope.launch {
-            (songAdapter).loadStateFlow.collectLatest {
+            (queueItemAdapter).loadStateFlow.collectLatest {
                 if (it.refresh == currentLoadState) {
                     visibilityJob?.cancel()
                 } else {
@@ -207,7 +207,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
             if (it != null) {
-                songAdapter.submitData(viewLifecycleOwner.lifecycle, it)
+                queueItemAdapter.submitData(viewLifecycleOwner.lifecycle, it)
                 scrollToCurrentSong()
             }
         }
@@ -217,7 +217,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             }
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
-            songAdapter.setSelectedPosition(it)
+            queueItemAdapter.setSelectedPosition(it)
             updateCurrentSongDisplay()
         }
         viewModel.isSearching.observe(viewLifecycleOwner) {
@@ -280,13 +280,13 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      */
 
     override fun onShortcut(
-        item: SongDisplay,
+        item: QueueItemDisplay,
         row: InfoActions.InfoRow
     ) {
         viewModel.executeSongAction(item, row)
     }
 
-    override fun onInfoDisplayAsked(item: SongDisplay) {
+    override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         SongInfoFragment(item.id).show(childFragmentManager, "info")
     }
 
@@ -332,7 +332,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * ViewHolder's provider
      */
 
-    override fun getArtUrl(id: Long): String = viewModel.getArtUrl(id)
+    override fun getArtUrl(id: Long, isPodcast: Boolean): String = viewModel.getArtUrl(id, isPodcast)
 
     override fun getShortcuts(): List<InfoActions.InfoRow> =
         viewModel.shortcuts.value ?: emptyList()

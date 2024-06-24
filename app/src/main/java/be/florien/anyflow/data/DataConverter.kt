@@ -16,10 +16,13 @@ import be.florien.anyflow.data.local.model.DbPodcast
 import be.florien.anyflow.data.local.model.DbPodcastEpisode
 import be.florien.anyflow.data.local.model.DbPodcastWithEpisodes
 import be.florien.anyflow.data.local.model.DbSong
+import be.florien.anyflow.data.local.model.DbQueueItemDisplay
 import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.local.model.DbSongGenre
 import be.florien.anyflow.data.local.model.DbSongId
 import be.florien.anyflow.data.local.model.DbSongInfo
+import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.server.model.AmpacheAlbum
 import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheNameId
@@ -39,6 +42,7 @@ import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.data.view.Podcast
 import be.florien.anyflow.data.view.PodcastEpisode
+import be.florien.anyflow.data.view.PodcastEpisodeDisplay
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
@@ -110,40 +114,29 @@ fun AmpachePlaylistsWithSongs.toDbPlaylistSongs() = playlists.flatMap { playlist
 }
 
 fun AmpachePodcast.toDbPodcast() = DbPodcast(
-    id = id,
+    id = id.toLong(),
     name = name,
     description = description,
     language = language,
     feedUrl = feed_url,
     website = website,
     buildDate = build_date,
-    syncDate = sync_date,
-    publicUrl = public_url,
-    art = art,
-    hasArt = has_art
+    syncDate = sync_date
 )
 
 fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
-    id = id,
+    id = id.toLong(),
     title = title,
-    name = name,
     podcastId = podcast.id,
     description = description,
     category = category,
-    author = author,
     authorFull = author_full,
     website = website,
     publicationDate = pubdate,
     state = state,
-    filelength = filelength,
-    filesize = filesize,
-    filename = filename,
     time = time,
     size = size,
-    url = url,
-    art = art,
-    hasArt = has_art,
-    playcount = playcount,
+    playCount = playcount,
     played = played
 )
 
@@ -151,7 +144,7 @@ fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
 
 //region Database to view
 
-fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
+ fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
     id = id,
     title = title,
     artistName = artistName,
@@ -159,6 +152,42 @@ fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
     albumId = albumId,
     time = time
 )
+
+fun DbQueueItemDisplay.toViewQueueItemDisplay() =
+    if (
+        mediaType == SONG_MEDIA_TYPE &&
+        songId != null &&
+        songTitle != null &&
+        songArtistName != null &&
+        songAlbumName != null &&
+        songAlbumId != null &&
+        songTime != null ) {
+        SongDisplay(
+            id = songId,
+            title = songTitle,
+            artistName = songArtistName,
+            albumName = songAlbumName,
+            albumId = songAlbumId,
+            time = songTime
+        )
+    } else if (
+        mediaType == PODCAST_MEDIA_TYPE &&
+        podcastEpisodeId != null &&
+        podcastTitle != null &&
+        podcastName != null &&
+        podcastTime != null &&
+        podcastId != null) {
+        PodcastEpisodeDisplay(
+            id = podcastEpisodeId,
+            title = podcastTitle,
+            author = podcastAuthor ?: "",
+            time = podcastTime,
+            album = podcastName,
+            albumId = podcastId
+        )
+    } else {
+        throw IllegalArgumentException("DbQueueItemDisplay is not a valid SongDisplay or PodcastEpisodeDisplay\n$this")
+    }
 
 fun DbSongInfo.toViewSongInfo() = SongInfo(
     id = song.id,
@@ -205,6 +234,7 @@ fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
         DbFilter.PLAYLIST_ID -> Filter.FilterType.PLAYLIST_IS
         DbFilter.DOWNLOADED,
         DbFilter.NOT_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
+        DbFilter.PODCAST_EPISODE_ID -> Filter.FilterType.PODCAST_EPISODE_IS
 
         else -> Filter.FilterType.SONG_IS
     },
@@ -263,8 +293,7 @@ fun DbPodcast.toViewPodcast() = Podcast(
     id = id,
     name = name,
     description = description,
-    syncDate = syncDate,
-    art = if (hasArt) art else null
+    syncDate = syncDate
 )
 
 fun DbPodcastEpisode.toViewPodcastEpisode() = PodcastEpisode(
@@ -275,9 +304,7 @@ fun DbPodcastEpisode.toViewPodcastEpisode() = PodcastEpisode(
     publicationDate = publicationDate,
     state = state,
     time = time,
-    url = url,
-    art = if (hasArt) art else null,
-    playCount = playcount,
+    playCount = playCount,
     played = played
 )
 
@@ -296,6 +323,7 @@ fun Filter.FilterType.toDbFilterType(argument: Boolean?) = when (this) {
     Filter.FilterType.DISK_IS -> DbFilter.DISK
     Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID
     Filter.FilterType.DOWNLOADED_STATUS_IS -> if (argument == true) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
+    Filter.FilterType.PODCAST_EPISODE_IS -> DbFilter.PODCAST_EPISODE_ID
 }
 
 fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
@@ -353,6 +381,7 @@ fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (
     SongInfoActions.SongFieldType.Album -> Filter.FilterType.ALBUM_IS
     SongInfoActions.SongFieldType.Disk -> Filter.FilterType.DISK_IS
     SongInfoActions.SongFieldType.Playlist -> Filter.FilterType.PLAYLIST_IS
+    SongInfoActions.SongFieldType.PodcastEpisode -> Filter.FilterType.PODCAST_EPISODE_IS
     SongInfoActions.SongFieldType.Year,
     SongInfoActions.SongFieldType.Duration,
     SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()

@@ -10,8 +10,10 @@
 
         <variable
             name="song"
-            type="be.florien.anyflow.data.view.SongDisplay" />
+            type="be.florien.anyflow.data.view.QueueItemDisplay" />
     </data>
+
+    <!-- TODO specific item for podcast -->
 
     <FrameLayout
         android:layout_width="match_parent"

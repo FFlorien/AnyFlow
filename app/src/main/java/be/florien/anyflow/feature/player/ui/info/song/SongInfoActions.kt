@@ -141,6 +141,7 @@ class SongInfoActions(
      */
 
     fun getAlbumArtUrl(albumId: Long) = urlRepository.getAlbumArtUrl(albumId)
+    fun getPodcastArtUrl(podcastId: Long) = urlRepository.getPodcastArtUrl(podcastId)
 
     /**
      * Action methods
@@ -741,7 +742,8 @@ class SongInfoActions(
         Genre(R.drawable.ic_genre),
         Playlist(R.drawable.ic_playlist),
         Year(R.drawable.ic_year),
-        Duration(R.drawable.ic_duration);
+        Duration(R.drawable.ic_duration),
+        PodcastEpisode(R.drawable.ic_duration);
     }
 
     enum class SongActionType(

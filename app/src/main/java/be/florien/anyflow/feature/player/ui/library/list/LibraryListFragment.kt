@@ -34,6 +34,7 @@ import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryArtis
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryDownloadedListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryGenreListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPlaylistListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.ServerScope
@@ -85,6 +86,7 @@ constructor(
         LibraryInfoViewModel.SONG_ID -> getString(R.string.library_type_song)
         LibraryInfoViewModel.PLAYLIST_ID -> getString(R.string.library_type_playlist)
         LibraryInfoViewModel.DOWNLOAD_ID -> getString(R.string.library_type_download)
+        LibraryInfoViewModel.PODCAST_EPISODE_ID -> getString(R.string.library_type_podcast_episode)
         else -> null
     }
 
@@ -142,6 +144,7 @@ constructor(
                 LibraryInfoViewModel.GENRE_ID -> LibraryGenreListViewModel::class.java
                 LibraryInfoViewModel.SONG_ID -> LibrarySongListViewModel::class.java
                 LibraryInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
+                LibraryInfoViewModel.PODCAST_EPISODE_ID -> LibraryPodcastEpisodeListViewModel::class.java
                 else -> LibraryPlaylistListViewModel::class.java
             }]
         viewModel.navigationFilter = parentFilter

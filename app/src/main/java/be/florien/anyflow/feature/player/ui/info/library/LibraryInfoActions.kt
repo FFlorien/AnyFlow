@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.R
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.PodcastRepository
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.ui.info.InfoActions
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class LibraryInfoActions @Inject constructor(
     private val dataRepository: DataRepository,
     private val playlistRepository: PlaylistRepository,
+    private val podcastRepository: PodcastRepository,
     private val urlRepository: UrlRepository,
     context: Context
 ) : InfoActions<Filter<*>?>() {
@@ -87,6 +89,12 @@ class LibraryInfoActions @Inject constructor(
                 filteredInfo.songs
             ),
             getInfoRow(
+                R.string.filter_info_downloaded,
+                infoSource,
+                Filter.FilterType.DOWNLOADED_STATUS_IS,
+                2 //todo number of downloaded/not downloaded
+            ),
+            getInfoRow(
                 R.string.filter_info_playlist,
                 infoSource,
                 Filter.FilterType.PLAYLIST_IS,
@@ -99,6 +107,12 @@ class LibraryInfoActions @Inject constructor(
                     }
                     playlistFilters.size
                 } ?: 0) // todo "Motivation and 3 other playlists" instead
+            ),
+            getInfoRow(
+                R.string.filter_info_podcast_episodes,
+                infoSource,
+                Filter.FilterType.PODCAST_EPISODE_IS,
+                100 //todo number of podcast episodes + move to another screen
             )
         )
     }
@@ -150,7 +164,12 @@ class LibraryInfoActions @Inject constructor(
                     }
 
                 Filter.FilterType.DOWNLOADED_STATUS_IS,
-                Filter.FilterType.DISK_IS-> listOf(null)
+                Filter.FilterType.DISK_IS -> listOf(null)
+
+                Filter.FilterType.PODCAST_EPISODE_IS ->
+                    podcastRepository.getAllPodcastsEpisodesList {
+                        DisplayData(it.title, it.id)
+                    }
             }.firstOrNull()
         } else null
 
@@ -158,8 +177,9 @@ class LibraryInfoActions @Inject constructor(
             when (filterType.artType) {
                 SyncRepository.ART_TYPE_PLAYLIST -> urlRepository.getPlaylistArtUrl(displayData.argument)
                 SyncRepository.ART_TYPE_ARTIST -> urlRepository.getArtistArtUrl(displayData.argument)
-                SyncRepository.ART_TYPE_SONG -> urlRepository.getSongUrl(displayData.argument)
+                SyncRepository.ART_TYPE_SONG -> urlRepository.getSongArtUrl(displayData.argument)
                 SyncRepository.ART_TYPE_ALBUM -> urlRepository.getAlbumArtUrl(displayData.argument)
+                SyncRepository.ART_TYPE_PODCAST -> urlRepository.getPodcastArtUrl(displayData.argument)
                 else -> null
             }
         } else {
@@ -196,6 +216,8 @@ class LibraryInfoActions @Inject constructor(
             Filter.FilterType.ALBUM_ARTIST_IS -> LibraryFieldType.AlbumArtist
             Filter.FilterType.ALBUM_IS -> LibraryFieldType.Album
             Filter.FilterType.PLAYLIST_IS -> LibraryFieldType.Playlist
+            Filter.FilterType.DOWNLOADED_STATUS_IS -> LibraryFieldType.Downloaded
+            Filter.FilterType.PODCAST_EPISODE_IS -> LibraryFieldType.PodcastEpisode
             else -> LibraryFieldType.Genre
         }
     }
@@ -215,7 +237,9 @@ class LibraryInfoActions @Inject constructor(
         Album(R.drawable.ic_album),
         Artist(R.drawable.ic_artist),
         Song(R.drawable.ic_song),
-        Playlist(R.drawable.ic_playlist);
+        Playlist(R.drawable.ic_playlist),
+        Downloaded(R.drawable.ic_downloaded),
+        PodcastEpisode(R.drawable.ic_podcast_episode);
     }
 
     enum class LibraryActionType(

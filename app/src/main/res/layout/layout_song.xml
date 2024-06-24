@@ -11,7 +11,7 @@
 
         <variable
             name="song"
-            type="be.florien.anyflow.data.view.SongDisplay" />
+            type="be.florien.anyflow.data.view.QueueItemDisplay" />
 
         <variable
             name="current"
@@ -70,7 +70,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/smallDimen"
-            android:text="@{song.artistName}"
+            android:text="@{song.artist}"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
@@ -82,7 +82,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/smallDimen"
-            android:text="@{song.albumName}"
+            android:text="@{song.album}"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"

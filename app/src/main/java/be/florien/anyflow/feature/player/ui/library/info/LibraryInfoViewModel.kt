@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.PodcastRepository
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
@@ -18,12 +19,13 @@ class LibraryInfoViewModel @Inject constructor(
     override val filtersManager: FiltersManager,
     dataRepository: DataRepository,
     playlistRepository: PlaylistRepository,
+    podcastRepository: PodcastRepository,
     urlRepository: UrlRepository,
     context: Context
 ) : InfoViewModel<Filter<*>?>(), LibraryViewModel {
 
     override val infoActions: InfoActions<Filter<*>?> =
-        LibraryInfoActions(dataRepository, playlistRepository, urlRepository, context)
+        LibraryInfoActions(dataRepository, playlistRepository, podcastRepository, urlRepository, context)
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 
     var filterNavigation: Filter<*>? = null
@@ -48,5 +50,6 @@ class LibraryInfoViewModel @Inject constructor(
         const val SONG_ID = "Song"
         const val PLAYLIST_ID = "Playlist"
         const val DOWNLOAD_ID = "Download"
+        const val PODCAST_EPISODE_ID = "PodcastEpisode"
     }
 }

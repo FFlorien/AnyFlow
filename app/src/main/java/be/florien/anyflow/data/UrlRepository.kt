@@ -8,9 +8,11 @@ import javax.inject.Inject
 @ServerScope
 class UrlRepository @Inject constructor(private val ampacheDataSource: AmpacheDataSource) {
 
-    fun getSongUrl(id: Long) = ampacheDataSource.getSongUrl(id)
+    fun getSongUrl(id: Long) = ampacheDataSource.getMediaUrl(id, "song")
+    fun getSongArtUrl(id: Long) = ampacheDataSource.getArtUrl(SyncRepository.ART_TYPE_SONG, id)
     fun getAlbumArtUrl(id: Long) = ampacheDataSource.getArtUrl(SyncRepository.ART_TYPE_ALBUM, id)
     fun getArtistArtUrl(id: Long) = ampacheDataSource.getArtUrl(SyncRepository.ART_TYPE_ARTIST, id)
+    fun getPodcastArtUrl(id: Long) = ampacheDataSource.getArtUrl(SyncRepository.ART_TYPE_PODCAST, id)
     fun getArtUrl(type: String, id: Long) = ampacheDataSource.getArtUrl(type, id)
 
     fun getPlaylistArtUrl(id: Long) =

@@ -6,7 +6,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.SongDisplay
+import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.databinding.ActivityShortcutBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.getDisplayWidth
@@ -91,13 +91,13 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {
             override fun getShortcuts() = viewModel.shortcutsList
             override fun getCurrentPosition(): Int  = 0
             override fun getCurrentSongTranslationX(): Float = 0F
-            override fun getArtUrl(id: Long): String = ""
+            override fun getArtUrl(id: Long, isPodcast: Boolean): String = ""
         }
         val listener= object: SongListViewHolderListener {
-            override fun onShortcut(item: SongDisplay, row: InfoActions.InfoRow) {}
+            override fun onShortcut(item: QueueItemDisplay, row: InfoActions.InfoRow) {}
             override fun onShortcutOpened(position: Int?) {}
             override fun onCurrentSongShortcutsClosed() {}
-            override fun onInfoDisplayAsked(item: SongDisplay) {}
+            override fun onInfoDisplayAsked(item: QueueItemDisplay) {}
         }
         shortcutExample = SongViewHolder(binding.root as ConstraintLayout, listener, provider, null, binding.songExample, true)
         shortcutExample.setShortcuts()

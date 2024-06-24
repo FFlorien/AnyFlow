@@ -77,16 +77,18 @@ class SyncRepository
      */
 
     suspend fun syncAll() {
-        if (libraryDatabase.getSongDao().songCount() == 0) {
-            //todo come on, there has to be a better way to do this check!
-            getFromScratch()
-        } else {
-            iLog("update")
-            update()
+        withContext(Dispatchers.IO) {
+            if (libraryDatabase.getSongDao().songCount() == 0) {
+                //todo come on, there has to be a better way to do this check!
+                getFromScratch()
+            } else {
+                iLog("update")
+                update()
+            }
+            playlists()
+            podcasts()
+            cancelPercentageUpdaters()
         }
-        playlists()
-        podcasts()
-        cancelPercentageUpdaters()
     }
 
     private suspend fun getFromScratch() = withContext(Dispatchers.IO) {
@@ -213,20 +215,20 @@ class SyncRepository
         val podcasts = ampachePodcastSource.getPodcasts()
         if (podcasts is NetSuccess) {
             val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastsSync()
-            libraryDatabase.getPlaylistSongsDao().deleteAllPlaylistSongs()
+            libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
 
             val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->
-                podcasts.data.none { localPodcast.id == it.id }
+                podcasts.data.none { localPodcast.id == it.id.toLong() }
             }
             libraryDatabase.getPodcastDao().delete(*deletedPodcasts.toTypedArray())
 
             val addedPodcasts = podcasts.data.filter { remotePodcast ->
-                currentLocalPodcasts.none { remotePodcast.id == it.id }
+                currentLocalPodcasts.none { remotePodcast.id.toLong() == it.id }
             }
             libraryDatabase.getPodcastDao().upsert(addedPodcasts.map(AmpachePodcast::toDbPodcast))
 
             val renamedPodcasts = podcasts.data.filter { remotePodcast ->
-                val localPodcast = currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id }
+                val localPodcast = currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id.toLong() }
                 localPodcast?.name != remotePodcast.name
             }
             libraryDatabase.getPodcastDao().upsert(renamedPodcasts.map(AmpachePodcast::toDbPodcast))
@@ -455,6 +457,7 @@ class SyncRepository
         const val ART_TYPE_ALBUM = "album"
         const val ART_TYPE_ARTIST = "artist"
         const val ART_TYPE_PLAYLIST = "playlist"
+        const val ART_TYPE_PODCAST = "podcast"
 
         private const val OFFSET_SONG = "OFFSET_SONG"
         private const val OFFSET_GENRE = "OFFSET_GENRE"

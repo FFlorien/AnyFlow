@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.player.services.queue
 
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.Ordering.Companion.RANDOM_MULTIPLIER
@@ -156,8 +157,8 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
             currentOrderings
                 .filter { it.orderingType == Ordering.OrderingType.PRECISE_POSITION }
                 .forEach { preciseOrder ->
-                    if (listToSave.remove(preciseOrder.subject)) {
-                        listToSave.add(preciseOrder.argument, preciseOrder.subject)
+                    if (listToSave.remove(QueueRepository.QueueItem(SONG_MEDIA_TYPE,preciseOrder.subject))) { //todo change podcast position
+                        listToSave.add(preciseOrder.argument, QueueRepository.QueueItem(SONG_MEDIA_TYPE,preciseOrder.subject))
                     } // todo else remove order from db
                 }
             queueRepository.saveQueueOrdering(listToSave)

@@ -8,42 +8,31 @@ import androidx.room.Relation
 @Entity(tableName = "Podcast")
 data class DbPodcast(
     @PrimaryKey
-    val id: String,
+    val id: Long,
     val name: String,
     val description: String,
     val language: String,
     val feedUrl: String,
     val website: String,
     val buildDate: String,
-    val syncDate: String,
-    val publicUrl: String,
-    val art: String,
-    val hasArt: Boolean
+    val syncDate: String
 )
 
 @Entity(tableName = "PodcastEpisode")
 data class DbPodcastEpisode(
     @PrimaryKey
-    val id: String,
+    val id: Long,
     val title: String,
-    val name: String,
     val podcastId: Long,
     val description: String,
     val category: String,
-    val author: String,
     val authorFull: String,
     val website: String,
     val publicationDate: String,
     val state: String,
-    val filelength: String,
-    val filesize: String,
-    val filename: String,
     val time: Int,
     val size: Int,
-    val url: String,
-    val art: String,
-    val hasArt: Boolean,
-    val playcount: Int,
+    val playCount: Int,
     val played: String
 )
 

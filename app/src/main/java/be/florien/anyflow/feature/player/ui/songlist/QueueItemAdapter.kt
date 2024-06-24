@@ -11,7 +11,8 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.SongDisplay
+import be.florien.anyflow.data.view.PodcastEpisodeDisplay
+import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.databinding.ItemSongBinding
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.feature.player.ui.details.DetailViewHolder
@@ -22,17 +23,18 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlin.math.absoluteValue
 
 
-class SongAdapter(
+class QueueItemAdapter(
     val listener: SongListViewHolderListener,
     val provider: SongListViewHolderProvider,
     private val onSongClicked: (Int) -> Unit
-) : PagingDataAdapter<SongDisplay, SongViewHolder>(object : DiffUtil.ItemCallback<SongDisplay>() {
-    override fun areItemsTheSame(oldItem: SongDisplay, newItem: SongDisplay) =
+) : PagingDataAdapter<QueueItemDisplay, SongViewHolder>(object :
+    DiffUtil.ItemCallback<QueueItemDisplay>() {
+    override fun areItemsTheSame(oldItem: QueueItemDisplay, newItem: QueueItemDisplay) =
         oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: SongDisplay, newItem: SongDisplay): Boolean =
-        oldItem.artistName == newItem.artistName
-                && oldItem.albumName == newItem.albumName
+    override fun areContentsTheSame(oldItem: QueueItemDisplay, newItem: QueueItemDisplay): Boolean =
+        oldItem.artist == newItem.artist
+                && oldItem.album == newItem.album
                 && oldItem.title == newItem.title
 
 }), FastScrollRecyclerView.SectionedAdapter {
@@ -67,13 +69,13 @@ class SongViewHolder(
         false
     ),
     private val shouldAlwaysShowShortcuts: Boolean = false
-) : DetailViewHolder<SongDisplay>(listener, binding.root) {
+) : DetailViewHolder<QueueItemDisplay>(listener, binding.root) {
 
     override val itemInfoView: View
         get() = binding.songLayout.songInfo
     override val infoIconView: View
         get() = binding.infoView
-    override val item: SongDisplay?
+    override val item: QueueItemDisplay?
         get() = binding.song
 
     private val shortcutListener: SongListViewHolderListener
@@ -122,12 +124,15 @@ class SongViewHolder(
      * Public methods
      */
 
-    fun bind(item: SongDisplay?) {
+    fun bind(item: QueueItemDisplay?) {
         binding.song = item
-        binding.art = ImageConfig(
-            url = item?.albumId?.let { provider.getArtUrl(it) },
-            resource = R.drawable.cover_placeholder
-        )
+        item?.albumId?.let {
+            binding.art = ImageConfig(
+                url = provider.getArtUrl(it, item is PodcastEpisodeDisplay),
+                resource = R.drawable.cover_placeholder
+            )
+
+        }
         binding.songLayout.songInfo.translationX = if (isCurrentSong) {
             provider.getCurrentSongTranslationX()
         } else {
@@ -202,8 +207,8 @@ open class SongListTouchAdapter : ItemInfoTouchAdapter() {
     }
 }
 
-interface SongListViewHolderListener : DetailViewHolderListener<SongDisplay> {
-    fun onShortcut(item: SongDisplay, row: InfoActions.InfoRow)
+interface SongListViewHolderListener : DetailViewHolderListener<QueueItemDisplay> {
+    fun onShortcut(item: QueueItemDisplay, row: InfoActions.InfoRow)
     fun onShortcutOpened(position: Int?)
     fun onCurrentSongShortcutsClosed()
 }
@@ -212,5 +217,5 @@ interface SongListViewHolderProvider {
     fun getShortcuts(): List<InfoActions.InfoRow>
     fun getCurrentPosition(): Int
     fun getCurrentSongTranslationX(): Float
-    fun getArtUrl(id: Long): String
+    fun getArtUrl(id: Long, isPodcast: Boolean): String
 }

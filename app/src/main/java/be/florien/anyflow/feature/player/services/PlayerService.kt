@@ -24,7 +24,8 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.DbSongToPlay
+import be.florien.anyflow.data.local.model.DbMediaToPlay
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
@@ -189,7 +190,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
     private fun listenToQueueChanges() {
         MainScope().launch {
             playingQueue
-                .songIdsListUpdater
+                .mediaIdsListUpdater
                 .distinctUntilChanged()
                 .map { songList -> songList.map { it.toMediaItem() } }
                 .flowOn(Dispatchers.Default)
@@ -233,7 +234,8 @@ class PlayerService : MediaSessionService(), Player.Listener {
         MainScope().launch(Dispatchers.Default) {
             alarmsSynchronizer.syncAlarms()
         }
-        val connectivityManager = applicationContext.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        val connectivityManager =
+            applicationContext.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetwork
         val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
         if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) != true) {
@@ -258,9 +260,14 @@ class PlayerService : MediaSessionService(), Player.Listener {
         }
     }
 
-    private fun DbSongToPlay.toMediaItem(): MediaItem {
-        val songUrl = ampacheDataSource.getSongUrl(id)
-        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(id.toString()).build()
+    private fun DbMediaToPlay.toMediaItem(): MediaItem {
+        val mediaType = if (mediaType == SONG_MEDIA_TYPE) {
+            "song"
+        } else {
+            "podcast_episode"
+        }
+        val songUrl = ampacheDataSource.getMediaUrl(id, mediaType)
+        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(this.id.toString()).build()
     }
     //endregion
 }

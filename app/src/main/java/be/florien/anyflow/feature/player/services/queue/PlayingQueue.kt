@@ -7,9 +7,9 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import be.florien.anyflow.data.local.model.DbSongToPlay
+import be.florien.anyflow.data.local.model.DbMediaToPlay
 import be.florien.anyflow.data.view.Ordering
-import be.florien.anyflow.data.view.SongDisplay
+import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.extension.eLog
@@ -59,9 +59,9 @@ class PlayingQueue
     val positionUpdater: LiveData<Int> = MutableLiveData(listPosition)
     val currentSong: LiveData<SongInfo?> = MutableLiveData(null)
 
-    val songDisplayListUpdater: LiveData<PagingData<SongDisplay>> =
-        queueRepository.getSongsInQueueOrder().cachedIn(coroutineScope)
-    val songIdsListUpdater: Flow<List<DbSongToPlay>> = queueRepository.getIdsInQueueOrder().asFlow()
+    val queueItemDisplayListUpdater: LiveData<PagingData<QueueItemDisplay>> =
+        queueRepository.getQueueItems().cachedIn(coroutineScope)
+    val mediaIdsListUpdater: Flow<List<DbMediaToPlay>> = queueRepository.getMediaIdsInQueueOrder().asFlow()
     val isOrderedUpdater: LiveData<Boolean> = queueRepository.getOrderings()
         .map { orderList ->
             orderList.none { it.orderingType == Ordering.OrderingType.RANDOM }

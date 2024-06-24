@@ -19,6 +19,7 @@
     <string name="filter_display_playlist_is">Song is in playlist &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="filter_display_is_downloaded">Song is downloaded</string>
     <string name="filter_display_is_not_downloaded">Song is not downloaded</string>
+    <string name="filter_display_podcast_episode_is">Podcast episode is &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="library_title_main">Library</string>
     <string name="library_type_genre">Genre</string>
     <string name="library_type_album_artist">Album’s artist</string>
@@ -27,6 +28,7 @@
     <string name="library_type_song">Song</string>
     <string name="library_type_playlist">Playlist</string>
     <string name="library_type_download">Downloaded</string>
+    <string name="library_type_podcast_episode">Podcast episode</string>
     <string name="filter_type_search">Search</string>
     <string name="filter_title_saved">Saved filters</string>
     <string name="filter_add_error">You cannot add anymore filters</string>
@@ -118,6 +120,8 @@
     <string name="filter_info_artist">Artists</string>
     <string name="filter_info_song">Songs</string>
     <string name="filter_info_playlist">Playlists</string>
+    <string name="filter_info_downloaded">Downloaded</string>
+    <string name="filter_info_podcast_episodes">Podcast episodes</string>
     <string name="playlist_presence" translatable="false">%1$d/%2$d</string>
     <string name="no_internet">No internet</string>
     <string name="playlist_progress_title">Playlists changes</string>

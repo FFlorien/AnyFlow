@@ -11,7 +11,7 @@ import java.util.Date
 
 
 @Database(
-    version = 2,
+    version = 0,
     entities = [
         DbAlbum::class,
         DbArtist::class,

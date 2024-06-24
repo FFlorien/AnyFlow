@@ -14,6 +14,7 @@ import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.toViewDisplay
+import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.feature.BaseViewModel
@@ -57,7 +58,7 @@ class SongListViewModel
         sharedPreferences,
         downloadManager
     )
-    val pagedAudioQueue: LiveData<PagingData<SongDisplay>> = playingQueue.songDisplayListUpdater
+    val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> = playingQueue.queueItemDisplayListUpdater
     val currentSong: LiveData<SongInfo?> = playingQueue.currentSong
     val currentSongDisplay: LiveData<SongDisplay?> =
         playingQueue.currentSong.map { it?.toViewDisplay() }
@@ -157,9 +158,9 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songDisplay: SongDisplay, row: InfoActions.InfoRow) {
+    fun executeSongAction(songDisplay: QueueItemDisplay, row: InfoActions.InfoRow) {
         val fieldType = row.fieldType
-        if (fieldType !is SongInfoActions.SongFieldType) {
+        if (songDisplay !is SongDisplay || fieldType !is SongInfoActions.SongFieldType) {
             return
         }
         viewModelScope.launch {
@@ -208,7 +209,7 @@ class SongListViewModel
         }
     }
 
-    fun getArtUrl(albumId: Long) = songInfoActions.getAlbumArtUrl(albumId)
+    fun getArtUrl(albumId: Long, isPodcast: Boolean) = if (isPodcast) songInfoActions.getPodcastArtUrl(albumId) else songInfoActions.getAlbumArtUrl(albumId)
 
     /**
      * Private methods

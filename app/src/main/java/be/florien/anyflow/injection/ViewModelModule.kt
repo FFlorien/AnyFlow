@@ -13,6 +13,7 @@ import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryArtis
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryDownloadedListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryGenreListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPlaylistListViewModel
+import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.feature.player.ui.library.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
@@ -75,6 +76,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(LibraryDownloadedListViewModel::class)
     abstract fun bindsSelectFilterFragmentDownloadedVM(viewModel: LibraryDownloadedListViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LibraryPodcastEpisodeListViewModel::class)
+    abstract fun bindsSelectFilterFragmentPodcastEpisodeVM(viewModel: LibraryPodcastEpisodeListViewModel): ViewModel
 
     @Binds
     @IntoMap

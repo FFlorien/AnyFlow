@@ -29,6 +29,15 @@ data class Filter<T>(
             )
 
             FilterType.DOWNLOADED_STATUS_IS -> !song.local.isNullOrBlank()
+            FilterType.PODCAST_EPISODE_IS -> false
+        }
+    }
+
+    fun contains(podcastEpisode: PodcastEpisode): Boolean {
+        return if (this.type == FilterType.PODCAST_EPISODE_IS) {
+            podcastEpisode.id == argument
+        } else {
+            false
         }
     }
 
@@ -79,6 +88,7 @@ data class Filter<T>(
         GENRE_IS(null),
         PLAYLIST_IS(SyncRepository.ART_TYPE_PLAYLIST),
         DOWNLOADED_STATUS_IS(null),
+        PODCAST_EPISODE_IS(SyncRepository.ART_TYPE_PODCAST),
         DISK_IS(SyncRepository.ART_TYPE_ALBUM)
     }
 }

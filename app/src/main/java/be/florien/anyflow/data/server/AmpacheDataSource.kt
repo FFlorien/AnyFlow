@@ -126,9 +126,9 @@ open class AmpacheDataSource
     suspend fun getStreamError(songId: Long) =
         ampacheDataApi.streamError(songId = songId)
 
-    fun getSongUrl(id: Long): String {
+    fun getMediaUrl(id: Long, mediaType: String): String {
         val serverUrl = retrofit.baseUrl()
-        return "${serverUrl}server/json.server.php?action=stream&type=song&id=$id&uid=1"
+        return "${serverUrl}server/json.server.php?action=stream&type=$mediaType&id=$id&uid=1"
     }
 
     fun getArtUrl(type: String, id: Long): String {

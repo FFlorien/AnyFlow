@@ -78,6 +78,8 @@ class LibraryInfoFragment(private var parentFilter: Filter<*>? = null) : BaseFil
                     LibraryInfoActions.LibraryFieldType.Artist -> LibraryInfoViewModel.ARTIST_ID
                     LibraryInfoActions.LibraryFieldType.Genre -> LibraryInfoViewModel.GENRE_ID
                     LibraryInfoActions.LibraryFieldType.Song -> LibraryInfoViewModel.SONG_ID
+                    LibraryInfoActions.LibraryFieldType.Downloaded -> LibraryInfoViewModel.DOWNLOAD_ID
+                    LibraryInfoActions.LibraryFieldType.PodcastEpisode -> LibraryInfoViewModel.PODCAST_EPISODE_ID
                     else -> LibraryInfoViewModel.GENRE_ID
                 }
                 (activity as PlayerActivity).supportFragmentManager

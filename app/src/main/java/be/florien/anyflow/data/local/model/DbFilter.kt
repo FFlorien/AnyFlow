@@ -36,6 +36,7 @@ data class DbFilter(
         const val DISK = "song.disk ="
         const val PLAYLIST_ID = "playlistSongs.playlistId ="
         const val PLAYLIST_ID_JOIN = "LEFT JOIN playlistSongs on song.id = playlistSongs.songId"
+        const val PODCAST_EPISODE_ID = "podcastEpisode.id ="
         const val DOWNLOADED = "song.local IS NOT NULL"
         const val NOT_DOWNLOADED = "song.local IS NULL"
     }

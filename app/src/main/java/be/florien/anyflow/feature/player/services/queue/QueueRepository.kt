@@ -9,12 +9,14 @@ import be.florien.anyflow.data.local.QueryComposer
 import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.local.model.DbQueueOrder
+import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.toDbOrdering
 import be.florien.anyflow.data.toViewFilter
 import be.florien.anyflow.data.toViewFilterGroup
 import be.florien.anyflow.data.toViewOrdering
-import be.florien.anyflow.data.toViewSongDisplay
+import be.florien.anyflow.data.toViewQueueItemDisplay
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
@@ -141,19 +143,19 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             libraryDatabase.getOrderingDao().replaceBy(orderings.map { it.toDbOrdering() })
         }
 
-    suspend fun saveQueueOrdering(listToSave: MutableList<Long>) {
+    suspend fun saveQueueOrdering(listToSave: MutableList<QueueItem>) {
         libraryDatabase.getQueueOrderDao()
-            .setOrder(listToSave.mapIndexed { index, id -> DbQueueOrder(index, id) })
+            .setOrder(listToSave.mapIndexed { index, id -> DbQueueOrder(index, id.id, id.mediaType) })
     }
     //endregion
 
     //region Queue
 
-    fun getSongsInQueueOrder() =
-        libraryDatabase.getSongDao().displayInQueueOrder().map { it.toViewSongDisplay() }
+    fun getQueueItems() =
+        libraryDatabase.getQueueOrderDao().displayInQueueOrder().map { it.toViewQueueItemDisplay() }
             .convertToPagingLiveData()
 
-    fun getIdsInQueueOrder() = libraryDatabase.getSongDao().songsInQueueOrder()
+    fun getMediaIdsInQueueOrder() = libraryDatabase.getQueueOrderDao().mediaItemsInQueueOrder()
 
     suspend fun getPositionForSong(songId: Long) =
         withContext(Dispatchers.IO) { libraryDatabase.getSongDao().findPositionInQueue(songId) }
@@ -161,13 +163,23 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     suspend fun getOrderlessQueue(
         filterList: List<Filter<*>>,
         orderingList: List<Ordering>
-    ): List<Long> =
+    ): List<QueueItem> =
         withContext(Dispatchers.IO) {
-            libraryDatabase.getSongDao().forCurrentFilters(
+            val songs = libraryDatabase.getSongDao().forCurrentFilters(
                 queryComposer.getQueryForSongs(filterList, orderingList)
-            )
+            ).map {
+                QueueItem(SONG_MEDIA_TYPE, it)
+            }
+            val podcastEpisodes = libraryDatabase.getPodcastEpisodeDao().forCurrentFilters(
+                queryComposer.getQueryForPodcastEpisodes(filterList, orderingList)
+            ).map {
+                QueueItem(PODCAST_MEDIA_TYPE, it)
+            }
+            songs + podcastEpisodes
         }
     //endregion
+
+    data class QueueItem(val mediaType: Int, val id: Long)
 
     companion object {
         private const val HISTORY_SIZE = 100

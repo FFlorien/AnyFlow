@@ -65,9 +65,23 @@ data class DbSongDisplay(
     val time: Int
 )
 
-data class DbSongToPlay(
-    val id: Long,
-    val local: String?
+data class DbQueueItemDisplay(
+    // Common
+    val mediaType: Int,
+    // Song
+    val songId: Long?,
+    val songTitle: String?,
+    val songArtistName: String?,
+    val songAlbumName: String?,
+    val songAlbumId: Long?,
+    val songTime: Int?,
+    // Podcast
+    val podcastEpisodeId: Long?,
+    val podcastTitle: String?,
+    val podcastAuthor: String?,
+    val podcastName: String?,
+    val podcastTime: Int?,
+    val podcastId: Long?
 )
 
 data class DbSongId(
