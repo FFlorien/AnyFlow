@@ -14,9 +14,8 @@ import be.florien.anyflow.data.local.model.DbPlaylistWithCount
 import be.florien.anyflow.data.local.model.DbPlaylistWithCountAndPresence
 import be.florien.anyflow.data.local.model.DbPodcast
 import be.florien.anyflow.data.local.model.DbPodcastEpisode
-import be.florien.anyflow.data.local.model.DbPodcastWithEpisodes
-import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbQueueItemDisplay
+import be.florien.anyflow.data.local.model.DbSong
 import be.florien.anyflow.data.local.model.DbSongDisplay
 import be.florien.anyflow.data.local.model.DbSongGenre
 import be.florien.anyflow.data.local.model.DbSongId
@@ -40,8 +39,6 @@ import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
-import be.florien.anyflow.data.view.Podcast
-import be.florien.anyflow.data.view.PodcastEpisode
 import be.florien.anyflow.data.view.PodcastEpisodeDisplay
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
@@ -144,7 +141,7 @@ fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
 
 //region Database to view
 
- fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
+fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
     id = id,
     title = title,
     artistName = artistName,
@@ -161,7 +158,8 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay() =
         songArtistName != null &&
         songAlbumName != null &&
         songAlbumId != null &&
-        songTime != null ) {
+        songTime != null
+    ) {
         SongDisplay(
             id = songId,
             title = songTitle,
@@ -175,7 +173,8 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay() =
         podcastEpisodeId != null &&
         podcastTitle != null &&
         podcastTime != null &&
-        podcastId != null) {
+        podcastId != null
+    ) {
         PodcastEpisodeDisplay(
             id = podcastEpisodeId,
             title = podcastTitle,
@@ -233,6 +232,7 @@ fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
         DbFilter.PLAYLIST_ID -> Filter.FilterType.PLAYLIST_IS
         DbFilter.DOWNLOADED,
         DbFilter.NOT_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
+
         DbFilter.PODCAST_EPISODE_ID -> Filter.FilterType.PODCAST_EPISODE_IS
 
         else -> Filter.FilterType.SONG_IS
@@ -288,26 +288,14 @@ fun DbFilterCount.toViewFilterCount() = FilterCount(
     playlists = playlists
 )
 
-fun DbPodcast.toViewPodcast() = Podcast(
-    id = id,
-    name = name,
-    description = description,
-    syncDate = syncDate
-)
-
-fun DbPodcastEpisode.toViewPodcastEpisode() = PodcastEpisode(
+fun DbPodcastEpisode.toViewPodcastEpisodeDisplay() = PodcastEpisodeDisplay(
     id = id,
     title = title,
-    description = description,
-    authorFull = authorFull,
-    publicationDate = publicationDate,
-    state = state,
     time = time,
-    playCount = playCount,
-    played = played
+    author = authorFull,
+    album = authorFull,
+    albumId = podcastId
 )
-
-fun DbPodcastWithEpisodes.toViewPodcast() = podcast.toViewPodcast().copy(episodes = episodes.map { it.toViewPodcastEpisode() })
 
 //endregion
 

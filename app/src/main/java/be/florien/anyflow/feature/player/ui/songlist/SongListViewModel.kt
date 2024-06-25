@@ -13,8 +13,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
 import androidx.paging.PagingData
 import be.florien.anyflow.data.DataRepository
+import be.florien.anyflow.data.PodcastRepository
 import be.florien.anyflow.data.UrlRepository
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.toViewDisplay
+import be.florien.anyflow.data.toViewPodcastEpisodeDisplay
 import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.feature.BaseViewModel
@@ -46,7 +49,8 @@ class SongListViewModel
     downloadManager: DownloadManager,
     urlRepository: UrlRepository,
     playingQueue: PlayingQueue,
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
+    private val podcastRepository: PodcastRepository,
 ) : BaseViewModel() {
 
     var player: MediaController? = null
@@ -58,9 +62,18 @@ class SongListViewModel
         sharedPreferences,
         downloadManager
     )
-    val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> = playingQueue.queueItemDisplayListUpdater
-    val currentSongDisplay: LiveData<SongDisplay?> =
-        playingQueue.currentSong.switchMap { song -> song?.id?.let {dataRepository.getSong(it)} }.map { it.toViewDisplay() }
+    val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> =
+        playingQueue.queueItemDisplayListUpdater
+    val currentSongDisplay: LiveData<QueueItemDisplay?> =
+        playingQueue.currentSong.switchMap { queueItem ->
+            if (queueItem?.mediaType == SONG_MEDIA_TYPE) {
+                queueItem.id.let { id -> dataRepository.getSong(id).map { it.toViewDisplay() } }
+            } else {
+                queueItem?.id?.let { id ->
+                    podcastRepository.getPodcastEpisode(id).map { it.toViewPodcastEpisodeDisplay() }
+                }
+            }
+        }
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -208,7 +221,10 @@ class SongListViewModel
         }
     }
 
-    fun getArtUrl(albumId: Long, isPodcast: Boolean) = if (isPodcast) songInfoActions.getPodcastArtUrl(albumId) else songInfoActions.getAlbumArtUrl(albumId)
+    fun getArtUrl(albumId: Long, isPodcast: Boolean) =
+        if (isPodcast) songInfoActions.getPodcastArtUrl(albumId) else songInfoActions.getAlbumArtUrl(
+            albumId
+        )
 
     /**
      * Private methods

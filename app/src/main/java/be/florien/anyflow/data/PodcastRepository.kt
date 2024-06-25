@@ -21,5 +21,8 @@ class PodcastRepository @Inject constructor(
             .getPodcastEpisodesSync()
             .map(convert)
 
-    suspend fun getPodcastDuration(id: Long) = libraryDatabase.getPodcastEpisodeDao().getPodcastDuration(id)
+    suspend fun getPodcastDuration(id: Long) =
+        libraryDatabase.getPodcastEpisodeDao().getPodcastDuration(id)
+
+    fun getPodcastEpisode(id: Long) = libraryDatabase.getPodcastEpisodeDao().getPodcastEpisode(id)
 }

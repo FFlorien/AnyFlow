@@ -136,5 +136,6 @@ data class PodcastEpisode(
     val state: String,
     val time: Int,
     val playCount: Int,
-    val played: String
+    val played: String,
+    val podcastId: Long
 ) : Parcelable

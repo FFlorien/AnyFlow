@@ -27,4 +27,7 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
 
     @Query("SELECT time FROM PodcastEpisode WHERE id = :id")
     abstract suspend fun getPodcastDuration(id: Long): Int
+
+    @Query("SELECT * FROM PodcastEpisode WHERE id = :id")
+    abstract fun getPodcastEpisode(id: Long): LiveData<DbPodcastEpisode>
 }
