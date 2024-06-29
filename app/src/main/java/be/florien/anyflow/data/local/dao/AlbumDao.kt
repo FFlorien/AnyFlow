@@ -5,14 +5,14 @@ import androidx.room.Dao
 import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbAlbum
+import be.florien.anyflow.data.local.model.DbAlbumWithArtist
 import be.florien.anyflow.data.local.model.DbAlbumDisplay
-import be.florien.anyflow.data.local.model.DbAlbumDisplayForRaw
 
 @Dao
 abstract class AlbumDao : BaseDao<DbAlbum>() {
-    @RawQuery(observedEntities = [DbAlbumDisplay::class])
-    abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbAlbumDisplayForRaw>
+    @RawQuery(observedEntities = [DbAlbumWithArtist::class])
+    abstract suspend fun rawQueryDisplayList(query: SupportSQLiteQuery): List<DbAlbumDisplay>
 
-    @RawQuery(observedEntities = [DbAlbumDisplay::class])
-    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbAlbumDisplayForRaw>
+    @RawQuery(observedEntities = [DbAlbumWithArtist::class])
+    abstract fun rawQueryDisplayPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbAlbumDisplay>
 }

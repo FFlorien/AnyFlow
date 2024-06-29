@@ -2,7 +2,7 @@ package be.florien.anyflow.feature.player.ui.library.list.viewmodels
 
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.DbAlbumDisplayForRaw
+import be.florien.anyflow.data.local.model.DbAlbumDisplay
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.ui.library.list.LibraryListViewModel
@@ -38,7 +38,7 @@ class LibraryAlbumListViewModel @Inject constructor(
             )
         )
 
-    private fun convert(album: DbAlbumDisplayForRaw): FilterItem {
+    private fun convert(album: DbAlbumDisplay): FilterItem {
         val artUrl = urlRepository.getAlbumArtUrl(album.albumId)
         val filter =
             getFilterInParent(

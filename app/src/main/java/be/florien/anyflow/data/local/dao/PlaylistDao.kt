@@ -12,24 +12,24 @@ import be.florien.anyflow.data.local.model.DbPlaylistWithCountAndPresence
 
 @Dao
 abstract class PlaylistDao : BaseDao<DbPlaylist>() {
-    @Query("SELECT * FROM playlist")
-    abstract fun getPlaylists(): LiveData<List<DbPlaylist>>
-
-    @Query("SELECT * FROM playlist")
-    abstract suspend fun getPlaylistsSync(): List<DbPlaylist>
-
     @Query("SELECT COUNT(*) FROM playlistsongs WHERE playlistId = :playlistId")
     abstract suspend fun getPlaylistCount(playlistId: Long): Int
 
-    @RawQuery(observedEntities = [DbPlaylist::class])
-    abstract fun rawQueryListPlaylistsWithPresence(query: SupportSQLiteQuery): LiveData<List<DbPlaylistWithCountAndPresence>>
+    @Query("SELECT * FROM playlist")
+    abstract suspend fun getPlaylistsList(): List<DbPlaylist>
 
     @RawQuery(observedEntities = [DbPlaylist::class])
-    abstract fun rawQueryPagingWithCount(query: SupportSQLiteQuery): DataSource.Factory<Int, DbPlaylistWithCount>
+    abstract suspend fun rawQueryDisplayList(query: SupportSQLiteQuery): List<DbPlaylist>
+
+    @Query("SELECT * FROM playlist")
+    abstract fun getPlaylistsUpdatable(): LiveData<List<DbPlaylist>>
+
+    @RawQuery(observedEntities = [DbPlaylist::class])
+    abstract fun rawQueryPlaylistsWithPresenceUpdatable(query: SupportSQLiteQuery): LiveData<List<DbPlaylistWithCountAndPresence>>
+
+    @RawQuery(observedEntities = [DbPlaylist::class])
+    abstract fun rawQueryWithCountPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbPlaylistWithCount>
 
     @RawQuery(observedEntities = [DbPlaylist::class])
     abstract fun rawQueryPaging(query: SupportSQLiteQuery): DataSource.Factory<Int, DbPlaylist>
-
-    @RawQuery(observedEntities = [DbPlaylist::class])
-    abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbPlaylist>
 }

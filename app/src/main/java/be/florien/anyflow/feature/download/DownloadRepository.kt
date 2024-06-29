@@ -17,7 +17,7 @@ class DownloadRepository @Inject constructor(
     private val queryComposer = QueryComposer()
 
     suspend fun getSongSync(id: Long): SongInfo =
-        libraryDatabase.getSongDao().findByIdSync(id).toViewSongInfo()
+        libraryDatabase.getSongDao().songById(id).toViewSongInfo()
 
     suspend fun queueDownload(id: Long, type: Filter.FilterType, secondId: Int?) {
         val filter = if (type == Filter.FilterType.DISK_IS) {
@@ -35,7 +35,7 @@ class DownloadRepository @Inject constructor(
 
     suspend fun getDownloadList() = libraryDatabase
         .getDownloadDao()
-        .list()
+        .allList()
         .map { download ->
             download.songId
         }

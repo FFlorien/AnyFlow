@@ -24,7 +24,7 @@ data class DbAlbum(
     val diskcount: Int
 )
 
-data class DbAlbumDisplay(
+data class DbAlbumWithArtist(
     @Embedded
     val album: DbAlbum,
     @Relation(
@@ -34,7 +34,7 @@ data class DbAlbumDisplay(
     val artist: DbArtist
 )
 
-data class DbAlbumDisplayForRaw(
+data class DbAlbumDisplay(
     val albumId: Long,
     val albumName: String,
     val albumArtistId: Long,

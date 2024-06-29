@@ -11,14 +11,14 @@ class PodcastRepository @Inject constructor(
     fun <T : Any> getAllPodcastsEpisodes(convert: (DbPodcastEpisode) -> T) =
         libraryDatabase
             .getPodcastEpisodeDao()
-            .getPodcastEpisodes()
+            .getPodcastEpisodesPaging()
             .map(convert)
             .convertToPagingLiveData()
 
     suspend fun <T : Any> getAllPodcastsEpisodesList(convert: (DbPodcastEpisode) -> T) =
         libraryDatabase
             .getPodcastEpisodeDao()
-            .getPodcastEpisodesSync()
+            .getPodcastEpisodesList()
             .map(convert)
 
     suspend fun getPodcastDuration(id: Long) =

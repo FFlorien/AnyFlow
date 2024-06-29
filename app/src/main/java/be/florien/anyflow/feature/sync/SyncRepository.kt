@@ -184,7 +184,7 @@ class SyncRepository
         val playlists = ampacheDataSource.getPlaylists()
         val playlistSongs = ampacheDataSource.getPlaylistsWithSongs()
         if (playlists is NetSuccess && playlistSongs is NetSuccess) {
-            val currentLocalPlaylists = libraryDatabase.getPlaylistDao().getPlaylistsSync()
+            val currentLocalPlaylists = libraryDatabase.getPlaylistDao().getPlaylistsList()
             libraryDatabase.getPlaylistSongsDao().deleteAllPlaylistSongs()
 
             val deletedPlaylists = currentLocalPlaylists.filter { localPlaylist ->
@@ -219,7 +219,7 @@ class SyncRepository
             }
             val podcastsWithEpisodes = ampachePodcastSource.getPodcastsWithEpisodes()
             if (podcastsWithEpisodes is NetSuccess) {
-                val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastsSync()
+                val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastList()
                 libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
 
                 val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->

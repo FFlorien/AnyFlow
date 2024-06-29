@@ -42,11 +42,11 @@ class DataRepository @Inject constructor(
         ).map { mapping(it) }.convertToPagingLiveData()
 
     fun <T : Any> getAlbums(
-        mapping: (DbAlbumDisplayForRaw) -> T,
+        mapping: (DbAlbumDisplay) -> T,
         filters: List<Filter<*>>?,
         search: String?
     ): LiveData<PagingData<T>> =
-        libraryDatabase.getAlbumDao().rawQueryPaging(
+        libraryDatabase.getAlbumDao().rawQueryDisplayPaging(
             queryComposer.getQueryForAlbumFiltered(filters, search)
         ).map { mapping(it) }.convertToPagingLiveData()
 
@@ -93,9 +93,9 @@ class DataRepository @Inject constructor(
     suspend fun <T : Any> getAlbumsSearchedList(
         filters: List<Filter<*>>?,
         search: String,
-        mapping: (DbAlbumDisplayForRaw) -> T,
+        mapping: (DbAlbumDisplay) -> T,
     ): List<T> =
-        libraryDatabase.getAlbumDao().rawQueryListDisplay(
+        libraryDatabase.getAlbumDao().rawQueryDisplayList(
             queryComposer.getQueryForAlbumFiltered(filters, search)
         ).map { item -> (mapping(item)) }
 
@@ -122,13 +122,13 @@ class DataRepository @Inject constructor(
      */
 
     fun searchSongs(filter: String) =
-        libraryDatabase.getSongDao().searchPositionsWhereFilterPresent("%$filter%")
+        libraryDatabase.getSongDao().searchPositionsWhereFilterPresentUpdatable("%$filter%")
 
     fun getSong(id: Long): LiveData<SongInfo> =
-        libraryDatabase.getSongDao().findById(id).map { it.toViewSongInfo() }
+        libraryDatabase.getSongDao().songByIdUpdatable(id).map { it.toViewSongInfo() }
 
     suspend fun getSongSync(id: Long): SongInfo =
-        libraryDatabase.getSongDao().findByIdSync(id).toViewSongInfo()
+        libraryDatabase.getSongDao().songById(id).toViewSongInfo()
 
     /**
      * Infos

@@ -12,7 +12,7 @@ import be.florien.anyflow.data.local.model.DownloadProgressState
 @Dao
 abstract class DownloadDao : BaseDao<DbDownload>() {
     @Query("SELECT * FROM download")
-    abstract suspend fun list(): List<DbDownload>
+    abstract suspend fun allList(): List<DbDownload>
 
     @RawQuery
     abstract suspend fun rawQueryInsert(query: SupportSQLiteQuery): List<Long>

@@ -8,7 +8,8 @@ import be.florien.anyflow.data.local.model.DbAlarm
 @Dao
 abstract class AlarmDao : BaseDao<DbAlarm>() {
     @Query("SELECT * FROM alarm")
-    abstract fun all(): LiveData<List<DbAlarm>>
+    abstract suspend fun allList(): List<DbAlarm>
+
     @Query("SELECT * FROM alarm")
-    abstract suspend fun list(): List<DbAlarm>
+    abstract fun allAlarmsUpdatable(): LiveData<List<DbAlarm>>
 }

@@ -32,13 +32,13 @@ class WaveFormRepository @Inject constructor(
         CoroutineScope(SupervisorJob() + Dispatchers.Main + exceptionHandler)
 
     fun getComputedWaveForm(songId: Long): LiveData<DoubleArray> =
-        libraryDatabase.getSongDao().getWaveForm(songId).map { it.downSamplesArray }
+        libraryDatabase.getSongDao().getWaveFormUpdatable(songId).map { it.downSamplesArray }
 
     fun checkWaveForm(songId: Long) {
         coroutineScope.launch(Dispatchers.IO) {
             val waveFormLocal = libraryDatabase
                 .getSongDao()
-                .getWaveFormSync(songId)
+                .getWaveForm(songId)
             val isWaveFormMissing =
                 waveFormLocal == null || waveFormLocal.downSamplesArray.isEmpty()
             if (isWaveFormMissing && currentDownloads.add(songId)) {

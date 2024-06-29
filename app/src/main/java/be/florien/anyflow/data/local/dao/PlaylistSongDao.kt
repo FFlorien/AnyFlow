@@ -10,19 +10,24 @@ import be.florien.anyflow.data.local.model.DbSongDisplay
 @Dao
 abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
 
-    @Transaction
-    @Query("SELECT song.id AS id, song.title AS title, artist.name AS artistName, album.name AS albumName, album.id AS albumId, song.time AS time " +
-            "FROM song JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN playlistsongs ON song.id = playlistsongs.songId " +
-            "WHERE playlistsongs.playlistId = :playlistId " +
-            "ORDER BY playlistsongs.`order`")
-    abstract fun songsFromPlaylist(playlistId: Long): DataSource.Factory<Int, DbSongDisplay>
-
+    // region SELECT
     @Query("SELECT count(*) FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")
-    abstract suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Int
+    abstract suspend fun songInPlaylistCount(playlistId: Long, songId: Long): Int
 
     @Query("SELECT max(`order`) FROM playlistsongs WHERE playlistId = :playlistId")
     abstract suspend fun playlistLastOrder(playlistId: Long): Int?
 
+    @Transaction
+    @Query(
+        "SELECT song.id AS id, song.title AS title, artist.name AS artistName, album.name AS albumName, album.id AS albumId, song.time AS time " +
+                "FROM song JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN playlistsongs ON song.id = playlistsongs.songId " +
+                "WHERE playlistsongs.playlistId = :playlistId " +
+                "ORDER BY playlistsongs.`order`"
+    )
+    abstract fun songsFromPlaylistPaging(playlistId: Long): DataSource.Factory<Int, DbSongDisplay>
+    //endregion
+
+    // region DELETE
     @Query("DELETE FROM playlistsongs WHERE playlistId = :playlistId AND songId = :songId")
     abstract suspend fun deleteSongFromPlaylist(playlistId: Long, songId: Long)
 
@@ -31,4 +36,5 @@ abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
 
     @Query("DELETE FROM playlistsongs")
     abstract suspend fun deleteAllPlaylistSongs()
+    // endregion
 }

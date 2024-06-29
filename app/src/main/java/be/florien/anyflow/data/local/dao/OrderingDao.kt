@@ -8,18 +8,22 @@ import be.florien.anyflow.data.local.model.DbOrdering
 
 @Dao
 abstract class OrderingDao : BaseDao<DbOrdering>() {
+    // region SELECT
     @Query("SELECT * FROM ordering ORDER BY priority")
-    abstract fun all(): LiveData<List<DbOrdering>>
+    abstract fun allUpdatable(): LiveData<List<DbOrdering>>
 
     @Query("SELECT * FROM ordering ORDER BY priority")
-    abstract fun list(): List<DbOrdering>
+    abstract fun allList(): List<DbOrdering>
+    //endregion
 
-    @Query("DELETE FROM ordering")
-    abstract suspend fun deleteAll()
-
+    //region INSERT
     @Transaction
     open suspend fun replaceBy(filters: List<DbOrdering>) {
         deleteAll()
-        insert(filters)
+        insertList(filters)
     }
+    //endregion
+
+    @Query("DELETE FROM ordering")
+    abstract suspend fun deleteAll()
 }

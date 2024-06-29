@@ -36,18 +36,18 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     //region Filters
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =
-        libraryDatabase.getPlaylistSongsDao().isPlaylistContainingSong(playlistId, songId) > 0
+        libraryDatabase.getPlaylistSongsDao().songInPlaylistCount(playlistId, songId) > 0
 
     suspend fun getMediaItemAtPosition(position: Int) =
         withContext(Dispatchers.IO) {
-            libraryDatabase.getQueueOrderDao().forPositionInQueue(position)
+            libraryDatabase.getQueueOrderDao().queueItemInPosition(position)
         }
     // endregion
 
     //region Current filters
 
     fun getCurrentFilters(): LiveData<List<Filter<*>>> =
-        libraryDatabase.getFilterDao().currentFilters().distinctUntilChanged()
+        libraryDatabase.getFilterDao().currentFiltersUpdatable().distinctUntilChanged()
             .map { filterList ->
                 filterList.mapNotNull { filter ->
                     if (filter.parentFilter != null) {
@@ -62,12 +62,12 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
         //todo verify if first sync not showing anything at install isn't originating from here
         libraryDatabase.apply {
             withTransaction {
-                val currentFilters = getFilterDao().currentFiltersSync()
-                val currentFilterGroup = getFilterGroupDao().currentSync()
+                val currentFilters = getFilterDao().currentFilterList()
+                val currentFilterGroup = getFilterGroupDao().currentGroup()
                 updateHistory(currentFilters, currentFilterGroup)
 
                 insertCurrentFilterAndChildren(filterList)
-                getFilterGroupDao().update(currentFilterGroup.copy(dateAdded = Date().time))
+                getFilterGroupDao().updateItems(currentFilterGroup.copy(dateAdded = Date().time))
             }
         }
     }
@@ -75,15 +75,15 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     private suspend fun LibraryDatabase.updateHistory(
         currentFilters: List<DbFilter>, currentFilterGroup: DbFilterGroup
     ) {
-        val history = getFilterGroupDao().historySync()
+        val history = getFilterGroupDao().historyGroupsList()
         if (history.size > HISTORY_SIZE) {
             getFilterGroupDao().deleteGroup(history.first().id)
         }
 
         val newHistoryItem = currentFilterGroup.copy(id = 0)
-        val newId = getFilterGroupDao().insertSingle(newHistoryItem)
+        val newId = getFilterGroupDao().insertItem(newHistoryItem)
         val newHistoryFilters = currentFilters.map { it.copy(filterGroup = newId) }
-        getFilterDao().updateAll(newHistoryFilters)
+        getFilterDao().updateList(newHistoryFilters)
     }
 
     private suspend fun insertCurrentFilterAndChildren(
@@ -92,7 +92,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     ) {
         filters.forEach { filter ->
             val id = libraryDatabase.getFilterDao()
-                .insertSingle(filter.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID, parentId))
+                .insertItem(filter.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID, parentId))
             insertCurrentFilterAndChildren(filter.children, id)
         }
     }
@@ -102,26 +102,26 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
 
     suspend fun saveFilterGroup(filterList: List<Filter<*>>, name: String) =
         withContext(Dispatchers.IO) {
-            if (libraryDatabase.getFilterGroupDao().withNameIgnoreCase(name).isEmpty()) {
+            if (libraryDatabase.getFilterGroupDao().filterGroupWithNameList(name).isEmpty()) {
                 val filterGroup = DbFilterGroup(0, name, System.currentTimeMillis())
-                val newId = libraryDatabase.getFilterGroupDao().insertSingle(filterGroup)
+                val newId = libraryDatabase.getFilterGroupDao().insertItem(filterGroup)
                 val filtersUpdated = filterList.map { it.toDbFilter(newId) }
-                libraryDatabase.getFilterDao().insert(filtersUpdated)
+                libraryDatabase.getFilterDao().insertList(filtersUpdated)
             } else {
                 throw IllegalArgumentException("A filter group with this name already exists")
             }
         }
 
-    fun getSavedGroups() = libraryDatabase.getFilterGroupDao().saved()
+    fun getSavedGroups() = libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
         .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
         withContext(Dispatchers.IO) {
             libraryDatabase.apply {
                 withTransaction {
-                    val filterForGroup = getFilterDao().filterForGroup(filterGroup.id)
-                    val currentFilters = getFilterDao().currentFiltersSync()
-                    val currentFilterGroup = getFilterGroupDao().currentSync()
+                    val filterForGroup = getFilterDao().filtersForGroupList(filterGroup.id)
+                    val currentFilters = getFilterDao().currentFilterList()
+                    val currentFilterGroup = getFilterGroupDao().currentGroup()
                     updateHistory(currentFilters, currentFilterGroup)
                     getFilterDao().updateGroup(
                         currentFilterGroup,
@@ -134,7 +134,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     //region Ordering
 
     fun getOrderings() =
-        libraryDatabase.getOrderingDao().all().distinctUntilChanged()
+        libraryDatabase.getOrderingDao().allUpdatable().distinctUntilChanged()
             .map { list -> list.map { item -> item.toViewOrdering() } }
 
     suspend fun setOrderings(orderings: List<Ordering>) =
@@ -151,25 +151,25 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     //region Queue
 
     fun getQueueItems() =
-        libraryDatabase.getQueueOrderDao().displayInQueueOrder().map { it.toViewQueueItemDisplay() }
+        libraryDatabase.getQueueOrderDao().displayInQueueOrderPaging().map { it.toViewQueueItemDisplay() }
             .convertToPagingLiveData()
 
-    fun getMediaIdsInQueueOrder() = libraryDatabase.getQueueOrderDao().mediaItemsInQueueOrder()
+    fun getMediaIdsInQueueOrder() = libraryDatabase.getQueueOrderDao().mediaItemsInQueueOrderUpdatable()
 
     suspend fun getPositionForSong(songId: Long) =
-        withContext(Dispatchers.IO) { libraryDatabase.getSongDao().findPositionInQueue(songId) }
+        withContext(Dispatchers.IO) { libraryDatabase.getQueueOrderDao().findPositionInQueue(songId) }
 
     suspend fun getOrderlessQueue(
         filterList: List<Filter<*>>,
         orderingList: List<Ordering>
     ): List<QueueItem> =
         withContext(Dispatchers.IO) {
-            val songs = libraryDatabase.getSongDao().forCurrentFilters(
+            val songs = libraryDatabase.getSongDao().forCurrentFiltersList(
                 queryComposer.getQueryForSongs(filterList, orderingList)
             ).map {
                 QueueItem(SONG_MEDIA_TYPE, it)
             }
-            val podcastEpisodes = libraryDatabase.getPodcastEpisodeDao().forCurrentFilters(
+            val podcastEpisodes = libraryDatabase.getPodcastEpisodeDao().rawQueryIdList(
                 queryComposer.getQueryForPodcastEpisodes(filterList, orderingList)
             ).map {
                 QueueItem(PODCAST_MEDIA_TYPE, it)

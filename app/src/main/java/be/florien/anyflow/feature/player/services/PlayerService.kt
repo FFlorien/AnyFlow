@@ -11,6 +11,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
@@ -267,7 +268,14 @@ class PlayerService : MediaSessionService(), Player.Listener {
             "podcast_episode"
         }
         val songUrl = ampacheDataSource.getMediaUrl(id, mediaType)
-        return MediaItem.Builder().setUri(Uri.parse(songUrl)).setMediaId(this.id.toString()).build()
+        val mediaTypeMetaData =
+            if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
+        return MediaItem.Builder().setMediaMetadata(
+            MediaMetadata
+                .Builder()
+                .setMediaType(mediaTypeMetaData)
+                .build()
+        ).setUri(Uri.parse(songUrl)).setMediaId(this.id.toString()).build()
     }
     //endregion
 }

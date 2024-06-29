@@ -37,7 +37,7 @@ data class DbSongInfo(
         parentColumn = "albumId",
         entityColumn = "id"
     )
-    var album: DbAlbumDisplay,
+    var album: DbAlbumWithArtist,
     @Relation(
         parentColumn = "id",
         entityColumn = "id",

@@ -11,26 +11,26 @@ import javax.inject.Inject
 class AlarmRepository @Inject constructor(private val libraryDatabase: LibraryDatabase) {
 
     suspend fun addAlarm(alarm: Alarm) =
-        libraryDatabase.getAlarmDao().insertSingle(alarm.toDbAlarm())
+        libraryDatabase.getAlarmDao().insertItem(alarm.toDbAlarm())
 
     fun getAlarms(): LiveData<List<Alarm>> =
-        libraryDatabase.getAlarmDao().all().map { list -> list.map { it.toViewAlarm() } }
+        libraryDatabase.getAlarmDao().allAlarmsUpdatable().map { list -> list.map { it.toViewAlarm() } }
 
     suspend fun getAlarmList(): List<Alarm> =
-        libraryDatabase.getAlarmDao().list().map { it.toViewAlarm() }
+        libraryDatabase.getAlarmDao().allList().map { it.toViewAlarm() }
 
     suspend fun activateAlarm(alarm: Alarm) {
         val newAlarm = alarm.copy(active = true)
-        libraryDatabase.getAlarmDao().update(newAlarm.toDbAlarm())
+        libraryDatabase.getAlarmDao().updateItems(newAlarm.toDbAlarm())
     }
 
     suspend fun deactivateAlarm(alarm: Alarm) {
         val newAlarm = alarm.copy(active = false)
-        libraryDatabase.getAlarmDao().update(newAlarm.toDbAlarm())
+        libraryDatabase.getAlarmDao().updateItems(newAlarm.toDbAlarm())
     }
 
     suspend fun editAlarm(alarm: Alarm) {
-        libraryDatabase.getAlarmDao().update(alarm.toDbAlarm())
+        libraryDatabase.getAlarmDao().updateItems(alarm.toDbAlarm())
     }
 
     suspend fun deleteAlarm(alarm: Alarm) {

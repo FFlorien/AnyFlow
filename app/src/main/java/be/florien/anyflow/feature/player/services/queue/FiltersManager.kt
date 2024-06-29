@@ -53,7 +53,7 @@ class FiltersManager
         areFiltersChanged = true
     }
 
-    fun removeFilter(filter: Filter<*>) {
+    fun removeFilter(filter: Filter<*>) {//TODO CHECK THAT because it's flatten filter
         unCommittedFilters.remove(filter)
         (filtersInEdition as MutableLiveData).value = unCommittedFilters
         areFiltersChanged = true

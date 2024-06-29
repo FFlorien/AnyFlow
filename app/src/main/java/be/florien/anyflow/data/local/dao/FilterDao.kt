@@ -12,24 +12,30 @@ import be.florien.anyflow.data.local.model.DbFilterGroup
 
 @Dao
 abstract class FilterDao : BaseDao<DbFilter>() {
-    @Query("SELECT filter.id, clause, joinClause, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
-    abstract fun currentFilters(): LiveData<List<DbFilter>>
+    // region SELECT
+    @RawQuery
+    abstract suspend fun getCount(query: SupportSQLiteQuery): DbFilterCount
 
     @Query("SELECT filter.id, clause, joinClause, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
-    abstract fun currentFiltersSync(): List<DbFilter>
+    abstract fun currentFilterList(): List<DbFilter>
 
     @Query("SELECT * FROM filter WHERE filterGroup = :groupId")
-    abstract suspend fun filterForGroup(groupId: Long): List<DbFilter>
+    abstract suspend fun filtersForGroupList(groupId: Long): List<DbFilter>
 
-    @Query("DELETE FROM filter WHERE filterGroup = :groupId")
-    abstract fun deleteGroupSync(groupId: Long)
+    @Query("SELECT filter.id, clause, joinClause, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
+    abstract fun currentFiltersUpdatable(): LiveData<List<DbFilter>>
+    // endregion
 
+    //region INSERT
     @Transaction
     open suspend fun updateGroup(group: DbFilterGroup, filters: List<DbFilter>) {
         deleteGroupSync(group.id)
-        insert(filters)
+        insertList(filters)
     }
+    //endregion
 
-    @RawQuery
-    abstract suspend fun getCount(query: SupportSQLiteQuery): DbFilterCount
+    //region DELETE
+    @Query("DELETE FROM filter WHERE filterGroup = :groupId")
+    abstract fun deleteGroupSync(groupId: Long)
+    //endregion
 }
