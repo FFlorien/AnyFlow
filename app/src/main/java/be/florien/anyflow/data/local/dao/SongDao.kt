@@ -64,7 +64,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract suspend fun updateWithLocalUri(songId: Long, uri: String?)
     // endregion
 
-    @Delete(entity = DbSong::class)
+    @Delete(entity = DbSong::class) // todo List<Long>?
     abstract suspend fun deleteWithId(ids: List<DbSongId>)
 
 }

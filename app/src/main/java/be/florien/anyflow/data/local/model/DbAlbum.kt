@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package be.florien.anyflow.data.local.model
 
 import androidx.room.*

@@ -28,6 +28,7 @@ data class DbFilter(
 ) {
 
     companion object {
+        // Songs
         const val GENRE_IS = "songgenre.genreId ="
         const val SONG_ID = "song.id ="
         const val ARTIST_ID = "song.artistId ="
@@ -36,13 +37,15 @@ data class DbFilter(
         const val DISK = "song.disk ="
         const val PLAYLIST_ID = "playlistSongs.playlistId ="
         const val PLAYLIST_ID_JOIN = "LEFT JOIN playlistSongs on song.id = playlistSongs.songId"
+        // Podcasts
         const val PODCAST_EPISODE_ID = "podcastEpisode.id ="
+        // Common
         const val DOWNLOADED = "song.local IS NOT NULL"
         const val NOT_DOWNLOADED = "song.local IS NULL"
     }
 }
 
-data class DbFilterCount(
+data class DbSongFilterCount(
     val duration: Int,
     val genres: Int,
     val albumArtists: Int,

@@ -7,14 +7,14 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.data.local.model.DbFilter
-import be.florien.anyflow.data.local.model.DbFilterCount
+import be.florien.anyflow.data.local.model.DbSongFilterCount
 import be.florien.anyflow.data.local.model.DbFilterGroup
 
 @Dao
 abstract class FilterDao : BaseDao<DbFilter>() {
     // region SELECT
     @RawQuery
-    abstract suspend fun getCount(query: SupportSQLiteQuery): DbFilterCount
+    abstract suspend fun getCount(query: SupportSQLiteQuery): DbSongFilterCount
 
     @Query("SELECT filter.id, clause, joinClause, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
     abstract fun currentFilterList(): List<DbFilter>

@@ -5,9 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.local.dao.*
 import be.florien.anyflow.data.local.model.*
-import java.util.Date
 
 
 @Database(
@@ -67,10 +67,13 @@ abstract class LibraryDatabase : RoomDatabase() {
             val databaseBuilder =
                 Room.databaseBuilder(context, LibraryDatabase::class.java, DB_NAME)
             return databaseBuilder
-                .addCallback(object : Callback() {
+                .addCallback(object : Callback() { //todo set order the first time
                     override fun onCreate(db: SupportSQLiteDatabase) {
-                        val currentFilterGroup =
-                            DbFilterGroup(DbFilterGroup.CURRENT_FILTER_GROUP_ID, null, Date().time)
+                        val currentFilterGroup = DbFilterGroup(
+                            DbFilterGroup.CURRENT_FILTER_GROUP_ID,
+                            null,
+                            TimeOperations.getCurrentDate().timeInMillis
+                        )
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\", ${currentFilterGroup.dateAdded})")
                     }
                 })

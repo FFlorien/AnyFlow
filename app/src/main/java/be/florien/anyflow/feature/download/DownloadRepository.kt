@@ -6,6 +6,7 @@ import be.florien.anyflow.data.local.LibraryDatabase
 import be.florien.anyflow.data.local.QueryComposer
 import be.florien.anyflow.data.local.model.DbDownload
 import be.florien.anyflow.data.local.model.DownloadProgressState
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
@@ -27,17 +28,14 @@ class DownloadRepository @Inject constructor(
         }
         libraryDatabase
             .getDownloadDao()
-            .rawQueryInsert(
-                queryComposer
-                    .getQueryForDownload(listOfNotNull(filter))
-            )
+            .rawQueryInsert(queryComposer.getQueryForDownload(listOfNotNull(filter)))
     }
 
     suspend fun getDownloadList() = libraryDatabase
         .getDownloadDao()
         .allList()
         .map { download ->
-            download.songId
+            download.mediaId
         }
 
     fun getProgressForDownloadCandidate(
@@ -61,7 +59,7 @@ class DownloadRepository @Inject constructor(
     suspend fun concludeDownload(songId: Long, uri: String?) {
         libraryDatabase.withTransaction {
             libraryDatabase.getSongDao().updateWithLocalUri(songId, uri)
-            libraryDatabase.getDownloadDao().delete(DbDownload(songId))
+            libraryDatabase.getDownloadDao().delete(DbDownload(songId, SONG_MEDIA_TYPE))
         }
     }
 }

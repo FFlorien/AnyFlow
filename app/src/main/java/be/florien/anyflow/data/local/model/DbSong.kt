@@ -41,17 +41,21 @@ data class DbSongInfo(
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(DbSongGenre::class,
-        parentColumn = "songId",
-        entityColumn = "genreId")
+        associateBy = Junction(
+            DbSongGenre::class,
+            parentColumn = "songId",
+            entityColumn = "genreId"
+        )
     )
     var genres: List<DbGenre>,
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(DbPlaylistSongs::class,
+        associateBy = Junction(
+            DbPlaylistSongs::class,
             parentColumn = "songId",
-            entityColumn = "playlistId")
+            entityColumn = "playlistId"
+        )
     )
     var playlists: List<DbPlaylist>
 )
@@ -92,8 +96,8 @@ data class DbSongWaveForm(
     val waveForm: String
 ) {
     val downSamplesArray: DoubleArray
-    get() {
-        if (waveForm.isBlank()) return DoubleArray(0)
-        return waveForm.split('|').map { it.replace(',', '.').toDouble() }.toDoubleArray()
-    }
+        get() {
+            if (waveForm.isBlank()) return DoubleArray(0)
+            return waveForm.split('|').map { it.replace(',', '.').toDouble() }.toDoubleArray()
+        }
 }

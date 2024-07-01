@@ -3,6 +3,7 @@ package be.florien.anyflow.data.local
 import androidx.sqlite.db.SimpleSQLiteQuery
 import be.florien.anyflow.data.local.model.DbFilter
 import be.florien.anyflow.data.local.model.DbFilterGroup
+import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.toDbFilter
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Ordering
@@ -252,7 +253,7 @@ class QueryComposer {
     )
 
     fun getQueryForDownload(filterList: List<Filter<*>>?) = SimpleSQLiteQuery(
-        "INSERT INTO Download (songId) SELECT Song.id FROM Song"
+        "INSERT INTO Download (songId, mediaType) SELECT Song.id, $SONG_MEDIA_TYPE FROM Song"
                 + constructJoinStatement(filterList)
                 + constructWhereStatement(filterList, "")
                 + " AND Song.local IS NULL "

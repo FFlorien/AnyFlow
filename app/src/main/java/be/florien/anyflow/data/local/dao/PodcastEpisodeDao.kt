@@ -16,10 +16,10 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
     @RawQuery(observedEntities = [DbPodcastEpisode::class])
     abstract suspend fun rawQueryIdList(query: SupportSQLiteQuery): List<Long>
 
-    @Query("SELECT * FROM PodcastEpisode")
+    @Query("SELECT * FROM PodcastEpisode ORDER BY publicationDate DESC")
     abstract suspend fun getPodcastEpisodesList(): List<DbPodcastEpisode>
 
-    @Query("SELECT * FROM PodcastEpisode")
+    @Query("SELECT * FROM PodcastEpisode ORDER BY publicationDate DESC")
     abstract fun getPodcastEpisodesPaging(): DataSource.Factory<Int, DbPodcastEpisode>
 
     @Query("SELECT * FROM PodcastEpisode WHERE podcastId = :podcastId")

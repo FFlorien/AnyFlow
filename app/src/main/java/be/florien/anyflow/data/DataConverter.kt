@@ -4,7 +4,7 @@ import be.florien.anyflow.data.local.model.DbAlarm
 import be.florien.anyflow.data.local.model.DbAlbum
 import be.florien.anyflow.data.local.model.DbArtist
 import be.florien.anyflow.data.local.model.DbFilter
-import be.florien.anyflow.data.local.model.DbFilterCount
+import be.florien.anyflow.data.local.model.DbSongFilterCount
 import be.florien.anyflow.data.local.model.DbFilterGroup
 import be.florien.anyflow.data.local.model.DbGenre
 import be.florien.anyflow.data.local.model.DbOrdering
@@ -117,8 +117,8 @@ fun AmpachePodcast.toDbPodcast() = DbPodcast(
     language = language,
     feedUrl = feed_url,
     website = website,
-    buildDate = build_date,
-    syncDate = sync_date
+    buildDate = TimeOperations.getDateFromAmpacheComplete(build_date).timeInMillis,
+    syncDate = TimeOperations.getDateFromAmpacheComplete(sync_date).timeInMillis
 )
 
 fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
@@ -129,7 +129,7 @@ fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
     category = category,
     authorFull = author_full,
     website = website,
-    publicationDate = pubdate,
+    publicationDate = TimeOperations.getDateFromAmpacheComplete(pubdate).timeInMillis,
     state = state,
     time = time,
     size = size,
@@ -278,7 +278,7 @@ fun DbAlarm.toViewAlarm() = Alarm(
     active = active
 )
 
-fun DbFilterCount.toViewFilterCount() = FilterCount(
+fun DbSongFilterCount.toViewFilterCount() = FilterCount(
     duration = duration.toDuration(DurationUnit.SECONDS),
     genres = genres,
     albumArtists = albumArtists,
