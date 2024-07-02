@@ -25,7 +25,9 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.UrlRepository
+import be.florien.anyflow.data.local.PodcastPersistence
 import be.florien.anyflow.data.local.model.DbMediaToPlay
+import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
@@ -80,6 +82,9 @@ class PlayerService : MediaSessionService(), Player.Listener {
 
     @Inject
     internal lateinit var filtersManager: FiltersManager
+
+    @Inject
+    internal lateinit var podcastPersistence: PodcastPersistence
 
     @Inject
     internal lateinit var audioManager: AudioManager
@@ -223,9 +228,16 @@ class PlayerService : MediaSessionService(), Player.Listener {
                 }
                 .flowOn(Dispatchers.Default)
                 .collect { playlistModification ->
-                    player?.let {
-                        playlistModification.applyModification(it)
-                        playingQueue.listPosition = it.currentMediaItemIndex
+                    player?.let { safePlayer ->
+                        playlistModification.applyModification(safePlayer)
+                        playingQueue.listPosition = safePlayer.currentMediaItemIndex
+                        if (playingQueue.currentMedia.value?.mediaType == PODCAST_MEDIA_TYPE) {
+                            playingQueue.currentMedia.value?.id?.let {
+                                podcastPersistence.getPodcastPosition(it).let { position ->
+                                    safePlayer.seekTo(position)
+                                }
+                            }
+                        }
                     }
                 }
         }

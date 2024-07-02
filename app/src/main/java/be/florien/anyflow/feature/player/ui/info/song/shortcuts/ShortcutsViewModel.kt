@@ -19,13 +19,14 @@ import be.florien.anyflow.feature.player.ui.info.song.BaseSongViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class ShortcutsViewModel @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
     urlRepository: UrlRepository,
-    sharedPreferences: SharedPreferences,
+    @Named("preferences") sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : BaseSongViewModel(
     filtersManager,

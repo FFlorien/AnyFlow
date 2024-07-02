@@ -11,6 +11,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import be.florien.anyflow.data.DataRepository
 import be.florien.anyflow.data.PodcastRepository
+import be.florien.anyflow.data.local.PodcastPersistence
 import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.extension.postValueIfChanged
@@ -45,6 +46,7 @@ constructor(
     private val waveFormRepository: WaveFormRepository,
     private val dataRepository: DataRepository,
     private val podcastRepository: PodcastRepository,
+    private val podcastPersistence: PodcastPersistence,
     val connectionStatus: LiveData<AuthRepository.ConnectionStatus>,
     @Named("Songs")
     val songsUpdatePercentage: LiveData<Int>,
@@ -66,7 +68,7 @@ constructor(
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
     val currentDuration: StateFlow<Int> = MutableStateFlow(0)
     val totalDuration: LiveData<Int> = playingQueue//todo awful
-        .currentSong
+        .currentMedia
         .asFlow()
         .map { queueItem ->
             if (queueItem == null) {
@@ -81,7 +83,7 @@ constructor(
 
     val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
     val waveForm: LiveData<DoubleArray> =
-        playingQueue.currentSong.switchMap {
+        playingQueue.currentMedia.switchMap {
             if (it?.mediaType == SONG_MEDIA_TYPE) {
                 it.let { waveFormRepository.getComputedWaveForm(it.id) }
             } else {
@@ -127,6 +129,18 @@ constructor(
                 (currentDuration as MutableStateFlow).emit(
                     getFromPlayer(0) { contentPosition }.toInt()
                 )
+                if (
+                    playingQueue.currentMedia.value?.mediaType == PODCAST_MEDIA_TYPE
+                    && (currentDuration.value % 10000) < 10
+                    && getFromPlayer(false) { isPlaying }
+                ) {
+                    playingQueue.currentMedia.value?.id?.let { podcastId ->
+                        podcastPersistence.savePodcastPosition(
+                            podcastId,
+                            (currentDuration.value).toLong()
+                        )
+                    }
+                }
             }
         }
     }

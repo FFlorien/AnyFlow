@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Event handler for the queue of songs that are playing.
@@ -32,7 +33,7 @@ class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
     private val dataRepository: DataRepository,
-    private val sharedPreferences: SharedPreferences,
+    @Named("preferences") private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {
     companion object {
@@ -52,8 +53,8 @@ class PlayingQueue
                 orderComposer.currentPosition = value
                 sharedPreferences.applyPutInt(POSITION_PREF, value)
                 val songAtPosition = queueRepository.getMediaItemAtPosition(value)
-                if (songAtPosition != this@PlayingQueue.currentSong.value) {
-                    (this@PlayingQueue.currentSong as MutableLiveData).value = songAtPosition
+                if (songAtPosition != this@PlayingQueue.currentMedia.value) {
+                    (this@PlayingQueue.currentMedia as MutableLiveData).value = songAtPosition
                     withContext(Dispatchers.IO) {
                         orderComposer.currentSong = songAtPosition?.let {
                             dataRepository.getSongSync(it.id)
@@ -64,7 +65,7 @@ class PlayingQueue
         }
 
     val positionUpdater: LiveData<Int> = MutableLiveData(listPosition)
-    val currentSong: LiveData<DbQueueItem?> = MutableLiveData(null)
+    val currentMedia: LiveData<DbQueueItem?> = MutableLiveData(null)
 
     val queueItemDisplayListUpdater: LiveData<PagingData<QueueItemDisplay>> =
         queueRepository.getQueueItems().cachedIn(coroutineScope)
@@ -76,7 +77,7 @@ class PlayingQueue
 
     init {
         coroutineScope.launch {
-            (currentSong as MutableLiveData).postValue(queueRepository.getMediaItemAtPosition(listPosition))
+            (currentMedia as MutableLiveData).postValue(queueRepository.getMediaItemAtPosition(listPosition))
         }
     }
 }

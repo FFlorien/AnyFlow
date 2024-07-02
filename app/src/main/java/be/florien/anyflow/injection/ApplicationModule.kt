@@ -30,15 +30,25 @@ class ApplicationModule {
 
     companion object {
         private const val PREFERENCE_NAME = "anyflow_preferences"
+        private const val PODCASTS_NAME = "anyflow_podcasts"
     }
 
     @Provides
+    @Named("preferences")
     fun providePreferences(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 
+    @Provides
+    @Named("podcasts")
+    fun providePodcastsData(context: Context): SharedPreferences =
+        context.getSharedPreferences(PODCASTS_NAME, Context.MODE_PRIVATE)
+
     @Singleton
     @Provides
-    fun provideAuthPersistence(preferences: SharedPreferences, context: Context): AuthPersistence =
+    fun provideAuthPersistence(
+        @Named("preferences") preferences: SharedPreferences,
+        context: Context
+    ): AuthPersistence =
         AuthPersistenceKeystore(preferences, context)
 
     @Singleton
@@ -54,7 +64,7 @@ class ApplicationModule {
     @SuppressLint("UnsafeOptInUsageError")
     @Singleton
     @Provides
-    fun provideCache(context: Context,  dbProvider: StandaloneDatabaseProvider): Cache = SimpleCache(
+    fun provideCache(context: Context, dbProvider: StandaloneDatabaseProvider): Cache = SimpleCache(
         context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.noBackupFilesDir,
         NoOpCacheEvictor(),
         dbProvider
@@ -68,7 +78,12 @@ class ApplicationModule {
     @Named("player")
     fun providePlayerPendingIntent(context: Context): PendingIntent {
         val alarmIntent = Intent(context, AlarmReceiver::class.java)
-        return PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            alarmIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     @Provides

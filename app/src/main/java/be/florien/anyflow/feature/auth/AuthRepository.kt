@@ -15,6 +15,7 @@ import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ServerScope
 import retrofit2.HttpException
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Manager for the ampache API server-side
@@ -24,7 +25,7 @@ open class AuthRepository
 @Inject constructor(
     private val ampacheAuthSource: AmpacheAuthSource,
     private val authPersistence: AuthPersistence,
-    private val sharedPreferences: SharedPreferences
+    @Named("preferences") private val sharedPreferences: SharedPreferences
 ) {
     companion object {
         private const val COUNT_SONGS = "COUNT_SONGS"

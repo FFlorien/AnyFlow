@@ -12,13 +12,14 @@ import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.ui.info.InfoActions
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class SongInfoViewModel @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
     dataRepository: DataRepository,
     urlRepository: UrlRepository,
-    sharedPreferences: SharedPreferences,
+    @Named("preferences") sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : BaseSongViewModel(
     filtersManager,

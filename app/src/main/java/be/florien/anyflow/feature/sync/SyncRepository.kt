@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Update the local data with the one from the server
@@ -47,7 +48,7 @@ class SyncRepository
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
     private val ampachePodcastSource: AmpachePodcastSource,
-    private val sharedPreferences: SharedPreferences
+    @Named("preferences") private val sharedPreferences: SharedPreferences
 ) {
     val songsPercentageUpdater = MutableLiveData(-1)
     val genresPercentageUpdater = MutableLiveData(-1)

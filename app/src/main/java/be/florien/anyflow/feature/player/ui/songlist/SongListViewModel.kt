@@ -35,6 +35,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Display a list of accounts and play it upon selection.
@@ -45,7 +46,7 @@ class SongListViewModel
 @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
-    sharedPreferences: SharedPreferences,
+    @Named("preferences") sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager,
     urlRepository: UrlRepository,
     playingQueue: PlayingQueue,
@@ -65,7 +66,7 @@ class SongListViewModel
     val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> =
         playingQueue.queueItemDisplayListUpdater
     val currentSongDisplay: LiveData<QueueItemDisplay?> =
-        playingQueue.currentSong.switchMap { queueItem ->
+        playingQueue.currentMedia.switchMap { queueItem ->
             if (queueItem?.mediaType == SONG_MEDIA_TYPE) {
                 queueItem.id.let { id -> dataRepository.getSong(id).map { it.toViewDisplay() } }
             } else {
