@@ -30,14 +30,17 @@ abstract class QueueOrderDao : BaseDao<DbQueueOrder>() {
     abstract suspend fun queueItemInPosition(position: Int): DbQueueItem?
 
     @Query("SELECT queueorder.id as id, song.local as local, mediaType " +
-            "FROM queueorder JOIN song ON song.id = queueorder.id " +
+            "FROM queueorder " +
+            "LEFT JOIN song ON song.id = queueorder.id " +
             "ORDER BY queueorder.`order`")
     abstract fun mediaItemsInQueueOrderUpdatable(): LiveData<List<DbMediaToPlay>>
 
     @Transaction
     @Query(
         "SELECT queueorder.mediatype AS mediaType, song.id AS songId, song.title AS songTitle, artist.name AS songArtistName, album.name AS songAlbumName, album.id AS songAlbumId, song.time AS songTime, podcastepisode.id as podcastEpisodeId, podcastepisode.podcastid as podcastId, podcastepisode.title as podcastTitle, podcastepisode.authorFull as podcastAuthor, podcast.name as podcastName, podcastepisode.time as podcastTime " +
-                "FROM song JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN queueorder ON song.id = queueorder.id LEFT JOIN podcastepisode on podcastepisode.id = queueorder.id LEFT JOIN podcast on podcastepisode.id = podcast.id " +
+                "FROM QueueOrder " +
+                "LEFT JOIN song ON song.id = queueorder.id LEFT JOIN artist ON song.artistId = artist.id LEFT JOIN album ON song.albumId = album.id " +
+                "LEFT JOIN podcastepisode on podcastepisode.id = queueorder.id LEFT JOIN podcast on podcastepisode.id = podcast.id " +
                 "ORDER BY queueorder.`order`"
     )
     abstract fun displayInQueueOrderPaging(): DataSource.Factory<Int, DbQueueItemDisplay>

@@ -132,6 +132,7 @@ constructor(
                 if (
                     playingQueue.currentMedia.value?.mediaType == PODCAST_MEDIA_TYPE
                     && (currentDuration.value % 10000) < 10
+                    && (currentDuration.value / 1000) > 10
                     && getFromPlayer(false) { isPlaying }
                 ) {
                     playingQueue.currentMedia.value?.id?.let { podcastId ->

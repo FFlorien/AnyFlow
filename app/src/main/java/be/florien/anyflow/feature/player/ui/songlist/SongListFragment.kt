@@ -24,8 +24,8 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.toViewDisplay
 import be.florien.anyflow.data.view.QueueItemDisplay
+import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
@@ -287,7 +287,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     }
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
-        SongInfoFragment(item.id).show(childFragmentManager, "info")
+        if (item is SongDisplay) {
+            SongInfoFragment(item.id).show(childFragmentManager, "info")
+        }
     }
 
     override fun onShortcutOpened(position: Int?) {

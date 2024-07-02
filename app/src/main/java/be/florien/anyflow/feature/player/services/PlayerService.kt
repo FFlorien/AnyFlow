@@ -7,7 +7,12 @@ import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.IBinder
+import androidx.annotation.CallSuper
 import androidx.annotation.OptIn
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -54,7 +59,25 @@ const val ALARM_ACTION = "ALARM"
  * Service used to handle the media player.
  */
 //@UnstableApi
-class PlayerService : MediaSessionService(), Player.Listener {
+class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
+
+    private val dispatcher = ServiceLifecycleDispatcher(this)
+
+    override fun onBind(intent: Intent?): IBinder? {
+        dispatcher.onServicePreSuperOnBind()
+        return super.onBind(intent)
+    }
+
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    @CallSuper
+    override fun onStart(intent: Intent?, startId: Int) {
+        dispatcher.onServicePreSuperOnStart()
+        super.onStart(intent, startId)
+    }
+
+    override val lifecycle: Lifecycle
+        get() = dispatcher.lifecycle
 
     //todo Own coroutineScope
     private var mediaSession: MediaSession? = null
@@ -102,6 +125,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        dispatcher.onServicePreSuperOnCreate()
         initPlayer()
         listenToQueueChanges()
     }
@@ -127,6 +151,7 @@ class PlayerService : MediaSessionService(), Player.Listener {
 
     // Remember to release the player and media session in onDestroy
     override fun onDestroy() {
+        dispatcher.onServicePreSuperOnDestroy()
         mediaSession?.run {
             player.release()
             release()
@@ -191,6 +216,12 @@ class PlayerService : MediaSessionService(), Player.Listener {
                 .Builder(this, exoPlayer)
                 .setSessionActivity(pendingIntent)
                 .build()
+
+        playingQueue.currentMedia.observe(this) { mediaItem ->
+            if (mediaItem?.mediaType == PODCAST_MEDIA_TYPE) {
+                player?.seekTo(podcastPersistence.getPodcastPosition(mediaItem.id))
+            }
+        }
     }
 
     private fun listenToQueueChanges() {
@@ -231,12 +262,9 @@ class PlayerService : MediaSessionService(), Player.Listener {
                     player?.let { safePlayer ->
                         playlistModification.applyModification(safePlayer)
                         playingQueue.listPosition = safePlayer.currentMediaItemIndex
-                        if (playingQueue.currentMedia.value?.mediaType == PODCAST_MEDIA_TYPE) {
-                            playingQueue.currentMedia.value?.id?.let {
-                                podcastPersistence.getPodcastPosition(it).let { position ->
-                                    safePlayer.seekTo(position)
-                                }
-                            }
+                        val mediaItem = playingQueue.currentMedia.value
+                        if (mediaItem?.mediaType == PODCAST_MEDIA_TYPE) {
+                            player?.seekTo(podcastPersistence.getPodcastPosition(mediaItem.id))
                         }
                     }
                 }

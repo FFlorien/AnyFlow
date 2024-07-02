@@ -72,8 +72,7 @@ class QueryComposer {
     }
 
     fun getQueryForPodcastEpisodes(
-        filters: List<Filter<*>>,
-        orderingList: List<Ordering>//todo: add ordering handling
+        filters: List<Filter<*>>//todo: add ordering handling
     ): SimpleSQLiteQuery {
 
         val podcastFilters = filters.filterIsInstance<Filter<Long>>()

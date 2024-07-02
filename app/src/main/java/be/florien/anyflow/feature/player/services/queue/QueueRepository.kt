@@ -170,7 +170,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
                 QueueItem(SONG_MEDIA_TYPE, it)
             }
             val podcastEpisodes = libraryDatabase.getPodcastEpisodeDao().rawQueryIdList(
-                queryComposer.getQueryForPodcastEpisodes(filterList, orderingList)
+                queryComposer.getQueryForPodcastEpisodes(filterList)
             ).map {
                 QueueItem(PODCAST_MEDIA_TYPE, it)
             }
