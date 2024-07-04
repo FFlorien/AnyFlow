@@ -11,7 +11,7 @@ import be.florien.anyflow.data.server.model.AmpacheAuthenticatedStatus
 import be.florien.anyflow.data.server.model.AmpacheAuthentication
 import be.florien.anyflow.data.server.model.AmpacheStatus
 import be.florien.anyflow.data.user.AuthPersistence
-import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.injection.ServerScope
 import retrofit2.HttpException
 import javax.inject.Inject

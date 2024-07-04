@@ -18,8 +18,7 @@ import androidx.room.PrimaryKey
 data class DbFilter(
     @PrimaryKey(autoGenerate = true)
     val id: Long?,
-    val clause: String,
-    val joinClause: String?,
+    val type: Int,
     val argument: String,
     val displayText: String,
     @ColumnInfo(index = true)
@@ -29,19 +28,17 @@ data class DbFilter(
 
     companion object {
         // Songs
-        const val GENRE_IS = "songgenre.genreId ="
-        const val SONG_ID = "song.id ="
-        const val ARTIST_ID = "song.artistId ="
-        const val ALBUM_ARTIST_ID = "album.artistId ="
-        const val ALBUM_ID = "song.albumId ="
-        const val DISK = "song.disk ="
-        const val PLAYLIST_ID = "playlistSongs.playlistId ="
-        const val PLAYLIST_ID_JOIN = "LEFT JOIN playlistSongs on song.id = playlistSongs.songId"
+        const val TYPE_GENRE = 0
+        const val TYPE_SONG = 1
+        const val TYPE_ARTIST = 2
+        const val TYPE_ALBUM_ARTIST = 3
+        const val TYPE_ALBUM = 4
+        const val TYPE_DISK = 5
+        const val TYPE_PLAYLIST = 6
         // Podcasts
-        const val PODCAST_EPISODE_ID = "podcastEpisode.id ="
+        const val TYPE_PODCAST_EPISODE = 7
         // Common
-        const val DOWNLOADED = "song.local IS NOT NULL"
-        const val NOT_DOWNLOADED = "song.local IS NULL"
+        const val TYPE_DOWNLOADED = 8
     }
 }
 

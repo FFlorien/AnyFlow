@@ -1,4 +1,4 @@
-package be.florien.anyflow
+package be.florien.anyflow.logging
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -12,8 +12,8 @@ class CrashReportingTree : Timber.Tree() {
      */
 
     @SuppressLint("LogNotTimber")
-    override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
-        if (throwable == null) {
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        if (t == null) {
             when (priority) {
                 Log.VERBOSE -> Log.v(tag, message)
                 Log.DEBUG -> Log.d(tag, message)
@@ -23,18 +23,18 @@ class CrashReportingTree : Timber.Tree() {
             }
         } else {
             when (priority) {
-                Log.VERBOSE -> Log.v(tag, message, throwable)
-                Log.DEBUG -> Log.d(tag, message, throwable)
-                Log.INFO -> Log.i(tag, message, throwable)
-                Log.WARN -> Log.w(tag, message, throwable)
-                Log.ERROR -> Log.e(tag, message, throwable)
+                Log.VERBOSE -> Log.v(tag, message, t)
+                Log.DEBUG -> Log.d(tag, message, t)
+                Log.INFO -> Log.i(tag, message, t)
+                Log.WARN -> Log.w(tag, message, t)
+                Log.ERROR -> Log.e(tag, message, t)
             }
         }
         if (message.isNotBlank() && priority > Log.DEBUG) {
             FirebaseCrashlytics.getInstance().log(message)
         }
-        if (throwable != null && priority >= Log.ERROR) {
-            FirebaseCrashlytics.getInstance().recordException(throwable)
+        if (t != null && priority >= Log.ERROR) {
+            FirebaseCrashlytics.getInstance().recordException(t)
         }
     }
 }

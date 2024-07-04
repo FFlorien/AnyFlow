@@ -3,10 +3,11 @@ package be.florien.anyflow.feature.download
 import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.local.QueryComposer
+import be.florien.anyflow.data.local.query.QueryComposer
 import be.florien.anyflow.data.local.model.DbDownload
 import be.florien.anyflow.data.local.model.DownloadProgressState
 import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.data.toQueryFilters
 import be.florien.anyflow.data.toViewSongInfo
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
@@ -28,7 +29,7 @@ class DownloadRepository @Inject constructor(
         }
         libraryDatabase
             .getDownloadDao()
-            .rawQueryInsert(queryComposer.getQueryForDownload(listOfNotNull(filter)))
+            .rawQueryInsert(queryComposer.getQueryForDownload(listOfNotNull(filter).toQueryFilters()))
     }
 
     suspend fun getDownloadList() = libraryDatabase
@@ -52,7 +53,7 @@ class DownloadRepository @Inject constructor(
             .getDownloadDao()
             .rawQueryProgress(
                 queryComposer
-                    .getQueryForDownloadProgress(listOfNotNull(filter))
+                    .getQueryForDownloadProgress(listOfNotNull(filter).toQueryFilters())
             )
     }
 

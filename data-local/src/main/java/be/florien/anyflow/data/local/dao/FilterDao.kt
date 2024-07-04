@@ -16,13 +16,13 @@ abstract class FilterDao : BaseDao<DbFilter>() {
     @RawQuery
     abstract suspend fun getCount(query: SupportSQLiteQuery): DbSongFilterCount
 
-    @Query("SELECT filter.id, clause, joinClause, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
+    @Query("SELECT filter.id, type, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
     abstract fun currentFilterList(): List<DbFilter>
 
     @Query("SELECT * FROM filter WHERE filterGroup = :groupId")
     abstract suspend fun filtersForGroupList(groupId: Long): List<DbFilter>
 
-    @Query("SELECT filter.id, clause, joinClause, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
+    @Query("SELECT filter.id, type, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
     abstract fun currentFiltersUpdatable(): LiveData<List<DbFilter>>
     // endregion
 

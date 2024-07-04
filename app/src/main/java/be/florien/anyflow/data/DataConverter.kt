@@ -1,5 +1,7 @@
 package be.florien.anyflow.data
 
+import be.florien.anyflow.data.local.query.QueryFilter
+import be.florien.anyflow.data.local.query.QueryOrdering
 import be.florien.anyflow.data.local.model.DbAlarm
 import be.florien.anyflow.data.local.model.DbAlbum
 import be.florien.anyflow.data.local.model.DbArtist
@@ -37,9 +39,20 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterCount
 import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Ordering
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_ALBUM
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_ALBUM_ARTIST
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_ALBUM_ID
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_ALL
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_ARTIST
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_DISC
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_GENRE
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_TITLE
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_TRACK
+import be.florien.anyflow.data.view.Ordering.Companion.SUBJECT_YEAR
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.data.view.PodcastEpisodeDisplay
+import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.ImageConfig
@@ -150,42 +163,54 @@ fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
     time = time
 )
 
-fun DbQueueItemDisplay.toViewQueueItemDisplay() =
-    if (
+fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {
+    val songIdNS = songId
+    val songTitleNS = songTitle
+    val songArtistNameNS = songArtistName
+    val songAlbumNameNS = songAlbumName
+    val songAlbumIdNS = songAlbumId
+    val songTimeNS = songTime
+    val podcastEpisodeIdNS = podcastEpisodeId
+    val podcastTitleNS = podcastTitle
+    val podcastTimeNS = podcastTime
+    val podcastIdNS = podcastId
+    return if (
         mediaType == SONG_MEDIA_TYPE &&
-        songId != null &&
-        songTitle != null &&
-        songArtistName != null &&
-        songAlbumName != null &&
-        songAlbumId != null &&
-        songTime != null
+        songIdNS != null &&
+        songTitleNS != null &&
+        songArtistNameNS != null &&
+        songAlbumNameNS != null &&
+        songAlbumIdNS != null &&
+        songTimeNS != null
     ) {
         SongDisplay(
-            id = songId,
-            title = songTitle,
-            artistName = songArtistName,
-            albumName = songAlbumName,
-            albumId = songAlbumId,
-            time = songTime
+            id = songIdNS,
+            title = songTitleNS,
+            artistName = songArtistNameNS,
+            albumName = songAlbumNameNS,
+            albumId = songAlbumIdNS,
+            time = songTimeNS
         )
     } else if (
         mediaType == PODCAST_MEDIA_TYPE &&
-        podcastEpisodeId != null &&
-        podcastTitle != null &&
-        podcastTime != null &&
-        podcastId != null
+        podcastEpisodeIdNS != null &&
+        podcastTitleNS != null &&
+        podcastTimeNS != null &&
+        podcastIdNS != null
     ) {
         PodcastEpisodeDisplay(
-            id = podcastEpisodeId,
-            title = podcastTitle,
+            id = podcastEpisodeIdNS,
+            title = podcastTitleNS,
             author = podcastAuthor ?: "",
-            time = podcastTime,
+            time = podcastTimeNS,
             album = podcastName ?: "",
-            albumId = podcastId
+            albumId = podcastIdNS
         )
     } else {
         throw IllegalArgumentException("DbQueueItemDisplay is not a valid SongDisplay or PodcastEpisodeDisplay\n$this")
     }
+
+}
 
 fun DbSongInfo.toViewSongInfo() = SongInfo(
     id = song.id,
@@ -221,20 +246,17 @@ fun DbPlaylistWithCountAndPresence.toViewPlaylist(coverUrl: String) =
     )
 
 fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> = Filter(
-    argument = if (clause == DbFilter.DOWNLOADED || clause == DbFilter.NOT_DOWNLOADED) argument.toBoolean() else argument.toLong(),
-    type = when (clause) {
-        DbFilter.GENRE_IS -> Filter.FilterType.GENRE_IS
-        DbFilter.SONG_ID -> Filter.FilterType.SONG_IS
-        DbFilter.ARTIST_ID -> Filter.FilterType.ARTIST_IS
-        DbFilter.ALBUM_ARTIST_ID -> Filter.FilterType.ALBUM_ARTIST_IS
-        DbFilter.ALBUM_ID -> Filter.FilterType.ALBUM_IS
-        DbFilter.DISK -> Filter.FilterType.DISK_IS
-        DbFilter.PLAYLIST_ID -> Filter.FilterType.PLAYLIST_IS
-        DbFilter.DOWNLOADED,
-        DbFilter.NOT_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
-
-        DbFilter.PODCAST_EPISODE_ID -> Filter.FilterType.PODCAST_EPISODE_IS
-
+    argument = if (type == DbFilter.TYPE_DOWNLOADED) argument.toBoolean() else argument.toLong(),
+    type = when (type) {
+        DbFilter.TYPE_GENRE -> Filter.FilterType.GENRE_IS
+        DbFilter.TYPE_SONG -> Filter.FilterType.SONG_IS
+        DbFilter.TYPE_ARTIST -> Filter.FilterType.ARTIST_IS
+        DbFilter.TYPE_ALBUM_ARTIST -> Filter.FilterType.ALBUM_ARTIST_IS
+        DbFilter.TYPE_ALBUM -> Filter.FilterType.ALBUM_IS
+        DbFilter.TYPE_DISK -> Filter.FilterType.DISK_IS
+        DbFilter.TYPE_PLAYLIST -> Filter.FilterType.PLAYLIST_IS
+        DbFilter.TYPE_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
+        DbFilter.TYPE_PODCAST_EPISODE -> Filter.FilterType.PODCAST_EPISODE_IS
         else -> Filter.FilterType.SONG_IS
     },
     displayText = displayText,
@@ -247,17 +269,21 @@ private fun getChildrenFilters( //warning: this hasn't been tested (yet)
 ): List<Filter<*>> = filterList.filter { dbFilter -> filter.id == dbFilter.parentFilter }
     .map { dbFilter -> dbFilter.toViewFilter(filterList) }
 
-fun DbFilterGroup.toViewFilterGroup(): FilterGroup = when {
-    dateAdded == null -> FilterGroup.CurrentFilterGroup(id)
-    name == null -> FilterGroup.HistoryFilterGroup(
-        id,
-        Calendar.getInstance().apply { timeInMillis = dateAdded })
+fun DbFilterGroup.toViewFilterGroup(): FilterGroup {
+    val dateAddedNS = dateAdded
+    val nameNS = name
+    return when {
+        dateAddedNS == null -> FilterGroup.CurrentFilterGroup(id)
+        nameNS == null -> FilterGroup.HistoryFilterGroup(
+            id,
+            Calendar.getInstance().apply { timeInMillis = dateAddedNS })
 
-    else -> FilterGroup.SavedFilterGroup(
-        id,
-        Calendar.getInstance().apply { timeInMillis = dateAdded },
-        name
-    )
+        else -> FilterGroup.SavedFilterGroup(
+            id,
+            Calendar.getInstance().apply { timeInMillis = dateAddedNS },
+            nameNS
+        )
+    }
 }
 
 fun DbOrdering.toViewOrdering(): Ordering {
@@ -301,25 +327,21 @@ fun DbPodcastEpisode.toViewPodcastEpisodeDisplay() = PodcastEpisodeDisplay(
 
 //region Views to Database
 
-fun Filter.FilterType.toDbFilterType(argument: Boolean?) = when (this) {
-    Filter.FilterType.GENRE_IS -> DbFilter.GENRE_IS
-    Filter.FilterType.SONG_IS -> DbFilter.SONG_ID
-    Filter.FilterType.ARTIST_IS -> DbFilter.ARTIST_ID
-    Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.ALBUM_ARTIST_ID
-    Filter.FilterType.ALBUM_IS -> DbFilter.ALBUM_ID
-    Filter.FilterType.DISK_IS -> DbFilter.DISK
-    Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID
-    Filter.FilterType.DOWNLOADED_STATUS_IS -> if (argument == true) DbFilter.DOWNLOADED else DbFilter.NOT_DOWNLOADED
-    Filter.FilterType.PODCAST_EPISODE_IS -> DbFilter.PODCAST_EPISODE_ID
+fun Filter.FilterType.toDbFilterType() = when (this) {
+    Filter.FilterType.GENRE_IS -> DbFilter.TYPE_GENRE
+    Filter.FilterType.SONG_IS -> DbFilter.TYPE_SONG
+    Filter.FilterType.ARTIST_IS -> DbFilter.TYPE_ARTIST
+    Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.TYPE_ALBUM_ARTIST
+    Filter.FilterType.ALBUM_IS -> DbFilter.TYPE_ALBUM
+    Filter.FilterType.DISK_IS -> DbFilter.TYPE_DISK
+    Filter.FilterType.PLAYLIST_IS -> DbFilter.TYPE_PLAYLIST
+    Filter.FilterType.DOWNLOADED_STATUS_IS -> DbFilter.TYPE_DOWNLOADED
+    Filter.FilterType.PODCAST_EPISODE_IS -> DbFilter.TYPE_PODCAST_EPISODE
 }
 
 fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     id = null,
-    clause = this.type.toDbFilterType(this.argument as? Boolean),
-    joinClause = when (this.type) {
-        Filter.FilterType.PLAYLIST_IS -> DbFilter.PLAYLIST_ID_JOIN
-        else -> null
-    },
+    type = this.type.toDbFilterType(),
     argument = argument.toString(),
     displayText = displayText,
     filterGroup = groupId,
@@ -374,6 +396,64 @@ fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (
     SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
 }
 
+//endregion
+
+// region view to utilities
+
+fun Filter<*>.toQueryFilter(): QueryFilter = QueryFilter(
+    type = when (type) {
+        Filter.FilterType.GENRE_IS -> QueryFilter.FilterType.GENRE_IS
+        Filter.FilterType.SONG_IS -> QueryFilter.FilterType.SONG_IS
+        Filter.FilterType.ARTIST_IS -> QueryFilter.FilterType.ARTIST_IS
+        Filter.FilterType.ALBUM_ARTIST_IS -> QueryFilter.FilterType.ALBUM_ARTIST_IS
+        Filter.FilterType.ALBUM_IS -> QueryFilter.FilterType.ALBUM_IS
+        Filter.FilterType.DISK_IS -> QueryFilter.FilterType.DISK_IS
+        Filter.FilterType.PLAYLIST_IS -> QueryFilter.FilterType.PLAYLIST_IS
+        Filter.FilterType.DOWNLOADED_STATUS_IS -> QueryFilter.FilterType.DOWNLOADED_STATUS_IS
+        Filter.FilterType.PODCAST_EPISODE_IS -> QueryFilter.FilterType.PODCAST_EPISODE_IS
+    },
+    argument = when(argument) {
+        is Boolean -> if (argument) "NOT NULL" else "NULL"
+        else -> argument.toString()
+    },
+    children = children.map { it.toQueryFilter() }
+)
+
+fun List<Filter<*>>.toQueryFilters() = map { it.toQueryFilter() }
+
+fun Ordering.toQueryOrdering() = when(ordering) {
+    Ordering.PRECISE_POSITION -> QueryOrdering.Precise(
+        priority = priority,
+        subject = subject(),
+        precisePosition = argument,
+        songId = subject
+    )
+    Ordering.RANDOM -> QueryOrdering.Random(
+        priority = priority,
+        subject = subject(),
+        randomSeed = argument
+    )
+    else -> QueryOrdering.Ordered(
+        priority = priority,
+        subject = subject()
+    )
+}
+
+fun List<Ordering>.toQueryOrderings() = map { it.toQueryOrdering() }
+
+private fun Ordering.subject() = when (subject) {
+    SUBJECT_ALL -> QueryOrdering.Subject.ALL
+    SUBJECT_ARTIST -> QueryOrdering.Subject.ARTIST
+    SUBJECT_ALBUM_ARTIST -> QueryOrdering.Subject.ALBUM_ARTIST
+    SUBJECT_ALBUM -> QueryOrdering.Subject.ALBUM
+    SUBJECT_ALBUM_ID -> QueryOrdering.Subject.ALBUM_ID
+    SUBJECT_DISC -> QueryOrdering.Subject.DISC
+    SUBJECT_YEAR -> QueryOrdering.Subject.YEAR
+    SUBJECT_GENRE -> QueryOrdering.Subject.GENRE
+    SUBJECT_TRACK -> QueryOrdering.Subject.TRACK
+    SUBJECT_TITLE -> QueryOrdering.Subject.TITLE
+    else -> QueryOrdering.Subject.TRACK
+}
 //endregion
 
 //region Utilities

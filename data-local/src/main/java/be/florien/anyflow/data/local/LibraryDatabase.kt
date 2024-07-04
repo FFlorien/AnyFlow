@@ -5,9 +5,37 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import be.florien.anyflow.data.TimeOperations
-import be.florien.anyflow.data.local.dao.*
-import be.florien.anyflow.data.local.model.*
+import be.florien.anyflow.data.local.dao.AlarmDao
+import be.florien.anyflow.data.local.dao.AlbumDao
+import be.florien.anyflow.data.local.dao.ArtistDao
+import be.florien.anyflow.data.local.dao.DownloadDao
+import be.florien.anyflow.data.local.dao.FilterDao
+import be.florien.anyflow.data.local.dao.FilterGroupDao
+import be.florien.anyflow.data.local.dao.GenreDao
+import be.florien.anyflow.data.local.dao.OrderingDao
+import be.florien.anyflow.data.local.dao.PlaylistDao
+import be.florien.anyflow.data.local.dao.PlaylistSongDao
+import be.florien.anyflow.data.local.dao.PodcastDao
+import be.florien.anyflow.data.local.dao.PodcastEpisodeDao
+import be.florien.anyflow.data.local.dao.QueueOrderDao
+import be.florien.anyflow.data.local.dao.SongDao
+import be.florien.anyflow.data.local.dao.SongGenreDao
+import be.florien.anyflow.data.local.model.DbAlarm
+import be.florien.anyflow.data.local.model.DbAlbum
+import be.florien.anyflow.data.local.model.DbArtist
+import be.florien.anyflow.data.local.model.DbDownload
+import be.florien.anyflow.data.local.model.DbFilter
+import be.florien.anyflow.data.local.model.DbFilterGroup
+import be.florien.anyflow.data.local.model.DbGenre
+import be.florien.anyflow.data.local.model.DbOrdering
+import be.florien.anyflow.data.local.model.DbPlaylist
+import be.florien.anyflow.data.local.model.DbPlaylistSongs
+import be.florien.anyflow.data.local.model.DbPodcast
+import be.florien.anyflow.data.local.model.DbPodcastEpisode
+import be.florien.anyflow.data.local.model.DbQueueOrder
+import be.florien.anyflow.data.local.model.DbSong
+import be.florien.anyflow.data.local.model.DbSongGenre
+import java.util.Date
 
 
 @Database(
@@ -72,7 +100,7 @@ abstract class LibraryDatabase : RoomDatabase() {
                         val currentFilterGroup = DbFilterGroup(
                             DbFilterGroup.CURRENT_FILTER_GROUP_ID,
                             null,
-                            TimeOperations.getCurrentDate().timeInMillis
+                            Date().time //todo reuse TimeOperation as soon as it's available outside of app
                         )
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\", ${currentFilterGroup.dateAdded})")
                     }

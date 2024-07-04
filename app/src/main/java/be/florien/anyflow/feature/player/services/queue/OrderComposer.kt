@@ -5,9 +5,9 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.Ordering.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.extension.eLog
 import be.florien.anyflow.injection.ServerScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.logging.iLog
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,8 +32,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
         val filtersLiveData = queueRepository.getCurrentFilters()
 
         ordersLiveData.observeForever {
-            FirebaseCrashlytics.getInstance()
-                .log("We will maybe save queue order form ordersLiveData.observeForever")
+            iLog("We will maybe save queue order form ordersLiveData.observeForever")
             areFirstOrdersArrived = true
             currentOrderings = it
             val filterList = filtersLiveData.value
@@ -44,9 +43,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
 
         filtersLiveData.observeForever { filterList ->
             coroutineScope.launch(Dispatchers.IO) {
-                FirebaseCrashlytics
-                    .getInstance()
-                    .log("We will maybe save queue order form filtersLiveData.observeForever")
+                iLog("We will maybe save queue order form filtersLiveData.observeForever")
                 if (!areFirstOrdersArrived) {
                     areFirstFiltersArrived = true
                     return@launch
@@ -64,7 +61,10 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
                 if (newOrderings.any { it.orderingType == Ordering.OrderingType.RANDOM }) {
                     getCurrentSongPrecisePositionIfPresent(filterList)?.let { newOrderings.add(it) }
                 }
-                if (newOrderings.containsAll(currentOrderings) && currentOrderings.containsAll(newOrderings)) {
+                if (newOrderings.containsAll(currentOrderings) && currentOrderings.containsAll(
+                        newOrderings
+                    )
+                ) {
                     saveQueue(filterList, newOrderings)
                 } else {
                     queueRepository.setOrderings(newOrderings)
@@ -78,7 +78,11 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
             val isCurrentSongInNewFilters =
                 filterList.any { it.contains(songInfo, queueRepository) }
             if (isCurrentSongInNewFilters) {
-                return Ordering.Precise(0, songId = songInfo.id, priority = Ordering.PRIORITY_PRECISE)
+                return Ordering.Precise(
+                    0,
+                    songId = songInfo.id,
+                    priority = Ordering.PRIORITY_PRECISE
+                )
             }
         }
         return null
@@ -142,8 +146,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
     }
 
     private fun saveQueue(filterList: List<Filter<*>>, orderingList: List<Ordering>) {
-        FirebaseCrashlytics.getInstance()
-            .log("Order for saving queue order: ${orderingList.joinToString { it.orderingSubject.name }}")
+        iLog("Order for saving queue order: ${orderingList.joinToString { it.orderingSubject.name }}")
         coroutineScope.launch {
             val queue = queueRepository.getOrderlessQueue(filterList, orderingList)
             val randomOrderingSeed = orderingList
@@ -157,8 +160,17 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
             currentOrderings
                 .filter { it.orderingType == Ordering.OrderingType.PRECISE_POSITION }
                 .forEach { preciseOrder ->
-                    if (listToSave.remove(QueueRepository.QueueItem(SONG_MEDIA_TYPE,preciseOrder.subject))) { //todo change podcast position
-                        listToSave.add(preciseOrder.argument, QueueRepository.QueueItem(SONG_MEDIA_TYPE,preciseOrder.subject))
+                    if (listToSave.remove(
+                            QueueRepository.QueueItem(
+                                SONG_MEDIA_TYPE,
+                                preciseOrder.subject
+                            )
+                        )
+                    ) { //todo change podcast position
+                        listToSave.add(
+                            preciseOrder.argument,
+                            QueueRepository.QueueItem(SONG_MEDIA_TYPE, preciseOrder.subject)
+                        )
                     } // todo else remove order from db
                 }
             queueRepository.saveQueueOrdering(listToSave)

@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.server.model.*
 import be.florien.anyflow.extension.GlideApp
-import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.injection.ServerScope
 import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.Dispatchers

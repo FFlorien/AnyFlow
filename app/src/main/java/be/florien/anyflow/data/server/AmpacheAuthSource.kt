@@ -4,7 +4,7 @@ import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.data.server.model.AmpacheAuthenticatedStatus
 import be.florien.anyflow.data.server.model.AmpacheAuthentication
 import be.florien.anyflow.data.server.model.AmpacheStatus
-import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.injection.ServerScope
 import retrofit2.Retrofit
 import java.math.BigInteger

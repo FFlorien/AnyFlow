@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
-import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.feature.BaseViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

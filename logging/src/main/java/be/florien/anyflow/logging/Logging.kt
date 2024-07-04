@@ -1,7 +1,29 @@
-package be.florien.anyflow.extension
+package be.florien.anyflow.logging
 
+import android.app.Application
+import android.util.Log
+import fr.bipi.treessence.file.FileLoggerTree
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
+import java.io.File
+
+fun Application.plantTimber() {
+    Timber.plant(CrashReportingTree())
+    val logDirectory = File(filesDir.absolutePath + "/logs")
+    if (!logDirectory.exists()) {
+        logDirectory.mkdir()
+    }
+    Timber.plant(
+        FileLoggerTree
+            .Builder()
+            .withDir(logDirectory)
+            .withFileName("anyflow_log_%g.log")
+            .withFileLimit(5)
+            .withMinPriority(Log.DEBUG)
+            .appendToFile(true)
+            .build()
+    )
+}
 
 fun Any.vLog(@NonNls message: String, vararg args: Any) {
     Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")

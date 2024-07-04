@@ -6,7 +6,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import be.florien.anyflow.data.TimeOperations
 import be.florien.anyflow.extension.applyPutLong
-import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.logging.eLog
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

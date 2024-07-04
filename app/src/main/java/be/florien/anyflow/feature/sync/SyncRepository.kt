@@ -30,8 +30,8 @@ import be.florien.anyflow.data.toDbSong
 import be.florien.anyflow.data.toDbSongGenres
 import be.florien.anyflow.data.toDbSongId
 import be.florien.anyflow.extension.applyPutLong
-import be.florien.anyflow.extension.eLog
-import be.florien.anyflow.extension.iLog
+import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.logging.iLog
 import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

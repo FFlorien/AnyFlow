@@ -63,6 +63,9 @@ android {
 }
 
 dependencies {
+    //Modules //todo check dependencies still needed and the one we could remove
+    implementation project(":data-local")
+    implementation project(':logging')
     //base
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -76,14 +79,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.material:material:1.11.0'
-    implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.1'
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation 'com.google.firebase:firebase-crashlytics:18.6.1'
-    implementation 'com.google.firebase:firebase-analytics:21.5.0'
-    //debug
-    implementation 'com.jakewharton.timber:timber:5.0.1'
-    implementation 'com.github.bastienpaulfr:Treessence:1.1.2'
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation 'androidx.media3:media3-session:1.2.1'
@@ -103,9 +100,9 @@ dependencies {
     implementation "androidx.media3:media3-datasource-okhttp:1.3.0"
     implementation "com.google.android.exoplayer:extension-mediasession:2.19.1"
     //Room
+    //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     //Tests

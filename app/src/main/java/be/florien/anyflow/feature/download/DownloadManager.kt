@@ -11,7 +11,7 @@ import be.florien.anyflow.data.UrlRepository
 import be.florien.anyflow.data.local.model.DownloadProgressState
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.extension.eLog
+import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.injection.ServerScope
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient

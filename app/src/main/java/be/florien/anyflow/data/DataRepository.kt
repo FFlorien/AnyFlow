@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.PagingData
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.local.QueryComposer
+import be.florien.anyflow.data.local.query.QueryComposer
 import be.florien.anyflow.data.local.model.*
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterCount
@@ -29,7 +29,7 @@ class DataRepository @Inject constructor(
         search: String?
     ): LiveData<PagingData<T>> =
         libraryDatabase.getSongDao().rawQueryPaging(
-            queryComposer.getQueryForSongFiltered(filters, search)
+            queryComposer.getQueryForSongFiltered(filters?.toQueryFilters(), search)
         ).map { mapping(it) }.convertToPagingLiveData()
 
     fun <T : Any> getArtists(
@@ -38,7 +38,7 @@ class DataRepository @Inject constructor(
         search: String?
     ): LiveData<PagingData<T>> =
         libraryDatabase.getArtistDao().rawQueryPaging(
-            queryComposer.getQueryForArtistFiltered(filters, search)
+            queryComposer.getQueryForArtistFiltered(filters?.toQueryFilters(), search)
         ).map { mapping(it) }.convertToPagingLiveData()
 
     fun <T : Any> getAlbums(
@@ -47,7 +47,7 @@ class DataRepository @Inject constructor(
         search: String?
     ): LiveData<PagingData<T>> =
         libraryDatabase.getAlbumDao().rawQueryDisplayPaging(
-            queryComposer.getQueryForAlbumFiltered(filters, search)
+            queryComposer.getQueryForAlbumFiltered(filters?.toQueryFilters(), search)
         ).map { mapping(it) }.convertToPagingLiveData()
 
     fun <T : Any> getAlbumArtists(
@@ -56,7 +56,7 @@ class DataRepository @Inject constructor(
         search: String?
     ): LiveData<PagingData<T>> =
         libraryDatabase.getArtistDao().rawQueryPaging(
-            queryComposer.getQueryForAlbumArtistFiltered(filters, search)
+            queryComposer.getQueryForAlbumArtistFiltered(filters?.toQueryFilters(), search)
         ).map { mapping(it) }.convertToPagingLiveData()
 
     fun <T : Any> getGenres(
@@ -65,7 +65,7 @@ class DataRepository @Inject constructor(
         search: String?
     ): LiveData<PagingData<T>> =
         libraryDatabase.getGenreDao().rawQueryPaging(
-            queryComposer.getQueryForGenreFiltered(filters, search)
+            queryComposer.getQueryForGenreFiltered(filters?.toQueryFilters(), search)
         ).map { mapping(it) }.convertToPagingLiveData()
 
     /**
@@ -78,7 +78,7 @@ class DataRepository @Inject constructor(
         mapping: (DbSongDisplay) -> T
     ): List<T> =
         libraryDatabase.getSongDao().rawQueryListDisplay(
-            queryComposer.getQueryForSongFiltered(filters, search)
+            queryComposer.getQueryForSongFiltered(filters?.toQueryFilters(), search)
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getArtistsSearchedList(
@@ -87,7 +87,7 @@ class DataRepository @Inject constructor(
         mapping: (DbArtist) -> T
     ): List<T> =
         libraryDatabase.getArtistDao().rawQueryList(
-            queryComposer.getQueryForArtistFiltered(filters, search)
+            queryComposer.getQueryForArtistFiltered(filters?.toQueryFilters(), search)
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getAlbumsSearchedList(
@@ -96,7 +96,7 @@ class DataRepository @Inject constructor(
         mapping: (DbAlbumDisplay) -> T,
     ): List<T> =
         libraryDatabase.getAlbumDao().rawQueryDisplayList(
-            queryComposer.getQueryForAlbumFiltered(filters, search)
+            queryComposer.getQueryForAlbumFiltered(filters?.toQueryFilters(), search)
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getAlbumArtistsSearchedList(
@@ -105,7 +105,7 @@ class DataRepository @Inject constructor(
         mapping: (DbArtist) -> T
     ): List<T> =
         libraryDatabase.getArtistDao().rawQueryList(
-            queryComposer.getQueryForAlbumArtistFiltered(filters, search)
+            queryComposer.getQueryForAlbumArtistFiltered(filters?.toQueryFilters(), search)
         ).map { item -> (mapping(item)) }
 
     suspend fun <T : Any> getGenresSearchedList(
@@ -114,7 +114,7 @@ class DataRepository @Inject constructor(
         mapping: (DbGenre) -> T
     ): List<T> =
         libraryDatabase.getGenreDao().rawQueryList(
-            queryComposer.getQueryForGenreFiltered(filters, search)
+            queryComposer.getQueryForGenreFiltered(filters?.toQueryFilters(), search)
         ).map { item -> (mapping(item)) }
 
     /**
@@ -136,9 +136,9 @@ class DataRepository @Inject constructor(
 
     suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterCount {
         val filterList = infoSource?.let { listOf(it) } ?: emptyList()
-        return libraryDatabase.getFilterDao().getCount(queryComposer.getQueryForCount(filterList))
+        return libraryDatabase.getFilterDao().getCount(queryComposer.getQueryForCount(filterList.toQueryFilters()))
             .toViewFilterCount()
     }
 
-     suspend fun getSongDuration(id: Long): Int = libraryDatabase.getSongDao().getSongDuration(id)
+    suspend fun getSongDuration(id: Long): Int = libraryDatabase.getSongDao().getSongDuration(id)
 }

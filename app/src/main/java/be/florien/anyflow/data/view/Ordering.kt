@@ -8,7 +8,6 @@ sealed class Ordering(val priority: Int, val subject: Long, val ordering: Int, v
     val orderingType
         get() = when (ordering) {
             ASCENDING -> OrderingType.ASCENDING
-            DESCENDING -> OrderingType.DESCENDING
             PRECISE_POSITION -> OrderingType.PRECISE_POSITION
             RANDOM -> OrderingType.RANDOM
             else -> OrderingType.RANDOM
@@ -43,7 +42,6 @@ sealed class Ordering(val priority: Int, val subject: Long, val ordering: Int, v
 
         const val PRIORITY_PRECISE = 2000
         const val ASCENDING = 1
-        const val DESCENDING = -1
         const val PRECISE_POSITION = -2
         const val RANDOM = -3
         const val RANDOM_MULTIPLIER = 1000
@@ -74,7 +72,6 @@ sealed class Ordering(val priority: Int, val subject: Long, val ordering: Int, v
 
     enum class OrderingType {
         ASCENDING,
-        DESCENDING,
         PRECISE_POSITION,
         RANDOM
     }
