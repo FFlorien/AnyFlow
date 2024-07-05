@@ -24,7 +24,7 @@ import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.info.progress.ProgressDialog
 import be.florien.anyflow.feature.info.progress.ProgressDialog.Progress
 import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.Dispatchers

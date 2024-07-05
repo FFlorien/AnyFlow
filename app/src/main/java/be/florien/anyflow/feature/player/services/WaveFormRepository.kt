@@ -5,9 +5,10 @@ import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.AmpacheDataSource
+import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.extension.GlideApp
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.injection.ServerScope
+import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,11 +16,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 @ServerScope
 class WaveFormRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
-    private val ampacheDataSource: AmpacheDataSource,
+    @Named("serverUrl") private val serverUrl: String,
     private val context: Context
 ) {
 
@@ -49,7 +51,7 @@ class WaveFormRepository @Inject constructor(
     }
 
     private suspend fun getWaveFormFromAmpache(songId: Long) {
-        val bitmap = getBitmap(songId)
+        val bitmap = getWaveFormImage(songId)
 
         if (bitmap != null) {
             val array = getValuesFromBitmap(bitmap)
@@ -59,8 +61,16 @@ class WaveFormRepository @Inject constructor(
         }
     }
 
-    private suspend fun getBitmap(songId: Long) = withContext(Dispatchers.IO) {
-        ampacheDataSource.getWaveFormImage(songId, context)
+    private suspend fun getWaveFormImage(songId: Long) = withContext(Dispatchers.IO) {
+        val url = "$serverUrl/waveform.php?song_id=$songId"
+        val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
+            .asBitmap()
+            .load(url)
+            .submit()
+
+        val bitmap: Bitmap = futureTarget.get()
+        GlideApp.with(context).clear(futureTarget)
+        bitmap
     }
 
     private suspend fun getValuesFromBitmap(bitmap: Bitmap) = withContext(Dispatchers.Default) {

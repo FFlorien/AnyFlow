@@ -65,7 +65,9 @@ android {
 dependencies {
     //Modules //todo check dependencies still needed and the one we could remove
     implementation project(":data-local")
+    implementation project(":data-server")
     implementation project(':logging')
+    implementation project(':utils')
     //base
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -87,7 +89,6 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
 
     //glide

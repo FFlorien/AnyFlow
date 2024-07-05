@@ -14,7 +14,7 @@ import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.extension.applyPutInt
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

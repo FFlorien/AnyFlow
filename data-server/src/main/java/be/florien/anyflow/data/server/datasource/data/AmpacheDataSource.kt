@@ -1,17 +1,24 @@
-package be.florien.anyflow.data.server
+package be.florien.anyflow.data.server.datasource.data
 
-import android.content.Context
-import android.graphics.Bitmap
-import be.florien.anyflow.data.TimeOperations
-import be.florien.anyflow.data.server.model.*
-import be.florien.anyflow.extension.GlideApp
+import be.florien.anyflow.data.server.NetApiError
+import be.florien.anyflow.data.server.NetResult
+import be.florien.anyflow.data.server.NetSuccess
+import be.florien.anyflow.data.server.NetThrowable
+import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.data.server.model.AmpacheAlbumResponse
+import be.florien.anyflow.data.server.model.AmpacheApiListResponse
+import be.florien.anyflow.data.server.model.AmpacheApiResponse
+import be.florien.anyflow.data.server.model.AmpacheArtistResponse
+import be.florien.anyflow.data.server.model.AmpacheDeletedSongIdResponse
+import be.florien.anyflow.data.server.model.AmpacheGenreResponse
+import be.florien.anyflow.data.server.model.AmpachePlaylistResponse
+import be.florien.anyflow.data.server.model.AmpachePlaylistsWithSongsResponse
+import be.florien.anyflow.data.server.model.AmpacheSongResponse
+import be.florien.anyflow.data.server.toNetResult
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.injection.ServerScope
-import com.bumptech.glide.request.FutureTarget
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import be.florien.anyflow.utils.TimeOperations
 import retrofit2.Retrofit
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -110,32 +117,6 @@ open class AmpacheDataSource
     suspend fun getDeletedSongs(offset: Int, limit: Int): NetResult<AmpacheDeletedSongIdResponse> =
         getNetResult(AmpacheDataApi::getDeletedSongs, offset, limit)
 
-    suspend fun getWaveFormImage(songId: Long, context: Context) = withContext(Dispatchers.IO) {
-        val serverUrl = retrofit.baseUrl()
-        val url = "$serverUrl/waveform.php?song_id=$songId"
-        val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
-            .asBitmap()
-            .load(url)
-            .submit()
-
-        val bitmap: Bitmap = futureTarget.get()
-        GlideApp.with(context).clear(futureTarget)
-        bitmap
-    }
-
-    suspend fun getStreamError(songId: Long) =
-        ampacheDataApi.streamError(songId = songId)
-
-    fun getMediaUrl(id: Long, mediaType: String): String {
-        val serverUrl = retrofit.baseUrl()
-        return "${serverUrl}server/json.server.php?action=stream&type=$mediaType&id=$id&uid=1"
-    }
-
-    fun getArtUrl(type: String, id: Long): String {
-        val serverUrl = retrofit.baseUrl()
-        return "${serverUrl}server/json.server.php?action=get_art&type=$type&id=$id"
-    }
-
     private suspend fun <T : AmpacheApiResponse> getNetResult(
         apiMethod: suspend AmpacheDataApi.(Int, Int) -> T,
         offset: Int,
@@ -155,13 +136,6 @@ open class AmpacheDataSource
         eLog(ex)
         NetThrowable(ex)
     }
-
-    private fun <T : AmpacheApiResponse> T.toNetResult(): NetResult<T> =
-        if (error == null) {
-            NetSuccess(this)
-        } else {
-            NetApiError(error)
-        }
 
     private suspend fun <V, T : AmpacheApiListResponse<V>> getUpdatedNetResult(
         apiMethod: suspend AmpacheDataApi.(Int, Int, String) -> T,

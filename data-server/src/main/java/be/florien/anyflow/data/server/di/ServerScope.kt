@@ -1,4 +1,4 @@
-package be.florien.anyflow.injection
+package be.florien.anyflow.data.server.di
 
 import javax.inject.Scope
 

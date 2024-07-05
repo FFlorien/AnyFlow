@@ -9,7 +9,7 @@ import be.florien.anyflow.data.local.query.QueryComposer
 import be.florien.anyflow.data.local.model.DbPlaylist
 import be.florien.anyflow.data.local.model.DbPlaylistSongs
 import be.florien.anyflow.data.local.model.DbSongDisplay
-import be.florien.anyflow.data.server.AmpacheEditSource
+import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.data.toQueryFilter
 import be.florien.anyflow.data.toQueryFilters
 import be.florien.anyflow.data.toViewPlaylist
@@ -18,13 +18,13 @@ import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.extension.convertToPagingLiveData
 import be.florien.anyflow.feature.sync.SyncRepository
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import javax.inject.Inject
 
 @ServerScope
 class PlaylistRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
-    private val ampacheEditSource: AmpacheEditSource,
+    private val ampacheEditSource: AmpachePlaylistSource,
     private val urlRepository: UrlRepository,
     private val syncRepository: SyncRepository
 ) {

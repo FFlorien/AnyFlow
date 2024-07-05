@@ -1,6 +1,6 @@
 package be.florien.anyflow.data.user
 
-import be.florien.anyflow.data.TimeOperations
+import be.florien.anyflow.utils.TimeOperations
 import java.util.*
 
 abstract class AuthPersistence {

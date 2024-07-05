@@ -44,7 +44,7 @@ import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ActivityScope
 import be.florien.anyflow.injection.AnyFlowViewModelFactory
 import be.florien.anyflow.injection.PlayerComponent
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Dispatchers

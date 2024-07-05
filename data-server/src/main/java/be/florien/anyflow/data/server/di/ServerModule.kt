@@ -1,0 +1,36 @@
+package be.florien.anyflow.data.server.di
+
+import dagger.Module
+import dagger.Provides
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.jackson.JacksonConverterFactory
+import javax.inject.Named
+
+@Module
+class ServerModule {
+
+    @ServerScope
+    @Provides
+    @Named("nonAuthenticated")
+    fun provideAuthOkHttp(): OkHttpClient =
+        OkHttpClient.Builder().build()
+
+    @Provides
+    @ServerScope
+    @Named("nonAuthenticated")
+    fun providesAuthRetrofit(
+        @Named("serverUrl") serverUrl: String,
+        @Named("nonAuthenticated") okHttpClient: OkHttpClient
+    ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
+        .addConverterFactory(JacksonConverterFactory.create()).build()
+
+    @Provides
+    @ServerScope
+    @Named("authenticated")
+    fun providesDataRetrofit(
+        @Named("serverUrl") serverUrl: String,
+        @Named("authenticated") okHttpClient: OkHttpClient
+    ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
+        .addConverterFactory(JacksonConverterFactory.create()).build()
+}

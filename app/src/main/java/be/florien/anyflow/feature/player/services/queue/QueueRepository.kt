@@ -23,7 +23,7 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.extension.convertToPagingLiveData
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date

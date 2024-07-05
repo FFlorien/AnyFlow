@@ -2,13 +2,12 @@ package be.florien.anyflow.injection
 
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.data.server.AuthenticationInterceptor
+import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.feature.auth.AuthRepository
 import be.florien.anyflow.feature.sync.SyncRepository
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 
@@ -16,13 +15,7 @@ import javax.inject.Named
  * Module for dependencies available only when a user is logged in.
  */
 @Module
-class ServerModule {
-
-    @ServerScope
-    @Provides
-    @Named("nonAuthenticated")
-    fun provideAuthOkHttp(): OkHttpClient =
-        OkHttpClient.Builder().build()
+class AuthModule {
 
     @ServerScope
     @Provides
@@ -48,24 +41,6 @@ class ServerModule {
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .build()
-
-    @Provides
-    @ServerScope
-    @Named("nonAuthenticated")
-    fun providesAuthRetrofit(
-        @Named("serverUrl") serverUrl: String,
-        @Named("nonAuthenticated") okHttpClient: OkHttpClient
-    ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
-        .addConverterFactory(JacksonConverterFactory.create()).build()
-
-    @Provides
-    @ServerScope
-    @Named("authenticated")
-    fun providesDataRetrofit(
-        @Named("serverUrl") serverUrl: String,
-        @Named("authenticated") okHttpClient: OkHttpClient
-    ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
-        .addConverterFactory(JacksonConverterFactory.create()).build()
 
     @Provides
     fun provideConnectionStatus(connection: AuthRepository): LiveData<AuthRepository.ConnectionStatus> =

@@ -1,4 +1,4 @@
-package be.florien.anyflow.data.server
+package be.florien.anyflow.data.server.datasource.podcast
 
 import be.florien.anyflow.data.server.model.*
 import retrofit2.http.GET

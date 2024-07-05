@@ -3,10 +3,10 @@ package be.florien.anyflow.feature.sync
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.data.TimeOperations
+import be.florien.anyflow.utils.TimeOperations
 import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.AmpacheDataSource
-import be.florien.anyflow.data.server.AmpachePodcastSource
+import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
+import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
 import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.NetSuccess
@@ -32,7 +32,7 @@ import be.florien.anyflow.data.toDbSongId
 import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.iLog
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar

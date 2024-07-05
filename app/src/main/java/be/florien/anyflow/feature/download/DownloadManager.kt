@@ -12,7 +12,7 @@ import be.florien.anyflow.data.local.model.DownloadProgressState
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request

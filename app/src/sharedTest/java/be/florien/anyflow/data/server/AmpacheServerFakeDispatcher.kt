@@ -1,6 +1,6 @@
 package be.florien.anyflow.data.server
 
-import be.florien.anyflow.data.TimeOperations
+import be.florien.anyflow.utils.TimeOperations
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest

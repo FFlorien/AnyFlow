@@ -1,3 +1,5 @@
 include ':app'
 include ':data-local'
 include ':logging'
+include ':data-server'
+include ':utils'

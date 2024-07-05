@@ -37,7 +37,7 @@ import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPlayl
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import com.google.android.material.snackbar.Snackbar
 
 @ActivityScope

@@ -2,8 +2,8 @@ package be.florien.anyflow.feature.auth
 
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.data.TimeOperations
-import be.florien.anyflow.data.server.AmpacheAuthSource
+import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.data.server.datasource.auth.AmpacheAuthSource
 import be.florien.anyflow.data.server.exception.NotAnAmpacheUrlException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
@@ -12,7 +12,7 @@ import be.florien.anyflow.data.server.model.AmpacheAuthentication
 import be.florien.anyflow.data.server.model.AmpacheStatus
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Named

@@ -11,7 +11,7 @@ class NetSuccess<T>(val data: T): NetResult<T>
 class NetApiError<T>(val error: AmpacheError): NetResult<T>
 class NetThrowable<T>(val throwable: Throwable): NetResult<T>
 
-fun AmpacheApiResponse.toNetResult(): NetResult<AmpacheApiResponse> =
+fun <T: AmpacheApiResponse> T.toNetResult(): NetResult<T> =
     if (error == null) {
         NetSuccess(this)
     } else {

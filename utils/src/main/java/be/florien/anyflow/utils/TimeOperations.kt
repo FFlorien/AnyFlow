@@ -1,4 +1,4 @@
-package be.florien.anyflow.data
+package be.florien.anyflow.utils
 
 import java.text.SimpleDateFormat
 import java.util.*

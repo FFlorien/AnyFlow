@@ -1,10 +1,10 @@
 package be.florien.anyflow.data.server
 
-import be.florien.anyflow.data.TimeOperations
+import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.data.server.model.AmpacheErrorObject
 import be.florien.anyflow.data.user.AuthPersistence
 import be.florien.anyflow.feature.auth.AuthRepository
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.utils.TimeOperations
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Lazy
 import kotlinx.coroutines.runBlocking

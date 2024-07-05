@@ -1,4 +1,4 @@
-package be.florien.anyflow.data.server
+package be.florien.anyflow.data.server.datasource.playlist
 
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -6,7 +6,7 @@ import retrofit2.http.Query
 /**
  * Retrofit interface for Ampache
  */
-interface AmpacheEditApi {
+interface AmpachePlaylistApi {
 
     @GET("server/json.server.php")
     suspend fun createPlaylist(

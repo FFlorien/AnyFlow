@@ -34,7 +34,6 @@ import be.florien.anyflow.data.local.PodcastPersistence
 import be.florien.anyflow.data.local.model.DbMediaToPlay
 import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.data.server.AmpacheDataSource
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.download.DownloadManager
@@ -87,9 +86,6 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
     //region injection
     @Inject
     internal lateinit var playingQueue: PlayingQueue
-
-    @Inject
-    internal lateinit var ampacheDataSource: AmpacheDataSource
 
     @Inject
     internal lateinit var waveFormRepository: WaveFormRepository
@@ -307,7 +303,7 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         } else {
             "podcast_episode"
         }
-        val songUrl = ampacheDataSource.getMediaUrl(id, mediaType)
+        val songUrl = urlRepository.getMediaUrl(id, mediaType)
         val mediaTypeMetaData =
             if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
         return MediaItem.Builder().setMediaMetadata(

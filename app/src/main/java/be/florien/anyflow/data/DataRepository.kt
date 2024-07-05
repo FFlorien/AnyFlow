@@ -10,7 +10,7 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.FilterCount
 import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.extension.convertToPagingLiveData
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import javax.inject.Inject
 
 @ServerScope

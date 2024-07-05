@@ -1,6 +1,8 @@
 package be.florien.anyflow.injection
 
 import be.florien.anyflow.AnyFlowApp
+import be.florien.anyflow.data.server.di.ServerModule
+import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.extension.MyAppGlideModule
 import be.florien.anyflow.feature.alarms.AlarmViewModel
 import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
@@ -19,7 +21,7 @@ import javax.inject.Named
  * Component used to add dependency injection about data into classes
  */
 @ServerScope
-@Subcomponent(modules = [ServerModule::class])
+@Subcomponent(modules = [AuthModule::class, ServerModule::class])
 interface ServerComponent {
 
     fun inject(validator: AnyFlowApp.ServerValidator)

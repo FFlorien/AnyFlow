@@ -5,7 +5,7 @@ import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.Ordering.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.injection.ServerScope
+import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.iLog
 import kotlinx.coroutines.CoroutineExceptionHandler
