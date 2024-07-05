@@ -29,7 +29,7 @@ import be.florien.anyflow.data.toDbPodcastEpisode
 import be.florien.anyflow.data.toDbSong
 import be.florien.anyflow.data.toDbSongGenres
 import be.florien.anyflow.data.toDbSongId
-import be.florien.anyflow.extension.applyPutLong
+import be.florien.anyflow.utils.applyPutLong
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.iLog
 import be.florien.anyflow.data.server.di.ServerScope

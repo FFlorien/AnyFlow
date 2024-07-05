@@ -29,7 +29,7 @@ import be.florien.anyflow.extension.isVisiblePresent
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.auth.AuthRepository
+import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.auth.ServerActivity
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder

@@ -12,8 +12,8 @@ import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.NoOpCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
-import be.florien.anyflow.data.user.AuthPersistence
-import be.florien.anyflow.data.user.AuthPersistenceKeystore
+import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
+import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistenceKeystore
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.alarms.AlarmReceiver
 import dagger.Module

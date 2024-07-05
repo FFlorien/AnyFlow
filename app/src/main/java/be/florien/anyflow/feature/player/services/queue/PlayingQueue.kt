@@ -12,7 +12,7 @@ import be.florien.anyflow.data.local.model.DbMediaToPlay
 import be.florien.anyflow.data.local.model.DbQueueItem
 import be.florien.anyflow.data.view.Ordering
 import be.florien.anyflow.data.view.QueueItemDisplay
-import be.florien.anyflow.extension.applyPutInt
+import be.florien.anyflow.utils.applyPutInt
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.CoroutineExceptionHandler

@@ -66,6 +66,7 @@ dependencies {
     //Modules //todo check dependencies still needed and the one we could remove
     implementation project(":data-local")
     implementation project(":data-server")
+    implementation project(":feature-auth-domain")
     implementation project(':logging')
     implementation project(':utils')
     //base

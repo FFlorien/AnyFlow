@@ -7,6 +7,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

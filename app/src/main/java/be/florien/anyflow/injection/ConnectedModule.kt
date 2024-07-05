@@ -1,9 +1,8 @@
 package be.florien.anyflow.injection
 
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.data.server.AuthenticationInterceptor
 import be.florien.anyflow.data.server.di.ServerScope
-import be.florien.anyflow.feature.auth.AuthRepository
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.sync.SyncRepository
 import dagger.Module
 import dagger.Provides
@@ -15,7 +14,7 @@ import javax.inject.Named
  * Module for dependencies available only when a user is logged in.
  */
 @Module
-class AuthModule {
+class ConnectedModule {
 
     @ServerScope
     @Provides
@@ -41,10 +40,6 @@ class AuthModule {
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .build()
-
-    @Provides
-    fun provideConnectionStatus(connection: AuthRepository): LiveData<AuthRepository.ConnectionStatus> =
-        connection.connectionStatusUpdater
 
     @Provides
     @Named("Songs")

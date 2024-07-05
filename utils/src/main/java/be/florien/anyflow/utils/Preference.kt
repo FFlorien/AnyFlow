@@ -1,7 +1,6 @@
-package be.florien.anyflow.extension
+package be.florien.anyflow.utils
 
 import android.content.SharedPreferences
-import java.util.*
 
 /**
  * Extension function for preferences */

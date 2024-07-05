@@ -9,6 +9,7 @@ import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
 import be.florien.anyflow.feature.auth.UserConnectViewModel
+import be.florien.anyflow.feature.auth.domain.di.AuthModule
 import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel
@@ -21,7 +22,7 @@ import javax.inject.Named
  * Component used to add dependency injection about data into classes
  */
 @ServerScope
-@Subcomponent(modules = [AuthModule::class, ServerModule::class])
+@Subcomponent(modules = [ConnectedModule::class, ServerModule::class, AuthModule::class])
 interface ServerComponent {
 
     fun inject(validator: AnyFlowApp.ServerValidator)

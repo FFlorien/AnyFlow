@@ -17,7 +17,7 @@ import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.feature.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
-import be.florien.anyflow.feature.auth.AuthRepository
+import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.player.services.WaveFormRepository
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue

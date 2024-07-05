@@ -1,5 +1,6 @@
 package be.florien.anyflow.data.user
 
+import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.utils.TimeOperations
 
 class AuthPersistenceFake : AuthPersistence() {
@@ -8,6 +9,7 @@ class AuthPersistenceFake : AuthPersistence() {
     override val authToken = InMemorySecret()
     override val user = InMemorySecret()
     override val password = InMemorySecret()
+    override val apiToken = InMemorySecret()
 
     inner class InMemorySecret() : ExpirationSecret {
         override var secret: String = ""

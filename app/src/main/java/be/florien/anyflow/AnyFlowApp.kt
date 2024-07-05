@@ -5,9 +5,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
-import be.florien.anyflow.data.user.AuthPersistence
+import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.feature.auth.AuthRepository
+import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent

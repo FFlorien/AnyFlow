@@ -1,12 +1,12 @@
-package be.florien.anyflow.data.user
+package be.florien.anyflow.feature.auth.domain.persistence
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import be.florien.anyflow.utils.TimeOperations
-import be.florien.anyflow.extension.applyPutLong
 import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.utils.applyPutLong
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -28,8 +28,9 @@ import javax.crypto.spec.GCMParameterSpec
  * Manager for all things authentication related
  */
 class AuthPersistenceKeystore(
-        private var preference: SharedPreferences,
-        context: Context) : AuthPersistence() {
+    private var preference: SharedPreferences,
+    context: Context
+) : AuthPersistence() {
     companion object {
         private const val KEYSTORE_NAME = "AndroidKeyStore"
         private const val SERVER_FILENAME = "server"
@@ -58,9 +59,10 @@ class AuthPersistenceKeystore(
     override var authToken = EncryptedSecret(AUTH_ALIAS, AUTH_FILENAME)
     override var user = EncryptedSecret(USER_ALIAS, USER_FILENAME)
     override var password = EncryptedSecret(USER_ALIAS, PASSWORD_FILENAME)
-override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
+    override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
 
-    inner class EncryptedSecret(private val alias: String, private val filename: String) : ExpirationSecret {
+    inner class EncryptedSecret(private val alias: String, private val filename: String) :
+        ExpirationSecret {
         override var secret: String = ""
             get() {
                 var secretValue = field
@@ -90,16 +92,29 @@ override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
         }
 
         override fun hasSecret(): Boolean = keyStore.containsAlias(alias)
-        override fun isDataValid(): Boolean = TimeOperations.getDateFromMillis(expiration).after(TimeOperations.getCurrentDate())
+        override fun isDataValid(): Boolean =
+            TimeOperations.getDateFromMillis(expiration).after(TimeOperations.getCurrentDate())
 
         private fun getRsaKey(alias: String): Key? = keyStore.getKey(alias, null)
 
-        @Throws(KeyStoreException::class, UnrecoverableEntryException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, NoSuchPaddingException::class, InvalidKeyException::class, IOException::class)
+        @Throws(
+            KeyStoreException::class,
+            UnrecoverableEntryException::class,
+            NoSuchAlgorithmException::class,
+            NoSuchProviderException::class,
+            NoSuchPaddingException::class,
+            InvalidKeyException::class,
+            IOException::class
+        )
         private fun encryptSecret(secret: String, expiration: Long) {
             ensureRsaKey(expiration)
             val privateKeyEntry = getRsaKey(alias)
             val cipher = Cipher.getInstance(AES_CIPHER)
-            cipher.init(Cipher.ENCRYPT_MODE, privateKeyEntry, GCMParameterSpec(128, FIXED_IV.toByteArray()))
+            cipher.init(
+                Cipher.ENCRYPT_MODE,
+                privateKeyEntry,
+                GCMParameterSpec(128, FIXED_IV.toByteArray())
+            )
             val encryptedSecret = cipher.doFinal(secret.toByteArray())
 
             val outputStream = FileOutputStream(dataDirectoryPath + filename)
@@ -112,7 +127,11 @@ override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
             try {
                 val privateKeyEntry = getRsaKey(alias)
                 val cipher = Cipher.getInstance(AES_CIPHER)
-                cipher.init(Cipher.DECRYPT_MODE, privateKeyEntry, GCMParameterSpec(128, FIXED_IV.toByteArray()))
+                cipher.init(
+                    Cipher.DECRYPT_MODE,
+                    privateKeyEntry,
+                    GCMParameterSpec(128, FIXED_IV.toByteArray())
+                )
 
                 val inputStream = FileInputStream(dataDirectoryPath + filename)
                 val encryptedSecret = ByteArray(1024)
@@ -120,7 +139,10 @@ override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
                 val decryptedSecret = cipher.doFinal(encryptedSecret, 0, bytesRead)
                 return String(decryptedSecret)
             } catch (exception: Exception) {
-                this@AuthPersistenceKeystore.eLog(exception, "Error while trying to retrieve a secured data")
+                this@AuthPersistenceKeystore.eLog(
+                    exception,
+                    "Error while trying to retrieve a secured data"
+                )
                 val file = File(dataDirectoryPath + filename)
                 if (file.exists()) {
                     file.delete()
@@ -131,7 +153,8 @@ override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
 
         private fun ensureRsaKey(expiration: Long) {
             if (!keyStore.containsAlias(alias)) {
-                val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME)
+                val keyGenerator =
+                    KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME)
                 keyGenerator.init(getSpecFromKeyGenParameter())
                 keyGenerator.generateKey()
 
@@ -140,10 +163,13 @@ override var apiToken = EncryptedSecret(API_TOKEN_ALIAS, API_TOKEN_FILENAME)
         }
 
         private fun getSpecFromKeyGenParameter() =
-                KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                        .setRandomizedEncryptionRequired(false)
-                        .build()
+            KeyGenParameterSpec.Builder(
+                alias,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(false)
+                .build()
     }
 }

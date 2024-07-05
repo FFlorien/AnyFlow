@@ -1,4 +1,4 @@
-package be.florien.anyflow.data.user
+package be.florien.anyflow.feature.auth.domain.persistence
 
 import be.florien.anyflow.utils.TimeOperations
 import java.util.*
