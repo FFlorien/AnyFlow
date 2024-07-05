@@ -12,7 +12,7 @@ import be.florien.anyflow.data.view.Alarm
 import be.florien.anyflow.databinding.FragmentAlarmListBinding
 import be.florien.anyflow.databinding.ItemAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarms.edit.EditAlarmFragment
 
 class AlarmListFragment : BaseFragment() {

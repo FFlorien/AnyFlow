@@ -13,6 +13,10 @@ import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
 import be.florien.anyflow.logging.plantTimber
+import be.florien.anyflow.ui.di.ServerVmInjectorContainer
+import be.florien.anyflow.ui.di.ServerVmInjector
+import be.florien.anyflow.ui.di.UserVmInjectorContainer
+import be.florien.anyflow.ui.di.UserVmInjector
 import javax.inject.Inject
 
 
@@ -20,10 +24,15 @@ import javax.inject.Inject
  * Application class used for initialization of many libraries
  */
 @SuppressLint("Registered")
-open class AnyFlowApp : MultiDexApplication(), ServerComponentContainer {
+open class AnyFlowApp : MultiDexApplication(), UserVmInjectorContainer,
+    ServerVmInjectorContainer {
     lateinit var applicationComponent: ApplicationComponent
         protected set
-    override var serverComponent: ServerComponent? = null
+    override val serverVmInjector: ServerVmInjector
+        get() = applicationComponent
+    var serverComponent: ServerComponent? = null
+    override val userVmInjector: UserVmInjector?
+        get() = serverComponent
 
     @Inject
     lateinit var authPersistence: AuthPersistence

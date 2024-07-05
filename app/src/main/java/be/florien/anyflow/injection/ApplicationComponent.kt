@@ -3,7 +3,7 @@ package be.florien.anyflow.injection
 import android.app.Application
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.data.local.di.DataLocalModule
-import be.florien.anyflow.feature.auth.ServerViewModel
+import be.florien.anyflow.ui.di.ServerVmInjector
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -20,11 +20,9 @@ import javax.inject.Singleton
         DataLocalModule::class
     ]
 )
-interface ApplicationComponent {
+interface ApplicationComponent: ServerVmInjector {
 
     fun inject(anyFlowApp: AnyFlowApp)
-
-    fun inject(serverViewModel: ServerViewModel)
 
     fun serverComponentBuilder(): ServerComponent.Builder
 

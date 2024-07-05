@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".feature.auth.ServerActivity" />
+        <activity android:name=".ui.server.ServerActivity" /> <!-- todo each could be in its own manifest -->
         <activity android:name=".feature.auth.UserConnectActivity" />
 
         <activity android:name=".feature.alarms.AlarmActivity" />

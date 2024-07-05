@@ -20,7 +20,7 @@ import be.florien.anyflow.data.toViewDisplay
 import be.florien.anyflow.data.toViewPodcastEpisodeDisplay
 import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongDisplay
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer

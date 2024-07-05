@@ -26,11 +26,9 @@ import be.florien.anyflow.R
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.isVisiblePresent
-import be.florien.anyflow.extension.startActivity
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
-import be.florien.anyflow.feature.auth.ServerActivity
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
@@ -46,6 +44,8 @@ import be.florien.anyflow.injection.AnyFlowViewModelFactory
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.injection.ViewModelFactoryHolder
+import be.florien.anyflow.ui.server.ServerActivity
+import be.florien.anyflow.utils.startActivity
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

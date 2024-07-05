@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.data.toViewFilterType
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.PlaylistWithPresence
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.PlaylistRepository

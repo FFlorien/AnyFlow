@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.alarms
 
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import javax.inject.Inject
 
 class AlarmViewModel : BaseViewModel() {

@@ -27,7 +27,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.QueueItemDisplay
 import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.FragmentSongListBinding
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.player.ui.PlayerActivity

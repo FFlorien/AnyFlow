@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.alarms.list
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Alarm
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import kotlinx.coroutines.launch
 import javax.inject.Inject

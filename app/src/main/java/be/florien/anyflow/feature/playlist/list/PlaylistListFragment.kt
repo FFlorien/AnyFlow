@@ -13,7 +13,7 @@ import be.florien.anyflow.R
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.databinding.ItemPlaylistBinding
 import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.DeletePlaylistMenuHolder

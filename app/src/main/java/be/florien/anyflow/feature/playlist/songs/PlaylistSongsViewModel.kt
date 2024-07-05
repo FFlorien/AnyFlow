@@ -11,7 +11,7 @@ import be.florien.anyflow.data.toViewSongDisplay
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.data.view.SongDisplay
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.playlist.PlaylistRepository
 import kotlinx.coroutines.Dispatchers

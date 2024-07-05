@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.player.ui.info
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'be.florien.anyflow.feature.auth.ui'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 23
+    }
+    buildFeatures {
+        dataBinding = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation project(':common-ui')
+    implementation project(':feature-auth-domain')
+    implementation project(':utils')
+
+    //DI
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation project(':data-server')
+    implementation project(':logging')
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+}

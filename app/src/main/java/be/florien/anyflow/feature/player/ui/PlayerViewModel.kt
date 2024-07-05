@@ -15,7 +15,7 @@ import be.florien.anyflow.data.local.PodcastPersistence
 import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.extension.postValueIfChanged
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.player.services.WaveFormRepository

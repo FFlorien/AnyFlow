@@ -2,7 +2,7 @@ package be.florien.anyflow.feature.alarms.edit
 
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.data.view.Alarm
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import javax.inject.Inject
 

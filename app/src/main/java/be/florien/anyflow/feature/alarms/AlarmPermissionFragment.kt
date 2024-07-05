@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import be.florien.anyflow.R
 import be.florien.anyflow.databinding.FragmentAlarmPermissionBinding
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.common.ui.BaseFragment
 
 class AlarmPermissionFragment : BaseFragment() {
 

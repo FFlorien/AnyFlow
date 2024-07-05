@@ -21,7 +21,7 @@ import be.florien.anyflow.data.view.SongDisplay
 import be.florien.anyflow.databinding.LayoutSongBinding
 import be.florien.anyflow.extension.ImageConfig
 import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.feature.BaseFragment
+import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.BaseSelectableAdapter
 import be.florien.anyflow.feature.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.PlayPlaylistSongsMenuHolder

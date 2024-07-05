@@ -10,7 +10,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.data.view.Playlist
-import be.florien.anyflow.feature.BaseViewModel
+import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.playlist.DeletePlaylistViewModel
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel

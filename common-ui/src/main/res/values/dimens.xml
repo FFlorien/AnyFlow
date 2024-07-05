@@ -1,0 +1,19 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="smallDimen">8dp</dimen>
+    <dimen name="mediumDimen">16dp</dimen>
+    <dimen name="largeDimen">32dp</dimen>
+    <dimen name="xLargeDimen">48dp</dimen>
+    <dimen name="xxLargeDimen">64dp</dimen>
+
+    <dimen name="imageSize">90dp</dimen>
+    <dimen name="smallImageSize">75dp</dimen>
+
+    <dimen name="textSmall">12sp</dimen>
+    <dimen name="textLarge">18sp</dimen>
+
+    <dimen name="listItemPadding">@dimen/smallDimen</dimen>
+    <dimen name="activity_horizontal_margin">@dimen/mediumDimen</dimen>
+    <dimen name="minClickableSize">@dimen/xLargeDimen</dimen>
+    <dimen name="infoTextViewHeight">@dimen/largeDimen</dimen>
+</resources>
