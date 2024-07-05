@@ -400,7 +400,7 @@ fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (
 
 // region view to utilities
 
-fun Filter<*>.toQueryFilter(): QueryFilter = QueryFilter(
+fun Filter<*>.toQueryFilter(level: Int = 0): QueryFilter = QueryFilter(
     type = when (type) {
         Filter.FilterType.GENRE_IS -> QueryFilter.FilterType.GENRE_IS
         Filter.FilterType.SONG_IS -> QueryFilter.FilterType.SONG_IS
@@ -412,27 +412,30 @@ fun Filter<*>.toQueryFilter(): QueryFilter = QueryFilter(
         Filter.FilterType.DOWNLOADED_STATUS_IS -> QueryFilter.FilterType.DOWNLOADED_STATUS_IS
         Filter.FilterType.PODCAST_EPISODE_IS -> QueryFilter.FilterType.PODCAST_EPISODE_IS
     },
-    argument = when(argument) {
+    argument = when (argument) {
         is Boolean -> if (argument) "NOT NULL" else "NULL"
         else -> argument.toString()
     },
-    children = children.map { it.toQueryFilter() }
+    level = level,
+    children = children.map { it.toQueryFilter(level + 1) }
 )
 
 fun List<Filter<*>>.toQueryFilters() = map { it.toQueryFilter() }
 
-fun Ordering.toQueryOrdering() = when(ordering) {
+fun Ordering.toQueryOrdering() = when (ordering) {
     Ordering.PRECISE_POSITION -> QueryOrdering.Precise(
         priority = priority,
         subject = subject(),
         precisePosition = argument,
         songId = subject
     )
+
     Ordering.RANDOM -> QueryOrdering.Random(
         priority = priority,
         subject = subject(),
         randomSeed = argument
     )
+
     else -> QueryOrdering.Ordered(
         priority = priority,
         subject = subject()
