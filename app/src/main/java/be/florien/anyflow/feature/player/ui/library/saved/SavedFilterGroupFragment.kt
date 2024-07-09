@@ -13,13 +13,14 @@ import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
-import be.florien.anyflow.data.view.FilterGroup
+import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.databinding.ItemFilterGroupBinding
-import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
+import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
+import be.florien.anyflow.feature.library.ui.LibraryViewModel
+import be.florien.anyflow.feature.library.ui.R
+import be.florien.anyflow.management.filters.model.FilterGroup
 
 class SavedFilterGroupFragment : BaseFilteringFragment() {
 
@@ -27,6 +28,8 @@ class SavedFilterGroupFragment : BaseFilteringFragment() {
     private lateinit var viewModel: SavedFilterGroupViewModel
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
+    override val navigator: Navigator
+        get() = viewModel.navigator
 
     private lateinit var binding: FragmentSavedFilterGroupBinding
     private var selectedList = mutableListOf<Int>() //todo selection in vm ?

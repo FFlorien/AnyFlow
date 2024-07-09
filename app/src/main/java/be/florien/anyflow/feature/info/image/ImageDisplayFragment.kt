@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import be.florien.anyflow.R
+import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.databinding.FragmentImageDisplayBinding
-import be.florien.anyflow.extension.ImageConfig
 
 private const val ARG_URL = "url"
 

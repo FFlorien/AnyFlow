@@ -7,9 +7,6 @@ import be.florien.anyflow.common.ui.navigation.Navigator
 import dagger.Binds
 import dagger.Module
 
-/**
- * Created by florien on 1/01/18.
- */
 @Module
 abstract class ApplicationWideModule {
 

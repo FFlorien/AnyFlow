@@ -1,13 +1,14 @@
 package be.florien.anyflow.feature.player.services.queue
 
-import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.Ordering
-import be.florien.anyflow.data.view.Ordering.Companion.RANDOM_MULTIPLIER
-import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.tags.view.Ordering
+import be.florien.anyflow.tags.view.Ordering.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.tags.model.SongInfo
+import be.florien.anyflow.tags.view.contains
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -145,7 +146,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
         queueRepository.setOrderings(dbOrders)
     }
 
-    private fun saveQueue(filterList: List<Filter<*>>, orderingList: List<Ordering>) {
+    private fun saveQueue(filterList: List<be.florien.anyflow.management.filters.model.Filter<*>>, orderingList: List<Ordering>) {
         iLog("Order for saving queue order: ${orderingList.joinToString { it.orderingSubject.name }}")
         coroutineScope.launch {
             val queue = queueRepository.getOrderlessQueue(filterList, orderingList)

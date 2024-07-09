@@ -1,10 +1,10 @@
 package be.florien.anyflow.data.server.datasource.data
 
+import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.NetThrowable
-import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.data.server.model.AmpacheAlbumResponse
 import be.florien.anyflow.data.server.model.AmpacheApiListResponse
 import be.florien.anyflow.data.server.model.AmpacheApiResponse

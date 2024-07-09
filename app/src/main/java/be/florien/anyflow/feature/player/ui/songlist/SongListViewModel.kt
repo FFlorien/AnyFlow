@@ -12,22 +12,20 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
 import androidx.paging.PagingData
-import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.PodcastRepository
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.data.toViewDisplay
-import be.florien.anyflow.data.toViewPodcastEpisodeDisplay
-import be.florien.anyflow.data.view.QueueItemDisplay
-import be.florien.anyflow.data.view.SongDisplay
+import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.tags.toViewDisplay
+import be.florien.anyflow.tags.toViewPodcastEpisodeDisplay
+import be.florien.anyflow.tags.view.QueueItemDisplay
+import be.florien.anyflow.tags.view.SongDisplay
 import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
-import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
-import be.florien.anyflow.injection.ActivityScope
+import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.podcast.PodcastRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -48,9 +46,9 @@ class SongListViewModel
     orderComposer: OrderComposer,
     @Named("preferences") sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager,
-    urlRepository: UrlRepository,
+    urlRepository: be.florien.anyflow.tags.UrlRepository,
     playingQueue: PlayingQueue,
-    private val dataRepository: DataRepository,
+    private val dataRepository: be.florien.anyflow.tags.DataRepository,
     private val podcastRepository: PodcastRepository,
 ) : BaseViewModel() {
 

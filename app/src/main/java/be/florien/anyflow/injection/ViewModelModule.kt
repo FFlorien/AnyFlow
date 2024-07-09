@@ -2,19 +2,12 @@ package be.florien.anyflow.injection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.architecture.di.ViewModelKey
 import be.florien.anyflow.feature.player.ui.PlayerViewModel
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
-import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryAlbumArtistListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryAlbumListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryArtistListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryDownloadedListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryGenreListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPlaylistListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibraryPodcastEpisodeListViewModel
-import be.florien.anyflow.feature.player.ui.library.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.feature.player.ui.library.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel
@@ -36,51 +29,6 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SongListViewModel::class)
     abstract fun bindsSongListFragmentVM(viewModel: SongListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryInfoViewModel::class)
-    abstract fun bindsSelectFilterTypeViewModel(viewModel: LibraryInfoViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryAlbumListViewModel::class)
-    abstract fun bindsSelectFilterFragmentAlbumVM(viewModel: LibraryAlbumListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryAlbumArtistListViewModel::class)
-    abstract fun bindsSelectFilterFragmentAlbumArtistVM(viewModel: LibraryAlbumArtistListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryArtistListViewModel::class)
-    abstract fun bindsSelectFilterFragmentArtistVM(viewModel: LibraryArtistListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryGenreListViewModel::class)
-    abstract fun bindsSelectFilterFragmentGenreVM(viewModel: LibraryGenreListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibrarySongListViewModel::class)
-    abstract fun bindsSelectFilterFragmentSongVM(viewModel: LibrarySongListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryPlaylistListViewModel::class)
-    abstract fun bindsSelectFilterFragmentPlaylistVM(viewModel: LibraryPlaylistListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryDownloadedListViewModel::class)
-    abstract fun bindsSelectFilterFragmentDownloadedVM(viewModel: LibraryDownloadedListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryPodcastEpisodeListViewModel::class)
-    abstract fun bindsSelectFilterFragmentPodcastEpisodeVM(viewModel: LibraryPodcastEpisodeListViewModel): ViewModel
 
     @Binds
     @IntoMap
@@ -110,12 +58,3 @@ abstract class ViewModelModule {
     @Binds
     abstract fun bindsViewModelFactory(factory: AnyFlowViewModelFactory): ViewModelProvider.Factory
 }
-
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
-)
-@Retention(AnnotationRetention.RUNTIME)
-@MapKey
-annotation class ViewModelKey(val value: KClass<out ViewModel>)

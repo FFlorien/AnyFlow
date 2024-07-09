@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.alarms
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.os.Build
-import be.florien.anyflow.data.view.Alarm
+import be.florien.anyflow.tags.view.Alarm
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named

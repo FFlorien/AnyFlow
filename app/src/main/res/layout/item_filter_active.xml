@@ -8,7 +8,7 @@
 
         <variable
             name="filter"
-            type="be.florien.anyflow.data.view.Filter" />
+            type="be.florien.anyflow.management.filters.model.Filter" />
 
         <variable
             name="vm"

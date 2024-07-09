@@ -4,20 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.data.toViewFilterType
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.PlaylistWithPresence
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
-import be.florien.anyflow.feature.playlist.PlaylistRepository
+import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
+import be.florien.anyflow.tags.toViewFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SelectPlaylistViewModel @Inject constructor(
-    private val playlistRepository: PlaylistRepository
+    private val playlistRepository: be.florien.anyflow.management.playlist.PlaylistRepository
 ) : BaseViewModel(), NewPlaylistViewModel {
 
     enum class PlaylistAction {
@@ -35,18 +33,24 @@ class SelectPlaylistViewModel @Inject constructor(
         MutableLiveData(null)
 
     private var id: Long = 0L
-    private var filterType: Filter.FilterType = Filter.FilterType.SONG_IS
+    private var filterType: be.florien.anyflow.management.filters.model.Filter.FilterType = be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS
     private var secondId: Int = -1
     private val filter by lazy {
-        if (filterType == Filter.FilterType.DISK_IS) {
-            Filter(
-                Filter.FilterType.ALBUM_IS,
+        if (filterType == be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS) {
+            be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
                 id,
                 "",
-                listOf(Filter(filterType, secondId.toLong(), ""))
+                listOf(
+                    be.florien.anyflow.management.filters.model.Filter(
+                        filterType,
+                        secondId.toLong(),
+                        ""
+                    )
+                )
             )
         } else {
-            Filter(filterType, id, "")
+            be.florien.anyflow.management.filters.model.Filter(filterType, id, "")
         }
     }
 

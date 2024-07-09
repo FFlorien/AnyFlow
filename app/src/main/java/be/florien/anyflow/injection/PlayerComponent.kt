@@ -1,9 +1,11 @@
 package be.florien.anyflow.injection
 
+import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.feature.library.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import dagger.Subcomponent
 
-@Subcomponent(modules = [ViewModelModule::class])
+@Subcomponent(modules = [ViewModelModule::class, LibraryViewModelModule::class])
 @ActivityScope
 interface PlayerComponent {
 

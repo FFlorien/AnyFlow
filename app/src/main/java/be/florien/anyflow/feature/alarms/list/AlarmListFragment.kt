@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Alarm
+import be.florien.anyflow.tags.view.Alarm
 import be.florien.anyflow.databinding.FragmentAlarmListBinding
 import be.florien.anyflow.databinding.ItemAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp

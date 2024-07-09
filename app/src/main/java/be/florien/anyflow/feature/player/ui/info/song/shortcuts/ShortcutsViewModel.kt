@@ -6,17 +6,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
-import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.view.SongDisplay
-import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.extension.ImageConfig
+import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.tags.model.SongInfo
+import be.florien.anyflow.tags.view.SongDisplay
 import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
-import be.florien.anyflow.feature.player.ui.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.song.BaseSongViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
+import be.florien.anyflow.management.filters.FiltersManager
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -24,8 +22,8 @@ import javax.inject.Named
 class ShortcutsViewModel @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
-    dataRepository: DataRepository,
-    urlRepository: UrlRepository,
+    dataRepository: be.florien.anyflow.tags.DataRepository,
+    urlRepository: be.florien.anyflow.tags.UrlRepository,
     @Named("preferences") sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : BaseSongViewModel(

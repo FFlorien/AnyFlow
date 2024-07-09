@@ -5,6 +5,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
+import be.florien.anyflow.common.ui.di.GlideModuleInjector
+import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
@@ -25,13 +27,16 @@ import javax.inject.Inject
  */
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), UserVmInjectorContainer,
-    ServerVmInjectorContainer {
+    ServerVmInjectorContainer, GlideModuleInjectorContainer {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     override val serverVmInjector: ServerVmInjector
         get() = applicationComponent
     var serverComponent: ServerComponent? = null
     override val userVmInjector: UserVmInjector?
+        get() = serverComponent
+
+    override val glideModuleInjector: GlideModuleInjector?
         get() = serverComponent
 
     @Inject

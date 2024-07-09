@@ -64,13 +64,22 @@ android {
 
 dependencies {
     //Modules //todo check dependencies still needed and the one we could remove
+    implementation project(':architecture-di')
+    implementation project(':common-management')
     implementation project(":common-ui")
+    implementation project(':common-ui-data')
     implementation project(":data-local")
     implementation project(":data-server")
     implementation project(":feature-auth-domain")
     implementation project(":feature-auth-ui")
+    implementation project(":feature-library-domain")
+    implementation project(":feature-library-ui")
     implementation project(':logging')
     implementation project(':utils')
+    implementation project(':management-tags')
+    implementation project(':management-filters')
+    implementation project(':management-playlist')
+    implementation project(':management-podcast')
     //base
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -88,7 +97,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation 'androidx.media3:media3-session:1.2.1'
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet
@@ -99,6 +107,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.14.1'
     implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
     //ExoPlayer
+    implementation 'androidx.media3:media3-session:1.2.1'
     implementation "androidx.media3:media3-exoplayer:1.3.0"
     implementation "androidx.media3:media3-ui:1.3.0"
     implementation "androidx.media3:media3-datasource-okhttp:1.3.0"

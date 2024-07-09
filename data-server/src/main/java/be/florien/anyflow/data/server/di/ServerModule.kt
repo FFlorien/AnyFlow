@@ -1,5 +1,6 @@
 package be.florien.anyflow.data.server.di
 
+import be.florien.anyflow.architecture.di.ServerScope
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient

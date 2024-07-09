@@ -4,33 +4,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.room.withTransaction
-import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.local.query.QueryComposer
-import be.florien.anyflow.data.local.model.DbFilter
-import be.florien.anyflow.data.local.model.DbFilterGroup
-import be.florien.anyflow.data.local.model.DbQueueOrder
-import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
-import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.data.toDbFilter
-import be.florien.anyflow.data.toDbOrdering
-import be.florien.anyflow.data.toQueryFilters
-import be.florien.anyflow.data.toQueryOrderings
-import be.florien.anyflow.data.toViewFilter
-import be.florien.anyflow.data.toViewFilterGroup
-import be.florien.anyflow.data.toViewOrdering
-import be.florien.anyflow.data.toViewQueueItemDisplay
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.FilterGroup
-import be.florien.anyflow.data.view.Ordering
-import be.florien.anyflow.extension.convertToPagingLiveData
-import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.tags.local.LibraryDatabase
+import be.florien.anyflow.tags.local.query.QueryComposer
+import be.florien.anyflow.tags.local.model.DbFilter
+import be.florien.anyflow.tags.local.model.DbFilterGroup
+import be.florien.anyflow.tags.local.model.DbQueueOrder
+import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.tags.toDbFilter
+import be.florien.anyflow.tags.toDbOrdering
+import be.florien.anyflow.tags.toQueryFilters
+import be.florien.anyflow.tags.toQueryOrderings
+import be.florien.anyflow.tags.toViewFilter
+import be.florien.anyflow.tags.toViewFilterGroup
+import be.florien.anyflow.tags.toViewOrdering
+import be.florien.anyflow.tags.toViewQueueItemDisplay
+import be.florien.anyflow.tags.view.Ordering
+import be.florien.anyflow.common.management.convertToPagingLiveData
+import be.florien.anyflow.management.filters.FiltersRepository
+import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
 @ServerScope
-class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDatabase) {
+class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDatabase): FiltersRepository {
 
     private val queryComposer = QueryComposer()
 
@@ -48,7 +49,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
 
     //region Current filters
 
-    fun getCurrentFilters(): LiveData<List<Filter<*>>> =
+    override fun getCurrentFilters(): LiveData<List<Filter<*>>> =
         libraryDatabase.getFilterDao().currentFiltersUpdatable().distinctUntilChanged()
             .map { filterList ->
                 filterList.mapNotNull { filter ->
@@ -60,16 +61,18 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
                 }
             }
 
-    suspend fun setCurrentFilters(filterList: List<Filter<*>>) = withContext(Dispatchers.IO) {
-        //todo verify if first sync not showing anything at install isn't originating from here
-        libraryDatabase.apply {
-            withTransaction {
-                val currentFilters = getFilterDao().currentFilterList()
-                val currentFilterGroup = getFilterGroupDao().currentGroup()
-                updateHistory(currentFilters, currentFilterGroup)
+    override suspend fun setCurrentFilters(filterList: List<Filter<*>>) {
+        withContext(Dispatchers.IO) {
+            //todo verify if first sync not showing anything at install isn't originating from here
+            libraryDatabase.apply {
+                withTransaction {
+                    val currentFilters = getFilterDao().currentFilterList()
+                    val currentFilterGroup = getFilterGroupDao().currentGroup()
+                    updateHistory(currentFilters, currentFilterGroup)
 
-                insertCurrentFilterAndChildren(filterList)
-                getFilterGroupDao().updateItems(currentFilterGroup.copy(dateAdded = Date().time))
+                    insertCurrentFilterAndChildren(filterList)
+                    getFilterGroupDao().updateItems(currentFilterGroup.copy(dateAdded = Date().time))
+                }
             }
         }
     }
@@ -102,7 +105,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
 
     //region FilterGroups
 
-    suspend fun saveFilterGroup(filterList: List<Filter<*>>, name: String) =
+    override suspend fun saveFilterGroup(filterList: List<Filter<*>>, name: String) =
         withContext(Dispatchers.IO) {
             if (libraryDatabase.getFilterGroupDao().filterGroupWithNameList(name).isEmpty()) {
                 val filterGroup = DbFilterGroup(0, name, System.currentTimeMillis())
@@ -114,10 +117,10 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             }
         }
 
-    fun getSavedGroups() = libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
+    override fun getSavedGroups(): LiveData<List<FilterGroup>> = libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
         .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
-    suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) =
+    override suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) {
         withContext(Dispatchers.IO) {
             libraryDatabase.apply {
                 withTransaction {
@@ -131,6 +134,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
                 }
             }
         }
+    }
     //endregion
 
     //region Ordering
@@ -173,7 +177,10 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
     ): List<QueueItem> =
         withContext(Dispatchers.IO) {
             val songs = libraryDatabase.getSongDao().forCurrentFiltersList(
-                queryComposer.getQueryForSongs(filterList.toQueryFilters(), orderingList.toQueryOrderings())
+                queryComposer.getQueryForSongs(
+                    filterList.toQueryFilters(),
+                    orderingList.toQueryOrderings()
+                )
             ).map {
                 QueueItem(SONG_MEDIA_TYPE, it)
             }

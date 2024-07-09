@@ -2,10 +2,10 @@ package be.florien.anyflow.feature.alarms
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.toDbAlarm
-import be.florien.anyflow.data.toViewAlarm
-import be.florien.anyflow.data.view.Alarm
+import be.florien.anyflow.tags.local.LibraryDatabase
+import be.florien.anyflow.tags.toDbAlarm
+import be.florien.anyflow.tags.toViewAlarm
+import be.florien.anyflow.tags.view.Alarm
 import javax.inject.Inject
 
 class AlarmRepository @Inject constructor(private val libraryDatabase: LibraryDatabase) {

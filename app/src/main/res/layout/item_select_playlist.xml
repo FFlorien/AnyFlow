@@ -6,7 +6,7 @@
 
         <variable
             name="item"
-            type="be.florien.anyflow.data.view.PlaylistWithPresence" />
+            type="be.florien.anyflow.management.playlist.model.PlaylistWithPresence" />
 
         <variable
             name="total"
@@ -33,7 +33,7 @@
         android:background="@drawable/bg_white_ripple"
         android:minHeight="@dimen/minClickableSize">
 
-        <ImageView
+        <!-- ImageView todo
             android:id="@+id/imageView"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
@@ -42,7 +42,7 @@
             app:imageSource="@{item.coverConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" / -->
 
         <TextView
             android:id="@+id/filterName"
@@ -55,7 +55,7 @@
             app:layout_constraintBottom_toTopOf="@id/filterCount"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
@@ -69,7 +69,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintStart_toStartOf="@id/filterName"
             app:layout_constraintTop_toBottomOf="@id/filterName"
             app:layout_constraintVertical_bias="0.0" />
 

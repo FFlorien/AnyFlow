@@ -10,7 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.injection.AnyFlowViewModelFactory
+import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import kotlin.reflect.KClass
 
 /**
@@ -21,9 +21,6 @@ val Activity.anyFlowApp: AnyFlowApp
 
 val Fragment.anyFlowApp: AnyFlowApp
     get() = this.requireActivity().applicationContext as AnyFlowApp
-
-val Activity.viewModelFactory: AnyFlowViewModelFactory
-    get() = (this as PlayerActivity).viewModelFactory
 
 fun Context.startActivity(activityClass: KClass<*>) {
     startActivity(Intent(this, activityClass.java))

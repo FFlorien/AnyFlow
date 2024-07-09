@@ -16,22 +16,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
+import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
-import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldType
-import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.info.progress.ProgressDialog
 import be.florien.anyflow.feature.info.progress.ProgressDialog.Progress
-import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldType
+import be.florien.anyflow.feature.playlist.newPlaylist
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @ActivityScope
-@ServerScope
+@be.florien.anyflow.architecture.di.ServerScope
 class SelectPlaylistFragment(
     private var id: Long = 0L,
     private var type: SongFieldType = SongFieldType.Title,

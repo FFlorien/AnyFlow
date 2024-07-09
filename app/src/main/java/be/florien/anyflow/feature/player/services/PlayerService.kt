@@ -29,17 +29,15 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.PodcastPersistence
-import be.florien.anyflow.data.local.model.DbMediaToPlay
-import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
-import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.tags.local.PodcastPersistence
+import be.florien.anyflow.tags.local.model.DbMediaToPlay
+import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.PlayerActivity
+import be.florien.anyflow.management.filters.FiltersManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -91,7 +89,7 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
     internal lateinit var waveFormRepository: WaveFormRepository
 
     @Inject
-    internal lateinit var urlRepository: UrlRepository
+    internal lateinit var urlRepository: be.florien.anyflow.tags.UrlRepository
 
     @Inject
     internal lateinit var downloadManager: DownloadManager
@@ -278,8 +276,8 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) != true) {
             filtersManager.clearFilters()
             filtersManager.addFilter(
-                Filter(
-                    Filter.FilterType.DOWNLOADED_STATUS_IS,
+                be.florien.anyflow.management.filters.model.Filter(
+                    be.florien.anyflow.management.filters.model.Filter.FilterType.DOWNLOADED_STATUS_IS,
                     true,
                     "",
                     emptyList()

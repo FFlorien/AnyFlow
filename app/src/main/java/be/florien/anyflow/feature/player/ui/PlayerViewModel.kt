@@ -6,16 +6,21 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.IBinder
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.PodcastRepository
-import be.florien.anyflow.data.local.PodcastPersistence
-import be.florien.anyflow.data.local.model.PODCAST_MEDIA_TYPE
-import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.tags.local.PodcastPersistence
+import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.extension.postValueIfChanged
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.player.services.WaveFormRepository
@@ -23,6 +28,7 @@ import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.controls.PlayPauseIconAnimator
 import be.florien.anyflow.feature.player.ui.controls.PlayerControls
+import be.florien.anyflow.management.podcast.PodcastRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -44,7 +50,7 @@ constructor(
     private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
-    private val dataRepository: DataRepository,
+    private val dataRepository: be.florien.anyflow.tags.DataRepository,
     private val podcastRepository: PodcastRepository,
     private val podcastPersistence: PodcastPersistence,
     val connectionStatus: LiveData<AuthRepository.ConnectionStatus>,

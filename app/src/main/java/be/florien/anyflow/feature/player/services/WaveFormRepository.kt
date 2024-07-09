@@ -4,10 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.server.di.ServerScope
-import be.florien.anyflow.extension.GlideApp
+import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.ui.GlideApp
 import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.tags.local.LibraryDatabase
 import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope

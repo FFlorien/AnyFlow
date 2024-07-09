@@ -26,16 +26,17 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Filter
+import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.ui.GlideApp
+import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.databinding.FragmentCurrentFilterBinding
 import be.florien.anyflow.databinding.ItemFilterActiveBinding
-import be.florien.anyflow.extension.GlideApp
-import be.florien.anyflow.extension.viewModelFactory
-import be.florien.anyflow.feature.menu.implementation.SaveFilterGroupMenuHolder
-import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
-import be.florien.anyflow.feature.player.ui.library.currentFiltersForDisplay
-import be.florien.anyflow.feature.player.ui.library.saveFilterGroup
+import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
+import be.florien.anyflow.feature.library.ui.LibraryViewModel
+import be.florien.anyflow.feature.library.ui.currentFiltersForDisplay
+import be.florien.anyflow.feature.library.ui.menu.SaveFilterGroupMenuHolder
+import be.florien.anyflow.feature.library.ui.saveFilterGroup
+import be.florien.anyflow.management.filters.model.Filter
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
@@ -46,6 +47,8 @@ class CurrentFilterFragment : BaseFilteringFragment() {
     private val targets: MutableList<Target<Bitmap>> = mutableListOf()
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
+    override val navigator: Navigator
+        get() = viewModel.navigator
     lateinit var viewModel: CurrentFilterViewModel
 
     private lateinit var binding: FragmentCurrentFilterBinding

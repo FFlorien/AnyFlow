@@ -7,14 +7,13 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.local.model.DbMediaToPlay
-import be.florien.anyflow.data.local.model.DbQueueItem
-import be.florien.anyflow.data.view.Ordering
-import be.florien.anyflow.data.view.QueueItemDisplay
+import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.local.model.DbMediaToPlay
+import be.florien.anyflow.tags.local.model.DbQueueItem
+import be.florien.anyflow.tags.view.Ordering
+import be.florien.anyflow.tags.view.QueueItemDisplay
 import be.florien.anyflow.utils.applyPutInt
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,11 +27,11 @@ import javax.inject.Named
 /**
  * Event handler for the queue of songs that are playing.
  */
-@ServerScope
+@be.florien.anyflow.architecture.di.ServerScope
 class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
-    private val dataRepository: DataRepository,
+    private val dataRepository: be.florien.anyflow.tags.DataRepository,
     @Named("preferences") private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {

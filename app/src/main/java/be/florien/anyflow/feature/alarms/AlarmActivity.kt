@@ -12,8 +12,8 @@ import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarms.add.AddAlarmFragment
 import be.florien.anyflow.feature.alarms.list.AlarmListFragment
 import be.florien.anyflow.feature.menu.implementation.AddAlarmMenuHolder
-import be.florien.anyflow.feature.menu.MenuCoordinator
-import be.florien.anyflow.feature.menu.MenuHolder
+import be.florien.anyflow.common.ui.menu.MenuCoordinator
+import be.florien.anyflow.common.ui.menu.MenuHolder
 
 
 class AlarmActivity : AppCompatActivity() {

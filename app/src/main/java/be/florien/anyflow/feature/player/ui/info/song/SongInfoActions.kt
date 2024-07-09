@@ -5,19 +5,17 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.DownloadProgressState
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.tags.local.model.DownloadProgressState
+import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
-import be.florien.anyflow.feature.player.ui.info.InfoActions
+import be.florien.anyflow.management.filters.FiltersManager
 
 class SongInfoActions(
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
-    private val urlRepository: UrlRepository,
+    private val urlRepository: be.florien.anyflow.tags.UrlRepository,
     private val sharedPreferences: SharedPreferences,
     private val downloadManager: DownloadManager
 ) : InfoActions<SongInfo>() {
@@ -153,42 +151,47 @@ class SongInfoActions(
 
     suspend fun filterOn(songInfo: SongInfo, row: InfoRow) {
         val filter = when (row.fieldType) {
-            SongFieldType.Title -> Filter(Filter.FilterType.SONG_IS, songInfo.id, songInfo.title)
-            SongFieldType.Artist -> Filter(
-                Filter.FilterType.ARTIST_IS,
+            SongFieldType.Title -> be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS,
+                songInfo.id,
+                songInfo.title
+            )
+
+            SongFieldType.Artist -> be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ARTIST_IS,
                 songInfo.artistId,
                 songInfo.artistName
             )
 
-            SongFieldType.Album -> Filter(
-                Filter.FilterType.ALBUM_IS,
+            SongFieldType.Album -> be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName
             )
 
-            SongFieldType.Disk -> Filter(
-                Filter.FilterType.ALBUM_IS,
+            SongFieldType.Disk -> be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName,
                 listOf(
-                    Filter(
-                        Filter.FilterType.DISK_IS,
+                    be.florien.anyflow.management.filters.model.Filter(
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS,
                         songInfo.disk,
                         songInfo.disk.toString()
                     )
                 )
             )
 
-            SongFieldType.AlbumArtist -> Filter(
-                Filter.FilterType.ALBUM_ARTIST_IS,
+            SongFieldType.AlbumArtist -> be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
             )
 
             SongFieldType.Genre -> {
                 val index = (row as SongMultipleInfoRow).index
-                Filter(
-                    Filter.FilterType.GENRE_IS,
+                be.florien.anyflow.management.filters.model.Filter(
+                    be.florien.anyflow.management.filters.model.Filter.FilterType.GENRE_IS,
                     songInfo.genreIds[index],
                     songInfo.genreNames[index]
                 )
@@ -196,8 +199,8 @@ class SongInfoActions(
 
             SongFieldType.Playlist -> {
                 val index = (row as SongMultipleInfoRow).index
-                Filter(
-                    Filter.FilterType.PLAYLIST_IS,
+                be.florien.anyflow.management.filters.model.Filter(
+                    be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS,
                     songInfo.playlistIds[index],
                     songInfo.playlistNames[index]
                 )
@@ -223,24 +226,52 @@ class SongInfoActions(
 
     fun queueDownload(songInfo: SongInfo, fieldType: SongFieldType, index: Int?) {
         val data = when (fieldType) {
-            SongFieldType.Title -> Triple(songInfo.id, Filter.FilterType.SONG_IS, -1)
-            SongFieldType.Artist -> Triple(songInfo.artistId, Filter.FilterType.ARTIST_IS, -1)
-            SongFieldType.Album -> Triple(songInfo.albumId, Filter.FilterType.ALBUM_IS, -1)
-            SongFieldType.Disk -> Triple(songInfo.albumId, Filter.FilterType.DISK_IS, songInfo.disk)
+            SongFieldType.Title -> Triple(
+                songInfo.id,
+                be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS,
+                -1
+            )
+
+            SongFieldType.Artist -> Triple(
+                songInfo.artistId,
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ARTIST_IS,
+                -1
+            )
+
+            SongFieldType.Album -> Triple(
+                songInfo.albumId,
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+                -1
+            )
+
+            SongFieldType.Disk -> Triple(
+                songInfo.albumId,
+                be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS,
+                songInfo.disk
+            )
+
             SongFieldType.AlbumArtist -> Triple(
                 songInfo.albumArtistId,
-                Filter.FilterType.ALBUM_ARTIST_IS,
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_ARTIST_IS,
                 -1
             )
 
             SongFieldType.Genre -> {
                 val trueIndex = index ?: return
-                Triple(songInfo.genreIds[trueIndex], Filter.FilterType.GENRE_IS, -1)
+                Triple(
+                    songInfo.genreIds[trueIndex],
+                    be.florien.anyflow.management.filters.model.Filter.FilterType.GENRE_IS,
+                    -1
+                )
             }
 
             SongFieldType.Playlist -> {
                 val trueIndex = index ?: return
-                Triple(songInfo.playlistIds[trueIndex], Filter.FilterType.PLAYLIST_IS, -1)
+                Triple(
+                    songInfo.playlistIds[trueIndex],
+                    be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS,
+                    -1
+                )
             }
 
             else -> return
@@ -619,7 +650,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.id,
-                        Filter.FilterType.SONG_IS
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS
                     )
                 )
 
@@ -632,7 +663,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.albumId,
-                        Filter.FilterType.ALBUM_IS
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS
                     )
                 )
 
@@ -645,7 +676,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.albumId,
-                        Filter.FilterType.DISK_IS,
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS,
                         songInfo.disk
                     )
                 )
@@ -659,7 +690,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.albumArtistId,
-                        Filter.FilterType.ALBUM_ARTIST_IS
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_ARTIST_IS
                     )
                 )
 
@@ -672,7 +703,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.artistId,
-                        Filter.FilterType.ARTIST_IS
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.ARTIST_IS
                     )
                 )
 
@@ -685,7 +716,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.genreIds[index],
-                        Filter.FilterType.GENRE_IS
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.GENRE_IS
                     ),
                     index = index
                 )
@@ -699,7 +730,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.playlistIds[index],
-                        Filter.FilterType.PLAYLIST_IS
+                        be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS
                     ),
                     index = index
                 )
@@ -767,7 +798,12 @@ class SongInfoActions(
         override val fieldType: FieldType,
         override val actionType: ActionType,
         open val index: Int
-    ) : InfoRow(title, text, textRes, fieldType, actionType, null)
+    ) : InfoRow(title, text, textRes, fieldType, actionType, null) {
+        override fun isExpandableForItem(other: InfoRow): Boolean =
+            actionType == SongActionType.ExpandableTitle
+                    && fieldType == other.fieldType
+                    && (other as? SongMultipleInfoRow)?.index == index
+    }
 
     interface SongDownload {
         val progress: LiveData<DownloadProgressState>
@@ -779,7 +815,11 @@ class SongInfoActions(
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
         override val actionType: ActionType
-    ) : InfoRow(title, text, textRes, fieldType, actionType, null)
+    ) : InfoRow(title, text, textRes, fieldType, actionType, null) {
+        override fun isExpandableForItem(other: InfoRow): Boolean =
+            actionType == SongActionType.ExpandableTitle
+                    && fieldType == other.fieldType
+    }
 
     data class SongActionMultipleInfoRow(
         @StringRes override val title: Int,
@@ -831,6 +871,7 @@ class SongInfoActions(
 
         override fun areContentTheSame(other: InfoRow): Boolean =
             super.areContentTheSame(other) && other is ShortcutInfoRow && other.order == order
+
     }
 
     companion object {

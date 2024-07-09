@@ -8,13 +8,11 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.playlist.DeletePlaylistViewModel
 import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
-import be.florien.anyflow.feature.playlist.PlaylistRepository
+import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.playlist.model.Playlist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +20,7 @@ import javax.inject.Inject
 class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlaylistViewModel {
 
     @Inject
-    lateinit var playlistRepository: PlaylistRepository
+    lateinit var playlistRepository: be.florien.anyflow.management.playlist.PlaylistRepository
 
     @Inject
     lateinit var filtersManager: FiltersManager
@@ -79,7 +77,13 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     fun filterOnSelection() {
         filtersManager.clearFilters()
         selection.value?.forEach {
-            filtersManager.addFilter(Filter(Filter.FilterType.PLAYLIST_IS, it.id, it.name))
+            filtersManager.addFilter(
+                be.florien.anyflow.management.filters.model.Filter(
+                    be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS,
+                    it.id,
+                    it.name
+                )
+            )
         }
         viewModelScope.launch(Dispatchers.IO) {
             filtersManager.commitChanges()

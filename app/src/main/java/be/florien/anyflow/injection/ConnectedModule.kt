@@ -1,7 +1,7 @@
 package be.florien.anyflow.injection
 
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.sync.SyncRepository
 import dagger.Module

@@ -15,12 +15,3 @@ fun View.isSelectedBackground(isSelected: Boolean) {
     setBackgroundColor(color)
 }
 
-@BindingAdapter("isVisiblePresent")
-fun View.isVisiblePresent(isVisible: Boolean) {
-    visibility = if (isVisible) {
-        View.VISIBLE
-    } else {
-        View.GONE
-    }
-}
-

@@ -1,9 +1,11 @@
 package be.florien.anyflow.injection
 
+import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.feature.library.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
 import dagger.Subcomponent
 
-@Subcomponent(modules = [ViewModelModule::class])
+@Subcomponent
 @ActivityScope
 interface ShortcutsComponent {
 

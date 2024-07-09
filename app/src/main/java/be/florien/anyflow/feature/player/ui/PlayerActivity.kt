@@ -23,26 +23,26 @@ import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import be.florien.anyflow.R
+import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.ui.BaseFragment
+import be.florien.anyflow.common.ui.isVisiblePresent
+import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.extension.isVisiblePresent
-import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
-import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
-import be.florien.anyflow.feature.player.ui.library.BaseFilteringFragment
-import be.florien.anyflow.feature.player.ui.library.info.LibraryInfoFragment
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.sync.SyncService
-import be.florien.anyflow.injection.ActivityScope
-import be.florien.anyflow.injection.AnyFlowViewModelFactory
 import be.florien.anyflow.injection.PlayerComponent
-import be.florien.anyflow.data.server.di.ServerScope
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import be.florien.anyflow.ui.server.ServerActivity
 import be.florien.anyflow.utils.startActivity
@@ -56,8 +56,8 @@ import javax.inject.Inject
  * Activity controlling the queue, play/pause/next/previous on the PlayerService
  */
 @ActivityScope
-@ServerScope
-class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
+@be.florien.anyflow.architecture.di.ServerScope
+class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider {
 
     /**
      * Injection
@@ -66,7 +66,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder {
     private lateinit var activityComponent: PlayerComponent
 
     @Inject
-    lateinit var viewModelFactory: AnyFlowViewModelFactory
+    override lateinit var viewModelFactory: AnyFlowViewModelFactory
 
     private val fakeComponent = object : PlayerComponent {
         override fun inject(playerActivity: PlayerActivity) {}

@@ -3,16 +3,17 @@ package be.florien.anyflow.feature.player.ui.filters
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.view.Filter
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
-import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
+import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.feature.library.ui.LibraryViewModel
+import be.florien.anyflow.management.filters.FiltersManager
 import javax.inject.Inject
 
 class CurrentFilterViewModel @Inject constructor(
     override val filtersManager: FiltersManager,
-    val urlRepository: UrlRepository
+    val urlRepository: UrlRepository,
+    override val navigator: Navigator
 ) : BaseViewModel(), LibraryViewModel {
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 
@@ -23,7 +24,7 @@ class CurrentFilterViewModel @Inject constructor(
         filtersManager.clearFilters()
     }
 
-    fun deleteFilter(filter: Filter<*>) {
+    fun deleteFilter(filter: be.florien.anyflow.management.filters.model.Filter<*>) {
         filtersManager.removeFilter(filter)
     }
 

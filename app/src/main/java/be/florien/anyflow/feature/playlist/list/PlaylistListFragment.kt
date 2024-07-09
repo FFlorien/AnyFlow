@@ -10,12 +10,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Playlist
 import be.florien.anyflow.databinding.ItemPlaylistBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.feature.BaseSelectableAdapter
-import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
+import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.feature.menu.implementation.DeletePlaylistMenuHolder
 import be.florien.anyflow.feature.menu.implementation.NewPlaylistMenuHolder
 import be.florien.anyflow.feature.menu.implementation.PlayPlaylistMenuHolder
@@ -23,7 +22,8 @@ import be.florien.anyflow.feature.menu.implementation.SelectionModeMenuHolder
 import be.florien.anyflow.feature.playlist.deletePlaylistConfirmation
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
-import be.florien.anyflow.feature.refreshVisibleViewHolders
+import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
+import be.florien.anyflow.management.playlist.model.Playlist
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 class PlaylistListFragment : BaseFragment() {

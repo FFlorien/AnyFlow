@@ -7,11 +7,11 @@
 
         <variable
             name="art"
-            type="be.florien.anyflow.extension.ImageConfig" />
+            type="be.florien.anyflow.common.ui.data.ImageConfig" />
 
         <variable
             name="song"
-            type="be.florien.anyflow.data.view.QueueItemDisplay" />
+            type="be.florien.anyflow.tags.view.QueueItemDisplay" />
 
         <variable
             name="current"
@@ -23,7 +23,7 @@
 
     </data>
 
-    <be.florien.anyflow.extension.CheckableConstraintLayout
+    <be.florien.anyflow.common.ui.CheckableConstraintLayout
         android:id="@+id/songInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,5 +99,5 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="3:45" />
-    </be.florien.anyflow.extension.CheckableConstraintLayout>
+    </be.florien.anyflow.common.ui.CheckableConstraintLayout>
 </layout>

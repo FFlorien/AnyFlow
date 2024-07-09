@@ -5,7 +5,7 @@
 
         <variable
             name="item"
-            type="be.florien.anyflow.data.view.Playlist" />
+            type="be.florien.anyflow.management.playlist.model.Playlist" />
 
         <variable
             name="selected"
@@ -14,7 +14,7 @@
         <import type="android.view.View" />
     </data>
 
-    <be.florien.anyflow.extension.CheckableConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <be.florien.anyflow.common.ui.CheckableConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
         android:checked="@{selected}"
         android:minHeight="@dimen/minClickableSize">
 
-        <ImageView
+        <!--ImageView todo
             android:id="@+id/imageView"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
@@ -31,7 +31,7 @@
             app:imageSource="@{item.coverConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" / -->
 
         <TextView
             android:id="@+id/filterName"
@@ -61,5 +61,5 @@
             app:layout_constraintStart_toEndOf="@id/imageView"
             app:layout_constraintTop_toBottomOf="@id/filterName"
             app:layout_constraintVertical_bias="0.0" />
-    </be.florien.anyflow.extension.CheckableConstraintLayout>
+    </be.florien.anyflow.common.ui.CheckableConstraintLayout>
 </layout>

@@ -16,18 +16,18 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.Playlist
-import be.florien.anyflow.data.view.SongDisplay
-import be.florien.anyflow.databinding.LayoutSongBinding
-import be.florien.anyflow.extension.ImageConfig
-import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.feature.BaseSelectableAdapter
-import be.florien.anyflow.feature.menu.MenuCoordinator
+import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
+import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
+import be.florien.anyflow.common.ui.menu.MenuCoordinator
+import be.florien.anyflow.tags.view.SongDisplay
+import be.florien.anyflow.databinding.LayoutSongBinding
+import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.menu.implementation.PlayPlaylistSongsMenuHolder
 import be.florien.anyflow.feature.menu.implementation.RemoveSongsMenuHolder
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.feature.refreshVisibleViewHolders
+import be.florien.anyflow.management.playlist.model.Playlist
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragment() {

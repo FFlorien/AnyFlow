@@ -11,23 +11,19 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.data.view.PodcastEpisodeDisplay
-import be.florien.anyflow.data.view.QueueItemDisplay
+import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.tags.view.QueueItemDisplay
 import be.florien.anyflow.databinding.ItemSongBinding
-import be.florien.anyflow.extension.ImageConfig
-import be.florien.anyflow.feature.player.ui.details.DetailViewHolder
-import be.florien.anyflow.feature.player.ui.details.DetailViewHolderListener
-import be.florien.anyflow.feature.player.ui.details.ItemInfoTouchAdapter
-import be.florien.anyflow.feature.player.ui.info.InfoActions
+import be.florien.anyflow.common.ui.list.DetailViewHolder
+import be.florien.anyflow.common.ui.list.DetailViewHolderListener
+import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
+import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.tags.view.PodcastEpisodeDisplay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlin.math.absoluteValue
 
 
-class QueueItemAdapter(
-    val listener: SongListViewHolderListener,
-    val provider: SongListViewHolderProvider,
-    private val onSongClicked: (Int) -> Unit
-) : PagingDataAdapter<QueueItemDisplay, SongViewHolder>(object :
+val diffCallback = object :
     DiffUtil.ItemCallback<QueueItemDisplay>() {
     override fun areItemsTheSame(oldItem: QueueItemDisplay, newItem: QueueItemDisplay) =
         oldItem.id == newItem.id
@@ -37,7 +33,15 @@ class QueueItemAdapter(
                 && oldItem.album == newItem.album
                 && oldItem.title == newItem.title
 
-}), FastScrollRecyclerView.SectionedAdapter {
+}
+
+class QueueItemAdapter(
+    val listener: SongListViewHolderListener,
+    val provider: SongListViewHolderProvider,
+    private val onSongClicked: (Int) -> Unit
+) :
+    PagingDataAdapter<QueueItemDisplay, SongViewHolder>(diffCallback),
+    FastScrollRecyclerView.SectionedAdapter {
 
     private var lastPosition = 0
 

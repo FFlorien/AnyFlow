@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="item"
+            type="be.florien.anyflow.feature.library.domain.model.FilterItem" />
+
+        <variable
+            name="artConfig"
+            type="be.florien.anyflow.common.ui.data.ImageConfig" />
+
+        <variable
+            name="selected"
+            type="boolean" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/infoView"
+            android:layout_width="@dimen/minClickableSize"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="@color/accentLightPlus"
+            android:padding="@dimen/smallDimen"
+            android:src="@drawable/ic_info" />
+
+        <be.florien.anyflow.common.ui.CheckableConstraintLayout
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_blue_selectable_ripple"
+            android:checked="@{selected}"
+            android:minHeight="@dimen/minClickableSize">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="@dimen/imageSize"
+                android:layout_height="@dimen/imageSize"
+                android:layout_margin="8dp"
+                android:contentDescription="@null"
+                app:imageSource="@{artConfig}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/filterName"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/imageSize"
+                android:layout_margin="8dp"
+                android:gravity="start|center_vertical"
+                android:text="@{item.displayName}"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+        </be.florien.anyflow.common.ui.CheckableConstraintLayout>
+    </FrameLayout>
+</layout>

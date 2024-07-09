@@ -7,22 +7,19 @@ import android.provider.MediaStore
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.local.model.DownloadProgressState
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.SongInfo
 import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.tags.local.model.DownloadProgressState
+import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import javax.inject.Inject
 import javax.inject.Named
 
-@ServerScope
+@be.florien.anyflow.architecture.di.ServerScope
 class DownloadManager @Inject constructor(
     private val downloadRepository: DownloadRepository,
-    private val urlRepository: UrlRepository,
+    private val urlRepository: be.florien.anyflow.tags.UrlRepository,
     @Named("authenticated")
     private val okHttpClient: OkHttpClient,
     context: Context
@@ -44,15 +41,15 @@ class DownloadManager @Inject constructor(
         nextDownload()
     }
 
-    fun queueDownload(typeId: Long, filterType: Filter.FilterType, secondId: Int? = null) {
+    fun queueDownload(typeId: Long, filterType: be.florien.anyflow.management.filters.model.Filter.FilterType, secondId: Int? = null) {
         downloadScope.launch(Dispatchers.IO) {
             downloadRepository.queueDownload(typeId, filterType, secondId)
             nextDownload()
         }
     }
 
-    fun getDownloadState(id: Long, filterType: Filter.FilterType, secondId: Int? = null): LiveData<DownloadProgressState> =
-        if (filterType == Filter.FilterType.SONG_IS) {
+    fun getDownloadState(id: Long, filterType: be.florien.anyflow.management.filters.model.Filter.FilterType, secondId: Int? = null): LiveData<DownloadProgressState> =
+        if (filterType == be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS) {
             val livedata = downloadProgressMap[id] ?: MutableLiveData()
             downloadProgressMap[id] = livedata
             if (currentDownloads.contains(id) && currentDownload != id) {

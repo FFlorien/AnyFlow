@@ -6,22 +6,20 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
-import be.florien.anyflow.data.DataRepository
-import be.florien.anyflow.data.UrlRepository
-import be.florien.anyflow.data.view.SongInfo
-import be.florien.anyflow.extension.ImageConfig
+import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.common.ui.info.InfoViewModel
+import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
-import be.florien.anyflow.feature.player.ui.info.InfoActions
-import be.florien.anyflow.feature.player.ui.info.InfoViewModel
+import be.florien.anyflow.management.filters.FiltersManager
 import kotlinx.coroutines.launch
 
 abstract class BaseSongViewModel(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
-    val dataRepository: DataRepository,
-    val urlRepository: UrlRepository,
+    val dataRepository: be.florien.anyflow.tags.DataRepository,
+    val urlRepository: be.florien.anyflow.tags.UrlRepository,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : InfoViewModel<SongInfo>() {

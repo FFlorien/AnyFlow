@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.utils.TimeOperations
-import be.florien.anyflow.data.local.LibraryDatabase
+import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
 import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
 import be.florien.anyflow.data.server.NetApiError
@@ -19,20 +19,19 @@ import be.florien.anyflow.data.server.model.AmpachePlayList
 import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
-import be.florien.anyflow.data.toDbAlbum
-import be.florien.anyflow.data.toDbArtist
-import be.florien.anyflow.data.toDbGenre
-import be.florien.anyflow.data.toDbPlaylist
-import be.florien.anyflow.data.toDbPlaylistSongs
-import be.florien.anyflow.data.toDbPodcast
-import be.florien.anyflow.data.toDbPodcastEpisode
-import be.florien.anyflow.data.toDbSong
-import be.florien.anyflow.data.toDbSongGenres
-import be.florien.anyflow.data.toDbSongId
+import be.florien.anyflow.tags.toDbAlbum
+import be.florien.anyflow.tags.toDbArtist
+import be.florien.anyflow.tags.toDbGenre
+import be.florien.anyflow.tags.toDbPlaylist
+import be.florien.anyflow.tags.toDbPlaylistSongs
+import be.florien.anyflow.tags.toDbPodcast
+import be.florien.anyflow.tags.toDbPodcastEpisode
+import be.florien.anyflow.tags.toDbSong
+import be.florien.anyflow.tags.toDbSongGenres
+import be.florien.anyflow.tags.toDbSongId
 import be.florien.anyflow.utils.applyPutLong
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.iLog
-import be.florien.anyflow.data.server.di.ServerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -42,7 +41,7 @@ import javax.inject.Named
 /**
  * Update the local data with the one from the server
  */
-@ServerScope
+@be.florien.anyflow.architecture.di.ServerScope
 class SyncRepository
 @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
@@ -101,7 +100,7 @@ class SyncRepository
         newAlbums()
         notifyUpdate(CHANGE_GENRES)
         newSongs()
-        val initialDeletedCount = (ampacheDataSource.getDeletedSongs(0, 0) as? NetSuccess)
+        val initialDeletedCount = (ampacheDataSource.getDeletedSongs(0, 0) as? be.florien.anyflow.data.server.NetSuccess)
             ?.data
             ?.total_count
             ?: 0
@@ -184,7 +183,7 @@ class SyncRepository
         notifyUpdate(CHANGE_PLAYLISTS)
         val playlists = ampacheDataSource.getPlaylists()
         val playlistSongs = ampacheDataSource.getPlaylistsWithSongs()
-        if (playlists is NetSuccess && playlistSongs is NetSuccess) {
+        if (playlists is be.florien.anyflow.data.server.NetSuccess && playlistSongs is be.florien.anyflow.data.server.NetSuccess) {
             val currentLocalPlaylists = libraryDatabase.getPlaylistDao().getPlaylistsList()
             libraryDatabase.getPlaylistSongsDao().deleteAllPlaylistSongs()
 
@@ -214,12 +213,12 @@ class SyncRepository
     private suspend fun podcasts() {
         notifyUpdate(CHANGE_PLAYLISTS)
         val podcasts = ampachePodcastSource.getPodcasts()
-        if (podcasts is NetSuccess) {
+        if (podcasts is be.florien.anyflow.data.server.NetSuccess) {
             podcasts.data.forEach {
                 ampachePodcastSource.updatePodcast(it.id)
             }
             val podcastsWithEpisodes = ampachePodcastSource.getPodcastsWithEpisodes()
-            if (podcastsWithEpisodes is NetSuccess) {
+            if (podcastsWithEpisodes is be.florien.anyflow.data.server.NetSuccess) {
                 val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastList()
                 libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
 
@@ -364,8 +363,8 @@ class SyncRepository
     private suspend fun <V, T : AmpacheApiListResponse<V>> getNewData(
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
-        getFromApi: suspend AmpacheDataSource.(Int, Int) -> NetResult<T>,
-        updateDb: suspend (NetSuccess<T>) -> Unit
+        getFromApi: suspend AmpacheDataSource.(Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
+        updateDb: suspend (be.florien.anyflow.data.server.NetSuccess<T>) -> Unit
     ) {
         getData(
             offsetKey,
@@ -384,8 +383,8 @@ class SyncRepository
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         calendar: Calendar,
-        getFromApi: suspend AmpacheDataSource.(Int, Int, Calendar) -> NetResult<T>,
-        updateDb: suspend (NetSuccess<T>) -> Unit
+        getFromApi: suspend AmpacheDataSource.(Int, Int, Calendar) -> be.florien.anyflow.data.server.NetResult<T>,
+        updateDb: suspend (be.florien.anyflow.data.server.NetSuccess<T>) -> Unit
     ) {
         getData(
             offsetKey,
@@ -403,8 +402,8 @@ class SyncRepository
     private suspend fun <V, T : AmpacheApiListResponse<V>> getData(
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
-        getFromApi: suspend (Int, Int) -> NetResult<T>,
-        updateLocalData: suspend (NetSuccess<T>, Int) -> Unit
+        getFromApi: suspend (Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
+        updateLocalData: suspend (be.florien.anyflow.data.server.NetSuccess<T>, Int) -> Unit
     ) {
         var offset = sharedPreferences.getInt(offsetKey, 0)
         var count = Int.MAX_VALUE
@@ -412,13 +411,13 @@ class SyncRepository
         var result = getFromApi(offset, limit)
         while (offset < count) {
             when (result) {
-                is NetSuccess -> {
+                is be.florien.anyflow.data.server.NetSuccess -> {
                     count = result.data.total_count
                     offset += result.data.list.size
                     updateLocalData(result, offset)
                 }
 
-                is NetApiError -> { //todo better handling of ALL error codes
+                is be.florien.anyflow.data.server.NetApiError -> { //todo better handling of ALL error codes
                     when (limit) {
                         ITEM_LIMIT -> limit = 10
                         10 -> limit = 1
@@ -429,7 +428,7 @@ class SyncRepository
                     }
                 }
 
-                is NetThrowable -> {
+                is be.florien.anyflow.data.server.NetThrowable -> {
                     eLog(result.throwable, "Encountered exception during syncing for $offsetKey")
                     break
                 }

@@ -1,6 +1,6 @@
 package be.florien.anyflow.data.server.datasource.auth
 
-import be.florien.anyflow.data.server.di.ServerScope
+import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.data.server.model.AmpacheAuthenticatedStatus
 import be.florien.anyflow.data.server.model.AmpacheAuthentication
 import be.florien.anyflow.data.server.model.AmpacheStatus

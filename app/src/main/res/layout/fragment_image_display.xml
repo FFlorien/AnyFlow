@@ -5,7 +5,7 @@
 
         <variable
             name="url"
-            type="be.florien.anyflow.extension.ImageConfig" />
+            type="be.florien.anyflow.common.ui.data.ImageConfig" />
     </data>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"

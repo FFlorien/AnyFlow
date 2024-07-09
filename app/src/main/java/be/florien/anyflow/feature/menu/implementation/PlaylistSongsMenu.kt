@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.menu.implementation
 
 import be.florien.anyflow.R
-import be.florien.anyflow.feature.menu.MenuHolder
+import be.florien.anyflow.common.ui.menu.MenuHolder
 
 class RemoveSongsMenuHolder(action: () -> Unit) : MenuHolder(
     R.menu.menu_playlist_songs,

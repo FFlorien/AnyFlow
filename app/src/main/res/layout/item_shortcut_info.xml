@@ -7,7 +7,7 @@
 
         <variable
             name="imageConfig"
-            type="be.florien.anyflow.extension.ImageConfig" />
+            type="be.florien.anyflow.common.ui.data.ImageConfig" />
 
         <variable
             name="display"

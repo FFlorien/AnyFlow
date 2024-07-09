@@ -3,14 +3,18 @@ package be.florien.anyflow.feature.player.ui.library.saved
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.data.view.FilterGroup
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.feature.player.services.queue.FiltersManager
-import be.florien.anyflow.feature.player.ui.library.LibraryViewModel
+import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.feature.library.ui.LibraryViewModel
+import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.filters.model.FilterGroup
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SavedFilterGroupViewModel @Inject constructor(override val filtersManager: FiltersManager) :
+class SavedFilterGroupViewModel @Inject constructor(
+    override val filtersManager: FiltersManager,
+    override val navigator: Navigator
+) :
     BaseViewModel(),
     LibraryViewModel {
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)

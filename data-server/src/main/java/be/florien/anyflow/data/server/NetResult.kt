@@ -7,20 +7,20 @@ import kotlin.Throwable
 
 sealed interface NetResult<T>
 
-class NetSuccess<T>(val data: T): NetResult<T>
-class NetApiError<T>(val error: AmpacheError): NetResult<T>
-class NetThrowable<T>(val throwable: Throwable): NetResult<T>
+class NetSuccess<T>(val data: T): be.florien.anyflow.data.server.NetResult<T>
+class NetApiError<T>(val error: AmpacheError): be.florien.anyflow.data.server.NetResult<T>
+class NetThrowable<T>(val throwable: Throwable): be.florien.anyflow.data.server.NetResult<T>
 
-fun <T: AmpacheApiResponse> T.toNetResult(): NetResult<T> =
+fun <T: AmpacheApiResponse> T.toNetResult(): be.florien.anyflow.data.server.NetResult<T> =
     if (error == null) {
-        NetSuccess(this)
+        be.florien.anyflow.data.server.NetSuccess(this)
     } else {
-        NetApiError(error)
+        be.florien.anyflow.data.server.NetApiError(error)
     }
 
-fun <T> AmpacheApiListResponse<T>.toNetResult(): NetResult<List<T>> =
+fun <T> AmpacheApiListResponse<T>.toNetResult(): be.florien.anyflow.data.server.NetResult<List<T>> =
     if (error == null) {
-        NetSuccess(this.list)
+        be.florien.anyflow.data.server.NetSuccess(this.list)
     } else {
-        NetApiError(error)
+        be.florien.anyflow.data.server.NetApiError(error)
     }

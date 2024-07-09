@@ -2,15 +2,14 @@ package be.florien.anyflow.feature.download
 
 import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
-import be.florien.anyflow.data.local.LibraryDatabase
-import be.florien.anyflow.data.local.query.QueryComposer
-import be.florien.anyflow.data.local.model.DbDownload
-import be.florien.anyflow.data.local.model.DownloadProgressState
-import be.florien.anyflow.data.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.data.toQueryFilters
-import be.florien.anyflow.data.toViewSongInfo
-import be.florien.anyflow.data.view.Filter
-import be.florien.anyflow.data.view.SongInfo
+import be.florien.anyflow.tags.local.LibraryDatabase
+import be.florien.anyflow.tags.local.query.QueryComposer
+import be.florien.anyflow.tags.local.model.DbDownload
+import be.florien.anyflow.tags.local.model.DownloadProgressState
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.tags.model.SongInfo
+import be.florien.anyflow.tags.toQueryFilters
+import be.florien.anyflow.tags.toViewSongInfo
 import javax.inject.Inject
 
 class DownloadRepository @Inject constructor(
@@ -21,11 +20,16 @@ class DownloadRepository @Inject constructor(
     suspend fun getSongSync(id: Long): SongInfo =
         libraryDatabase.getSongDao().songById(id).toViewSongInfo()
 
-    suspend fun queueDownload(id: Long, type: Filter.FilterType, secondId: Int?) {
-        val filter = if (type == Filter.FilterType.DISK_IS) {
-            Filter(Filter.FilterType.ALBUM_IS, id, "", listOf(Filter(type, secondId, " ")))
+    suspend fun queueDownload(id: Long, type: be.florien.anyflow.management.filters.model.Filter.FilterType, secondId: Int?) {
+        val filter = if (type == be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS) {
+            be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+                id,
+                "",
+                listOf(be.florien.anyflow.management.filters.model.Filter(type, secondId, " "))
+            )
         } else {
-            Filter(type, id, "")
+            be.florien.anyflow.management.filters.model.Filter(type, id, "")
         }
         libraryDatabase
             .getDownloadDao()
@@ -41,13 +45,18 @@ class DownloadRepository @Inject constructor(
 
     fun getProgressForDownloadCandidate(
         id: Long,
-        type: Filter.FilterType,
+        type: be.florien.anyflow.management.filters.model.Filter.FilterType,
         secondId: Int? = null
     ): LiveData<DownloadProgressState> {
-        val filter = if (type == Filter.FilterType.DISK_IS) {
-            Filter(Filter.FilterType.ALBUM_IS, id, "", listOf(Filter(type, secondId, "")))
+        val filter = if (type == be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS) {
+            be.florien.anyflow.management.filters.model.Filter(
+                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+                id,
+                "",
+                listOf(be.florien.anyflow.management.filters.model.Filter(type, secondId, ""))
+            )
         } else {
-            Filter(type, id, "")
+            be.florien.anyflow.management.filters.model.Filter(type, id, "")
         }
         return libraryDatabase
             .getDownloadDao()
