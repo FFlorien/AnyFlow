@@ -29,6 +29,7 @@ dependencies {
     implementation project(':management-playlist')
     implementation project(':management-podcast')
     implementation project(":management-tags")
+    implementation project(":resources")
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'

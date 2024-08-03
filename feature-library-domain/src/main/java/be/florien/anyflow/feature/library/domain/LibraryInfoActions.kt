@@ -5,8 +5,8 @@ import android.content.res.Resources
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.common.ui.data.R
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.resources.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

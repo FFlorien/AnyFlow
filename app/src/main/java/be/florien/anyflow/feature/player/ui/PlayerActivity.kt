@@ -25,6 +25,7 @@ import androidx.media3.session.SessionToken
 import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.isVisiblePresent
@@ -56,7 +57,7 @@ import javax.inject.Inject
  * Activity controlling the queue, play/pause/next/previous on the PlayerService
  */
 @ActivityScope
-@be.florien.anyflow.architecture.di.ServerScope
+@ServerScope
 class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider {
 
     /**

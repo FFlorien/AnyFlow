@@ -23,8 +23,17 @@ import javax.inject.Named
  * Component used to add dependency injection about data into classes
  */
 @ServerScope
-@Subcomponent(modules = [ConnectedModule::class, ServerModule::class, AuthModule::class, ServerBindsModule::class, LibraryViewModelModule::class])
-interface ServerComponent: UserVmInjector, GlideModuleInjector {
+@Subcomponent(
+    modules = [
+        ConnectedModule::class,
+        ServerModule::class,
+        AuthModule::class,
+        ServerBindsModule::class,
+        LibraryViewModelModule::class,
+        ViewModelModule::class
+    ]
+)
+interface ServerComponent : UserVmInjector, GlideModuleInjector {
 
     fun inject(validator: AnyFlowApp.ServerValidator)
 

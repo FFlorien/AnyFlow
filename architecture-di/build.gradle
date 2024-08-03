@@ -24,4 +24,5 @@ android {
 dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation project(':logging')
 }

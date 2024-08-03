@@ -9,8 +9,6 @@ import android.util.DisplayMetrics
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import kotlin.reflect.KClass
 
 /**
@@ -24,15 +22,6 @@ val Fragment.anyFlowApp: AnyFlowApp
 
 fun Context.startActivity(activityClass: KClass<*>) {
     startActivity(Intent(this, activityClass.java))
-}
-
-fun Service.stopForegroundAndKeepNotification() {
-    if (Build.VERSION.SDK_INT >= 24) {
-        stopForeground(Service.STOP_FOREGROUND_DETACH)
-    } else {
-        @Suppress("DEPRECATION")
-        stopForeground(false)
-    }
 }
 
 fun Activity.getDisplayWidth(): Int {
