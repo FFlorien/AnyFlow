@@ -74,6 +74,8 @@ dependencies {
     implementation project(":feature-auth-ui")
     implementation project(":feature-library-domain")
     implementation project(":feature-library-ui")
+    implementation project(":feature-library-tags-domain")
+    implementation project(":feature-library-tags-ui")
     implementation project(':logging')
     implementation project(':utils')
     implementation project(':management-tags')
@@ -98,6 +100,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
+    implementation project(':feature-library-tags-ui')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet

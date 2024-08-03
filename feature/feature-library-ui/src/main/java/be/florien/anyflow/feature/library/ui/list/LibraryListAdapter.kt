@@ -74,7 +74,7 @@ class FilterViewHolder(
 
     override fun bind(item: FilterItem, isSelected: Boolean) {
         binding.item = item
-        binding.artConfig = be.florien.anyflow.common.ui.data.ImageConfig(item.artUrl, null)
+        binding.artConfig = ImageConfig(item.artUrl, null)
         setSelection(isSelected)
         itemInfoView.setOnClickListener {
             onSelectChange(item)

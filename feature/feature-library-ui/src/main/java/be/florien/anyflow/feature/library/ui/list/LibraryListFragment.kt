@@ -11,14 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.res.ResourcesCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.paging.filter
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.architecture.di.ActivityScope
-import be.florien.anyflow.architecture.di.ServerScope
-import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.list.DetailViewHolderListener
 import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
 import be.florien.anyflow.common.ui.navigation.Navigator
@@ -27,27 +23,15 @@ import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterBinding
-import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
-import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryAlbumArtistListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryAlbumListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryArtistListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryDownloadedListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryGenreListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryPlaylistListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.feature.library.ui.menu.SearchMenuHolder
 import be.florien.anyflow.feature.library.ui.menu.SelectAllMenuHolder
 import be.florien.anyflow.feature.library.ui.menu.SelectNoneMenuHolder
 import be.florien.anyflow.management.filters.model.Filter
 import com.google.android.material.snackbar.Snackbar
 
-@ActivityScope
-@ServerScope
-class LibraryListFragment @SuppressLint("ValidFragment")
+abstract class LibraryListFragment @SuppressLint("ValidFragment")
 constructor(
-    private var filterType: String = LibraryInfoViewModel.GENRE_ID,
+    var filterType: String,
     private var parentFilter: Filter<*>? = null
 ) : BaseFilteringFragment(),
     DetailViewHolderListener<FilterItem> {
@@ -80,23 +64,11 @@ constructor(
         }
     }
 
-    override fun getTitle(): String = getString(R.string.library_title_main)
-
-    override fun getSubtitle(): String? = when (filterType) {
-        LibraryInfoViewModel.ALBUM_ID -> getString(R.string.library_type_album)
-        LibraryInfoViewModel.ALBUM_ARTIST_ID -> getString(R.string.library_type_album_artist)
-        LibraryInfoViewModel.ARTIST_ID -> getString(R.string.library_type_artist)
-        LibraryInfoViewModel.GENRE_ID -> getString(R.string.library_type_genre)
-        LibraryInfoViewModel.SONG_ID -> getString(R.string.library_type_song)
-        LibraryInfoViewModel.PLAYLIST_ID -> getString(R.string.library_type_playlist)
-        LibraryInfoViewModel.DOWNLOAD_ID -> getString(R.string.library_type_download)
-        LibraryInfoViewModel.PODCAST_EPISODE_ID -> getString(R.string.library_type_podcast_episode)
-        else -> null
-    }
+    abstract fun getViewModel(filterName: String): LibraryListViewModel
 
     init {
         arguments?.let {
-            filterType = it.getString(FILTER_TYPE, LibraryInfoViewModel.GENRE_ID)
+            filterType = it.getString(FILTER_TYPE, "Error")
             parentFilter = it.getParcelable(PARENT_FILTER)
         }
         if (arguments == null) {
@@ -140,17 +112,7 @@ constructor(
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[
-            when (filterType) {
-                LibraryInfoViewModel.ALBUM_ID -> LibraryAlbumListViewModel::class.java
-                LibraryInfoViewModel.ALBUM_ARTIST_ID -> LibraryAlbumArtistListViewModel::class.java
-                LibraryInfoViewModel.ARTIST_ID -> LibraryArtistListViewModel::class.java
-                LibraryInfoViewModel.GENRE_ID -> LibraryGenreListViewModel::class.java
-                LibraryInfoViewModel.SONG_ID -> LibrarySongListViewModel::class.java
-                LibraryInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
-                LibraryInfoViewModel.PODCAST_EPISODE_ID -> LibraryPodcastEpisodeListViewModel::class.java
-                else -> LibraryPlaylistListViewModel::class.java
-            }]
+        viewModel = getViewModel(filterType)
         viewModel.navigationFilter = parentFilter
     }
 
@@ -211,10 +173,5 @@ constructor(
         menuCoordinator.removeMenuHolder(searchMenuHolder)
         menuCoordinator.removeMenuHolder(selectAllMenuHolder)
         menuCoordinator.removeMenuHolder(selectNoneMenuHolder)
-    }
-
-    override fun onInfoDisplayAsked(item: FilterItem) {
-        val filter = viewModel.getFilter(item)
-        navigator.displayFragmentOnMain(requireContext(), LibraryInfoFragment(filter), LibraryInfoFragment::class.java.simpleName)
     }
 }

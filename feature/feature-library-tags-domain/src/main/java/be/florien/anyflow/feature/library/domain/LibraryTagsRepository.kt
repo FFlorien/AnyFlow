@@ -20,7 +20,7 @@ import be.florien.anyflow.tags.model.SongDisplay
 import javax.inject.Inject
 
 @ServerScope
-class LibraryRepository @Inject constructor(
+class LibraryTagsRepository @Inject constructor(
     private val dataRepository: DataRepository,
     private val playlistRepository: PlaylistRepository,
     private val podcastRepository: PodcastRepository,

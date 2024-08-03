@@ -9,7 +9,7 @@ import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
 import be.florien.anyflow.feature.auth.domain.di.AuthModule
-import be.florien.anyflow.feature.library.ui.di.LibraryViewModelModule
+import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel

@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.library.domain
 
-import be.florien.anyflow.feature.library.domain.LibraryInfoActions.DisplayData
+import be.florien.anyflow.feature.library.domain.LibraryTagsInfoActions.DisplayData
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter

@@ -1,16 +1,16 @@
-package be.florien.anyflow.feature.library.ui.di
+package be.florien.anyflow.feature.library.tags.ui.di
 
 import androidx.lifecycle.ViewModel
 import be.florien.anyflow.architecture.di.ViewModelKey
-import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryAlbumArtistListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryAlbumListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryArtistListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryDownloadedListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryGenreListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryPlaylistListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
-import be.florien.anyflow.feature.library.ui.list.viewmodels.LibrarySongListViewModel
+import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryAlbumArtistListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryAlbumListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryArtistListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryDownloadedListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryGenreListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPlaylistListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
+import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibrarySongListViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -20,8 +20,8 @@ abstract class LibraryViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(LibraryInfoViewModel::class)
-    abstract fun bindsSelectFilterTypeViewModel(viewModel: LibraryInfoViewModel): ViewModel
+    @ViewModelKey(LibraryTagsInfoViewModel::class)
+    abstract fun bindsSelectFilterTypeViewModel(viewModel: LibraryTagsInfoViewModel): ViewModel
 
     @Binds
     @IntoMap

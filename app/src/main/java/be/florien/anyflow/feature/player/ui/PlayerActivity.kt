@@ -34,8 +34,8 @@ import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
+import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
-import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
 import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
@@ -367,11 +367,11 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     private fun displayLibrary() {
         val fragment =
-            supportFragmentManager.findFragmentByTag(LibraryInfoFragment::class.java.simpleName)
-                ?: LibraryInfoFragment()
+            supportFragmentManager.findFragmentByTag(LibraryTagsInfoFragment::class.java.simpleName)
+                ?: LibraryTagsInfoFragment()
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.container, fragment, LibraryInfoFragment::class.java.simpleName)
+            .replace(R.id.container, fragment, LibraryTagsInfoFragment::class.java.simpleName)
             .addToBackStack(LIBRARY_STACK_NAME)
             .commit()
     }

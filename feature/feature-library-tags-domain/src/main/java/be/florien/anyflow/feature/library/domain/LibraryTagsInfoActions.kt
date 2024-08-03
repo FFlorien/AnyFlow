@@ -11,8 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class LibraryInfoActions @Inject constructor(
-    private val libraryRepository: LibraryRepository,
+class LibraryTagsInfoActions @Inject constructor(
+    private val libraryTagsRepository: LibraryTagsRepository,
     context: Context
 ) : InfoActions<Filter<*>?>() {
 
@@ -23,7 +23,7 @@ class LibraryInfoActions @Inject constructor(
             this?.let { resources.getQuantityString(resource, it, it) } ?: ""
 
         val filteredInfo =
-            withContext(Dispatchers.IO) { libraryRepository.getFilteredInfo(infoSource) }
+            withContext(Dispatchers.IO) { libraryTagsRepository.getFilteredInfo(infoSource) }
         return listOfNotNull(
             LibraryInfoRow(
                 R.string.filter_info_duration,
@@ -125,22 +125,22 @@ class LibraryInfoActions @Inject constructor(
             val filterData: DisplayData? =
                 filterIfTypePresent?.let { DisplayData(it.displayText, it.argument as Long) }
             filterData ?: when (filterType) {
-                Filter.FilterType.SONG_IS -> libraryRepository.getSongList(filter)
-                Filter.FilterType.ARTIST_IS -> libraryRepository.getArtistList(filter)
-                Filter.FilterType.ALBUM_ARTIST_IS -> libraryRepository.getAlbumArtistList(filter)
-                Filter.FilterType.ALBUM_IS -> libraryRepository.getAlbumList(filter)
-                Filter.FilterType.GENRE_IS -> libraryRepository.getGenreList(filter)
-                Filter.FilterType.PLAYLIST_IS -> libraryRepository.getPlaylistList(filter)
+                Filter.FilterType.SONG_IS -> libraryTagsRepository.getSongList(filter)
+                Filter.FilterType.ARTIST_IS -> libraryTagsRepository.getArtistList(filter)
+                Filter.FilterType.ALBUM_ARTIST_IS -> libraryTagsRepository.getAlbumArtistList(filter)
+                Filter.FilterType.ALBUM_IS -> libraryTagsRepository.getAlbumList(filter)
+                Filter.FilterType.GENRE_IS -> libraryTagsRepository.getGenreList(filter)
+                Filter.FilterType.PLAYLIST_IS -> libraryTagsRepository.getPlaylistList(filter)
                 Filter.FilterType.DOWNLOADED_STATUS_IS,
                 Filter.FilterType.DISK_IS -> listOf(null)
 
-                Filter.FilterType.PODCAST_EPISODE_IS -> libraryRepository.getPodcastEpisodeList(null)
+                Filter.FilterType.PODCAST_EPISODE_IS -> libraryTagsRepository.getPodcastEpisodeList(null)
             }.firstOrNull()
         } else null
 
         val url =
             if (count <= 1 && displayData != null) {
-                libraryRepository.getArtUrl(filter?.type?.artType, displayData.argument)
+                libraryTagsRepository.getArtUrl(filter?.type?.artType, displayData.argument)
             } else {
                 null
             }

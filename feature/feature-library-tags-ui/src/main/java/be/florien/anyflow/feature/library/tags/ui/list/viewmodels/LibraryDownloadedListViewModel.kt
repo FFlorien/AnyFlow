@@ -1,11 +1,11 @@
-package be.florien.anyflow.feature.library.ui.list.viewmodels
+package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.feature.library.domain.LibraryRepository
+import be.florien.anyflow.feature.library.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
@@ -14,7 +14,7 @@ import be.florien.anyflow.management.filters.model.Filter
 import javax.inject.Inject
 
 class LibraryDownloadedListViewModel @Inject constructor(
-    private val libraryRepository: LibraryRepository,//todo get stats from libraryRepository
+    private val libraryTagsRepository: LibraryTagsRepository,//todo get stats from libraryRepository
     override val navigator: Navigator,
     filtersManager: FiltersManager,
     context: Context
