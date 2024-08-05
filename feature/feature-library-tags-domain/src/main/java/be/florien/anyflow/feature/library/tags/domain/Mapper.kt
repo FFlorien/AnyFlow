@@ -1,11 +1,10 @@
-package be.florien.anyflow.feature.library.domain
+package be.florien.anyflow.feature.library.tags.domain
 
-import be.florien.anyflow.feature.library.domain.LibraryTagsInfoActions.DisplayData
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions.DisplayData
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.playlist.model.Playlist
-import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
@@ -98,24 +97,6 @@ internal fun Playlist.toFilterItem(
     )
 }
 
-internal fun PodcastEpisodeDisplay.toFilterItem(
-    parentFilter: Filter<*>?,
-    urlRepository: UrlRepository,
-    filtersManager: FiltersManager
-): FilterItem {
-    val filter = Filter(
-        Filter.FilterType.PODCAST_EPISODE_IS,
-        id, title
-    )
-    val filterInHierarchy = parentFilter.withChild(filter)
-    return (FilterItem(
-        id,
-        "$title\nby $author", //todo wut ? i18n ?  + from ${podcastEpisode.albumName}
-        filtersManager.isFilterInEdition(filterInHierarchy),
-        urlRepository.getArtUrl("podcast", albumId),
-    ))
-}
-
 internal fun SongDisplay.toDisplayData() = DisplayData(title, id)
 
 internal fun Artist.toDisplayData() = DisplayData(name, id)
@@ -125,8 +106,6 @@ internal fun Album.toDisplayData() = DisplayData(name, id)
 internal fun Genre.toDisplayData() = DisplayData(name, id)
 
 internal fun Playlist.toDisplayData() = DisplayData(name, id)
-
-internal fun PodcastEpisodeDisplay.toDisplayData() = DisplayData(title, id)
 
 private fun Filter<*>?.withChild(filter: Filter<*>): Filter<*> {
     if (this == null) {

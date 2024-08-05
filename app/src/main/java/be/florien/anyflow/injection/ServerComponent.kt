@@ -9,6 +9,7 @@ import be.florien.anyflow.feature.alarms.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
 import be.florien.anyflow.feature.auth.domain.di.AuthModule
+import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
@@ -30,6 +31,7 @@ import javax.inject.Named
         AuthModule::class,
         ServerBindsModule::class,
         LibraryViewModelModule::class,
+        PodcastViewModelModule::class,
         ViewModelModule::class
     ]
 )

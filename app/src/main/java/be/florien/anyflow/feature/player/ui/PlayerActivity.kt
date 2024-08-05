@@ -34,6 +34,7 @@ import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
+import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
@@ -317,6 +318,11 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
                     true
                 }
 
+                R.id.menu_podcast -> {
+                    displayPodcast()
+                    true
+                }
+
                 R.id.menu_filters -> {
                     displayFilters()
                     true
@@ -370,9 +376,22 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
             supportFragmentManager.findFragmentByTag(LibraryTagsInfoFragment::class.java.simpleName)
                 ?: LibraryTagsInfoFragment()
         supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.container, fragment, LibraryTagsInfoFragment::class.java.simpleName)
-            .addToBackStack(LIBRARY_STACK_NAME)
+            .beginTransaction().apply {
+                replace(R.id.container, fragment, LibraryTagsInfoFragment::class.java.simpleName)
+                addToBackStack(LIBRARY_STACK_NAME)
+            }
+            .commit()
+    }
+
+    private fun displayPodcast() {
+        val fragment =
+            supportFragmentManager.findFragmentByTag(LibraryPodcastInfoFragment::class.java.simpleName)
+                ?: LibraryPodcastInfoFragment()
+        supportFragmentManager
+            .beginTransaction().apply {
+                replace(R.id.container, fragment, LibraryPodcastInfoFragment::class.java.simpleName)
+                addToBackStack(LIBRARY_STACK_NAME)
+            }
             .commit()
     }
 
@@ -381,9 +400,10 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
             supportFragmentManager.findFragmentByTag(CurrentFilterFragment::class.java.simpleName)
                 ?: CurrentFilterFragment()
         supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.container, fragment, CurrentFilterFragment::class.java.simpleName)
-            .addToBackStack(LIBRARY_STACK_NAME)
+            .beginTransaction().apply {
+                replace(R.id.container, fragment, CurrentFilterFragment::class.java.simpleName)
+                addToBackStack(LIBRARY_STACK_NAME)
+            }
             .commit()
     }
 
@@ -408,16 +428,25 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     }
 
     private fun adaptBottomNavigationToCurrentFragment() {
-        when (supportFragmentManager.findFragmentById(R.id.container)) {
+        when (val fragment = supportFragmentManager.findFragmentById(R.id.container)) {
             is CurrentFilterFragment -> binding.bottomNavigationView
                 .menu
                 .findItem(R.id.menu_filters)
                 .isChecked = true
 
-            is BaseFilteringFragment -> binding.bottomNavigationView
-                .menu
-                .findItem(R.id.menu_library)
-                .isChecked = true
+            is BaseFilteringFragment -> {
+                if (fragment.tag?.contains("Tags", ignoreCase = true) == true) {
+                    binding.bottomNavigationView
+                        .menu
+                        .findItem(R.id.menu_library)
+                        .isChecked = true
+                } else {
+                    binding.bottomNavigationView
+                        .menu
+                        .findItem(R.id.menu_podcast)
+                        .isChecked = true
+                }
+            }
 
             else -> binding.bottomNavigationView.menu.findItem(R.id.menu_song_list).isChecked = true
         }

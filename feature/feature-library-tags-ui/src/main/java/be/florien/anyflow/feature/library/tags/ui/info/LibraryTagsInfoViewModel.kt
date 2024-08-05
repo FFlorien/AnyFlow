@@ -3,8 +3,8 @@ package be.florien.anyflow.feature.library.tags.ui.info
 import android.content.Context
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.feature.library.domain.LibraryTagsInfoActions
-import be.florien.anyflow.feature.library.domain.LibraryTagsRepository
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.management.filters.FiltersManager
@@ -28,6 +28,5 @@ class LibraryTagsInfoViewModel @Inject constructor( //todo abstract this for inf
         const val SONG_ID = "Song"
         const val PLAYLIST_ID = "Playlist"
         const val DOWNLOAD_ID = "Download"
-        const val PODCAST_EPISODE_ID = "PodcastEpisode"
     }
 }

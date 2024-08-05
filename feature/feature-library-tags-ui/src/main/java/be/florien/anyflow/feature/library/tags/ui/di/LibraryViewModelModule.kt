@@ -9,7 +9,6 @@ import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryArtistL
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryDownloadedListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryGenreListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPlaylistListViewModel
-import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibrarySongListViewModel
 import dagger.Binds
 import dagger.Module
@@ -57,9 +56,4 @@ abstract class LibraryViewModelModule {
     @IntoMap
     @ViewModelKey(LibraryDownloadedListViewModel::class)
     abstract fun bindsSelectFilterFragmentDownloadedVM(viewModel: LibraryDownloadedListViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LibraryPodcastEpisodeListViewModel::class)
-    abstract fun bindsSelectFilterFragmentPodcastEpisodeVM(viewModel: LibraryPodcastEpisodeListViewModel): ViewModel
 }

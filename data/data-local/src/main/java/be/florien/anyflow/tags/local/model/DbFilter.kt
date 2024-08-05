@@ -42,7 +42,7 @@ data class DbFilter(
     }
 }
 
-data class DbSongFilterCount(
+data class DbTagsFilterCount(
     val duration: Int,
     val genres: Int,
     val albumArtists: Int,
@@ -50,4 +50,8 @@ data class DbSongFilterCount(
     val artists: Int,
     val songs: Int,
     val playlists: Int
+)
+
+data class DbPodcastFilterCount(
+    val podcastEpisodes: Int
 )

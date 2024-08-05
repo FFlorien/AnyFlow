@@ -73,7 +73,7 @@ data class Filter<T>(
     }
 }
 
-data class FilterCount( //todo move ?
+data class FilterTagsCount( //todo move ?
     val duration: Duration,
     val genres: Int,
     val albumArtists: Int,
@@ -81,4 +81,9 @@ data class FilterCount( //todo move ?
     val artists: Int,
     val songs: Int,
     val playlists: Int
+)
+
+
+data class FilterPodcastCount(
+    val podcastEpisodes: Int
 )

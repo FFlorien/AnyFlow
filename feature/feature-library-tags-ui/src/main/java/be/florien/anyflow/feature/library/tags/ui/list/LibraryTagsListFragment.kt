@@ -15,7 +15,6 @@ import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryArtistL
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryDownloadedListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryGenreListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPlaylistListViewModel
-import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
@@ -38,7 +37,6 @@ constructor(
             LibraryTagsInfoViewModel.GENRE_ID -> LibraryGenreListViewModel::class.java
             LibraryTagsInfoViewModel.SONG_ID -> LibrarySongListViewModel::class.java
             LibraryTagsInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
-            LibraryTagsInfoViewModel.PODCAST_EPISODE_ID -> LibraryPodcastEpisodeListViewModel::class.java
             else -> LibraryPlaylistListViewModel::class.java
         }]
 
@@ -52,7 +50,6 @@ constructor(
         LibraryTagsInfoViewModel.SONG_ID -> getString(R.string.library_type_song)
         LibraryTagsInfoViewModel.PLAYLIST_ID -> getString(R.string.library_type_playlist)
         LibraryTagsInfoViewModel.DOWNLOAD_ID -> getString(R.string.library_type_download)
-        LibraryTagsInfoViewModel.PODCAST_EPISODE_ID -> getString(R.string.library_type_podcast_episode)
         else -> null
     }
 

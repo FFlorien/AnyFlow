@@ -173,7 +173,7 @@ class QueryComposer {
 
     }
 
-    fun getQueryForCount(filterList: List<QueryFilter>) = ("SELECT " +
+    fun getQueryForTagsCount(filterList: List<QueryFilter>) = ("SELECT " +
             "SUM(Song.time) AS duration, " +
             "COUNT(DISTINCT SongGenre.genreId) AS genres, " +
             "COUNT(DISTINCT Album.artistid) AS albumArtists, " +
@@ -185,6 +185,14 @@ class QueryComposer {
             "LEFT JOIN SongGenre ON Song.id = SongGenre.songId " +
             "JOIN Album ON Song.albumId = Album.id " +
             "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
+            constructJoinStatement(filterList) +
+            constructWhereStatement(filterList, ""))
+        .toSQLiteQuery()
+
+
+    fun getQueryForPodcastCount(filterList: List<QueryFilter>) = ("SELECT " +
+            "COUNT(DISTINCT PodcastEpisode.id) AS podcastEpisodes " +
+            "FROM PodcastEpisode" +
             constructJoinStatement(filterList) +
             constructWhereStatement(filterList, ""))
         .toSQLiteQuery()

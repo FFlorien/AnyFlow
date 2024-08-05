@@ -1,18 +1,16 @@
-package be.florien.anyflow.feature.library.domain
+package be.florien.anyflow.feature.library.tags.domain
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
-import be.florien.anyflow.tags.DataRepository
-import be.florien.anyflow.management.podcast.PodcastRepository
-import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.Playlist
-import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
+import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre
@@ -23,7 +21,6 @@ import javax.inject.Inject
 class LibraryTagsRepository @Inject constructor(
     private val dataRepository: DataRepository,
     private val playlistRepository: PlaylistRepository,
-    private val podcastRepository: PodcastRepository,
     private val urlRepository: UrlRepository,
     private val filtersManager: FiltersManager
 ) {
@@ -81,15 +78,6 @@ class LibraryTagsRepository @Inject constructor(
             .getPlaylists(filter?.let { listOf(it) }, search)
             .map { it.toFilterItem(filter, urlRepository, filtersManager) }
             .convertToPagingLiveData()
-
-    fun getPodcastEpisodeFiltersPaging(
-        filter: Filter<*>?,
-        search: String?
-    ): LiveData<PagingData<FilterItem>> =
-        podcastRepository
-            .getAllPodcastsEpisodes()
-            .map { it.toFilterItem(filter, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
     //endregion
 
     //region Filter list
@@ -134,13 +122,6 @@ class LibraryTagsRepository @Inject constructor(
     ) = playlistRepository
         .getPlaylistsSearchedList(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
-
-    suspend fun getPodcastEpisodeFilterList(
-        filter: Filter<*>?,
-        search: String
-    ) = podcastRepository
-        .getAllPodcastsEpisodesList()
-        .map { it.toFilterItem(filter, urlRepository, filtersManager) }
     //endregion
 
     //region Display list
@@ -173,11 +154,6 @@ class LibraryTagsRepository @Inject constructor(
         playlistRepository
             .getPlaylistsSearchedList(filter?.let { listOf(it) }, "")
             .map(Playlist::toDisplayData)
-
-    suspend fun getPodcastEpisodeList(filter: Filter<*>?) =
-        podcastRepository
-            .getAllPodcastsEpisodesList()
-            .map(PodcastEpisodeDisplay::toDisplayData)
     //endregion
 
     suspend fun getFilteredInfo(infoSource: Filter<*>?) = dataRepository.getFilteredInfo(infoSource)

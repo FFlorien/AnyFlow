@@ -37,7 +37,8 @@
     <string name="menu_shortcuts">Raccourcis</string>
     <string name="menu_playlist">Listes de lecture</string>
     <string name="menu_filters">Filtres</string>
-    <string name="menu_library">Library</string>
+    <string name="menu_library">Bibliothèque</string>
+    <string name="menu_podcast">Podcast</string>
     <string name="menu_order_random">Aléatoire</string>
     <string name="menu_order_classic">Classique</string>
     <string name="menu_playlist_create">Créer une nouvelle liste de lecture</string>

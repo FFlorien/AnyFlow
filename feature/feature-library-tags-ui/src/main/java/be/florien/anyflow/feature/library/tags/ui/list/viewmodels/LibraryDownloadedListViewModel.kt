@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.feature.library.domain.LibraryTagsRepository
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel

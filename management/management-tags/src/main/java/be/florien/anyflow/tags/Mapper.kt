@@ -4,7 +4,7 @@ import be.florien.anyflow.tags.local.model.DbAlbumDisplay
 import be.florien.anyflow.tags.local.model.DbArtist
 import be.florien.anyflow.tags.local.model.DbGenre
 import be.florien.anyflow.tags.local.model.DbSongDisplay
-import be.florien.anyflow.tags.local.model.DbSongFilterCount
+import be.florien.anyflow.tags.local.model.DbTagsFilterCount
 import be.florien.anyflow.tags.local.model.DbSongInfo
 import be.florien.anyflow.tags.local.query.QueryFilter
 import be.florien.anyflow.tags.model.Album
@@ -13,7 +13,7 @@ import be.florien.anyflow.tags.model.Genre
 import be.florien.anyflow.tags.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterCount
+import be.florien.anyflow.management.filters.model.FilterTagsCount
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -66,7 +66,7 @@ fun DbGenre.toViewGenre() = Genre(
     name = name
 )
 
-fun DbSongFilterCount.toViewFilterCount() = FilterCount(
+fun DbTagsFilterCount.toViewFilterCount() = FilterTagsCount(
     duration = duration.toDuration(DurationUnit.SECONDS),
     genres = genres,
     albumArtists = albumArtists,

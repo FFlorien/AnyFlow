@@ -3,9 +3,7 @@ package be.florien.anyflow.tags
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.DataSource
-import androidx.paging.PagingData
 import be.florien.anyflow.architecture.di.ServerScope
-import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbAlbumDisplay
 import be.florien.anyflow.tags.local.model.DbArtist
@@ -18,7 +16,7 @@ import be.florien.anyflow.tags.model.Genre
 import be.florien.anyflow.tags.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterCount
+import be.florien.anyflow.management.filters.model.FilterTagsCount
 import javax.inject.Inject
 
 @ServerScope
@@ -132,10 +130,10 @@ class DataRepository @Inject constructor(
      * Infos
      */
 
-    suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterCount {
+    suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterTagsCount {
         val filterList = infoSource?.let { listOf(it) } ?: emptyList()
         return libraryDatabase.getFilterDao()
-            .getCount(queryComposer.getQueryForCount(filterList.toQueryFilters()))
+            .getCount(queryComposer.getQueryForTagsCount(filterList.toQueryFilters()))
             .toViewFilterCount()
     }
 

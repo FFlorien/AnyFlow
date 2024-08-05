@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.library.domain
+package be.florien.anyflow.feature.library.tags.domain
 
 import android.content.Context
 import android.content.res.Resources
@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class LibraryTagsInfoActions @Inject constructor(
+class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
     private val libraryTagsRepository: LibraryTagsRepository,
     context: Context
 ) : InfoActions<Filter<*>?>() {
@@ -38,8 +38,8 @@ class LibraryTagsInfoActions @Inject constructor(
                             s.getDurationString(R.plurals.seconds_component)
                 },
                 null,
-                LibraryFieldType.Duration,
-                LibraryActionType.InfoTitle,
+                LibraryTagsFieldType.Duration,
+                LibraryPodcastActionType.InfoTitle,
                 null
             ),
             getInfoRow(
@@ -99,12 +99,6 @@ class LibraryTagsInfoActions @Inject constructor(
                     }
                     playlistFilters.size
                 } ?: 0) // todo "Motivation and 3 other playlists" instead
-            ),
-            getInfoRow(
-                R.string.filter_info_podcast_episodes,
-                infoSource,
-                Filter.FilterType.PODCAST_EPISODE_IS,
-                100 //todo number of podcast episodes + move to another screen
             )
         )
     }
@@ -124,7 +118,7 @@ class LibraryTagsInfoActions @Inject constructor(
             val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
             val filterData: DisplayData? =
                 filterIfTypePresent?.let { DisplayData(it.displayText, it.argument as Long) }
-            filterData ?: when (filterType) {
+            filterData ?: when (filterType) { //todo separate podcast & tags
                 Filter.FilterType.SONG_IS -> libraryTagsRepository.getSongList(filter)
                 Filter.FilterType.ARTIST_IS -> libraryTagsRepository.getArtistList(filter)
                 Filter.FilterType.ALBUM_ARTIST_IS -> libraryTagsRepository.getAlbumArtistList(filter)
@@ -134,7 +128,7 @@ class LibraryTagsInfoActions @Inject constructor(
                 Filter.FilterType.DOWNLOADED_STATUS_IS,
                 Filter.FilterType.DISK_IS -> listOf(null)
 
-                Filter.FilterType.PODCAST_EPISODE_IS -> libraryTagsRepository.getPodcastEpisodeList(null)
+                Filter.FilterType.PODCAST_EPISODE_IS -> listOf(null)
             }.firstOrNull()
         } else null
 
@@ -168,26 +162,25 @@ class LibraryTagsInfoActions @Inject constructor(
 
     private fun getField(
         filterType: Filter.FilterType
-    ): LibraryFieldType {
+    ): LibraryTagsFieldType {
         return when (filterType) {
-            Filter.FilterType.SONG_IS -> LibraryFieldType.Song
-            Filter.FilterType.ARTIST_IS -> LibraryFieldType.Artist
-            Filter.FilterType.ALBUM_ARTIST_IS -> LibraryFieldType.AlbumArtist
-            Filter.FilterType.ALBUM_IS -> LibraryFieldType.Album
-            Filter.FilterType.PLAYLIST_IS -> LibraryFieldType.Playlist
-            Filter.FilterType.DOWNLOADED_STATUS_IS -> LibraryFieldType.Downloaded
-            Filter.FilterType.PODCAST_EPISODE_IS -> LibraryFieldType.PodcastEpisode
-            else -> LibraryFieldType.Genre
+            Filter.FilterType.SONG_IS -> LibraryTagsFieldType.Song
+            Filter.FilterType.ARTIST_IS -> LibraryTagsFieldType.Artist
+            Filter.FilterType.ALBUM_ARTIST_IS -> LibraryTagsFieldType.AlbumArtist
+            Filter.FilterType.ALBUM_IS -> LibraryTagsFieldType.Album
+            Filter.FilterType.PLAYLIST_IS -> LibraryTagsFieldType.Playlist
+            Filter.FilterType.DOWNLOADED_STATUS_IS -> LibraryTagsFieldType.Downloaded
+            else -> LibraryTagsFieldType.Genre
         }
     }
 
     private fun getAction(count: Int): ActionType {
-        return if (count > 1) LibraryActionType.SubFilter else LibraryActionType.InfoTitle
+        return if (count > 1) LibraryPodcastActionType.SubFilter else LibraryPodcastActionType.InfoTitle
     }
 
     class DisplayData(val text: String, val argument: Long)
 
-    enum class LibraryFieldType(
+    enum class LibraryTagsFieldType(
         @DrawableRes override val iconRes: Int
     ) : FieldType {
         Duration(R.drawable.ic_duration),
@@ -197,11 +190,10 @@ class LibraryTagsInfoActions @Inject constructor(
         Artist(R.drawable.ic_artist),
         Song(R.drawable.ic_song),
         Playlist(R.drawable.ic_playlist),
-        Downloaded(R.drawable.ic_downloaded),
-        PodcastEpisode(R.drawable.ic_podcast_episode);
+        Downloaded(R.drawable.ic_downloaded);
     }
 
-    enum class LibraryActionType(
+    enum class LibraryPodcastActionType(
         @DrawableRes override val iconRes: Int,
         override val category: ActionTypeCategory
     ) : ActionType {

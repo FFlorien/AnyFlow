@@ -189,7 +189,7 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             ).map {
                 QueueItem(PODCAST_MEDIA_TYPE, it)
             }
-            songs + podcastEpisodes
+            podcastEpisodes + songs
         }
     //endregion
 

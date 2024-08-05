@@ -1,10 +1,10 @@
-package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
+package be.florien.anyflow.feature.library.podcast.ui.list.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.feature.library.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
+import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastRepository
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LibraryPodcastEpisodeListViewModel @Inject constructor(
-    private val libraryTagsRepository: LibraryTagsRepository,
+    private val libraryTagsRepository: LibraryPodcastRepository,
     override val navigator: Navigator,
     filtersManager: FiltersManager
 ) : LibraryListViewModel(filtersManager) {
