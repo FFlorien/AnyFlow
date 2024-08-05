@@ -9,10 +9,10 @@ import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre
-import be.florien.anyflow.tags.model.SongDisplay
+import be.florien.anyflow.tags.model.SongDisplayDomain
 
 
-internal fun SongDisplay.toFilterItem(
+internal fun SongDisplayDomain.toFilterItem(
     parentFilter: Filter<*>?,
     urlRepository: UrlRepository,
     filtersManager: FiltersManager
@@ -97,7 +97,7 @@ internal fun Playlist.toFilterItem(
     )
 }
 
-internal fun SongDisplay.toDisplayData() = DisplayData(title, id)
+internal fun SongDisplayDomain.toDisplayData() = DisplayData(title, id)
 
 internal fun Artist.toDisplayData() = DisplayData(name, id)
 

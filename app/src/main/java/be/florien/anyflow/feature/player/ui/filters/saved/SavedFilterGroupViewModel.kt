@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.library.saved
+package be.florien.anyflow.feature.player.ui.filters.saved
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

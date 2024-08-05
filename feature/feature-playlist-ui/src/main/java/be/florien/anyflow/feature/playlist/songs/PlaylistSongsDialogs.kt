@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.playlist.songs
 import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
-import be.florien.anyflow.R
+import be.florien.anyflow.resources.R
 
 fun Context.removeSongsConfirmation(vm: RemoveSongsViewModel) {
     AlertDialog.Builder(this)

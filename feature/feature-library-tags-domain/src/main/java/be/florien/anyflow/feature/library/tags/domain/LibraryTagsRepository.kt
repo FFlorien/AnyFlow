@@ -14,7 +14,7 @@ import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre
-import be.florien.anyflow.tags.model.SongDisplay
+import be.florien.anyflow.tags.model.SongDisplayDomain
 import javax.inject.Inject
 
 @ServerScope
@@ -128,7 +128,7 @@ class LibraryTagsRepository @Inject constructor(
     suspend fun getSongList(filter: Filter<*>?) =
         dataRepository
             .getSongsSearchedList(filter?.let { listOf(it) }, "")
-            .map(SongDisplay::toDisplayData)
+            .map(SongDisplayDomain::toDisplayData)
 
     suspend fun getArtistList(filter: Filter<*>?) =
         dataRepository

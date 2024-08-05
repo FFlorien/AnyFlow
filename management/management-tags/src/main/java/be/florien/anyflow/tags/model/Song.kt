@@ -53,7 +53,7 @@ data class SongInfo(
 }
 
 
-data class SongDisplay(
+data class SongDisplayDomain(
     val id: Long,
     val title: String,
     val artistName: String,

@@ -12,8 +12,7 @@ import be.florien.anyflow.feature.auth.domain.di.AuthModule
 import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.services.PlayerService
-import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
-import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel
+import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.ui.di.UserVmInjector
 import dagger.BindsInstance
@@ -46,11 +45,10 @@ interface ServerComponent : UserVmInjector, GlideModuleInjector {
     fun inject(viewModel: AddAlarmViewModel)
     fun inject(viewModel: AlarmListViewModel)
     fun inject(viewModel: EditAlarmViewModel)
-    fun inject(viewModel: PlaylistSongsViewModel)
-    fun inject(viewModel: PlaylistListViewModel)
 
     fun playerComponentBuilder(): PlayerComponent.Builder
     fun shortcutsComponentBuilder(): ShortcutsComponent.Builder
+    fun playlistComponentBuilder(): PlaylistComponent.Builder
 
     @Subcomponent.Builder
     interface Builder {

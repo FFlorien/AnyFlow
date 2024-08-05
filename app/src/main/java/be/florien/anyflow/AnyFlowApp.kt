@@ -8,17 +8,19 @@ import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.common.ui.di.GlideModuleInjector
 import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
-import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
+import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
+import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
+import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.plantTimber
-import be.florien.anyflow.ui.di.ServerVmInjectorContainer
 import be.florien.anyflow.ui.di.ServerVmInjector
-import be.florien.anyflow.ui.di.UserVmInjectorContainer
+import be.florien.anyflow.ui.di.ServerVmInjectorContainer
 import be.florien.anyflow.ui.di.UserVmInjector
+import be.florien.anyflow.ui.di.UserVmInjectorContainer
 import javax.inject.Inject
 
 
@@ -27,7 +29,7 @@ import javax.inject.Inject
  */
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), UserVmInjectorContainer,
-    ServerVmInjectorContainer, GlideModuleInjectorContainer {
+    ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     override val serverVmInjector: ServerVmInjector
@@ -117,4 +119,7 @@ open class AnyFlowApp : MultiDexApplication(), UserVmInjectorContainer,
 
         suspend fun isServerValid() = authRepository.ping()
     }
+
+    override fun createPlaylistComponent(): PlaylistComponent? =
+        serverComponent?.playlistComponentBuilder()?.build()
 }

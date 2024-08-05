@@ -5,7 +5,7 @@ import android.content.DialogInterface
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import be.florien.anyflow.R
+import be.florien.anyflow.resources.R
 
 fun Context.newPlaylist(vm: NewPlaylistViewModel) {
     val editText = EditText(this)

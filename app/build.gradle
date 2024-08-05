@@ -78,6 +78,7 @@ dependencies {
     implementation project(":feature-library-tags-ui")
     implementation project(':feature-library-podcast-domain')
     implementation project(':feature-library-podcast-ui')
+    implementation project(':feature-playlist-ui')
     implementation project(':logging')
     implementation project(':utils')
     implementation project(':management-tags')

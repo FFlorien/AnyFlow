@@ -1,16 +1,20 @@
 package be.florien.anyflow
 
 import android.content.Context
+import android.content.Intent
 import androidx.fragment.app.Fragment
 import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.utils.startActivity
 import javax.inject.Inject
 
 class NavigatorImpl @Inject constructor(): Navigator {
-    override fun navigateToPlayer(context: Context) {
-        context.startActivity(PlayerActivity::class)
+    override fun navigateToPlayer(context: Context, clearTop: Boolean) {
+        val intent = Intent(context, PlayerActivity::class.java)
+        if (clearTop) {
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        context.startActivity(intent)
     }
 
     override fun navigateToCurrentlyPlaying(context: Context) {

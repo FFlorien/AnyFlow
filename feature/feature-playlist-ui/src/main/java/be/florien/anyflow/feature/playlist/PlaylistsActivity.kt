@@ -5,20 +5,25 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import be.florien.anyflow.R
+import be.florien.anyflow.resources.R
+import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
+import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
+import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.playlist.list.PlaylistListFragment
 
 class PlaylistsActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     internal val menuCoordinator = MenuCoordinator()
+    internal var component: PlaylistComponent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component = (applicationContext as PlaylistActivityComponentCreator).createPlaylistComponent()
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_playlists)
-        toolbar = findViewById(R.id.toolbar)
+        setContentView(ModuleR.layout.activity_playlists)
+        toolbar = findViewById(ModuleR.id.toolbar)
         initToolbar()
 
         if (supportFragmentManager.findFragmentById(R.id.container) == null) {

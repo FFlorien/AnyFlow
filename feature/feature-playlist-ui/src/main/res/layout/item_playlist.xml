@@ -22,16 +22,16 @@
         android:checked="@{selected}"
         android:minHeight="@dimen/minClickableSize">
 
-        <!--ImageView todo
+        <ImageView
             android:id="@+id/imageView"
             android:layout_width="@dimen/imageSize"
             android:layout_height="@dimen/imageSize"
             android:layout_margin="8dp"
             android:contentDescription="@null"
-            app:imageSource="@{item.coverConfig}"
+            app:imageSource="@{item.imageConfig}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" / -->
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/filterName"

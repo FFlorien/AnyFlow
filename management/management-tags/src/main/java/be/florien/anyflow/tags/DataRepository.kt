@@ -13,7 +13,7 @@ import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre
-import be.florien.anyflow.tags.model.SongDisplay
+import be.florien.anyflow.tags.model.SongDisplayDomain
 import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterTagsCount
@@ -32,10 +32,10 @@ class DataRepository @Inject constructor(
     fun getSongs(
         filters: List<Filter<*>>?,
         search: String?
-    ): DataSource.Factory<Int, SongDisplay> =
+    ): DataSource.Factory<Int, SongDisplayDomain> =
         libraryDatabase.getSongDao().rawQueryPaging(
             queryComposer.getQueryForSongFiltered(filters?.toQueryFilters(), search)
-        ).map(DbSongDisplay::toViewSongDisplay)
+        ).map(DbSongDisplay::toDomainSongDisplay)
 
     fun getArtists(
         filters: List<Filter<*>>?,
@@ -76,10 +76,10 @@ class DataRepository @Inject constructor(
     suspend fun getSongsSearchedList(
         filters: List<Filter<*>>?,
         search: String
-    ): List<SongDisplay> =
+    ): List<SongDisplayDomain> =
         libraryDatabase.getSongDao().rawQueryListDisplay(
             queryComposer.getQueryForSongFiltered(filters?.toQueryFilters(), search)
-        ).map(DbSongDisplay::toViewSongDisplay)
+        ).map(DbSongDisplay::toDomainSongDisplay)
 
     suspend fun getArtistsSearchedList(
         filters: List<Filter<*>>?,

@@ -6,16 +6,14 @@ import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.architecture.di.ViewModelKey
 import be.florien.anyflow.feature.player.ui.PlayerViewModel
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterViewModel
+import be.florien.anyflow.feature.player.ui.filters.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
-import be.florien.anyflow.feature.player.ui.library.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel
 import dagger.Binds
-import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
-import kotlin.reflect.KClass
 
 @Module
 abstract class ViewModelModule {

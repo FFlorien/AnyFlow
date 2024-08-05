@@ -10,7 +10,7 @@ import be.florien.anyflow.tags.local.query.QueryFilter
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre
-import be.florien.anyflow.tags.model.SongDisplay
+import be.florien.anyflow.tags.model.SongDisplayDomain
 import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterTagsCount
@@ -39,7 +39,7 @@ fun DbSongInfo.toViewSongInfo() = SongInfo(
     local = song.local
 )
 
-fun DbSongDisplay.toViewSongDisplay() = SongDisplay(
+fun DbSongDisplay.toDomainSongDisplay() = SongDisplayDomain(
     id = id,
     title = title,
     artistName = artistName,

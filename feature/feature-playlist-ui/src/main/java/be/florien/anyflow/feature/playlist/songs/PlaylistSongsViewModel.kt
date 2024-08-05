@@ -7,11 +7,11 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.tags.toViewSongDisplay
-import be.florien.anyflow.tags.view.SongDisplay
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistSong
+import be.florien.anyflow.tags.UrlRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,7 +20,7 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
     lateinit var playlist: Playlist
 
     @Inject
-    lateinit var urlRepository: be.florien.anyflow.tags.UrlRepository
+    lateinit var urlRepository: UrlRepository
 
     @Inject
     lateinit var playlistRepository: PlaylistRepository
@@ -33,8 +33,8 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
         it.isNotEmpty()
     }.distinctUntilChanged()
 
-    val songList: LiveData<PagingData<SongDisplay>>
-        get() = playlistRepository.getPlaylistSongs(playlist.id) { it.toViewSongDisplay() }
+    val songList: LiveData<PagingData<PlaylistSong>>
+        get() = playlistRepository.getPlaylistSongs(playlist.id)
 
     fun getCover(long: Long) = urlRepository.getAlbumArtUrl(long)
 

@@ -2,29 +2,35 @@ package be.florien.anyflow.feature.playlist.list
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
-import be.florien.anyflow.databinding.ItemPlaylistBinding
-import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
+import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
-import be.florien.anyflow.feature.menu.implementation.DeletePlaylistMenuHolder
-import be.florien.anyflow.feature.menu.implementation.NewPlaylistMenuHolder
-import be.florien.anyflow.feature.menu.implementation.PlayPlaylistMenuHolder
-import be.florien.anyflow.feature.menu.implementation.SelectionModeMenuHolder
+import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.playlist.deletePlaylistConfirmation
+import be.florien.anyflow.feature.playlist.menu.DeletePlaylistMenuHolder
+import be.florien.anyflow.feature.playlist.menu.NewPlaylistMenuHolder
+import be.florien.anyflow.feature.playlist.menu.PlayPlaylistMenuHolder
+import be.florien.anyflow.feature.playlist.menu.SelectionModeMenuHolder
 import be.florien.anyflow.feature.playlist.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
-import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
+import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistBinding
 import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.resources.R
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 
 class PlaylistListFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
@@ -63,14 +69,14 @@ class PlaylistListFragment : BaseFragment() {
             this,
             ViewModelProvider.NewInstanceFactory()
         )[PlaylistListViewModel::class.java]
-        anyFlowApp.serverComponent?.inject(viewModel)
+        (requireActivity() as PlaylistsActivity).component?.inject(viewModel)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_playlist_list, container, false)
+    ): View = inflater.inflate(ModuleR.layout.fragment_playlist_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view as RecyclerView

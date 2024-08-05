@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.playlist.songs
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -15,20 +14,22 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
 import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
-import be.florien.anyflow.tags.view.SongDisplay
-import be.florien.anyflow.databinding.LayoutSongBinding
-import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.feature.menu.implementation.PlayPlaylistSongsMenuHolder
-import be.florien.anyflow.feature.menu.implementation.RemoveSongsMenuHolder
-import be.florien.anyflow.feature.player.ui.PlayerActivity
+import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.feature.playlist.PlaylistsActivity
+import be.florien.anyflow.feature.playlist.menu.PlayPlaylistSongsMenuHolder
+import be.florien.anyflow.feature.playlist.menu.RemoveSongsMenuHolder
+import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistSongBinding
 import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistSong
+import be.florien.anyflow.resources.R
+import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import javax.inject.Inject
 
 class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragment() {
     lateinit var recyclerView: RecyclerView
@@ -36,13 +37,14 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
     private val menuCoordinator = MenuCoordinator()
     private val playPlaylistMenuHolder = PlayPlaylistSongsMenuHolder {
         viewModel.filterOnPlaylist()
-        val intent = Intent(requireContext(), PlayerActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        requireActivity().startActivity(intent)
+        navigator.navigateToPlayer(requireContext(), true)
     }
     private val removeFromPlaylistMenuHolder = RemoveSongsMenuHolder {
         requireActivity().removeSongsConfirmation(viewModel)
     }
+
+    @Inject
+    lateinit var navigator: Navigator
 
     init {
         arguments?.let { args ->
@@ -72,14 +74,17 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             ViewModelProvider.NewInstanceFactory()
         )[PlaylistSongsViewModel::class.java]
         viewModel.playlist = playlist ?: throw IllegalStateException("Playlist shouldn't be null !")
-        anyFlowApp.serverComponent?.inject(viewModel)
+        (requireActivity() as PlaylistsActivity).component?.apply {
+            inject(this@PlaylistSongsFragment)
+            inject(viewModel)
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_playlist_songs, container, false)
+    ): View = inflater.inflate(ModuleR.layout.fragment_playlist_songs, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view as RecyclerView
@@ -128,16 +133,16 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
         override val isSelected: (Long) -> Boolean,
         override val setSelected: (Long) -> Unit
     ) :
-        PagingDataAdapter<SongDisplay, PlaylistSongViewHolder>(object :
-            DiffUtil.ItemCallback<SongDisplay>() {
+        PagingDataAdapter<PlaylistSong, PlaylistSongViewHolder>(object :
+            DiffUtil.ItemCallback<PlaylistSong>() {
             override fun areItemsTheSame(
-                oldItem: SongDisplay,
-                newItem: SongDisplay
+                oldItem: PlaylistSong,
+                newItem: PlaylistSong
             ) = oldItem.id == newItem.id
 
             override fun areContentsTheSame(
-                oldItem: SongDisplay,
-                newItem: SongDisplay
+                oldItem: PlaylistSong,
+                newItem: PlaylistSong
             ) = areItemsTheSame(oldItem, newItem)
         }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Long> {
 
@@ -156,13 +161,14 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
         container: ViewGroup,
         private val getCoverUrl: (Long) -> String,
         override val onSelectChange: (Long) -> Unit,
-        private val binding: LayoutSongBinding = LayoutSongBinding.inflate(
+        private val binding: ItemPlaylistSongBinding = ItemPlaylistSongBinding.inflate(
+            //todo this is a duplicate of layoutSong from songlist, should do better to avoid this (put songlayout in common ?)
             LayoutInflater.from(container.context),
             container,
             false
         )
     ) : RecyclerView.ViewHolder(binding.root),
-        BaseSelectableAdapter.BaseSelectableViewHolder<Long, SongDisplay> {
+        BaseSelectableAdapter.BaseSelectableViewHolder<Long, PlaylistSong> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -171,7 +177,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
             }
         }
 
-        override fun bind(item: SongDisplay, isSelected: Boolean) {
+        override fun bind(item: PlaylistSong, isSelected: Boolean) {
             binding.song = item
             binding.art = ImageConfig(getCoverUrl(item.albumId), R.drawable.cover_placeholder)
             setSelection(isSelected)

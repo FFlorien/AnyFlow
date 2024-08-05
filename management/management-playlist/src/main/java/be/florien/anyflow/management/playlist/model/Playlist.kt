@@ -1,6 +1,7 @@
 package be.florien.anyflow.management.playlist.model
 
 import android.os.Parcelable
+import be.florien.anyflow.common.ui.data.ImageConfig
 import kotlinx.parcelize.Parcelize
 
 
@@ -8,7 +9,8 @@ import kotlinx.parcelize.Parcelize
 data class Playlist(
     val id: Long,
     val name: String,
-    val count: Int
+    val count: Int,
+    val imageConfig: ImageConfig
 ) : Parcelable
 
 @Parcelize

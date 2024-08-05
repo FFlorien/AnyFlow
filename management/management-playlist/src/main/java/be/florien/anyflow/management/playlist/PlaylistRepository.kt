@@ -10,14 +10,13 @@ import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPlaylist
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs
-import be.florien.anyflow.tags.local.model.DbPlaylistWithCount
-import be.florien.anyflow.tags.local.model.DbSongDisplay
 import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.tags.toQueryFilter
 import be.florien.anyflow.tags.toQueryFilters
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
 import javax.inject.Inject
 
@@ -25,8 +24,7 @@ import javax.inject.Inject
 class PlaylistRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheEditSource: AmpachePlaylistSource,
-    private val urlRepository: UrlRepository,
-//    private val syncRepository: SyncRepository
+    private val urlRepository: UrlRepository
 ) {
 
     private val queryComposer = QueryComposer()
@@ -37,12 +35,14 @@ class PlaylistRepository @Inject constructor(
     ): DataSource.Factory<Int,Playlist> =
         libraryDatabase.getPlaylistDao().rawQueryWithCountPaging(
             queryComposer.getQueryForPlaylistWithCountFiltered(filters?.toQueryFilters(), search)
-        ).map(DbPlaylistWithCount::toViewPlaylist)
+        ).map {
+            it.toViewPlaylist(urlRepository)
+        }
 
     fun getAllPlaylists(): LiveData<PagingData<Playlist>> =
         libraryDatabase.getPlaylistDao().rawQueryWithCountPaging(
             queryComposer.getQueryForPlaylistWithCountFiltered(null, null)
-        ).map { it.toViewPlaylist() }.convertToPagingLiveData()
+        ).map { it.toViewPlaylist(urlRepository) }.convertToPagingLiveData()
 
     fun getPlaylistsWithPresence(
         filter: Filter<*>
@@ -54,11 +54,12 @@ class PlaylistRepository @Inject constructor(
             )
             .map { list -> list.map { it.toViewPlaylist() } }
 
-    fun <T : Any> getPlaylistSongs(
-        playlistId: Long,
-        mapping: (DbSongDisplay) -> T
-    ): LiveData<PagingData<T>> =
-        libraryDatabase.getPlaylistSongsDao().songsFromPlaylistPaging(playlistId).map { mapping(it) }
+    fun getPlaylistSongs(
+        playlistId: Long
+    ): LiveData<PagingData<PlaylistSong>> =
+        libraryDatabase.getPlaylistSongsDao()
+            .songsFromPlaylistPaging(playlistId)
+            .map { it.toViewPlaylistSong() }
             .convertToPagingLiveData()
 
     suspend fun getPlaylistsSearchedList(
@@ -67,7 +68,7 @@ class PlaylistRepository @Inject constructor(
     ): List<Playlist> =
         libraryDatabase.getPlaylistDao().rawQueryWithCountList(
             queryComposer.getQueryForPlaylistFiltered(filters?.toQueryFilters(), search)
-        ).map(DbPlaylistWithCount::toViewPlaylist)
+        ).map { it.toViewPlaylist(urlRepository) }
 
     suspend fun getSongCountForFilter(filter: Filter<*>) = libraryDatabase
         .getSongDao()
@@ -81,7 +82,7 @@ class PlaylistRepository @Inject constructor(
 
     suspend fun createPlaylist(name: String) {
         ampacheEditSource.createPlaylist(name)
-//        syncRepository.playlists()
+//        syncRepository.playlists()todo
     }
 
     suspend fun deletePlaylist(id: Long) {
