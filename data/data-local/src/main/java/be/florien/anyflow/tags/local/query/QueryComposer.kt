@@ -198,19 +198,19 @@ class QueryComposer {
         .toSQLiteQuery()
 
     fun getQueryForDownload(filterList: List<QueryFilter>?) =
-        ("INSERT INTO Download (songId, mediaType) SELECT Song.id, $SONG_MEDIA_TYPE FROM Song"
+        ("INSERT INTO Download (mediaId, mediaType) SELECT Song.id, $SONG_MEDIA_TYPE FROM Song"
                 + constructJoinStatement(filterList)
                 + constructWhereStatement(filterList, "")
                 + " AND Song.local IS NULL "
-                + "AND Song.id NOT IN (SELECT Download.songId FROM Download)")
+                + "AND Song.id NOT IN (SELECT Download.mediaId FROM Download)")
             .toSQLiteQuery()
 
     fun getQueryForDownloadProgress(filterList: List<QueryFilter>?) = ("SELECT " +
             "COUNT(DISTINCT Song.id) as total, " +
-            "COUNT(DISTINCT download.songId) as queued, " +
+            "COUNT(DISTINCT download.mediaId) as queued, " +
             "COUNT(DISTINCT song.local) AS downloaded " +
             "FROM song " +
-            "LEFT JOIN download ON song.id = download.songId"
+            "LEFT JOIN download ON song.id = download.mediaId"
             + constructJoinStatement(filterList)
             + constructWhereStatement(filterList, ""))
         .toSQLiteQuery()

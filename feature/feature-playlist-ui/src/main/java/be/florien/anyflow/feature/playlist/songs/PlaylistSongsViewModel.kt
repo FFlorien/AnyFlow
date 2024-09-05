@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel {
+class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel { //todo maybe have a domain specific repository for this module
     lateinit var playlist: Playlist
 
     @Inject
