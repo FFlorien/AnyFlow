@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.feature.playlist.DeletePlaylistViewModel
-import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
+import be.florien.anyflow.common.ui.component.DeletePlaylistViewModel
+import be.florien.anyflow.common.ui.component.NewPlaylistViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.playlist.model.Playlist
 import kotlinx.coroutines.Dispatchers

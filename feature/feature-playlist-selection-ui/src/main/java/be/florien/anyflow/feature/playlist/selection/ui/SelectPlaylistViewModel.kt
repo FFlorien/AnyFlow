@@ -1,21 +1,23 @@
-package be.florien.anyflow.feature.playlist.selection
+package be.florien.anyflow.feature.playlist.selection.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
-import be.florien.anyflow.feature.playlist.NewPlaylistViewModel
+import be.florien.anyflow.common.ui.component.NewPlaylistViewModel
+import be.florien.anyflow.feature.playlist.selection.domain.TagType
+import be.florien.anyflow.feature.playlist.selection.domain.toViewFilterType
+import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
-import be.florien.anyflow.tags.toViewFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SelectPlaylistViewModel @Inject constructor(
-    private val playlistRepository: be.florien.anyflow.management.playlist.PlaylistRepository
+    private val playlistRepository: PlaylistRepository
 ) : BaseViewModel(), NewPlaylistViewModel {
 
     enum class PlaylistAction {
@@ -33,16 +35,16 @@ class SelectPlaylistViewModel @Inject constructor(
         MutableLiveData(null)
 
     private var id: Long = 0L
-    private var filterType: be.florien.anyflow.management.filters.model.Filter.FilterType = be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS
+    private var filterType: Filter.FilterType = Filter.FilterType.SONG_IS
     private var secondId: Int = -1
     private val filter by lazy {
-        if (filterType == be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS) {
-            be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+        if (filterType == Filter.FilterType.DISK_IS) {
+            Filter(
+                Filter.FilterType.ALBUM_IS,
                 id,
                 "",
                 listOf(
-                    be.florien.anyflow.management.filters.model.Filter(
+                    Filter(
                         filterType,
                         secondId.toLong(),
                         ""
@@ -50,11 +52,11 @@ class SelectPlaylistViewModel @Inject constructor(
                 )
             )
         } else {
-            be.florien.anyflow.management.filters.model.Filter(filterType, id, "")
+            Filter(filterType, id, "")
         }
     }
 
-    suspend fun initViewModel(id: Long, type: SongInfoActions.SongFieldType, secondId: Int) {
+    suspend fun initViewModel(id: Long, type: TagType, secondId: Int) {
         this.id = id
         this.filterType = type.toViewFilterType()
         this.secondId = secondId

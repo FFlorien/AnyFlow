@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.playlist
+package be.florien.anyflow.common.ui.component
 
 import android.content.Context
 import android.content.DialogInterface

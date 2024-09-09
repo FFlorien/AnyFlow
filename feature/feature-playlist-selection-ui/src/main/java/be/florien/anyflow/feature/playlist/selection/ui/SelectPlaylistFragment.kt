@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.playlist.selection
+package be.florien.anyflow.feature.playlist.selection.ui
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
@@ -15,25 +15,26 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
+import be.florien.anyflow.resources.R
 import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.architecture.di.viewModelFactory
-import be.florien.anyflow.databinding.FragmentSelectPlaylistBinding
-import be.florien.anyflow.databinding.ItemSelectPlaylistBinding
-import be.florien.anyflow.feature.info.progress.ProgressDialog
-import be.florien.anyflow.feature.info.progress.ProgressDialog.Progress
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions.SongFieldType
-import be.florien.anyflow.feature.playlist.newPlaylist
+import be.florien.anyflow.common.ui.component.ProgressDialog
+import be.florien.anyflow.common.ui.component.ProgressDialog.Progress
+import be.florien.anyflow.common.ui.component.newPlaylist
+import be.florien.anyflow.feature.playlist.selection.domain.TagType
+import be.florien.anyflow.feature.playlist.selection.ui.databinding.FragmentSelectPlaylistBinding
+import be.florien.anyflow.feature.playlist.selection.ui.databinding.ItemSelectPlaylistBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @ActivityScope
-@be.florien.anyflow.architecture.di.ServerScope
+@ServerScope
 class SelectPlaylistFragment(
     private var id: Long = 0L,
-    private var type: SongFieldType = SongFieldType.Title,
+    private var type: TagType = TagType.Title,
     private var secondId: Int = -1
 ) : BottomSheetDialogFragment() {
     lateinit var viewModel: SelectPlaylistViewModel
@@ -43,7 +44,7 @@ class SelectPlaylistFragment(
     init {
         arguments?.let {
             id = it.getLong("id")
-            type = SongFieldType.valueOf(it.getString("type") ?: SongFieldType.Title.name)
+            type = TagType.valueOf(it.getString("type") ?: TagType.Title.name)
             secondId = it.getInt("secondId")
         }
         if (arguments == null) {

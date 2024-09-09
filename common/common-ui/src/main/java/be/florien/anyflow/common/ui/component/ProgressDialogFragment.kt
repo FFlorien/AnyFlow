@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.info.progress
+package be.florien.anyflow.common.ui.component
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
-import be.florien.anyflow.R
-import be.florien.anyflow.databinding.FragmentProgressBinding
+import be.florien.anyflow.resources.R
+import be.florien.anyflow.common.ui.databinding.FragmentProgressBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -73,7 +73,6 @@ class ProgressDialog(
             return
         }
         nullSafeBinding.progress = progress
-
     }
 
     fun finish(onFinishEnd: (() -> Unit)) {

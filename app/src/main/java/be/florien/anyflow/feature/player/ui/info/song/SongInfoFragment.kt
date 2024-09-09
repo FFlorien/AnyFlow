@@ -22,9 +22,10 @@ import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoViewHolder
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
-import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
+import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import be.florien.anyflow.tags.model.SongInfo
+import be.florien.anyflow.tags.toTagType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
@@ -159,7 +160,7 @@ class SongInfoFragment(
             }
             isPlaylistListDisplayed.observe(viewLifecycleOwner) {
                 if (it != null) {
-                    SelectPlaylistFragment(it.id, it.type, it.secondId ?: -1).show(childFragmentManager, null)
+                    SelectPlaylistFragment(it.id, it.type.toTagType(), it.secondId ?: -1).show(childFragmentManager, null)
                 }
             }
         }

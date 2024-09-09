@@ -33,8 +33,9 @@ import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
-import be.florien.anyflow.feature.playlist.selection.SelectPlaylistFragment
 import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
+import be.florien.anyflow.tags.toTagType
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -245,7 +246,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         }
         viewModel.playlistListDisplayedFor.observe(viewLifecycleOwner) {
             if (it != null && childFragmentManager.findFragmentByTag("playlist") == null) {
-                SelectPlaylistFragment(it.first, it.second, it.third).show(childFragmentManager, "playlist")
+                SelectPlaylistFragment(it.first, it.second.toTagType(), it.third).show(childFragmentManager, "playlist")
             }
         }
         viewModel.shortcuts.observe(viewLifecycleOwner) {

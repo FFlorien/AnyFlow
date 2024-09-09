@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel" />
+            type="be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -47,6 +47,7 @@ import be.florien.anyflow.tags.view.Ordering.Companion.SUBJECT_YEAR
 import be.florien.anyflow.tags.view.QueueItemDisplay
 import be.florien.anyflow.tags.view.SongDisplay
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
+import be.florien.anyflow.feature.playlist.selection.domain.TagType
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterGroup
 import be.florien.anyflow.tags.view.PodcastEpisodeDisplay
@@ -353,17 +354,17 @@ fun SongInfo.toViewDisplay() = SongDisplay(
     time = time
 )
 
-fun SongInfoActions.SongFieldType.toViewFilterType(): Filter.FilterType = when (this) {
-    SongInfoActions.SongFieldType.Genre -> Filter.FilterType.GENRE_IS
-    SongInfoActions.SongFieldType.Title -> Filter.FilterType.SONG_IS
-    SongInfoActions.SongFieldType.Artist -> Filter.FilterType.ARTIST_IS
-    SongInfoActions.SongFieldType.AlbumArtist -> Filter.FilterType.ALBUM_ARTIST_IS
-    SongInfoActions.SongFieldType.Album -> Filter.FilterType.ALBUM_IS
-    SongInfoActions.SongFieldType.Disk -> Filter.FilterType.DISK_IS
-    SongInfoActions.SongFieldType.Playlist -> Filter.FilterType.PLAYLIST_IS
-    SongInfoActions.SongFieldType.PodcastEpisode -> Filter.FilterType.PODCAST_EPISODE_IS
+fun SongInfoActions.SongFieldType.toTagType() = when (this) {
+    SongInfoActions.SongFieldType.Title -> TagType.Title
+    SongInfoActions.SongFieldType.Artist -> TagType.Artist
+    SongInfoActions.SongFieldType.Album -> TagType.Album
+    SongInfoActions.SongFieldType.Disk -> TagType.Disk
+    SongInfoActions.SongFieldType.AlbumArtist -> TagType.AlbumArtist
+    SongInfoActions.SongFieldType.Genre -> TagType.Genre
+    SongInfoActions.SongFieldType.Playlist -> TagType.Playlist
     SongInfoActions.SongFieldType.Year,
     SongInfoActions.SongFieldType.Duration,
+    SongInfoActions.SongFieldType.PodcastEpisode,
     SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
 }
 

@@ -52,7 +52,7 @@ class PlaylistRepository @Inject constructor(
             .rawQueryPlaylistsWithPresenceUpdatable(
                 queryComposer.getQueryForPlaylistWithPresence(filter.toQueryFilter())
             )
-            .map { list -> list.map { it.toViewPlaylist() } }
+            .map { list -> list.map { it.toViewPlaylist(urlRepository) } }
 
     fun getPlaylistSongs(
         playlistId: Long

@@ -19,12 +19,12 @@ import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
 import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
-import be.florien.anyflow.feature.playlist.deletePlaylistConfirmation
+import be.florien.anyflow.common.ui.component.deletePlaylistConfirmation
 import be.florien.anyflow.feature.playlist.menu.DeletePlaylistMenuHolder
 import be.florien.anyflow.feature.playlist.menu.NewPlaylistMenuHolder
 import be.florien.anyflow.feature.playlist.menu.PlayPlaylistMenuHolder
 import be.florien.anyflow.feature.playlist.menu.SelectionModeMenuHolder
-import be.florien.anyflow.feature.playlist.newPlaylist
+import be.florien.anyflow.common.ui.component.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
 import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistBinding
 import be.florien.anyflow.management.playlist.model.Playlist

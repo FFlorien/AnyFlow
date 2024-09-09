@@ -11,11 +11,13 @@ import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.tags.UrlRepository
 
 class SongInfoActions(
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
-    private val urlRepository: be.florien.anyflow.tags.UrlRepository,
+    private val urlRepository: UrlRepository,
     private val sharedPreferences: SharedPreferences,
     private val downloadManager: DownloadManager
 ) : InfoActions<SongInfo>() {
@@ -151,47 +153,47 @@ class SongInfoActions(
 
     suspend fun filterOn(songInfo: SongInfo, row: InfoRow) {
         val filter = when (row.fieldType) {
-            SongFieldType.Title -> be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS,
+            SongFieldType.Title -> Filter(
+                Filter.FilterType.SONG_IS,
                 songInfo.id,
                 songInfo.title
             )
 
-            SongFieldType.Artist -> be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ARTIST_IS,
+            SongFieldType.Artist -> Filter(
+                Filter.FilterType.ARTIST_IS,
                 songInfo.artistId,
                 songInfo.artistName
             )
 
-            SongFieldType.Album -> be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+            SongFieldType.Album -> Filter(
+                Filter.FilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName
             )
 
-            SongFieldType.Disk -> be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+            SongFieldType.Disk -> Filter(
+                Filter.FilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName,
                 listOf(
-                    be.florien.anyflow.management.filters.model.Filter(
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS,
+                    Filter(
+                        Filter.FilterType.DISK_IS,
                         songInfo.disk,
                         songInfo.disk.toString()
                     )
                 )
             )
 
-            SongFieldType.AlbumArtist -> be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_ARTIST_IS,
+            SongFieldType.AlbumArtist -> Filter(
+                Filter.FilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
             )
 
             SongFieldType.Genre -> {
                 val index = (row as SongMultipleInfoRow).index
-                be.florien.anyflow.management.filters.model.Filter(
-                    be.florien.anyflow.management.filters.model.Filter.FilterType.GENRE_IS,
+                Filter(
+                    Filter.FilterType.GENRE_IS,
                     songInfo.genreIds[index],
                     songInfo.genreNames[index]
                 )
@@ -199,8 +201,8 @@ class SongInfoActions(
 
             SongFieldType.Playlist -> {
                 val index = (row as SongMultipleInfoRow).index
-                be.florien.anyflow.management.filters.model.Filter(
-                    be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS,
+                Filter(
+                    Filter.FilterType.PLAYLIST_IS,
                     songInfo.playlistIds[index],
                     songInfo.playlistNames[index]
                 )
@@ -228,31 +230,31 @@ class SongInfoActions(
         val data = when (fieldType) {
             SongFieldType.Title -> Triple(
                 songInfo.id,
-                be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS,
+                Filter.FilterType.SONG_IS,
                 -1
             )
 
             SongFieldType.Artist -> Triple(
                 songInfo.artistId,
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ARTIST_IS,
+                Filter.FilterType.ARTIST_IS,
                 -1
             )
 
             SongFieldType.Album -> Triple(
                 songInfo.albumId,
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS,
+                Filter.FilterType.ALBUM_IS,
                 -1
             )
 
             SongFieldType.Disk -> Triple(
                 songInfo.albumId,
-                be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS,
+                Filter.FilterType.DISK_IS,
                 songInfo.disk
             )
 
             SongFieldType.AlbumArtist -> Triple(
                 songInfo.albumArtistId,
-                be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_ARTIST_IS,
+                Filter.FilterType.ALBUM_ARTIST_IS,
                 -1
             )
 
@@ -260,7 +262,7 @@ class SongInfoActions(
                 val trueIndex = index ?: return
                 Triple(
                     songInfo.genreIds[trueIndex],
-                    be.florien.anyflow.management.filters.model.Filter.FilterType.GENRE_IS,
+                    Filter.FilterType.GENRE_IS,
                     -1
                 )
             }
@@ -269,7 +271,7 @@ class SongInfoActions(
                 val trueIndex = index ?: return
                 Triple(
                     songInfo.playlistIds[trueIndex],
-                    be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS,
+                    Filter.FilterType.PLAYLIST_IS,
                     -1
                 )
             }
@@ -650,7 +652,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.id,
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.SONG_IS
+                        Filter.FilterType.SONG_IS
                     )
                 )
 
@@ -663,7 +665,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.albumId,
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_IS
+                        Filter.FilterType.ALBUM_IS
                     )
                 )
 
@@ -676,7 +678,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.albumId,
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.DISK_IS,
+                        Filter.FilterType.DISK_IS,
                         songInfo.disk
                     )
                 )
@@ -690,7 +692,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.albumArtistId,
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.ALBUM_ARTIST_IS
+                        Filter.FilterType.ALBUM_ARTIST_IS
                     )
                 )
 
@@ -703,7 +705,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.artistId,
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.ARTIST_IS
+                        Filter.FilterType.ARTIST_IS
                     )
                 )
 
@@ -716,7 +718,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.genreIds[index],
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.GENRE_IS
+                        Filter.FilterType.GENRE_IS
                     ),
                     index = index
                 )
@@ -730,7 +732,7 @@ class SongInfoActions(
                     order = order,
                     progress = downloadManager.getDownloadState(
                         songInfo.playlistIds[index],
-                        be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS
+                        Filter.FilterType.PLAYLIST_IS
                     ),
                     index = index
                 )

@@ -19,12 +19,13 @@ fun DbPlaylistWithCount.toViewPlaylist(urlRepository: UrlRepository) =
         ImageConfig(urlRepository.getPlaylistArtUrl(id), R.drawable.ic_playlist)
     )
 
-fun DbPlaylistWithCountAndPresence.toViewPlaylist() =
+fun DbPlaylistWithCountAndPresence.toViewPlaylist(urlRepository: UrlRepository) =
     PlaylistWithPresence(
         id,
         name,
         songCount,
-        presence
+        presence,
+        ImageConfig(urlRepository.getPlaylistArtUrl(id), R.drawable.ic_playlist)
     )
 
 fun DbSongDisplay.toViewPlaylistSong() = PlaylistSong(

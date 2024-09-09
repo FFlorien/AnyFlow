@@ -10,7 +10,6 @@ import be.florien.anyflow.feature.player.ui.filters.saved.SavedFilterGroupViewMo
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
-import be.florien.anyflow.feature.playlist.selection.SelectPlaylistViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -47,11 +46,6 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ShortcutsViewModel::class)
     abstract fun bindsInfoActionsSelectionViewModel(viewModel: ShortcutsViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(SelectPlaylistViewModel::class)
-    abstract fun bindsSelectPlaylistFragmentVM(viewModel: SelectPlaylistViewModel): ViewModel
 
     @Binds
     abstract fun bindsViewModelFactory(factory: AnyFlowViewModelFactory): ViewModelProvider.Factory
