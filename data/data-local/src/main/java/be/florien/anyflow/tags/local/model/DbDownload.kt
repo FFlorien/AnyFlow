@@ -10,4 +10,9 @@ data class DbDownload(
     val mediaType: Int
 )
 
+data class DbDownloadedCount(
+    val downloaded: Int,
+    val count: Int
+)
+
 class DownloadProgressState(val total: Int, val downloaded: Int, val queued: Int)

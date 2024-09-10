@@ -80,7 +80,8 @@ data class FilterTagsCount( //todo move ?
     val albums: Int,
     val artists: Int,
     val songs: Int,
-    val playlists: Int
+    val playlists: Int,
+    val downloaded: Int
 )
 
 

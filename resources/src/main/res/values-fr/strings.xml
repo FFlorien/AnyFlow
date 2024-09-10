@@ -110,8 +110,8 @@
     <string name="alarm_permission_explanation">Avant de pouvoir définir une alarme, vous devez accorder la permission à AnyFlow auparavant</string>
     <string name="alarm_give_permission">Accorder la permission</string>
     <string name="alarm_active">Actif</string>
-    <string name="filter_is_downloaded">Téléchargé</string>
-    <string name="filter_is_not_downloaded">Non téléchargé</string>
+    <string name="filter_is_downloaded">Téléchargées:\n\t</string>
+    <string name="filter_is_not_downloaded">Non téléchargées:\n\t</string>
     <string name="shortcuts_description">Sélectionnez les actions que vous voulez retrouver en un clin d\'oeil. Il vous suffira de faire glisser une chanson vers la gauche pour retrouver vos actions préférées.</string>
     <string name="shortcut_count_title">Actions selectionnées:</string>
     <string name="filter_info_duration">Durée totale</string>
@@ -121,7 +121,7 @@
     <string name="filter_info_artist">Artistes</string>
     <string name="filter_info_song">Chansons</string>
     <string name="filter_info_playlist">Listes de lecture</string>
-    <string name="filter_info_downloaded">Téléchargée</string>
+    <string name="filter_info_downloaded">Téléchargées</string>
     <string name="filter_info_podcast_episodes">Épisodes de podcast</string>
     <string name="no_internet">Pas d\'internet</string>
     <string name="playlist_progress_title">Modification des playlists</string>

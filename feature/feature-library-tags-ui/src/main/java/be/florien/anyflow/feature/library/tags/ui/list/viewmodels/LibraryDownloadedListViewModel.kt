@@ -2,11 +2,10 @@ package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
@@ -20,23 +19,16 @@ class LibraryDownloadedListViewModel @Inject constructor(
     context: Context
 ) : LibraryListViewModel(filtersManager) {
 
+    private val downloadedName = context.getString(R.string.filter_is_downloaded)
+    private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
     override val hasSearch = false
+
     override fun getPagingList(
         filter: Filter<*>?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> = liveData
-
-    private val downloadedName = context.getString(R.string.filter_is_downloaded)
-    private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
-    private var currentDownloadFilters: List<Filter<Boolean>> = listOf()
-    private val liveData = MutableLiveData(PagingData.from(getFilterList()))
-
-    init {
-        filtersManager.filtersInEdition.observeForever {
-            currentDownloadFilters = it.filterIsInstance<Filter<Boolean>>()
-            liveData.value = PagingData.from(getFilterList())
-        }
-    }
+    ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getDownloadedFiltersPaging(
+        filter, downloadedName, notDownloadedName
+    )
 
     override fun isThisTypeOfFilter(filter: Filter<*>) =
         filter.type == Filter.FilterType.DOWNLOADED_STATUS_IS
@@ -44,14 +36,10 @@ class LibraryDownloadedListViewModel @Inject constructor(
     override suspend fun getFoundFilters(
         filter: Filter<*>?,
         search: String
-    ): List<FilterItem> = getFilterList()
+    ): List<FilterItem> =
+        libraryTagsRepository.getDownloadedFiltersList(filter, downloadedName, notDownloadedName)
 
     override fun getFilter(filterValue: FilterItem) =
-        getFilterInParent(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 0L, ""))
-
-    private fun getFilterList() = listOf(
-        FilterItem(0, downloadedName, currentDownloadFilters.any { it.argument }),
-        FilterItem(1, notDownloadedName, currentDownloadFilters.any { !it.argument })
-    )
+        getFilterInParent(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 1L, ""))
 
 }

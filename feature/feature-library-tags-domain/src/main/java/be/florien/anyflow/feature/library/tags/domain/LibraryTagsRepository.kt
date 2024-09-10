@@ -8,7 +8,7 @@ import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.playlist.PlaylistRepository
-import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.tags.DataRepository
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.Album
@@ -78,6 +78,16 @@ class LibraryTagsRepository @Inject constructor(
             .getPlaylists(filter?.let { listOf(it) }, search)
             .map { it.toFilterItem(filter, urlRepository, filtersManager) }
             .convertToPagingLiveData()
+
+    fun getDownloadedFiltersPaging(
+        filter: Filter<*>?,
+        isDownloadedName: String,
+        isNotDownloadedName: String
+    ): LiveData<PagingData<FilterItem>> =
+        dataRepository
+            .getDownloadedInfo(filter?.let { listOf(it) })
+            .map { it.toFilterItem(filter, filtersManager, isDownloadedName, isNotDownloadedName)}
+            .convertToPagingLiveData()
     //endregion
 
     //region Filter list
@@ -85,75 +95,84 @@ class LibraryTagsRepository @Inject constructor(
         filter: Filter<*>?,
         search: String
     ) = dataRepository
-        .getSongsSearchedList(filter?.let { listOf(it) }, search)
+        .getSongFiltered(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
 
     suspend fun getArtistFilterList(
         filter: Filter<*>?,
         search: String
     ) = dataRepository
-        .getArtistsSearchedList(filter?.let { listOf(it) }, search)
+        .getArtistFiltered(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
 
     suspend fun getAlbumFilterList(
         filter: Filter<*>?,
         search: String
     ) = dataRepository
-        .getAlbumsSearchedList(filter?.let { listOf(it) }, search)
+        .getAlbumFiltered(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
 
     suspend fun getAlbumArtistFilterList(
         filter: Filter<*>?,
         search: String
     ) = dataRepository
-        .getAlbumArtistsSearchedList(filter?.let { listOf(it) }, search)
+        .getAlbumArtistFiltered(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
 
     suspend fun getGenreFilterList(
         filter: Filter<*>?,
         search: String
     ) = dataRepository
-        .getGenresSearchedList(filter?.let { listOf(it) }, search)
+        .getGenreFiltered(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, filtersManager) }
 
     suspend fun getPlaylistFilterList(
         filter: Filter<*>?,
         search: String
     ) = playlistRepository
-        .getPlaylistsSearchedList(filter?.let { listOf(it) }, search)
+        .getPlaylistFiltered(filter?.let { listOf(it) }, search)
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
+
+    suspend fun getDownloadedFiltersList(
+        filter: Filter<*>?,
+        isDownloadedName: String,
+        isNotDownloadedName: String
+    ): List<FilterItem> =
+        dataRepository
+            .getDownloadedSearchedList(filter?.let { listOf(it) })
+            .map { it.toFilterItem(filter, filtersManager, isDownloadedName, isNotDownloadedName)}
     //endregion
 
     //region Display list
-    suspend fun getSongList(filter: Filter<*>?) =
+    suspend fun getSongFiltered(filter: Filter<*>?) =
         dataRepository
-            .getSongsSearchedList(filter?.let { listOf(it) }, "")
-            .map(SongDisplayDomain::toDisplayData)
+            .getSongFiltered(filter?.let { listOf(it) }, "")
+            .map(SongDisplayDomain::toText)
 
-    suspend fun getArtistList(filter: Filter<*>?) =
+    suspend fun getArtistFiltered(filter: Filter<*>?) =
         dataRepository
-            .getArtistsSearchedList(filter?.let { listOf(it) }, "")
-            .map(Artist::toDisplayData)
+            .getArtistFiltered(filter?.let { listOf(it) }, "")
+            .map(Artist::toText)
 
-    suspend fun getAlbumList(filter: Filter<*>?) =
+    suspend fun getAlbumFiltered(filter: Filter<*>?) =
         dataRepository
-            .getAlbumsSearchedList(filter?.let { listOf(it) }, "")
-            .map(Album::toDisplayData)
+            .getAlbumFiltered(filter?.let { listOf(it) }, "")
+            .map(Album::toText)
 
-    suspend fun getAlbumArtistList(filter: Filter<*>?) =
+    suspend fun getAlbumArtistFiltered(filter: Filter<*>?) =
         dataRepository
-            .getAlbumArtistsSearchedList(filter?.let { listOf(it) }, "")
-            .map(Artist::toDisplayData)
+            .getAlbumArtistFiltered(filter?.let { listOf(it) }, "")
+            .map(Artist::toText)
 
-    suspend fun getGenreList(filter: Filter<*>?) =
+    suspend fun getGenreFiltered(filter: Filter<*>?) =
         dataRepository
-            .getGenresSearchedList(filter?.let { listOf(it) }, "")
-            .map(Genre::toDisplayData)
+            .getGenreFiltered(filter?.let { listOf(it) }, "")
+            .map(Genre::toText)
 
-    suspend fun getPlaylistList(filter: Filter<*>?) =
+    suspend fun getPlaylistFiltered(filter: Filter<*>?) =
         playlistRepository
-            .getPlaylistsSearchedList(filter?.let { listOf(it) }, "")
-            .map(Playlist::toDisplayData)
+            .getPlaylistFiltered(filter?.let { listOf(it) }, "")
+            .map(PlaylistWithCount::toText)
     //endregion
 
     suspend fun getFilteredInfo(infoSource: Filter<*>?) = dataRepository.getFilteredInfo(infoSource)

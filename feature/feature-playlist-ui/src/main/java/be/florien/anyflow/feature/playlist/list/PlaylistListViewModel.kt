@@ -12,7 +12,7 @@ import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.component.DeletePlaylistViewModel
 import be.florien.anyflow.common.ui.component.NewPlaylistViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,10 +25,10 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
     @Inject
     lateinit var filtersManager: FiltersManager
 
-    val playlistList: LiveData<PagingData<Playlist>> by lazy {
-        playlistRepository.getAllPlaylists().cachedIn(this)
+    val playlistList: LiveData<PagingData<PlaylistWithCount>> by lazy {
+        playlistRepository.getAllPlaylistsWithCount().cachedIn(this)
     }
-    val selection: LiveData<List<Playlist>> = MutableLiveData(mutableListOf())
+    val selection: LiveData<List<PlaylistWithCount>> = MutableLiveData(mutableListOf())
     private var isForcingSelectMode = false
     val isInSelectionMode: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(selection) {
@@ -39,9 +39,9 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
         it.isNotEmpty()
     }
 
-    fun isSelected(playlist: Playlist) = selection.value?.contains(playlist) ?: false
+    fun isSelected(playlist: PlaylistWithCount) = selection.value?.contains(playlist) ?: false
 
-    fun toggleSelection(playlist: Playlist) {
+    fun toggleSelection(playlist: PlaylistWithCount) {
         val newList = selection.value?.toMutableList() ?: mutableListOf()
         if (!newList.remove(playlist)) {
             newList.add(playlist)

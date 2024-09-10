@@ -84,7 +84,8 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
                 R.string.filter_info_downloaded,
                 infoSource,
                 Filter.FilterType.DOWNLOADED_STATUS_IS,
-                2 //todo number of downloaded/not downloaded
+                filteredInfo.downloaded,
+                "${filteredInfo.downloaded}/${filteredInfo.songs}"
             ),
             getInfoRow(
                 R.string.filter_info_playlist,
@@ -113,18 +114,32 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         filter: Filter<*>?,
         filterType: Filter.FilterType,
         count: Int
+    ): InfoRow =
+        getInfoRow(
+            title,
+            filter,
+            filterType,
+            count,
+            count.toString()
+        )
+
+    private suspend fun getInfoRow(
+        @StringRes title: Int,
+        filter: Filter<*>?,
+        filterType: Filter.FilterType,
+        count: Int,
+        subTitle: String
     ): InfoRow {
-        val displayData: DisplayData? = if (count <= 1) {
+        val displayData: String? = if (count <= 1) {
             val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
-            val filterData: DisplayData? =
-                filterIfTypePresent?.let { DisplayData(it.displayText, it.argument as Long) }
+            val filterData: String? = filterIfTypePresent?.displayText
             filterData ?: when (filterType) { //todo separate podcast & tags
-                Filter.FilterType.SONG_IS -> libraryTagsRepository.getSongList(filter)
-                Filter.FilterType.ARTIST_IS -> libraryTagsRepository.getArtistList(filter)
-                Filter.FilterType.ALBUM_ARTIST_IS -> libraryTagsRepository.getAlbumArtistList(filter)
-                Filter.FilterType.ALBUM_IS -> libraryTagsRepository.getAlbumList(filter)
-                Filter.FilterType.GENRE_IS -> libraryTagsRepository.getGenreList(filter)
-                Filter.FilterType.PLAYLIST_IS -> libraryTagsRepository.getPlaylistList(filter)
+                Filter.FilterType.SONG_IS -> libraryTagsRepository.getSongFiltered(filter)
+                Filter.FilterType.ARTIST_IS -> libraryTagsRepository.getArtistFiltered(filter)
+                Filter.FilterType.ALBUM_ARTIST_IS -> libraryTagsRepository.getAlbumArtistFiltered(filter)
+                Filter.FilterType.ALBUM_IS -> libraryTagsRepository.getAlbumFiltered(filter)
+                Filter.FilterType.GENRE_IS -> libraryTagsRepository.getGenreFiltered(filter)
+                Filter.FilterType.PLAYLIST_IS -> libraryTagsRepository.getPlaylistFiltered(filter)
                 Filter.FilterType.DOWNLOADED_STATUS_IS,
                 Filter.FilterType.DISK_IS -> listOf(null)
 
@@ -133,15 +148,15 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         } else null
 
         val url =
-            if (count <= 1 && displayData != null) {
-                libraryTagsRepository.getArtUrl(filter?.type?.artType, displayData.argument)
+            if (count <= 1 && filter != null && filter.argument is Long) {
+                libraryTagsRepository.getArtUrl(filter.type.artType, filter.argument as Long)
             } else {
                 null
             }
 
         return LibraryInfoRow(
             title,
-            getDisplayText(displayData, count),
+            getDisplayText(displayData, count, subTitle),
             null,
             getField(filterType),
             getAction(count),
@@ -150,13 +165,14 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
     }
 
     private fun getDisplayText(
-        filter: DisplayData?,
-        count: Int
+        text: String?,
+        count: Int,
+        subTitle: String
     ): String {
-        return if (count <= 1 && filter != null) {
-            filter.text
+        return if (count <= 1 && text != null) {
+            text
         } else {
-            count.toString()
+            subTitle
         }
     }
 
@@ -177,8 +193,6 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
     private fun getAction(count: Int): ActionType {
         return if (count > 1) LibraryPodcastActionType.SubFilter else LibraryPodcastActionType.InfoTitle
     }
-
-    class DisplayData(val text: String, val argument: Long)
 
     enum class LibraryTagsFieldType(
         @DrawableRes override val iconRes: Int

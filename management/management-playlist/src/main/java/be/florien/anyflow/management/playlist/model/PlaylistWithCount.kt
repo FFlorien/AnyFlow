@@ -9,6 +9,13 @@ import kotlinx.parcelize.Parcelize
 data class Playlist(
     val id: Long,
     val name: String,
+    val coverConfig: ImageConfig
+) : Parcelable
+
+@Parcelize
+data class PlaylistWithCount(
+    val id: Long,
+    val name: String,
     val count: Int,
     val coverConfig: ImageConfig
 ) : Parcelable

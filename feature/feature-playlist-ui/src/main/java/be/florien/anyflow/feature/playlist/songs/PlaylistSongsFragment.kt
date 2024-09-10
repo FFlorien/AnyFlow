@@ -24,14 +24,14 @@ import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.playlist.menu.PlayPlaylistSongsMenuHolder
 import be.florien.anyflow.feature.playlist.menu.RemoveSongsMenuHolder
 import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistSongBinding
-import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.resources.R
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import javax.inject.Inject
 
-class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragment() {
+class PlaylistSongsFragment(private var playlist: PlaylistWithCount? = null) : BaseFragment() {
     lateinit var recyclerView: RecyclerView
     lateinit var viewModel: PlaylistSongsViewModel
     private val menuCoordinator = MenuCoordinator()
@@ -48,7 +48,7 @@ class PlaylistSongsFragment(private var playlist: Playlist? = null) : BaseFragme
 
     init {
         arguments?.let { args ->
-            (args.getParcelable(PLAYLIST_SONGS_PLAYLIST) as Playlist?)?.let { playlist = it }
+            (args.getParcelable(PLAYLIST_SONGS_PLAYLIST) as PlaylistWithCount?)?.let { playlist = it }
         }
         if (arguments == null) {
             arguments = Bundle().apply {

@@ -9,7 +9,7 @@ import androidx.paging.PagingData
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.playlist.PlaylistRepository
-import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.tags.UrlRepository
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel { //todo maybe have a domain specific repository for this module
-    lateinit var playlist: Playlist
+    lateinit var playlist: PlaylistWithCount
 
     @Inject
     lateinit var urlRepository: UrlRepository

@@ -27,7 +27,7 @@ import be.florien.anyflow.feature.playlist.menu.SelectionModeMenuHolder
 import be.florien.anyflow.common.ui.component.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
 import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistBinding
-import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.resources.R
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
@@ -124,7 +124,7 @@ class PlaylistListFragment : BaseFragment() {
         menuCoordinator.removeMenuHolder(selectPlaylistMenuHolder)
     }
 
-    private fun onItemClicked(item: Playlist?) {
+    private fun onItemClicked(item: PlaylistWithCount?) {
         if (viewModel.isInSelectionMode.value == true) {
             item?.let { viewModel.toggleSelection(it) }
         } else {
@@ -136,21 +136,21 @@ class PlaylistListFragment : BaseFragment() {
     }
 
     class PlaylistAdapter(
-        private val onItemClickListener: (Playlist?) -> Unit,
-        override val isSelected: (Playlist) -> Boolean,
-        override val setSelected: (Playlist) -> Unit
+        private val onItemClickListener: (PlaylistWithCount?) -> Unit,
+        override val isSelected: (PlaylistWithCount) -> Boolean,
+        override val setSelected: (PlaylistWithCount) -> Unit
     ) :
-        PagingDataAdapter<Playlist, PlaylistViewHolder>(object : DiffUtil.ItemCallback<Playlist>() {
+        PagingDataAdapter<PlaylistWithCount, PlaylistViewHolder>(object : DiffUtil.ItemCallback<PlaylistWithCount>() {
             override fun areItemsTheSame(
-                oldItem: Playlist,
-                newItem: Playlist
+                oldItem: PlaylistWithCount,
+                newItem: PlaylistWithCount
             ) = oldItem.id == newItem.id
 
             override fun areContentsTheSame(
-                oldItem: Playlist,
-                newItem: Playlist
+                oldItem: PlaylistWithCount,
+                newItem: PlaylistWithCount
             ) = areItemsTheSame(oldItem, newItem) && oldItem.name == newItem.name
-        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<Playlist> {
+        }), FastScrollRecyclerView.SectionedAdapter, BaseSelectableAdapter<PlaylistWithCount> {
         override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
             val item = getItem(position) ?: return
             holder.bind(item, isSelected(item))
@@ -166,15 +166,15 @@ class PlaylistListFragment : BaseFragment() {
 
     class PlaylistViewHolder(
         container: ViewGroup,
-        val onItemClickListener: (Playlist?) -> Unit,
-        override val onSelectChange: (Playlist) -> Unit,
+        val onItemClickListener: (PlaylistWithCount?) -> Unit,
+        override val onSelectChange: (PlaylistWithCount) -> Unit,
         private val binding: ItemPlaylistBinding = ItemPlaylistBinding.inflate(
             LayoutInflater.from(container.context),
             container,
             false
         )
     ) : RecyclerView.ViewHolder(binding.root),
-        BaseSelectableAdapter.BaseSelectableViewHolder<Playlist, Playlist> {
+        BaseSelectableAdapter.BaseSelectableViewHolder<PlaylistWithCount, PlaylistWithCount> {
 
         init {
             binding.lifecycleOwner = container.findViewTreeLifecycleOwner()
@@ -188,7 +188,7 @@ class PlaylistListFragment : BaseFragment() {
             }
         }
 
-        override fun bind(item: Playlist, isSelected: Boolean) {
+        override fun bind(item: PlaylistWithCount, isSelected: Boolean) {
             binding.item = item
         }
 
@@ -196,6 +196,6 @@ class PlaylistListFragment : BaseFragment() {
             binding.selected = isSelected
         }
 
-        override fun getCurrentId(): Playlist? = binding.item
+        override fun getCurrentId(): PlaylistWithCount? = binding.item
     }
 }

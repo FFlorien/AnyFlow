@@ -180,7 +180,8 @@ class QueryComposer {
             "COUNT(DISTINCT Song.albumId) AS albums, " +
             "COUNT(DISTINCT Song.artistId) AS artists, " +
             "COUNT(DISTINCT Song.id) AS songs, " +
-            "COUNT(DISTINCT PlaylistSongs.playlistId) AS playlists " +
+            "COUNT(DISTINCT PlaylistSongs.playlistId) AS playlists, " +
+            "COUNT(DISTINCT Song.local) AS downloaded " +
             "FROM Song " +
             "LEFT JOIN SongGenre ON Song.id = SongGenre.songId " +
             "JOIN Album ON Song.albumId = Album.id " +
@@ -203,6 +204,13 @@ class QueryComposer {
                 + constructWhereStatement(filterList, "")
                 + " AND Song.local IS NULL "
                 + "AND Song.id NOT IN (SELECT Download.mediaId FROM Download)")
+            .toSQLiteQuery()
+
+    fun getQueryForDownloadCount(filterList: List<QueryFilter>?) =
+        ("SELECT Song.local IS NOT NULL AS downloaded, COUNT(Song.id) AS count FROM Song"
+                + constructJoinStatement(filterList)
+                + constructWhereStatement(filterList, "")
+                + " GROUP BY song.local IS NOT NULL")
             .toSQLiteQuery()
 
     fun getQueryForDownloadProgress(filterList: List<QueryFilter>?) = ("SELECT " +
