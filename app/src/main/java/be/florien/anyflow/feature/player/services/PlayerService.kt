@@ -15,6 +15,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -29,15 +30,15 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.tags.local.PodcastPersistence
-import be.florien.anyflow.tags.local.model.DbMediaToPlay
-import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
-import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
 import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.tags.local.PodcastPersistence
+import be.florien.anyflow.tags.local.model.DbMediaToPlay
+import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -193,7 +194,7 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
                 AudioAttributes
                     .Builder()
                     .setUsage(C.USAGE_MEDIA)
-                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
                     .build(),
                 true
             )
@@ -201,13 +202,30 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
             .apply {
                 addListener(this@PlayerService)
             }
+        val forwardPlayer = object : ForwardingPlayer(exoPlayer) {
+            override fun seekToNext() {
+                if (player?.currentMediaItem?.mediaMetadata?.mediaType == MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE) {
+                    super.seekForward()
+                } else {
+                    super.seekToNext()
+                }
+            }
+
+            override fun seekToPrevious() {
+                if (player?.currentMediaItem?.mediaMetadata?.mediaType == MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE) {
+                    super.seekBack()
+                } else {
+                    super.seekToPrevious()
+                }
+            }
+        }
 
         val intent = Intent(this, PlayerActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         mediaSession =
             MediaSession
-                .Builder(this, exoPlayer)
+                .Builder(this, forwardPlayer)
                 .setSessionActivity(pendingIntent)
                 .build()
 
