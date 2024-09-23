@@ -161,7 +161,7 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         fun MediaItem.checkWaveForm() {
             mediaId
                 .toLongOrNull()
-                ?.let { waveFormRepository.checkWaveForm(it) }
+                ?.let { waveFormRepository.checkWaveForm(it, mediaItem?.mediaMetadata?.mediaType ?: MediaMetadata.MEDIA_TYPE_MUSIC) }
         }
 
         MainScope().launch {

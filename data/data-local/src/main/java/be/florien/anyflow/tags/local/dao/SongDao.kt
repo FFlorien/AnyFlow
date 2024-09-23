@@ -16,7 +16,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract suspend fun songById(songId: Long): DbSongInfo
 
     @Query("SELECT waveForm FROM Song WHERE song.id = :songId")
-    abstract suspend fun getWaveForm(songId: Long): DbSongWaveForm?
+    abstract suspend fun getWaveForm(songId: Long): DbMediaWaveForm?
 
     @RawQuery(observedEntities = [DbSong::class])
     abstract suspend fun rawQueryForCountFiltered(query: SupportSQLiteQuery): Int
@@ -49,7 +49,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     abstract fun searchPositionsWhereFilterPresentUpdatable(filter: String): LiveData<List<Long>>
 
     @Query("SELECT waveForm FROM Song WHERE song.id = :songId")
-    abstract fun getWaveFormUpdatable(songId: Long): LiveData<DbSongWaveForm>
+    abstract fun getWaveFormUpdatable(songId: Long): LiveData<DbMediaWaveForm>
 
     // Paging
     @RawQuery(observedEntities = [DbSong::class])

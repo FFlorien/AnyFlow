@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import be.florien.anyflow.tags.local.dao.AlarmDao
 import be.florien.anyflow.tags.local.dao.AlbumDao
@@ -39,7 +40,7 @@ import java.util.Date
 
 
 @Database(
-    version = 1,
+    version = 3,
     entities = [
         DbAlbum::class,
         DbArtist::class,
@@ -105,6 +106,20 @@ abstract class LibraryDatabase : RoomDatabase() {
                         db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\", ${currentFilterGroup.dateAdded})")
                     }
                 })
+                .addMigrations(
+                    object: Migration(1, 2) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            db.execSQL("ALTER TABLE PodcastEpisode ADD waveform varchar DEFAULT NULL")
+                        }
+                    }
+                )
+                .addMigrations(
+                    object: Migration(2, 3) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            db.execSQL("ALTER TABLE PodcastEpisode RENAME waveform TO waveForm")
+                        }
+                    }
+                )
                 .build()
         }
     }

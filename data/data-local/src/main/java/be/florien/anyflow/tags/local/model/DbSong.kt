@@ -92,12 +92,12 @@ data class DbSongId(
     val id: Long
 )
 
-data class DbSongWaveForm(
-    val waveForm: String
+data class DbMediaWaveForm(
+    val waveForm: String?
 ) {
     val downSamplesArray: DoubleArray
         get() {
-            if (waveForm.isBlank()) return DoubleArray(0)
+            if (waveForm.isNullOrBlank()) return DoubleArray(0)
             return waveForm.split('|').map { it.replace(',', '.').toDouble() }.toDoubleArray()
         }
 }

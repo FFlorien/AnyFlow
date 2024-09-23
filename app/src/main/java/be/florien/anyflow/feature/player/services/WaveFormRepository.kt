@@ -4,10 +4,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import androidx.media3.common.MediaMetadata
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.common.ui.GlideApp
 import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.logging.iLog
 import be.florien.anyflow.tags.local.LibraryDatabase
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -33,45 +36,67 @@ class WaveFormRepository @Inject constructor(
     private val coroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.Main + exceptionHandler)
 
-    fun getComputedWaveForm(songId: Long): LiveData<DoubleArray> =
-        libraryDatabase.getSongDao().getWaveFormUpdatable(songId).map { it.downSamplesArray }
+    fun getComputedWaveForm(mediaId: Long, mediaType: Int): LiveData<DoubleArray> =
+        if (mediaType == MediaMetadata.MEDIA_TYPE_MUSIC) {
+            libraryDatabase.getSongDao().getWaveFormUpdatable(mediaId).map { it.downSamplesArray }
+        } else {
+            libraryDatabase.getPodcastEpisodeDao().getWaveFormUpdatable(mediaId).map { it?.downSamplesArray ?: DoubleArray(0) }
+        }
 
-    fun checkWaveForm(songId: Long) {
+    fun checkWaveForm(mediaId: Long, mediaType: Int) {
         coroutineScope.launch(Dispatchers.IO) {
-            val waveFormLocal = libraryDatabase
-                .getSongDao()
-                .getWaveForm(songId)
+            val waveFormLocal = if (mediaType == MediaMetadata.MEDIA_TYPE_MUSIC) {
+                libraryDatabase
+                    .getSongDao()
+                    .getWaveForm(mediaId)
+            } else {
+                libraryDatabase
+                    .getPodcastEpisodeDao()
+                    .getWaveForm(mediaId)
+            }
             val isWaveFormMissing =
                 waveFormLocal == null || waveFormLocal.downSamplesArray.isEmpty()
-            if (isWaveFormMissing && currentDownloads.add(songId)) {
-                getWaveFormFromAmpache(songId)
-                currentDownloads.remove(songId)
+            if (isWaveFormMissing && currentDownloads.add(mediaId)) {
+                getWaveFormFromAmpache(mediaId, mediaType)
+                currentDownloads.remove(mediaId)
             }
         }
     }
 
-    private suspend fun getWaveFormFromAmpache(songId: Long) {
-        val bitmap = getWaveFormImage(songId)
+    private suspend fun getWaveFormFromAmpache(mediaId: Long, mediaType: Int) {
+        val bitmap = getWaveFormImage(mediaId, mediaType)
 
         if (bitmap != null) {
             val array = getValuesFromBitmap(bitmap)
-            val ratioArray = ratioValues(songId, array)
+            val ratioArray = ratioValues(mediaId, mediaType, array)
             val computedBarList = enhanceBarsHeight(ratioArray)
-            save(songId, computedBarList)
+            save(mediaId, mediaType, computedBarList)
         }
     }
 
-    private suspend fun getWaveFormImage(songId: Long) = withContext(Dispatchers.IO) {
-        val url = "$serverUrl/waveform.php?song_id=$songId"
-        val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
-            .asBitmap()
-            .load(url)
-            .submit()
+    private suspend fun getWaveFormImage(mediaId: Long, mediaType: Int) =
+        withContext(Dispatchers.IO) {
+            val url = if (mediaType == MediaMetadata.MEDIA_TYPE_MUSIC) {
+                "$serverUrl/waveform.php?song_id=$mediaId"
+            } else {
+                return@withContext null
+// todo               "$serverUrl/waveform.php?podcast_episode=$mediaId"
+            }
+            iLog("url for waveform is $url")
+            val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
+                .asBitmap()
+                .load(url)
+                .submit()
 
-        val bitmap: Bitmap = futureTarget.get()
-        GlideApp.with(context).clear(futureTarget)
-        bitmap
-    }
+            try {
+                val bitmap: Bitmap = futureTarget.get()
+                GlideApp.with(context).clear(futureTarget)
+                bitmap
+            } catch (exception: GlideException) {
+                exception.logRootCauses("WaveFormRepository")
+                null
+            }
+        }
 
     private suspend fun getValuesFromBitmap(bitmap: Bitmap) = withContext(Dispatchers.Default) {
         val width = bitmap.width
@@ -91,9 +116,13 @@ class WaveFormRepository @Inject constructor(
         array
     }
 
-    private suspend fun ratioValues(songId: Long, array: DoubleArray) =
+    private suspend fun ratioValues(mediaId: Long, mediaType: Int, array: DoubleArray) =
         withContext(Dispatchers.Default) {
-            val duration = libraryDatabase.getSongDao().getSongDuration(songId)
+            val duration = if (mediaType == MediaMetadata.MEDIA_TYPE_MUSIC) {
+                libraryDatabase.getSongDao().getSongDuration(mediaId)
+            } else {
+                libraryDatabase.getPodcastEpisodeDao().getPodcastDuration(mediaId)
+            }
             val durationMs = duration * 1000
             val numberOfBars = durationMs / BAR_DURATION_MS
             val ratio = array.size.toDouble() / numberOfBars
@@ -113,7 +142,7 @@ class WaveFormRepository @Inject constructor(
             ratioArray.map { it * multiplier }.toDoubleArray()
         }
 
-    private suspend fun save(songId: Long, computedBarList: DoubleArray) {
+    private suspend fun save(mediaId: Long, mediaType: Int, computedBarList: DoubleArray) {
         withContext(Dispatchers.IO) {
             val stringify = computedBarList
                 .takeIf { it.isNotEmpty() }
@@ -121,7 +150,11 @@ class WaveFormRepository @Inject constructor(
                     "%.3f".format(it)
                 }
             if (stringify != null) {
-                libraryDatabase.getSongDao().updateWithNewWaveForm(songId, stringify)
+                if (mediaType == MediaMetadata.MEDIA_TYPE_MUSIC) {
+                    libraryDatabase.getSongDao().updateWithNewWaveForm(mediaId, stringify)
+                } else {
+                    libraryDatabase.getPodcastEpisodeDao().updateWithNewWaveForm(mediaId, stringify)
+                }
             }
         }
     }

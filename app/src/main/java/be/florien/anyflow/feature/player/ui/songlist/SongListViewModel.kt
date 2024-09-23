@@ -24,6 +24,7 @@ import be.florien.anyflow.feature.download.DownloadManager
 import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.services.queue.PlayingQueue
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
+import be.florien.anyflow.logging.iLog
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.podcast.PodcastRepository
 import kotlinx.coroutines.CoroutineScope
@@ -69,7 +70,10 @@ class SongListViewModel
                 queueItem.id.let { id -> dataRepository.getSong(id).map { it.toViewDisplay() } }
             } else {
                 queueItem?.id?.let { id ->
-                    podcastRepository.getPodcastEpisode(id).map { it.toViewPodcastEpisodeDisplay() }
+                    podcastRepository.getPodcastEpisode(id).map {
+                        iLog("Podcast episode is $it")
+                        it.toViewPodcastEpisodeDisplay()
+                    }
                 }
             }
         }

@@ -31,5 +31,6 @@ data class DbPodcastEpisode(
     val time: Int,
     val size: Int,
     val playCount: Int,
-    val played: String
+    val played: String,
+    val waveForm: String?
 )

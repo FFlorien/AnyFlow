@@ -140,7 +140,8 @@ fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
     time = time,
     size = size,
     playCount = playcount,
-    played = played
+    played = played,
+    waveForm = ""
 )
 
 //endregion

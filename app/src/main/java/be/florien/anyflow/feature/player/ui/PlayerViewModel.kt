@@ -14,6 +14,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import be.florien.anyflow.common.ui.BaseViewModel
@@ -91,9 +92,9 @@ constructor(
     val waveForm: LiveData<DoubleArray> =
         playingQueue.currentMedia.switchMap {
             if (it?.mediaType == SONG_MEDIA_TYPE) {
-                it.let { waveFormRepository.getComputedWaveForm(it.id) }
+                it.let { waveFormRepository.getComputedWaveForm(it.id, MediaMetadata.MEDIA_TYPE_MUSIC) }
             } else {
-                null
+                it.let { waveFormRepository.getComputedWaveForm(it?.id ?: 0L, MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE) }
             }
         }
             .distinctUntilChanged()
