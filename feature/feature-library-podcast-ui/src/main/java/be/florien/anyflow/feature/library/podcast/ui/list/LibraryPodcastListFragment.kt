@@ -38,6 +38,7 @@ class LibraryPodcastListFragment @SuppressLint("ValidFragment") constructor(
         navigator.displayFragmentOnMain(
             requireContext(),
             LibraryPodcastInfoFragment(filter),
+            "PODCAST",
             LibraryPodcastInfoFragment::class.java.simpleName
         )
     }

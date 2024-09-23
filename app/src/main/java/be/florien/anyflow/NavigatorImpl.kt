@@ -8,7 +8,7 @@ import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import javax.inject.Inject
 
-class NavigatorImpl @Inject constructor(): Navigator {
+class NavigatorImpl @Inject constructor() : Navigator {
     override fun navigateToPlayer(context: Context, clearTop: Boolean) {
         val intent = Intent(context, PlayerActivity::class.java)
         if (clearTop) {
@@ -21,15 +21,19 @@ class NavigatorImpl @Inject constructor(): Navigator {
         (context as PlayerActivity).displaySongList()
     }
 
-    override fun displayFragmentOnMain(context: Context, fragment: Fragment, tag: String) {
-        (context as PlayerActivity).supportFragmentManager
+    override fun displayFragmentOnMain(
+        context: Context,
+        fragment: Fragment,
+        backstackName: String?,
+        tag: String
+    ) {
+        (context as PlayerActivity)
+            .supportFragmentManager
             .beginTransaction()
-            .replace(
-                R.id.container,
-                fragment,
-                tag
-            )
-            .addToBackStack(null)
+            .apply {
+                replace(R.id.container, fragment, tag)
+                addToBackStack(backstackName)
+            }
             .commit()
     }
 }

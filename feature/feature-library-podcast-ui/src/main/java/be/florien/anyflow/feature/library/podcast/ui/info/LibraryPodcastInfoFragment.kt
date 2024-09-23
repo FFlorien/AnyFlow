@@ -26,6 +26,7 @@ class LibraryPodcastInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoF
                 viewModel.navigator.displayFragmentOnMain(
                     requireContext(),
                     LibraryPodcastListFragment(value, viewModel.filterNavigation),
+                    "PODCAST",
                     LibraryPodcastListFragment::class.java.simpleName
                 )
             }

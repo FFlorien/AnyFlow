@@ -29,16 +29,17 @@ constructor(
 ) : LibraryListFragment(filterType, parentFilter),
     DetailViewHolderListener<FilterItem> {
 
-    override fun getViewModel(filterName: String) = ViewModelProvider(this, requireActivity().viewModelFactory)[
-        when (filterName) {
-            LibraryTagsInfoViewModel.ALBUM_ID -> LibraryAlbumListViewModel::class.java
-            LibraryTagsInfoViewModel.ALBUM_ARTIST_ID -> LibraryAlbumArtistListViewModel::class.java
-            LibraryTagsInfoViewModel.ARTIST_ID -> LibraryArtistListViewModel::class.java
-            LibraryTagsInfoViewModel.GENRE_ID -> LibraryGenreListViewModel::class.java
-            LibraryTagsInfoViewModel.SONG_ID -> LibrarySongListViewModel::class.java
-            LibraryTagsInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
-            else -> LibraryPlaylistListViewModel::class.java
-        }]
+    override fun getViewModel(filterName: String) =
+        ViewModelProvider(this, requireActivity().viewModelFactory)[
+            when (filterName) {
+                LibraryTagsInfoViewModel.ALBUM_ID -> LibraryAlbumListViewModel::class.java
+                LibraryTagsInfoViewModel.ALBUM_ARTIST_ID -> LibraryAlbumArtistListViewModel::class.java
+                LibraryTagsInfoViewModel.ARTIST_ID -> LibraryArtistListViewModel::class.java
+                LibraryTagsInfoViewModel.GENRE_ID -> LibraryGenreListViewModel::class.java
+                LibraryTagsInfoViewModel.SONG_ID -> LibrarySongListViewModel::class.java
+                LibraryTagsInfoViewModel.DOWNLOAD_ID -> LibraryDownloadedListViewModel::class.java
+                else -> LibraryPlaylistListViewModel::class.java
+            }]
 
     override fun getTitle(): String = getString(R.string.library_title_main)
 
@@ -55,6 +56,11 @@ constructor(
 
     override fun onInfoDisplayAsked(item: FilterItem) {
         val filter = viewModel.getFilter(item)
-        navigator.displayFragmentOnMain(requireContext(), LibraryTagsInfoFragment(filter), LibraryTagsInfoFragment::class.java.simpleName)
+        navigator.displayFragmentOnMain(
+            requireContext(),
+            LibraryTagsInfoFragment(filter),
+            "PODCAST",
+            LibraryTagsInfoFragment::class.java.simpleName
+        )
     }
 }

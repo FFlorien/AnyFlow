@@ -36,6 +36,7 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoFrag
                 viewModel.navigator.displayFragmentOnMain(
                     requireContext(),
                     LibraryTagsListFragment(value, viewModel.filterNavigation),
+                    "TAGS",
                     LibraryTagsListFragment::class.java.simpleName
                 )
             }
