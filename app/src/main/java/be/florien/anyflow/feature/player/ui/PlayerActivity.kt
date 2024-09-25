@@ -22,6 +22,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
@@ -46,6 +48,7 @@ import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
+import be.florien.anyflow.management.playlist.di.PlaylistWorkerFactory
 import be.florien.anyflow.ui.server.ServerActivity
 import be.florien.anyflow.utils.startActivity
 import com.google.common.util.concurrent.MoreExecutors
@@ -69,6 +72,9 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     @Inject
     override lateinit var viewModelFactory: AnyFlowViewModelFactory
+
+    @Inject
+    lateinit var workerFactory: PlaylistWorkerFactory
 
     private val fakeComponent = object : PlayerComponent {
         override fun inject(playerActivity: PlayerActivity) {}
@@ -105,6 +111,14 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
             return
         }
         activityComponent.inject(this)
+        if (!WorkManager.isInitialized()) {
+            WorkManager.initialize(//todo this will maybe cause problem, find a way to initialize in AnyFlowApp
+                this,
+                Configuration.Builder()
+                    .setWorkerFactory(workerFactory)
+                    .build()
+            )
+        }
         viewModel = ViewModelProvider(this, viewModelFactory)[PlayerViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this

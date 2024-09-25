@@ -38,5 +38,8 @@ dependencies {
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     implementation "com.google.dagger:dagger:$dagger_version"
+
+    //Workmanager
+    implementation "androidx.work:work-runtime-ktx:2.9.1"
 }
 apply plugin: 'kotlin-parcelize'

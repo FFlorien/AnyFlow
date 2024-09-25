@@ -37,6 +37,12 @@
         <activity android:name=".feature.player.ui.info.song.shortcuts.ShortcutsActivity" />
         <activity android:name=".feature.playlist.PlaylistsActivity" />
 
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="be.florien.anyflow.androidx-startup"
+            tools:node="remove">
+        </provider>
+
         <service
             android:name=".feature.player.services.PlayerService"
             android:foregroundServiceType="mediaPlayback"

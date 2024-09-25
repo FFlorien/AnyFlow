@@ -4,6 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.DataSource
 import androidx.paging.PagingData
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.tags.UrlRepository
@@ -19,13 +22,15 @@ import be.florien.anyflow.management.playlist.model.Playlist
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
+import be.florien.anyflow.management.playlist.work.PlaylistModificationWorker
 import javax.inject.Inject
 
 @ServerScope
 class PlaylistRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampacheEditSource: AmpachePlaylistSource,
-    private val urlRepository: UrlRepository
+    private val urlRepository: UrlRepository,
+    private val workManager: WorkManager
 ) {
 
     private val queryComposer = QueryComposer()
@@ -94,9 +99,23 @@ class PlaylistRepository @Inject constructor(
     suspend fun addSongsToPlaylist(filter: Filter<*>, playlistId: Long) {
         val newSongsList = libraryDatabase
             .getSongDao()
-            .forCurrentFiltersList(queryComposer.getQueryForSongs(listOf(filter).toQueryFilters(), emptyList()))
+            .forCurrentFiltersList(
+                queryComposer.getQueryForSongs(
+                    listOf(filter).toQueryFilters(),
+                    emptyList()
+                )
+            )
         val total = libraryDatabase.getPlaylistDao().getPlaylistCount(playlistId)
-        ampacheEditSource.addToPlaylist(playlistId, newSongsList, total)
+        val inputData = Data.Builder() //todo builder in worker to avoid this in repo ?
+            .putString(PlaylistModificationWorker.ACTION, PlaylistModificationWorker.ACTION_ADD)
+            .putLong(PlaylistModificationWorker.PLAYLIST_ID, playlistId)
+            .putLongArray(PlaylistModificationWorker.SONGS_IDS, newSongsList.toLongArray())
+            .putInt(PlaylistModificationWorker.POSITION, total)
+            .build()
+        val workRequest = OneTimeWorkRequestBuilder<PlaylistModificationWorker>()
+            .setInputData(inputData)
+            .build()
+        workManager.enqueue(workRequest)
         libraryDatabase.getPlaylistSongsDao().upsert(
             newSongsList.mapIndexed { index, song ->
                 DbPlaylistSongs(total + index, song, playlistId)
@@ -107,7 +126,12 @@ class PlaylistRepository @Inject constructor(
     suspend fun removeSongsFromPlaylist(filter: Filter<*>, playlistId: Long) {
         val songList = libraryDatabase
             .getSongDao()
-            .forCurrentFiltersList(queryComposer.getQueryForSongs(listOf(filter).toQueryFilters(), emptyList()))
+            .forCurrentFiltersList(
+                queryComposer.getQueryForSongs(
+                    listOf(filter).toQueryFilters(),
+                    emptyList()
+                )
+            )
         removeSongsFromPlaylist(playlistId, songList)
     }
 
@@ -115,8 +139,16 @@ class PlaylistRepository @Inject constructor(
         playlistId: Long,
         songList: List<Long>
     ) {
+        val inputData = Data.Builder() //todo builder in worker to avoid this in repo ?
+            .putString(PlaylistModificationWorker.ACTION, PlaylistModificationWorker.ACTION_REMOVE)
+            .putLong(PlaylistModificationWorker.PLAYLIST_ID, playlistId)
+            .putLongArray(PlaylistModificationWorker.SONGS_IDS, songList.toLongArray())
+            .build()
+        val workRequest = OneTimeWorkRequestBuilder<PlaylistModificationWorker>()
+            .setInputData(inputData)
+            .build()
+        workManager.enqueue(workRequest)
         songList.forEach {
-            ampacheEditSource.removeSongFromPlaylist(playlistId, it)
             libraryDatabase.getPlaylistSongsDao().deleteSongFromPlaylist(playlistId, it)
         }
     }

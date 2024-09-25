@@ -1,5 +1,7 @@
 package be.florien.anyflow.data.server.di
 
+import android.content.Context
+import androidx.work.WorkManager
 import be.florien.anyflow.architecture.di.ServerScope
 import dagger.Module
 import dagger.Provides
@@ -34,4 +36,10 @@ class ServerModule {
         @Named("authenticated") okHttpClient: OkHttpClient
     ): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(okHttpClient)
         .addConverterFactory(JacksonConverterFactory.create()).build()
+
+    @Provides
+    @ServerScope
+    fun providesWorkManager(
+        context: Context
+    ): WorkManager = WorkManager.getInstance(context)
 }

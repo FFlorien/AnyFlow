@@ -15,6 +15,7 @@ import be.florien.anyflow.feature.player.services.PlayerService
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.sync.SyncService
+import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerModule
 import be.florien.anyflow.ui.di.UserVmInjector
 import dagger.BindsInstance
 import dagger.Subcomponent
@@ -33,7 +34,8 @@ import javax.inject.Named
         LibraryViewModelModule::class,
         PodcastViewModelModule::class,
         SelectPlaylistViewModelModule::class,
-        ViewModelModule::class
+        ViewModelModule::class,
+        PlaylistModificationWorkerModule::class
     ]
 )
 interface ServerComponent : UserVmInjector, GlideModuleInjector {

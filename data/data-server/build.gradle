@@ -31,4 +31,6 @@ dependencies {
     //internet
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+    //WorkManager
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
 }
