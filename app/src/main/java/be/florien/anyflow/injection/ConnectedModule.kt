@@ -22,9 +22,9 @@ class ConnectedModule {
     fun provideDataOkHttp(authenticationInterceptor: AuthenticationInterceptor): OkHttpClient =
         OkHttpClient
             .Builder()
-            .readTimeout(20, TimeUnit.SECONDS)
-            .writeTimeout(20, TimeUnit.SECONDS)
-            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(authenticationInterceptor)
             .build()
 
@@ -35,7 +35,7 @@ class ConnectedModule {
         OkHttpClient
             .Builder()
             .addInterceptor(authenticationInterceptor)
-            .callTimeout(60, TimeUnit.SECONDS)//it may need some time to generate those
+            .callTimeout(60, TimeUnit.SECONDS)//it may need some time to generate the waveform image
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)

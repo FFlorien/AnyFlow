@@ -4,25 +4,28 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.DataSource
 import androidx.paging.PagingData
-import androidx.work.Data
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
+import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
+import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.playlist.model.Playlist
+import be.florien.anyflow.management.playlist.model.PlaylistSong
+import be.florien.anyflow.management.playlist.model.PlaylistWithCount
+import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
+import be.florien.anyflow.management.playlist.work.PlaylistModificationWorker
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPlaylist
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs
 import be.florien.anyflow.tags.local.query.QueryComposer
-import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.tags.toQueryFilter
 import be.florien.anyflow.tags.toQueryFilters
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.playlist.model.Playlist
-import be.florien.anyflow.management.playlist.model.PlaylistWithCount
-import be.florien.anyflow.management.playlist.model.PlaylistSong
-import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
-import be.florien.anyflow.management.playlist.work.PlaylistModificationWorker
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @ServerScope
@@ -106,13 +109,10 @@ class PlaylistRepository @Inject constructor(
                 )
             )
         val total = libraryDatabase.getPlaylistDao().getPlaylistCount(playlistId)
-        val inputData = Data.Builder() //todo builder in worker to avoid this in repo ?
-            .putString(PlaylistModificationWorker.ACTION, PlaylistModificationWorker.ACTION_ADD)
-            .putLong(PlaylistModificationWorker.PLAYLIST_ID, playlistId)
-            .putLongArray(PlaylistModificationWorker.SONGS_IDS, newSongsList.toLongArray())
-            .putInt(PlaylistModificationWorker.POSITION, total)
-            .build()
+        val inputData = PlaylistModificationWorker.getDataForAdding(playlistId, newSongsList, total)
         val workRequest = OneTimeWorkRequestBuilder<PlaylistModificationWorker>()
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 20, TimeUnit.SECONDS)
+            .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
             .setInputData(inputData)
             .build()
         workManager.enqueue(workRequest)
@@ -139,12 +139,10 @@ class PlaylistRepository @Inject constructor(
         playlistId: Long,
         songList: List<Long>
     ) {
-        val inputData = Data.Builder() //todo builder in worker to avoid this in repo ?
-            .putString(PlaylistModificationWorker.ACTION, PlaylistModificationWorker.ACTION_REMOVE)
-            .putLong(PlaylistModificationWorker.PLAYLIST_ID, playlistId)
-            .putLongArray(PlaylistModificationWorker.SONGS_IDS, songList.toLongArray())
-            .build()
+        val inputData = PlaylistModificationWorker.getDataForRemoving(playlistId, songList)
         val workRequest = OneTimeWorkRequestBuilder<PlaylistModificationWorker>()
+            .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 20, TimeUnit.SECONDS)
             .setInputData(inputData)
             .build()
         workManager.enqueue(workRequest)

@@ -2,11 +2,11 @@ package be.florien.anyflow.management.playlist.work
 
 import android.content.Context
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.WorkerParameters
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 
 class PlaylistModificationWorker(
@@ -32,7 +32,7 @@ class PlaylistModificationWorker(
                     }
                 }
                 Unit //trick to avoid the above "if" being linted
-            } catch (timeoutException: TimeoutException) { //todo check which exception we can catch
+            } catch (exception: Exception) {
                 return@withContext Result.retry()
             }
         }
@@ -49,12 +49,25 @@ class PlaylistModificationWorker(
     }
 
     companion object {
-        const val PLAYLIST_ID = "PLAYLIST_ID"
-        const val SONGS_IDS = "SONGS_IDS"
-        const val POSITION = "POSITION"
-        const val ACTION = "ACTION"
-        const val ACTION_ADD = "ADD"
-        const val ACTION_REMOVE = "REMOVE"
+        private const val PLAYLIST_ID = "PLAYLIST_ID"
+        private const val SONGS_IDS = "SONGS_IDS"
+        private const val POSITION = "POSITION"
+        private const val ACTION = "ACTION"
+        private const val ACTION_ADD = "ADD"
+        private const val ACTION_REMOVE = "REMOVE"
+
+        fun getDataForAdding(playlistId: Long, songsIds: Collection<Long>, position: Int) = Data.Builder()
+            .putString(ACTION, ACTION_ADD)
+            .putLong(PLAYLIST_ID, playlistId)
+            .putLongArray(SONGS_IDS, songsIds.toLongArray())
+            .putInt(POSITION, position)
+            .build()
+
+        fun getDataForRemoving(playlistId: Long, songsIds: Collection<Long>) = Data.Builder()
+            .putString(ACTION, ACTION_REMOVE)
+            .putLong(PLAYLIST_ID, playlistId)
+            .putLongArray(SONGS_IDS, songsIds.toLongArray())
+            .build()
     }
 }
 

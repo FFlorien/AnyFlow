@@ -40,6 +40,7 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="be.florien.anyflow.androidx-startup"
+            tools:replace="android:authorities"
             tools:node="remove">
         </provider>
 
