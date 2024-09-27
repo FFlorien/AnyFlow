@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.core.view.children
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -152,9 +153,14 @@ class SongViewHolder(
         }
         val newActions = provider.getShortcuts().reversed()
         for (action in newActions) {
+            val itemAction = if (newActions.size == 1) {
+                R.layout.item_action_unique
+            } else {
+                R.layout.item_action
+            }
             binding.songActions.addView(
                 (LayoutInflater.from(binding.songLayout.cover.context)
-                    .inflate(R.layout.item_action, binding.songActions, false))
+                    .inflate(itemAction, binding.songActions, false))
                     .apply {
                         findViewById<ImageView>(R.id.action).setImageResource(action.actionType.iconRes)
                         findViewById<ImageView>(R.id.field).setImageResource(action.fieldType.iconRes)
@@ -172,15 +178,28 @@ class SongViewHolder(
     fun openShortcutWhenSwiped(): Boolean {
         val shortcutsWidth = binding.actionsPadding.right - binding.songActions.right
         return if (itemInfoView.translationX < shortcutsWidth + (shortcutsWidth.absoluteValue / 4)) {
-            shortcutListener.onShortcutOpened(absoluteAdapterPosition.takeIf { it != RecyclerView.NO_POSITION })
-            val translationXEnd = binding.actionsPadding.right - itemView.width.toFloat()
-            ObjectAnimator.ofFloat(binding.songLayout.songInfo, View.TRANSLATION_X, translationXEnd)
-                .apply {
-                    duration = 100L
-                    interpolator = DecelerateInterpolator()
-                    start()
+            if (binding.songActions.childCount == 3) {
+                val song = binding.song
+                if (song != null) {
+                    binding.songActions.children.last().performClick()
                 }
-            startingTranslationX = translationXEnd
+                swipeToClose()
+            } else {
+                shortcutListener.onShortcutOpened(absoluteAdapterPosition.takeIf { it != RecyclerView.NO_POSITION })
+                val translationXEnd = binding.actionsPadding.right - itemView.width.toFloat()
+                ObjectAnimator
+                    .ofFloat(
+                        binding.songLayout.songInfo,
+                        View.TRANSLATION_X,
+                        translationXEnd
+                    )
+                    .apply {
+                        duration = 100L
+                        interpolator = DecelerateInterpolator()
+                        start()
+                    }
+                startingTranslationX = translationXEnd
+            }
             true
         } else {
             false
