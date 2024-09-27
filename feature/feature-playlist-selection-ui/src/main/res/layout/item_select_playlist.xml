@@ -35,8 +35,8 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="@dimen/imageSize"
-            android:layout_height="@dimen/imageSize"
+            android:layout_width="@dimen/smallImageSize"
+            android:layout_height="@dimen/smallImageSize"
             android:layout_margin="8dp"
             android:contentDescription="@null"
             app:imageSource="@{item.coverConfig}"
