@@ -40,7 +40,7 @@ import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFrag
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.menu.implementation.OrderMenuHolder
-import be.florien.anyflow.feature.player.services.PlayerService
+import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
 import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment

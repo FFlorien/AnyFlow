@@ -105,6 +105,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
+    implementation project(':management-alarm')
+    implementation project(':feature-player-service')
+    implementation project(':management-queue')
+    implementation project(':management-waveform')
+    implementation project(':management-download')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet

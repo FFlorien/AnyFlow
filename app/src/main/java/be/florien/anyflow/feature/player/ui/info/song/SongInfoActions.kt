@@ -6,10 +6,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.OrderComposer
+import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.tags.UrlRepository

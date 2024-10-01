@@ -13,13 +13,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.tags.view.QueueItemDisplay
-import be.florien.anyflow.databinding.ItemSongBinding
+import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.list.DetailViewHolder
 import be.florien.anyflow.common.ui.list.DetailViewHolderListener
 import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
-import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.tags.view.PodcastEpisodeDisplay
+import be.florien.anyflow.databinding.ItemSongBinding
+import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
+import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlin.math.absoluteValue
 

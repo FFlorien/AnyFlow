@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.R
-import be.florien.anyflow.tags.view.Alarm
+import be.florien.anyflow.management.alarm.model.Alarm
 import be.florien.anyflow.databinding.FragmentEditAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.common.ui.BaseFragment
@@ -17,7 +17,15 @@ import be.florien.anyflow.feature.menu.implementation.DeleteAlarmMenuHolder
 import be.florien.anyflow.common.ui.menu.MenuHolder
 import kotlinx.coroutines.launch
 
-class EditAlarmFragment(var alarm: Alarm = Alarm(0L, 0, 0, false, listOf(), false)) : BaseFragment() {
+class EditAlarmFragment(var alarm: be.florien.anyflow.management.alarm.model.Alarm = be.florien.anyflow.management.alarm.model.Alarm(
+    0L,
+    0,
+    0,
+    false,
+    listOf(),
+    false
+)
+) : BaseFragment() {
     companion object {
         const val ALARM_TO_EDIT = "alarmToEdit"
     }
@@ -31,7 +39,14 @@ class EditAlarmFragment(var alarm: Alarm = Alarm(0L, 0, 0, false, listOf(), fals
 
     init {
         arguments?.let {
-            alarm = it.getParcelable(ALARM_TO_EDIT) ?: Alarm(0L, 0, 0, false, listOf(false, false, false, false, false, false, false), false)
+            alarm = it.getParcelable(ALARM_TO_EDIT) ?: be.florien.anyflow.management.alarm.model.Alarm(
+                0L,
+                0,
+                0,
+                false,
+                listOf(false, false, false, false, false, false, false),
+                false
+            )
         }
         if (arguments == null) {
             arguments = Bundle().apply {

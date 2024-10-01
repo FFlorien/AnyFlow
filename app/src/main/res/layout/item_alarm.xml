@@ -8,7 +8,7 @@
 
         <variable
             name="alarm"
-            type="be.florien.anyflow.tags.view.Alarm" />
+            type="be.florien.anyflow.management.alarm.model.Alarm" />
 
         <variable
             name="viewModel"

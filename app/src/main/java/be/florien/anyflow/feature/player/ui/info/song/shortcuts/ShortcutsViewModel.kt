@@ -8,13 +8,13 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.tags.view.SongDisplay
-import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.feature.player.ui.info.song.BaseSongViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
+import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.queue.OrderComposer
+import be.florien.anyflow.management.queue.model.SongDisplay
+import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named

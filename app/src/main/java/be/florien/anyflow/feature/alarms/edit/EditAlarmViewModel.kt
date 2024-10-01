@@ -1,9 +1,9 @@
 package be.florien.anyflow.feature.alarms.edit
 
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.tags.view.Alarm
+import be.florien.anyflow.management.alarm.model.Alarm
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.feature.alarms.AlarmsSynchronizer
+import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import javax.inject.Inject
 
 class EditAlarmViewModel : BaseViewModel() {
@@ -37,7 +37,12 @@ class EditAlarmViewModel : BaseViewModel() {
         }
 
     suspend fun editAlarm() {
-        val newAlarm = Alarm(alarm?.id ?: 0L, (time.value ?: 0) / 60, (time.value ?: 0) % 60, isRepeating.value ?: false, listOf(
+        val newAlarm = Alarm(
+            alarm?.id ?: 0L,
+            (time.value ?: 0) / 60,
+            (time.value ?: 0) % 60,
+            isRepeating.value ?: false,
+            listOf(
                 monday.value ?: false && isRepeating.value ?: false,
                 tuesday.value ?: false && isRepeating.value ?: false,
                 wednesday.value ?: false && isRepeating.value ?: false,
@@ -45,7 +50,9 @@ class EditAlarmViewModel : BaseViewModel() {
                 friday.value ?: false && isRepeating.value ?: false,
                 saturday.value ?: false && isRepeating.value ?: false,
                 sunday.value ?: false && isRepeating.value ?: false,
-        ), alarm?.active ?: false)
+            ),
+            alarm?.active ?: false
+        )
         if (newAlarm != alarm) {
             alarmsSynchronizer.updateAlarm(newAlarm)
         }

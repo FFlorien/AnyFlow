@@ -11,7 +11,7 @@ import be.florien.anyflow.feature.alarms.list.AlarmListViewModel
 import be.florien.anyflow.feature.auth.domain.di.AuthModule
 import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
-import be.florien.anyflow.feature.player.services.PlayerService
+import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.sync.SyncService
@@ -42,7 +42,6 @@ interface ServerComponent : UserVmInjector, GlideModuleInjector {
 
     fun inject(validator: AnyFlowApp.ServerValidator)
 
-    fun inject(playerService: PlayerService)
     fun inject(syncService: SyncService)
 
     fun inject(viewModel: AlarmViewModel)
@@ -50,6 +49,7 @@ interface ServerComponent : UserVmInjector, GlideModuleInjector {
     fun inject(viewModel: AlarmListViewModel)
     fun inject(viewModel: EditAlarmViewModel)
 
+    fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
     fun playerComponentBuilder(): PlayerComponent.Builder
     fun shortcutsComponentBuilder(): ShortcutsComponent.Builder
     fun playlistComponentBuilder(): PlaylistComponent.Builder

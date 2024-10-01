@@ -6,8 +6,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
-import be.florien.anyflow.feature.player.services.ALARM_ACTION
-import be.florien.anyflow.feature.player.services.PlayerService
+import be.florien.anyflow.feature.player.service.ALARM_ACTION
+import be.florien.anyflow.feature.player.service.PlayerService
 
 class AlarmReceiver : BroadcastReceiver() {
     @OptIn(UnstableApi::class)

@@ -11,7 +11,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import be.florien.anyflow.R
-import be.florien.anyflow.feature.player.services.WaveFormRepository
+import be.florien.anyflow.management.waveform.WaveFormRepository
 
 internal abstract class PlayerPainter(
     val context: Context,

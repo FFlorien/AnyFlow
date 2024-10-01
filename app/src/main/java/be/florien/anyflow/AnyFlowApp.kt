@@ -9,6 +9,8 @@ import be.florien.anyflow.common.ui.di.GlideModuleInjector
 import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
+import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
+import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.sync.SyncService
@@ -28,7 +30,7 @@ import javax.inject.Inject
  * Application class used for initialization of many libraries
  */
 @SuppressLint("Registered")
-open class AnyFlowApp : MultiDexApplication(), UserVmInjectorContainer,
+open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, UserVmInjectorContainer,
     ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer {
     lateinit var applicationComponent: ApplicationComponent
         protected set
@@ -113,13 +115,16 @@ open class AnyFlowApp : MultiDexApplication(), UserVmInjectorContainer,
         }
     }
 
+    override fun createPlaylistComponent(): PlaylistComponent? =
+        serverComponent?.playlistComponentBuilder()?.build()
+
+    override fun createPlayerServiceComponent(): PlayerServiceComponent? =
+        serverComponent?.playerServiceComponentBuilder()?.build()
+
     class ServerValidator {
         @Inject
         lateinit var authRepository: AuthRepository
 
         suspend fun isServerValid() = authRepository.ping()
     }
-
-    override fun createPlaylistComponent(): PlaylistComponent? =
-        serverComponent?.playlistComponentBuilder()?.build()
 }

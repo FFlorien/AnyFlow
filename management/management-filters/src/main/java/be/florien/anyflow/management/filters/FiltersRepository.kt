@@ -7,7 +7,7 @@ import be.florien.anyflow.management.filters.model.FilterGroup
 interface FiltersRepository {
     fun getSavedGroups(): LiveData<List<FilterGroup>>
     fun getCurrentFilters(): LiveData<List<Filter<*>>>
-    suspend fun setCurrentFilters(toList: List<Filter<*>>)
-    suspend fun saveFilterGroup(toList: List<Filter<*>>, name: String): List<Long>
+    suspend fun setCurrentFilters(filters: List<Filter<*>>)
+    suspend fun saveFilterGroup(filters: List<Filter<*>>, name: String): List<Long>
     suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup)
 }

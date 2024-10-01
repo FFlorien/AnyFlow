@@ -1,8 +1,11 @@
 package be.florien.anyflow.injection
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
+import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.feature.sync.SyncRepository
 import dagger.Module
 import dagger.Provides
@@ -70,4 +73,9 @@ class ConnectedModule {
     @ServerScope
     fun providePlaylistsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
         syncRepository.playlistsPercentageUpdater
+
+    @Provides
+    @Named("playerActivity")
+    @ServerScope
+    fun providePlayerActivityIntent(context: Context) = Intent(context, PlayerActivity::class.java)
 }

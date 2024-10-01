@@ -45,7 +45,7 @@
         </provider>
 
         <service
-            android:name=".feature.player.services.PlayerService"
+            android:name=".feature.player.service.PlayerService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="true">
             <intent-filter>

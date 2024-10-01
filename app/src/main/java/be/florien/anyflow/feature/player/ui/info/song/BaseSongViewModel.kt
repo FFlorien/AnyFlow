@@ -9,17 +9,19 @@ import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoViewModel
+import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.feature.download.DownloadManager
-import be.florien.anyflow.feature.player.services.queue.OrderComposer
 import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.queue.OrderComposer
+import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.UrlRepository
 import kotlinx.coroutines.launch
 
 abstract class BaseSongViewModel(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
-    val dataRepository: be.florien.anyflow.tags.DataRepository,
-    val urlRepository: be.florien.anyflow.tags.UrlRepository,
+    val dataRepository: DataRepository,
+    val urlRepository: UrlRepository,
     sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager
 ) : InfoViewModel<SongInfo>() {

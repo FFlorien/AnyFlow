@@ -11,7 +11,7 @@
 
         <variable
             name="song"
-            type="be.florien.anyflow.tags.view.QueueItemDisplay" />
+            type="be.florien.anyflow.management.queue.model.QueueItemDisplay" />
 
         <variable
             name="current"

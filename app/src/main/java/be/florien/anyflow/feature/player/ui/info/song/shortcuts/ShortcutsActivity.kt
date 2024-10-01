@@ -6,21 +6,21 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.R
-import be.florien.anyflow.tags.view.QueueItemDisplay
+import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.databinding.ActivityShortcutBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.extension.startActivity
 import be.florien.anyflow.feature.auth.UserConnectActivity
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewHolderListener
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewHolderProvider
 import be.florien.anyflow.feature.player.ui.songlist.SongViewHolder
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.injection.ShortcutsComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
+import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import javax.inject.Inject
 
 class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {

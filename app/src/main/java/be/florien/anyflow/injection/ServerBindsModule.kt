@@ -1,6 +1,6 @@
 package be.florien.anyflow.injection
 
-import be.florien.anyflow.feature.player.services.queue.QueueRepository
+import be.florien.anyflow.management.queue.QueueRepository
 import be.florien.anyflow.management.filters.FiltersRepository
 import dagger.Binds
 import dagger.Module

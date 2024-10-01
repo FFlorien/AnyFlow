@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.R
-import be.florien.anyflow.tags.view.Alarm
+import be.florien.anyflow.management.alarm.model.Alarm
 import be.florien.anyflow.databinding.FragmentAlarmListBinding
 import be.florien.anyflow.databinding.ItemAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
@@ -58,7 +58,7 @@ class AlarmListFragment : BaseFragment() {
     inner class AlarmViewHolder(container: ViewGroup, val binding: ItemAlarmBinding = ItemAlarmBinding.inflate(LayoutInflater.from(container.context), container, false))
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(alarm: Alarm) {
+        fun bind(alarm: be.florien.anyflow.management.alarm.model.Alarm) {
             binding.alarm = alarm
             binding.viewModel = viewModel
             val repetitionText = viewModel.repetitionText(alarm)

@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.florien.anyflow.R
-import be.florien.anyflow.tags.view.SongDisplay
 import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemDownloadInfoBinding
 import be.florien.anyflow.databinding.ItemShortcutInfoBinding
@@ -24,6 +23,7 @@ import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewMod
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.injection.ViewModelFactoryHolder
+import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.tags.toTagType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
