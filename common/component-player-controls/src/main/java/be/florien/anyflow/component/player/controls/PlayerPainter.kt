@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.controls
+package be.florien.anyflow.component.player.controls
 
 import android.content.Context
 import android.content.res.TypedArray
@@ -10,11 +10,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import be.florien.anyflow.R
-import be.florien.anyflow.management.waveform.WaveFormRepository
 
 internal abstract class PlayerPainter(
-    val context: Context,
+    private val context: Context,
     protected val playPauseIconAnimator: PlayPauseIconAnimator,
     private val previousIconAnimator: PreviousIconAnimator
 ) {
@@ -515,7 +513,7 @@ internal abstract class PlayerPainter(
         private const val VISIBLE_TEXT_SP = 12f
         private const val MAX_DURATION_VISIBLE_IN_SEC = 25
         private const val BAR_MARGIN = 1F
-        private const val BAR_DURATION_MS = WaveFormRepository.BAR_DURATION_MS
+        const val BAR_DURATION_MS = 500 //todo setter for this value
 
 
         const val CLICK_PREVIOUS = 0

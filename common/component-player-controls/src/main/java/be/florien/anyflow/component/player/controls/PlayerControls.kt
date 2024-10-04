@@ -1,11 +1,10 @@
-package be.florien.anyflow.feature.player.ui.controls
+package be.florien.anyflow.component.player.controls
 
 import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import be.florien.anyflow.R
 import kotlin.math.absoluteValue
 import kotlin.math.min
 

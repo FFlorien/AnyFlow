@@ -1,9 +1,8 @@
-package be.florien.anyflow.feature.player.ui.controls
+package be.florien.anyflow.component.player.controls
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import be.florien.anyflow.R
 
 
 class PlayPauseIconAnimator(context: Context) : IconAnimator(context) {

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.controls
+package be.florien.anyflow.component.player.controls
 
 import android.content.Context
 import android.graphics.Rect
@@ -9,10 +9,9 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import be.florien.anyflow.R
 
 
-abstract class IconAnimator(val context: Context) {
+abstract class IconAnimator(private val context: Context) {
     var icon: Drawable? = null
     var onIconChanged: (() -> Unit)? = null
     protected var oldState: Int = -1

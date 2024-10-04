@@ -68,6 +68,7 @@ dependencies {
     implementation project(':common-management')
     implementation project(":common-ui")
     implementation project(':common-ui-data')
+    implementation project(':component-player-controls')
     implementation project(":data-local")
     implementation project(":data-server")
     implementation project(":feature-auth-domain")
@@ -78,16 +79,21 @@ dependencies {
     implementation project(":feature-library-tags-ui")
     implementation project(':feature-library-podcast-domain')
     implementation project(':feature-library-podcast-ui')
+    implementation project(':feature-player-service')
     implementation project(':feature-playlist-ui')
     implementation project(':feature-playlist-selection-domain')
     implementation project(':feature-playlist-selection-ui')
     implementation project(':logging')
-    implementation project(':utils')
+    implementation project(':management-alarm')
+    implementation project(':management-queue')
+    implementation project(':management-waveform')
+    implementation project(':management-download')
     implementation project(':management-tags')
     implementation project(':management-filters')
     implementation project(':management-playlist')
     implementation project(':management-podcast')
     implementation project(':resources')
+    implementation project(':utils')
     //base
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -105,11 +111,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation project(':management-alarm')
-    implementation project(':feature-player-service')
-    implementation project(':management-queue')
-    implementation project(':management-waveform')
-    implementation project(':management-download')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet

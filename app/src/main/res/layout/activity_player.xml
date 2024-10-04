@@ -99,7 +99,7 @@
             </FrameLayout>
 
 
-            <be.florien.anyflow.feature.player.ui.controls.PlayerControls
+            <be.florien.anyflow.component.player.controls.PlayerControls
                 android:id="@+id/playerControls"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
