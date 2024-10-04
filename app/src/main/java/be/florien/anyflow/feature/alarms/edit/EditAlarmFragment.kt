@@ -7,13 +7,12 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.R
-import be.florien.anyflow.management.alarm.model.Alarm
 import be.florien.anyflow.databinding.FragmentEditAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.menu.implementation.ConfirmAlarmMenuHolder
-import be.florien.anyflow.feature.menu.implementation.DeleteAlarmMenuHolder
+import be.florien.anyflow.feature.alarms.ConfirmAlarmMenuHolder
+import be.florien.anyflow.feature.alarms.DeleteAlarmMenuHolder
 import be.florien.anyflow.common.ui.menu.MenuHolder
 import kotlinx.coroutines.launch
 

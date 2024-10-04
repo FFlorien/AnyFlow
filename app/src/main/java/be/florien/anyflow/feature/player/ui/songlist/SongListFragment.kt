@@ -28,14 +28,13 @@ import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.databinding.FragmentSongListBinding
-import be.florien.anyflow.feature.menu.implementation.SearchSongMenuHolder
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.PlayerActivity
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
-import be.florien.anyflow.tags.toTagType
+import be.florien.anyflow.toTagType
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

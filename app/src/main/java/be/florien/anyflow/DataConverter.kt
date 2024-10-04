@@ -1,4 +1,4 @@
-package be.florien.anyflow.tags
+package be.florien.anyflow
 
 import be.florien.anyflow.data.server.model.AmpacheAlbum
 import be.florien.anyflow.data.server.model.AmpacheArtist

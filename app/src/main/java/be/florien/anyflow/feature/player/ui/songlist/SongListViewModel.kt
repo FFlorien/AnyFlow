@@ -27,8 +27,8 @@ import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.DataRepository
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.tags.toViewDisplay
-import be.florien.anyflow.tags.toViewPodcastEpisodeDisplay
+import be.florien.anyflow.toViewDisplay
+import be.florien.anyflow.toViewPodcastEpisodeDisplay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.menu.implementation
+package be.florien.anyflow.feature.player.ui.songlist
 
 import android.content.Context
 import be.florien.anyflow.R

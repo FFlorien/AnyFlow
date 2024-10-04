@@ -21,7 +21,7 @@ import be.florien.anyflow.databinding.FragmentAddAlarmBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.menu.implementation.ConfirmAlarmMenuHolder
+import be.florien.anyflow.feature.alarms.ConfirmAlarmMenuHolder
 import be.florien.anyflow.common.ui.menu.MenuHolder
 import kotlinx.coroutines.launch
 

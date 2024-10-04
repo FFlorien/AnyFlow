@@ -15,7 +15,7 @@ import be.florien.anyflow.databinding.FragmentInfoBinding
 import be.florien.anyflow.databinding.ItemDownloadInfoBinding
 import be.florien.anyflow.databinding.ItemShortcutInfoBinding
 import be.florien.anyflow.extension.getDisplayWidth
-import be.florien.anyflow.feature.info.image.ImageDisplayFragment
+import be.florien.anyflow.common.ui.component.ImageDisplayFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoViewHolder
@@ -25,7 +25,7 @@ import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.tags.toTagType
+import be.florien.anyflow.toTagType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
