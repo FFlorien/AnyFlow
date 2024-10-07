@@ -1,50 +1,52 @@
-package be.florien.anyflow.feature.player.ui.info.song.shortcuts
+package be.florien.anyflow.feature.shortcut.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.R
+import androidx.lifecycle.ViewModelStoreOwner
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.databinding.ActivityShortcutBinding
-import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.extension.getDisplayWidth
-import be.florien.anyflow.extension.startActivity
-import be.florien.anyflow.feature.auth.UserConnectActivity
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
-import be.florien.anyflow.feature.player.ui.songlist.SongListViewHolderListener
-import be.florien.anyflow.feature.player.ui.songlist.SongListViewHolderProvider
-import be.florien.anyflow.feature.player.ui.songlist.SongViewHolder
-import be.florien.anyflow.injection.ShortcutsComponent
-import be.florien.anyflow.injection.ViewModelFactoryHolder
+import be.florien.anyflow.common.ui.getDisplayWidth
+import be.florien.anyflow.common.ui.list.SongListViewHolderListener
+import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
+import be.florien.anyflow.common.ui.list.SongViewHolder
+import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
+import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
+import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
+import be.florien.anyflow.feature.song.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.ui.SongInfoFragment
+import be.florien.anyflow.feature.song.ui.di.SongViewModelProvider
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
+import be.florien.anyflow.management.queue.model.SongDisplay
+import be.florien.anyflow.tags.model.SongInfo
 import javax.inject.Inject
 
-class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {
+class ShortcutsActivity : AppCompatActivity(), SongViewModelProvider<ShortcutsViewModel> {
 
     private lateinit var shortcutExample: SongViewHolder
     private lateinit var binding: ActivityShortcutBinding
-    private lateinit var activityComponent: ShortcutsComponent
+    private lateinit var activityComponent: ShortcutActivityComponent
     private lateinit var viewModel: ShortcutsViewModel
 
     @Inject
     lateinit var viewModelFactory: AnyFlowViewModelFactory
 
-    private val fakeComponent = object : ShortcutsComponent {
+    @Inject
+    lateinit var navigator: Navigator
+
+    private val fakeComponent = object : ShortcutActivityComponent {
         override fun inject(shortcutsActivity: ShortcutsActivity) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val component = anyFlowApp.serverComponent
-            ?.shortcutsComponentBuilder()
-            ?.build()
+        val component = (application as ShortcutActivityComponentCreator).createShortcutActivityComponent()
         activityComponent = if (component != null) {
             component
         } else {
-            startActivity(UserConnectActivity::class)
+            navigator.navigateToConnect(this)
             finish()
             fakeComponent
         }
@@ -79,7 +81,7 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {
                 .beginTransaction()
                 .add(
                     R.id.fragment_container_view,
-                    SongInfoFragment(SongInfoActions.DUMMY_SONG_ID),
+                    SongInfoFragment(ShortcutsViewModel::class.java),
                     SongInfoFragment::class.java.simpleName
                 )
                 .commit()
@@ -103,8 +105,6 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {
         shortcutExample.setShortcuts()
     }
 
-    override fun getFactory() = viewModelFactory
-
     private fun initToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_up)
@@ -115,4 +115,47 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryHolder {
             }
         }
     }
+
+    override fun getSongViewModel(owner: ViewModelStoreOwner?): ShortcutsViewModel =
+        ViewModelProvider(this, viewModelFactory)[ShortcutsViewModel::class.java]
+            .apply {
+                val width = getDisplayWidth()
+                val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
+                val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
+                val itemFullWidth = itemWidth + margin + margin
+                maxItems = (width / itemFullWidth) - 1
+                val title = getString(R.string.dummy_title)
+                val artistName = getString(R.string.dummy_artist)
+                val albumName = getString(R.string.dummy_album)
+                val time = 120
+                dummySongInfo =
+                    SongInfo(
+                        BaseSongInfoActions.DUMMY_SONG_ID,
+                        title,
+                        artistName,
+                        0L,
+                        albumName,
+                        0L,
+                        1,
+                        artistName,
+                        0L,
+                        listOf(getString(R.string.dummy_genre)),
+                        listOf(0L),
+                        listOf(getString(R.string.dummy_playlist)),
+                        listOf(0L),
+                        1,
+                        time,
+                        2000,
+                        0,
+                        null
+                    )
+                dummySongDisplay = SongDisplay(
+                    BaseSongInfoActions.DUMMY_SONG_ID,
+                    title,
+                    artistName,
+                    albumName,
+                    0L,
+                    time
+                )
+            }
 }

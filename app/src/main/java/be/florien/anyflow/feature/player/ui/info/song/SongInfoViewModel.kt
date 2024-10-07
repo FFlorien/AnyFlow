@@ -4,31 +4,51 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.feature.song.ui.SongInfoActions
+import be.florien.anyflow.feature.song.ui.BaseSongViewModel
+import be.florien.anyflow.feature.song.ui.R
+import be.florien.anyflow.feature.song.ui.BaseSongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.tags.DataRepository
 import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
 class SongInfoViewModel @Inject constructor(
-    filtersManager: FiltersManager,
-    orderComposer: OrderComposer,
-    dataRepository: DataRepository,
+     filtersManager: FiltersManager,
+     orderComposer: OrderComposer,
+    private val dataRepository: DataRepository,
     urlRepository: UrlRepository,
-    @Named("preferences") sharedPreferences: SharedPreferences,
-    downloadManager: DownloadManager
-) : BaseSongViewModel(
-    filtersManager,
-    orderComposer,
-    dataRepository,
-    urlRepository,
-    sharedPreferences,
-    downloadManager
-) {
+    downloadManager: DownloadManager,
+     @Named("preferences") private val sharedPreferences: SharedPreferences
+) : BaseSongViewModel<SongInfoActions>() {
+
+    override var songId: Long
+        get() {
+            val value = songInfoMediator.value?.id
+            return value ?: SongInfo.dummySongInfo().id
+        }
+        set(value) {
+            viewModelScope.launch {
+                if (value != BaseSongInfoActions.DUMMY_SONG_ID) {
+                    songInfoMediator.addSource(dataRepository.getSong(value)) {
+                        songInfoMediator.mutable.value = it
+
+                        coverConfig.mutable.value = ImageConfig(
+                            url = infoActions.getAlbumArtUrl(it.albumId),
+                            resource = R.drawable.cover_placeholder
+                        )
+                        updateRows()
+                    }
+                }
+            }
+        }
 
     val searchTerm: LiveData<String> = MutableLiveData(null)
     val isPlaylistListDisplayed: LiveData<PlaylistSelectionData> = MutableLiveData(null)
@@ -36,7 +56,7 @@ class SongInfoViewModel @Inject constructor(
     override fun executeAction(row: InfoActions.InfoRow): Boolean {
         val actionType = row.actionType
         val fieldType = row.fieldType
-        if (fieldType !is SongInfoActions.SongFieldType || actionType !is SongInfoActions.SongActionType) {
+        if (fieldType !is BaseSongInfoActions.SongFieldType || actionType !is BaseSongInfoActions.SongActionType) {
             return false
         }
         if (super.executeAction(row)) {
@@ -45,18 +65,18 @@ class SongInfoViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (actionType) {
-                SongInfoActions.SongActionType.AddNext -> infoActions.playNext(songId)
-                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(
+                BaseSongInfoActions.SongActionType.AddNext -> infoActions.playNext(songId)
+                BaseSongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(
                     fieldType,
-                    (row as? SongInfoActions.SongMultipleInfoRow)?.index ?: 0
+                    (row as? BaseSongInfoActions.SongMultipleInfoRow)?.index ?: 0
                 )
 
-                SongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(songInfo, row)
-                SongInfoActions.SongActionType.Search ->
+                BaseSongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(songInfo, row)
+                BaseSongInfoActions.SongActionType.Search ->
                     searchTerm.mutable.value = infoActions.getSearchTerms(songInfo, fieldType)
 
-                SongInfoActions.SongActionType.Download -> {
-                    val index = (row as? SongInfoActions.SongMultipleInfoRow)?.index
+                BaseSongInfoActions.SongActionType.Download -> {
+                    val index = (row as? BaseSongInfoActions.SongMultipleInfoRow)?.index
                     infoActions.queueDownload(songInfo, fieldType, index)
                 }
 
@@ -66,18 +86,20 @@ class SongInfoViewModel @Inject constructor(
         return true
     }
 
-    private fun displayPlaylistList(fieldType: SongInfoActions.SongFieldType, order: Int) {
+    override val infoActions: SongInfoActions = SongInfoActions(filtersManager, orderComposer, urlRepository, downloadManager, sharedPreferences)
+
+    private fun displayPlaylistList(fieldType: BaseSongInfoActions.SongFieldType, order: Int) {
         val id = when (fieldType) {
-            SongInfoActions.SongFieldType.Title -> songInfo.id
-            SongInfoActions.SongFieldType.Artist -> songInfo.artistId
-            SongInfoActions.SongFieldType.Album,
-            SongInfoActions.SongFieldType.Disk -> songInfo.albumId
-            SongInfoActions.SongFieldType.AlbumArtist -> songInfo.albumArtistId
-            SongInfoActions.SongFieldType.Genre -> songInfo.genreIds[order]
-            SongInfoActions.SongFieldType.Playlist -> songInfo.playlistIds[order]
+            BaseSongInfoActions.SongFieldType.Title -> songInfo.id
+            BaseSongInfoActions.SongFieldType.Artist -> songInfo.artistId
+            BaseSongInfoActions.SongFieldType.Album,
+            BaseSongInfoActions.SongFieldType.Disk -> songInfo.albumId
+            BaseSongInfoActions.SongFieldType.AlbumArtist -> songInfo.albumArtistId
+            BaseSongInfoActions.SongFieldType.Genre -> songInfo.genreIds[order]
+            BaseSongInfoActions.SongFieldType.Playlist -> songInfo.playlistIds[order]
             else -> return
         }
-        val secondId = if (fieldType == SongInfoActions.SongFieldType.Disk) songInfo.disk else null
+        val secondId = if (fieldType == BaseSongInfoActions.SongFieldType.Disk) songInfo.disk else null
         isPlaylistListDisplayed.mutable.value = PlaylistSelectionData(id, fieldType, secondId)
     }
 
@@ -88,5 +110,5 @@ class SongInfoViewModel @Inject constructor(
     override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(songInfo, row)
 
-    class PlaylistSelectionData(val id: Long, val type: SongInfoActions.SongFieldType, val secondId: Int? = null)
+    class PlaylistSelectionData(val id: Long, val type: BaseSongInfoActions.SongFieldType, val secondId: Int? = null)
 }

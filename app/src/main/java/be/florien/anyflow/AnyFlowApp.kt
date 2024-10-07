@@ -13,6 +13,8 @@ import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
+import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
+import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
@@ -31,7 +33,7 @@ import javax.inject.Inject
  */
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, UserVmInjectorContainer,
-    ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer {
+    ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer, ShortcutActivityComponentCreator {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     override val serverVmInjector: ServerVmInjector
@@ -127,4 +129,7 @@ open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, Us
 
         suspend fun isServerValid() = authRepository.ping()
     }
+
+    override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
+        serverComponent?.shortcutsComponentBuilder()?.build()
 }

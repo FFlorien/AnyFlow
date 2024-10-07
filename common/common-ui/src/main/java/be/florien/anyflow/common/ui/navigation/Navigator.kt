@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 
 interface Navigator {
 
+    fun navigateToConnect(context: Context)
     fun navigateToPlayer(context: Context, clearTop: Boolean = false)
     fun navigateToCurrentlyPlaying(context: Context)
     fun displayFragmentOnMain(

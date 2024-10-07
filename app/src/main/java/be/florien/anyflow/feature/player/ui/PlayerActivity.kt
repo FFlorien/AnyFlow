@@ -19,6 +19,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -39,12 +40,14 @@ import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
-import be.florien.anyflow.feature.player.ui.songlist.OrderMenuHolder
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
-import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsActivity
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
+import be.florien.anyflow.feature.player.ui.songlist.OrderMenuHolder
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
+import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
+import be.florien.anyflow.feature.song.ui.di.SongViewModelProvider
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
@@ -62,7 +65,7 @@ import javax.inject.Inject
  */
 @ActivityScope
 @ServerScope
-class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider {
+class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider, SongViewModelProvider<SongInfoViewModel> {
 
     /**
      * Injection
@@ -472,4 +475,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     companion object {
         private const val LIBRARY_STACK_NAME = "filters"
     }
+
+    override fun getSongViewModel(owner: ViewModelStoreOwner?) =
+        ViewModelProvider(owner ?: this, viewModelFactory)[SongInfoViewModel::class.java]
 }

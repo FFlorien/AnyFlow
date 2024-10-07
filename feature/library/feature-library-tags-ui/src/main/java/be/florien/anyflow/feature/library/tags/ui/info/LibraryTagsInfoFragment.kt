@@ -10,7 +10,7 @@ import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.management.filters.model.Filter
 import kotlin.random.Random
 
-class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoFragment(parentFilter) {
+class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoFragment<LibraryTagsInfoActions>(parentFilter) {
     override fun getTitle(): String = getString(R.string.library_title_main)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
     override fun getLibraryInfoViewModel() = ViewModelProvider(

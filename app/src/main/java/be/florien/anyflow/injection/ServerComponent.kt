@@ -51,7 +51,7 @@ interface ServerComponent : UserVmInjector, GlideModuleInjector {
 
     fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
     fun playerComponentBuilder(): PlayerComponent.Builder
-    fun shortcutsComponentBuilder(): ShortcutsComponent.Builder
+    fun shortcutsComponentBuilder(): be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent.Builder
     fun playlistComponentBuilder(): PlaylistComponent.Builder
 
     @Subcomponent.Builder

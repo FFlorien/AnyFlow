@@ -10,7 +10,6 @@ import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpachePodcastEpisode
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
 import be.florien.anyflow.feature.playlist.selection.domain.TagType
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -147,18 +146,18 @@ fun SongInfo.toViewDisplay() = SongDisplay(
     time = time
 )
 
-fun SongInfoActions.SongFieldType.toTagType() = when (this) {
-    SongInfoActions.SongFieldType.Title -> TagType.Title
-    SongInfoActions.SongFieldType.Artist -> TagType.Artist
-    SongInfoActions.SongFieldType.Album -> TagType.Album
-    SongInfoActions.SongFieldType.Disk -> TagType.Disk
-    SongInfoActions.SongFieldType.AlbumArtist -> TagType.AlbumArtist
-    SongInfoActions.SongFieldType.Genre -> TagType.Genre
-    SongInfoActions.SongFieldType.Playlist -> TagType.Playlist
-    SongInfoActions.SongFieldType.Year,
-    SongInfoActions.SongFieldType.Duration,
-    SongInfoActions.SongFieldType.PodcastEpisode,
-    SongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
+fun be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.toTagType() = when (this) {
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Title -> TagType.Title
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Artist -> TagType.Artist
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Album -> TagType.Album
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Disk -> TagType.Disk
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.AlbumArtist -> TagType.AlbumArtist
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Genre -> TagType.Genre
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Playlist -> TagType.Playlist
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Year,
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Duration,
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.PodcastEpisode,
+    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
 }
 
 //endregion

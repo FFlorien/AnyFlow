@@ -1,25 +1,16 @@
-package be.florien.anyflow.feature.player.ui.info.song
+package be.florien.anyflow.feature.song.ui
 
 import android.content.SharedPreferences
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.management.download.DownloadManager
+import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.management.queue.OrderComposer
-import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.tags.UrlRepository
 
-class SongInfoActions(
-    private val filtersManager: FiltersManager,
-    private val orderComposer: OrderComposer,
-    private val urlRepository: UrlRepository,
-    private val sharedPreferences: SharedPreferences,
-    private val downloadManager: DownloadManager
+abstract class BaseSongInfoActions(
+    val sharedPreferences: SharedPreferences
 ) : InfoActions<SongInfo>() {
 
     /**
@@ -137,205 +128,10 @@ class SongInfoActions(
     }
 
     /**
-     * Public methods
-     */
-
-    fun getAlbumArtUrl(albumId: Long) = urlRepository.getAlbumArtUrl(albumId)
-    fun getPodcastArtUrl(podcastId: Long) = urlRepository.getPodcastArtUrl(podcastId)
-
-    /**
      * Action methods
      */
 
-    suspend fun playNext(songId: Long) {
-        orderComposer.changeSongPositionForNext(songId)
-    }
-
-    suspend fun filterOn(songInfo: SongInfo, row: InfoRow) {
-        val filter = when (row.fieldType) {
-            SongFieldType.Title -> Filter(
-                Filter.FilterType.SONG_IS,
-                songInfo.id,
-                songInfo.title
-            )
-
-            SongFieldType.Artist -> Filter(
-                Filter.FilterType.ARTIST_IS,
-                songInfo.artistId,
-                songInfo.artistName
-            )
-
-            SongFieldType.Album -> Filter(
-                Filter.FilterType.ALBUM_IS,
-                songInfo.albumId,
-                songInfo.albumName
-            )
-
-            SongFieldType.Disk -> Filter(
-                Filter.FilterType.ALBUM_IS,
-                songInfo.albumId,
-                songInfo.albumName,
-                listOf(
-                    Filter(
-                        Filter.FilterType.DISK_IS,
-                        songInfo.disk,
-                        songInfo.disk.toString()
-                    )
-                )
-            )
-
-            SongFieldType.AlbumArtist -> Filter(
-                Filter.FilterType.ALBUM_ARTIST_IS,
-                songInfo.albumArtistId,
-                songInfo.albumArtistName
-            )
-
-            SongFieldType.Genre -> {
-                val index = (row as SongMultipleInfoRow).index
-                Filter(
-                    Filter.FilterType.GENRE_IS,
-                    songInfo.genreIds[index],
-                    songInfo.genreNames[index]
-                )
-            }
-
-            SongFieldType.Playlist -> {
-                val index = (row as SongMultipleInfoRow).index
-                Filter(
-                    Filter.FilterType.PLAYLIST_IS,
-                    songInfo.playlistIds[index],
-                    songInfo.playlistNames[index]
-                )
-            }
-
-            else -> throw IllegalArgumentException("This field can't be filtered on")
-        }
-        filtersManager.clearFilters()
-        filtersManager.addFilter(filter)
-        filtersManager.commitChanges()
-    }
-
-    fun getSearchTerms(songInfo: SongInfo, fieldType: FieldType): String {
-        return when (fieldType) {
-            SongFieldType.Title -> songInfo.title
-            SongFieldType.Artist -> songInfo.artistName
-            SongFieldType.Album -> songInfo.albumName
-            SongFieldType.AlbumArtist -> songInfo.albumArtistName
-            SongFieldType.Genre -> songInfo.genreNames.first()
-            else -> throw IllegalArgumentException("This field can't be searched on")
-        }
-    }
-
-    fun queueDownload(songInfo: SongInfo, fieldType: SongFieldType, index: Int?) {
-        val data = when (fieldType) {
-            SongFieldType.Title -> Triple(
-                songInfo.id,
-                Filter.FilterType.SONG_IS,
-                -1
-            )
-
-            SongFieldType.Artist -> Triple(
-                songInfo.artistId,
-                Filter.FilterType.ARTIST_IS,
-                -1
-            )
-
-            SongFieldType.Album -> Triple(
-                songInfo.albumId,
-                Filter.FilterType.ALBUM_IS,
-                -1
-            )
-
-            SongFieldType.Disk -> Triple(
-                songInfo.albumId,
-                Filter.FilterType.DISK_IS,
-                songInfo.disk
-            )
-
-            SongFieldType.AlbumArtist -> Triple(
-                songInfo.albumArtistId,
-                Filter.FilterType.ALBUM_ARTIST_IS,
-                -1
-            )
-
-            SongFieldType.Genre -> {
-                val trueIndex = index ?: return
-                Triple(
-                    songInfo.genreIds[trueIndex],
-                    Filter.FilterType.GENRE_IS,
-                    -1
-                )
-            }
-
-            SongFieldType.Playlist -> {
-                val trueIndex = index ?: return
-                Triple(
-                    songInfo.playlistIds[trueIndex],
-                    Filter.FilterType.PLAYLIST_IS,
-                    -1
-                )
-            }
-
-            else -> return
-        }
-        downloadManager.queueDownload(data.first, data.second, data.third)
-    }
-
-    /**
-     * Shortcuts
-     */
-
-    fun toggleShortcut(fieldType: FieldType, actionType: ActionType) {
-        val shortcuts = getShortcuts().toMutableList()
-        if (shortcuts.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
-            sharedPreferences.edit()
-                .putString(
-                    SHORTCUTS_PREF_NAME,
-                    shortcuts.joinToString(separator = "#") {
-                        val fieldName = (it.fieldType as Enum<*>).name
-                        val actionName = (it.actionType as Enum<*>).name
-                        "$fieldName|$actionName"
-                    }
-                )
-                .apply()
-        } else {
-            val fieldName = (fieldType as Enum<*>).name
-            val actionName = (actionType as Enum<*>).name
-            val originalString = sharedPreferences.getString(SHORTCUTS_PREF_NAME, "")
-            sharedPreferences.edit()
-                .putString(SHORTCUTS_PREF_NAME, "$originalString#$fieldName|$actionName")
-                .apply()
-        }
-    }
-
-    fun getShortcuts(): List<ShortcutInfoRow> {
-        val string = sharedPreferences.getString(SHORTCUTS_PREF_NAME, "") ?: return emptyList()
-        val songInfo = SongInfo.dummySongInfo()
-
-        return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
-            val fieldTypeString = it.substringBefore('|')
-            val actionTypeString = it.substringAfter('|')
-
-            val fieldType = SongFieldType.entries.firstOrNull { it.name == fieldTypeString }
-            if (fieldType != null) {
-                val actionType = SongActionType.entries.firstOrNull { it.name == actionTypeString }
-                if (actionType != null) {
-                    getSongAction(
-                        songInfo,
-                        fieldType,
-                        actionType,
-                        order = index
-                    ) as? ShortcutInfoRow
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
-        }
-    }
-
-    private fun getSongAction(
+    protected fun getSongAction(
         songInfo: SongInfo,
         field: FieldType,
         action: ActionType,
@@ -650,7 +446,7 @@ class SongInfoActions(
                     SongFieldType.Title,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.id,
                         Filter.FilterType.SONG_IS
                     )
@@ -663,7 +459,7 @@ class SongInfoActions(
                     SongFieldType.Album,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.albumId,
                         Filter.FilterType.ALBUM_IS
                     )
@@ -676,7 +472,7 @@ class SongInfoActions(
                     SongFieldType.Disk,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.albumId,
                         Filter.FilterType.DISK_IS,
                         songInfo.disk
@@ -690,7 +486,7 @@ class SongInfoActions(
                     SongFieldType.AlbumArtist,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.albumArtistId,
                         Filter.FilterType.ALBUM_ARTIST_IS
                     )
@@ -703,7 +499,7 @@ class SongInfoActions(
                     SongFieldType.Artist,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.artistId,
                         Filter.FilterType.ARTIST_IS
                     )
@@ -716,7 +512,7 @@ class SongInfoActions(
                     SongFieldType.Genre,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.genreIds[index],
                         Filter.FilterType.GENRE_IS
                     ),
@@ -730,7 +526,7 @@ class SongInfoActions(
                     SongFieldType.Playlist,
                     SongActionType.Download,
                     order = order,
-                    progress = downloadManager.getDownloadState(
+                    progress = getDownloadState(
                         songInfo.playlistIds[index],
                         Filter.FilterType.PLAYLIST_IS
                     ),
@@ -741,6 +537,35 @@ class SongInfoActions(
             }
         }
     }
+
+    fun getShortcuts(): List<ShortcutInfoRow> {
+        val string = sharedPreferences.getString(SHORTCUTS_PREF_NAME, "") ?: return emptyList()
+        val songInfo = SongInfo.dummySongInfo()
+
+        return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
+            val fieldTypeString = it.substringBefore('|')
+            val actionTypeString = it.substringAfter('|')
+
+            val fieldType = SongFieldType.entries.firstOrNull { it.name == fieldTypeString }
+            if (fieldType != null) {
+                val actionType = SongActionType.entries.firstOrNull { it.name == actionTypeString }
+                if (actionType != null) {
+                    getSongAction(
+                        songInfo,
+                        fieldType,
+                        actionType,
+                        order = index
+                    ) as? ShortcutInfoRow
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+    }
+
+    abstract fun getDownloadState(id: Long, type: Filter.FilterType, additionalInfo: Int? = null) : LiveData<DownloadProgressState>
 
     private fun getInfoRow(
         title: Int,
@@ -878,6 +703,6 @@ class SongInfoActions(
 
     companion object {
         const val DUMMY_SONG_ID = -5L
-        private const val SHORTCUTS_PREF_NAME = "Shortcuts"
+        const val SHORTCUTS_PREF_NAME = "Shortcuts"
     }
 }

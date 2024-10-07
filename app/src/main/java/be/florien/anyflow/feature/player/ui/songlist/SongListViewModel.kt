@@ -15,8 +15,9 @@ import androidx.paging.PagingData
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
-import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongActionType
+import be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType
+import be.florien.anyflow.feature.song.ui.SongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.podcast.PodcastRepository
@@ -47,22 +48,21 @@ class SongListViewModel
 @Inject constructor(
     filtersManager: FiltersManager,
     orderComposer: OrderComposer,
-    @Named("preferences") sharedPreferences: SharedPreferences,
     downloadManager: DownloadManager,
     urlRepository: UrlRepository,
     playingQueue: PlayingQueue,
     private val dataRepository: DataRepository,
     private val podcastRepository: PodcastRepository,
+    @Named("preferences") private val sharedPreferences: SharedPreferences
 ) : BaseViewModel() {
-
     var player: MediaController? = null
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     private val songInfoActions = SongInfoActions(
         filtersManager,
         orderComposer,
         urlRepository,
-        sharedPreferences,
-        downloadManager
+        downloadManager,
+        sharedPreferences
     )
     val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> =
         playingQueue.queueItemDisplayListUpdater
@@ -73,7 +73,6 @@ class SongListViewModel
             } else {
                 queueItem?.id?.let { id ->
                     podcastRepository.getPodcastEpisode(id).map {
-                        iLog("Podcast episode is $it")
                         it.toViewPodcastEpisodeDisplay()
                     }
                 }
@@ -86,7 +85,7 @@ class SongListViewModel
     val searchResults: MutableLiveData<LiveData<List<Long>>?> = MutableLiveData()
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
-    val playlistListDisplayedFor: LiveData<Triple<Long, SongInfoActions.SongFieldType, Int>> =
+    val playlistListDisplayedFor: LiveData<Triple<Long, SongFieldType, Int>> =
         MutableLiveData(null)
     val shortcuts: LiveData<List<InfoActions.InfoRow>> =
         MutableLiveData(songInfoActions.getShortcuts())
@@ -177,7 +176,7 @@ class SongListViewModel
     //todo extract some of these actions elsewhere because it's the fragment responsibility
     fun executeSongAction(songDisplay: QueueItemDisplay, row: InfoActions.InfoRow) {
         val fieldType = row.fieldType
-        if (songDisplay !is SongDisplay || fieldType !is SongInfoActions.SongFieldType) {
+        if (songDisplay !is SongDisplay || fieldType !is SongFieldType) {
             return
         }
         viewModelScope.launch {
@@ -185,27 +184,27 @@ class SongListViewModel
                 dataRepository.getSongSync(songDisplay.id)
             }
             when (row.actionType) {
-                SongInfoActions.SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
+                SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
                 //todo get correct id depending on the fieldType
-                SongInfoActions.SongActionType.AddToPlaylist -> displayPlaylistList(
+                SongActionType.AddToPlaylist -> displayPlaylistList(
                     songDisplay.id,
                     fieldType,
                     songInfo.disk
                 )
                 // todo selector for multiple values (genre && playlists)
-                SongInfoActions.SongActionType.AddToFilter -> songInfoActions.filterOn(
+                SongActionType.AddToFilter -> songInfoActions.filterOn(
                     songInfo,
                     row
                 )
 
-                SongInfoActions.SongActionType.Search -> searchText(
+                SongActionType.Search -> searchText(
                     songInfoActions.getSearchTerms(
                         songInfo,
                         fieldType
                     )
                 )
 
-                SongInfoActions.SongActionType.Download -> songInfoActions.queueDownload(
+                SongActionType.Download -> songInfoActions.queueDownload(
                     songInfo,
                     fieldType,
                     null
@@ -248,7 +247,7 @@ class SongListViewModel
 
     private fun displayPlaylistList(
         songId: Long,
-        fieldType: SongInfoActions.SongFieldType,
+        fieldType: SongFieldType,
         secondId: Int
     ) {
         playlistListDisplayedFor.mutable.value = Triple(songId, fieldType, secondId)

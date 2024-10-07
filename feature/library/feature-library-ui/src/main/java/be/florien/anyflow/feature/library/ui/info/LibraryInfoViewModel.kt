@@ -10,10 +10,10 @@ import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import javax.inject.Inject
 
-abstract class LibraryInfoViewModel(
+abstract class LibraryInfoViewModel<IA: InfoActions<Filter<*>?>>(
     override val filtersManager: FiltersManager,
     override val navigator: Navigator
-) : InfoViewModel<Filter<*>?>(), LibraryViewModel {
+) : InfoViewModel<Filter<*>?, IA>(), LibraryViewModel {
 
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 

@@ -5,14 +5,16 @@ plugins {
 }
 
 android {
-    namespace 'be.florien.anyflow.common.ui'
+    namespace 'be.florien.anyflow.feature.song.ui'
     compileSdk 34
 
     defaultConfig {
         minSdk 23
+
+        consumerProguardFiles "consumer-rules.pro"
     }
     buildFeatures {
-        dataBinding true
+        dataBinding = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -22,24 +24,22 @@ android {
         jvmTarget = '1.8'
     }
 }
-//todo clean up resources
 
 dependencies {
-    //Modules
+    implementation project(':architecture-di')
+    implementation project(":common-ui")
     implementation project(':common-ui-data')
-    implementation project(':resources')
-    //Android
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'com.google.android.material:material:1.12.0'
-    //glide
-    implementation 'com.github.bumptech.glide:glide:4.14.1'
+    implementation project(':management-download')
+    implementation project(':management-filters')
     implementation project(':management-queue')
-    kapt 'com.github.bumptech.glide:compiler:4.14.1'
-    implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
-    //DI
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    //Lifecycle
+
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation project(':management-tags')
+    implementation project(':data-local')
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
 }
-apply plugin: 'kotlin-parcelize'

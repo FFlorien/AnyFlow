@@ -1,14 +1,12 @@
 package be.florien.anyflow.feature.library.tags.ui.info
 
 import android.content.Context
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
 import javax.inject.Inject
 
 class LibraryTagsInfoViewModel @Inject constructor( //todo abstract this for infoAction ?
@@ -16,9 +14,9 @@ class LibraryTagsInfoViewModel @Inject constructor( //todo abstract this for inf
     filtersManager: FiltersManager,
     navigator: Navigator,
     context: Context
-) : LibraryInfoViewModel(filtersManager, navigator), LibraryViewModel {
+) : LibraryInfoViewModel<LibraryTagsInfoActions>(filtersManager, navigator), LibraryViewModel {
 
-    override val infoActions: InfoActions<Filter<*>?> = LibraryTagsInfoActions(libraryTagsRepository, context)
+    override val infoActions = LibraryTagsInfoActions(libraryTagsRepository, context)
 
     companion object {
         const val GENRE_ID = "Genre"

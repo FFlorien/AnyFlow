@@ -27,10 +27,14 @@ import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.common.ui.list.SongListViewHolderListener
+import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
+import be.florien.anyflow.common.ui.list.SongViewHolder
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoFragment
+import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
+import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -288,7 +292,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         if (item is SongDisplay) {
-            SongInfoFragment(item.id).show(childFragmentManager, "info")
+            SongInfoFragment(SongInfoViewModel::class.java, item.id)
+                .show(childFragmentManager, "info")
         }
     }
 

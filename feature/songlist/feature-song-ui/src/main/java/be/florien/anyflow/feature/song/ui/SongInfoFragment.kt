@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.info.song
+package be.florien.anyflow.feature.song.ui
 
 import android.app.Activity
 import android.app.Dialog
@@ -7,34 +7,27 @@ import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
-import be.florien.anyflow.R
-import be.florien.anyflow.databinding.FragmentInfoBinding
-import be.florien.anyflow.databinding.ItemDownloadInfoBinding
-import be.florien.anyflow.databinding.ItemShortcutInfoBinding
-import be.florien.anyflow.extension.getDisplayWidth
 import be.florien.anyflow.common.ui.component.ImageDisplayFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoViewHolder
-import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
-import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
-import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
-import be.florien.anyflow.injection.ViewModelFactoryHolder
-import be.florien.anyflow.management.queue.model.SongDisplay
-import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.toTagType
+import be.florien.anyflow.feature.song.ui.databinding.FragmentInfoBinding
+import be.florien.anyflow.feature.song.ui.databinding.ItemDownloadInfoBinding
+import be.florien.anyflow.feature.song.ui.databinding.ItemShortcutInfoBinding
+import be.florien.anyflow.feature.song.ui.di.SongViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
-class SongInfoFragment(
-    private var songId: Long = SongInfoActions.DUMMY_SONG_ID
+class SongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewModel<IA>>(
+    private var viewModelClass: Class<T>? = null,
+    private var songId: Long = BaseSongInfoActions.DUMMY_SONG_ID
 ) : BottomSheetDialogFragment() {
 
     companion object {
         private const val SONG = "SONG"
+        private const val VIEWMODEL_CLASS = "SONG"
 
         private const val ITEM_VIEW_TYPE_DEFAULT = 0
         private const val ITEM_VIEW_TYPE_SHORTCUT = 1
@@ -42,18 +35,24 @@ class SongInfoFragment(
         private const val TOP_PADDING = 200
     }
 
-    private lateinit var viewModel: BaseSongViewModel
-    private var songListViewModel: SongListViewModel? = null
+    private lateinit var viewModel: T
+
+    //    private var songListViewModel: SongListViewModel? = null
     private lateinit var binding: FragmentInfoBinding
 
     init {
         arguments?.let {
             songId = it.getLong(SONG, songId)
+            val viewmodelClass = it.getString(VIEWMODEL_CLASS) ?: throw IllegalStateException()
+            viewModelClass =
+                Class.forName(viewmodelClass) as? Class<T> ?: throw IllegalStateException()
         }
         if (arguments == null) {
             arguments = Bundle().apply {
                 putLong(SONG, songId)
+                putString(VIEWMODEL_CLASS, viewModelClass?.name)
             }
+
         }
     }
 
@@ -71,63 +70,7 @@ class SongInfoFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = if (songId == SongInfoActions.DUMMY_SONG_ID) {
-            ViewModelProvider(
-                requireActivity(),
-                (requireActivity() as ViewModelFactoryHolder).getFactory()
-            )[ShortcutsViewModel::class.java]
-                .apply {
-                    val width = requireActivity().getDisplayWidth()
-                    val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
-                    val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
-                    val itemFullWidth = itemWidth + margin + margin
-                    maxItems = (width / itemFullWidth) - 1
-                    val title = getString(R.string.dummy_title)
-                    val artistName = getString(R.string.dummy_artist)
-                    val albumName = getString(R.string.dummy_album)
-                    val time = 120
-                    dummySongInfo =
-                        SongInfo(
-                            SongInfoActions.DUMMY_SONG_ID,
-                            title,
-                            artistName,
-                            0L,
-                            albumName,
-                            0L,
-                            1,
-                            artistName,
-                            0L,
-                            listOf(getString(R.string.dummy_genre)),
-                            listOf(0L),
-                            listOf(getString(R.string.dummy_playlist)),
-                            listOf(0L),
-                            1,
-                            time,
-                            2000,
-                            0,
-                            null
-                        )
-                    dummySongDisplay = SongDisplay(
-                        SongInfoActions.DUMMY_SONG_ID,
-                        title,
-                        artistName,
-                        albumName,
-                        0L,
-                        time
-                    )
-                }
-        } else {
-            ViewModelProvider(
-                this,
-                (requireActivity() as ViewModelFactoryHolder).getFactory()
-            )[SongInfoViewModel::class.java]
-        }
-        if (parentFragment != null) {
-            songListViewModel = ViewModelProvider(
-                requireParentFragment(),
-                (requireActivity() as ViewModelFactoryHolder).getFactory()
-            )[SongListViewModel::class.java]
-        }
+        viewModel = (activity as SongViewModelProvider<T>).getSongViewModel(this)
         viewModel.songId = songId
         viewModel.songInfoObservable.observe(this) {
             viewModel.updateRows()
@@ -143,27 +86,31 @@ class SongInfoFragment(
         binding.songInfo.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.songInfo.adapter = SongInfoAdapter(viewModel::executeAction)
-        binding.cover.setOnClickListener { ImageDisplayFragment(viewModel.coverConfig.value?.url ?: "").show(childFragmentManager, null)}
+        binding.cover.setOnClickListener {
+            ImageDisplayFragment(
+                viewModel.coverConfig.value?.url ?: ""
+            ).show(childFragmentManager, null)
+        }
         viewModel.infoRows.observe(viewLifecycleOwner) {
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)
         }
-        (viewModel as? SongInfoViewModel)?.apply {
-            if (songListViewModel != null) {
-                searchTerm.observe(viewLifecycleOwner) {
-                    if (it != null) {
-                        songListViewModel?.isSearching?.value = true
-                        songListViewModel?.searchedText?.value = it
-                        dismiss()
-                    }
-                }
-            }
-            isPlaylistListDisplayed.observe(viewLifecycleOwner) {
-                if (it != null) {
-                    SelectPlaylistFragment(it.id, it.type.toTagType(), it.secondId ?: -1).show(childFragmentManager, null)
-                }
-            }
-        }
+//        (viewModel as? SongInfoViewModel)?.apply {todo integrate this in navigator
+//            if (songListViewModel != null) {
+//                searchTerm.observe(viewLifecycleOwner) {
+//                    if (it != null) {
+//                        songListViewModel?.isSearching?.value = true
+//                        songListViewModel?.searchedText?.value = it
+//                        dismiss()
+//                    }
+//                }
+//            }
+//            isPlaylistListDisplayed.observe(viewLifecycleOwner) {
+//                if (it != null) {
+//                    SelectPlaylistFragment(it.id, it.type.toTagType(), it.secondId ?: -1).show(childFragmentManager, null)
+//                }
+//            }
+//        }
     }
 
     private fun setupFullHeight() {
@@ -193,8 +140,8 @@ class SongInfoFragment(
 
         override fun getItemViewType(position: Int): Int {
             return when (getItem(position)) {
-                is SongInfoActions.ShortcutInfoRow -> ITEM_VIEW_TYPE_SHORTCUT
-                is SongInfoActions.SongDownload -> ITEM_VIEW_TYPE_DOWNLOAD
+                is BaseSongInfoActions.ShortcutInfoRow -> ITEM_VIEW_TYPE_SHORTCUT
+                is BaseSongInfoActions.SongDownload -> ITEM_VIEW_TYPE_DOWNLOAD
                 else -> ITEM_VIEW_TYPE_DEFAULT
             }
         }
@@ -227,7 +174,7 @@ class SongInfoFragment(
 
         override fun bindChangedData(row: InfoActions.InfoRow) {
             super.bindChangedData(row)
-            if (row is SongInfoActions.SongDownload) {
+            if (row is BaseSongInfoActions.SongDownload) {
                 parent.findViewTreeLifecycleOwner()?.let {
                     row.progress.observe(it) { progress ->
                         parentBinding.progress.max = progress.total

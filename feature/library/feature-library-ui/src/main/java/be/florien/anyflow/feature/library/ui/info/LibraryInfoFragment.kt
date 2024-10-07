@@ -17,13 +17,13 @@ import be.florien.anyflow.feature.library.ui.cancelChanges
 import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.management.filters.model.Filter
 
-abstract class LibraryInfoFragment(var parentFilter: Filter<*>? = null) : BaseFilteringFragment() {
+abstract class LibraryInfoFragment<IA: InfoActions<Filter<*>?>>(var parentFilter: Filter<*>? = null) : BaseFilteringFragment() {
 
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
     override val navigator: Navigator
         get() = viewModel.navigator
-    lateinit var viewModel: LibraryInfoViewModel
+    lateinit var viewModel: LibraryInfoViewModel<IA>
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
 
     override fun onAttach(context: Context) {
@@ -32,7 +32,7 @@ abstract class LibraryInfoFragment(var parentFilter: Filter<*>? = null) : BaseFi
         viewModel.filterNavigation = parentFilter
     }
 
-    abstract fun getLibraryInfoViewModel() : LibraryInfoViewModel
+    abstract fun getLibraryInfoViewModel() : LibraryInfoViewModel<IA>
 
     override fun onCreateView(
         inflater: LayoutInflater,

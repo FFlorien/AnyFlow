@@ -11,7 +11,7 @@
 
         <variable
             name="display"
-            type="be.florien.anyflow.feature.player.ui.info.song.SongInfoActions" />
+            type="be.florien.anyflow.feature.song.ui.BaseSongInfoActions" />
 
         <variable
             name="descriptionText"

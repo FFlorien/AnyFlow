@@ -8,7 +8,7 @@ import be.florien.anyflow.feature.player.ui.PlayerViewModel
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterViewModel
 import be.florien.anyflow.feature.player.ui.filters.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
-import be.florien.anyflow.feature.player.ui.info.song.shortcuts.ShortcutsViewModel
+import be.florien.anyflow.feature.shortcut.ui.ShortcutsViewModel
 import be.florien.anyflow.feature.player.ui.songlist.SongListViewModel
 import dagger.Binds
 import dagger.Module

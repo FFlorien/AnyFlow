@@ -34,7 +34,7 @@
 
         <activity android:name=".feature.alarms.AlarmActivity" />
 
-        <activity android:name=".feature.player.ui.info.song.shortcuts.ShortcutsActivity" />
+        <activity android:name=".feature.shortcut.ui.ShortcutsActivity" />
         <activity android:name=".feature.playlist.PlaylistsActivity" />
 
         <provider

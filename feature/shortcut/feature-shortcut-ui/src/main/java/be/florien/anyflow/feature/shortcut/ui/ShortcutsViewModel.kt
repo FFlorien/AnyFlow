@@ -1,18 +1,15 @@
-package be.florien.anyflow.feature.player.ui.info.song.shortcuts
+package be.florien.anyflow.feature.shortcut.ui
 
 import android.content.SharedPreferences
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.player.ui.info.song.BaseSongViewModel
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoActions
-import be.florien.anyflow.management.download.DownloadManager
-import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.queue.OrderComposer
+import be.florien.anyflow.feature.song.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.ui.BaseSongViewModel
+import be.florien.anyflow.feature.song.ui.ShortcutSongInfoActions
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
@@ -20,20 +17,12 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class ShortcutsViewModel @Inject constructor(
-    filtersManager: FiltersManager,
-    orderComposer: OrderComposer,
-    dataRepository: be.florien.anyflow.tags.DataRepository,
-    urlRepository: be.florien.anyflow.tags.UrlRepository,
-    @Named("preferences") sharedPreferences: SharedPreferences,
-    downloadManager: DownloadManager
-) : BaseSongViewModel(
-    filtersManager,
-    orderComposer,
-    dataRepository,
-    urlRepository,
-    sharedPreferences,
-    downloadManager
-) {
+    @Named("preferences") sharedPreferences: SharedPreferences
+) : BaseSongViewModel<ShortcutSongInfoActions>() {
+
+    override val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
+
+    override var songId: Long = BaseSongInfoActions.DUMMY_SONG_ID
     var maxItems = 3
         set(value) {
             field = value
@@ -42,12 +31,12 @@ class ShortcutsViewModel @Inject constructor(
     val currentActionsCountDisplay: LiveData<String> =
         MutableLiveData("${infoActions.getShortcuts().size}/$maxItems")
     var dummySongInfo: SongInfo
-        get() = songInfoMediator.value ?: SongInfo.dummySongInfo(SongInfoActions.DUMMY_SONG_ID)
+        get() = songInfoMediator.value ?: SongInfo.dummySongInfo(BaseSongInfoActions.DUMMY_SONG_ID)
         set(value) {
             songInfoMediator.value = value
         }
     var dummySongDisplay = SongDisplay(
-        SongInfoActions.DUMMY_SONG_ID,
+        BaseSongInfoActions.DUMMY_SONG_ID,
         "",
         "",
         "",
@@ -55,7 +44,7 @@ class ShortcutsViewModel @Inject constructor(
         0
     )
     val dummyCover = ImageConfig(null, R.drawable.cover_placeholder, View.VISIBLE)
-    val shortcutsList: List<SongInfoActions.ShortcutInfoRow>
+    val shortcutsList: List<BaseSongInfoActions.ShortcutInfoRow>
         get() = infoActions.getShortcuts()
 
     override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> {
@@ -66,7 +55,7 @@ class ShortcutsViewModel @Inject constructor(
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] =
-                    SongInfoActions.ShortcutInfoRow(initialList[indexOfFirst], it.order)
+                    BaseSongInfoActions.ShortcutInfoRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList

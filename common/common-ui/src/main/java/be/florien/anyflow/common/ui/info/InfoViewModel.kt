@@ -9,10 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-abstract class InfoViewModel<T> : BaseViewModel() {
+abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
     val infoRows: LiveData<List<InfoActions.InfoRow>> = MutableLiveData(listOf())
     private val expandedSections = mutableListOf<InfoActions.InfoRow>()
-    abstract val infoActions: InfoActions<T>
+    abstract val infoActions: IA
 
     /**
      * Abstract methods
