@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.song.ui
+package be.florien.anyflow.feature.song.base.ui
 
 import android.app.Activity
 import android.app.Dialog
@@ -13,10 +13,11 @@ import be.florien.anyflow.common.ui.component.ImageDisplayFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoViewHolder
-import be.florien.anyflow.feature.song.ui.databinding.FragmentInfoBinding
-import be.florien.anyflow.feature.song.ui.databinding.ItemDownloadInfoBinding
-import be.florien.anyflow.feature.song.ui.databinding.ItemShortcutInfoBinding
-import be.florien.anyflow.feature.song.ui.di.SongViewModelProvider
+import be.florien.anyflow.feature.song.base.ui.R
+import be.florien.anyflow.feature.song.base.ui.databinding.FragmentInfoBinding
+import be.florien.anyflow.feature.song.base.ui.databinding.ItemDownloadInfoBinding
+import be.florien.anyflow.feature.song.base.ui.databinding.ItemShortcutInfoBinding
+import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 

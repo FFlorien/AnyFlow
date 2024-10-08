@@ -16,9 +16,9 @@ import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
-import be.florien.anyflow.feature.song.ui.BaseSongInfoActions
-import be.florien.anyflow.feature.song.ui.SongInfoFragment
-import be.florien.anyflow.feature.song.ui.di.SongViewModelProvider
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.ui.SongInfoFragment
+import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo

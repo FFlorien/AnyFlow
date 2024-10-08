@@ -1,10 +1,10 @@
-package be.florien.anyflow.feature.song.ui
+package be.florien.anyflow.feature.shortcut.ui
 
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.tags.local.model.DownloadProgressState
-import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.management.filters.model.Filter
 
 class ShortcutSongInfoActions(//todo this in domain module ???

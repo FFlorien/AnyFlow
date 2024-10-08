@@ -15,8 +15,8 @@ import androidx.paging.PagingData
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongActionType
-import be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongActionType
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongFieldType
 import be.florien.anyflow.feature.song.ui.SongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager

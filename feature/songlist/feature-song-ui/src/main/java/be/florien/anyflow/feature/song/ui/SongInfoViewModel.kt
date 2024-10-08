@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.info.song
+package be.florien.anyflow.feature.song.ui
 
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
@@ -6,10 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.song.ui.SongInfoActions
-import be.florien.anyflow.feature.song.ui.BaseSongViewModel
-import be.florien.anyflow.feature.song.ui.R
-import be.florien.anyflow.feature.song.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.queue.OrderComposer
@@ -21,12 +19,12 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class SongInfoViewModel @Inject constructor(
-     filtersManager: FiltersManager,
-     orderComposer: OrderComposer,
+    filtersManager: FiltersManager,
+    orderComposer: OrderComposer,
     private val dataRepository: DataRepository,
     urlRepository: UrlRepository,
     downloadManager: DownloadManager,
-     @Named("preferences") private val sharedPreferences: SharedPreferences
+    @Named("preferences") private val sharedPreferences: SharedPreferences
 ) : BaseSongViewModel<SongInfoActions>() {
 
     override var songId: Long
@@ -71,7 +69,11 @@ class SongInfoViewModel @Inject constructor(
                     (row as? BaseSongInfoActions.SongMultipleInfoRow)?.index ?: 0
                 )
 
-                BaseSongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(songInfo, row)
+                BaseSongInfoActions.SongActionType.AddToFilter -> infoActions.filterOn(
+                    songInfo,
+                    row
+                )
+
                 BaseSongInfoActions.SongActionType.Search ->
                     searchTerm.mutable.value = infoActions.getSearchTerms(songInfo, fieldType)
 
@@ -86,7 +88,13 @@ class SongInfoViewModel @Inject constructor(
         return true
     }
 
-    override val infoActions: SongInfoActions = SongInfoActions(filtersManager, orderComposer, urlRepository, downloadManager, sharedPreferences)
+    override val infoActions: SongInfoActions = SongInfoActions(
+        filtersManager,
+        orderComposer,
+        urlRepository,
+        downloadManager,
+        sharedPreferences
+    )
 
     private fun displayPlaylistList(fieldType: BaseSongInfoActions.SongFieldType, order: Int) {
         val id = when (fieldType) {
@@ -94,12 +102,14 @@ class SongInfoViewModel @Inject constructor(
             BaseSongInfoActions.SongFieldType.Artist -> songInfo.artistId
             BaseSongInfoActions.SongFieldType.Album,
             BaseSongInfoActions.SongFieldType.Disk -> songInfo.albumId
+
             BaseSongInfoActions.SongFieldType.AlbumArtist -> songInfo.albumArtistId
             BaseSongInfoActions.SongFieldType.Genre -> songInfo.genreIds[order]
             BaseSongInfoActions.SongFieldType.Playlist -> songInfo.playlistIds[order]
             else -> return
         }
-        val secondId = if (fieldType == BaseSongInfoActions.SongFieldType.Disk) songInfo.disk else null
+        val secondId =
+            if (fieldType == BaseSongInfoActions.SongFieldType.Disk) songInfo.disk else null
         isPlaylistListDisplayed.mutable.value = PlaylistSelectionData(id, fieldType, secondId)
     }
 
@@ -110,5 +120,9 @@ class SongInfoViewModel @Inject constructor(
     override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(songInfo, row)
 
-    class PlaylistSelectionData(val id: Long, val type: BaseSongInfoActions.SongFieldType, val secondId: Int? = null)
+    class PlaylistSelectionData(
+        val id: Long,
+        val type: BaseSongInfoActions.SongFieldType,
+        val secondId: Int? = null
+    )
 }

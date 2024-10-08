@@ -1,12 +1,8 @@
 include ':app'
-include ':architecture-di'
 includeDirectory("common")
 includeDirectory("data")
 includeDirectory("feature")
 includeDirectory("management")
-include ':logging'
-include ':utils'
-include ':resources'
 
 private void includeDirectory(File directory) {
     directory.eachDir { subDirectory ->

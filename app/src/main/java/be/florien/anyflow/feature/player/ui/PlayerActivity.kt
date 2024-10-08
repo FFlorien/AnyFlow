@@ -42,12 +42,12 @@ import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
+import be.florien.anyflow.feature.song.ui.SongInfoViewModel
 import be.florien.anyflow.feature.player.ui.songlist.OrderMenuHolder
 import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
-import be.florien.anyflow.feature.song.ui.di.SongViewModelProvider
+import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
@@ -65,7 +65,8 @@ import javax.inject.Inject
  */
 @ActivityScope
 @ServerScope
-class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider, SongViewModelProvider<SongInfoViewModel> {
+class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider,
+    SongViewModelProvider<be.florien.anyflow.feature.song.ui.SongInfoViewModel> {
 
     /**
      * Injection
@@ -477,5 +478,5 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     }
 
     override fun getSongViewModel(owner: ViewModelStoreOwner?) =
-        ViewModelProvider(owner ?: this, viewModelFactory)[SongInfoViewModel::class.java]
+        ViewModelProvider(owner ?: this, viewModelFactory)[be.florien.anyflow.feature.song.ui.SongInfoViewModel::class.java]
 }

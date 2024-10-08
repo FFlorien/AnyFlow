@@ -7,9 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.song.ui.BaseSongInfoActions
-import be.florien.anyflow.feature.song.ui.BaseSongViewModel
-import be.florien.anyflow.feature.song.ui.ShortcutSongInfoActions
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch

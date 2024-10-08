@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'be.florien.anyflow.feature.song.ui'
+    namespace 'be.florien.anyflow.feature.song.base.ui'
     compileSdk 34
 
     defaultConfig {
@@ -30,7 +30,6 @@ dependencies {
     implementation project(":common-ui")
     implementation project(':common-ui-data')
     implementation project(':data-local')
-    implementation project(':feature-song-base-ui')
     implementation project(':management-download')
     implementation project(':management-filters')
     implementation project(':management-queue')

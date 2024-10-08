@@ -33,8 +33,8 @@ import be.florien.anyflow.common.ui.list.SongViewHolder
 import be.florien.anyflow.databinding.FragmentSongListBinding
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.feature.player.ui.info.song.SongInfoViewModel
-import be.florien.anyflow.feature.song.ui.SongInfoFragment
+import be.florien.anyflow.feature.song.ui.SongInfoViewModel
+import be.florien.anyflow.feature.song.base.ui.SongInfoFragment
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -292,7 +292,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         if (item is SongDisplay) {
-            SongInfoFragment(SongInfoViewModel::class.java, item.id)
+            SongInfoFragment(be.florien.anyflow.feature.song.ui.SongInfoViewModel::class.java, item.id)
                 .show(childFragmentManager, "info")
         }
     }

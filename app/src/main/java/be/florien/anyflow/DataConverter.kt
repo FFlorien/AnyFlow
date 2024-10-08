@@ -11,6 +11,7 @@ import be.florien.anyflow.data.server.model.AmpachePodcastEpisode
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.feature.playlist.selection.domain.TagType
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.local.model.DbAlbum
@@ -146,18 +147,18 @@ fun SongInfo.toViewDisplay() = SongDisplay(
     time = time
 )
 
-fun be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.toTagType() = when (this) {
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Title -> TagType.Title
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Artist -> TagType.Artist
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Album -> TagType.Album
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Disk -> TagType.Disk
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.AlbumArtist -> TagType.AlbumArtist
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Genre -> TagType.Genre
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Playlist -> TagType.Playlist
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Year,
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Duration,
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.PodcastEpisode,
-    be.florien.anyflow.feature.song.ui.BaseSongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
+fun BaseSongInfoActions.SongFieldType.toTagType() = when (this) {
+    BaseSongInfoActions.SongFieldType.Title -> TagType.Title
+    BaseSongInfoActions.SongFieldType.Artist -> TagType.Artist
+    BaseSongInfoActions.SongFieldType.Album -> TagType.Album
+    BaseSongInfoActions.SongFieldType.Disk -> TagType.Disk
+    BaseSongInfoActions.SongFieldType.AlbumArtist -> TagType.AlbumArtist
+    BaseSongInfoActions.SongFieldType.Genre -> TagType.Genre
+    BaseSongInfoActions.SongFieldType.Playlist -> TagType.Playlist
+    BaseSongInfoActions.SongFieldType.Year,
+    BaseSongInfoActions.SongFieldType.Duration,
+    BaseSongInfoActions.SongFieldType.PodcastEpisode,
+    BaseSongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
 }
 
 //endregion

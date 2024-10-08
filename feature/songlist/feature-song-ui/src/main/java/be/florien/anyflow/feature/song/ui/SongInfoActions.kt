@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.song.ui
 
 import android.content.SharedPreferences
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.song.ui
+package be.florien.anyflow.feature.song.base.ui
 
 import android.content.SharedPreferences
 import androidx.annotation.DrawableRes

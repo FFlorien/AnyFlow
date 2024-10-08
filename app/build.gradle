@@ -84,6 +84,8 @@ dependencies {
     implementation project(':feature-playlist-selection-domain')
     implementation project(':feature-playlist-selection-ui')
     implementation project(':feature-shortcut-ui')
+    implementation project(':feature-song-base-ui')
+    implementation project(':feature-song-ui')
     implementation project(':logging')
     implementation project(':management-alarm')
     implementation project(':management-queue')
@@ -112,7 +114,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation project(':feature-song-ui')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet
