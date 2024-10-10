@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.alarms.edit.EditAlarmViewModel" />
+            type="be.florien.anyflow.feature.alarm.ui.edit.EditAlarmViewModel" />
 
     </data>
 

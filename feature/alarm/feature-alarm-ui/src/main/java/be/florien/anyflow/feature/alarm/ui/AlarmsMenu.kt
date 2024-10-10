@@ -1,6 +1,5 @@
-package be.florien.anyflow.feature.alarms
+package be.florien.anyflow.feature.alarm.ui
 
-import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.menu.MenuHolder
 
 

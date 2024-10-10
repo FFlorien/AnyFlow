@@ -1,16 +1,14 @@
-package be.florien.anyflow.feature.alarms.list
+package be.florien.anyflow.feature.alarm.ui.list
 
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.R
-import be.florien.anyflow.management.alarm.model.Alarm
 import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.feature.alarm.ui.R
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
+import be.florien.anyflow.management.alarm.model.Alarm
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class AlarmListViewModel : BaseViewModel() {
-    @Inject
-    lateinit var alarmsSynchronizer: AlarmsSynchronizer
+class AlarmListViewModel @Inject constructor(val alarmsSynchronizer: AlarmsSynchronizer) : BaseViewModel() {
 
     val alarmList by lazy {
         alarmsSynchronizer.getAlarms()

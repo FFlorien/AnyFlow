@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.alarms
+package be.florien.anyflow.feature.alarm.ui
 
 import android.os.Bundle
 import android.view.Menu
@@ -6,30 +6,51 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.R
-import be.florien.anyflow.extension.anyFlowApp
+import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.feature.alarms.add.AddAlarmFragment
-import be.florien.anyflow.feature.alarms.list.AlarmListFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuHolder
+import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.feature.alarm.ui.add.AddAlarmFragment
+import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
+import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
+import be.florien.anyflow.feature.alarm.ui.list.AlarmListFragment
+import javax.inject.Inject
 
 
-class AlarmActivity : AppCompatActivity() {
+class AlarmActivity : AppCompatActivity(), ViewModelFactoryProvider {
     lateinit var toolbar: Toolbar
     private lateinit var viewModel: AlarmViewModel
 
     val menuCoordinator = MenuCoordinator()
     private lateinit var addMenu: MenuHolder
+    lateinit var activityComponent: AlarmActivityComponent
+
+    private object fakeComponent: AlarmActivityComponent {
+        override fun inject(alarmActivity: AlarmActivity) = Unit
+    }
+
+    @Inject
+    override lateinit var viewModelFactory: AnyFlowViewModelFactory
+
+    @Inject
+    lateinit var navigator: Navigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        )[AlarmViewModel::class.java]
-        anyFlowApp.serverComponent?.inject(viewModel)
+        val component = (application as AlarmActivityComponentCreator).createAlarmActivityComponent()
+        activityComponent = if (component != null) {
+            component
+        } else {
+            navigator.navigateToConnect(this)
+            finish()
+            fakeComponent
+        }
+        activityComponent.inject(this)
+
+        viewModel = ViewModelProvider(this, viewModelFactory)[AlarmViewModel::class.java]
         setContentView(R.layout.activity_alarms)
         toolbar = findViewById(R.id.toolbar)
 

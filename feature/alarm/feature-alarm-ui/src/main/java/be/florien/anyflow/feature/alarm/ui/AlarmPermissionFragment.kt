@@ -1,12 +1,11 @@
-package be.florien.anyflow.feature.alarms
+package be.florien.anyflow.feature.alarm.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import be.florien.anyflow.R
-import be.florien.anyflow.databinding.FragmentAlarmPermissionBinding
 import be.florien.anyflow.common.ui.BaseFragment
+import be.florien.anyflow.feature.alarm.ui.databinding.FragmentAlarmPermissionBinding
 
 class AlarmPermissionFragment : BaseFragment() {
 

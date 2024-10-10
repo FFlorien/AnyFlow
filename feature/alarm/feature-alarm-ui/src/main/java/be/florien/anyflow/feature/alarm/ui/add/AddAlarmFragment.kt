@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.alarms.add
+package be.florien.anyflow.feature.alarm.ui.add
 
 import android.app.AlarmManager
 import android.content.BroadcastReceiver
@@ -16,13 +16,13 @@ import androidx.core.content.ContextCompat.registerReceiver
 import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import be.florien.anyflow.R
-import be.florien.anyflow.databinding.FragmentAddAlarmBinding
-import be.florien.anyflow.extension.anyFlowApp
+import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.alarms.ConfirmAlarmMenuHolder
 import be.florien.anyflow.common.ui.menu.MenuHolder
+import be.florien.anyflow.feature.alarm.ui.AlarmActivity
+import be.florien.anyflow.feature.alarm.ui.ConfirmAlarmMenuHolder
+import be.florien.anyflow.feature.alarm.ui.R
+import be.florien.anyflow.feature.alarm.ui.databinding.FragmentAddAlarmBinding
 import kotlinx.coroutines.launch
 
 class AddAlarmFragment : BaseFragment() {
@@ -34,11 +34,8 @@ class AddAlarmFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        )[AddAlarmViewModel::class.java]
-        anyFlowApp.serverComponent?.inject(viewModel)
+
+        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[AddAlarmViewModel::class.java]
         confirmMenuHolder = ConfirmAlarmMenuHolder {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val alarmManager: AlarmManager = requireContext().getSystemService()

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.alarms.list
+package be.florien.anyflow.feature.alarm.ui.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
-import be.florien.anyflow.management.alarm.model.Alarm
-import be.florien.anyflow.databinding.FragmentAlarmListBinding
-import be.florien.anyflow.databinding.ItemAlarmBinding
-import be.florien.anyflow.extension.anyFlowApp
+import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.feature.alarms.edit.EditAlarmFragment
+import be.florien.anyflow.feature.alarm.ui.R
+import be.florien.anyflow.feature.alarm.ui.databinding.FragmentAlarmListBinding
+import be.florien.anyflow.feature.alarm.ui.databinding.ItemAlarmBinding
+import be.florien.anyflow.feature.alarm.ui.edit.EditAlarmFragment
+import be.florien.anyflow.management.alarm.model.Alarm
 
 class AlarmListFragment : BaseFragment() {
     private lateinit var binding: FragmentAlarmListBinding
@@ -23,8 +23,7 @@ class AlarmListFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(AlarmListViewModel::class.java)
-        anyFlowApp.serverComponent?.inject(viewModel)
+        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[AlarmListViewModel::class.java]
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -34,11 +33,11 @@ class AlarmListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.songList.adapter = AlarmAdapter()
+        binding.alarmList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.alarmList.adapter = AlarmAdapter()
 
         viewModel.alarmList.observe(viewLifecycleOwner) {
-            binding.songList.adapter?.notifyDataSetChanged()
+            binding.alarmList.adapter?.notifyDataSetChanged()
         }
     }
 
@@ -58,7 +57,7 @@ class AlarmListFragment : BaseFragment() {
     inner class AlarmViewHolder(container: ViewGroup, val binding: ItemAlarmBinding = ItemAlarmBinding.inflate(LayoutInflater.from(container.context), container, false))
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(alarm: be.florien.anyflow.management.alarm.model.Alarm) {
+        fun bind(alarm: Alarm) {
             binding.alarm = alarm
             binding.viewModel = viewModel
             val repetitionText = viewModel.repetitionText(alarm)

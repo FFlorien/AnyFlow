@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.alarms.edit
+package be.florien.anyflow.feature.alarm.ui.edit
 
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.management.alarm.model.Alarm
@@ -6,7 +6,7 @@ import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import javax.inject.Inject
 
-class EditAlarmViewModel : BaseViewModel() {
+class EditAlarmViewModel @Inject constructor() : BaseViewModel() {
     val isRepeating: MutableLiveData<Boolean> = MutableLiveData(false)
     val time: MutableLiveData<Int> = MutableLiveData()
     val monday: MutableLiveData<Boolean> = MutableLiveData()

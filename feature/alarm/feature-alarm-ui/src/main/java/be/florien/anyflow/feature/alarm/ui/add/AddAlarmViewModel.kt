@@ -1,11 +1,11 @@
-package be.florien.anyflow.feature.alarms.add
+package be.florien.anyflow.feature.alarm.ui.add
 
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import javax.inject.Inject
 
-class AddAlarmViewModel : BaseViewModel() {
+class AddAlarmViewModel @Inject constructor(val alarmsSynchronizer: AlarmsSynchronizer) : BaseViewModel() {
     val isRepeating: MutableLiveData<Boolean> = MutableLiveData(false)
     val time: MutableLiveData<Int> = MutableLiveData()
     val monday: MutableLiveData<Boolean> = MutableLiveData()
@@ -15,9 +15,6 @@ class AddAlarmViewModel : BaseViewModel() {
     val friday: MutableLiveData<Boolean> = MutableLiveData()
     val saturday: MutableLiveData<Boolean> = MutableLiveData()
     val sunday: MutableLiveData<Boolean> = MutableLiveData()
-
-    @Inject
-    lateinit var alarmsSynchronizer: AlarmsSynchronizer
 
     suspend fun addAlarm() {
         when {

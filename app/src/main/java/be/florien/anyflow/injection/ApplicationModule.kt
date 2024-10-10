@@ -14,8 +14,6 @@ import androidx.media3.datasource.cache.NoOpCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistenceKeystore
-import be.florien.anyflow.feature.alarms.AlarmActivity
-import be.florien.anyflow.feature.alarms.AlarmReceiver
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -72,7 +70,7 @@ class ApplicationModule {
     @Provides
     @Named("player")
     fun providePlayerPendingIntent(context: Context): PendingIntent {
-        val alarmIntent = Intent(context, AlarmReceiver::class.java)
+        val alarmIntent = Intent(context, be.florien.anyflow.feature.alarm.ui.AlarmReceiver::class.java)
         return PendingIntent.getBroadcast(
             context,
             0,
@@ -84,7 +82,7 @@ class ApplicationModule {
     @Provides
     @Named("alarm")
     fun provideAlarmPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, AlarmActivity::class.java)
+        val intent = Intent(context, be.florien.anyflow.feature.alarm.ui.AlarmActivity::class.java)
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 

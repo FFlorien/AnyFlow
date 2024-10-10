@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alarm_is_repeating">Se répète</string>
+    <string name="alarm_is_not_repeating">Un seule fois</string>
+</resources>

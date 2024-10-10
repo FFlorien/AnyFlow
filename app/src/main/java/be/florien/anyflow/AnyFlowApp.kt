@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.common.ui.di.GlideModuleInjector
 import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
+import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
+import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
@@ -33,7 +35,8 @@ import javax.inject.Inject
  */
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, UserVmInjectorContainer,
-    ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer, ShortcutActivityComponentCreator {
+    ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer, ShortcutActivityComponentCreator,
+    AlarmActivityComponentCreator {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     override val serverVmInjector: ServerVmInjector
@@ -132,4 +135,7 @@ open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, Us
 
     override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
         serverComponent?.shortcutsComponentBuilder()?.build()
+
+    override fun createAlarmActivityComponent(): AlarmActivityComponent? =
+        serverComponent?.alarmComponentBuilder()?.build()
 }

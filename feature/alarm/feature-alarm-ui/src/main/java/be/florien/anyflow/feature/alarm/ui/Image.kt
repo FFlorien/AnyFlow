@@ -1,4 +1,4 @@
-package be.florien.anyflow.extension
+package be.florien.anyflow.feature.alarm.ui
 
 import android.widget.TimePicker
 import androidx.databinding.BindingAdapter

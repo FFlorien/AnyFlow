@@ -114,6 +114,7 @@ dependencies {
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation project(':feature-songlist-ui')
+    implementation project(':feature-alarm-ui')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet

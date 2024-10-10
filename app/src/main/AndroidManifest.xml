@@ -32,7 +32,7 @@
         <activity android:name=".ui.server.ServerActivity" /> <!-- todo each could be in its own manifest -->
         <activity android:name=".feature.auth.UserConnectActivity" />
 
-        <activity android:name=".feature.alarms.AlarmActivity" />
+        <activity android:name=".feature.alarm.ui.AlarmActivity" />
 
         <activity android:name=".feature.shortcut.ui.ShortcutsActivity" />
         <activity android:name=".feature.playlist.PlaylistsActivity" />
@@ -65,7 +65,7 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".feature.alarms.AlarmReceiver" />
+        <receiver android:name=".feature.alarm.ui.AlarmReceiver" />
     </application>
 
 </manifest>

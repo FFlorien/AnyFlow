@@ -36,7 +36,6 @@ import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
-import be.florien.anyflow.feature.alarms.AlarmActivity
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
@@ -304,7 +303,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.menu_alarm -> {
-                    startActivity(Intent(this@PlayerActivity, AlarmActivity::class.java))
+                    startActivity(Intent(this@PlayerActivity, be.florien.anyflow.feature.alarm.ui.AlarmActivity::class.java))
                     true
                 }
 
