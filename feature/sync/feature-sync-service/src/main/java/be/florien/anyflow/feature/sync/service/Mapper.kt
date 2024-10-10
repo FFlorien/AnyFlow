@@ -1,4 +1,4 @@
-package be.florien.anyflow
+package be.florien.anyflow.feature.sync.service
 
 import be.florien.anyflow.data.server.model.AmpacheAlbum
 import be.florien.anyflow.data.server.model.AmpacheArtist

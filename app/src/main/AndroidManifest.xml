@@ -54,7 +54,7 @@
         </service>
 
         <service
-            android:name=".feature.sync.SyncService"
+            android:name=".feature.sync.service.SyncService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.sync
+package be.florien.anyflow.feature.sync.service
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -10,10 +10,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveData
 import androidx.media3.common.util.UnstableApi
-import be.florien.anyflow.R
 import be.florien.anyflow.data.server.exception.NoServerException
 import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
+import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
+import be.florien.anyflow.feature.sync.service.di.SyncServiceComponentCreator
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.iLog
 import kotlinx.coroutines.*
@@ -64,7 +65,7 @@ class SyncService
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        (application as be.florien.anyflow.AnyFlowApp).serverComponent?.inject(this)
+        (application as SyncServiceComponentCreator).createSyncServiceComponent()?.inject(this)
         serviceScope.launch {
             try {
                 syncRepository.syncAll()

@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.feature.sync.SyncRepository
+import be.florien.anyflow.feature.sync.service.SyncRepository
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -43,36 +43,6 @@ class ConnectedModule {
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .build()
-
-    @Provides
-    @Named("Songs")
-    @ServerScope
-    fun provideSongsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
-        syncRepository.songsPercentageUpdater
-
-    @Provides
-    @Named("Genres")
-    @ServerScope
-    fun provideGenresPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
-        syncRepository.genresPercentageUpdater
-
-    @Provides
-    @Named("Artists")
-    @ServerScope
-    fun provideArtistsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
-        syncRepository.artistsPercentageUpdater
-
-    @Provides
-    @Named("Albums")
-    @ServerScope
-    fun provideAlbumsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
-        syncRepository.albumsPercentageUpdater
-
-    @Provides
-    @Named("Playlists")
-    @ServerScope
-    fun providePlaylistsPercentageUpdater(syncRepository: SyncRepository): LiveData<Int> =
-        syncRepository.playlistsPercentageUpdater
 
     @Provides
     @Named("playerActivity")

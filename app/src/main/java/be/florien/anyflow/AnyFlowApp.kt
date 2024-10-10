@@ -17,7 +17,9 @@ import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
-import be.florien.anyflow.feature.sync.SyncService
+import be.florien.anyflow.feature.sync.service.SyncService
+import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
+import be.florien.anyflow.feature.sync.service.di.SyncServiceComponentCreator
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
@@ -36,7 +38,7 @@ import javax.inject.Inject
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, UserVmInjectorContainer,
     ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer, ShortcutActivityComponentCreator,
-    AlarmActivityComponentCreator {
+    AlarmActivityComponentCreator, SyncServiceComponentCreator {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     override val serverVmInjector: ServerVmInjector
@@ -109,7 +111,7 @@ open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, Us
     private fun getUpdateChannel(): NotificationChannel {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                SyncService.UPDATE_SESSION_NAME,
+                be.florien.anyflow.feature.sync.service.SyncService.UPDATE_SESSION_NAME,
                 "Update",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
@@ -138,4 +140,7 @@ open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, Us
 
     override fun createAlarmActivityComponent(): AlarmActivityComponent? =
         serverComponent?.alarmComponentBuilder()?.build()
+
+    override fun createSyncServiceComponent(): SyncServiceComponent? =
+        serverComponent?.syncComponentBuilder()?.build()
 }

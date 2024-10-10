@@ -13,7 +13,8 @@ import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
-import be.florien.anyflow.feature.sync.SyncService
+import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
+import be.florien.anyflow.feature.sync.service.di.SyncServiceModule
 import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerModule
 import be.florien.anyflow.ui.di.UserVmInjector
 import dagger.BindsInstance
@@ -28,6 +29,7 @@ import javax.inject.Named
     modules = [
         ConnectedModule::class,
         ServerModule::class,
+        SyncServiceModule::class,
         AuthModule::class,
         ServerBindsModule::class,
         LibraryViewModelModule::class,
@@ -42,13 +44,12 @@ interface ServerComponent : UserVmInjector, GlideModuleInjector {
 
     fun inject(validator: AnyFlowApp.ServerValidator)
 
-    fun inject(syncService: SyncService)
-
     fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
     fun playerComponentBuilder(): PlayerComponent.Builder
     fun shortcutsComponentBuilder(): ShortcutActivityComponent.Builder
     fun playlistComponentBuilder(): PlaylistComponent.Builder
     fun alarmComponentBuilder(): AlarmActivityComponent.Builder
+    fun syncComponentBuilder(): SyncServiceComponent.Builder
 
     @Subcomponent.Builder
     interface Builder {

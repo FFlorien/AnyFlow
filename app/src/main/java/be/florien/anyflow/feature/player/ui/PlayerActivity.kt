@@ -47,7 +47,7 @@ import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
 import be.florien.anyflow.feature.song.ui.SongInfoViewModel
 import be.florien.anyflow.feature.songlist.ui.OrderMenuHolder
-import be.florien.anyflow.feature.sync.SyncService
+import be.florien.anyflow.feature.sync.service.SyncService
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import be.florien.anyflow.management.playlist.di.PlaylistWorkerFactory
@@ -163,7 +163,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
                 AuthRepository.ConnectionStatus.CONNEXION -> return@observe
                 AuthRepository.ConnectionStatus.CONNECTED -> {
                     bindService(
-                        Intent(this, SyncService::class.java),
+                        Intent(this, be.florien.anyflow.feature.sync.service.SyncService::class.java),
                         viewModel.updateConnection,
                         Context.BIND_AUTO_CREATE
                     )
