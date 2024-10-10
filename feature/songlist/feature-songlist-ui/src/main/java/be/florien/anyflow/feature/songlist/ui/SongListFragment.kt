@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.songlist
+package be.florien.anyflow.feature.songlist.ui
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
@@ -23,22 +23,20 @@ import androidx.media3.session.SessionToken
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
-import be.florien.anyflow.databinding.FragmentSongListBinding
+import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.player.service.PlayerService
-import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.feature.song.ui.SongInfoViewModel
 import be.florien.anyflow.feature.song.base.ui.SongInfoFragment
-import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
+import be.florien.anyflow.feature.song.ui.SongInfoViewModel
+import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
-import be.florien.anyflow.toTagType
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -122,7 +120,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         viewModel =
             ViewModelProvider(
                 this,
-                (requireActivity() as PlayerActivity).viewModelFactory
+                (requireActivity() as ViewModelFactoryProvider).viewModelFactory
             )[SongListViewModel::class.java]
         binding = FragmentSongListBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -130,7 +128,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         currentSongViewHolder =
             SongViewHolder(binding.root as ViewGroup, this, this, null, binding.currentSongDisplay)
         currentSongViewHolder.isCurrentSong = true
-        (requireActivity() as PlayerActivity).menuCoordinator.addMenuHolder(searchMenuHolder)
+        (requireActivity() as MenuCoordinatorHolder).menuCoordinator.addMenuHolder(searchMenuHolder)
         return binding.root
     }
 
@@ -248,10 +246,14 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             updateCurrentSongDisplay()
         }
         viewModel.playlistListDisplayedFor.observe(viewLifecycleOwner) {
-            if (it != null && childFragmentManager.findFragmentByTag("playlist") == null) {
-                SelectPlaylistFragment(it.first, it.second.toTagType(), it.third).show(childFragmentManager, "playlist")
-            }
-        }
+            if (it != null) {
+                viewModel.navigator.displayPlaylistSelection(
+                    childFragmentManager,
+                    it.first,
+                    it.second.toTagType(),
+                    it.third
+                )
+            }}
         viewModel.shortcuts.observe(viewLifecycleOwner) {
             updateShortcuts()
         }
@@ -272,7 +274,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onDestroy() {
         super.onDestroy()
-        (requireActivity() as PlayerActivity).menuCoordinator.removeMenuHolder(searchMenuHolder)
+        (requireActivity() as MenuCoordinatorHolder).menuCoordinator.removeMenuHolder(searchMenuHolder)
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
@@ -292,7 +294,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         if (item is SongDisplay) {
-            SongInfoFragment(be.florien.anyflow.feature.song.ui.SongInfoViewModel::class.java, item.id)
+            SongInfoFragment(SongInfoViewModel::class.java, item.id)
                 .show(childFragmentManager, "info")
         }
     }

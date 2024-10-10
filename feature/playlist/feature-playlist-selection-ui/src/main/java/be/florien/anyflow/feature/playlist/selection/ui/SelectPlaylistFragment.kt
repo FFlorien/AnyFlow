@@ -22,7 +22,7 @@ import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.component.ProgressDialog
 import be.florien.anyflow.common.ui.component.ProgressDialog.Progress
 import be.florien.anyflow.common.ui.component.newPlaylist
-import be.florien.anyflow.feature.playlist.selection.domain.TagType
+import be.florien.anyflow.common.ui.TagType
 import be.florien.anyflow.feature.playlist.selection.ui.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.feature.playlist.selection.ui.databinding.ItemSelectPlaylistBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

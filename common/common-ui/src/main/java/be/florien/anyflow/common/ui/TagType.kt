@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.playlist.selection.domain
+package be.florien.anyflow.common.ui
 
 enum class TagType {
     Title,

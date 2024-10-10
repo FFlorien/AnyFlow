@@ -1,7 +1,6 @@
-package be.florien.anyflow.feature.player.ui.songlist
+package be.florien.anyflow.feature.songlist.ui
 
 import android.content.Context
-import be.florien.anyflow.R
 import be.florien.anyflow.common.ui.menu.AnimatedMenuHolder
 
 

@@ -10,10 +10,6 @@ import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpachePodcastEpisode
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
-import be.florien.anyflow.feature.playlist.selection.domain.TagType
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
-import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
-import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.local.model.DbAlbum
 import be.florien.anyflow.tags.local.model.DbArtist
 import be.florien.anyflow.tags.local.model.DbGenre
@@ -24,7 +20,6 @@ import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbSong
 import be.florien.anyflow.tags.local.model.DbSongGenre
 import be.florien.anyflow.tags.local.model.DbSongId
-import be.florien.anyflow.tags.model.SongInfo
 import be.florien.anyflow.utils.TimeOperations
 
 
@@ -121,15 +116,6 @@ fun AmpachePodcastEpisode.toDbPodcastEpisode() = DbPodcastEpisode(
 
 //region Database to view
 
-fun DbPodcastEpisode.toViewPodcastEpisodeDisplay() = PodcastEpisodeDisplay(
-    id = id,
-    title = title,
-    time = time,
-    artist = authorFull,
-    album = authorFull,
-    albumId = podcastId
-)
-
 //endregion
 
 //region Views to Database
@@ -138,28 +124,6 @@ fun DbPodcastEpisode.toViewPodcastEpisodeDisplay() = PodcastEpisodeDisplay(
 
 //region View to view
 
-fun SongInfo.toViewDisplay() = SongDisplay(
-    id = id,
-    title = title,
-    artistName = artistName,
-    albumName = albumName,
-    albumId = albumId,
-    time = time
-)
-
-fun BaseSongInfoActions.SongFieldType.toTagType() = when (this) {
-    BaseSongInfoActions.SongFieldType.Title -> TagType.Title
-    BaseSongInfoActions.SongFieldType.Artist -> TagType.Artist
-    BaseSongInfoActions.SongFieldType.Album -> TagType.Album
-    BaseSongInfoActions.SongFieldType.Disk -> TagType.Disk
-    BaseSongInfoActions.SongFieldType.AlbumArtist -> TagType.AlbumArtist
-    BaseSongInfoActions.SongFieldType.Genre -> TagType.Genre
-    BaseSongInfoActions.SongFieldType.Playlist -> TagType.Playlist
-    BaseSongInfoActions.SongFieldType.Year,
-    BaseSongInfoActions.SongFieldType.Duration,
-    BaseSongInfoActions.SongFieldType.PodcastEpisode,
-    BaseSongInfoActions.SongFieldType.Track -> throw UnsupportedOperationException()
-}
 
 //endregion
 

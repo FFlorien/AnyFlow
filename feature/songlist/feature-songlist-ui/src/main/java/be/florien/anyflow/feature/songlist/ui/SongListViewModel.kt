@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.songlist
+package be.florien.anyflow.feature.songlist.ui
 
 import android.content.SharedPreferences
 import android.text.Editable
@@ -15,6 +15,7 @@ import androidx.paging.PagingData
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongActionType
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongFieldType
 import be.florien.anyflow.feature.song.ui.SongInfoActions
@@ -28,8 +29,6 @@ import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.DataRepository
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.toViewDisplay
-import be.florien.anyflow.toViewPodcastEpisodeDisplay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,6 +52,7 @@ class SongListViewModel
     playingQueue: PlayingQueue,
     private val dataRepository: DataRepository,
     private val podcastRepository: PodcastRepository,
+    internal val navigator: Navigator,
     @Named("preferences") private val sharedPreferences: SharedPreferences
 ) : BaseViewModel() {
     var player: MediaController? = null

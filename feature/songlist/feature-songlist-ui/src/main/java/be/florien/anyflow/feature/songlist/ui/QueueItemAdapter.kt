@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.songlist
+package be.florien.anyflow.feature.songlist.ui
 
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -29,8 +29,7 @@ class QueueItemAdapter(
     val listener: SongListViewHolderListener,
     val provider: SongListViewHolderProvider,
     private val onSongClicked: (Int) -> Unit
-) :
-    PagingDataAdapter<QueueItemDisplay, SongViewHolder>(diffCallback),
+) : PagingDataAdapter<QueueItemDisplay, SongViewHolder>(diffCallback),
     FastScrollRecyclerView.SectionedAdapter {
 
     private var lastPosition = 0

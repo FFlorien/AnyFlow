@@ -33,6 +33,7 @@ import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.isVisiblePresent
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
+import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
 import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.alarms.AlarmActivity
@@ -42,12 +43,11 @@ import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
-import be.florien.anyflow.feature.song.ui.SongInfoViewModel
-import be.florien.anyflow.feature.player.ui.songlist.OrderMenuHolder
-import be.florien.anyflow.feature.player.ui.songlist.SongListFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
+import be.florien.anyflow.feature.song.ui.SongInfoViewModel
+import be.florien.anyflow.feature.songlist.ui.OrderMenuHolder
 import be.florien.anyflow.feature.sync.SyncService
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
@@ -65,8 +65,8 @@ import javax.inject.Inject
  */
 @ActivityScope
 @ServerScope
-class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider,
-    SongViewModelProvider<be.florien.anyflow.feature.song.ui.SongInfoViewModel> {
+class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider, MenuCoordinatorHolder,
+    SongViewModelProvider<SongInfoViewModel> {
 
     /**
      * Injection
@@ -84,7 +84,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
         override fun inject(playerActivity: PlayerActivity) {}
     }
 
-    val menuCoordinator = MenuCoordinator()
+    override val menuCoordinator = MenuCoordinator()
 
     /**
      * Private properties
@@ -139,8 +139,8 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
                 .beginTransaction()
                 .replace(
                     R.id.container,
-                    SongListFragment(),
-                    SongListFragment::class.java.simpleName
+                    be.florien.anyflow.feature.songlist.ui.SongListFragment(),
+                    be.florien.anyflow.feature.songlist.ui.SongListFragment::class.java.simpleName
                 )
                 .runOnCommit {
                     adaptToolbarToCurrentFragment()
@@ -356,7 +356,10 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
 
     private fun initMenus() {
-        orderMenu = OrderMenuHolder(viewModel.isOrdered.value == true, this) {
+        orderMenu = be.florien.anyflow.feature.songlist.ui.OrderMenuHolder(
+            viewModel.isOrdered.value == true,
+            this
+        ) {
             if (viewModel.isOrdered.value == true) {
                 viewModel.randomOrder()
             } else {
@@ -471,7 +474,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     }
 
     private fun isSongListVisible() =
-        supportFragmentManager.findFragmentById(R.id.container) is SongListFragment
+        supportFragmentManager.findFragmentById(R.id.container) is be.florien.anyflow.feature.songlist.ui.SongListFragment
 
     companion object {
         private const val LIBRARY_STACK_NAME = "filters"

@@ -3,10 +3,13 @@ package be.florien.anyflow
 import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import be.florien.anyflow.common.ui.TagType
 import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.feature.auth.UserConnectActivity
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.player.ui.PlayerActivity
+import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import javax.inject.Inject
 
 class NavigatorImpl @Inject constructor() : Navigator {
@@ -40,5 +43,16 @@ class NavigatorImpl @Inject constructor() : Navigator {
                 addToBackStack(backstackName)
             }
             .commit()
+    }
+
+    override fun displayPlaylistSelection(
+        fragmentManager: FragmentManager,
+        id: Long,
+        type: TagType,
+        secondId: Int
+    ) {
+        if (fragmentManager.findFragmentByTag("playlist") == null) {
+            SelectPlaylistFragment(id, type, secondId).show(fragmentManager, "playlist")
+        }
     }
 }
