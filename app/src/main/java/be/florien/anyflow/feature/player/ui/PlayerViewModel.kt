@@ -18,19 +18,18 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.management.podcast.PodcastPersistence
-import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
-import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.extension.postValueIfChanged
-import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
-import be.florien.anyflow.management.queue.OrderComposer
-import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.component.player.controls.PlayPauseIconAnimator
 import be.florien.anyflow.component.player.controls.PlayerControls
+import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
+import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.podcast.PodcastRepository
+import be.florien.anyflow.management.queue.OrderComposer
+import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
 import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -263,5 +262,11 @@ constructor(
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
 
         override fun onServiceDisconnected(name: ComponentName?) {}
+    }
+
+    fun <T> MutableLiveData<T>.postValueIfChanged(newValue: T) {
+        if (newValue != value){
+            postValue(newValue)
+        }
     }
 }

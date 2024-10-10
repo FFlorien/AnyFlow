@@ -25,6 +25,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
@@ -35,7 +36,6 @@ import be.florien.anyflow.common.ui.isVisiblePresent
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
 import be.florien.anyflow.databinding.ActivityPlayerBinding
-import be.florien.anyflow.extension.anyFlowApp
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
@@ -47,7 +47,6 @@ import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
 import be.florien.anyflow.feature.song.ui.SongInfoViewModel
 import be.florien.anyflow.feature.songlist.ui.OrderMenuHolder
-import be.florien.anyflow.feature.sync.service.SyncService
 import be.florien.anyflow.injection.PlayerComponent
 import be.florien.anyflow.injection.ViewModelFactoryHolder
 import be.florien.anyflow.management.playlist.di.PlaylistWorkerFactory
@@ -102,7 +101,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val component = anyFlowApp.serverComponent
+        val component = (application as AnyFlowApp).serverComponent
             ?.playerComponentBuilder()
             ?.build()
         activityComponent = if (component != null) {
@@ -255,7 +254,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     override fun onDestroy() {
         super.onDestroy()
-        if (anyFlowApp.serverComponent == null) {
+        if ((application as AnyFlowApp).serverComponent == null) {
             return
         }
 
@@ -355,7 +354,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
 
     private fun initMenus() {
-        orderMenu = be.florien.anyflow.feature.songlist.ui.OrderMenuHolder(
+        orderMenu = OrderMenuHolder(
             viewModel.isOrdered.value == true,
             this
         ) {
@@ -480,5 +479,5 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     }
 
     override fun getSongViewModel(owner: ViewModelStoreOwner?) =
-        ViewModelProvider(owner ?: this, viewModelFactory)[be.florien.anyflow.feature.song.ui.SongInfoViewModel::class.java]
+        ViewModelProvider(owner ?: this, viewModelFactory)[SongInfoViewModel::class.java]
 }
