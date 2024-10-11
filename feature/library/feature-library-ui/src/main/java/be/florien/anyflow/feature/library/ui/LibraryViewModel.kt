@@ -7,7 +7,7 @@ import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 
-interface LibraryViewModel {
+interface LibraryViewModel { //todo rename and probably move because it's library AND filter related
     val filtersManager: FiltersManager
     val areFiltersInEdition: LiveData<Boolean>
     val navigator: Navigator
@@ -16,7 +16,7 @@ interface LibraryViewModel {
 val LibraryViewModel.currentFilters: LiveData<Set<Filter<*>>>
     get() = filtersManager.filtersInEdition
 
-val LibraryViewModel.currentFiltersForDisplay: LiveData<List<Filter<*>>>
+val LibraryViewModel.currentFiltersForDisplay: LiveData<List<Filter<*>>> //todo it's only used by filters VM
     get() = currentFilters.map { filters ->
         val result = mutableListOf<Filter<*>>()
         filters.forEach { base ->

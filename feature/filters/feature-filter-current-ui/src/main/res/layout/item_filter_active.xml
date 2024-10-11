@@ -12,7 +12,7 @@
 
         <variable
             name="vm"
-            type="be.florien.anyflow.feature.player.ui.filters.CurrentFilterViewModel" />
+            type="be.florien.anyflow.feature.filter.current.ui.CurrentFilterViewModel" />
     </data>
 
     <LinearLayout

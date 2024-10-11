@@ -116,6 +116,7 @@ dependencies {
     implementation project(':feature-songlist-ui')
     implementation project(':feature-alarm-ui')
     implementation project(':feature-sync-service')
+    implementation project(':feature-filter-current-ui')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet

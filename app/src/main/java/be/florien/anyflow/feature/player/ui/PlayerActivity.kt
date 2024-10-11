@@ -41,7 +41,7 @@ import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFrag
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.player.service.PlayerService
-import be.florien.anyflow.feature.player.ui.filters.CurrentFilterFragment
+import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
@@ -416,11 +416,11 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     private fun displayFilters() {
         val fragment =
-            supportFragmentManager.findFragmentByTag(CurrentFilterFragment::class.java.simpleName)
-                ?: CurrentFilterFragment()
+            supportFragmentManager.findFragmentByTag(be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment::class.java.simpleName)
+                ?: be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment()
         supportFragmentManager
             .beginTransaction().apply {
-                replace(R.id.container, fragment, CurrentFilterFragment::class.java.simpleName)
+                replace(R.id.container, fragment, be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment::class.java.simpleName)
                 addToBackStack(LIBRARY_STACK_NAME)
             }
             .commit()
@@ -448,7 +448,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     private fun adaptBottomNavigationToCurrentFragment() {
         when (val fragment = supportFragmentManager.findFragmentById(R.id.container)) {
-            is CurrentFilterFragment -> binding.bottomNavigationView
+            is be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment -> binding.bottomNavigationView
                 .menu
                 .findItem(R.id.menu_filters)
                 .isChecked = true

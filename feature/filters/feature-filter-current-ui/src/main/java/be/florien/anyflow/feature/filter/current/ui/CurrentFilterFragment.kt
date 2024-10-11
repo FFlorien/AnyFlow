@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.filters
+package be.florien.anyflow.feature.filter.current.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -25,12 +25,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.GlideApp
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.databinding.FragmentCurrentFilterBinding
-import be.florien.anyflow.databinding.ItemFilterActiveBinding
+import be.florien.anyflow.feature.filter.current.ui.databinding.FragmentCurrentFilterBinding
+import be.florien.anyflow.feature.filter.current.ui.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.currentFiltersForDisplay
