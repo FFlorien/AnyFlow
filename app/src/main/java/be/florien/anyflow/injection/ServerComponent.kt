@@ -8,6 +8,7 @@ import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmViewModelModule
 import be.florien.anyflow.feature.auth.domain.di.AuthModule
 import be.florien.anyflow.feature.filter.current.ui.di.CurrentFilterViewModelModule
+import be.florien.anyflow.feature.filter.saved.ui.di.SavedFilterGroupViewModelModule
 import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
@@ -37,6 +38,7 @@ import javax.inject.Named
         PodcastViewModelModule::class,
         SelectPlaylistViewModelModule::class,
         CurrentFilterViewModelModule::class,
+        SavedFilterGroupViewModelModule::class,
         ViewModelModule::class,
         PlaylistModificationWorkerModule::class,
         AlarmViewModelModule::class

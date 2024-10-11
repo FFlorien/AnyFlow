@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.player.ui.filters.saved
+package be.florien.anyflow.feature.filter.saved.ui
 
 import android.content.Context
 import android.os.Bundle
@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.navigation.Navigator
-import be.florien.anyflow.databinding.FragmentSavedFilterGroupBinding
-import be.florien.anyflow.databinding.ItemFilterGroupBinding
+import be.florien.anyflow.feature.filter.saved.ui.databinding.FragmentSavedFilterGroupBinding
+import be.florien.anyflow.feature.filter.saved.ui.databinding.ItemFilterGroupBinding
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R

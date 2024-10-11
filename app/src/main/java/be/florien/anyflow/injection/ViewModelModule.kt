@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.architecture.di.ViewModelKey
 import be.florien.anyflow.feature.player.ui.PlayerViewModel
-import be.florien.anyflow.feature.player.ui.filters.saved.SavedFilterGroupViewModel
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsViewModel
 import be.florien.anyflow.feature.song.ui.SongInfoViewModel
 import be.florien.anyflow.feature.songlist.ui.SongListViewModel
@@ -33,11 +32,6 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SongInfoViewModel::class)
     abstract fun bindsInfoDisplayFragmentVM(viewModel: SongInfoViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(SavedFilterGroupViewModel::class)
-    abstract fun bindsSavedFilterGroupVM(viewModel: SavedFilterGroupViewModel): ViewModel
 
     @Binds
     @IntoMap
