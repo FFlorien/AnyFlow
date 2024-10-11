@@ -16,6 +16,7 @@ import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistenceKeystore
 import dagger.Module
 import dagger.Provides
+import okhttp3.OkHttpClient
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -89,4 +90,9 @@ class ApplicationModule {
     @Provides
     fun provideAudioManager(context: Context) =
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+    @Provides
+    @Named("nonAuthenticated")
+    fun provideAuthOkHttp(): OkHttpClient =
+        OkHttpClient.Builder().build()
 }

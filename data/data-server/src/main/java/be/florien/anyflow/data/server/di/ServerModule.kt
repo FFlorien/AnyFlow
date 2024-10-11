@@ -9,15 +9,10 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 class ServerModule {
-
-    @ServerScope
-    @Provides
-    @Named("nonAuthenticated")
-    fun provideAuthOkHttp(): OkHttpClient =
-        OkHttpClient.Builder().build()
 
     @Provides
     @ServerScope

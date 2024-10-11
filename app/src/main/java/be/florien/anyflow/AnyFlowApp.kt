@@ -12,7 +12,7 @@ import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
-import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
+import be.florien.anyflow.feature.auth.domain.repository.ServerValidator
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
@@ -29,8 +29,6 @@ import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.plantTimber
-import be.florien.anyflow.ui.di.ServerVmInjector
-import be.florien.anyflow.ui.di.ServerVmInjectorContainer
 import be.florien.anyflow.ui.di.UserVmInjector
 import be.florien.anyflow.ui.di.UserVmInjectorContainer
 import be.florien.anyflow.ui.server.ServerActivity
@@ -38,26 +36,21 @@ import be.florien.anyflow.utils.startActivity
 import javax.inject.Inject
 
 
-/**
- * Application class used for initialization of many libraries
- */
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(),
+    UnauthenticatedNavigation,
     PlayerServiceComponentCreator,
     UserVmInjectorContainer,
-    ServerVmInjectorContainer,
-    UnauthenticatedNavigation,
     PlayerActivityComponentCreator,
     PlaylistActivityComponentCreator,
     GlideModuleInjectorContainer,
     ShortcutActivityComponentCreator,
     AlarmActivityComponentCreator,
     SyncServiceComponentCreator {
-    lateinit var applicationComponent: ApplicationComponent
-        protected set
-    override val serverVmInjector: ServerVmInjector
-        get() = applicationComponent
-    var serverComponent: ServerComponent? = null
+    //region fields
+    private lateinit var applicationComponent: ApplicationComponent
+    private var serverComponent: ServerComponent? = null
+
     override val userVmInjector: UserVmInjector?
         get() = serverComponent
 
@@ -67,6 +60,11 @@ open class AnyFlowApp : MultiDexApplication(),
     @Inject
     lateinit var authPersistence: AuthPersistence
 
+    @Inject
+    lateinit var serverValidator: ServerValidator
+    //endregion
+
+    //region lifecycle
     override fun onCreate() {
         super.onCreate()
         plantTimber()
@@ -77,7 +75,9 @@ open class AnyFlowApp : MultiDexApplication(),
             this@AnyFlowApp.eLog(e, "Unexpected error")
         }
     }
+    //endregion
 
+    //region DI
     protected open fun initApplicationComponent() {
         applicationComponent = DaggerApplicationComponent
             .builder()
@@ -94,12 +94,8 @@ open class AnyFlowApp : MultiDexApplication(),
     }
 
     override suspend fun createServerComponentIfServerValid(serverUrl: String): Boolean {
-        createServerComponent(serverUrl)
-
-        val validator = ServerValidator()
-        serverComponent?.inject(validator)
-
-        return if (validator.isServerValid()) {
+        return if (serverValidator.isServerValid(serverUrl)) {
+            createServerComponent(serverUrl)
             true
         } else {
             serverComponent = null
@@ -114,6 +110,26 @@ open class AnyFlowApp : MultiDexApplication(),
             .build()
     }
 
+    override fun createPlaylistComponent(): PlaylistComponent? =
+        serverComponent?.playlistComponentBuilder()?.build()
+
+    override fun createPlayerServiceComponent(): PlayerServiceComponent? =
+        serverComponent?.playerServiceComponentBuilder()?.build()
+
+    override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
+        serverComponent?.shortcutsComponentBuilder()?.build()
+
+    override fun createAlarmActivityComponent(): AlarmActivityComponent? =
+        serverComponent?.alarmComponentBuilder()?.build()
+
+    override fun createSyncServiceComponent(): SyncServiceComponent? =
+        serverComponent?.syncComponentBuilder()?.build()
+
+    override fun createPlayerActivityComponent(): PlayerActivityComponent? =
+        serverComponent?.playerComponentBuilder()?.build()
+    //endregion
+
+    //region notification
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val updateChannel = getUpdateChannel()
@@ -135,37 +151,14 @@ open class AnyFlowApp : MultiDexApplication(),
             throw UnsupportedOperationException("This method shouldn't be called from this api")
         }
     }
+    //endregion
 
-    override fun createPlaylistComponent(): PlaylistComponent? =
-        serverComponent?.playlistComponentBuilder()?.build()
-
-    override fun createPlayerServiceComponent(): PlayerServiceComponent? =
-        serverComponent?.playerServiceComponentBuilder()?.build()
-
-    class ServerValidator {
-        @Inject
-        lateinit var authRepository: AuthRepository
-
-        suspend fun isServerValid() = authRepository.ping()
-    }
-
-    override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
-        serverComponent?.shortcutsComponentBuilder()?.build()
-
-    override fun createAlarmActivityComponent(): AlarmActivityComponent? =
-        serverComponent?.alarmComponentBuilder()?.build()
-
-    override fun createSyncServiceComponent(): SyncServiceComponent? =
-        serverComponent?.syncComponentBuilder()?.build()
-
-    override fun createPlayerActivityComponent(): PlayerActivityComponent? =
-        serverComponent?.playerComponentBuilder()?.build()
-
-    override fun isUserConnected(): Boolean =
-        serverComponent != null
-
+    //region navigation
     override fun goToAuthentication(activity: Activity) {
         activity.startActivity(ServerActivity::class)
         activity.finish()
     }
+
+    override fun isUserConnected(): Boolean = serverComponent != null
+    //endregion
 }

@@ -15,7 +15,7 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-open class ServerViewModel : BaseViewModel() {
+open class ServerViewModel @Inject constructor() : BaseViewModel() {
 
     @SuppressLint("StaticFieldLeak")
     @set:Inject

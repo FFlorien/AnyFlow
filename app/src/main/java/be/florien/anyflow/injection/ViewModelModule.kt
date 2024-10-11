@@ -20,8 +20,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(be.florien.anyflow.feature.player.ui.PlayerViewModel::class)
-    abstract fun bindsPlayerActivityVM(viewModel: be.florien.anyflow.feature.player.ui.PlayerViewModel): ViewModel
+    @ViewModelKey(PlayerViewModel::class)
+    abstract fun bindsPlayerActivityVM(viewModel: PlayerViewModel): ViewModel
 
     @Binds
     @IntoMap

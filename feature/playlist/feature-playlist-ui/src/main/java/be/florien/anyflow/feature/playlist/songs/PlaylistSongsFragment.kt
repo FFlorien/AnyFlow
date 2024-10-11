@@ -37,7 +37,7 @@ class PlaylistSongsFragment(private var playlist: PlaylistWithCount? = null) : B
     private val menuCoordinator = MenuCoordinator()
     private val playPlaylistMenuHolder = PlayPlaylistSongsMenuHolder {
         viewModel.filterOnPlaylist()
-        navigator.navigateToPlayer(requireContext(), true)
+        navigator.navigateToMain(requireContext(), true)
     }
     private val removeFromPlaylistMenuHolder = RemoveSongsMenuHolder {
         requireActivity().removeSongsConfirmation(viewModel)

@@ -9,9 +9,8 @@ import be.florien.anyflow.common.navigation.MainScreenSection
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
-import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoViewModel
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
-import be.florien.anyflow.feature.player.ui.PlayerActivity
+import be.florien.anyflow.feature.player.ui.MainActivity
 import be.florien.anyflow.feature.songlist.ui.SongListFragment
 import dagger.Module
 import dagger.Provides
@@ -53,7 +52,7 @@ class ConnectedModule {
     @Provides
     @Named("playerActivity")
     @ServerScope
-    fun providePlayerActivityIntent(context: Context) = Intent(context, PlayerActivity::class.java)
+    fun providePlayerActivityIntent(context: Context) = Intent(context, MainActivity::class.java)
 
     @Provides
     @ServerScope

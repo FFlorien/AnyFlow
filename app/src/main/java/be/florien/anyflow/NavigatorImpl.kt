@@ -7,21 +7,21 @@ import androidx.fragment.app.FragmentManager
 import be.florien.anyflow.common.ui.TagType
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
-import be.florien.anyflow.feature.auth.UserConnectActivity
+import be.florien.anyflow.feature.auth.AuthenticationActivity
 import be.florien.anyflow.feature.library.ui.R
-import be.florien.anyflow.feature.player.ui.PlayerActivity
+import be.florien.anyflow.feature.player.ui.MainActivity
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import javax.inject.Inject
 
 class NavigatorImpl @Inject constructor() : Navigator {
-    override fun navigateToConnect(context: Context) {
-        context.startActivity(Intent(context, UserConnectActivity::class.java))
+    override fun navigateToAuthentication(context: Context) {
+        context.startActivity(Intent(context, AuthenticationActivity::class.java))
     }
 
-    override fun navigateToPlayer(context: Context, clearTop: Boolean) {
-        val intent = Intent(context, PlayerActivity::class.java)
+    override fun navigateToMain(context: Context, clearTop: Boolean) {
+        val intent = Intent(context, MainActivity::class.java)
         if (clearTop) {
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -29,12 +29,11 @@ class NavigatorImpl @Inject constructor() : Navigator {
     }
 
     override fun navigateToCurrentlyPlaying(context: Context) {
-        (context as PlayerActivity).displaySongList()
+        (context as? MainActivity)?.displaySongList()
     }
 
     override fun navigateToAlarm(context: Context) {
-        context.
-            startActivity(Intent(context, AlarmActivity::class.java))
+        context.startActivity(Intent(context, AlarmActivity::class.java))
     }
 
     override fun navigateToPlaylist(context: Context) {
@@ -51,14 +50,14 @@ class NavigatorImpl @Inject constructor() : Navigator {
         backstackName: String?,
         tag: String
     ) {
-        (context as PlayerActivity)
-            .supportFragmentManager
-            .beginTransaction()
-            .apply {
+        (context as? MainActivity)
+            ?.supportFragmentManager
+            ?.beginTransaction()
+            ?.apply {
                 replace(R.id.container, fragment, tag)
                 addToBackStack(backstackName)
             }
-            .commit()
+            ?.commit()
     }
 
     override fun displayPlaylistSelection(
@@ -67,8 +66,12 @@ class NavigatorImpl @Inject constructor() : Navigator {
         type: TagType,
         secondId: Int
     ) {
-        if (fragmentManager.findFragmentByTag("playlist") == null) {
-            SelectPlaylistFragment(id, type, secondId).show(fragmentManager, "playlist")
+        if (fragmentManager.findFragmentByTag(PLAYLIST_SELECTION_TAG) == null) {
+            SelectPlaylistFragment(id, type, secondId).show(fragmentManager, PLAYLIST_SELECTION_TAG)
         }
+    }
+
+    companion object {
+        private const val PLAYLIST_SELECTION_TAG = "PLAYLIST_SELECTION"
     }
 }

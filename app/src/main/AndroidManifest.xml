@@ -19,7 +19,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".feature.player.ui.PlayerActivity"
+            android:name=".feature.player.ui.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme">
@@ -30,7 +30,7 @@
         </activity>
 
         <activity android:name=".ui.server.ServerActivity" /> <!-- todo each could be in its own manifest -->
-        <activity android:name=".feature.auth.UserConnectActivity" />
+        <activity android:name=".feature.auth.AuthenticationActivity" />
 
         <activity android:name=".feature.alarm.ui.AlarmActivity" />
 

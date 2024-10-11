@@ -12,7 +12,7 @@
     <application>
 
         <activity
-            android:name="be.florien.anyflow.feature.player.ui.PlayerActivity"
+            android:name="be.florien.anyflow.feature.player.ui.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme">

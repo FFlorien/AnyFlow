@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.feature.auth.UserConnectActivity
+import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.feature.auth.AuthenticationActivity
 import be.florien.anyflow.feature.auth.ui.R
 import be.florien.anyflow.feature.auth.ui.databinding.ActivityServerBinding
-import be.florien.anyflow.ui.di.ServerVmInjectorContainer
 import be.florien.anyflow.utils.startActivity
 
 /**
@@ -20,10 +20,7 @@ class ServerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        )[ServerViewModel::class.java]
+        viewModel = ViewModelProvider(this, (application as ViewModelFactoryProvider).viewModelFactory)[ServerViewModel::class.java]
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_server)
         binding.viewModel = viewModel
@@ -31,13 +28,8 @@ class ServerActivity : AppCompatActivity() {
 
         viewModel.isServerSetup.observe(this) {
             if (it) {
-                startActivity(UserConnectActivity::class)
+                startActivity(AuthenticationActivity::class)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (application as ServerVmInjectorContainer).serverVmInjector.inject(viewModel)
     }
 }

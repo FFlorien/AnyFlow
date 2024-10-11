@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'com.google.devtools.ksp'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -31,7 +31,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.3'
     // DI
     implementation "com.google.dagger:dagger:$dagger_version"
-    ksp "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
     // Internet
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.retrofit2:converter-jackson:2.9.0' //todo use standalone jackson library

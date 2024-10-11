@@ -54,7 +54,7 @@ import javax.inject.Inject
  */
 @ActivityScope
 @ServerScope
-class PlayerActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordinatorHolder,
+class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordinatorHolder,
     MainScreen {
 
     /**
@@ -73,7 +73,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordi
     lateinit var navigator: Navigator
 
     private val fakeComponent = object : PlayerActivityComponent {
-        override fun inject(playerActivity: PlayerActivity) {}
+        override fun inject(mainActivity: MainActivity) {}
     }
 
     override val menuCoordinator = MenuCoordinator()
@@ -375,7 +375,7 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordi
 
     private fun adaptBottomNavigationToCurrentFragment() {
         val fragmentTag = supportFragmentManager.findFragmentById(R.id.container)?.tag
-        val menuId = mainScreenSections.first { it.tag == fragmentTag }.menuId
+        val menuId = mainScreenSections.firstOrNull { it.tag == fragmentTag }?.menuId ?: return
         binding.bottomNavigationView.menu.findItem(menuId).isChecked = true
     }
 

@@ -24,7 +24,6 @@ import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.podcast.PodcastRepository
-import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
 import be.florien.anyflow.tags.DataRepository
@@ -48,7 +47,6 @@ class PlayerViewModel
 @Inject
 constructor(
     playingQueue: PlayingQueue,
-    private val orderComposer: OrderComposer,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
     private val dataRepository: DataRepository,

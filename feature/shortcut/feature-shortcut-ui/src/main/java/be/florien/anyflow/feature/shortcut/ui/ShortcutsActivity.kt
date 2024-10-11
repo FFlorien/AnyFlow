@@ -41,7 +41,7 @@ class ShortcutsActivity : AppCompatActivity() {
         activityComponent = if (component != null) {
             component
         } else {
-            navigator.navigateToConnect(this)
+            navigator.navigateToAuthentication(this)
             finish()
             fakeComponent
         }

@@ -33,7 +33,7 @@ open class UserConnectActivityBase : AppCompatActivity() {
 
         viewModel.isConnected.observe(this) {
             if (it) {
-                viewModel.navigator.navigateToPlayer(this)
+                viewModel.navigator.navigateToMain(this)
                 finish()
             }
         }

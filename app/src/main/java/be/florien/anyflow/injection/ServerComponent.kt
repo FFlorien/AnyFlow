@@ -46,9 +46,6 @@ import javax.inject.Named
     ]
 )
 interface ServerComponent : UserVmInjector, GlideModuleInjector {
-
-    fun inject(validator: AnyFlowApp.ServerValidator)
-
     fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
     fun playerComponentBuilder(): PlayerActivityComponent.Builder
     fun shortcutsComponentBuilder(): ShortcutActivityComponent.Builder

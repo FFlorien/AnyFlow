@@ -116,16 +116,6 @@ open class AuthRepository
         }
     }
 
-    suspend fun ping(): Boolean {
-        return try {
-            val ping = ampacheAuthSource.ping()
-            ping.error.errorCode == 0
-        } catch (exception: Exception) {
-            eLog(exception)
-            false
-        }
-    }
-
     suspend fun <T> reconnect(request: suspend () -> T): T {
         if (!authPersistence.hasConnectionInfo()) {
             throw SessionExpiredException("Can't reconnect")
