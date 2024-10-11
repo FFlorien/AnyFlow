@@ -11,7 +11,7 @@ import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuHolder
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.alarm.ui.add.AddAlarmFragment
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator

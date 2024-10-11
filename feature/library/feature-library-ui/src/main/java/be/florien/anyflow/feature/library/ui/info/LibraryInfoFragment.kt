@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoViewHolder
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.cancelChanges
@@ -21,7 +21,7 @@ abstract class LibraryInfoFragment<IA: InfoActions<Filter<*>?>>(var parentFilter
 
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
-    override val navigator: Navigator
+    override val navigator: be.florien.anyflow.common.navigation.Navigator
         get() = viewModel.navigator
     lateinit var viewModel: LibraryInfoViewModel<IA>
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding

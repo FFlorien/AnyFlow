@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.R

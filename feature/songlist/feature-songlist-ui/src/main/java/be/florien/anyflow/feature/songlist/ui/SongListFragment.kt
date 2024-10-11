@@ -32,8 +32,7 @@ import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
 import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.player.service.PlayerService
-import be.florien.anyflow.feature.song.base.ui.SongInfoFragment
-import be.florien.anyflow.feature.song.ui.SongInfoViewModel
+import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -65,6 +64,15 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     private val queueItemAdapter: QueueItemAdapter
         get() = binding.songList.adapter as QueueItemAdapter
 
+    private val orderMenu by lazy {
+        OrderMenuHolder(viewModel.isOrdered.value == true, requireContext()) {
+            if (viewModel.isOrdered.value == true) {
+                viewModel.randomOrder()
+            } else {
+                viewModel.classicOrder()
+            }
+        }
+    }
     private val searchMenuHolder by lazy {
         SearchSongMenuHolder(viewModel.isSearching.value == true, requireContext()) {
             val currentState = viewModel.isSearching.value == true
@@ -99,7 +107,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onStart() {
         super.onStart()
-        val sessionToken = SessionToken(requireContext(), ComponentName(requireContext(), PlayerService::class.java))
+        val sessionToken = SessionToken(
+            requireContext(),
+            ComponentName(requireContext(), PlayerService::class.java)
+        )
         val oui = MediaController.Builder(requireContext(), sessionToken).buildAsync()
         oui.addListener({
             viewModel.player = oui.get()
@@ -128,6 +139,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         currentSongViewHolder =
             SongViewHolder(binding.root as ViewGroup, this, this, null, binding.currentSongDisplay)
         currentSongViewHolder.isCurrentSong = true
+
+
+        (requireActivity() as MenuCoordinatorHolder).menuCoordinator.addMenuHolder(orderMenu)
         (requireActivity() as MenuCoordinatorHolder).menuCoordinator.addMenuHolder(searchMenuHolder)
         return binding.root
     }
@@ -235,6 +249,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
             }
         }
+        viewModel.isOrdered.observe(viewLifecycleOwner) {
+            orderMenu.changeState(it)
+        }
         viewModel.searchProgression.observe(viewLifecycleOwner) {
             if (it >= 0) {
                 linearLayoutManager.scrollToPositionWithOffset(
@@ -253,7 +270,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                     it.second.toTagType(),
                     it.third
                 )
-            }}
+            }
+        }
         viewModel.shortcuts.observe(viewLifecycleOwner) {
             updateShortcuts()
         }
@@ -265,16 +283,21 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         viewModel.refreshSongs()
         viewModel.refreshShortcuts()
         searchMenuHolder.isVisible = true
+        orderMenu.isVisible = true
     }
 
     override fun onPause() {
         super.onPause()
         searchMenuHolder.isVisible = false
+        orderMenu.isVisible = false
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        (requireActivity() as MenuCoordinatorHolder).menuCoordinator.removeMenuHolder(searchMenuHolder)
+        (requireActivity() as MenuCoordinatorHolder).menuCoordinator.removeMenuHolder(orderMenu)
+        (requireActivity() as MenuCoordinatorHolder).menuCoordinator.removeMenuHolder(
+            searchMenuHolder
+        )
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
@@ -294,7 +317,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         if (item is SongDisplay) {
-            SongInfoFragment(SongInfoViewModel::class.java, item.id)
+            SongInfoFragment(item.id)
                 .show(childFragmentManager, "info")
         }
     }
@@ -341,7 +364,8 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * ViewHolder's provider
      */
 
-    override fun getArtUrl(id: Long, isPodcast: Boolean): String = viewModel.getArtUrl(id, isPodcast)
+    override fun getArtUrl(id: Long, isPodcast: Boolean): String =
+        viewModel.getArtUrl(id, isPodcast)
 
     override fun getShortcuts(): List<InfoActions.InfoRow> =
         viewModel.shortcuts.value ?: emptyList()

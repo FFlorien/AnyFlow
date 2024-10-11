@@ -3,14 +3,14 @@ package be.florien.anyflow.feature.library.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 
 interface LibraryViewModel { //todo rename and probably move because it's library AND filter related
     val filtersManager: FiltersManager
     val areFiltersInEdition: LiveData<Boolean>
-    val navigator: Navigator
+    val navigator: be.florien.anyflow.common.navigation.Navigator
 }
 
 val LibraryViewModel.currentFilters: LiveData<Set<Filter<*>>>

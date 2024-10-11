@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.library.tags.ui.info
 
 import android.content.Context
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel

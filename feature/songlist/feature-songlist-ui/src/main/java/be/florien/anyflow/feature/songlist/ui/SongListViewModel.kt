@@ -15,7 +15,7 @@ import androidx.paging.PagingData
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongActionType
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongFieldType
 import be.florien.anyflow.feature.song.ui.SongInfoActions
@@ -46,10 +46,10 @@ import javax.inject.Named
 class SongListViewModel
 @Inject constructor(
     filtersManager: FiltersManager,
-    orderComposer: OrderComposer,
     downloadManager: DownloadManager,
     urlRepository: UrlRepository,
     playingQueue: PlayingQueue,
+    private val orderComposer: OrderComposer,
     private val dataRepository: DataRepository,
     private val podcastRepository: PodcastRepository,
     internal val navigator: Navigator,
@@ -80,6 +80,7 @@ class SongListViewModel
         }
 
     val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
+    val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
     val searchResults: MutableLiveData<LiveData<List<Long>>?> = MutableLiveData()
@@ -171,6 +172,18 @@ class SongListViewModel
 
     fun clearPlaylistDisplay() {
         playlistListDisplayedFor.mutable.value = null
+    }
+
+    fun randomOrder() {
+        viewModelScope.launch {
+            orderComposer.randomize()
+        }
+    }
+
+    fun classicOrder() {
+        viewModelScope.launch {
+            orderComposer.order()
+        }
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility

@@ -3,8 +3,8 @@ package be.florien.anyflow.ui.user
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.common.ui.navigation.Navigator
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository

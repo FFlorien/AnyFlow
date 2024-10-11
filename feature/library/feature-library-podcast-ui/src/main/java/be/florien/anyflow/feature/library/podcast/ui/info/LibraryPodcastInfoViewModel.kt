@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.library.podcast.ui.info
 
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastInfoActions
 import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel

@@ -7,7 +7,7 @@ import android.view.MenuItem
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.ui.menu.ConfirmMenuHolder
 import kotlinx.coroutines.launch
 

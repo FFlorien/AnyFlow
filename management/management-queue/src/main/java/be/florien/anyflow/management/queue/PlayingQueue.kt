@@ -11,9 +11,10 @@ import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
+import be.florien.anyflow.tags.DataRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.DbQueueItem
-import be.florien.anyflow.tags.local.model.DbQueueItemDisplay
+import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.utils.applyPutInt
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +33,7 @@ import javax.inject.Named
 class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
-    private val dataRepository: be.florien.anyflow.tags.DataRepository,
+    private val dataRepository: DataRepository,
     @Named("preferences") private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {
@@ -52,12 +53,14 @@ class PlayingQueue
                 (positionUpdater as MutableLiveData).value = value
                 orderComposer.currentPosition = value
                 sharedPreferences.applyPutInt(POSITION_PREF, value)
-                val songAtPosition = queueRepository.getMediaItemAtPosition(value)
-                if (songAtPosition != this@PlayingQueue.currentMedia.value) {
-                    (this@PlayingQueue.currentMedia as MutableLiveData).value = songAtPosition
+                val mediaAtPosition = queueRepository.getMediaItemAtPosition(value)
+                if (mediaAtPosition != this@PlayingQueue.currentMedia.value) {
+                    (this@PlayingQueue.currentMedia as MutableLiveData).value = mediaAtPosition
                     withContext(Dispatchers.IO) {
-                        orderComposer.currentSong = songAtPosition?.let {
-                            dataRepository.getSongSync(it.id)
+                        if (mediaAtPosition?.mediaType == SONG_MEDIA_TYPE) {
+                            orderComposer.currentSong = mediaAtPosition.let {
+                                dataRepository.getSongSync(it.id)
+                            }
                         }
                     }
                 }

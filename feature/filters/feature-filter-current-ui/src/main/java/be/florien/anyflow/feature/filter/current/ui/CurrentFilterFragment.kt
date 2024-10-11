@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.architecture.di.viewModelFactory
 import be.florien.anyflow.common.ui.GlideApp
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.filter.current.ui.databinding.FragmentCurrentFilterBinding
 import be.florien.anyflow.feature.filter.current.ui.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment

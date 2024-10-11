@@ -32,6 +32,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation project(':data-server')
     implementation project(':logging')
+    implementation project(':common-navigation')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

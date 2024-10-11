@@ -12,6 +12,7 @@ import be.florien.anyflow.feature.filter.saved.ui.di.SavedFilterGroupViewModelMo
 import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
+import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
@@ -49,7 +50,7 @@ interface ServerComponent : UserVmInjector, GlideModuleInjector {
     fun inject(validator: AnyFlowApp.ServerValidator)
 
     fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
-    fun playerComponentBuilder(): PlayerComponent.Builder
+    fun playerComponentBuilder(): PlayerActivityComponent.Builder
     fun shortcutsComponentBuilder(): ShortcutActivityComponent.Builder
     fun playlistComponentBuilder(): PlaylistComponent.Builder
     fun alarmComponentBuilder(): AlarmActivityComponent.Builder

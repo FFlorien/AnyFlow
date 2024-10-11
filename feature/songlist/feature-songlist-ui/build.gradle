@@ -27,6 +27,7 @@ android {
 
 dependencies {
     implementation project(':architecture-di')
+    implementation project(":common-navigation")
     implementation project(":common-ui")
     implementation project(':common-ui-data')
     implementation project(':data-local')
@@ -48,6 +49,7 @@ dependencies {
     implementation project(':feature-song-ui')
     implementation 'androidx.media3:media3-session:1.4.1'
     implementation project(':feature-player-service')
+    implementation 'androidx.navigation:navigation-common-ktx:2.8.2'
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }

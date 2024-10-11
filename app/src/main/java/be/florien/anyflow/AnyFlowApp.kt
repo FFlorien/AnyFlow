@@ -1,10 +1,12 @@
 package be.florien.anyflow
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
+import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.common.ui.di.GlideModuleInjector
 import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
@@ -13,6 +15,8 @@ import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
+import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
+import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
@@ -29,6 +33,8 @@ import be.florien.anyflow.ui.di.ServerVmInjector
 import be.florien.anyflow.ui.di.ServerVmInjectorContainer
 import be.florien.anyflow.ui.di.UserVmInjector
 import be.florien.anyflow.ui.di.UserVmInjectorContainer
+import be.florien.anyflow.ui.server.ServerActivity
+import be.florien.anyflow.utils.startActivity
 import javax.inject.Inject
 
 
@@ -36,9 +42,17 @@ import javax.inject.Inject
  * Application class used for initialization of many libraries
  */
 @SuppressLint("Registered")
-open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, UserVmInjectorContainer,
-    ServerVmInjectorContainer, PlaylistActivityComponentCreator, GlideModuleInjectorContainer, ShortcutActivityComponentCreator,
-    AlarmActivityComponentCreator, SyncServiceComponentCreator {
+open class AnyFlowApp : MultiDexApplication(),
+    PlayerServiceComponentCreator,
+    UserVmInjectorContainer,
+    ServerVmInjectorContainer,
+    UnauthenticatedNavigation,
+    PlayerActivityComponentCreator,
+    PlaylistActivityComponentCreator,
+    GlideModuleInjectorContainer,
+    ShortcutActivityComponentCreator,
+    AlarmActivityComponentCreator,
+    SyncServiceComponentCreator {
     lateinit var applicationComponent: ApplicationComponent
         protected set
     override val serverVmInjector: ServerVmInjector
@@ -111,7 +125,7 @@ open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, Us
     private fun getUpdateChannel(): NotificationChannel {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                be.florien.anyflow.feature.sync.service.SyncService.UPDATE_SESSION_NAME,
+                SyncService.UPDATE_SESSION_NAME,
                 "Update",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
@@ -143,4 +157,15 @@ open class AnyFlowApp : MultiDexApplication(), PlayerServiceComponentCreator, Us
 
     override fun createSyncServiceComponent(): SyncServiceComponent? =
         serverComponent?.syncComponentBuilder()?.build()
+
+    override fun createPlayerActivityComponent(): PlayerActivityComponent? =
+        serverComponent?.playerComponentBuilder()?.build()
+
+    override fun isUserConnected(): Boolean =
+        serverComponent != null
+
+    override fun goToAuthentication(activity: Activity) {
+        activity.startActivity(ServerActivity::class)
+        activity.finish()
+    }
 }

@@ -72,7 +72,6 @@ constructor(
     val shouldShowBuffering: LiveData<Boolean> = MutableLiveData(false)
     val playbackState: StateFlow<Int> =
         MutableStateFlow(PlayPauseIconAnimator.STATE_PLAY_PAUSE_BUFFER)
-    val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
     val currentDuration: StateFlow<Int> = MutableStateFlow(0)
     val totalDuration: LiveData<Int> = playingQueue//todo awful
         .currentMedia
@@ -184,18 +183,6 @@ constructor(
             ) {
                 seekTo(newDuration)
             }
-        }
-    }
-
-    fun randomOrder() {
-        viewModelScope.launch {
-            orderComposer.randomize()
-        }
-    }
-
-    fun classicOrder() {
-        viewModelScope.launch {
-            orderComposer.order()
         }
     }
 

@@ -2,11 +2,17 @@ package be.florien.anyflow.injection
 
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.Fragment
+import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.navigation.MainScreenSection
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
+import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
+import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
+import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoViewModel
+import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.player.ui.PlayerActivity
-import be.florien.anyflow.feature.sync.service.SyncRepository
+import be.florien.anyflow.feature.songlist.ui.SongListFragment
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -48,4 +54,37 @@ class ConnectedModule {
     @Named("playerActivity")
     @ServerScope
     fun providePlayerActivityIntent(context: Context) = Intent(context, PlayerActivity::class.java)
+
+    @Provides
+    @ServerScope
+    fun provideMainScreenSection(): List<MainScreenSection> = listOf(
+        object: MainScreenSection {
+            override val isFirstSection: Boolean = false
+            override val menuId: Int = R.id.menu_library
+            override val tag: String = LibraryTagsInfoFragment::class.java.simpleName
+
+            override fun createFragment(): Fragment = LibraryTagsInfoFragment()
+        },
+        object: MainScreenSection {
+            override val isFirstSection: Boolean = false
+            override val menuId: Int = R.id.menu_podcast
+            override val tag: String = LibraryPodcastInfoFragment::class.java.simpleName
+
+            override fun createFragment(): Fragment = LibraryPodcastInfoFragment()
+        },
+        object: MainScreenSection {
+            override val isFirstSection: Boolean = true
+            override val menuId: Int = R.id.menu_song_list
+            override val tag: String = SongListFragment::class.java.simpleName
+
+            override fun createFragment(): Fragment = SongListFragment()
+        },
+        object: MainScreenSection {
+            override val isFirstSection: Boolean = false
+            override val menuId: Int = R.id.menu_filters
+            override val tag: String = CurrentFilterFragment::class.java.simpleName
+
+            override fun createFragment(): Fragment = CurrentFilterFragment()
+        },
+    )
 }

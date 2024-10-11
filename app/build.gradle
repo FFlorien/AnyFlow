@@ -118,6 +118,8 @@ dependencies {
     implementation project(':feature-sync-service')
     implementation project(':feature-filter-current-ui')
     implementation project(':feature-filter-saved-ui')
+    implementation project(':feature-player-ui')
+    implementation project(':common-navigation')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     //internet

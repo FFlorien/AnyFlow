@@ -38,6 +38,7 @@ dependencies {
     implementation project(':common-ui-data')
     implementation project(':management-filters')
     implementation project(':management-tags')
+    implementation project(':common-navigation')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

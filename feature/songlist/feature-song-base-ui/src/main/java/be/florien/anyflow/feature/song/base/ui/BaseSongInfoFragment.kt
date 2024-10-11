@@ -13,22 +13,20 @@ import be.florien.anyflow.common.ui.component.ImageDisplayFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoViewHolder
-import be.florien.anyflow.feature.song.base.ui.R
 import be.florien.anyflow.feature.song.base.ui.databinding.FragmentInfoBinding
 import be.florien.anyflow.feature.song.base.ui.databinding.ItemDownloadInfoBinding
 import be.florien.anyflow.feature.song.base.ui.databinding.ItemShortcutInfoBinding
-import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
-class SongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewModel<IA>>(
-    private var viewModelClass: Class<T>? = null,
+abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewModel<IA>>(
     private var songId: Long = BaseSongInfoActions.DUMMY_SONG_ID
 ) : BottomSheetDialogFragment() {
 
+    abstract fun getViewModel(): T
+
     companion object {
         private const val SONG = "SONG"
-        private const val VIEWMODEL_CLASS = "SONG"
 
         private const val ITEM_VIEW_TYPE_DEFAULT = 0
         private const val ITEM_VIEW_TYPE_SHORTCUT = 1
@@ -44,14 +42,10 @@ class SongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewModel<IA>>(
     init {
         arguments?.let {
             songId = it.getLong(SONG, songId)
-            val viewmodelClass = it.getString(VIEWMODEL_CLASS) ?: throw IllegalStateException()
-            viewModelClass =
-                Class.forName(viewmodelClass) as? Class<T> ?: throw IllegalStateException()
         }
         if (arguments == null) {
             arguments = Bundle().apply {
                 putLong(SONG, songId)
-                putString(VIEWMODEL_CLASS, viewModelClass?.name)
             }
 
         }
@@ -71,7 +65,7 @@ class SongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewModel<IA>>(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = (activity as SongViewModelProvider<T>).getSongViewModel(this)
+        viewModel = getViewModel()
         viewModel.songId = songId
         viewModel.songInfoObservable.observe(this) {
             viewModel.updateRows()

@@ -19,39 +19,30 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import be.florien.anyflow.AnyFlowApp
-import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.navigation.MainScreen
+import be.florien.anyflow.common.navigation.MainScreenSection
+import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.isVisiblePresent
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
-import be.florien.anyflow.databinding.ActivityPlayerBinding
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
-import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
-import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
-import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.player.service.PlayerService
-import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
-import be.florien.anyflow.feature.playlist.PlaylistsActivity
-import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
-import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
-import be.florien.anyflow.feature.song.ui.SongInfoViewModel
-import be.florien.anyflow.feature.songlist.ui.OrderMenuHolder
-import be.florien.anyflow.injection.PlayerComponent
-import be.florien.anyflow.injection.ViewModelFactoryHolder
+import be.florien.anyflow.feature.player.ui.databinding.ActivityPlayerBinding
+import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
+import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponentCreator
+import be.florien.anyflow.feature.sync.service.SyncService
 import be.florien.anyflow.management.playlist.di.PlaylistWorkerFactory
-import be.florien.anyflow.ui.server.ServerActivity
-import be.florien.anyflow.utils.startActivity
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,14 +54,14 @@ import javax.inject.Inject
  */
 @ActivityScope
 @ServerScope
-class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFactoryProvider, MenuCoordinatorHolder,
-    SongViewModelProvider<SongInfoViewModel> {
+class PlayerActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordinatorHolder,
+    MainScreen {
 
     /**
      * Injection
      */
 
-    private lateinit var activityComponent: PlayerComponent
+    private lateinit var activityComponent: PlayerActivityComponent
 
     @Inject
     override lateinit var viewModelFactory: AnyFlowViewModelFactory
@@ -78,11 +69,22 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     @Inject
     lateinit var workerFactory: PlaylistWorkerFactory
 
-    private val fakeComponent = object : PlayerComponent {
+    @Inject
+    lateinit var navigator: Navigator
+
+    private val fakeComponent = object : PlayerActivityComponent {
         override fun inject(playerActivity: PlayerActivity) {}
     }
 
     override val menuCoordinator = MenuCoordinator()
+
+
+    override val containerId: Int = R.id.container
+    override val mainScreenFragmentManager: FragmentManager
+        get() = supportFragmentManager
+
+    @Inject
+    lateinit var mainScreenSections: List<@JvmSuppressWildcards MainScreenSection>
 
     /**
      * Private properties
@@ -91,7 +93,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private lateinit var orderMenu: OrderMenuHolder
     private var isSubtitleConfigured = false
 
     /**
@@ -101,14 +102,12 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val component = (application as AnyFlowApp).serverComponent
-            ?.playerComponentBuilder()
-            ?.build()
+        val component =
+            (application as PlayerActivityComponentCreator).createPlayerActivityComponent()
         activityComponent = if (component != null) {
             component
         } else {
-            startActivity(ServerActivity::class)
-            finish()
+            (application as UnauthenticatedNavigation).goToAuthentication(this)
             fakeComponent
             return
         }
@@ -129,16 +128,16 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
         initToolbar()
         initDrawer()
         initBottomNavigation()
-        initMenus()
         observeNetwork()
 
         if (savedInstanceState == null) {
+            val firstSection = mainScreenSections.first { it.isFirstSection }
             supportFragmentManager
                 .beginTransaction()
                 .replace(
                     R.id.container,
-                    be.florien.anyflow.feature.songlist.ui.SongListFragment(),
-                    be.florien.anyflow.feature.songlist.ui.SongListFragment::class.java.simpleName
+                    firstSection.createFragment(),
+                    firstSection.tag
                 )
                 .runOnCommit {
                     adaptToolbarToCurrentFragment()
@@ -147,22 +146,18 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
                 .commit()
         }
         viewModel.syncAlarms()
-        viewModel.isOrdered.observe(this) {
-            orderMenu.changeState(it)
-        }
         viewModel.connectionStatus.observe(this) { status ->
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (status) {
                 AuthRepository.ConnectionStatus.WRONG_SERVER_URL,
                 AuthRepository.ConnectionStatus.WRONG_ID_PAIR -> {
-                    startActivity(ServerActivity::class)
-                    finish()
+                    (application as UnauthenticatedNavigation).goToAuthentication(this)
                 }
 
                 AuthRepository.ConnectionStatus.CONNEXION -> return@observe
                 AuthRepository.ConnectionStatus.CONNECTED -> {
                     bindService(
-                        Intent(this, be.florien.anyflow.feature.sync.service.SyncService::class.java),
+                        Intent(this, SyncService::class.java), //todo navigator?
                         viewModel.updateConnection,
                         Context.BIND_AUTO_CREATE
                     )
@@ -224,7 +219,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     override fun onResume() {
         super.onResume()
-        updateMenuItemVisibility()
         adaptToolbarToCurrentFragment()
         adaptBottomNavigationToCurrentFragment()
         lifecycleScope.launch(Dispatchers.Default) {//todo better handling of lifecycle and resource ?
@@ -254,16 +248,13 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
 
     override fun onDestroy() {
         super.onDestroy()
-        if ((application as AnyFlowApp).serverComponent == null) {
+        if (!(application as PlayerActivityComponentCreator).isUserConnected()) {
             return
         }
 
-        menuCoordinator.removeMenuHolder(orderMenu)
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
     }
-
-    override fun getFactory() = viewModelFactory
 
     /**
      * Public method
@@ -284,7 +275,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportFragmentManager.addOnBackStackChangedListener {
-            updateMenuItemVisibility()
             adaptToolbarToCurrentFragment()
             adaptBottomNavigationToCurrentFragment()
         }
@@ -302,17 +292,17 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.menu_alarm -> {
-                    startActivity(Intent(this@PlayerActivity, be.florien.anyflow.feature.alarm.ui.AlarmActivity::class.java))
+                    navigator.navigateToAlarm(this)
                     true
                 }
 
                 R.id.menu_playlist -> {
-                    startActivity(Intent(this, PlaylistsActivity::class.java))
+                    navigator.navigateToPlaylist(this)
                     true
                 }
 
                 R.id.menu_shortcut -> {
-                    startActivity(Intent(this, ShortcutsActivity::class.java))
+                    navigator.navigateToShortcut(this)
                     true
                 }
 
@@ -327,45 +317,22 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     }
 
     private fun initBottomNavigation() {
-        binding.bottomNavigationView.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.menu_library -> {
-                    displayLibrary()
-                    true
-                }
-
-                R.id.menu_podcast -> {
-                    displayPodcast()
-                    true
-                }
-
-                R.id.menu_filters -> {
-                    displayFilters()
-                    true
-                }
-
-                else -> {
-                    displaySongList()
-                    true
-                }
-            }
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+            displayFragment(mainScreenSections.first { it.menuId == item.itemId })
+            true
         }
     }
 
-
-    private fun initMenus() {
-        orderMenu = OrderMenuHolder(
-            viewModel.isOrdered.value == true,
-            this
-        ) {
-            if (viewModel.isOrdered.value == true) {
-                viewModel.randomOrder()
-            } else {
-                viewModel.classicOrder()
+    private fun displayFragment(mainScreenSection: MainScreenSection) {
+        val fragment =
+            supportFragmentManager.findFragmentByTag(mainScreenSection.tag)
+                ?: mainScreenSection.createFragment()
+        supportFragmentManager
+            .beginTransaction().apply {
+                replace(R.id.container, fragment, mainScreenSection.tag)
+                addToBackStack(LIBRARY_STACK_NAME)
             }
-        }
-
-        menuCoordinator.addMenuHolder(orderMenu)
+            .commit()
     }
 
     private fun observeNetwork() {
@@ -390,46 +357,6 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
         viewModel.setInternetPresence(hasInternet && (isWifi || isCellular))
     }
 
-    private fun displayLibrary() {
-        val fragment =
-            supportFragmentManager.findFragmentByTag(LibraryTagsInfoFragment::class.java.simpleName)
-                ?: LibraryTagsInfoFragment()
-        supportFragmentManager
-            .beginTransaction().apply {
-                replace(R.id.container, fragment, LibraryTagsInfoFragment::class.java.simpleName)
-                addToBackStack(LIBRARY_STACK_NAME)
-            }
-            .commit()
-    }
-
-    private fun displayPodcast() {
-        val fragment =
-            supportFragmentManager.findFragmentByTag(LibraryPodcastInfoFragment::class.java.simpleName)
-                ?: LibraryPodcastInfoFragment()
-        supportFragmentManager
-            .beginTransaction().apply {
-                replace(R.id.container, fragment, LibraryPodcastInfoFragment::class.java.simpleName)
-                addToBackStack(LIBRARY_STACK_NAME)
-            }
-            .commit()
-    }
-
-    private fun displayFilters() {
-        val fragment =
-            supportFragmentManager.findFragmentByTag(be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment::class.java.simpleName)
-                ?: be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment()
-        supportFragmentManager
-            .beginTransaction().apply {
-                replace(R.id.container, fragment, be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment::class.java.simpleName)
-                addToBackStack(LIBRARY_STACK_NAME)
-            }
-            .commit()
-    }
-
-    private fun updateMenuItemVisibility() {
-        orderMenu.isVisible = isSongListVisible()
-    }
-
     private fun adaptToolbarToCurrentFragment() {
         val baseFragment = supportFragmentManager.findFragmentById(R.id.container) as? BaseFragment
         baseFragment?.getTitle()?.let {
@@ -447,37 +374,12 @@ class PlayerActivity : AppCompatActivity(), ViewModelFactoryHolder, ViewModelFac
     }
 
     private fun adaptBottomNavigationToCurrentFragment() {
-        when (val fragment = supportFragmentManager.findFragmentById(R.id.container)) {
-            is be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment -> binding.bottomNavigationView
-                .menu
-                .findItem(R.id.menu_filters)
-                .isChecked = true
-
-            is BaseFilteringFragment -> {
-                if (fragment.tag?.contains("Tags", ignoreCase = true) == true) {
-                    binding.bottomNavigationView
-                        .menu
-                        .findItem(R.id.menu_library)
-                        .isChecked = true
-                } else {
-                    binding.bottomNavigationView
-                        .menu
-                        .findItem(R.id.menu_podcast)
-                        .isChecked = true
-                }
-            }
-
-            else -> binding.bottomNavigationView.menu.findItem(R.id.menu_song_list).isChecked = true
-        }
+        val fragmentTag = supportFragmentManager.findFragmentById(R.id.container)?.tag
+        val menuId = mainScreenSections.first { it.tag == fragmentTag }.menuId
+        binding.bottomNavigationView.menu.findItem(menuId).isChecked = true
     }
-
-    private fun isSongListVisible() =
-        supportFragmentManager.findFragmentById(R.id.container) is be.florien.anyflow.feature.songlist.ui.SongListFragment
 
     companion object {
         private const val LIBRARY_STACK_NAME = "filters"
     }
-
-    override fun getSongViewModel(owner: ViewModelStoreOwner?) =
-        ViewModelProvider(owner ?: this, viewModelFactory)[SongInfoViewModel::class.java]
 }

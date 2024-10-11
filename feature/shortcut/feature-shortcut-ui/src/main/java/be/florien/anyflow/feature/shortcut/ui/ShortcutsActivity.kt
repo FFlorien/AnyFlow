@@ -5,26 +5,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
-import be.florien.anyflow.common.ui.navigation.Navigator
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
-import be.florien.anyflow.feature.song.base.ui.SongInfoFragment
-import be.florien.anyflow.feature.song.base.ui.di.SongViewModelProvider
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
-import be.florien.anyflow.management.queue.model.SongDisplay
-import be.florien.anyflow.tags.model.SongInfo
 import javax.inject.Inject
 
-class ShortcutsActivity : AppCompatActivity(), SongViewModelProvider<ShortcutsViewModel> {
+class ShortcutsActivity : AppCompatActivity() {
 
     private lateinit var shortcutExample: SongViewHolder
     private lateinit var binding: ActivityShortcutBinding
@@ -75,14 +70,14 @@ class ShortcutsActivity : AppCompatActivity(), SongViewModelProvider<ShortcutsVi
             shortcutExample.setShortcuts()
         }
         val fragment =
-            supportFragmentManager.findFragmentByTag(SongInfoFragment::class.java.simpleName)
+            supportFragmentManager.findFragmentByTag(BaseSongInfoFragment::class.java.simpleName)
         if (fragment == null) {
             supportFragmentManager
                 .beginTransaction()
                 .add(
                     R.id.fragment_container_view,
-                    SongInfoFragment(ShortcutsViewModel::class.java),
-                    SongInfoFragment::class.java.simpleName
+                    ShortcutSongInfoFragment(),
+                    BaseSongInfoFragment::class.java.simpleName
                 )
                 .commit()
         }
@@ -115,47 +110,4 @@ class ShortcutsActivity : AppCompatActivity(), SongViewModelProvider<ShortcutsVi
             }
         }
     }
-
-    override fun getSongViewModel(owner: ViewModelStoreOwner?): ShortcutsViewModel =
-        ViewModelProvider(this, viewModelFactory)[ShortcutsViewModel::class.java]
-            .apply {
-                val width = getDisplayWidth()
-                val itemWidth = resources.getDimensionPixelSize(R.dimen.minClickableSize)
-                val margin = resources.getDimensionPixelSize(R.dimen.smallDimen)
-                val itemFullWidth = itemWidth + margin + margin
-                maxItems = (width / itemFullWidth) - 1
-                val title = getString(R.string.dummy_title)
-                val artistName = getString(R.string.dummy_artist)
-                val albumName = getString(R.string.dummy_album)
-                val time = 120
-                dummySongInfo =
-                    SongInfo(
-                        BaseSongInfoActions.DUMMY_SONG_ID,
-                        title,
-                        artistName,
-                        0L,
-                        albumName,
-                        0L,
-                        1,
-                        artistName,
-                        0L,
-                        listOf(getString(R.string.dummy_genre)),
-                        listOf(0L),
-                        listOf(getString(R.string.dummy_playlist)),
-                        listOf(0L),
-                        1,
-                        time,
-                        2000,
-                        0,
-                        null
-                    )
-                dummySongDisplay = SongDisplay(
-                    BaseSongInfoActions.DUMMY_SONG_ID,
-                    title,
-                    artistName,
-                    albumName,
-                    0L,
-                    time
-                )
-            }
 }
