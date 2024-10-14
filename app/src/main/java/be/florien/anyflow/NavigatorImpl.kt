@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentManager
 import be.florien.anyflow.common.ui.TagType
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
-import be.florien.anyflow.feature.auth.AuthenticationActivity
+import be.florien.anyflow.feature.auth.ui.user.AuthenticationActivity
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.player.ui.MainActivity
 import be.florien.anyflow.feature.playlist.PlaylistsActivity

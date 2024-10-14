@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
     /**
      * Private properties
      */
-    lateinit var viewModel: PlayerViewModel
+    lateinit var viewModel: MainActivityViewModel
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
                     .build()
             )
         }
-        viewModel = ViewModelProvider(this, viewModelFactory)[PlayerViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

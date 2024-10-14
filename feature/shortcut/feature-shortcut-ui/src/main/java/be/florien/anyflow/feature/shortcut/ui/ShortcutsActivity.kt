@@ -6,6 +6,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
@@ -19,7 +20,7 @@ import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import javax.inject.Inject
 
-class ShortcutsActivity : AppCompatActivity() {
+class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
     private lateinit var shortcutExample: SongViewHolder
     private lateinit var binding: ActivityShortcutBinding
@@ -27,7 +28,7 @@ class ShortcutsActivity : AppCompatActivity() {
     private lateinit var viewModel: ShortcutsViewModel
 
     @Inject
-    lateinit var viewModelFactory: AnyFlowViewModelFactory
+    override lateinit var viewModelFactory: AnyFlowViewModelFactory
 
     @Inject
     lateinit var navigator: Navigator

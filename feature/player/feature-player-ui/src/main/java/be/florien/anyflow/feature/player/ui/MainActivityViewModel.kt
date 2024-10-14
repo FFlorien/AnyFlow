@@ -43,7 +43,7 @@ import kotlin.math.absoluteValue
 /**
  * ViewModel for the PlayerActivity
  */
-class PlayerViewModel
+class MainActivityViewModel
 @Inject
 constructor(
     playingQueue: PlayingQueue,
@@ -119,9 +119,9 @@ constructor(
     internal val updateConnection: UpdateConnection = UpdateConnection()
     var player: MediaController? = null
         set(value) {
-            field?.removeListener(this@PlayerViewModel)
+            field?.removeListener(this@MainActivityViewModel)
             field = value
-            value?.addListener(this@PlayerViewModel)
+            value?.addListener(this@MainActivityViewModel)
 
         }
     //endregion
@@ -214,7 +214,7 @@ constructor(
                     shouldShowBuffering.mutable.postValueIfChanged(false)
                 }
             }
-            this@PlayerViewModel.playbackState.mutable.emit(iconPlaybackState)
+            this@MainActivityViewModel.playbackState.mutable.emit(iconPlaybackState)
         }
     }
 

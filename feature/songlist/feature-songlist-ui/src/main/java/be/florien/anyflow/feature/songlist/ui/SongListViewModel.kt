@@ -73,7 +73,7 @@ class SongListViewModel
             } else {
                 queueItem?.id?.let { id ->
                     podcastRepository.getPodcastEpisode(id).map {
-                        it.toViewPodcastEpisodeDisplay()
+                        it?.toViewPodcastEpisodeDisplay()
                     }
                 }
             }

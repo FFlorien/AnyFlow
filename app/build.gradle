@@ -63,16 +63,20 @@ android {
 }
 
 dependencies {
-    //Modules //todo check dependencies still needed and the one we could remove
+    //Modules
     implementation project(':architecture-di')
     implementation project(':common-management')
+    implementation project(':common-navigation')
     implementation project(":common-ui")
     implementation project(':common-ui-data')
     implementation project(':component-player-controls')
     implementation project(":data-local")
     implementation project(":data-server")
+    implementation project(':feature-alarm-ui')
     implementation project(":feature-auth-domain")
     implementation project(":feature-auth-ui")
+    implementation project(':feature-filter-current-ui')
+    implementation project(':feature-filter-saved-ui')
     implementation project(":feature-library-domain")
     implementation project(":feature-library-ui")
     implementation project(":feature-library-tags-domain")
@@ -80,12 +84,15 @@ dependencies {
     implementation project(':feature-library-podcast-domain')
     implementation project(':feature-library-podcast-ui')
     implementation project(':feature-player-service')
+    implementation project(':feature-player-ui')
     implementation project(':feature-playlist-ui')
     implementation project(':feature-playlist-selection-domain')
     implementation project(':feature-playlist-selection-ui')
     implementation project(':feature-shortcut-ui')
     implementation project(':feature-song-base-ui')
     implementation project(':feature-song-ui')
+    implementation project(':feature-songlist-ui')
+    implementation project(':feature-sync-service')
     implementation project(':logging')
     implementation project(':management-alarm')
     implementation project(':management-queue')
@@ -97,66 +104,26 @@ dependencies {
     implementation project(':management-podcast')
     implementation project(':resources')
     implementation project(':utils')
-    //base
+    //Android/Kotlin
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation "androidx.core:core-ktx:1.12.0"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //DI
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation project(':feature-songlist-ui')
-    implementation project(':feature-alarm-ui')
-    implementation project(':feature-sync-service')
-    implementation project(':feature-filter-current-ui')
-    implementation project(':feature-filter-saved-ui')
-    implementation project(':feature-player-ui')
-    implementation project(':common-navigation')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation 'org.glassfish:javax.annotation:10.0-b28'
-    //internet
+    //Internet
     implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
-
-    //glide
+    //Glide
     implementation 'com.github.bumptech.glide:glide:4.14.1'
-    kapt 'com.github.bumptech.glide:compiler:4.14.1'
-    implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
     //ExoPlayer
     implementation 'androidx.media3:media3-session:1.2.1'
     implementation "androidx.media3:media3-exoplayer:1.3.0"
-    implementation "androidx.media3:media3-ui:1.3.0"
-    implementation "androidx.media3:media3-datasource-okhttp:1.3.0"
-    implementation "com.google.android.exoplayer:extension-mediasession:2.19.1"
-    //Room
-    //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies
-    implementation "androidx.room:room-runtime:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
     //WorkManager
     implementation 'androidx.work:work-runtime-ktx:2.9.1'
-    //Tests
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
-    testImplementation "android.arch.core:core-testing:1.1.1"
-    testImplementation 'com.google.truth:truth:1.0.1'
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
-    androidTestImplementation "androidx.arch.core:core-testing:2.2.0"
-    androidTestImplementation 'androidx.test:core:1.5.0'
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.2.0', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    androidTestImplementation 'androidx.test:runner:1.5.2'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'com.google.truth:truth:1.0.1'
-    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
 }
 repositories {
     mavenCentral()

@@ -8,11 +8,11 @@ import dagger.Binds
 import dagger.Module
 
 @Module
-abstract class ApplicationWideModule {
-
-    @Binds
-    abstract fun bindContext(application: Application): Context
+abstract class ApplicationBindsModule {
 
     @Binds
     abstract fun bindNavigator(navigatorImpl: NavigatorImpl): Navigator
+
+    @Binds
+    abstract fun bindContext(application: Application): Context
 }

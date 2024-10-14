@@ -1,6 +1,4 @@
-package be.florien.anyflow.feature.auth
-
-import be.florien.anyflow.ui.user.UserConnectActivityBase
+package be.florien.anyflow.feature.auth.ui.user
 
 /**
  * Created by florien on 6/03/18.

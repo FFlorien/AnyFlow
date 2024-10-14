@@ -30,7 +30,7 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
     abstract fun getPodcastEpisodesUpdatable(podcastId: String): LiveData<List<DbPodcastEpisode>>
 
     @Query("SELECT * FROM PodcastEpisode WHERE id = :id")
-    abstract fun getPodcastEpisode(id: Long): LiveData<DbPodcastEpisode>
+    abstract fun getPodcastEpisode(id: Long): LiveData<DbPodcastEpisode?>
 
     @Query("UPDATE PodcastEpisode SET waveForm = :downSamples WHERE podcastepisode.id = :podcastEpisodeId")
     abstract suspend fun updateWithNewWaveForm(podcastEpisodeId: Long, downSamples: String?)

@@ -1,13 +1,13 @@
-package be.florien.anyflow.ui.user
+package be.florien.anyflow.feature.auth.ui.user
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.feature.auth.ui.R
 import be.florien.anyflow.feature.auth.ui.databinding.ActivityConnectBinding
-import be.florien.anyflow.ui.di.UserVmInjectorContainer
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -23,9 +23,8 @@ open class UserConnectActivityBase : AppCompatActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            ViewModelProvider.NewInstanceFactory()
+            (application as ViewModelFactoryProvider).viewModelFactory
         )[UserConnectViewModel::class.java]
-        (applicationContext as UserVmInjectorContainer).userVmInjector?.inject(viewModel)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_connect)
         binding.viewModel = viewModel

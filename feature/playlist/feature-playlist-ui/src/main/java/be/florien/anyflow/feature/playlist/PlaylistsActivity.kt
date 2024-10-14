@@ -10,13 +10,13 @@ import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
-import be.florien.anyflow.feature.playlist.di.PlaylistComponent
+import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.list.PlaylistListFragment
 
 class PlaylistsActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     internal val menuCoordinator = MenuCoordinator()
-    internal var component: PlaylistComponent? = null
+    internal var component: PlaylistActivityComponent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component = (applicationContext as PlaylistActivityComponentCreator).createPlaylistComponent()

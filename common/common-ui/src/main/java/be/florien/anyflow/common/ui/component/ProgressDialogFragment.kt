@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 private const val TITLE = "title"
 
 class ProgressDialog(
-    private var title: String
+    private var title: String = ""
 ) : DialogFragment() {
 
     private var binding: FragmentProgressBinding? = null

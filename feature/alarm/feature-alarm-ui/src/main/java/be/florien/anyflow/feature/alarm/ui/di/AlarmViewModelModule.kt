@@ -1,8 +1,6 @@
 package be.florien.anyflow.feature.alarm.ui.di
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.architecture.di.ViewModelKey
 import be.florien.anyflow.feature.alarm.ui.AlarmViewModel
 import be.florien.anyflow.feature.alarm.ui.add.AddAlarmViewModel
@@ -14,9 +12,6 @@ import dagger.multibindings.IntoMap
 
 @Module
 abstract class AlarmViewModelModule {
-
-    @Binds
-    abstract fun bindsViewModelFactory(factory: AnyFlowViewModelFactory): ViewModelProvider.Factory
 
     @Binds
     @IntoMap

@@ -8,7 +8,7 @@ import dagger.Subcomponent
 
 @Subcomponent(modules = [PlaylistViewModelModule::class])
 @ActivityScope
-interface PlaylistComponent {
+interface PlaylistActivityComponent {
     fun inject(playlistSongsFragment: PlaylistSongsFragment)
     fun inject(viewModel: PlaylistSongsViewModel)
     fun inject(viewModel: PlaylistListViewModel)
@@ -16,7 +16,7 @@ interface PlaylistComponent {
     @Subcomponent.Builder
     interface Builder {
 
-        fun build(): PlaylistComponent
+        fun build(): PlaylistActivityComponent
     }
 
 }

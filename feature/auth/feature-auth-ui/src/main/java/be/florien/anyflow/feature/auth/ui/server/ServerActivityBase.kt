@@ -1,13 +1,14 @@
-package be.florien.anyflow.ui.server
+package be.florien.anyflow.feature.auth.ui.server
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
-import be.florien.anyflow.feature.auth.AuthenticationActivity
+import be.florien.anyflow.feature.auth.ui.user.AuthenticationActivity
 import be.florien.anyflow.feature.auth.ui.R
 import be.florien.anyflow.feature.auth.ui.databinding.ActivityServerBinding
+import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
 import be.florien.anyflow.utils.startActivity
 
 /**
@@ -26,8 +27,10 @@ class ServerActivity : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        viewModel.isServerSetup.observe(this) {
-            if (it) {
+        viewModel.validatedServerUrl.observe(this) {
+            if (it.isNotBlank()) {
+                val serverComponentCreator = application as ServerUrlSetter
+                serverComponentCreator.setServerUrl(it)
                 startActivity(AuthenticationActivity::class)
             }
         }

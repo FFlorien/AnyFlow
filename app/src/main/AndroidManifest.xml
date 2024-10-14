@@ -28,44 +28,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ui.server.ServerActivity" /> <!-- todo each could be in its own manifest -->
-        <activity android:name=".feature.auth.AuthenticationActivity" />
-
-        <activity android:name=".feature.alarm.ui.AlarmActivity" />
-
-        <activity android:name=".feature.shortcut.ui.ShortcutsActivity" />
-        <activity android:name=".feature.playlist.PlaylistsActivity" />
-
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="be.florien.anyflow.androidx-startup"
-            tools:replace="android:authorities"
-            tools:node="remove">
-        </provider>
-
-        <service
-            android:name=".feature.player.service.PlayerService"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".feature.sync.service.SyncService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-
-        <receiver
-            android:name="androidx.media.session.MediaButtonReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".feature.alarm.ui.AlarmReceiver" />
     </application>
 
 </manifest>

@@ -17,7 +17,7 @@ class ServerValidator @Inject constructor(
     var okHttpClient: OkHttpClient
 ) {
 
-    suspend fun isServerValid(serverUrl: String): Boolean {
+    suspend fun isServerValid(serverUrl: String): Boolean { //todo try catch and return enum with success and error cases
         val retrofit = Retrofit
             .Builder()
             .baseUrl(serverUrl)

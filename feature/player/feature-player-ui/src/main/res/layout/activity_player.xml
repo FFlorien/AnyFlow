@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="be.florien.anyflow.feature.player.ui.PlayerViewModel" />
+            type="be.florien.anyflow.feature.player.ui.MainActivityViewModel" />
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"

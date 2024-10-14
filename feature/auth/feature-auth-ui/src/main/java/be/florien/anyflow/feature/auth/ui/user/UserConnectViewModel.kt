@@ -1,4 +1,4 @@
-package be.florien.anyflow.ui.user
+package be.florien.anyflow.feature.auth.ui.user
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,13 +15,10 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-open class UserConnectViewModel : BaseViewModel() {
-
-    @Inject
-    lateinit var authRepository: AuthRepository
-
-    @Inject
-    lateinit var navigator: Navigator
+open class UserConnectViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    val navigator: Navigator
+) : BaseViewModel() {
 
     /**
      * Fields
@@ -42,7 +39,8 @@ open class UserConnectViewModel : BaseViewModel() {
         val pwd = password.value
         val user = username.value
         val apiToken = apiToken.value
-        val isUserPwd = pwd?.isNotBlank() == true && user?.isNotBlank() == true //todo : what if everything is filled ?
+        val isUserPwd =
+            pwd?.isNotBlank() == true && user?.isNotBlank() == true //todo : what if everything is filled ?
         if (isUserPwd || apiToken?.isNotBlank() == true) {
             viewModelScope.launch {
                 try {
