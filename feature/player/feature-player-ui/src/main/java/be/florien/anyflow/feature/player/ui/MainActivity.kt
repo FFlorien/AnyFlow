@@ -28,8 +28,6 @@ import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
 import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.navigation.MainScreen
-import be.florien.anyflow.common.navigation.MainScreenSection
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.common.ui.BaseFragment
@@ -54,8 +52,7 @@ import javax.inject.Inject
  */
 @ActivityScope
 @ServerScope
-class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordinatorHolder,
-    MainScreen {
+class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordinatorHolder {
 
     /**
      * Injection
@@ -77,11 +74,6 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
     }
 
     override val menuCoordinator = MenuCoordinator()
-
-
-    override val containerId: Int = R.id.container
-    override val mainScreenFragmentManager: FragmentManager
-        get() = supportFragmentManager
 
     @Inject
     lateinit var mainScreenSections: List<@JvmSuppressWildcards MainScreenSection>

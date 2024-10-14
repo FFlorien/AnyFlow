@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.fragment.app.Fragment
 import be.florien.anyflow.R
 import be.florien.anyflow.architecture.di.ServerScope
-import be.florien.anyflow.common.navigation.MainScreenSection
+import be.florien.anyflow.feature.player.ui.MainScreenSection
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
