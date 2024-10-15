@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.songlist.ui
 
-import be.florien.anyflow.common.ui.TagType
+import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay

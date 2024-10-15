@@ -5,7 +5,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.common.ui.TagType
+import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.common.ui.component.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.selection.domain.toViewFilterType
 import be.florien.anyflow.management.filters.model.Filter

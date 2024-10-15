@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui
+package be.florien.anyflow.common.ui.data
 
 enum class TagType {
     Title,

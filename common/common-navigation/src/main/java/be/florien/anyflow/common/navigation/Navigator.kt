@@ -1,14 +1,11 @@
 package be.florien.anyflow.common.navigation
 
 import android.content.Context
-import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import be.florien.anyflow.common.ui.TagType
+import be.florien.anyflow.common.ui.data.TagType
 
 interface Navigator {
-
-    fun navigateToAuthentication(context: Context)
     fun navigateToMain(context: Context, clearTop: Boolean = false)
     fun navigateToCurrentlyPlaying(context: Context)
     fun navigateToAlarm(context: Context)

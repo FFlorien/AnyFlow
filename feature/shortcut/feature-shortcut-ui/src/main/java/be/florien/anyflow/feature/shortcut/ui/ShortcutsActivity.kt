@@ -12,9 +12,7 @@ import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
-import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
-import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
@@ -24,34 +22,18 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
     private lateinit var shortcutExample: SongViewHolder
     private lateinit var binding: ActivityShortcutBinding
-    private lateinit var activityComponent: ShortcutActivityComponent
     private lateinit var viewModel: ShortcutsViewModel
 
     @Inject
     override lateinit var viewModelFactory: AnyFlowViewModelFactory
 
-    @Inject
-    lateinit var navigator: Navigator
-
-    private val fakeComponent = object : ShortcutActivityComponent {
-        override fun inject(shortcutsActivity: ShortcutsActivity) {}
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        val component = (application as ShortcutActivityComponentCreator).createShortcutActivityComponent()
-        activityComponent = if (component != null) {
-            component
-        } else {
-            navigator.navigateToAuthentication(this)
-            finish()
-            fakeComponent
-        }
-        super.onCreate(savedInstanceState)
+        val component = (application as ShortcutActivityComponentCreator)
+                .createShortcutActivityComponent()
+                ?: throw IllegalStateException()
+        component.inject(this)
 
-        if (activityComponent == fakeComponent) {
-            return
-        }
-        activityComponent.inject(this)
+        super.onCreate(savedInstanceState)
 
         viewModel =
             ViewModelProvider(this, viewModelFactory)[ShortcutsViewModel::class.java]
@@ -67,7 +49,7 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
         binding.viewModel = viewModel
         initToolbar()
         initSongExample()
-        viewModel.currentActionsCountDisplay.observe(this ){
+        viewModel.currentActionsCountDisplay.observe(this) {
             shortcutExample.setShortcuts()
         }
         val fragment =
@@ -85,19 +67,26 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
     }
 
     private fun initSongExample() {
-        val provider = object: SongListViewHolderProvider {
+        val provider = object : SongListViewHolderProvider {
             override fun getShortcuts() = viewModel.shortcutsList
-            override fun getCurrentPosition(): Int  = 0
+            override fun getCurrentPosition(): Int = 0
             override fun getCurrentSongTranslationX(): Float = 0F
             override fun getArtUrl(id: Long, isPodcast: Boolean): String = ""
         }
-        val listener= object: SongListViewHolderListener {
+        val listener = object : SongListViewHolderListener {
             override fun onShortcut(item: QueueItemDisplay, row: InfoActions.InfoRow) {}
             override fun onShortcutOpened(position: Int?) {}
             override fun onCurrentSongShortcutsClosed() {}
             override fun onInfoDisplayAsked(item: QueueItemDisplay) {}
         }
-        shortcutExample = SongViewHolder(binding.root as ConstraintLayout, listener, provider, null, binding.songExample, true)
+        shortcutExample = SongViewHolder(
+            binding.root as ConstraintLayout,
+            listener,
+            provider,
+            null,
+            binding.songExample,
+            true
+        )
         shortcutExample.setShortcuts()
     }
 

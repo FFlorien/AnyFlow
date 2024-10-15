@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.playlist.selection.domain
 
-import be.florien.anyflow.common.ui.TagType
+import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.management.filters.model.Filter
 
 

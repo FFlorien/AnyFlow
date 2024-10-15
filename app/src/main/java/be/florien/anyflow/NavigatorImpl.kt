@@ -4,10 +4,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import be.florien.anyflow.common.ui.TagType
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
-import be.florien.anyflow.feature.auth.ui.user.AuthenticationActivity
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.player.ui.MainActivity
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
@@ -16,10 +15,6 @@ import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import javax.inject.Inject
 
 class NavigatorImpl @Inject constructor() : Navigator {
-    override fun navigateToAuthentication(context: Context) {
-        context.startActivity(Intent(context, AuthenticationActivity::class.java))
-    }
-
     override fun navigateToMain(context: Context, clearTop: Boolean) {
         val intent = Intent(context, MainActivity::class.java)
         if (clearTop) {

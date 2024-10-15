@@ -11,9 +11,7 @@ import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuHolder
-import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.alarm.ui.add.AddAlarmFragment
-import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.alarm.ui.list.AlarmListFragment
 import javax.inject.Inject
@@ -25,29 +23,16 @@ class AlarmActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
     val menuCoordinator = MenuCoordinator()
     private lateinit var addMenu: MenuHolder
-    lateinit var activityComponent: AlarmActivityComponent
-
-    private object fakeComponent: AlarmActivityComponent {
-        override fun inject(alarmActivity: AlarmActivity) = Unit
-    }
 
     @Inject
     override lateinit var viewModelFactory: AnyFlowViewModelFactory
 
-    @Inject
-    lateinit var navigator: Navigator
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val component = (application as AlarmActivityComponentCreator).createAlarmActivityComponent()
-        activityComponent = if (component != null) {
-            component
-        } else {
-            navigator.navigateToAuthentication(this)
-            finish()
-            fakeComponent
-        }
+        val activityComponent = (application as AlarmActivityComponentCreator)
+            .createAlarmActivityComponent()
+            ?: throw IllegalStateException()
         activityComponent.inject(this)
 
         viewModel = ViewModelProvider(this, viewModelFactory)[AlarmViewModel::class.java]

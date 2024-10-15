@@ -16,10 +16,12 @@ import be.florien.anyflow.feature.playlist.list.PlaylistListFragment
 class PlaylistsActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     internal val menuCoordinator = MenuCoordinator()
-    internal var component: PlaylistActivityComponent? = null
+    internal lateinit var component: PlaylistActivityComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        component = (applicationContext as PlaylistActivityComponentCreator).createPlaylistComponent()
+        component = (applicationContext as PlaylistActivityComponentCreator)
+            .createPlaylistComponent()
+            ?: throw IllegalStateException()
         super.onCreate(savedInstanceState)
 
         setContentView(ModuleR.layout.activity_playlists)
