@@ -12,12 +12,14 @@ import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
+import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
+import be.florien.anyflow.feature.auth.ui.server.ServerActivity
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponentCreator
-import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
+import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
 import be.florien.anyflow.feature.sync.service.SyncService
@@ -28,8 +30,6 @@ import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
 import be.florien.anyflow.logging.eLog
 import be.florien.anyflow.logging.plantTimber
-import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
-import be.florien.anyflow.feature.auth.ui.server.ServerActivity
 import be.florien.anyflow.utils.startActivity
 import javax.inject.Inject
 
