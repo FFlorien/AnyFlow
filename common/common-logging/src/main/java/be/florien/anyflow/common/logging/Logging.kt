@@ -26,76 +26,78 @@ fun Application.plantTimber() {
 }
 
 fun Any.vLog(@NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.v(message, *args)
 }
 
 fun Any.vLog(t: Throwable, @NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.v(t, message, *args)
 }
 
 fun Any.vLog(t: Throwable) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.v(t)
 }
 
 fun Any.dLog(@NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.d(message, *args)
 }
 
 fun Any.dLog(t: Throwable, @NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.d(t, message, *args)
 }
 
 fun Any.dLog(t: Throwable) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.d(t)
 }
 
 fun Any.iLog(@NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.i(message, *args)
 }
 
 fun Any.iLog(t: Throwable, @NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.i(t, message, *args)
 }
 
 fun Any.iLog(t: Throwable) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.i(t)
 }
 
 fun Any.wLog(@NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.w(message, *args)
 }
 
 fun Any.wLog(t: Throwable, @NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.w(t, message, *args)
 }
 
 fun Any.wLog(t: Throwable) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.w(t)
 }
 
 fun Any.eLog(@NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.e(message, *args)
 }
 
 fun Any.eLog(t: Throwable, @NonNls message: String, vararg args: Any) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.e(t, message, *args)
 }
 
 fun Any.eLog(t: Throwable) {
-    Timber.tag(this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow")
+    Timber.tag(getTag())
     Timber.e(t)
 }
+
+private fun Any.getTag() = this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "Anyflow"
