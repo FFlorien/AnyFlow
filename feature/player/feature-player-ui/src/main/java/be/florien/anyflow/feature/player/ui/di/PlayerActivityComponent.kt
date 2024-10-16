@@ -4,7 +4,7 @@ import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.feature.player.ui.MainActivity
 import dagger.Subcomponent
 
-@Subcomponent
+@Subcomponent(modules = [MainActivityViewModelModule::class])
 @ActivityScope
 interface PlayerActivityComponent {
 

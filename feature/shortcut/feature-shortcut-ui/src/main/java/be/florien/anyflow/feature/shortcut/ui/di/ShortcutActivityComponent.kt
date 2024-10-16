@@ -4,7 +4,7 @@ import be.florien.anyflow.architecture.di.ActivityScope
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
 import dagger.Subcomponent
 
-@Subcomponent
+@Subcomponent(modules = [ShortcutViewModelModule::class])
 @ActivityScope
 interface ShortcutActivityComponent {
 

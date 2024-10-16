@@ -3,8 +3,8 @@ package be.florien.anyflow.injection
 import android.app.Application
 import be.florien.anyflow.AnyFlowApp
 import be.florien.anyflow.feature.auth.domain.di.NonAuthModule
+import be.florien.anyflow.feature.auth.ui.server.ServerViewModel
 import be.florien.anyflow.tags.local.di.DataLocalModule
-import be.florien.anyflow.feature.auth.ui.di.AuthViewModelModule
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -21,14 +21,13 @@ import javax.inject.Singleton
         ApplicationBindsModule::class,
         // ProvideModule from features
         DataLocalModule::class,
-        NonAuthModule::class,
-        // ViewModelModule
-        AuthViewModelModule::class
+        NonAuthModule::class
     ]
 )
 interface ApplicationComponent {
 
     fun inject(anyFlowApp: AnyFlowApp)
+    fun inject(anyFlowApp: ServerViewModel)
 
     fun serverComponentBuilder(): ServerComponent.Builder
 

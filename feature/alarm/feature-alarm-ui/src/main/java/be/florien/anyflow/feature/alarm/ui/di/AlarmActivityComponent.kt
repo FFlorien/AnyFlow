@@ -5,7 +5,7 @@ import be.florien.anyflow.feature.alarm.ui.AlarmActivity
 import dagger.Subcomponent
 
 
-@Subcomponent
+@Subcomponent(modules = [AlarmViewModelModule::class])
 @ActivityScope
 interface AlarmActivityComponent {
 

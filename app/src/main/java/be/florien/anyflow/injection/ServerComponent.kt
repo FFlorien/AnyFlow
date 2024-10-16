@@ -4,19 +4,17 @@ import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.common.ui.di.GlideModuleInjector
 import be.florien.anyflow.data.server.di.ServerModule
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
-import be.florien.anyflow.feature.alarm.ui.di.AlarmViewModelModule
 import be.florien.anyflow.feature.auth.domain.di.AuthModule
+import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponent
 import be.florien.anyflow.feature.filter.current.ui.di.CurrentFilterViewModelModule
 import be.florien.anyflow.feature.filter.saved.ui.di.SavedFilterGroupViewModelModule
 import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
-import be.florien.anyflow.feature.player.ui.di.MainActivityViewModelModule
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
-import be.florien.anyflow.feature.shortcut.ui.di.ShortcutViewModelModule
 import be.florien.anyflow.feature.song.ui.di.SongInfoViewModelModule
 import be.florien.anyflow.feature.songlist.ui.di.SongListViewModelModule
 import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
@@ -34,7 +32,6 @@ import javax.inject.Named
 @Subcomponent(
     modules = [
         // ViewModelModules
-        MainActivityViewModelModule::class,
         SongListViewModelModule::class,
         SongInfoViewModelModule::class,
         LibraryViewModelModule::class,
@@ -42,8 +39,6 @@ import javax.inject.Named
         CurrentFilterViewModelModule::class,
         SavedFilterGroupViewModelModule::class,
         SelectPlaylistViewModelModule::class,
-        ShortcutViewModelModule::class,
-        AlarmViewModelModule::class,
         // ProvideModules
         ConnectedModule::class,
         ServerModule::class,
@@ -59,6 +54,7 @@ interface ServerComponent : GlideModuleInjector {
     fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
     fun syncServiceComponentBuilder(): SyncServiceComponent.Builder
     // Activities
+    fun userConnectComponentBuilder(): UserConnectActivityComponent.Builder
     fun playerComponentBuilder(): PlayerActivityComponent.Builder
     fun alarmComponentBuilder(): AlarmActivityComponent.Builder
     fun playlistComponentBuilder(): PlaylistActivityComponent.Builder

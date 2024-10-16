@@ -13,7 +13,11 @@ import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
+import be.florien.anyflow.feature.auth.ui.di.ServerViewModelInjector
+import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponent
+import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponentCreator
 import be.florien.anyflow.feature.auth.ui.server.ServerActivity
+import be.florien.anyflow.feature.auth.ui.server.ServerViewModel
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
@@ -38,7 +42,9 @@ import javax.inject.Inject
 open class AnyFlowApp : MultiDexApplication(),
     GlideModuleInjectorContainer,
     UnauthenticatedNavigation,
+    ServerViewModelInjector,
     ServerUrlSetter,
+    UserConnectActivityComponentCreator,
     PlayerServiceComponentCreator,
     PlayerActivityComponentCreator,
     PlaylistActivityComponentCreator,
@@ -85,30 +91,36 @@ open class AnyFlowApp : MultiDexApplication(),
         }
     }
 
+    override fun inject(viewModel: ServerViewModel) {
+        applicationComponent.inject(viewModel)
+    }
+
     override fun setServerUrl(serverUrl: String) {
         serverComponent = applicationComponent
             .serverComponentBuilder()
             .ampacheUrl(serverUrl)
             .build()
     }
-
-    override fun createPlaylistComponent(): PlaylistActivityComponent? =
-        serverComponent?.playlistComponentBuilder()?.build()
+    override fun createUserConnectComponent(): UserConnectActivityComponent? =
+        serverComponent?.userConnectComponentBuilder()?.build()
 
     override fun createPlayerServiceComponent(): PlayerServiceComponent? =
         serverComponent?.playerServiceComponentBuilder()?.build()
+
+    override fun createPlayerActivityComponent(): PlayerActivityComponent? =
+        serverComponent?.playerComponentBuilder()?.build()
+
+    override fun createSyncServiceComponent(): SyncServiceComponent? =
+        serverComponent?.syncServiceComponentBuilder()?.build()
+
+    override fun createPlaylistComponent(): PlaylistActivityComponent? =
+        serverComponent?.playlistComponentBuilder()?.build()
 
     override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
         serverComponent?.shortcutsComponentBuilder()?.build()
 
     override fun createAlarmActivityComponent(): AlarmActivityComponent? =
         serverComponent?.alarmComponentBuilder()?.build()
-
-    override fun createSyncServiceComponent(): SyncServiceComponent? =
-        serverComponent?.syncServiceComponentBuilder()?.build()
-
-    override fun createPlayerActivityComponent(): PlayerActivityComponent? =
-        serverComponent?.playerComponentBuilder()?.build()
     //endregion
 
     //region notification

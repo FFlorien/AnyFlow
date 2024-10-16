@@ -12,10 +12,12 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-open class ServerViewModel @Inject constructor(
-    var authPersistence: AuthPersistence,
-    var serverValidator: ServerValidator
-) : BaseViewModel() {
+open class ServerViewModel : BaseViewModel() {
+    @Inject
+    lateinit var authPersistence: AuthPersistence
+
+    @Inject
+    lateinit var serverValidator: ServerValidator
 
 
     /**
@@ -23,7 +25,7 @@ open class ServerViewModel @Inject constructor(
      */
 
     val server = MutableLiveData("")
-    val validatedServerUrl = MutableLiveData("false")
+    val validatedServerUrl = MutableLiveData("")
 
     /**
      * Buttons calls
