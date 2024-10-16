@@ -1,10 +1,10 @@
 package be.florien.anyflow.feature.auth.domain.net
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.data.server.model.AmpacheErrorObject
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.utils.TimeOperations
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Lazy
 import kotlinx.coroutines.runBlocking

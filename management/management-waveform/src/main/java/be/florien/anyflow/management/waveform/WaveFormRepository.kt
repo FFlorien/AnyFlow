@@ -5,10 +5,10 @@ import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.media3.common.MediaMetadata
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.ui.GlideApp
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.tags.local.LibraryDatabase
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.FutureTarget

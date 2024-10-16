@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    implementation project(':architecture-di')
+    implementation project(':common-di')
     implementation project(':data-local')
     implementation project(':management-filters')
     implementation project(':management-playlist')
@@ -43,8 +43,8 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "androidx.media3:media3-datasource-okhttp:1.3.0"
     implementation project(':data-server')
-    implementation project(':utils')
-    implementation project(':logging')
+    implementation project(':common-utils')
+    implementation project(':common-logging')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

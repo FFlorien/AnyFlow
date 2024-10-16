@@ -15,8 +15,8 @@ import be.florien.anyflow.data.server.exception.SessionExpiredException
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
 import be.florien.anyflow.feature.sync.service.di.SyncServiceComponentCreator
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.iLog
 import kotlinx.coroutines.*
 import java.net.SocketTimeoutException
 import javax.inject.Inject

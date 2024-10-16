@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.library.podcast.ui.di
 
 import androidx.lifecycle.ViewModel
-import be.florien.anyflow.architecture.di.ViewModelKey
+import be.florien.anyflow.common.di.ViewModelKey
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoViewModel
 import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import dagger.Binds

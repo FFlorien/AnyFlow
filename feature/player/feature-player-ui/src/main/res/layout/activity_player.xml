@@ -3,7 +3,7 @@
 
     <data>
 
-        <import type="be.florien.anyflow.resources.R" />
+        <import type="be.florien.anyflow.common.resources.R" />
 
         <import type="android.view.View" />
 

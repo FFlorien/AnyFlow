@@ -23,8 +23,8 @@ import androidx.media3.session.SessionToken
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.architecture.di.ActivityScope
-import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.di.ActivityScope
+import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener

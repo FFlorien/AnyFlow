@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    implementation project(':architecture-di')
+    implementation project(':common-di')
     implementation project(':data-local')
     implementation project(':management-filters')
     implementation project(':management-playlist')

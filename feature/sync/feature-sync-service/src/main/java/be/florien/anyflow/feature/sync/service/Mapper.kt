@@ -20,7 +20,7 @@ import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbSong
 import be.florien.anyflow.tags.local.model.DbSongGenre
 import be.florien.anyflow.tags.local.model.DbSongId
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.utils.TimeOperations
 
 
 //region Server to Database

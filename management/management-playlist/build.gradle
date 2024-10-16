@@ -22,14 +22,14 @@ android {
 }
 
 dependencies {
-    implementation project(":architecture-di")
+    implementation project(":common-di")
     implementation project(':common-management')
     implementation project(':common-ui-data')
     implementation project(":data-local")
     implementation project(":data-server")
     implementation project(":management-tags")//todo remove when urlrepo is in its own module
     implementation project(":management-filters")
-    implementation project(":resources")
+    implementation project(":common-resources")
     //Room
     //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies
     implementation "androidx.room:room-runtime:$room_version"

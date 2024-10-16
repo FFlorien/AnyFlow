@@ -1,6 +1,6 @@
 package be.florien.anyflow.data.server.datasource.data
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.NetSuccess
@@ -15,8 +15,8 @@ import be.florien.anyflow.data.server.model.AmpachePlaylistResponse
 import be.florien.anyflow.data.server.model.AmpachePlaylistsWithSongsResponse
 import be.florien.anyflow.data.server.model.AmpacheSongResponse
 import be.florien.anyflow.data.server.toNetResult
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.utils.TimeOperations
 import retrofit2.Retrofit
 import java.util.Calendar
 import javax.inject.Inject

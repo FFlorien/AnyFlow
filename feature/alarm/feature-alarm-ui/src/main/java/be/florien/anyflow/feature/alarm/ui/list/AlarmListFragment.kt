@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.feature.alarm.ui.R
 import be.florien.anyflow.feature.alarm.ui.databinding.FragmentAlarmListBinding

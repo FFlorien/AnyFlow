@@ -3,7 +3,7 @@ package be.florien.anyflow.tags
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.DataSource
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbAlbumDisplay
 import be.florien.anyflow.tags.local.model.DbArtist

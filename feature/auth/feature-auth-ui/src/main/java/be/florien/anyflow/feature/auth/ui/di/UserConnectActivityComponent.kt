@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.auth.ui.di
 
-import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.feature.auth.ui.user.UserConnectActivityBase
 import dagger.Subcomponent
 

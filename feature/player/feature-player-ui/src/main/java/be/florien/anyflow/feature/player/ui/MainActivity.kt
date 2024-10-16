@@ -24,10 +24,10 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import be.florien.anyflow.architecture.di.ActivityScope
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
-import be.florien.anyflow.architecture.di.ServerScope
-import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.di.ActivityScope
+import be.florien.anyflow.common.di.AnyFlowViewModelFactory
+import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.common.ui.BaseFragment

@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.playlist.di
 
 import androidx.lifecycle.ViewModel
-import be.florien.anyflow.architecture.di.ViewModelKey
+import be.florien.anyflow.common.di.ViewModelKey
 import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel
 import dagger.Binds

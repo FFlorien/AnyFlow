@@ -22,7 +22,7 @@ android {
 }
 
 dependencies {
-    implementation project(":architecture-di")
+    implementation project(":common-di")
     implementation project(":data-local")
 
     implementation "androidx.room:room-runtime:$room_version"
@@ -34,6 +34,6 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation project(':management-tags')
     implementation project(':management-filters')
-    implementation project(':logging')
+    implementation project(':common-logging')
 }
 apply plugin: 'kotlin-parcelize'

@@ -28,7 +28,7 @@ import be.florien.anyflow.common.ui.component.newPlaylist
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
 import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistBinding
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
-import be.florien.anyflow.resources.R
+import be.florien.anyflow.common.resources.R
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 

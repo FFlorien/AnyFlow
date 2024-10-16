@@ -3,8 +3,7 @@ package be.florien.anyflow.feature.sync.service
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.media3.extractor.VorbisUtil.iLog
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
 import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
 import be.florien.anyflow.data.server.model.AmpacheAlbum
@@ -15,11 +14,11 @@ import be.florien.anyflow.data.server.model.AmpachePlayList
 import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.tags.local.LibraryDatabase
-import be.florien.anyflow.utils.TimeOperations
-import be.florien.anyflow.utils.applyPutLong
+import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.common.utils.applyPutLong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar

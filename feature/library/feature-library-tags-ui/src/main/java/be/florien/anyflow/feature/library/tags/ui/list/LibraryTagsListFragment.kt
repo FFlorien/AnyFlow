@@ -2,9 +2,9 @@ package be.florien.anyflow.feature.library.tags.ui.list
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.ActivityScope
-import be.florien.anyflow.architecture.di.ServerScope
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.ActivityScope
+import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.list.DetailViewHolderListener
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment

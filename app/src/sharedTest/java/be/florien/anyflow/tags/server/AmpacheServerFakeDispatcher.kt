@@ -1,6 +1,6 @@
 package be.florien.anyflow.tags.server
 
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.utils.TimeOperations
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -68,7 +68,8 @@ class AmpacheServerFakeDispatcher(private val serverUrl: String) : Dispatcher() 
     }
 
     private inline fun verifyAuthToken(request: RecordedRequest, get200Response: () -> MockResponse): MockResponse {
-        return if (request.requestUrl?.queryParameter(QUERY_AUTH) == authConnected && authValidity?.after(TimeOperations.getCurrentDate()) == true) { // todo verify difference between ping too late and ping not connected
+        return if (request.requestUrl?.queryParameter(QUERY_AUTH) == authConnected && authValidity?.after(
+                TimeOperations.getCurrentDate()) == true) { // todo verify difference between ping too late and ping not connected
             get200Response()
         } else {
             MockResponse().setResponseCode(501) // Todo send it back as it is on ampache server

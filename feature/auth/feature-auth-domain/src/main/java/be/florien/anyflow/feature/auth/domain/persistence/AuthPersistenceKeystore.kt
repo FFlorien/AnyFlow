@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.utils.TimeOperations
-import be.florien.anyflow.utils.applyPutLong
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.common.utils.applyPutLong
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

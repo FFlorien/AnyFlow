@@ -5,8 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
-import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.di.AnyFlowViewModelFactory
+import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener

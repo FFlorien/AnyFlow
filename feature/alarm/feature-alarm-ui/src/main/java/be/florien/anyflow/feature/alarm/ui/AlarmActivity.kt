@@ -6,8 +6,8 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
-import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.di.AnyFlowViewModelFactory
+import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator
 import be.florien.anyflow.common.ui.menu.MenuHolder

@@ -1,6 +1,6 @@
 package be.florien.anyflow.tags
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_ALBUM
 import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_ARTIST
 import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_PLAYLIST

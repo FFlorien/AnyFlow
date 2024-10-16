@@ -1,8 +1,7 @@
 package be.florien.anyflow.feature.auth.domain.repository
 
-import be.florien.anyflow.architecture.di.ServerScope
 import be.florien.anyflow.data.server.datasource.auth.AmpacheAuthApi
-import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.common.logging.eLog
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory

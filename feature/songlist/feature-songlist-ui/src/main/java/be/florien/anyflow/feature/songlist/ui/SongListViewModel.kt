@@ -12,7 +12,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
 import androidx.paging.PagingData
-import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.navigation.Navigator

@@ -25,7 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.GlideApp
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.filter.current.ui.databinding.FragmentCurrentFilterBinding

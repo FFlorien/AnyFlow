@@ -1,11 +1,11 @@
 package be.florien.anyflow.data.server.datasource.auth
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.data.server.model.AmpacheAuthenticatedStatus
 import be.florien.anyflow.data.server.model.AmpacheAuthentication
 import be.florien.anyflow.data.server.model.AmpacheStatus
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.utils.TimeOperations
 import retrofit2.Retrofit
 import java.math.BigInteger
 import java.security.MessageDigest

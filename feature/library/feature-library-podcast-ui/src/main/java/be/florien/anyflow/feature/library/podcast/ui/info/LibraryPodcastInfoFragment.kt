@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.library.podcast.ui.info
 
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastInfoActions
 import be.florien.anyflow.feature.library.podcast.ui.list.LibraryPodcastListFragment

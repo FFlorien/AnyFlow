@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    implementation project(':logging')//DI
+    implementation project(':common-logging')//DI
     implementation "com.google.dagger:dagger:$dagger_version"
     ksp "com.google.dagger:dagger-compiler:$dagger_version"
     //LiveData

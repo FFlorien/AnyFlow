@@ -21,10 +21,10 @@ android {
 }
 
 dependencies {
-    implementation project(':architecture-di')
+    implementation project(':common-di')
     implementation project(':data-server')
-    implementation project(':logging')
-    implementation project(':utils')
+    implementation project(':common-logging')
+    implementation project(':common-utils')
 
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'

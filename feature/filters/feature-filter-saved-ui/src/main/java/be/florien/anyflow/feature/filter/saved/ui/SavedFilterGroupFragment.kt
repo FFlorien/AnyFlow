@@ -13,7 +13,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.filter.saved.ui.databinding.FragmentSavedFilterGroupBinding
 import be.florien.anyflow.feature.filter.saved.ui.databinding.ItemFilterGroupBinding

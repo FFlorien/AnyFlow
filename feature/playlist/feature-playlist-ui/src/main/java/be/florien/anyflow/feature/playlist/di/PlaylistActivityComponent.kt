@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.playlist.di
 
-import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.feature.playlist.list.PlaylistListViewModel
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsFragment
 import be.florien.anyflow.feature.playlist.songs.PlaylistSongsViewModel

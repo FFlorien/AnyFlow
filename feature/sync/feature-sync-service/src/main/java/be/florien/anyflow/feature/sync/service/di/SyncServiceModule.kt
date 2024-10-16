@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.sync.service.di
 
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.feature.sync.service.SyncRepository
 import dagger.Module
 import dagger.Provides

@@ -1,6 +1,6 @@
 package be.florien.anyflow.data.server.datasource.podcast
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.toNetResult

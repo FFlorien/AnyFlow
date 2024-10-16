@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.player.ui.di
 
-import be.florien.anyflow.architecture.di.ActivityScope
+import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.feature.player.ui.MainActivity
 import dagger.Subcomponent
 

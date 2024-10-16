@@ -22,7 +22,7 @@ android {
 }
 
 dependencies {
-    implementation project(":architecture-di")
+    implementation project(":common-di")
     implementation project(":data-local")
 
     implementation "androidx.room:room-runtime:$room_version"

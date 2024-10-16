@@ -9,7 +9,7 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.management.filters.model.Filter

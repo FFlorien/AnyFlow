@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat.registerReceiver
 import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuHolder
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity

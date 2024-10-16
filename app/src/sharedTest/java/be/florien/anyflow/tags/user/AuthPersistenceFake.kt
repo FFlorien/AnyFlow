@@ -1,7 +1,7 @@
 package be.florien.anyflow.tags.user
 
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.utils.TimeOperations
 
 class AuthPersistenceFake : AuthPersistence() {
 
@@ -22,7 +22,8 @@ class AuthPersistenceFake : AuthPersistence() {
         }
 
         override fun hasSecret(): Boolean = secret.isNotEmpty()
-        override fun isDataValid(): Boolean = TimeOperations.getDateFromMillis(expiration).after(TimeOperations.getCurrentDate())
+        override fun isDataValid(): Boolean = TimeOperations.getDateFromMillis(expiration).after(
+            TimeOperations.getCurrentDate())
     }
 
 }

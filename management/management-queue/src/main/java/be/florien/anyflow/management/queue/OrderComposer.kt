@@ -1,9 +1,9 @@
 package be.florien.anyflow.management.queue
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.Filter.FilterType
 import be.florien.anyflow.management.queue.model.Ordering

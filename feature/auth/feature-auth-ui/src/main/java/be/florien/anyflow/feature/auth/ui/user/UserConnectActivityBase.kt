@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.AnyFlowViewModelFactory
+import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.feature.auth.ui.R
 import be.florien.anyflow.feature.auth.ui.databinding.ActivityConnectBinding
 import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponentCreator

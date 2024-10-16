@@ -21,9 +21,9 @@ android {
 }
 
 dependencies {
-    implementation project(':architecture-di')
-    implementation project(':logging')
-    implementation project(':utils')
+    implementation project(':common-di')
+    implementation project(':common-logging')
+    implementation project(':common-utils')
 
     implementation "com.google.dagger:dagger:$dagger_version"
     ksp "com.google.dagger:dagger-compiler:$dagger_version"

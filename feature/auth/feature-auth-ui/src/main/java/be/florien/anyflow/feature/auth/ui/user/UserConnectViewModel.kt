@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
-import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.auth.ui.R
 import kotlinx.coroutines.launch

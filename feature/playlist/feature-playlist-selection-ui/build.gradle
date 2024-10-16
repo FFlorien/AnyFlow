@@ -26,10 +26,10 @@ android {
 }
 
 dependencies {
-    implementation project(':architecture-di')
+    implementation project(':common-di')
     implementation project(':common-ui')
     implementation project(':management-playlist')//todo implement repo for here
-    implementation project(":resources")
+    implementation project(":common-resources")
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'

@@ -1,6 +1,6 @@
 package be.florien.anyflow.tags
 
-import be.florien.anyflow.utils.TimeOperations
+import be.florien.anyflow.common.utils.TimeOperations
 import java.util.*
 
 class TestingTimeUpdater: TimeOperations.CurrentTimeUpdater {

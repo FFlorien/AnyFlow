@@ -26,7 +26,7 @@ import be.florien.anyflow.feature.playlist.menu.RemoveSongsMenuHolder
 import be.florien.anyflow.feature.playlist.ui.databinding.ItemPlaylistSongBinding
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistSong
-import be.florien.anyflow.resources.R
+import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import javax.inject.Inject

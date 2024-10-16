@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.filter.saved.ui.di
 
 import androidx.lifecycle.ViewModel
-import be.florien.anyflow.architecture.di.ViewModelKey
+import be.florien.anyflow.common.di.ViewModelKey
 import be.florien.anyflow.feature.filter.saved.ui.SavedFilterGroupViewModel
 import dagger.Binds
 import dagger.Module

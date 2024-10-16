@@ -15,10 +15,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.resources.R
-import be.florien.anyflow.architecture.di.ActivityScope
-import be.florien.anyflow.architecture.di.ServerScope
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.resources.R
+import be.florien.anyflow.common.di.ActivityScope
+import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.component.ProgressDialog
 import be.florien.anyflow.common.ui.component.ProgressDialog.Progress
 import be.florien.anyflow.common.ui.component.newPlaylist

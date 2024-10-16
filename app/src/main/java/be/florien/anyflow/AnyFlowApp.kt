@@ -32,9 +32,9 @@ import be.florien.anyflow.feature.sync.service.di.SyncServiceComponentCreator
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
 import be.florien.anyflow.injection.ServerComponent
-import be.florien.anyflow.logging.eLog
-import be.florien.anyflow.logging.plantTimber
-import be.florien.anyflow.utils.startActivity
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.plantTimber
+import be.florien.anyflow.common.utils.startActivity
 import javax.inject.Inject
 
 

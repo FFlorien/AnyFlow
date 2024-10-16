@@ -2,7 +2,7 @@ package be.florien.anyflow.feature.library.podcast.domain
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.tags.UrlRepository

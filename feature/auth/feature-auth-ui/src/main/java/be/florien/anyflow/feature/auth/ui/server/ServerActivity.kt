@@ -9,7 +9,7 @@ import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
 import be.florien.anyflow.feature.auth.ui.databinding.ActivityServerBinding
 import be.florien.anyflow.feature.auth.ui.di.ServerViewModelInjector
 import be.florien.anyflow.feature.auth.ui.user.AuthenticationActivity
-import be.florien.anyflow.utils.startActivity
+import be.florien.anyflow.common.utils.startActivity
 
 /**
  * Simple activity for connection

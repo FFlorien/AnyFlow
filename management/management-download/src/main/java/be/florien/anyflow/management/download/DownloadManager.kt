@@ -7,7 +7,7 @@ import android.provider.MediaStore
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.logging.eLog
+import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.DownloadProgressState
@@ -18,7 +18,7 @@ import okhttp3.Request
 import javax.inject.Inject
 import javax.inject.Named
 
-@be.florien.anyflow.architecture.di.ServerScope
+@be.florien.anyflow.common.di.ServerScope
 class DownloadManager @Inject constructor(
     private val downloadRepository: DownloadRepository,
     private val urlRepository: UrlRepository,

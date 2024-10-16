@@ -27,7 +27,7 @@ android {
 dependencies {
     //Modules
     implementation project(':common-ui-data')
-    implementation project(':resources')
+    implementation project(':common-resources')
     //Android
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'com.google.android.material:material:1.12.0'

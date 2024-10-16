@@ -2,7 +2,7 @@ package be.florien.anyflow.management.filters
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterGroup
 import javax.inject.Inject

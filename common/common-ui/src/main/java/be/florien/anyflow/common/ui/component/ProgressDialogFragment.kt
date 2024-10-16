@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
-import be.florien.anyflow.resources.R
+import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.common.ui.databinding.FragmentProgressBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

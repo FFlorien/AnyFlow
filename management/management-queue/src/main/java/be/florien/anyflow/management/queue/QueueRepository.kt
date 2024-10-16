@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.room.withTransaction
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.local.model.DbFilter

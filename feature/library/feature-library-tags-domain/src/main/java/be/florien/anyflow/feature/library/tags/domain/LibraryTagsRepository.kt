@@ -2,7 +2,7 @@ package be.florien.anyflow.feature.library.tags.domain
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager

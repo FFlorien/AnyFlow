@@ -1,6 +1,6 @@
 package be.florien.anyflow.data.server.datasource.playlist
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import retrofit2.Retrofit
 import javax.inject.Inject
 import javax.inject.Named

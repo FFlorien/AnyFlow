@@ -2,7 +2,7 @@ package be.florien.anyflow.tags.local.query
 
 import androidx.sqlite.db.SimpleSQLiteQuery
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.logging.iLog
+import be.florien.anyflow.common.logging.iLog
 
 class QueryComposer {
     //todo optimize queries

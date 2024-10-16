@@ -1,6 +1,6 @@
 package be.florien.anyflow.injection
 
-import be.florien.anyflow.architecture.di.ServerScope
+import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.ui.di.GlideModuleInjector
 import be.florien.anyflow.data.server.di.ServerModule
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent

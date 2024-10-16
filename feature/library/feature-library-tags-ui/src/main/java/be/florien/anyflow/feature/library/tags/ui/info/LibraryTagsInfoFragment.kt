@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.library.tags.ui.info
 
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.viewModelFactory
+import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions
 import be.florien.anyflow.feature.library.tags.ui.list.LibraryTagsListFragment

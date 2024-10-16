@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.shortcut.ui
 
 import androidx.lifecycle.ViewModelProvider
-import be.florien.anyflow.architecture.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment

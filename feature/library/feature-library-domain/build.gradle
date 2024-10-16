@@ -29,11 +29,11 @@ dependencies {
     implementation project(':management-playlist')
     implementation project(':management-podcast')
     implementation project(":management-tags")
-    implementation project(":resources")
+    implementation project(":common-resources")
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation project(':architecture-di')
+    implementation project(':common-di')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

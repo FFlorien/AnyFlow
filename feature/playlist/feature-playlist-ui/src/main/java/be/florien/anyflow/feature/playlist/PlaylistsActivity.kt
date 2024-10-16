@@ -5,7 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import be.florien.anyflow.resources.R
+import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.menu.MenuCoordinator

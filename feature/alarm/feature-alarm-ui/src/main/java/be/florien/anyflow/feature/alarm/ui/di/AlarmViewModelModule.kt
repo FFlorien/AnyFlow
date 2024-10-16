@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.alarm.ui.di
 
 import androidx.lifecycle.ViewModel
-import be.florien.anyflow.architecture.di.ViewModelKey
+import be.florien.anyflow.common.di.ViewModelKey
 import be.florien.anyflow.feature.alarm.ui.AlarmViewModel
 import be.florien.anyflow.feature.alarm.ui.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarm.ui.edit.EditAlarmViewModel
