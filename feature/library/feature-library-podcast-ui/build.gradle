@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation project(':common-di')
     implementation project(":common-ui")
-    implementation project(':common-ui-data')
+    implementation project(':common-ui-domain')
     implementation project(':feature-library-domain')
     implementation project(':feature-library-ui')
     implementation project(':feature-library-podcast-domain')

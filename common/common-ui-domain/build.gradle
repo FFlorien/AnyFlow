@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'be.florien.anyflow.common.ui.data'
+    namespace 'be.florien.anyflow.common.ui.domain'
     compileSdk 34
 
     defaultConfig {

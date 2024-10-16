@@ -37,5 +37,5 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation project(':common-management')
-    implementation project(':common-ui-data')
+    implementation project(':common-ui-domain')
 }

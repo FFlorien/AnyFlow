@@ -24,7 +24,7 @@ android {
 dependencies {
     implementation project(":common-di")
     implementation project(':common-management')
-    implementation project(':common-ui-data')
+    implementation project(':common-ui-domain')
     implementation project(":data-local")
     implementation project(":data-server")
     implementation project(":management-tags")//todo remove when urlrepo is in its own module

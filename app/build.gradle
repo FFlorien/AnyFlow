@@ -68,7 +68,7 @@ dependencies {
     implementation project(':common-management')
     implementation project(':common-navigation')
     implementation project(":common-ui")
-    implementation project(':common-ui-data')
+    implementation project(':common-ui-domain')
     implementation project(':component-player-controls')
     implementation project(":data-local")
     implementation project(":data-server")

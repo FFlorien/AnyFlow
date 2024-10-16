@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation project(':common-di')
     implementation project(":common-ui")
-    implementation project(':common-ui-data')
+    implementation project(':common-ui-domain')
     implementation project(':data-local')
     implementation project(':management-download')
     implementation project(':management-filters')

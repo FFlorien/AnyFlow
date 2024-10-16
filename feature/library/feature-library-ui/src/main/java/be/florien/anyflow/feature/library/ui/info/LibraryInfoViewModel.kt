@@ -11,7 +11,7 @@ import be.florien.anyflow.management.filters.model.Filter
 
 abstract class LibraryInfoViewModel<IA: InfoActions<Filter<*>?>>(
     override val filtersManager: FiltersManager,
-    override val navigator: be.florien.anyflow.common.navigation.Navigator
+    override val navigator: Navigator
 ) : InfoViewModel<Filter<*>?, IA>(), LibraryViewModel {
 
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
