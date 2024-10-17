@@ -90,6 +90,7 @@ dependencies {
     implementation project(':feature-playlist-selection-ui')
     implementation project(':feature-shortcut-ui')
     implementation project(':feature-song-base-ui')
+    implementation project(':feature-song-domain')
     implementation project(':feature-song-ui')
     implementation project(':feature-songlist-ui')
     implementation project(':feature-sync-service')

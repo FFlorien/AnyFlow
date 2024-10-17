@@ -131,7 +131,7 @@ abstract class BaseSongInfoActions(
      * Action methods
      */
 
-    protected fun getSongAction(
+    private fun getSongAction(
         songInfo: SongInfo,
         field: FieldType,
         action: ActionType,

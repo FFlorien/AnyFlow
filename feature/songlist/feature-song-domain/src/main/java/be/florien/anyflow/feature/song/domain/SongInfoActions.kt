@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.song.ui
+package be.florien.anyflow.feature.song.domain
 
 import android.content.SharedPreferences
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
@@ -8,9 +8,10 @@ import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.SongInfo
+import javax.inject.Inject
 import javax.inject.Named
 
-class SongInfoActions(//todo this in domain module ???
+class SongInfoActions @Inject constructor(
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
     private val urlRepository: UrlRepository,

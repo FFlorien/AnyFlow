@@ -23,7 +23,7 @@ abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewMo
     private var songId: Long = BaseSongInfoActions.DUMMY_SONG_ID
 ) : BottomSheetDialogFragment() {
 
-    abstract fun getViewModel(): T
+    abstract fun getSongViewModel(): T
 
     companion object {
         private const val SONG = "SONG"
@@ -34,7 +34,7 @@ abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewMo
         private const val TOP_PADDING = 200
     }
 
-    private lateinit var viewModel: T
+    protected lateinit var viewModel: T
 
     //    private var songListViewModel: SongListViewModel? = null
     private lateinit var binding: FragmentInfoBinding
@@ -65,7 +65,7 @@ abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewMo
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = getViewModel()
+        viewModel = getSongViewModel()
         viewModel.songId = songId
         viewModel.songInfoObservable.observe(this) {
             viewModel.updateRows()
@@ -90,22 +90,6 @@ abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewMo
             val infoAdapter = binding.songInfo.adapter as InfoAdapter
             infoAdapter.submitList(it)
         }
-//        (viewModel as? SongInfoViewModel)?.apply {todo integrate this in navigator
-//            if (songListViewModel != null) {
-//                searchTerm.observe(viewLifecycleOwner) {
-//                    if (it != null) {
-//                        songListViewModel?.isSearching?.value = true
-//                        songListViewModel?.searchedText?.value = it
-//                        dismiss()
-//                    }
-//                }
-//            }
-//            isPlaylistListDisplayed.observe(viewLifecycleOwner) {
-//                if (it != null) {
-//                    SelectPlaylistFragment(it.id, it.type.toTagType(), it.secondId ?: -1).show(childFragmentManager, null)
-//                }
-//            }
-//        }
     }
 
     private fun setupFullHeight() {

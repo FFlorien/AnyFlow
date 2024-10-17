@@ -1,6 +1,5 @@
 package be.florien.anyflow.feature.songlist.ui
 
-import android.content.SharedPreferences
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.LiveData
@@ -18,16 +17,13 @@ import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongActionType
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongFieldType
-import be.florien.anyflow.feature.song.ui.SongInfoActions
-import be.florien.anyflow.management.download.DownloadManager
-import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.DataRepository
-import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +32,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
  * Display a list of accounts and play it upon selection.
@@ -45,25 +40,15 @@ import javax.inject.Named
 @ActivityScope
 class SongListViewModel
 @Inject constructor(
-    filtersManager: FiltersManager,
-    downloadManager: DownloadManager,
-    urlRepository: UrlRepository,
     playingQueue: PlayingQueue,
+    private val songInfoActions: SongInfoActions,
     private val orderComposer: OrderComposer,
     private val dataRepository: DataRepository,
     private val podcastRepository: PodcastRepository,
-    internal val navigator: Navigator,
-    @Named("preferences") private val sharedPreferences: SharedPreferences
+    internal val navigator: Navigator
 ) : BaseViewModel() {
     var player: MediaController? = null
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
-    private val songInfoActions = SongInfoActions(
-        filtersManager,
-        orderComposer,
-        urlRepository,
-        downloadManager,
-        sharedPreferences
-    )
     val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> =
         playingQueue.queueItemDisplayListUpdater
     val currentSongDisplay: LiveData<QueueItemDisplay?> =

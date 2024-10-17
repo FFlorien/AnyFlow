@@ -10,7 +10,7 @@ import be.florien.anyflow.management.filters.model.Filter
 interface LibraryViewModel { //todo rename and probably move because it's library AND filter related
     val filtersManager: FiltersManager
     val areFiltersInEdition: LiveData<Boolean>
-    val navigator: be.florien.anyflow.common.navigation.Navigator
+    val navigator: Navigator
 }
 
 val LibraryViewModel.currentFilters: LiveData<Set<Filter<*>>>

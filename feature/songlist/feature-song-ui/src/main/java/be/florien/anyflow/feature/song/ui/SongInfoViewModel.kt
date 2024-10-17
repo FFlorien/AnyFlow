@@ -1,30 +1,23 @@
 package be.florien.anyflow.feature.song.ui
 
-import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
-import be.florien.anyflow.management.download.DownloadManager
-import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.queue.OrderComposer
+import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
+import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.tags.DataRepository
-import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 class SongInfoViewModel @Inject constructor(
-    filtersManager: FiltersManager,
-    orderComposer: OrderComposer,
+    override val infoActions: SongInfoActions,
     private val dataRepository: DataRepository,
-    urlRepository: UrlRepository,
-    downloadManager: DownloadManager,
-    @Named("preferences") private val sharedPreferences: SharedPreferences
+    val navigator: Navigator
 ) : BaseSongViewModel<SongInfoActions>() {
 
     override var songId: Long
@@ -87,14 +80,6 @@ class SongInfoViewModel @Inject constructor(
         }
         return true
     }
-
-    override val infoActions: SongInfoActions = SongInfoActions(
-        filtersManager,
-        orderComposer,
-        urlRepository,
-        downloadManager,
-        sharedPreferences
-    )
 
     private fun displayPlaylistList(fieldType: BaseSongInfoActions.SongFieldType, order: Int) {
         val id = when (fieldType) {

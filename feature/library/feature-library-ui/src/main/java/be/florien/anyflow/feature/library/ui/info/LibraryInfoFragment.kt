@@ -21,7 +21,7 @@ abstract class LibraryInfoFragment<IA: InfoActions<Filter<*>?>>(var parentFilter
 
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
-    override val navigator: be.florien.anyflow.common.navigation.Navigator
+    override val navigator: Navigator
         get() = viewModel.navigator
     lateinit var viewModel: LibraryInfoViewModel<IA>
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding

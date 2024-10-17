@@ -9,7 +9,7 @@ import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 
 class ShortcutSongInfoFragment: BaseSongInfoFragment<ShortcutSongInfoActions, ShortcutsViewModel>() {
-    override fun getViewModel(): ShortcutsViewModel =
+    override fun getSongViewModel(): ShortcutsViewModel =
         ViewModelProvider(
             this,
             (activity as ViewModelFactoryProvider).viewModelFactory
