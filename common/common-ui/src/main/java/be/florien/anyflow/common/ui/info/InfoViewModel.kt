@@ -20,7 +20,7 @@ abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
 
     abstract suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow>
 
-    abstract suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow>
+    abstract fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow>
 
     abstract fun executeAction(row: InfoActions.InfoRow): Boolean
 

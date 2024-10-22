@@ -7,12 +7,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="imageConfig"
-            type="be.florien.anyflow.common.ui.data.ImageConfig" />
-
-        <variable
             name="display"
-            type="be.florien.anyflow.common.ui.data.info.InfoActions.InfoRow" />
+            type="be.florien.anyflow.common.ui.info.InfoRow" />
 
         <variable
             name="descriptionText"
@@ -31,7 +27,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="0dp"
             android:layout_marginEnd="@dimen/mediumDimen"
-            app:imageSource="@{imageConfig}"
+            app:imageSource="@{display.image}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/title"
@@ -42,7 +38,7 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableResource="@{display.actionType.iconRes}"
+            android:drawableResource="@{display.icon}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/title"
             app:layout_constraintRight_toRightOf="parent"

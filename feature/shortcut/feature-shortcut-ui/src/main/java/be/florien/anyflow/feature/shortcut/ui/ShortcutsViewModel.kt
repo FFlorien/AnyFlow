@@ -54,7 +54,7 @@ class ShortcutsViewModel @Inject constructor(
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] =
-                    BaseSongInfoActions.ShortcutInfoRow(initialList[indexOfFirst], it.order)
+                    BaseSongInfoActions.ShortcutInfoRow(initialList[indexOfFirst] as BaseSongInfoActions.InfoRow, it.order)
             }
         }
         return mutableList
@@ -84,6 +84,6 @@ class ShortcutsViewModel @Inject constructor(
     override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
         infoActions.getInfoRows(songInfo).toMutableList()
 
-    override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
+    override fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(songInfo, row)
 }

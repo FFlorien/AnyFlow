@@ -15,6 +15,7 @@ import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.ui.BaseViewModel
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongActionType
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongFieldType
 import be.florien.anyflow.feature.song.domain.SongInfoActions
@@ -174,6 +175,9 @@ class SongListViewModel
     //todo extract some of these actions elsewhere because it's the fragment responsibility
     fun executeSongAction(songDisplay: QueueItemDisplay, row: InfoActions.InfoRow) {
         val fieldType = row.fieldType
+        if (row !is BaseSongInfoActions.InfoRow) {
+            return
+        }
         if (songDisplay !is SongDisplay || fieldType !is SongFieldType) {
             return
         }

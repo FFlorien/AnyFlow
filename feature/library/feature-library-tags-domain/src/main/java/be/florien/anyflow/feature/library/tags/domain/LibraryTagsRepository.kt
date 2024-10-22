@@ -147,32 +147,32 @@ class LibraryTagsRepository @Inject constructor(
     suspend fun getSongFiltered(filter: Filter<*>?) =
         dataRepository
             .getSongFiltered(filter?.let { listOf(it) }, "")
-            .map(SongDisplayDomain::toText)
+            .map(SongDisplayDomain::toIdText)
 
     suspend fun getArtistFiltered(filter: Filter<*>?) =
         dataRepository
             .getArtistFiltered(filter?.let { listOf(it) }, "")
-            .map(Artist::toText)
+            .map(Artist::toIdText)
 
     suspend fun getAlbumFiltered(filter: Filter<*>?) =
         dataRepository
             .getAlbumFiltered(filter?.let { listOf(it) }, "")
-            .map(Album::toText)
+            .map(Album::toIdText)
 
     suspend fun getAlbumArtistFiltered(filter: Filter<*>?) =
         dataRepository
             .getAlbumArtistFiltered(filter?.let { listOf(it) }, "")
-            .map(Artist::toText)
+            .map(Artist::toIdText)
 
     suspend fun getGenreFiltered(filter: Filter<*>?) =
         dataRepository
             .getGenreFiltered(filter?.let { listOf(it) }, "")
-            .map(Genre::toText)
+            .map(Genre::toIdText)
 
     suspend fun getPlaylistFiltered(filter: Filter<*>?) =
         playlistRepository
             .getPlaylistFiltered(filter?.let { listOf(it) }, "")
-            .map(PlaylistWithCount::toText)
+            .map(PlaylistWithCount::toIdText)
     //endregion
 
     suspend fun getFilteredInfo(infoSource: Filter<*>?) = dataRepository.getFilteredInfo(infoSource)

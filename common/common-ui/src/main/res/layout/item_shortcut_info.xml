@@ -6,12 +6,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="imageConfig"
-            type="be.florien.anyflow.common.ui.data.ImageConfig" />
-
-        <variable
             name="display"
-            type="be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions" />
+            type="be.florien.anyflow.common.ui.info.InfoRow" />
 
         <variable
             name="descriptionText"

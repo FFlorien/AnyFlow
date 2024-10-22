@@ -2,7 +2,10 @@ package be.florien.anyflow.feature.library.tags.ui.info
 
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.viewModelFactory
+import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.data.TextConfig
 import be.florien.anyflow.common.ui.data.info.InfoActions
+import be.florien.anyflow.common.ui.info.InfoRow
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions
 import be.florien.anyflow.feature.library.tags.ui.list.LibraryTagsListFragment
 import be.florien.anyflow.feature.library.ui.R
@@ -10,7 +13,8 @@ import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.management.filters.model.Filter
 import kotlin.random.Random
 
-class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoFragment<LibraryTagsInfoActions>(parentFilter) {
+class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
+    LibraryInfoFragment<LibraryTagsInfoActions>(parentFilter) {
     override fun getTitle(): String = getString(R.string.library_title_main)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
     override fun getLibraryInfoViewModel() = ViewModelProvider(
@@ -22,7 +26,7 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoFrag
         val action = row.actionType
         val field = row.fieldType
         when (action) {
-            LibraryTagsInfoActions.LibraryPodcastActionType.SubFilter -> {
+            LibraryTagsInfoActions.LibraryTagsActionType.SubFilter -> {
                 val value = when (field) {
                     LibraryTagsInfoActions.LibraryTagsFieldType.Playlist -> LibraryTagsInfoViewModel.PLAYLIST_ID
                     LibraryTagsInfoActions.LibraryTagsFieldType.Album -> LibraryTagsInfoViewModel.ALBUM_ID
@@ -42,6 +46,27 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) : LibraryInfoFrag
             }
 
             else -> viewModel.executeAction(row)
+        }
+    }
+
+    override fun InfoActions.InfoRow.toInfoRow(): InfoRow {
+        if (this !is LibraryTagsInfoActions.LibraryInfoRow) {
+            throw IllegalStateException()
+        }
+        return when (this.actionType) {
+            LibraryTagsInfoActions.LibraryTagsActionType.InfoTitle -> InfoRow.BasicInfoRow(
+                this.title,
+                TextConfig(text, textRes),
+                ImageConfig(imageUrl, fieldType.iconRes),
+                this
+            )
+
+            LibraryTagsInfoActions.LibraryTagsActionType.SubFilter -> InfoRow.NavigationInfoRow(
+                this.title,
+                TextConfig(text, textRes),
+                ImageConfig(imageUrl, fieldType.iconRes),
+                this
+            )
         }
     }
 }

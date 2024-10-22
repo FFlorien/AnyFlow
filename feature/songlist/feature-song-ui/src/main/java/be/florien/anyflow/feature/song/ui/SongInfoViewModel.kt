@@ -47,6 +47,9 @@ class SongInfoViewModel @Inject constructor(
     override fun executeAction(row: InfoActions.InfoRow): Boolean {
         val actionType = row.actionType
         val fieldType = row.fieldType
+        if (row !is BaseSongInfoActions.InfoRow) {
+            return false
+        }
         if (fieldType !is BaseSongInfoActions.SongFieldType || actionType !is BaseSongInfoActions.SongActionType) {
             return false
         }
@@ -102,7 +105,7 @@ class SongInfoViewModel @Inject constructor(
         infoActions.getInfoRows(songInfo).toMutableList()
 
 
-    override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
+    override fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(songInfo, row)
 
     class PlaylistSelectionData(

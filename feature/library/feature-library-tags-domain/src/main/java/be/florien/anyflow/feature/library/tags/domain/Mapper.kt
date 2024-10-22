@@ -135,15 +135,15 @@ internal fun DownloadedCount.toFilterItem(
     )
 }
 
-internal fun SongDisplayDomain.toText() = title
+internal fun SongDisplayDomain.toIdText() = IdText(id, title)
 
-internal fun Artist.toText() = name
+internal fun Artist.toIdText() = IdText(id, name)
 
-internal fun Album.toText() = name
+internal fun Album.toIdText() = IdText(id, name)
 
-internal fun Genre.toText() = name
+internal fun Genre.toIdText() = IdText(id, name)
 
-internal fun PlaylistWithCount.toText() = name
+internal fun PlaylistWithCount.toIdText() = IdText(id, name)
 
 private fun Filter<*>?.withChild(filter: Filter<*>): Filter<*> {
     if (this == null) {

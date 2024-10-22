@@ -6,7 +6,7 @@ abstract class InfoActions<T> {
 
     abstract suspend fun getInfoRows(infoSource: T): List<InfoRow>
 
-    abstract suspend fun getActionsRows(
+    abstract fun getActionsRows(
         infoSource: T,
         row: InfoRow
     ): List<InfoRow>

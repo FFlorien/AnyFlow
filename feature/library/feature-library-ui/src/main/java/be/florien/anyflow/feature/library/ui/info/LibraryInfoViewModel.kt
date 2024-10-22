@@ -25,7 +25,7 @@ abstract class LibraryInfoViewModel<IA: InfoActions<Filter<*>?>>(
     override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
         infoActions.getInfoRows(filterNavigation).toMutableList()
 
-    override suspend fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
+    override fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
         infoActions.getActionsRows(filterNavigation, row)
 
     override fun executeAction(row: InfoActions.InfoRow) = true

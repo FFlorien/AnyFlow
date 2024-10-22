@@ -26,7 +26,7 @@ class LibraryPodcastInfoActions @Inject constructor(
         )
     }
 
-    override suspend fun getActionsRows(
+    override fun getActionsRows(
         infoSource: Filter<*>?,
         row: InfoRow
     ): List<InfoRow> = emptyList()
@@ -81,7 +81,7 @@ class LibraryPodcastInfoActions @Inject constructor(
         return LibraryPodcastFieldType.PodcastEpisode
     }
 
-    private fun getAction(count: Int): ActionType {
+    private fun getAction(count: Int): LibraryPodcastActionType {
         return if (count > 1) LibraryPodcastActionType.SubFilter else LibraryPodcastActionType.InfoTitle
     }
 
@@ -106,7 +106,7 @@ class LibraryPodcastInfoActions @Inject constructor(
         override val text: String?,
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
-        override val actionType: ActionType,
+        override val actionType: LibraryPodcastActionType,
         override val imageUrl: String?
     ) : InfoRow(title, text, textRes, fieldType, actionType, imageUrl)
 }

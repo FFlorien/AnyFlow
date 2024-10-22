@@ -39,7 +39,7 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
                 },
                 null,
                 LibraryTagsFieldType.Duration,
-                LibraryPodcastActionType.InfoTitle,
+                LibraryTagsActionType.InfoTitle,
                 null
             ),
             getInfoRow(
@@ -104,7 +104,7 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         )
     }
 
-    override suspend fun getActionsRows(
+    override fun getActionsRows(
         infoSource: Filter<*>?,
         row: InfoRow
     ): List<InfoRow> = emptyList()
@@ -130,9 +130,9 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         count: Int,
         subTitle: String
     ): InfoRow {
-        val displayData: String? = if (count <= 1) {
+        val displayData: IdText? = if (count <= 1) {
             val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
-            val filterData: String? = filterIfTypePresent?.displayText
+            val filterData: IdText? =  filterIfTypePresent?.takeIf { it.argument is Long }?.let { IdText(it.argument as Long, it.displayText) }
             filterData ?: when (filterType) { //todo separate podcast & tags
                 Filter.FilterType.SONG_IS -> libraryTagsRepository.getSongFiltered(filter)
                 Filter.FilterType.ARTIST_IS -> libraryTagsRepository.getArtistFiltered(filter)
@@ -148,15 +148,15 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         } else null
 
         val url =
-            if (count <= 1 && filter != null && filter.argument is Long) {
-                libraryTagsRepository.getArtUrl(filter.type.artType, filter.argument as Long)
+            if (count <= 1 && displayData != null) {
+                libraryTagsRepository.getArtUrl(filterType.artType, displayData.id)
             } else {
                 null
             }
 
         return LibraryInfoRow(
             title,
-            getDisplayText(displayData, count, subTitle),
+            getDisplayText(displayData?.text, count, subTitle),
             null,
             getField(filterType),
             getAction(count),
@@ -190,8 +190,8 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         }
     }
 
-    private fun getAction(count: Int): ActionType {
-        return if (count > 1) LibraryPodcastActionType.SubFilter else LibraryPodcastActionType.InfoTitle
+    private fun getAction(count: Int): LibraryTagsActionType {
+        return if (count > 1) LibraryTagsActionType.SubFilter else LibraryTagsActionType.InfoTitle
     }
 
     enum class LibraryTagsFieldType(
@@ -207,7 +207,7 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         Downloaded(R.drawable.ic_downloaded);
     }
 
-    enum class LibraryPodcastActionType(
+    enum class LibraryTagsActionType(
         @DrawableRes override val iconRes: Int,
         override val category: ActionTypeCategory
     ) : ActionType {
@@ -220,7 +220,7 @@ class LibraryTagsInfoActions @Inject constructor( //todo highly abstractable
         override val text: String?,
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
-        override val actionType: ActionType,
+        override val actionType: LibraryTagsActionType,
         override val imageUrl: String?
     ) : InfoRow(title, text, textRes, fieldType, actionType, imageUrl)
 }

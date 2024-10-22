@@ -46,9 +46,9 @@ abstract class BaseSongInfoActions(
         )
     }
 
-    override suspend fun getActionsRows(
+    override fun getActionsRows(
         infoSource: SongInfo,
-        row: InfoRow
+        row: InfoActions.InfoRow
     ): List<InfoRow> {
         val fieldType = row.fieldType
         if (fieldType !is SongFieldType) {
@@ -572,7 +572,7 @@ abstract class BaseSongInfoActions(
         text: String?,
         textRes: Int?,
         fieldType: FieldType,
-        actionType: ActionType,
+        actionType: SongActionType,
         progress: LiveData<DownloadProgressState>? = null,
         order: Int? = null,
         index: Int? = null
@@ -617,6 +617,13 @@ abstract class BaseSongInfoActions(
         Search(R.drawable.ic_search, ActionTypeCategory.Action),
         Download(R.drawable.ic_download, ActionTypeCategory.Action);
     }
+    abstract class InfoRow(
+        override val title: Int,
+        override val text: String?,
+        override val textRes: Int?,
+        override val fieldType: FieldType,
+        override val actionType: ActionType,
+        override val imageUrl: String?): InfoActions.InfoRow(title, text, textRes, fieldType, actionType, imageUrl)
 
     abstract class SongMultipleInfoRow(
         @StringRes override val title: Int,
@@ -626,7 +633,7 @@ abstract class BaseSongInfoActions(
         override val actionType: ActionType,
         open val index: Int
     ) : InfoRow(title, text, textRes, fieldType, actionType, null) {
-        override fun isExpandableForItem(other: InfoRow): Boolean =
+        override fun isExpandableForItem(other: InfoActions.InfoRow): Boolean =
             actionType == SongActionType.ExpandableTitle
                     && fieldType == other.fieldType
                     && (other as? SongMultipleInfoRow)?.index == index
@@ -641,9 +648,9 @@ abstract class BaseSongInfoActions(
         override val text: String?,
         @StringRes override val textRes: Int?,
         override val fieldType: FieldType,
-        override val actionType: ActionType
+        override val actionType: SongActionType
     ) : InfoRow(title, text, textRes, fieldType, actionType, null) {
-        override fun isExpandableForItem(other: InfoRow): Boolean =
+        override fun isExpandableForItem(other: InfoActions.InfoRow): Boolean =
             actionType == SongActionType.ExpandableTitle
                     && fieldType == other.fieldType
     }
@@ -675,7 +682,7 @@ abstract class BaseSongInfoActions(
         override val actionType: ActionType,
         override val progress: LiveData<DownloadProgressState>
     ) : InfoRow(title, text, textRes, fieldType, actionType, null), SongDownload {
-        override fun areContentTheSame(other: InfoRow): Boolean =
+        override fun areContentTheSame(other: InfoActions.InfoRow): Boolean =
             super.areContentTheSame(other) && other is SongDownloadInfoRow && other.progress === progress
     }
 
@@ -696,7 +703,7 @@ abstract class BaseSongInfoActions(
             order
         )
 
-        override fun areContentTheSame(other: InfoRow): Boolean =
+        override fun areContentTheSame(other: InfoActions.InfoRow): Boolean =
             super.areContentTheSame(other) && other is ShortcutInfoRow && other.order == order
 
     }
