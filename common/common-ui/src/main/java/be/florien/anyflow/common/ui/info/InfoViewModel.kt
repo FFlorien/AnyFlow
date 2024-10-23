@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 
 abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
     val infoRows: LiveData<List<InfoActions.InfoRow>> = MutableLiveData(listOf())
-    private val expandedSections = mutableListOf<InfoActions.InfoRow>()
     abstract val infoActions: IA
 
     /**
@@ -31,14 +30,6 @@ abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
     fun updateRows() {
         viewModelScope.launch {
             val mutableList = getInfoRowList()
-            for (expandedRow in expandedSections) {
-                val togglePosition = mutableList.indexOfFirst {
-                    it.isExpandableForItem(expandedRow)
-                }
-                val infoRow = mutableList[togglePosition]
-                val actionsRows = getActionsRowsFor(infoRow)
-                mutableList.addAll(togglePosition + 1, actionsRows)
-            }
             withContext(Dispatchers.Main) {
                 infoRows.mutable.value = mapActionsRows(mutableList)
             }
@@ -47,15 +38,4 @@ abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
 
     open fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
         initialList
-
-    /**
-     * Private methods: actions
-     */
-
-    protected fun toggleExpansion(row: InfoActions.InfoRow) {
-        if (!expandedSections.remove(row)) {
-            expandedSections.add(row)
-        }
-        updateRows()
-    }
 }

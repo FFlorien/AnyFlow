@@ -8,7 +8,7 @@ import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoViewModel
 import be.florien.anyflow.tags.model.SongInfo
 
-abstract class BaseSongViewModel<IA: InfoActions<SongInfo>>: InfoViewModel<SongInfo, IA>() {
+abstract class BaseSongViewModel<IA : InfoActions<SongInfo>> : InfoViewModel<SongInfo, IA>() {
     protected val songInfoMediator = MediatorLiveData<SongInfo>()
     val songInfoObservable: LiveData<SongInfo> = songInfoMediator
     val coverConfig: LiveData<ImageConfig> = MutableLiveData()
@@ -20,11 +20,7 @@ abstract class BaseSongViewModel<IA: InfoActions<SongInfo>>: InfoViewModel<SongI
     abstract var songId: Long
 
     override fun executeAction(row: InfoActions.InfoRow) = when (row.actionType) {
-        BaseSongInfoActions.SongActionType.ExpandableTitle -> {
-            toggleExpansion(row)
-            true
-        }
-
+        BaseSongInfoActions.SongActionType.ExpandableTitle -> true
         BaseSongInfoActions.SongActionType.None,
         BaseSongInfoActions.SongActionType.InfoTitle -> true
 

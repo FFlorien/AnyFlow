@@ -7,6 +7,7 @@ import androidx.annotation.StringRes
 import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.common.resources.R
+import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

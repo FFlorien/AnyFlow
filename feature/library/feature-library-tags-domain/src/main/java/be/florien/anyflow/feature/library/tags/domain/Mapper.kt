@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.library.tags.domain
 
 import be.florien.anyflow.feature.library.domain.model.FilterItem
+import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.playlist.model.Playlist
