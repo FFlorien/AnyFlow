@@ -4,24 +4,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
-    val infoRows: LiveData<List<InfoActions.InfoRow>> = MutableLiveData(listOf())
-    abstract val infoActions: IA
+abstract class InfoViewModel<T> : BaseViewModel() {
+    val infoRows: LiveData<List<T>> = MutableLiveData(listOf())
 
     /**
      * Abstract methods
      */
 
-    abstract suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow>
+    abstract suspend fun getInfoRowList(): MutableList<T>
 
-    abstract fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow>
-
-    abstract fun executeAction(row: InfoActions.InfoRow): Boolean
+    abstract fun executeAction(row: T): Boolean
 
     /**
      * Public methods
@@ -36,6 +32,6 @@ abstract class InfoViewModel<T, IA: InfoActions<T>> : BaseViewModel() {
         }
     }
 
-    open fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> =
-        initialList
+    open fun mapActionsRows(initialList: List<T>): List<T> =
+        initialList //todo find a way to get rid of this
 }

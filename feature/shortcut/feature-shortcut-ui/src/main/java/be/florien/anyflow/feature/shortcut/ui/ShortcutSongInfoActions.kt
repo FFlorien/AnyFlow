@@ -1,31 +1,19 @@
 package be.florien.anyflow.feature.shortcut.ui
 
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
-import be.florien.anyflow.tags.local.model.DownloadProgressState
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.domain.model.SongActionType
+import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 
 class ShortcutSongInfoActions(//todo this in domain module ???
     sharedPreferences: SharedPreferences
 ) : BaseSongInfoActions(sharedPreferences) {
 
     /**
-     * Overridden methods
-     */
-
-    override fun getDownloadState(
-        id: Long,
-        type: Filter.FilterType,
-        additionalInfo: Int?
-    ): LiveData<DownloadProgressState> = MutableLiveData(DownloadProgressState(100, 0, 0))
-
-    /**
      * Shortcuts
      */
 
-    fun toggleShortcut(fieldType: FieldType, actionType: ActionType) {
+    fun toggleShortcut(fieldType: SongFieldType, actionType: SongActionType) {
         val shortcuts = getShortcuts().toMutableList()
         if (shortcuts.removeAll { it.fieldType == fieldType && it.actionType == actionType }) {
             sharedPreferences.edit()

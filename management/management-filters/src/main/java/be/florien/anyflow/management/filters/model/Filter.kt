@@ -3,7 +3,6 @@ package be.florien.anyflow.management.filters.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
-import kotlin.time.Duration
 
 @Parcelize
 data class Filter<T>(
@@ -74,7 +73,7 @@ data class Filter<T>(
 }
 
 data class FilterTagsCount( //todo move ?
-    val duration: Duration,
+    val duration: Int,
     val genres: Int,
     val albumArtists: Int,
     val albums: Int,

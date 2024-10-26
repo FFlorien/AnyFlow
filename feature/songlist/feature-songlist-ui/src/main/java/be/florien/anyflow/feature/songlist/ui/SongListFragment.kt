@@ -26,12 +26,12 @@ import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
 import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.player.service.PlayerService
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
@@ -310,7 +310,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onShortcut(
         item: QueueItemDisplay,
-        row: InfoActions.InfoRow
+        row: BaseSongInfoRow
     ) {
         viewModel.executeSongAction(item, row)
     }
@@ -367,7 +367,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     override fun getArtUrl(id: Long, isPodcast: Boolean): String =
         viewModel.getArtUrl(id, isPodcast)
 
-    override fun getShortcuts(): List<InfoActions.InfoRow> =
+    override fun getShortcuts(): List<BaseSongInfoRow> =
         viewModel.shortcuts.value ?: emptyList()
 
     override fun getCurrentPosition() = viewModel.listPosition.value ?: -1

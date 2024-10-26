@@ -6,10 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion.DUMMY_SONG_ID
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
+import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.queue.model.SongDisplay
+import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,11 +20,11 @@ import javax.inject.Named
 
 class ShortcutsViewModel @Inject constructor(
     @Named("preferences") sharedPreferences: SharedPreferences
-) : BaseSongViewModel<ShortcutSongInfoActions>() {
+) : BaseSongViewModel() {
 
-    override val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
+     val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
 
-    override var songId: Long = BaseSongInfoActions.DUMMY_SONG_ID
+    override var songId: Long = DUMMY_SONG_ID
     var maxItems = 3
         set(value) {
             field = value
@@ -30,12 +33,12 @@ class ShortcutsViewModel @Inject constructor(
     val currentActionsCountDisplay: LiveData<String> =
         MutableLiveData("${infoActions.getShortcuts().size}/$maxItems")
     var dummySongInfo: SongInfo
-        get() = songInfoMediator.value ?: SongInfo.dummySongInfo(BaseSongInfoActions.DUMMY_SONG_ID)
+        get() = songInfoMediator.value ?: SongInfo.dummySongInfo(DUMMY_SONG_ID)
         set(value) {
             songInfoMediator.value = value
         }
     var dummySongDisplay = SongDisplay(
-        BaseSongInfoActions.DUMMY_SONG_ID,
+        DUMMY_SONG_ID,
         "",
         "",
         "",
@@ -43,10 +46,10 @@ class ShortcutsViewModel @Inject constructor(
         0
     )
     val dummyCover = ImageConfig(null, R.drawable.cover_placeholder, View.VISIBLE)
-    val shortcutsList: List<BaseSongInfoActions.ShortcutInfoRow>
+    val shortcutsList: List<ShortcutInfoRow>
         get() = infoActions.getShortcuts()
 
-    override fun mapActionsRows(initialList: List<InfoActions.InfoRow>): List<InfoActions.InfoRow> {
+    override fun mapActionsRows(initialList: List<BaseSongInfoRow>): List<BaseSongInfoRow> {
         val mutableList = initialList.toMutableList()
         val shortcuts = infoActions.getShortcuts()
         shortcuts.forEach {
@@ -54,13 +57,13 @@ class ShortcutsViewModel @Inject constructor(
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] =
-                    BaseSongInfoActions.ShortcutInfoRow(initialList[indexOfFirst] as BaseSongInfoActions.InfoRow, it.order)
+                    ShortcutInfoRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList
     }
 
-    override fun executeAction(row: InfoActions.InfoRow): Boolean {
+    override fun executeAction(row: BaseSongInfoRow): Boolean {
         if (super.executeAction(row)) {
             return true
         }
@@ -81,9 +84,10 @@ class ShortcutsViewModel @Inject constructor(
         currentActionsCountDisplay.mutable.value = "$currentCount/$maxItems"
     }
 
-    override suspend fun getInfoRowList(): MutableList<InfoActions.InfoRow> =
-        infoActions.getInfoRows(songInfo).toMutableList()
 
-    override fun getActionsRowsFor(row: InfoActions.InfoRow): List<InfoActions.InfoRow> =
-        infoActions.getActionsRows(songInfo, row)
+    override fun getDownloadState(
+        id: Long,
+        type: Filter.FilterType,
+        additionalInfo: Int?
+    ): LiveData<DownloadProgressState> = MutableLiveData(DownloadProgressState(100, 0, 0))
 }

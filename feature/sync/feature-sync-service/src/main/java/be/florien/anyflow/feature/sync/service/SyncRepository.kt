@@ -20,6 +20,7 @@ import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.common.utils.applyPutLong
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
@@ -72,6 +73,7 @@ class SyncRepository
                 iLog("update")
                 update()
             }
+            delay(3000)
             playlists()
             podcasts()
             cancelPercentageUpdaters()

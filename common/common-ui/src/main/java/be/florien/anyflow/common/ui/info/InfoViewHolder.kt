@@ -75,12 +75,12 @@ sealed class InfoViewHolder(
         override fun bindChangedData(row: InfoRow) {
             super.bindChangedData(row)
             if (row is InfoRow.ProgressInfoRow) {
-                parent.findViewTreeLifecycleOwner()?.let {
+                parent.findViewTreeLifecycleOwner()?.let { lifecycleOwner ->
                     parentBinding.progress.max = 100
-                    row.progress.observe(it) {
+                    row.progress?.observe(lifecycleOwner) {
                         parentBinding.progress.progress = (it * 100).toInt()
                     }
-                    row.secondaryProgress.observe(it) {
+                    row.secondaryProgress?.observe(lifecycleOwner) {
                         parentBinding.progress.secondaryProgress = (it * 100).toInt()
                     }
                 }

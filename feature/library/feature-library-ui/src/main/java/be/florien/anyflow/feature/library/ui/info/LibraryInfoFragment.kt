@@ -5,26 +5,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.ui.data.info.InfoActions
-import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoRow
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.cancelChanges
 import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.management.filters.model.Filter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-abstract class LibraryInfoFragment<IA : InfoActions<Filter<*>?>>(var parentFilter: Filter<*>? = null) :
+abstract class LibraryInfoFragment<T>(var parentFilter: Filter<*>? = null) :
     BaseFilteringFragment() {
 
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
     override val navigator: Navigator
         get() = viewModel.navigator
-    lateinit var viewModel: LibraryInfoViewModel<IA>
+    lateinit var viewModel: LibraryInfoViewModel<T>
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
 
     override fun onAttach(context: Context) {
@@ -33,7 +35,7 @@ abstract class LibraryInfoFragment<IA : InfoActions<Filter<*>?>>(var parentFilte
         viewModel.filterNavigation = parentFilter
     }
 
-    abstract fun getLibraryInfoViewModel(): LibraryInfoViewModel<IA>
+    abstract fun getLibraryInfoViewModel(): LibraryInfoViewModel<T>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,10 +46,20 @@ abstract class LibraryInfoFragment<IA : InfoActions<Filter<*>?>>(var parentFilte
         fragmentBinding.lifecycleOwner = viewLifecycleOwner
         fragmentBinding.filterList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        val infoAdapter = InfoAdapter(this::executeAction)
+        val infoAdapter = InfoAdapter{
+            val row = it.tag as? T
+            if (row != null) {
+                executeAction(row)
+            }
+        }
         fragmentBinding.filterList.adapter = infoAdapter
         viewModel.infoRows.observe(viewLifecycleOwner) { infoRowList ->
-            infoAdapter.submitList(infoRowList.map { it.toInfoRow() })
+            lifecycleScope.launch(Dispatchers.IO) {
+                val list = infoRowList.map { it.toInfoRow() }
+                launch(Dispatchers.Main) {
+                    infoAdapter.submitList(list)
+                }
+            }
         }
         return fragmentBinding.root
     }
@@ -59,13 +71,7 @@ abstract class LibraryInfoFragment<IA : InfoActions<Filter<*>?>>(var parentFilte
         }
     }
 
-    private fun executeAction(row: InfoRow) {
-        if (row.tag is InfoActions.InfoRow) {
-            executeAction(row.tag as InfoActions.InfoRow)
-        }
-    }
+    abstract fun executeAction(row: T)
 
-    abstract fun executeAction(row: InfoActions.InfoRow)
-
-    abstract fun InfoActions.InfoRow.toInfoRow(): InfoRow
+    abstract suspend fun T.toInfoRow(): InfoRow
 }

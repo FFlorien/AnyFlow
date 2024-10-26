@@ -10,8 +10,8 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.ui.R
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.databinding.ItemSongBinding
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import kotlin.math.absoluteValue
@@ -168,13 +168,13 @@ class SongViewHolder(
 }
 
 interface SongListViewHolderListener : DetailViewHolderListener<QueueItemDisplay> {
-    fun onShortcut(item: QueueItemDisplay, row: InfoActions.InfoRow)
+    fun onShortcut(item: QueueItemDisplay, row: BaseSongInfoRow)
     fun onShortcutOpened(position: Int?)
     fun onCurrentSongShortcutsClosed()
 }
 
 interface SongListViewHolderProvider {
-    fun getShortcuts(): List<InfoActions.InfoRow>
+    fun getShortcuts(): List<BaseSongInfoRow>
     fun getCurrentPosition(): Int
     fun getCurrentSongTranslationX(): Float
     fun getArtUrl(id: Long, isPodcast: Boolean): String

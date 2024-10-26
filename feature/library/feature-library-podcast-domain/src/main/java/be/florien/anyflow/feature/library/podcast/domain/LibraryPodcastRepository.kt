@@ -43,7 +43,7 @@ class LibraryPodcastRepository @Inject constructor(
     suspend fun getPodcastEpisodeList(filter: Filter<*>?) =
         podcastRepository
             .getAllPodcastsEpisodesList()
-            .map(PodcastEpisodeDisplay::toDisplayData)
+            .map(PodcastEpisodeDisplay::toIdText)
     //endregion
 
     suspend fun getFilteredInfo(infoSource: Filter<*>?) = podcastRepository.getFilteredInfo(infoSource)

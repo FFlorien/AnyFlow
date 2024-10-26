@@ -5,16 +5,21 @@ import androidx.lifecycle.map
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.common.ui.info.InfoRow
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion.DUMMY_SONG_ID
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.SongActionMultipleInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.SongDownloadInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.SongDownloadMultipleInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.SongInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
 
 class ShortcutSongInfoFragment :
-    BaseSongInfoFragment<ShortcutSongInfoActions, ShortcutsViewModel>() {
+    BaseSongInfoFragment<ShortcutsViewModel>() {
     override fun getSongViewModel(): ShortcutsViewModel =
         ViewModelProvider(
             this,
@@ -32,7 +37,7 @@ class ShortcutSongInfoFragment :
                 val time = 120
                 dummySongInfo =
                     SongInfo(
-                        BaseSongInfoActions.DUMMY_SONG_ID,
+                        DUMMY_SONG_ID,
                         title,
                         artistName,
                         0L,
@@ -52,7 +57,7 @@ class ShortcutSongInfoFragment :
                         null
                     )
                 dummySongDisplay = SongDisplay(
-                    BaseSongInfoActions.DUMMY_SONG_ID,
+                    DUMMY_SONG_ID,
                     title,
                     artistName,
                     albumName,
@@ -61,50 +66,51 @@ class ShortcutSongInfoFragment :
                 )
             }
 
-    override fun InfoActions.InfoRow.toInfoRow(): InfoRow {
-        if (this !is BaseSongInfoActions.InfoRow) {
-            throw IllegalStateException()
-        }
-
+    override fun BaseSongInfoRow.toInfoRow(): InfoRow {
         return when (this) {
-            is BaseSongInfoActions.ShortcutInfoRow -> InfoRow.ShortcutInfoRow(
-                title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this
-            )
+            is ShortcutInfoRow -> InfoRow.ShortcutInfoRow(
+                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+                TextConfig(null, null),
+                ImageConfig(null, fieldType.iconRes)
+            ).apply {
+                tag = this@toInfoRow
+            }
 
-            is BaseSongInfoActions.SongDownloadInfoRow -> InfoRow.ProgressInfoRow(
-                title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this,
-                progress.map { it.downloaded.toDouble() / it.total },
-                progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
-            )
+            is SongDownloadInfoRow -> InfoRow.ProgressInfoRow(
+                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+                TextConfig(null, null),
+                ImageConfig(null, fieldType.iconRes),
+            ).apply {
+                tag = this@toInfoRow
+                progress = this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total }
+                secondaryProgress = this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
+            }
 
-            is BaseSongInfoActions.SongInfoRow -> InfoRow.NavigationInfoRow(//todo
-                title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this
-            )
+            is SongInfoRow -> InfoRow.NavigationInfoRow(//todo
+                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+                TextConfig(null, null),
+                ImageConfig(null, fieldType.iconRes)
+            ).apply {
+                tag = this@toInfoRow
+            }
 
-            is BaseSongInfoActions.SongActionMultipleInfoRow -> InfoRow.ActionInfoRow(
-                title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this
-            )
+            is SongActionMultipleInfoRow -> InfoRow.ActionInfoRow(
+                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+                TextConfig(null, null),
+                ImageConfig(null, fieldType.iconRes)
+            ).apply {
+                tag = this@toInfoRow
+            }
 
-            is BaseSongInfoActions.SongDownloadMultipleInfoRow -> InfoRow.ProgressInfoRow(
-                title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this,
-                progress.map { it.downloaded.toDouble() / it.total },
-                progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
-            )
+            is SongDownloadMultipleInfoRow -> InfoRow.ProgressInfoRow(
+                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+                TextConfig(null, null),
+                ImageConfig(null, fieldType.iconRes)
+            ).apply {
+                tag = this@toInfoRow
+                progress = this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total }
+                secondaryProgress = this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
+            }
 
             else -> {
                 throw IllegalStateException()

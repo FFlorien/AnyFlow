@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.library.podcast.domain
 
-import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastInfoActions.DisplayData
 import be.florien.anyflow.feature.library.domain.model.FilterItem
+import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
@@ -25,7 +25,7 @@ internal fun PodcastEpisodeDisplay.toFilterItem(
     ))
 }
 
-internal fun PodcastEpisodeDisplay.toDisplayData() = DisplayData(title, id)
+internal fun PodcastEpisodeDisplay.toIdText() = IdText(id, title)
 
 private fun Filter<*>?.withChild(filter: Filter<*>): Filter<*> {
     if (this == null) {

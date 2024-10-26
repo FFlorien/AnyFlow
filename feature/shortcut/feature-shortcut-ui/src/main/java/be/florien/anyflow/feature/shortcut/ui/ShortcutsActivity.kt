@@ -7,13 +7,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
 import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import javax.inject.Inject
@@ -74,7 +74,7 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
             override fun getArtUrl(id: Long, isPodcast: Boolean): String = ""
         }
         val listener = object : SongListViewHolderListener {
-            override fun onShortcut(item: QueueItemDisplay, row: InfoActions.InfoRow) {}
+            override fun onShortcut(item: QueueItemDisplay, row: BaseSongInfoRow) {}
             override fun onShortcutOpened(position: Int?) {}
             override fun onCurrentSongShortcutsClosed() {}
             override fun onInfoDisplayAsked(item: QueueItemDisplay) {}

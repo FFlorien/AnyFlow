@@ -9,14 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.florien.anyflow.common.ui.component.ImageDisplayFragment
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoAdapter
 import be.florien.anyflow.common.ui.info.InfoRow
+import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.ui.databinding.FragmentInfoBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
-abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewModel<IA>>(
+abstract class BaseSongInfoFragment<T : BaseSongViewModel>(
     private var songId: Long = BaseSongInfoActions.DUMMY_SONG_ID
 ) : BottomSheetDialogFragment() {
 
@@ -86,11 +87,11 @@ abstract class BaseSongInfoFragment<IA : BaseSongInfoActions, T : BaseSongViewMo
         }
     }
 
-    abstract fun InfoActions.InfoRow.toInfoRow() : InfoRow
+    abstract fun BaseSongInfoRow.toInfoRow() : InfoRow
 
     private fun executeAction(row: InfoRow) {
         val tag = row.tag
-        if (tag is InfoActions.InfoRow) {
+        if (tag is BaseSongInfoRow) {
             viewModel.executeAction(tag)
         }
     }

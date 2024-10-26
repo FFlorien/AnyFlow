@@ -4,17 +4,22 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.ui.info.InfoRow
-import be.florien.anyflow.feature.library.tags.domain.LibraryTagsInfoActions
+import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.feature.library.tags.domain.LibraryInfoRow
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsActionType
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsFieldType
+import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.tags.ui.list.LibraryTagsListFragment
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.management.filters.model.Filter
 import kotlin.random.Random
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
-    LibraryInfoFragment<LibraryTagsInfoActions>(parentFilter) {
+    LibraryInfoFragment<LibraryInfoRow>(parentFilter) {
     override fun getTitle(): String = getString(R.string.library_title_main)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
     override fun getLibraryInfoViewModel() = ViewModelProvider(
@@ -22,19 +27,34 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
         requireActivity().viewModelFactory
     )[Random(23).toString(), LibraryTagsInfoViewModel::class.java]
 
-    override fun executeAction(row: InfoActions.InfoRow) {
+    private fun getField(
+        filterType: LibraryTagsFieldType
+    ): Filter.FilterType {
+        return when (filterType) {
+            LibraryTagsFieldType.Song -> Filter.FilterType.SONG_IS
+            LibraryTagsFieldType.Artist -> Filter.FilterType.ARTIST_IS
+            LibraryTagsFieldType.AlbumArtist -> Filter.FilterType.ALBUM_ARTIST_IS
+            LibraryTagsFieldType.Album -> Filter.FilterType.ALBUM_IS
+            LibraryTagsFieldType.Playlist -> Filter.FilterType.PLAYLIST_IS
+            LibraryTagsFieldType.Downloaded -> Filter.FilterType.DOWNLOADED_STATUS_IS
+            LibraryTagsFieldType.Duration -> Filter.FilterType.SONG_IS
+            LibraryTagsFieldType.Genre -> Filter.FilterType.SONG_IS
+        }
+    }
+
+    override fun executeAction(row: LibraryInfoRow) {
         val action = row.actionType
         val field = row.fieldType
         when (action) {
-            LibraryTagsInfoActions.LibraryTagsActionType.SubFilter -> {
+            LibraryTagsActionType.SubFilter -> {
                 val value = when (field) {
-                    LibraryTagsInfoActions.LibraryTagsFieldType.Playlist -> LibraryTagsInfoViewModel.PLAYLIST_ID
-                    LibraryTagsInfoActions.LibraryTagsFieldType.Album -> LibraryTagsInfoViewModel.ALBUM_ID
-                    LibraryTagsInfoActions.LibraryTagsFieldType.AlbumArtist -> LibraryTagsInfoViewModel.ALBUM_ARTIST_ID
-                    LibraryTagsInfoActions.LibraryTagsFieldType.Artist -> LibraryTagsInfoViewModel.ARTIST_ID
-                    LibraryTagsInfoActions.LibraryTagsFieldType.Genre -> LibraryTagsInfoViewModel.GENRE_ID
-                    LibraryTagsInfoActions.LibraryTagsFieldType.Song -> LibraryTagsInfoViewModel.SONG_ID
-                    LibraryTagsInfoActions.LibraryTagsFieldType.Downloaded -> LibraryTagsInfoViewModel.DOWNLOAD_ID
+                    LibraryTagsFieldType.Playlist -> LibraryTagsInfoViewModel.PLAYLIST_ID
+                    LibraryTagsFieldType.Album -> LibraryTagsInfoViewModel.ALBUM_ID
+                    LibraryTagsFieldType.AlbumArtist -> LibraryTagsInfoViewModel.ALBUM_ARTIST_ID
+                    LibraryTagsFieldType.Artist -> LibraryTagsInfoViewModel.ARTIST_ID
+                    LibraryTagsFieldType.Genre -> LibraryTagsInfoViewModel.GENRE_ID
+                    LibraryTagsFieldType.Song -> LibraryTagsInfoViewModel.SONG_ID
+                    LibraryTagsFieldType.Downloaded -> LibraryTagsInfoViewModel.DOWNLOAD_ID
                     else -> LibraryTagsInfoViewModel.GENRE_ID
                 }
                 viewModel.navigator.displayFragmentOnMain(
@@ -49,24 +69,51 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
         }
     }
 
-    override fun InfoActions.InfoRow.toInfoRow(): InfoRow {
-        if (this !is LibraryTagsInfoActions.LibraryInfoRow) {
-            throw IllegalStateException()
-        }
+    override suspend fun LibraryInfoRow.toInfoRow(): InfoRow {
         return when (this.actionType) {
-            LibraryTagsInfoActions.LibraryTagsActionType.InfoTitle -> InfoRow.BasicInfoRow(
-                this.title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this
-            )
+            LibraryTagsActionType.InfoTitle -> {
+                val idText = getIdText()
 
-            LibraryTagsInfoActions.LibraryTagsActionType.SubFilter -> InfoRow.NavigationInfoRow(
-                this.title,
-                TextConfig(text, textRes),
-                ImageConfig(imageUrl, fieldType.iconRes),
-                this
-            )
+                val text = if (fieldType == LibraryTagsFieldType.Duration) {
+                    TimeOperations.toMediaDuration(count.toDuration(DurationUnit.SECONDS), resources)
+                } else {
+                    idText.text
+                }
+                val imageUrl = this.fieldType
+                    .artType
+                    ?.let { artType ->
+                        viewModel.getArtUrl(artType, idText.id)
+                    }
+                InfoRow.BasicInfoRow(
+                    this.fieldType.titleRes,
+                    TextConfig(text, null),
+                    ImageConfig(imageUrl, fieldType.iconRes)
+                ).apply {
+                    tag = this@toInfoRow
+                }
+            }
+
+            LibraryTagsActionType.SubFilter -> {
+                InfoRow.NavigationInfoRow(
+                    this.fieldType.titleRes,
+                    TextConfig(count.toString(), null),
+                    ImageConfig(null, fieldType.iconRes)
+                ).apply {
+                    tag = this@toInfoRow
+                }
+            }
         }
+    }
+
+    private suspend fun LibraryInfoRow.getIdText(): IdText {
+        val filter = viewModel.filterNavigation
+        val filterType = getField(this.fieldType)
+        val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
+        val filterData: IdText? = filterIfTypePresent?.takeIf { it.argument is Long }
+            ?.let { IdText(it.argument as Long, it.displayText) }
+        return filterData ?: (viewModel as LibraryTagsInfoViewModel).getFilteredInfo(
+            filterType,
+            filter
+        ) ?: IdText(0, "")
     }
 }

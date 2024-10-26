@@ -1,7 +1,9 @@
 package be.florien.anyflow.common.utils
 
+import android.content.res.Resources
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.time.Duration
 
 object TimeOperations {
 
@@ -35,6 +37,19 @@ object TimeOperations {
     }
 
     fun getAmpacheCompleteFormatted(time: Calendar): String = ampacheRequestFormatter.format(time.time)
+
+    fun toMediaDuration(duration: Duration, resources: Resources) = duration.toComponents { days, hours, minutes, seconds, _ ->
+        fun Int?.getDurationString(resource: Int) =
+            this?.let { resources.getQuantityString(resource, it, it) } ?: ""
+        val d = days.toInt().takeIf { it > 0 }
+        val h = hours.takeIf { it > 0 || days > 0 }
+        val m = minutes.takeIf { it > 0 || days > 0 || hours > 0 }
+        val s = seconds.takeIf { it > 0 || days > 0 || hours > 0 || minutes > 0 }
+        d.getDurationString(R.plurals.days_component) +
+                h.getDurationString(R.plurals.hours_component) +
+                m.getDurationString(R.plurals.minutes_component) +
+                s.getDurationString(R.plurals.seconds_component)
+    }
 
     interface CurrentTimeUpdater {
         fun getCurrentTimeUpdated(current: Calendar): Calendar

@@ -32,6 +32,7 @@ dependencies {
     implementation project(':feature-library-domain')
     implementation project(':feature-library-ui')
     implementation project(':feature-library-podcast-domain')
+    implementation project(':feature-library-tags-domain')
     implementation project(":management-filters")
 
     implementation 'androidx.core:core-ktx:1.13.1'

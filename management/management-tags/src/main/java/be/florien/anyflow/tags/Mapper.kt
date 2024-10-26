@@ -16,8 +16,6 @@ import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterTagsCount
 import be.florien.anyflow.tags.local.model.DbDownloadedCount
 import be.florien.anyflow.tags.model.DownloadedCount
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 
 fun DbSongInfo.toViewSongInfo() = SongInfo(
@@ -74,7 +72,7 @@ fun DbDownloadedCount.toViewDownloadedCount() = DownloadedCount(
 )
 
 fun DbTagsFilterCount.toViewFilterCount() = FilterTagsCount(
-    duration = duration.toDuration(DurationUnit.SECONDS),
+    duration = duration,
     genres = genres,
     albumArtists = albumArtists,
     albums = albums,

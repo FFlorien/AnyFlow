@@ -12,12 +12,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
 import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ActivityScope
-import be.florien.anyflow.common.ui.BaseViewModel
-import be.florien.anyflow.common.ui.data.info.InfoActions
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongActionType
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions.SongFieldType
+import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.SongActionType
+import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.queue.OrderComposer
@@ -25,6 +24,7 @@ import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +43,7 @@ class SongListViewModel
 @Inject constructor(
     playingQueue: PlayingQueue,
     private val songInfoActions: SongInfoActions,
+    private val urlRepository: UrlRepository,
     private val orderComposer: OrderComposer,
     private val dataRepository: DataRepository,
     private val podcastRepository: PodcastRepository,
@@ -74,7 +75,7 @@ class SongListViewModel
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
     val playlistListDisplayedFor: LiveData<Triple<Long, SongFieldType, Int>> =
         MutableLiveData(null)
-    val shortcuts: LiveData<List<InfoActions.InfoRow>> =
+    val shortcuts: LiveData<List<BaseSongInfoRow>> =
         MutableLiveData(songInfoActions.getShortcuts())
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
@@ -173,12 +174,9 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeSongAction(songDisplay: QueueItemDisplay, row: InfoActions.InfoRow) {
+    fun executeSongAction(songDisplay: QueueItemDisplay, row: BaseSongInfoRow) {
         val fieldType = row.fieldType
-        if (row !is BaseSongInfoActions.InfoRow) {
-            return
-        }
-        if (songDisplay !is SongDisplay || fieldType !is SongFieldType) {
+        if (songDisplay !is SongDisplay) {
             return
         }
         viewModelScope.launch {
@@ -228,9 +226,7 @@ class SongListViewModel
     }
 
     fun getArtUrl(albumId: Long, isPodcast: Boolean) =
-        if (isPodcast) songInfoActions.getPodcastArtUrl(albumId) else songInfoActions.getAlbumArtUrl(
-            albumId
-        )
+        if (isPodcast) urlRepository.getPodcastArtUrl(albumId) else urlRepository.getAlbumArtUrl(albumId)
 
     /**
      * Private methods

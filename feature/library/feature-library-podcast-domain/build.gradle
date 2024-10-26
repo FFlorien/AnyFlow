@@ -30,6 +30,7 @@ dependencies {
     implementation project(':management-podcast')
     implementation project(":management-tags")//todo extract urlManager
     implementation project(':feature-library-domain')
+    implementation project(':feature-library-tags-domain')
     implementation project(":common-resources")
 
     implementation 'androidx.core:core-ktx:1.13.1'

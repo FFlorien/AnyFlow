@@ -1,12 +1,14 @@
 package be.florien.anyflow.feature.song.domain
 
 import android.content.SharedPreferences
-import be.florien.anyflow.feature.song.base.ui.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
+import be.florien.anyflow.feature.song.base.domain.model.SongMultipleInfoRow
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.queue.OrderComposer
-import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.SongInfo
 import javax.inject.Inject
 import javax.inject.Named
@@ -14,27 +16,9 @@ import javax.inject.Named
 class SongInfoActions @Inject constructor(
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
-    private val urlRepository: UrlRepository,
     private val downloadManager: DownloadManager,
     @Named("preferences") sharedPreferences: SharedPreferences
 ) : BaseSongInfoActions(sharedPreferences) {
-
-    /**
-     * Overridden methods
-     */
-
-    override fun getDownloadState(
-        id: Long,
-        type: Filter.FilterType,
-        additionalInfo: Int?
-    ) = downloadManager.getDownloadState(id, type, additionalInfo)
-
-    /**
-     * Public methods
-     */
-
-    fun getAlbumArtUrl(albumId: Long) = urlRepository.getAlbumArtUrl(albumId)
-    fun getPodcastArtUrl(podcastId: Long) = urlRepository.getPodcastArtUrl(podcastId)
 
     /**
      * Action methods
@@ -44,7 +28,7 @@ class SongInfoActions @Inject constructor(
         orderComposer.changeSongPositionForNext(songId)
     }
 
-    suspend fun filterOn(songInfo: SongInfo, row: InfoRow) {
+    suspend fun filterOn(songInfo: SongInfo, row: BaseSongInfoRow) {
         val filter = when (row.fieldType) {
             SongFieldType.Title -> Filter(
                 Filter.FilterType.SONG_IS,
@@ -108,7 +92,7 @@ class SongInfoActions @Inject constructor(
         filtersManager.commitChanges()
     }
 
-    fun getSearchTerms(songInfo: SongInfo, fieldType: FieldType): String {
+    fun getSearchTerms(songInfo: SongInfo, fieldType: SongFieldType): String {
         return when (fieldType) {
             SongFieldType.Title -> songInfo.title
             SongFieldType.Artist -> songInfo.artistName

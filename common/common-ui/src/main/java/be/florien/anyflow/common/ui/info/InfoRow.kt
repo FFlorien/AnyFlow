@@ -12,8 +12,8 @@ sealed class InfoRow(
     open val text: TextConfig,
     open val image: ImageConfig,
     @DrawableRes open val icon: Int?,
-    open val tag: Any
 ) {
+    var tag: Any? = null //todo test again with tag in constructor
     open fun areRowTheSame(other: InfoRow): Boolean {
         return text == other.text && (image == other.image) && this.javaClass == other.javaClass
     }
@@ -21,39 +21,31 @@ sealed class InfoRow(
     data class BasicInfoRow(
         override val title: Int,
         override val text: TextConfig,
-        override val image: ImageConfig,
-        override val tag: Any
-    ) : InfoRow(title, text, image, null, tag)
+        override val image: ImageConfig
+    ) : InfoRow(title, text, image, null)
 
-    data class ActionInfoRow(override val title: Int, override val text: TextConfig, override val image: ImageConfig, override val tag: Any) :
-        InfoRow(title, text, image, null, tag)
+    data class ActionInfoRow(override val title: Int, override val text: TextConfig, override val image: ImageConfig) :
+        InfoRow(title, text, image, null)
 
-    data class NavigationInfoRow(override val title: Int, override val text: TextConfig, override val image: ImageConfig, override val tag: Any) :
-        InfoRow(title, text, image, R.drawable.ic_go, tag)
+    data class NavigationInfoRow(override val title: Int, override val text: TextConfig, override val image: ImageConfig) :
+        InfoRow(title, text, image, R.drawable.ic_go)
 
     data class ContainerInfoRow(
         override val title: Int,
         override val text: TextConfig,
         override val image: ImageConfig,
-        override val tag: Any,
         val subRows: List<InfoRow>
-    ) : InfoRow(title, text, image, R.drawable.ic_next_occurence, tag)
+    ) : InfoRow(title, text, image, R.drawable.ic_next_occurence)
 
     data class ProgressInfoRow(
         override val title: Int,
         override val text: TextConfig,
         override val image: ImageConfig,
-        override val tag: Any,
-        val progress: LiveData<Double>,
-        val secondaryProgress: LiveData<Double>
-    ) : InfoRow(title, text, image, null, tag) {
-        override fun equals(other: Any?) =
-            other is ProgressInfoRow && title == other.title && text == other.text && image == other.image && tag == other.tag
-
-        override fun hashCode() =
-            title.hashCode() + text.hashCode() + image.hashCode() + tag.hashCode()
+    ) : InfoRow(title, text, image, null) {
+        var progress: LiveData<Double>? = null
+        var secondaryProgress: LiveData<Double>? = null
     }
 
-    data class ShortcutInfoRow(override val title: Int, override val text: TextConfig, override val image: ImageConfig, override val tag: Any) :
-        InfoRow(title, text, image, null, tag)
+    data class ShortcutInfoRow(override val title: Int, override val text: TextConfig, override val image: ImageConfig) :
+        InfoRow(title, text, image, null) // todo handle shortcut...
 }
