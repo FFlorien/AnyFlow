@@ -1,14 +1,13 @@
-package be.florien.anyflow.common.ui.info
+package be.florien.anyflow.component.info
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.ui.R
-import be.florien.anyflow.common.ui.databinding.ItemInfoBinding
-import be.florien.anyflow.common.ui.databinding.ItemProgressInfoBinding
-import be.florien.anyflow.common.ui.databinding.ItemShortcutInfoBinding
+import be.florien.anyflow.component.info.databinding.ItemInfoBinding
+import be.florien.anyflow.component.info.databinding.ItemProgressInfoBinding
+import be.florien.anyflow.component.info.databinding.ItemShortcutInfoBinding
 
 sealed class InfoViewHolder(
     protected val parent: ViewGroup,

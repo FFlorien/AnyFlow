@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.common.ui.info.InfoRow
+import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.feature.library.tags.domain.LibraryInfoRow
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsActionType

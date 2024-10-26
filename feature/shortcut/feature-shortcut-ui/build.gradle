@@ -43,6 +43,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation project(':common-navigation')
     implementation project(':feature-song-base-domain')
+    implementation project(':component-info')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }

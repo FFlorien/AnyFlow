@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.info.InfoViewModel
+import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionMultipleInfoRow

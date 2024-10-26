@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.florien.anyflow.common.ui.component.ImageDisplayFragment
-import be.florien.anyflow.common.ui.info.InfoAdapter
-import be.florien.anyflow.common.ui.info.InfoRow
+import be.florien.anyflow.component.info.InfoAdapter
+import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.ui.databinding.FragmentInfoBinding

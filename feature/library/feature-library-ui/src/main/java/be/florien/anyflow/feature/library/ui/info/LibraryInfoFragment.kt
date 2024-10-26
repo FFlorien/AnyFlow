@@ -9,8 +9,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.common.ui.info.InfoAdapter
-import be.florien.anyflow.common.ui.info.InfoRow
+import be.florien.anyflow.component.info.InfoAdapter
+import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.cancelChanges

@@ -1,9 +1,8 @@
-package be.florien.anyflow.common.ui.info
+package be.florien.anyflow.component.info
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.common.ui.R
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
 
@@ -14,9 +13,6 @@ sealed class InfoRow(
     @DrawableRes open val icon: Int?,
 ) {
     var tag: Any? = null //todo test again with tag in constructor
-    open fun areRowTheSame(other: InfoRow): Boolean {
-        return text == other.text && (image == other.image) && this.javaClass == other.javaClass
-    }
 
     data class BasicInfoRow(
         override val title: Int,

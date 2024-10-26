@@ -8,7 +8,7 @@ import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.common.ui.info.InfoRow
+import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionMultipleInfoRow

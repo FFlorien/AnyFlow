@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.info
+package be.florien.anyflow.component.info
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

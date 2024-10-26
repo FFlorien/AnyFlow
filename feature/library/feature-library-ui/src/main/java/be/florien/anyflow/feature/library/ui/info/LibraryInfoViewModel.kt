@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.library.ui.info
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.common.ui.info.InfoViewModel
+import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.FiltersManager

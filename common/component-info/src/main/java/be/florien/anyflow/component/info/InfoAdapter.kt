@@ -1,22 +1,9 @@
-package be.florien.anyflow.common.ui.info
+package be.florien.anyflow.component.info
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 
-
-val diffCallback = object :
-    DiffUtil.ItemCallback<InfoRow>() { //todo this is not good: object might be shared across InfoAdapters
-    override fun areItemsTheSame(
-        oldItem: InfoRow,
-        newItem: InfoRow
-    ): Boolean = oldItem.areRowTheSame(newItem)
-
-    override fun areContentsTheSame(
-        oldItem: InfoRow,
-        newItem: InfoRow
-    ) = oldItem.areRowTheSame(newItem)
-}
 
 class InfoAdapter(private val executeAction: (InfoRow) -> Unit) :
     ListAdapter<InfoRow, InfoViewHolder>(diffCallback) {
@@ -71,8 +58,18 @@ class InfoAdapter(private val executeAction: (InfoRow) -> Unit) :
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            holder.bindNewData(getItem(position))
+            holder.bindChangedData(getItem(position))
         }
+    }
+
+    override fun submitList(list: List<InfoRow>?) {
+        val nextList = syncNewListWithOpenedContainers(list)
+        super.submitList(nextList)
+    }
+
+    override fun submitList(list: List<InfoRow>?, commitCallback: Runnable?) {
+        val nextList = syncNewListWithOpenedContainers(list)
+        super.submitList(nextList, commitCallback)
     }
 
     private fun toggleContainer(infoRow: InfoRow) {
@@ -90,16 +87,6 @@ class InfoAdapter(private val executeAction: (InfoRow) -> Unit) :
         }
 
         super.submitList(nextList)
-    }
-
-    override fun submitList(list: List<InfoRow>?) {
-        val nextList = syncNewListWithOpenedContainers(list)
-        super.submitList(nextList)
-    }
-
-    override fun submitList(list: List<InfoRow>?, commitCallback: Runnable?) {
-        val nextList = syncNewListWithOpenedContainers(list)
-        super.submitList(nextList, commitCallback)
     }
 
     private fun syncNewListWithOpenedContainers(list: List<InfoRow>?): List<InfoRow>? {
@@ -128,5 +115,18 @@ class InfoAdapter(private val executeAction: (InfoRow) -> Unit) :
                 ItemViewType.entries.first { it.value == value }
         }
     }
+}
+
+private val diffCallback = object :
+    DiffUtil.ItemCallback<InfoRow>() {
+    override fun areItemsTheSame(
+        oldItem: InfoRow,
+        newItem: InfoRow
+    ): Boolean = oldItem == newItem
+
+    override fun areContentsTheSame(
+        oldItem: InfoRow,
+        newItem: InfoRow
+    ): Boolean = oldItem == newItem
 }
 
