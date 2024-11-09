@@ -10,16 +10,8 @@ import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.common.ui.data.TextConfig
 import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongActionMultipleInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
-import be.florien.anyflow.feature.song.base.domain.model.SongDownloadInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongDownloadMultipleInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoContainerRow
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoMultipleContainerRow
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongMultipleInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.feature.song.base.ui.R
 import be.florien.anyflow.tags.model.SongInfo
@@ -60,52 +52,46 @@ class SongInfoFragment(songId: Long) :
 
     override fun BaseSongInfoRow.toInfoRow(): InfoRow {
         return when (this) {
-            is ShortcutInfoRow -> InfoRow.ShortcutInfoRow(
+            is BaseSongInfoRow.ShortcutInfoRow -> InfoRow.ShortcutInfoRow(
                 actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                 TextConfig(viewModel.songInfo.getTextFromField(fieldType, -1), null),
-                ImageConfig(null, fieldType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-            }
+                ImageConfig(null, fieldType.iconRes),
+                this
+            )
 
-            is SongDownloadInfoRow -> InfoRow.ProgressInfoRow(
+            is BaseSongInfoRow.SongDownloadInfoRow -> InfoRow.ProgressInfoRow(
                 actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                 TextConfig(viewModel.songInfo.getTextFromField(fieldType, -1), null),
                 ImageConfig(null, actionType.iconRes),
-            ).apply {
-                tag = this@toInfoRow
-                progress = this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total }
-                secondaryProgress =
-                    this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
-            }
-            is SongInfoContainerRow -> {
+                this,
+                this.progress.map { it.downloaded.toDouble() / it.total },
+                this.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
+            )
+            is BaseSongInfoRow.SongInfoContainerRow -> {
                 InfoRow.ContainerInfoRow(
                     actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                     TextConfig(viewModel.songInfo.getTextFromField(fieldType, -1), null),
                     ImageConfig(null, fieldType.iconRes),
-                    subRows.map { it.toInfoRow() }
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    subRows.map { it.toInfoRow() },
+                    this
+                )
 
             }
 
-            is SongInfoRow -> when (this.actionType) {
+            is BaseSongInfoRow.SongInfoRow -> when (this.actionType) {
                 SongActionType.InfoTitle -> InfoRow.BasicInfoRow(
                     actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                     TextConfig(viewModel.songInfo.getTextFromField(fieldType, -1), null),
-                    ImageConfig(null, fieldType.iconRes)
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    ImageConfig(null, fieldType.iconRes),
+                    this
+                )
 
                 SongActionType.None -> InfoRow.BasicInfoRow(
                     actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                     TextConfig(null, R.string.info_action_downloaded_description),
-                    ImageConfig(null, fieldType.iconRes)
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    ImageConfig(null, fieldType.iconRes),
+                    this
+                )
 
                 SongActionType.AddToFilter,
                 SongActionType.AddToPlaylist,
@@ -117,56 +103,51 @@ class SongInfoFragment(songId: Long) :
                         viewModel.songInfo.getTextFromField(fieldType, -1),
                         actionType.getText()
                     ),
-                    ImageConfig(null, actionType.iconRes)
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    ImageConfig(null, actionType.iconRes),
+                    this
+                )
                 else -> throw IllegalArgumentException()
             }
-            is SongInfoMultipleContainerRow -> InfoRow.ContainerInfoRow(
+            is BaseSongInfoRow.SongInfoMultipleContainerRow -> InfoRow.ContainerInfoRow(
                 actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                 TextConfig(
                     viewModel.songInfo.getTextFromField(
                         fieldType,
-                        (this as? SongMultipleInfoRow)?.index ?: -1
+                        (this as? BaseSongInfoRow.SongMultipleInfoRow)?.index ?: -1
                     ), null
                 ),
                 ImageConfig(null, fieldType.iconRes),
-                subRows.map { it.toInfoRow() }
-            ).apply {
-                tag = this@toInfoRow
-            }
+                subRows.map { it.toInfoRow() },
+                this
+            )
 
-            is SongActionMultipleInfoRow -> when (actionType) {
+            is BaseSongInfoRow.SongActionMultipleInfoRow -> when (actionType) {
                 else -> InfoRow.ActionInfoRow(
                     actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                     TextConfig(
                         viewModel.songInfo.getTextFromField(
                             fieldType,
-                            (this as? SongMultipleInfoRow)?.index ?: -1
+                            (this as? BaseSongInfoRow.SongMultipleInfoRow)?.index ?: -1
                         ), null
                     ),
-                    ImageConfig(null, actionType.iconRes)
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    ImageConfig(null, actionType.iconRes),
+                    this
+                )
             }
 
-            is SongDownloadMultipleInfoRow -> InfoRow.ProgressInfoRow(
+            is BaseSongInfoRow.SongDownloadMultipleInfoRow -> InfoRow.ProgressInfoRow(
                 actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                 TextConfig(
                     viewModel.songInfo.getTextFromField(
                         fieldType,
-                        (this as? SongMultipleInfoRow)?.index ?: -1
+                        (this as? BaseSongInfoRow.SongMultipleInfoRow)?.index ?: -1
                     ), null
                 ),
-                ImageConfig(null, actionType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-                progress = this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total }
-                secondaryProgress =
-                    this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
-            }
+                ImageConfig(null, actionType.iconRes),
+                this,
+                this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total },
+                this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
+            )
 
             else -> {
                 throw IllegalStateException()

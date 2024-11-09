@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.shortcut.ui
 
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.map
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
@@ -9,11 +8,6 @@ import be.florien.anyflow.common.ui.getDisplayWidth
 import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion.DUMMY_SONG_ID
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongActionMultipleInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongDownloadInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongDownloadMultipleInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.model.SongInfo
@@ -67,54 +61,34 @@ class ShortcutSongInfoFragment :
             }
 
     override fun BaseSongInfoRow.toInfoRow(): InfoRow {
-        return when (this) {
-            is ShortcutInfoRow -> InfoRow.ShortcutInfoRow(
+        return when (this) {//todo is  basesonginforow still relevant, or should it diverge ?
+            is BaseSongInfoRow.ShortcutInfoRow,
+            is BaseSongInfoRow.SongInfoRow,
+            is BaseSongInfoRow.SongActionMultipleInfoRow,
+            is BaseSongInfoRow.SongDownloadInfoRow,
+            is BaseSongInfoRow.SongDownloadMultipleInfoRow -> InfoRow.ShortcutInfoRow(
                 actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                 TextConfig(null, null),
-                ImageConfig(null, fieldType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-            }
+                ImageConfig(null, actionType.iconRes),
+                this
+            )
 
-            is SongDownloadInfoRow -> InfoRow.ProgressInfoRow(
-                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+
+            is BaseSongInfoRow.SongInfoContainerRow -> InfoRow.ContainerInfoRow(
+                fieldType.titleRes,
                 TextConfig(null, null),
                 ImageConfig(null, fieldType.iconRes),
-            ).apply {
-                tag = this@toInfoRow
-                progress = this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total }
-                secondaryProgress = this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
-            }
+                subRows.map { it.toInfoRow() },
+                this
+            )
 
-            is SongInfoRow -> InfoRow.NavigationInfoRow(//todo
-                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
+            is BaseSongInfoRow.SongInfoMultipleContainerRow -> InfoRow.ContainerInfoRow(
+                fieldType.titleRes,
                 TextConfig(null, null),
-                ImageConfig(null, fieldType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-            }
-
-            is SongActionMultipleInfoRow -> InfoRow.ActionInfoRow(
-                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
-                TextConfig(null, null),
-                ImageConfig(null, fieldType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-            }
-
-            is SongDownloadMultipleInfoRow -> InfoRow.ProgressInfoRow(
-                actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
-                TextConfig(null, null),
-                ImageConfig(null, fieldType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-                progress = this@toInfoRow.progress.map { it.downloaded.toDouble() / it.total }
-                secondaryProgress = this@toInfoRow.progress.map { ((it.downloaded + it.queued).toDouble() / it.total) }
-            }
-
-            else -> {
-                throw IllegalStateException()
-            }
+                ImageConfig(null, fieldType.iconRes),
+                subRows.map { it.toInfoRow() },
+                this
+            )
         }
     }
 }

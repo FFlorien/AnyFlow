@@ -52,19 +52,17 @@ class LibraryPodcastInfoFragment(parentFilter: Filter<*>? = null) :
                 InfoRow.BasicInfoRow(
                     this.fieldType.titleRes,
                     TextConfig(idText.text, null),
-                    ImageConfig(imageUrl, fieldType.iconRes)
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    ImageConfig(imageUrl, fieldType.iconRes),
+                    tag = this
+                )
             }
 
             LibraryPodcastActionType.SubFilter -> InfoRow.NavigationInfoRow(
                 this.fieldType.titleRes,
                 TextConfig(count.toString(), null),
-                ImageConfig(null, fieldType.iconRes)
-            ).apply {
-                tag = this@toInfoRow
-            }
+                ImageConfig(null, fieldType.iconRes),
+                tag = this
+            )
         }
     }
 

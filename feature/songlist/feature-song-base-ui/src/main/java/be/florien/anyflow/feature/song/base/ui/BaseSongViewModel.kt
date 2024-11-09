@@ -6,15 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongActionMultipleInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
-import be.florien.anyflow.feature.song.base.domain.model.SongDownloadInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.SongDownloadMultipleInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoContainerRow
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoMultipleContainerRow
-import be.florien.anyflow.feature.song.base.domain.model.SongInfoRow
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
@@ -39,6 +32,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
     }
 
     override suspend fun getInfoRowList(): MutableList<BaseSongInfoRow> {
+        //todo get shortcuts here (or in a subVM?), and pass on the order
         return listOfNotNull(
             getInfoRow(
                 SongFieldType.Title,
@@ -388,19 +382,19 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
         index: Int? = null,
         subRows: List<BaseSongInfoRow>? = null
     ): BaseSongInfoRow = if (subRows != null && index != null) {
-        SongInfoMultipleContainerRow(fieldType, index, subRows)
+        BaseSongInfoRow.SongInfoMultipleContainerRow(fieldType, index, subRows)
     } else if (subRows != null && index == null) {
-        SongInfoContainerRow(fieldType, subRows)
+        BaseSongInfoRow.SongInfoContainerRow(fieldType, subRows)
     } else if (index != null && progress != null) {
-        SongDownloadMultipleInfoRow(fieldType, actionType, index, progress)
+        BaseSongInfoRow.SongDownloadMultipleInfoRow(fieldType, actionType, index, progress)
     } else if (index != null) {
-        SongActionMultipleInfoRow(fieldType, actionType, index)
+        BaseSongInfoRow.SongActionMultipleInfoRow(fieldType, actionType, index)
     } else if (order != null) {
-        ShortcutInfoRow(fieldType, actionType, order)
+        BaseSongInfoRow.ShortcutInfoRow(fieldType, actionType, order)
     } else if (progress != null) {
-        SongDownloadInfoRow(fieldType, actionType, progress)
+        BaseSongInfoRow.SongDownloadInfoRow(fieldType, actionType, progress)
     } else {
-        SongInfoRow(fieldType, actionType)
+        BaseSongInfoRow.SongInfoRow(fieldType, actionType)
     }
 
     abstract fun getDownloadState(id: Long, type: Filter.FilterType, additionalInfo: Int? = null) : LiveData<DownloadProgressState>

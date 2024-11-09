@@ -9,7 +9,6 @@ import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.feature.song.base.domain.model.SongMultipleInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
 import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
@@ -64,7 +63,7 @@ class SongInfoViewModel @Inject constructor(
                 SongActionType.AddNext -> infoActions.playNext(songId)
                 SongActionType.AddToPlaylist -> displayPlaylistList(
                     fieldType,
-                    (row as? SongMultipleInfoRow)?.index ?: 0
+                    (row as? BaseSongInfoRow.SongMultipleInfoRow)?.index ?: 0
                 )
 
                 SongActionType.AddToFilter -> infoActions.filterOn(
@@ -76,7 +75,7 @@ class SongInfoViewModel @Inject constructor(
                     searchTerm.mutable.value = infoActions.getSearchTerms(songInfo, fieldType)
 
                 SongActionType.Download -> {
-                    val index = (row as? SongMultipleInfoRow)?.index
+                    val index = (row as? BaseSongInfoRow.SongMultipleInfoRow)?.index
                     infoActions.queueDownload(songInfo, fieldType, index)
                 }
 

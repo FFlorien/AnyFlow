@@ -87,20 +87,18 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
                 InfoRow.BasicInfoRow(
                     this.fieldType.titleRes,
                     TextConfig(text, null),
-                    ImageConfig(imageUrl, fieldType.iconRes)
-                ).apply {
+                    ImageConfig(imageUrl, fieldType.iconRes),
                     tag = this@toInfoRow
-                }
+                )
             }
 
             LibraryTagsActionType.SubFilter -> {
                 InfoRow.NavigationInfoRow(
                     this.fieldType.titleRes,
                     TextConfig(count.toString(), null),
-                    ImageConfig(null, fieldType.iconRes)
-                ).apply {
-                    tag = this@toInfoRow
-                }
+                    ImageConfig(null, fieldType.iconRes),
+                            tag = this@toInfoRow
+                )
             }
         }
     }

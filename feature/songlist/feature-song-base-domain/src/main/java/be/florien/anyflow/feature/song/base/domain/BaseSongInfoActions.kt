@@ -1,14 +1,14 @@
 package be.florien.anyflow.feature.song.base.domain
 
 import android.content.SharedPreferences
-import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
+import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 
 abstract class BaseSongInfoActions(
     val sharedPreferences: SharedPreferences
 ) {
-    fun getShortcuts(): List<ShortcutInfoRow> {
+    fun getShortcuts(): List<BaseSongInfoRow.ShortcutInfoRow> {
         val string = sharedPreferences.getString(SHORTCUTS_PREF_NAME, "") ?: return emptyList()
 
         return string.split("#").filter { it.isNotEmpty() }.mapIndexedNotNull { index, it ->
@@ -19,7 +19,7 @@ abstract class BaseSongInfoActions(
             if (fieldType != null) {
                 val actionType = SongActionType.entries.firstOrNull { it.name == actionTypeString }
                 if (actionType != null) {
-                    ShortcutInfoRow(
+                    BaseSongInfoRow.ShortcutInfoRow(
                         fieldType,
                         actionType,
                         order = index

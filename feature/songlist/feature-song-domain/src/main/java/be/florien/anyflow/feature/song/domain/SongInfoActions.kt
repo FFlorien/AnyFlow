@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.feature.song.base.domain.model.SongMultipleInfoRow
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
@@ -68,7 +67,7 @@ class SongInfoActions @Inject constructor(
             )
 
             SongFieldType.Genre -> {
-                val index = (row as SongMultipleInfoRow).index
+                val index = (row as BaseSongInfoRow.SongMultipleInfoRow).index
                 Filter(
                     Filter.FilterType.GENRE_IS,
                     songInfo.genreIds[index],
@@ -77,7 +76,7 @@ class SongInfoActions @Inject constructor(
             }
 
             SongFieldType.Playlist -> {
-                val index = (row as SongMultipleInfoRow).index
+                val index = (row as BaseSongInfoRow.SongMultipleInfoRow).index
                 Filter(
                     Filter.FilterType.PLAYLIST_IS,
                     songInfo.playlistIds[index],

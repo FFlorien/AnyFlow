@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion.DUMMY_SONG_ID
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
-import be.florien.anyflow.feature.song.base.domain.model.ShortcutInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -22,7 +21,7 @@ class ShortcutsViewModel @Inject constructor(
     @Named("preferences") sharedPreferences: SharedPreferences
 ) : BaseSongViewModel() {
 
-     val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
+     private val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
 
     override var songId: Long = DUMMY_SONG_ID
     var maxItems = 3
@@ -46,7 +45,7 @@ class ShortcutsViewModel @Inject constructor(
         0
     )
     val dummyCover = ImageConfig(null, R.drawable.cover_placeholder, View.VISIBLE)
-    val shortcutsList: List<ShortcutInfoRow>
+    val shortcutsList: List<BaseSongInfoRow.ShortcutInfoRow>
         get() = infoActions.getShortcuts()
 
     override fun mapActionsRows(initialList: List<BaseSongInfoRow>): List<BaseSongInfoRow> {
@@ -57,7 +56,7 @@ class ShortcutsViewModel @Inject constructor(
                 mutableList.indexOfFirst { action -> it.actionType == action.actionType && it.fieldType == action.fieldType }
             if (indexOfFirst >= 0) {
                 mutableList[indexOfFirst] =
-                    ShortcutInfoRow(initialList[indexOfFirst], it.order)
+                    BaseSongInfoRow.ShortcutInfoRow(initialList[indexOfFirst], it.order)
             }
         }
         return mutableList
