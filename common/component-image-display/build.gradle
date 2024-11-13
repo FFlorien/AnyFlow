@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'be.florien.anyflow.common.ui'
+    namespace 'be.florien.anyflow.component.image.display'
     compileSdk 34
 
     defaultConfig {
@@ -22,25 +22,19 @@ android {
         jvmTarget = '1.8'
     }
 }
-//todo clean up resources
 
 dependencies {
     //Modules
-    implementation project(':common-ui-domain') //todo useful ?
-    implementation project(':common-resources') //todo useful ?
-    implementation project(':feature-song-base-domain') //todo take songinfoviewholder out of this module
-    implementation project(':management-queue')
+    implementation project(':common-ui')
+    implementation project(':common-ui-domain')
+    implementation project(':common-resources')
     //Android
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'com.google.android.material:material:1.12.0'
-    //glide todo useful ?
+    //glide
     implementation 'com.github.bumptech.glide:glide:4.14.1'
     kapt 'com.github.bumptech.glide:compiler:4.14.1'
     implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
-    //DI
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 }
-apply plugin: 'kotlin-parcelize'

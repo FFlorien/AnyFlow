@@ -29,6 +29,9 @@ dependencies {
     implementation project(':common-di')
     implementation project(":common-ui")
     implementation project(':common-ui-domain')
+    implementation project(':component-image-display')
+    implementation project(':component-info')
+    implementation project(':feature-song-base-domain')
     implementation project(':data-local')
     implementation project(':management-download')
     implementation project(':management-filters')
@@ -40,8 +43,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation 'com.google.android.material:material:1.12.0'
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation project(':feature-song-base-domain')
-    implementation project(':component-info')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }

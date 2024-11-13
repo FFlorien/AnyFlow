@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.component
+package be.florien.anyflow.component.image.display
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,9 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
-import be.florien.anyflow.common.ui.R
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.databinding.FragmentImageDisplayBinding
+import be.florien.anyflow.component.image.display.databinding.FragmentImageDisplayBinding
 
 class ImageDisplayFragment(private var url: String) : DialogFragment() {
     private var binding: FragmentImageDisplayBinding? = null
