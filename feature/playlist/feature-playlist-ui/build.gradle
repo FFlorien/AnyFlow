@@ -40,6 +40,7 @@ dependencies {
     implementation project(':management-tags')
     implementation project(':common-navigation')
     implementation project(':component-dialog')
+    implementation project(':component-menu')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

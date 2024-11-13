@@ -29,7 +29,7 @@ import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
 import be.florien.anyflow.common.ui.list.SongViewHolder
-import be.florien.anyflow.common.ui.menu.MenuCoordinatorHolder
+import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment

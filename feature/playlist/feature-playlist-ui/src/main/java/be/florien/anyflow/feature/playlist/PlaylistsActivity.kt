@@ -8,7 +8,7 @@ import androidx.appcompat.widget.Toolbar
 import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.common.ui.menu.MenuCoordinator
+import be.florien.anyflow.component.menu.MenuCoordinator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.list.PlaylistListFragment

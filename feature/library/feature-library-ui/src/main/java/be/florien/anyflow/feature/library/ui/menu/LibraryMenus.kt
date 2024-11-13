@@ -1,8 +1,8 @@
 package be.florien.anyflow.feature.library.ui.menu
 
 import android.content.Context
-import be.florien.anyflow.common.ui.menu.AnimatedMenuHolder
-import be.florien.anyflow.common.ui.menu.MenuHolder
+import be.florien.anyflow.component.menu.AnimatedMenuHolder
+import be.florien.anyflow.component.menu.MenuHolder
 import be.florien.anyflow.feature.library.ui.R
 
 class SearchMenuHolder(isSearching: Boolean, context: Context, action: () -> Unit) :

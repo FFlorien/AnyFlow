@@ -71,6 +71,7 @@ dependencies {
     implementation project(':common-ui-domain')
     implementation project(':component-dialog')
     implementation project(':component-info')
+    implementation project(':component-menu')
     implementation project(':component-player-controls')
     implementation project(":data-local")
     implementation project(":data-server")

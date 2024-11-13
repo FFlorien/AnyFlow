@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.common.ui.menu.MenuHolder
+import be.florien.anyflow.component.menu.MenuHolder
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
 import be.florien.anyflow.feature.alarm.ui.ConfirmAlarmMenuHolder
 import be.florien.anyflow.feature.alarm.ui.DeleteAlarmMenuHolder

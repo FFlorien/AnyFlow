@@ -18,7 +18,7 @@ import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.common.ui.BaseFragment
 import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
 import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
-import be.florien.anyflow.common.ui.menu.MenuCoordinator
+import be.florien.anyflow.component.menu.MenuCoordinator
 import be.florien.anyflow.component.dialog.deletePlaylistConfirmation
 import be.florien.anyflow.component.dialog.newPlaylist
 import be.florien.anyflow.feature.playlist.PlaylistsActivity

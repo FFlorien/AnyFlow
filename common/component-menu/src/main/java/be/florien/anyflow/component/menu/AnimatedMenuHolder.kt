@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.menu
+package be.florien.anyflow.component.menu
 
 import android.content.Context
 import android.graphics.drawable.Animatable

@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.alarm.ui
 
-import be.florien.anyflow.common.ui.menu.MenuHolder
+import be.florien.anyflow.component.menu.MenuHolder
 
 
 class AddAlarmMenuHolder(action: () -> Unit) : MenuHolder(

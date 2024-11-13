@@ -2,8 +2,8 @@ package be.florien.anyflow.feature.playlist.menu
 
 import android.content.Context
 import be.florien.anyflow.common.resources.R
-import be.florien.anyflow.common.ui.menu.AnimatedMenuHolder
-import be.florien.anyflow.common.ui.menu.MenuHolder
+import be.florien.anyflow.component.menu.AnimatedMenuHolder
+import be.florien.anyflow.component.menu.MenuHolder
 
 
 class NewPlaylistMenuHolder(action: () -> Unit) : MenuHolder(

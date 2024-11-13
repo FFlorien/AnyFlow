@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.menu
+package be.florien.anyflow.component.menu
 
 import androidx.annotation.IdRes
 import androidx.annotation.MenuRes

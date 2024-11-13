@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.songlist.ui
 
 import android.content.Context
-import be.florien.anyflow.common.ui.menu.AnimatedMenuHolder
+import be.florien.anyflow.component.menu.AnimatedMenuHolder
 
 
 class SearchSongMenuHolder(isSearching: Boolean, context: Context, action: () -> Unit) : AnimatedMenuHolder(

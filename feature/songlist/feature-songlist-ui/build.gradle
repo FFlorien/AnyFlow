@@ -52,6 +52,7 @@ dependencies {
     implementation 'androidx.media3:media3-session:1.4.1'
     implementation 'androidx.navigation:navigation-common-ktx:2.8.2'
     implementation project(':feature-song-base-domain')
+    implementation project(':component-menu')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }
