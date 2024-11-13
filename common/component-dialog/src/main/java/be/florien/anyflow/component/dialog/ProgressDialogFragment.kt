@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.component
+package be.florien.anyflow.component.dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.common.resources.R
-import be.florien.anyflow.common.ui.databinding.FragmentProgressBinding
+import be.florien.anyflow.component.dialog.databinding.FragmentProgressBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

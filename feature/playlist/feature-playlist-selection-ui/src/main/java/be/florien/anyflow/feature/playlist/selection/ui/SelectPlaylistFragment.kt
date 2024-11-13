@@ -15,14 +15,13 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.di.viewModelFactory
-import be.florien.anyflow.common.ui.component.ProgressDialog
-import be.florien.anyflow.common.ui.component.ProgressDialog.Progress
-import be.florien.anyflow.common.ui.component.newPlaylist
+import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.common.ui.data.TagType
+import be.florien.anyflow.component.dialog.ProgressDialog
+import be.florien.anyflow.component.dialog.newPlaylist
 import be.florien.anyflow.feature.playlist.selection.ui.databinding.FragmentSelectPlaylistBinding
 import be.florien.anyflow.feature.playlist.selection.ui.databinding.ItemSelectPlaylistBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -194,5 +193,5 @@ class SelectPlaylistFragment(
     }
 
     private fun SelectPlaylistViewModel.ModificationProgress.InModificationProgress.toProgressRunning() =
-        Progress(playlistIndex, playlistCount)
+        ProgressDialog.Progress(playlistIndex, playlistCount)
 }

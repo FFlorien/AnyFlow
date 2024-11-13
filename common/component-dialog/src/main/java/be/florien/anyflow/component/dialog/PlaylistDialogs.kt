@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.component
+package be.florien.anyflow.component.dialog
 
 import android.content.Context
 import android.content.DialogInterface
