@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.autonomousapps.dependency-analysis'
 }
 
 android {
@@ -22,6 +23,6 @@ android {
 }
 
 dependencies {
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    api "com.google.dagger:dagger:$dagger_version"
+    api "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
 }

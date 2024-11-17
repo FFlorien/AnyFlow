@@ -31,7 +31,7 @@ import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.common.ui.isVisiblePresent
+import be.florien.anyflow.common.image.isVisiblePresent
 import be.florien.anyflow.component.menu.MenuCoordinator
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository

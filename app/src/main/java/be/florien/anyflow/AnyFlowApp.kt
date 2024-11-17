@@ -7,8 +7,8 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
 import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
-import be.florien.anyflow.common.ui.di.GlideModuleInjector
-import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
+import be.florien.anyflow.common.image.di.GlideModuleInjector
+import be.florien.anyflow.common.image.di.GlideModuleInjectorContainer
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence

@@ -2,10 +2,11 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'com.autonomousapps.dependency-analysis'
 }
 
 android {
-    namespace 'be.florien.anyflow.component.image.display'
+    namespace 'be.florien.anyflow.common.image'
     compileSdk 34
 
     defaultConfig {
@@ -25,17 +26,20 @@ android {
 
 dependencies {
     //Modules
-    implementation project(':common-image')
-    implementation project(':common-ui')
-    implementation project(':common-ui-domain')
+    api project(':common-ui-domain')
     implementation project(':common-resources')
     //Android
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'com.google.android.material:material:1.12.0'
+    api 'androidx.fragment:fragment:1.5.4'
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+    api 'javax.inject:javax.inject:1'
+    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'com.github.bumptech.glide:annotations:4.14.1'
     //glide
-    implementation 'com.github.bumptech.glide:glide:4.14.1'
+    api 'com.github.bumptech.glide:glide:4.14.1'
     kapt 'com.github.bumptech.glide:compiler:4.14.1'
     implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
-    //Lifecycle
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    //DI
+    api 'com.google.dagger:dagger:2.49'
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
 }
+apply plugin: 'kotlin-parcelize'

@@ -25,6 +25,7 @@ android {
 
 dependencies {
     //Modules
+    implementation project(':common-image')
     implementation project(':common-resources')
     implementation project(':common-ui')
     //Android

@@ -65,6 +65,7 @@ android {
 dependencies {
     //Modules
     implementation project(':common-di')
+    implementation project(':common-image')
     implementation project(':common-management')
     implementation project(':common-navigation')
     implementation project(":common-ui")

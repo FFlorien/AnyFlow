@@ -1,41 +1,13 @@
-package be.florien.anyflow.common.ui
+package be.florien.anyflow.common.image
 
-import android.content.Context
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.di.GlideModuleInjectorContainer
-import com.bumptech.glide.Glide
-import com.bumptech.glide.Registry
-import com.bumptech.glide.annotation.GlideModule
-import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.module.AppGlideModule
-import okhttp3.OkHttpClient
-import java.io.InputStream
-import javax.inject.Inject
-import javax.inject.Named
 
-
-@GlideModule
-class MyAppGlideModule : AppGlideModule() {
-    @Inject
-    @Named("glide")
-    lateinit var okHttp: OkHttpClient
-
-    override fun isManifestParsingEnabled() = false
-
-    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        super.registerComponents(context, glide, registry)
-
-        val glideModuleInjector  = (context.applicationContext as GlideModuleInjectorContainer).glideModuleInjector
-        glideModuleInjector?.inject(this)
-        registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(okHttp))
-    }
-}
 
 internal class ChangingTokenUrl(val url: String) : GlideUrl(url) {
     override fun getCacheKey(): String {
@@ -57,7 +29,8 @@ fun ImageView.setImageSource(config: ImageConfig?) {
             .load(ChangingTokenUrl(url))
             .let {
                 if (resource != null) {
-                    it.placeholder(resource)
+                    it
+                        .placeholder(resource)
                         .error(R.drawable.cover_placeholder)
                 } else {
                     it
@@ -76,8 +49,6 @@ fun ImageView.setImageSource(config: ImageConfig?) {
         visibility = config?.stateIfNone ?: View.GONE
     }
 }
-
-
 
 @BindingAdapter("android:drawableResource")
 fun setImageResource(imageView: ImageView, resource: Int) {

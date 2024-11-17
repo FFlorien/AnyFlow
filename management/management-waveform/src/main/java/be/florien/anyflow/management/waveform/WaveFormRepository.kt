@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.media3.common.MediaMetadata
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.common.ui.GlideApp
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.iLog
+import be.florien.anyflow.common.image.GlideApp
 import be.florien.anyflow.tags.local.LibraryDatabase
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.FutureTarget

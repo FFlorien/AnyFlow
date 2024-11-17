@@ -27,6 +27,7 @@ android {
 
 dependencies {
     implementation project(':common-di')
+    implementation project(':common-image')
     implementation project(":common-navigation")
     implementation project(":common-ui")
     implementation project(':common-ui-domain')
