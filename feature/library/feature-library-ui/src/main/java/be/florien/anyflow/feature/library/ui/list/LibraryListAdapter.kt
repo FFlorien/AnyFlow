@@ -1,15 +1,13 @@
 package be.florien.anyflow.feature.library.ui.list
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
-import be.florien.anyflow.common.ui.list.DetailViewHolder
-import be.florien.anyflow.common.ui.list.DetailViewHolderListener
+import be.florien.anyflow.common.ui.list.SwipeActionViewHolder
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.databinding.ItemSelectFilterListBinding
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -47,9 +45,13 @@ class FilterListAdapter(
         snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: ""
 }
 
+interface DetailViewHolderListener<T> {
+    fun onInfoDisplayAsked(item: T)
+}
+
 class FilterViewHolder(
     parent: ViewGroup,
-    detailListener: DetailViewHolderListener<FilterItem>,
+    private val listener: DetailViewHolderListener<FilterItem>,
     override val onSelectChange: (FilterItem) -> Unit,
     private val binding: ItemSelectFilterListBinding =
         ItemSelectFilterListBinding.inflate(
@@ -57,26 +59,21 @@ class FilterViewHolder(
             parent,
             false
         )
-) : DetailViewHolder<FilterItem>(detailListener, binding.root),
+) : SwipeActionViewHolder(binding.root, binding.info, binding.infoView),
     BaseSelectableAdapter.BaseSelectableViewHolder<FilterItem, FilterItem> {
-
-    override val itemInfoView: View
-        get() = binding.info
-    override val infoIconView: View
-        get() = binding.infoView
-    override val item: FilterItem?
+    val item: FilterItem?
         get() = binding.item
 
     init {
         binding.lifecycleOwner = parent.findViewTreeLifecycleOwner()
-        setClickListener()
+        setLongClickListener()
     }
 
     override fun bind(item: FilterItem, isSelected: Boolean) {
         binding.item = item
         binding.artConfig = ImageConfig(item.artUrl, null)
         setSelection(isSelected)
-        itemInfoView.setOnClickListener {
+        topView.setOnClickListener {
             onSelectChange(item)
         }
     }
@@ -86,4 +83,10 @@ class FilterViewHolder(
     }
 
     override fun getCurrentId(): FilterItem? = binding.item
+
+    override fun swipeAction() {
+        item?.let {
+            listener.onInfoDisplayAsked(it)
+        }
+    }
 }

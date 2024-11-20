@@ -9,20 +9,26 @@ import android.view.animation.DecelerateInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.absoluteValue
 
-abstract class DetailViewHolder<T>(val listener: DetailViewHolderListener<T>, view: View) :
+abstract class SwipeActionViewHolder(
+    view: View,
+    val topView: View,
+    private val hiddenView: View
+) :
     RecyclerView.ViewHolder(view) {
 
     protected var startingTranslationX: Float = 0f
 
-    abstract val itemInfoView: View
-    abstract val infoIconView: View
-    abstract val item: T?
+    abstract fun swipeAction()
 
-    open fun swipeForMove(translateX: Float): Boolean {
+    init {
+        setLongClickListener()
+    }
+
+    open fun moveToSwipe(translateX: Float): Boolean {
         if (translateX > 0F) {
-            val translationToSeeInfo = (infoIconView.right).toFloat()
+            val translationToSeeInfo = (hiddenView.right).toFloat()
             val translationToFollowMove = startingTranslationX + translateX
-            itemInfoView.translationX =
+            topView.translationX =
                 minOf(translationToSeeInfo, translationToFollowMove)
                     .coerceAtLeast(startingTranslationX)
             return true
@@ -31,8 +37,8 @@ abstract class DetailViewHolder<T>(val listener: DetailViewHolderListener<T>, vi
         return false
     }
 
-    open fun swipeToClose() {
-        ObjectAnimator.ofFloat(itemInfoView, View.TRANSLATION_X, 0f).apply {
+    open fun resetSwipePosition() {
+        ObjectAnimator.ofFloat(topView, View.TRANSLATION_X, 0f).apply {
             duration = 300L
             interpolator = DecelerateInterpolator()
             start()
@@ -40,35 +46,34 @@ abstract class DetailViewHolder<T>(val listener: DetailViewHolderListener<T>, vi
         startingTranslationX = 0F
     }
 
-    fun openInfoWhenSwiped(): Boolean {
+    fun triggerSwipeAction(): Boolean {
         return if (
-            isSwipedEnoughForInfo()
+            isSwipedEnoughForAction()
             && startingTranslationX == 0f
         ) {
-            val infoItem = item ?: return false
-            listener.onInfoDisplayAsked(infoItem)
-            swipeToClose()
+            swipeAction()
+            resetSwipePosition()
             true
         } else {
             false
         }
     }
 
-    protected fun setClickListener() {
-        itemInfoView.setOnLongClickListener {
-            swipeForInfo()
+    protected fun setLongClickListener() {
+        topView.setOnLongClickListener {
+            swipeForAction()
             return@setOnLongClickListener true
         }
     }
 
-    private fun isSwipedEnoughForInfo(): Boolean =
-        itemInfoView.translationX > infoIconView.right - 10
+    private fun isSwipedEnoughForAction(): Boolean =
+        topView.translationX > hiddenView.right - 10
 
-    private fun swipeForInfo() {
+    private fun swipeForAction() {
         ObjectAnimator.ofFloat(
-            itemInfoView,
+            topView,
             View.TRANSLATION_X,
-            infoIconView.right.toFloat()
+            hiddenView.right.toFloat()
         ).apply {
             duration = 200L
             interpolator = DecelerateInterpolator()
@@ -82,8 +87,7 @@ abstract class DetailViewHolder<T>(val listener: DetailViewHolderListener<T>, vi
                 override fun onAnimationCancel(animation: Animator) {}
 
                 override fun onAnimationRepeat(animation: Animator) {
-                    val nullSafeItem = item ?: return
-                    listener.onInfoDisplayAsked(nullSafeItem)
+                    swipeAction()
                 }
             })
             start()
@@ -96,15 +100,15 @@ abstract class ItemInfoTouchAdapter {
     var downTouchY: Float = -1f
     protected var hasSwiped: Boolean = false
 
-    protected open fun onTouch(viewHolder: DetailViewHolder<*>, event: MotionEvent): Boolean {
+    protected open fun onTouch(viewHolder: SwipeActionViewHolder, event: MotionEvent): Boolean {
         return when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
-                viewHolder.swipeForMove(event.x - downTouchX)
+                viewHolder.moveToSwipe(event.x - downTouchX)
                 true
             }
 
             MotionEvent.ACTION_UP -> {
-                viewHolder.openInfoWhenSwiped()
+                viewHolder.triggerSwipeAction()
             }
 
             else -> false
@@ -135,8 +139,4 @@ abstract class ItemInfoTouchAdapter {
         }
         return false
     }
-}
-
-interface DetailViewHolderListener<T> {
-    fun onInfoDisplayAsked(item: T)
 }

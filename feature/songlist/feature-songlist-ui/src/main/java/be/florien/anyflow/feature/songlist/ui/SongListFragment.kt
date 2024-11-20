@@ -137,7 +137,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         currentSongViewHolder =
-            SongViewHolder(binding.root as ViewGroup, this, this, null, binding.currentSongDisplay)
+            SongViewHolder(binding.root as ViewGroup, this, this, binding.currentSongDisplay)
         currentSongViewHolder.isCurrentSong = true
 
 
@@ -148,7 +148,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.adapter = QueueItemAdapter(this, this, this::onItemClick)
+        binding.songList.adapter = QueueItemAdapter(this, this)
 
         lifecycleScope.launch {
             (queueItemAdapter).loadStateFlow.collectLatest {
@@ -199,7 +199,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                         if (!hasSwiped) {
                             v.performClick()
                         }
-                        if (currentSongViewHolder.itemInfoView.translationX < -1.0) {
+                        if (currentSongViewHolder.topView.translationX < -1.0) {
                             binding.currentSongDisplayTouch.translationX =
                                 binding.currentSongDisplay.songLayout.songInfo.translationX
                         } else {
@@ -308,6 +308,11 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * ViewHolder listener
      */
 
+    override fun onItemClick(position: Int) {
+        viewModel.select(position)
+        currentSongViewHolder.binding.songLayout.songInfo.translationX = 0F
+    }
+
     override fun onShortcut(
         item: QueueItemDisplay,
         row: BaseSongInfoRow
@@ -327,10 +332,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             val start = linearLayoutManager.findFirstVisibleItemPosition()
             val stop = linearLayoutManager.findLastVisibleItemPosition()
             for (i in start..stop) {
-                val songViewHolder =
+                val songInfoViewHolder =
                     binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
-                if (i != position && songViewHolder != null && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToClose()
+                if (i != position && songInfoViewHolder != null && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
+                    songInfoViewHolder.resetSwipePosition()
                 }
             }
 
@@ -339,7 +344,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX =
                     this@SongListFragment.binding.currentSongDisplay.actionsPadding.right - this@SongListFragment.binding.currentSongDisplay.root.width.toFloat()
             } else {
-                currentSongViewHolder.swipeToClose()
+                currentSongViewHolder.resetSwipePosition()
                 this@SongListFragment.binding.currentSongDisplayTouch.translationX = 0F
 
             }
@@ -347,17 +352,17 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             val start = linearLayoutManager.findFirstVisibleItemPosition()
             val stop = linearLayoutManager.findLastVisibleItemPosition()
             for (i in start..stop) {
-                val songViewHolder =
+                val songInfoViewHolder =
                     this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
-                if (songViewHolder?.isCurrentSong == false && songViewHolder.binding.songLayout.songInfo.translationX != 0F) {
-                    songViewHolder.swipeToClose()
+                if (songInfoViewHolder?.isCurrentSong == false && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
+                    songInfoViewHolder.resetSwipePosition()
                 }
             }
         }
     }
 
     override fun onCurrentSongShortcutsClosed() {
-        currentSongViewHolder.swipeToClose()
+        currentSongViewHolder.resetSwipePosition()
     }
 
     /**
@@ -378,11 +383,6 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     /**
      * Private methods
      */
-
-    private fun onItemClick(position: Int) {
-        viewModel.select(position)
-        currentSongViewHolder.binding.songLayout.songInfo.translationX = 0F
-    }
 
     private fun updateCurrentSongDisplay() {
         val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()

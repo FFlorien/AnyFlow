@@ -5,12 +5,12 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.di.viewModelFactory
-import be.florien.anyflow.common.ui.list.DetailViewHolderListener
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoViewModel
 import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
 import be.florien.anyflow.feature.library.ui.R
+import be.florien.anyflow.feature.library.ui.list.DetailViewHolderListener
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
 import be.florien.anyflow.management.filters.model.Filter
 

@@ -4,7 +4,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import be.florien.anyflow.common.ui.list.DetailViewHolder
+import be.florien.anyflow.common.ui.list.SwipeActionViewHolder
 import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
 import be.florien.anyflow.common.ui.list.SongListViewHolderListener
 import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
@@ -27,8 +27,7 @@ val diffCallback = object :
 
 class QueueItemAdapter(
     val listener: SongListViewHolderListener,
-    val provider: SongListViewHolderProvider,
-    private val onSongClicked: (Int) -> Unit
+    val provider: SongListViewHolderProvider
 ) : PagingDataAdapter<QueueItemDisplay, SongViewHolder>(diffCallback),
     FastScrollRecyclerView.SectionedAdapter {
 
@@ -40,7 +39,7 @@ class QueueItemAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        SongViewHolder(parent, listener, provider, onSongClicked)
+        SongViewHolder(parent, listener, provider)
 
     fun setSelectedPosition(position: Int) {
         notifyItemChanged(lastPosition)
@@ -52,7 +51,7 @@ class QueueItemAdapter(
 }
 
 open class SongListTouchAdapter : ItemInfoTouchAdapter() {
-    override fun onTouch(viewHolder: DetailViewHolder<*>, event: MotionEvent): Boolean {
+    override fun onTouch(viewHolder: SwipeActionViewHolder, event: MotionEvent): Boolean {
         val parentOnTouch = super.onTouch(viewHolder, event)
         val isHandled = if (viewHolder !is SongViewHolder) {
             parentOnTouch
@@ -62,7 +61,7 @@ open class SongListTouchAdapter : ItemInfoTouchAdapter() {
             parentOnTouch
         }
         if (!isHandled && event.actionMasked == MotionEvent.ACTION_UP) {
-            viewHolder.swipeToClose()
+            viewHolder.resetSwipePosition()
         }
         return isHandled
     }

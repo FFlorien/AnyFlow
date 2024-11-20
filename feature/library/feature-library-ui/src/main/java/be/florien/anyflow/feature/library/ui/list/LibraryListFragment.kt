@@ -15,9 +15,7 @@ import androidx.paging.filter
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.ui.list.DetailViewHolderListener
 import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
-import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
@@ -157,7 +155,7 @@ constructor(
                     val viewHolder =
                         (rv.findContainingViewHolder(childView) as? FilterViewHolder) ?: return
                     if (!onTouch(viewHolder, event)) {
-                        viewHolder.swipeToClose()
+                        viewHolder.resetSwipePosition()
                     }
                 }
 

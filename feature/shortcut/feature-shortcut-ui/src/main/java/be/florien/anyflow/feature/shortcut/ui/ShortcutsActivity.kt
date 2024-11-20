@@ -29,8 +29,8 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val component = (application as ShortcutActivityComponentCreator)
-                .createShortcutActivityComponent()
-                ?: throw IllegalStateException()
+            .createShortcutActivityComponent()
+            ?: throw IllegalStateException()
         component.inject(this)
 
         super.onCreate(savedInstanceState)
@@ -74,6 +74,7 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
             override fun getArtUrl(id: Long, isPodcast: Boolean): String = ""
         }
         val listener = object : SongListViewHolderListener {
+            override fun onItemClick(position: Int) {}
             override fun onShortcut(item: QueueItemDisplay, row: BaseSongInfoRow) {}
             override fun onShortcutOpened(position: Int?) {}
             override fun onCurrentSongShortcutsClosed() {}
@@ -83,7 +84,6 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
             binding.root as ConstraintLayout,
             listener,
             provider,
-            null,
             binding.songExample,
             true
         )
