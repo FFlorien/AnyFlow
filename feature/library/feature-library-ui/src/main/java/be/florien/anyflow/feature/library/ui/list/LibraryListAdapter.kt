@@ -6,8 +6,8 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
-import be.florien.anyflow.common.ui.list.SwipeActionViewHolder
+import be.florien.anyflow.common.widget.BaseSelectableAdapter
+import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.databinding.ItemSelectFilterListBinding
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView

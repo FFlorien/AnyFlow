@@ -64,16 +64,19 @@ android {
 
 dependencies {
     //Modules
+    implementation project(":common-base")
     implementation project(':common-di')
     implementation project(':common-image')
     implementation project(':common-management')
     implementation project(':common-navigation')
-    implementation project(":common-ui")
+    implementation project(':common-resources')
+    implementation project(':common-utils')
     implementation project(':common-ui-domain')
     implementation project(':component-dialog')
     implementation project(':component-info')
     implementation project(':component-menu')
     implementation project(':component-player-controls')
+    implementation project(':component-viewholder')
     implementation project(":data-local")
     implementation project(":data-server")
     implementation project(':feature-alarm-ui')
@@ -108,8 +111,6 @@ dependencies {
     implementation project(':management-filters')
     implementation project(':management-playlist')
     implementation project(':management-podcast')
-    implementation project(':common-resources')
-    implementation project(':common-utils')
     //Android/Kotlin
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'

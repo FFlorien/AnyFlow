@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.alarm.ui.list
 
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.feature.alarm.ui.R
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import be.florien.anyflow.management.alarm.model.Alarm

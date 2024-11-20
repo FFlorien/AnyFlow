@@ -17,7 +17,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.component.player.controls.PlayPauseIconAnimator
 import be.florien.anyflow.component.player.controls.PlayerControls
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository

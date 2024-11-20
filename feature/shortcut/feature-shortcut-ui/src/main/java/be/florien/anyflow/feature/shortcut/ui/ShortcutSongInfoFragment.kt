@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.common.ui.getDisplayWidth
+import be.florien.anyflow.common.base.getDisplayWidth
 import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion.DUMMY_SONG_ID
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow

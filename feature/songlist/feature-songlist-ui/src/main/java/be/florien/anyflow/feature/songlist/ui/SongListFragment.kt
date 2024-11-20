@@ -25,10 +25,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.ui.BaseFragment
-import be.florien.anyflow.common.ui.list.SongListViewHolderListener
-import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
-import be.florien.anyflow.common.ui.list.SongViewHolder
+import be.florien.anyflow.common.base.BaseFragment
+import be.florien.anyflow.component.viewholder.SongListViewHolderListener
+import be.florien.anyflow.component.viewholder.SongListViewHolderProvider
+import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow

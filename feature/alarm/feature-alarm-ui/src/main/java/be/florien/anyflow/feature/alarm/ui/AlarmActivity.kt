@@ -8,7 +8,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.ui.BaseFragment
+import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.component.menu.MenuCoordinator
 import be.florien.anyflow.component.menu.MenuHolder
 import be.florien.anyflow.feature.alarm.ui.add.AddAlarmFragment

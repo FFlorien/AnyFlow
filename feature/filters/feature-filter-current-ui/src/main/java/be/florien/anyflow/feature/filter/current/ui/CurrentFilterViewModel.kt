@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.filter.current.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel

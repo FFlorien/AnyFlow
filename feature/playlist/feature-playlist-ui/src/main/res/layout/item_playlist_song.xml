@@ -23,7 +23,7 @@
 
     </data>
 
-    <be.florien.anyflow.common.ui.CheckableConstraintLayout
+    <be.florien.anyflow.common.widget.CheckableConstraintLayout
         android:id="@+id/songInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,5 +99,5 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="3:45" />
-    </be.florien.anyflow.common.ui.CheckableConstraintLayout>
+    </be.florien.anyflow.common.widget.CheckableConstraintLayout>
 </layout>

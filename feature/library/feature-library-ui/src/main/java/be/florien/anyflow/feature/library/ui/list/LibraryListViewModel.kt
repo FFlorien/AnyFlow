@@ -7,7 +7,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R

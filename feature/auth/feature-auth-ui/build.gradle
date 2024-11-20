@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common-ui')
+    implementation project(":common-base")
     implementation project(':feature-auth-domain')
     implementation project(':common-utils')
 
@@ -34,6 +34,7 @@ dependencies {
     implementation project(':common-logging')
     implementation project(':common-di')
     implementation project(':common-navigation')
+    implementation project(':common-resources')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

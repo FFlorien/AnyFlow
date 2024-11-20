@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.alarm.ui
 
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import javax.inject.Inject
 

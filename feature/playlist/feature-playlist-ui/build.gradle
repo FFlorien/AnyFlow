@@ -28,7 +28,8 @@ android {
 dependencies {
     implementation project(':common-di')
     implementation project(':common-image')
-    implementation project(':common-ui')
+    implementation project(":common-base")
+    implementation project(':common-widget')
     implementation project(':management-playlist')//todo implement repo for here
     implementation project(":common-resources")
 

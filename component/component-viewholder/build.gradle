@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'be.florien.anyflow.component.viewholder'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 23
+    }
+    buildFeatures {
+        dataBinding true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+//todo clean up resources
+
+dependencies {
+    //Modules
+    implementation project(':common-image')
+    implementation project(':common-ui-domain')
+    implementation project(':common-widget')
+    implementation project(':common-resources') //todo useful ?
+    implementation project(':feature-song-base-domain') //todo take songinfoviewholder out of this module
+    implementation project(':management-queue')
+    //Android
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    //DI
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    //Lifecycle
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+}
+apply plugin: 'kotlin-parcelize'

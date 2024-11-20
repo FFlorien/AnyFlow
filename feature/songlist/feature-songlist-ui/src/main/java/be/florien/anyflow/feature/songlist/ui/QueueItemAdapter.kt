@@ -4,11 +4,11 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import be.florien.anyflow.common.ui.list.SwipeActionViewHolder
-import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
-import be.florien.anyflow.common.ui.list.SongListViewHolderListener
-import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
-import be.florien.anyflow.common.ui.list.SongViewHolder
+import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
+import be.florien.anyflow.component.viewholder.ItemInfoTouchAdapter
+import be.florien.anyflow.component.viewholder.SongListViewHolderListener
+import be.florien.anyflow.component.viewholder.SongListViewHolderProvider
+import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 

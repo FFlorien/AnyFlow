@@ -15,7 +15,7 @@ import androidx.paging.filter
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.ui.list.ItemInfoTouchAdapter
+import be.florien.anyflow.component.viewholder.ItemInfoTouchAdapter
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel

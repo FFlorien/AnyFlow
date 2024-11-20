@@ -7,10 +7,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.ui.getDisplayWidth
-import be.florien.anyflow.common.ui.list.SongListViewHolderListener
-import be.florien.anyflow.common.ui.list.SongListViewHolderProvider
-import be.florien.anyflow.common.ui.list.SongViewHolder
+import be.florien.anyflow.common.base.getDisplayWidth
+import be.florien.anyflow.component.viewholder.SongListViewHolderListener
+import be.florien.anyflow.component.viewholder.SongListViewHolderProvider
+import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow

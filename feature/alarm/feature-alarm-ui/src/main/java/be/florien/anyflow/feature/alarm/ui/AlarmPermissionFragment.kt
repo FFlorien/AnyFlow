@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import be.florien.anyflow.common.ui.BaseFragment
+import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.feature.alarm.ui.databinding.FragmentAlarmPermissionBinding
 
 class AlarmPermissionFragment : BaseFragment() {

@@ -14,10 +14,10 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.ui.BaseFragment
+import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.list.BaseSelectableAdapter
-import be.florien.anyflow.common.ui.list.refreshVisibleViewHolders
+import be.florien.anyflow.common.widget.BaseSelectableAdapter
+import be.florien.anyflow.common.base.refreshVisibleViewHolders
 import be.florien.anyflow.component.menu.MenuCoordinator
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.playlist.PlaylistsActivity

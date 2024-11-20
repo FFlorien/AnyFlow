@@ -6,7 +6,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount

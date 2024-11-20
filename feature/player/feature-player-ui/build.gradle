@@ -29,7 +29,7 @@ dependencies {
     implementation project(':common-di')
     implementation project(':common-image')
     implementation project(':common-navigation')
-    implementation project(':common-ui')
+    implementation project(":common-base")
     implementation project(':component-player-controls')
     implementation project(':data-local')
     implementation project(':feature-auth-domain')

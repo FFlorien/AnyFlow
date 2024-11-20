@@ -17,7 +17,7 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.common.di.viewModelFactory
-import be.florien.anyflow.common.ui.BaseFragment
+import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.component.menu.MenuHolder
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
 import be.florien.anyflow.feature.alarm.ui.ConfirmAlarmMenuHolder

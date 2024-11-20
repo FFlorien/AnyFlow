@@ -2,7 +2,7 @@ package be.florien.anyflow.feature.auth.ui.server
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.repository.ServerValidator
 import kotlinx.coroutines.Dispatchers

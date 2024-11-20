@@ -13,7 +13,7 @@ import androidx.media3.session.MediaController
 import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.common.ui.BaseViewModel
+import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
