@@ -36,5 +36,6 @@ dependencies {
     //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
+    implementation project(':common-utils')
 }
 apply plugin: 'kotlin-parcelize'

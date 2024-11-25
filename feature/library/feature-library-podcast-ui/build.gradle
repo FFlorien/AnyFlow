@@ -26,9 +26,11 @@ android {
 }
 
 dependencies {
-    implementation project(':common-di')
     implementation project(":common-base")
+    implementation project(':common-di')
+    implementation project(':common-navigation')
     implementation project(':common-ui-domain')
+    implementation project(':component-info')
     implementation project(':feature-library-domain')
     implementation project(':feature-library-ui')
     implementation project(':feature-library-podcast-domain')
@@ -39,8 +41,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation project(':common-navigation')
-    implementation project(':component-info')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

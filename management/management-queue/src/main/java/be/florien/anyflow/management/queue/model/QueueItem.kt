@@ -1,6 +1,6 @@
 package be.florien.anyflow.management.queue.model
 
-
+import be.florien.anyflow.common.utils.TimeOperations
 
 
 sealed class QueueItemDisplay { //todo this is a bit shit, just sealed class would be better
@@ -12,7 +12,7 @@ sealed class QueueItemDisplay { //todo this is a bit shit, just sealed class wou
     abstract val time: Int
 
     val timeText: String
-        get() = String.format("%d:%02d", time / 60, time % 60)
+        get() = TimeOperations.toMediaDuration(time)
 }
 
 data class SongDisplay(

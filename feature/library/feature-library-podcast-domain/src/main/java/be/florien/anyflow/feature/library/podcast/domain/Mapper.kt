@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.library.podcast.domain
 
+import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
@@ -19,9 +20,10 @@ internal fun PodcastEpisodeDisplay.toFilterItem(
     val filterInHierarchy = parentFilter.withChild(filter)
     return (FilterItem(
         id,
-        "$title\nby $author", //todo wut ? i18n ?  + from ${podcastEpisode.albumName}
+        "$title\nby $podcast", //todo wut ? i18n ?
         filtersManager.isFilterInEdition(filterInHierarchy),
-        urlRepository.getArtUrl("podcast", albumId),
+        urlRepository.getArtUrl("podcast", podcastId),
+        TimeOperations.toMediaDuration(time)
     ))
 }
 

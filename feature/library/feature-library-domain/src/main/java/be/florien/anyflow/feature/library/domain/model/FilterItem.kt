@@ -5,5 +5,6 @@ class FilterItem(
     val id: Long,
     val displayName: String,
     val isSelected: Boolean,
-    val artUrl: String? = null
+    val artUrl: String? = null,
+    val duration: String? = null
 )

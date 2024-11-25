@@ -1,6 +1,7 @@
 package be.florien.anyflow.tags.model
 
 import android.os.Parcelable
+import be.florien.anyflow.common.utils.TimeOperations
 import kotlinx.parcelize.Parcelize
 
 
@@ -26,7 +27,7 @@ data class SongInfo(
     val local: String?
 ) : Parcelable {
     val timeText: String
-        get() = String.format("%d:%02d", time / 60, time % 60)
+        get() = TimeOperations.toMediaDuration(time)
 
     companion object {
         fun dummySongInfo(id: Long = 0L) = SongInfo(

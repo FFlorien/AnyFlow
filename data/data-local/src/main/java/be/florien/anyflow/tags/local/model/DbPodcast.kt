@@ -34,3 +34,11 @@ data class DbPodcastEpisode(
     val played: String,
     val waveForm: String?
 )
+
+class DbPodcastEpisodeDisplay(
+    val id: Long,
+    val title: String,
+    val podcastName: String,
+    val podcastId: Long,
+    val time: Int
+)

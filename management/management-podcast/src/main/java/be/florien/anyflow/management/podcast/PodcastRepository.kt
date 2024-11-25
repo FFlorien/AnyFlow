@@ -4,6 +4,7 @@ import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterPodcastCount
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
+import be.florien.anyflow.tags.local.model.DbPodcastEpisodeDisplay
 import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.toQueryFilters
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class PodcastRepository @Inject constructor(
         libraryDatabase
             .getPodcastEpisodeDao()
             .getPodcastEpisodesPaging()
-            .map(DbPodcastEpisode::toViewPodcastEpisode)
+            .map(DbPodcastEpisodeDisplay::toViewPodcastEpisode)
 
     suspend fun getAllPodcastsEpisodesList() =
         libraryDatabase
