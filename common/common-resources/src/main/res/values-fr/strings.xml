@@ -32,6 +32,8 @@
     <string name="filter_type_search">Recherche</string>
     <string name="library_type_download">Téléchargée</string>
     <string name="library_type_podcast_episode">Épisode de podcast</string>
+    <string name="library_by">Par</string>
+    <string name="library_from">Sur</string>
     <string name="filter_add_error">Vous ne pouvez pas ajouter plus de filtres</string>
     <string name="menu_alarms">Alarmes</string>
     <string name="menu_shortcuts">Raccourcis</string>

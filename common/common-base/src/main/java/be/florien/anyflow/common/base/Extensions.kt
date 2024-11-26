@@ -3,11 +3,14 @@ package be.florien.anyflow.common.base
 import android.app.Activity
 import android.os.Build
 import android.util.DisplayMetrics
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.text.parseAsHtml
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
+import be.florien.anyflow.common.ui.data.TextConfig
 
 fun Activity.getDisplayWidth(): Int {
     return if (Build.VERSION.SDK_INT >= 30) {
@@ -40,4 +43,9 @@ fun RecyclerView.refreshVisibleViewHolders(updateVH: (RecyclerView.ViewHolder) -
         val viewHolder = findViewHolderForAdapterPosition(position)
         viewHolder?.let { updateVH(it) }
     }
+}
+
+@BindingAdapter("textConfig")
+fun TextView.seTextConfigBinding(textConfig: TextConfig?) {
+    text = textConfig?.getText(context.resources)?.parseAsHtml() ?: ""
 }

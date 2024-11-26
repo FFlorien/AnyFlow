@@ -22,7 +22,7 @@ val diffCallback = object : DiffUtil.ItemCallback<FilterItem>() {
         oldItem: FilterItem,
         newItem: FilterItem
     ): Boolean =
-        oldItem.artUrl == newItem.artUrl && oldItem.displayName == newItem.displayName && oldItem.isSelected == newItem.isSelected
+        oldItem.artUrl == newItem.artUrl && oldItem.title == newItem.title && oldItem.isSelected == newItem.isSelected
 }
 
 class FilterListAdapter(
@@ -42,7 +42,7 @@ class FilterListAdapter(
     }
 
     override fun getSectionName(position: Int): String =
-        snapshot()[position]?.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: ""
+        snapshot()[position]?.title?.getText()?.firstOrNull()?.uppercaseChar()?.toString() ?: ""
 }
 
 interface DetailViewHolderListener<T> {

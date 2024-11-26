@@ -38,7 +38,7 @@ class LibrarySongListViewModel @Inject constructor(
             Filter(
                 Filter.FilterType.SONG_IS,
                 filterValue.id,
-                filterValue.displayName
+                filterValue.title.getText()
             )
         )
 }

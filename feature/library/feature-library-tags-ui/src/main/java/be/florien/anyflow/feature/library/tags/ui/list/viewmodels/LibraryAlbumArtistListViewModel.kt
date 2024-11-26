@@ -35,7 +35,7 @@ class LibraryAlbumArtistListViewModel @Inject constructor(
 
     override fun getFilter(filterValue: FilterItem): Filter<*> {
         val filter =
-            Filter(Filter.FilterType.ALBUM_ARTIST_IS, filterValue.id, filterValue.displayName)
+            Filter(Filter.FilterType.ALBUM_ARTIST_IS, filterValue.id, filterValue.title.getText())
         return getFilterInParent(filter)
     }
 }

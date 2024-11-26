@@ -39,7 +39,7 @@ class LibraryPlaylistListViewModel @Inject constructor(
             Filter(
                 Filter.FilterType.PLAYLIST_IS,
                 filterValue.id,
-                filterValue.displayName
+                filterValue.title.getText()
             )
         )
 }

@@ -29,6 +29,8 @@
     <string name="library_type_playlist">Playlist</string>
     <string name="library_type_download">Downloaded</string>
     <string name="library_type_podcast_episode">Podcast episode</string>
+    <string name="library_by">By</string>
+    <string name="library_from">From</string>
     <string name="filter_type_search">Search</string>
     <string name="filter_title_saved">Saved filters</string>
     <string name="filter_add_error">You cannot add anymore filters</string>

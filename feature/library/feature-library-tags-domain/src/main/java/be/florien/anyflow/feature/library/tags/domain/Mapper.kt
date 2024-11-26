@@ -1,5 +1,7 @@
 package be.florien.anyflow.feature.library.tags.domain
 
+import be.florien.anyflow.common.ui.data.TextConfig
+import be.florien.anyflow.common.ui.data.TextConfigStyle
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
@@ -24,9 +26,11 @@ internal fun SongDisplayDomain.toFilterItem(
     val filterWithHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
-        "$title\nby $artistName\nfrom $albumName", //todo wut ? i18n ?
+        TextConfig(title),
         filtersManager.isFilterInEdition(filterWithHierarchy),
-        artUrl
+        artUrl,
+        subtitle = TextConfig(R.string.library_by, nextTextConfig = TextConfig(artistName, TextConfigStyle.BOLD)),
+        subsubtitle = TextConfig(R.string.library_from, nextTextConfig = TextConfig(albumName, TextConfigStyle.ITALIC))
     )
 }
 
@@ -42,7 +46,7 @@ internal fun Artist.toFilterItem(
 
     return FilterItem(
         id,
-        name,
+        TextConfig(name),
         filtersManager.isFilterInEdition(filterWithHierarchy),
         artUrl
     )
@@ -64,9 +68,10 @@ internal fun Album.toFilterItem(
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
-        "$name\nby $albumArtistName",
+        TextConfig(name),
         filtersManager.isFilterInEdition(filterInHierarchy),
-        artUrl
+        artUrl,
+        subtitle = TextConfig(R.string.library_by, nextTextConfig = TextConfig(albumArtistName, TextConfigStyle.BOLD))
     )
 }
 
@@ -78,7 +83,7 @@ internal fun Genre.toFilterItem(
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
-        name,
+        TextConfig(name),
         filtersManager.isFilterInEdition(filterInHierarchy)
     )
 }
@@ -93,7 +98,7 @@ internal fun Playlist.toFilterItem(
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
-        name,
+        TextConfig(name),
         filtersManager.isFilterInEdition(filterInHierarchy),
         artUrl
     )
@@ -109,7 +114,7 @@ internal fun PlaylistWithCount.toFilterItem(
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
-        name,
+        TextConfig(name),
         filtersManager.isFilterInEdition(filterInHierarchy),
         artUrl
     )
@@ -131,7 +136,7 @@ internal fun DownloadedCount.toFilterItem(
     val id = if (isDownloaded) 1L else 0L
     return FilterItem(
         id,
-        name,
+        TextConfig(name),
         filtersManager.isFilterInEdition(filterInHierarchy)
     )
 }

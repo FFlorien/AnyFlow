@@ -55,15 +55,40 @@
             <TextView
                 android:id="@+id/filterName"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/imageSize"
+                android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:gravity="start|center_vertical"
-                android:text="@{item.displayName}"
-                android:textStyle="bold"
+                android:gravity="start"
+                app:textConfig="@{item.title}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/filterSubName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:gravity="start"
+                app:textConfig="@{item.subtitle}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@id/filterName"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/filterSubSubName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:gravity="start"
+                app:textConfig="@{item.subsubtitle}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@id/filterSubName"
                 app:layout_constraintVertical_bias="0.0" />
 
             <TextView

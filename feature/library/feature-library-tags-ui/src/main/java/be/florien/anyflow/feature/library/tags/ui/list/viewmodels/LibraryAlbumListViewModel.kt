@@ -33,7 +33,7 @@ class LibraryAlbumListViewModel @Inject constructor(
             Filter(
                 Filter.FilterType.ALBUM_IS,
                 filterValue.id,
-                filterValue.displayName,
+                filterValue.title.getText(),
                 emptyList()
             )
         )
