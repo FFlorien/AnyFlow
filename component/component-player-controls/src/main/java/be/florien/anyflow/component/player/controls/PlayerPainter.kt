@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import be.florien.anyflow.common.utils.TimeOperations
 
 internal abstract class PlayerPainter(
     private val context: Context,
@@ -381,9 +382,7 @@ internal abstract class PlayerPainter(
 
     private fun computeElapsedDurationText() {
         val playBackTimeInSeconds = duration / 1000
-        val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
-        val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
-        elapsedDurationText = "$minutesDisplay:$secondsDisplay"
+        elapsedDurationText = TimeOperations.toMediaDuration(playBackTimeInSeconds)
     }
 
     private fun computeRemainingDurationText() {
@@ -391,9 +390,8 @@ internal abstract class PlayerPainter(
             context.getString(R.string.player_controls_unknown)
         } else {
             val playBackTimeInSeconds = (totalDuration - duration) / 1000
-            val minutesDisplay = String.format("%02d", (playBackTimeInSeconds / 60))
-            val secondsDisplay = String.format("%02d", (playBackTimeInSeconds % 60))
-            "-$minutesDisplay:$secondsDisplay"
+            val duration = TimeOperations.toMediaDuration(playBackTimeInSeconds)
+            "-$duration"
         }
     }
 
