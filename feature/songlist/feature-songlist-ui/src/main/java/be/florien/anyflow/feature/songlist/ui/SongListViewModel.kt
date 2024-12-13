@@ -14,13 +14,16 @@ import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.base.BaseViewModel
+import be.florien.anyflow.feature.podcast.base.domain.model.BasePodcastInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.feature.song.domain.SongInfoActions
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.queue.PlayingQueue
+import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.DataRepository
@@ -34,10 +37,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-/**
- * Display a list of accounts and play it upon selection.
- */
-
 @ActivityScope
 class SongListViewModel
 @Inject constructor(
@@ -49,34 +48,40 @@ class SongListViewModel
     private val podcastRepository: PodcastRepository,
     internal val navigator: Navigator
 ) : BaseViewModel() {
+    // region fields
+
     var player: MediaController? = null
-    private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
+
+    // list
     val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> =
         playingQueue.queueItemDisplayListUpdater
-    val currentSongDisplay: LiveData<QueueItemDisplay?> =
+    val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
+    val currentQueueItemDisplay: LiveData<QueueItemDisplay?> =
         playingQueue.currentMedia.switchMap { queueItem ->
-            if (queueItem?.mediaType == SONG_MEDIA_TYPE) {
-                queueItem.id.let { id -> dataRepository.getSong(id).map { it.toViewDisplay() } }
+            val id = queueItem?.id
+            if (id == null) {
+                null
+            } else if (queueItem.mediaType == SONG_MEDIA_TYPE) {
+                dataRepository.getSong(id).map { it.toViewDisplay() }
             } else {
-                queueItem?.id?.let { id ->
-                    podcastRepository.getPodcastEpisode(id).map {
-                        it?.toViewPodcastEpisodeDisplay()
-                    }
+                podcastRepository.getPodcastEpisode(id).map {
+                    it?.toViewPodcastEpisodeDisplay()
                 }
             }
         }
-
-    val listPosition: LiveData<Int> = playingQueue.positionUpdater.distinctUntilChanged()
+    val currentSongDisplay: LiveData<SongDisplay?> =
+        currentQueueItemDisplay.map { if (it is SongDisplay) it else null }
+    val currentPodcastDisplay: LiveData<PodcastEpisodeDisplay?> =
+        currentQueueItemDisplay.map { if (it is PodcastEpisodeDisplay) it else null }
+    private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
     val isOrdered: LiveData<Boolean> = playingQueue.isOrderedUpdater
+
+    // search
     val isSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val searchedText: MutableLiveData<String> = MutableLiveData("")
     val searchResults: MutableLiveData<LiveData<List<Long>>?> = MutableLiveData()
     val searchProgression: MutableLiveData<Int> = MutableLiveData(-1)
     val searchProgressionText: MutableLiveData<String> = MutableLiveData("")
-    val playlistListDisplayedFor: LiveData<Triple<Long, SongFieldType, Int>> =
-        MutableLiveData(null)
-    val shortcuts: LiveData<List<BaseSongInfoRow>> =
-        MutableLiveData(songInfoActions.getShortcuts())
     var searchJob: Job? = null
     val searchTextWatcher: TextWatcher = object : TextWatcher {
         private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -98,7 +103,6 @@ class SongListViewModel
             }
         }
     }
-    private var oldLiveData: LiveData<List<Long>>? = null
     private val listObserver = Observer<List<Long>> {
         if (it.isEmpty()) {
             searchProgression.value = -1
@@ -108,6 +112,14 @@ class SongListViewModel
             searchProgressionText.value = "1/${it.size}"
         }
     }
+
+    // song actions
+    val playlistListDisplayedFor: LiveData<Triple<Long, SongFieldType, Int>> =
+        MutableLiveData(null)
+    val shortcuts: LiveData<List<BaseSongInfoRow>> =
+        MutableLiveData(songInfoActions.getShortcuts())
+    private var oldLiveData: LiveData<List<Long>>? = null
+    // endregion
 
     init {
         searchResults.observeForever {
@@ -174,12 +186,15 @@ class SongListViewModel
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    //todo executePodcastAction
-    fun executeSongAction(songDisplay: QueueItemDisplay, row: BaseSongInfoRow) {
-        val fieldType = row.fieldType
-        if (songDisplay !is SongDisplay) {
-            return
+    fun executeAction(queueItem: QueueItemDisplay, row: QueueItemInfoRow<*, *>) {
+        when (queueItem) {
+            is SongDisplay -> executeSongAction(queueItem, row as BaseSongInfoRow)
+            is PodcastEpisodeDisplay -> executePodcastAction(queueItem, row as BasePodcastInfoRow)
         }
+    }
+
+    private fun executeSongAction(songDisplay: SongDisplay, row: BaseSongInfoRow) {
+        val fieldType = row.fieldType
         viewModelScope.launch {
             val songInfo = runBlocking(Dispatchers.IO) {
                 dataRepository.getSongSync(songDisplay.id)
@@ -215,6 +230,13 @@ class SongListViewModel
         }
     }
 
+    private fun executePodcastAction(
+        podcastDisplay: PodcastEpisodeDisplay,
+        row: BasePodcastInfoRow
+    ) {
+
+    }
+
     fun refreshShortcuts() {
         val oldValue = shortcuts.value
         val newValue = songInfoActions.getShortcuts()
@@ -226,8 +248,9 @@ class SongListViewModel
         }
     }
 
-    fun getArtUrl(albumId: Long, isPodcast: Boolean) =
-        if (isPodcast) urlRepository.getPodcastArtUrl(albumId) else urlRepository.getAlbumArtUrl(albumId)
+    fun getSongArtUrl(albumId: Long) = urlRepository.getAlbumArtUrl(albumId)
+
+    fun getPodcastArtUrl(podcastId: Long) = urlRepository.getPodcastArtUrl(podcastId)
 
     /**
      * Private methods

@@ -32,6 +32,7 @@ dependencies {
     implementation project(':common-ui-domain')
     implementation project(':component-image-display')
     implementation project(':component-info')
+    implementation project(':feature-songlist-base-domain')
     implementation project(':feature-song-base-domain')
     implementation project(':data-local')
     implementation project(':management-download')

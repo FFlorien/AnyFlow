@@ -153,6 +153,7 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {
     val podcastTitleNS = podcastTitle
     val podcastTimeNS = podcastTime
     val podcastIdNS = podcastId
+    val podcastNameNS = podcastName
     return if (
         mediaType == SONG_MEDIA_TYPE &&
         songIdNS != null &&
@@ -175,15 +176,15 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {
         podcastEpisodeIdNS != null &&
         podcastTitleNS != null &&
         podcastTimeNS != null &&
+        podcastNameNS != null &&
         podcastIdNS != null
     ) {
         PodcastEpisodeDisplay(
             id = podcastEpisodeIdNS,
             title = podcastTitleNS,
-            artist = podcastAuthor ?: "",
             time = podcastTimeNS,
-            album = podcastName ?: "",
-            albumId = podcastIdNS
+            podcast = podcastNameNS,
+            podcastId = podcastIdNS
         )
     } else {
         throw IllegalArgumentException("DbQueueItemDisplay is not a valid SongDisplay or PodcastEpisodeDisplay\n$this")

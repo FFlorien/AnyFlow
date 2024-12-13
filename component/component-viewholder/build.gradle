@@ -30,7 +30,9 @@ dependencies {
     implementation project(':common-ui-domain')
     implementation project(':common-widget')
     implementation project(':common-resources') //todo useful ?
-    implementation project(':feature-song-base-domain') //todo take songinfoviewholder out of this module
+    implementation project(':feature-podcast-base-domain')
+    implementation project(':feature-songlist-base-domain')
+    implementation project(':feature-song-base-domain')
     implementation project(':management-queue')
     //Android
     implementation 'androidx.core:core-ktx:1.13.1'

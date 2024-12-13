@@ -9,8 +9,8 @@
             type="be.florien.anyflow.common.ui.data.ImageConfig" />
 
         <variable
-            name="song"
-            type="be.florien.anyflow.management.queue.model.SongDisplay" />
+            name="podcast"
+            type="be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay" />
     </data>
 
     <FrameLayout
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/songActions"
+            android:id="@+id/podcastActions"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
@@ -43,9 +43,9 @@
         </LinearLayout>
 
         <include
-            android:id="@+id/songLayout"
-            layout="@layout/layout_song"
-            app:song="@{song}"
+            android:id="@+id/podcastLayout"
+            layout="@layout/layout_podcast"
+            app:podcast="@{podcast}"
             app:art="@{art}"/>
     </FrameLayout>
 </layout>

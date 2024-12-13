@@ -104,14 +104,31 @@
             app:layout_constraintTop_toBottomOf="@+id/search"
             tools:listitem="@layout/item_song" />
 
-        <include
-            android:id="@+id/currentSongDisplay"
-            layout="@layout/item_song"
+        <FrameLayout
+            android:id="@+id/currentQueueItemDisplay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:song="@{viewModel.currentSongDisplay}"
-            tools:visibility="visible" />
+            tools:visibility="visible">
+
+            <include
+                android:id="@+id/currentSongDisplay"
+                layout="@layout/item_song"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:song="@{viewModel.currentSongDisplay}"
+                tools:visibility="visible" />
+
+            <include
+                android:id="@+id/currentPodcastDisplay"
+                layout="@layout/item_podcast"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:podcast="@{viewModel.currentPodcastDisplay}"
+                tools:visibility="visible" />
+        </FrameLayout>
 
         <View
             android:id="@+id/currentSongDisplayTouch"
@@ -119,8 +136,8 @@
             android:layout_height="0dp"
             android:layout_marginRight="@dimen/largeDimen"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/currentSongDisplay"
-            app:layout_constraintTop_toTopOf="@+id/currentSongDisplay"
+            app:layout_constraintBottom_toBottomOf="@+id/currentQueueItemDisplay"
+            app:layout_constraintTop_toTopOf="@+id/currentQueueItemDisplay"
             tools:visibility="visible" />
 
         <TextView

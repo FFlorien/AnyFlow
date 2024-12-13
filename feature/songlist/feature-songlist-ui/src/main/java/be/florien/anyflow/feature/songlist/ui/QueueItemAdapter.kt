@@ -6,40 +6,69 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.component.viewholder.ItemInfoTouchAdapter
-import be.florien.anyflow.component.viewholder.SongListViewHolderListener
-import be.florien.anyflow.component.viewholder.SongListViewHolderProvider
+import be.florien.anyflow.component.viewholder.PodcastViewHolder
+import be.florien.anyflow.component.viewholder.QueueItemViewHolder
+import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
+import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.component.viewholder.SongViewHolder
+import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
+import be.florien.anyflow.management.queue.model.SongDisplay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 
 val diffCallback = object :
     DiffUtil.ItemCallback<QueueItemDisplay>() {
     override fun areItemsTheSame(oldItem: QueueItemDisplay, newItem: QueueItemDisplay) =
-        oldItem.id == newItem.id
+        when (oldItem) {
+            is SongDisplay -> newItem is SongDisplay && oldItem.id == newItem.id
+            is PodcastEpisodeDisplay -> newItem is PodcastEpisodeDisplay && oldItem.id == newItem.id
+        }
 
     override fun areContentsTheSame(oldItem: QueueItemDisplay, newItem: QueueItemDisplay): Boolean =
-        oldItem.artist == newItem.artist
-                && oldItem.album == newItem.album
-                && oldItem.title == newItem.title
+        when (oldItem) {
+            is SongDisplay -> newItem is SongDisplay &&
+                    oldItem.artistName == newItem.artistName
+                    && oldItem.albumName == newItem.albumName
+                    && oldItem.title == newItem.title
+
+            is PodcastEpisodeDisplay -> newItem is PodcastEpisodeDisplay && oldItem.id == newItem.id
+        }
 
 }
 
 class QueueItemAdapter(
-    val listener: SongListViewHolderListener,
-    val provider: SongListViewHolderProvider
-) : PagingDataAdapter<QueueItemDisplay, SongViewHolder>(diffCallback),
+    private val queueItemListener: QueueItemViewHolderListener,
+    private val queueItemProvider: QueueItemViewHolderProvider
+) : PagingDataAdapter<QueueItemDisplay, QueueItemViewHolder<*>>(diffCallback),
     FastScrollRecyclerView.SectionedAdapter {
 
     private var lastPosition = 0
 
-    override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        holder.isCurrentSong = position == provider.getCurrentPosition()
-        holder.bind(getItem(position))
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
+        is SongDisplay -> ITEM_TYPE_SONG
+        is PodcastEpisodeDisplay -> ITEM_TYPE_PODCAST
+        null -> ITEM_TYPE_SONG
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        SongViewHolder(parent, listener, provider)
+        when (viewType) {
+            ITEM_TYPE_SONG -> SongViewHolder(parent, queueItemListener, queueItemProvider)
+            else -> PodcastViewHolder(parent, queueItemListener, queueItemProvider)
+        }
+
+    override fun onBindViewHolder(holder: QueueItemViewHolder<*>, position: Int) {
+        holder.isCurrent = position == queueItemProvider.getCurrentPositionFor()
+        when (holder) {
+            is SongViewHolder -> {
+                holder.bind(getItem(position) as? SongDisplay)
+            }
+
+            is PodcastViewHolder -> {
+                holder.bind(getItem(position) as? PodcastEpisodeDisplay)
+            }
+        }
+    }
 
     fun setSelectedPosition(position: Int) {
         notifyItemChanged(lastPosition)
@@ -48,6 +77,11 @@ class QueueItemAdapter(
     }
 
     override fun getSectionName(position: Int): String = position.toString()
+
+    companion object {
+        const val ITEM_TYPE_SONG = 0
+        const val ITEM_TYPE_PODCAST = 1
+    }
 }
 
 open class SongListTouchAdapter : ItemInfoTouchAdapter() {

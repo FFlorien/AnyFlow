@@ -36,6 +36,7 @@ dependencies {
     implementation project(':management-queue')
     implementation project(':management-tags')
     implementation project(':common-navigation')
+    implementation project(':feature-songlist-base-domain')
     implementation project(':feature-song-base-domain')
     implementation project(':component-info')
     implementation project(':component-viewholder')

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'be.florien.anyflow.feature.song.base.domain'
+    namespace 'be.florien.anyflow.feature.podcast.base.domain'
     compileSdk 34
 
     defaultConfig {
@@ -27,7 +27,6 @@ android {
 
 dependencies {
 
-    implementation project(":feature-songlist-base-domain")
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -35,6 +34,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation project(':data-local')
     implementation project(':common-resources')
+    implementation project(':feature-songlist-base-domain')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }

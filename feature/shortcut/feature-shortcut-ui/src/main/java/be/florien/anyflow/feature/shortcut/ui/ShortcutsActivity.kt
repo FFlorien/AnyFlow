@@ -8,13 +8,13 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.base.getDisplayWidth
-import be.florien.anyflow.component.viewholder.SongListViewHolderListener
-import be.florien.anyflow.component.viewholder.SongListViewHolderProvider
+import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
+import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.feature.shortcut.ui.databinding.ActivityShortcutBinding
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponentCreator
-import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongInfoFragment
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import javax.inject.Inject
 
@@ -67,18 +67,18 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
     }
 
     private fun initSongExample() {
-        val provider = object : SongListViewHolderProvider {
+        val provider = object : QueueItemViewHolderProvider {
             override fun getShortcuts() = viewModel.shortcutsList
-            override fun getCurrentPosition(): Int = 0
-            override fun getCurrentSongTranslationX(): Float = 0F
-            override fun getArtUrl(id: Long, isPodcast: Boolean): String = ""
+            override fun getCurrentPositionFor(): Int = 0
+            override fun getCurrentTranslationX(): Float = 0F
+            override fun getArtUrl(item: QueueItemDisplay): String = ""
         }
-        val listener = object : SongListViewHolderListener {
+        val listener = object : QueueItemViewHolderListener {
             override fun onItemClick(position: Int) {}
-            override fun onShortcut(item: QueueItemDisplay, row: BaseSongInfoRow) {}
-            override fun onShortcutOpened(position: Int?) {}
-            override fun onCurrentSongShortcutsClosed() {}
+            override fun onShortcut(item: QueueItemDisplay, row: QueueItemInfoRow<*,*>) {}
+            override fun onCurrentShortcutsClosed() {}
             override fun onInfoDisplayAsked(item: QueueItemDisplay) {}
+            override fun onShortcutOpened(position: Int?) {}
         }
         shortcutExample = SongViewHolder(
             binding.root as ConstraintLayout,

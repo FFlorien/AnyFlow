@@ -36,6 +36,8 @@ dependencies {
     implementation project(':feature-song-base-ui')
     implementation project(':feature-song-ui')
     implementation project(':feature-player-service')
+    implementation project(':feature-podcast-base-domain')
+    implementation project(':feature-songlist-base-domain')
     implementation project(':feature-song-domain')
     implementation project(':management-download')
     implementation project(':management-filters')
@@ -56,6 +58,7 @@ dependencies {
     implementation project(':feature-song-base-domain')
     implementation project(':component-menu')
     implementation project(':component-viewholder')
+    implementation project(':common-logging')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }

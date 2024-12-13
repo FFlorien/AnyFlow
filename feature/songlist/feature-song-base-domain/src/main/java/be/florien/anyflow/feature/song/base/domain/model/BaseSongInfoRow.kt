@@ -4,13 +4,17 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import be.florien.anyflow.feature.song.base.domain.R
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemActionType
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemFieldType
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 
 
 enum class SongFieldType(
-    @DrawableRes val iconRes: Int,
+    @DrawableRes
+    override val iconRes: Int,
     @StringRes val titleRes: Int
-) {
+): QueueItemFieldType {
     Title(R.drawable.ic_song, R.string.info_title),
     Track(R.drawable.ic_track, R.string.info_track),
     Artist(R.drawable.ic_artist, R.string.info_artist),
@@ -24,9 +28,10 @@ enum class SongFieldType(
 }
 
 enum class SongActionType(
-    @DrawableRes val iconRes: Int,
+    @DrawableRes
+    override val iconRes: Int,
     @StringRes val titleRes: Int
-) {
+): QueueItemActionType {
     None(0, 0),
     InfoTitle(0, 0),
     ExpandableTitle(R.drawable.ic_next_occurence, 0),
@@ -38,9 +43,9 @@ enum class SongActionType(
 }
 
 sealed class BaseSongInfoRow(
-    open val fieldType: SongFieldType,
-    open val actionType: SongActionType
-) {
+    override val fieldType: SongFieldType,
+    override val actionType: SongActionType
+): QueueItemInfoRow<SongFieldType, SongActionType> {
 
     interface SongMultipleInfoRow {
         val index: Int

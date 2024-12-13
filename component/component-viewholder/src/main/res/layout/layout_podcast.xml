@@ -10,8 +10,8 @@
             type="be.florien.anyflow.common.ui.data.ImageConfig" />
 
         <variable
-            name="song"
-            type="be.florien.anyflow.management.queue.model.SongDisplay" />
+            name="podcast"
+            type="be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay" />
 
         <variable
             name="current"
@@ -24,7 +24,7 @@
     </data>
 
     <be.florien.anyflow.common.widget.CheckableConstraintLayout
-        android:id="@+id/songInfo"
+        android:id="@+id/podcastInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_blue_selectable_ripple"
@@ -55,47 +55,35 @@
             app:layout_constraintTop_toTopOf="@id/cover" />
 
         <TextView
-            android:id="@+id/songTitle"
+            android:id="@+id/podcastTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/smallDimen"
-            android:text="@{song.title}"
+            android:text="@{podcast.title}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="This song's title" />
+            tools:text="This podcast's title" />
 
         <TextView
-            android:id="@+id/songArtist"
+            android:id="@+id/podcast"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/smallDimen"
-            android:text="@{song.artistName}"
+            android:text="@{podcast.podcast}"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
-            app:layout_constraintTop_toBottomOf="@+id/songTitle"
-            tools:text="This artist's name" />
-
-        <TextView
-            android:id="@+id/songAlbum"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/smallDimen"
-            android:text="@{song.albumName}"
-            android:textStyle="italic"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/cover"
-            app:layout_constraintTop_toBottomOf="@+id/songArtist"
+            app:layout_constraintTop_toBottomOf="@+id/podcastTitle"
             tools:text="This album's name" />
 
         <TextView
-            android:id="@+id/songDuration"
+            android:id="@+id/podcastDuration"
             style="@style/Chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_corner_radius_partial"
-            android:text="@{song.timeText}"
+            android:text="@{podcast.timeText}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="3:45" />

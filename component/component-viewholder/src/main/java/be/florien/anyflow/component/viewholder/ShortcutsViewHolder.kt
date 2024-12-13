@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.component.viewholder.R
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import kotlin.math.absoluteValue
 
 
@@ -16,10 +16,10 @@ abstract class ShortcutsViewHolder(
     topView: View,
     hiddenView: View,
     protected val shortcutsContainer: ViewGroup,
-    private val getShortcuts: () -> List<Any>
+    private val getShortcuts: () -> List<QueueItemInfoRow<*, *>>
 ) : SwipeActionViewHolder(view, topView, hiddenView) {
 
-    abstract fun View.bindShortcut(action: Any)
+    abstract fun View.bindShortcut(action: QueueItemInfoRow<*, *>)
     abstract fun performDefaultShortcut()
     abstract fun onShortcutOpened(position: Int?)
 
@@ -54,7 +54,10 @@ abstract class ShortcutsViewHolder(
     fun setShortcuts() {
         val childCount = shortcutsContainer.childCount
         if (childCount > emptyShortcutViewCount) {
-            shortcutsContainer.removeViews(emptyShortcutViewCount, childCount - emptyShortcutViewCount)
+            shortcutsContainer.removeViews(
+                emptyShortcutViewCount,
+                childCount - emptyShortcutViewCount
+            )
         }
         val newActions = getShortcuts().reversed()
         for (action in newActions) {

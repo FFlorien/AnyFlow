@@ -3,50 +3,49 @@ package be.florien.anyflow.component.viewholder
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.component.viewholder.databinding.ItemSongBinding
-import be.florien.anyflow.management.queue.model.SongDisplay
+import be.florien.anyflow.component.viewholder.databinding.ItemPodcastBinding
+import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 
-
-class SongViewHolder(
+class PodcastViewHolder(
     parent: ViewGroup,
     listener: QueueItemViewHolderListener,
     provider: QueueItemViewHolderProvider,
-    val binding: ItemSongBinding = ItemSongBinding.inflate(
+    val binding: ItemPodcastBinding = ItemPodcastBinding.inflate(
         LayoutInflater.from(parent.context),
         parent,
         false
     ),
     shouldAlwaysShowShortcuts: Boolean = false
-) : QueueItemViewHolder<SongDisplay>(
+) : QueueItemViewHolder<PodcastEpisodeDisplay>(
     listener,
     provider,
     shouldAlwaysShowShortcuts,
     binding.root,
-    binding.songLayout.songInfo,
+    binding.podcastLayout.podcastInfo,
     binding.infoView,
-    binding.songActions
+    binding.podcastActions
 ) {
 
-    override val item: SongDisplay?
-        get() = binding.song
+    override val item: PodcastEpisodeDisplay?
+        get() = binding.podcast
 
     /**
      * Public method
      */
 
-    override fun bind(queueItem: SongDisplay?) {
-        binding.song = queueItem
+    override fun bind(queueItem: PodcastEpisodeDisplay?) {
+        binding.podcast = queueItem
         queueItem?.let {
             binding.art = ImageConfig(
                 url = provider.getArtUrl(it),
                 resource = R.drawable.cover_placeholder
             )
         }
-        binding.songLayout.songInfo.translationX = if (isCurrent) {
+        binding.podcastLayout.podcastInfo.translationX = if (isCurrent) {
             provider.getCurrentTranslationX()
         } else {
             0F
         }
-        binding.songLayout.current = isCurrent
+        binding.podcastLayout.current = isCurrent
     }
 }

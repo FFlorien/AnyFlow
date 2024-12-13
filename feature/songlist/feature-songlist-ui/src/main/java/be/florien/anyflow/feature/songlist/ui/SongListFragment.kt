@@ -26,14 +26,18 @@ import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.base.BaseFragment
-import be.florien.anyflow.component.viewholder.SongListViewHolderListener
-import be.florien.anyflow.component.viewholder.SongListViewHolderProvider
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
+import be.florien.anyflow.component.viewholder.PodcastViewHolder
+import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
+import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment
+import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
+import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import com.google.common.util.concurrent.MoreExecutors
@@ -48,7 +52,7 @@ import kotlinx.coroutines.launch
  */
 @ActivityScope
 class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
-    SongListViewHolderListener, SongListViewHolderProvider {
+    QueueItemViewHolderListener, QueueItemViewHolderProvider {
     override fun getTitle(): String = getString(R.string.player_playing_now)
 
     lateinit var viewModel: SongListViewModel
@@ -56,6 +60,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     private lateinit var binding: FragmentSongListBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var currentSongViewHolder: SongViewHolder
+    private lateinit var currentPodcastViewHolder: PodcastViewHolder
     private var shouldHideLoading = false
     private var isLoadingVisible = false
     private var visibilityJob: Job? = null
@@ -84,9 +89,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         get() =
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
-                clear(R.id.currentSongDisplay, ConstraintSet.BOTTOM)
+                clear(R.id.currentQueueItemDisplay, ConstraintSet.BOTTOM)
                 connect(
-                    R.id.currentSongDisplay,
+                    R.id.currentQueueItemDisplay,
                     ConstraintSet.TOP,
                     R.id.songList,
                     ConstraintSet.TOP
@@ -96,9 +101,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         get() =
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
-                clear(R.id.currentSongDisplay, ConstraintSet.TOP)
+                clear(R.id.currentQueueItemDisplay, ConstraintSet.TOP)
                 connect(
-                    R.id.currentSongDisplay,
+                    R.id.currentQueueItemDisplay,
                     ConstraintSet.BOTTOM,
                     R.id.songList,
                     ConstraintSet.BOTTOM
@@ -138,7 +143,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.viewModel = viewModel
         currentSongViewHolder =
             SongViewHolder(binding.root as ViewGroup, this, this, binding.currentSongDisplay)
-        currentSongViewHolder.isCurrentSong = true
+        currentSongViewHolder.isCurrent = true
+        currentPodcastViewHolder =
+            PodcastViewHolder(binding.root as ViewGroup, this, this, binding.currentPodcastDisplay)
+        currentPodcastViewHolder.isCurrent = true
 
 
         (requireActivity() as MenuCoordinatorHolder).menuCoordinator.addMenuHolder(orderMenu)
@@ -218,7 +226,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             }
         })
 
-        binding.currentSongDisplay.root.elevation = resources.getDimension(R.dimen.smallDimen)
+        binding.currentQueueItemDisplay.elevation = resources.getDimension(R.dimen.smallDimen)
         binding.currentSongDisplayTouch.elevation = resources.getDimension(R.dimen.mediumDimen)
         binding.loadingText.elevation = resources.getDimension(R.dimen.mediumDimen)
         viewModel.pagedAudioQueue.observe(viewLifecycleOwner) {
@@ -228,9 +236,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             }
         }
         viewModel.currentSongDisplay.observe(viewLifecycleOwner) {
-            if (it != null) {
-                currentSongViewHolder.bind(it)
-            }
+            currentSongViewHolder.bind(it)
+        }
+        viewModel.currentPodcastDisplay.observe(viewLifecycleOwner) {
+            currentPodcastViewHolder.bind(it)
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             queueItemAdapter.setSelectedPosition(it)
@@ -315,15 +324,15 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onShortcut(
         item: QueueItemDisplay,
-        row: BaseSongInfoRow
+        row: QueueItemInfoRow<*, *>
     ) {
-        viewModel.executeSongAction(item, row)
+        viewModel.executeAction(item, row)
     }
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
-        if (item is SongDisplay) {
-            SongInfoFragment(item.id)
-                .show(childFragmentManager, "info")
+        when (item) {
+            is SongDisplay -> SongInfoFragment(item.id).show(childFragmentManager, "info")
+            is PodcastEpisodeDisplay -> iLog("PodcastInfoFragment doesn't exist yet")
         }
     }
 
@@ -333,7 +342,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             val stop = linearLayoutManager.findLastVisibleItemPosition()
             for (i in start..stop) {
                 val songInfoViewHolder =
-                    binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
+                    binding.songList.findViewHolderForAdapterPosition(i) as SongViewHolder
                 if (i != position && songInfoViewHolder != null && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
                     songInfoViewHolder.resetSwipePosition()
                 }
@@ -354,14 +363,14 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             for (i in start..stop) {
                 val songInfoViewHolder =
                     this@SongListFragment.binding.songList.findViewHolderForAdapterPosition(i) as? SongViewHolder
-                if (songInfoViewHolder?.isCurrentSong == false && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
+                if (songInfoViewHolder?.isCurrent == false && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
                     songInfoViewHolder.resetSwipePosition()
                 }
             }
         }
     }
 
-    override fun onCurrentSongShortcutsClosed() {
+    override fun onCurrentShortcutsClosed() {
         currentSongViewHolder.resetSwipePosition()
     }
 
@@ -369,15 +378,17 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * ViewHolder's provider
      */
 
-    override fun getArtUrl(id: Long, isPodcast: Boolean): String =
-        viewModel.getArtUrl(id, isPodcast)
+    override fun getArtUrl(item: QueueItemDisplay): String = when (item) {
+        is SongDisplay -> viewModel.getSongArtUrl(item.albumId)
+        is PodcastEpisodeDisplay -> viewModel.getPodcastArtUrl(item.podcastId)
+    }
 
     override fun getShortcuts(): List<BaseSongInfoRow> =
         viewModel.shortcuts.value ?: emptyList()
 
-    override fun getCurrentPosition() = viewModel.listPosition.value ?: -1
+    override fun getCurrentPositionFor() = viewModel.listPosition.value ?: -1
 
-    override fun getCurrentSongTranslationX() =
+    override fun getCurrentTranslationX() =
         currentSongViewHolder.binding.songLayout.songInfo.translationX
 
     /**
@@ -392,14 +403,23 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             viewModel.listPosition.value in firstVisibleItemPosition..lastVisibleItemPosition
             || (viewModel.searchProgression.value ?: -1) >= 0
         ) {
-            binding.currentSongDisplay.root.visibility = View.GONE
+            binding.currentQueueItemDisplay.visibility = View.GONE
             binding.currentSongDisplayTouch.visibility = View.GONE
         } else {
-
-            if (binding.currentSongDisplay.root.visibility != View.VISIBLE) {
-                binding.currentSongDisplay.root.visibility = View.VISIBLE
-                binding.currentSongDisplayTouch.visibility = View.VISIBLE
+            val currentQueueItemVisible: View
+            val currentQueueItemHidden: View
+            if (viewModel.currentQueueItemDisplay.value is SongDisplay) {
+                currentQueueItemVisible = binding.currentSongDisplay.root
+                currentQueueItemHidden = binding.currentPodcastDisplay.root
+            } else {
+                currentQueueItemVisible = binding.currentPodcastDisplay.root
+                currentQueueItemHidden = binding.currentSongDisplay.root
             }
+
+            currentQueueItemVisible.visibility = View.VISIBLE
+            binding.currentQueueItemDisplay.visibility = View.VISIBLE
+            binding.currentSongDisplayTouch.visibility = View.VISIBLE
+            currentQueueItemHidden.visibility = View.INVISIBLE
 
             if ((viewModel.listPosition.value ?: 0) < firstVisibleItemPosition) {
                 topSet.applyTo(binding.root as ConstraintLayout?)
