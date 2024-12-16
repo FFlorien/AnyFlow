@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_corner_radius_partial"
             android:text="@{podcast.timeText}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/cover"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="3:45" />
     </be.florien.anyflow.common.widget.CheckableConstraintLayout>

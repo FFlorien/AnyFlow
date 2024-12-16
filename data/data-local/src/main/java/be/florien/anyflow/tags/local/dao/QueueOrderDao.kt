@@ -37,7 +37,7 @@ abstract class QueueOrderDao : BaseDao<DbQueueOrder>() {
 
     @Transaction
     @Query(
-        "SELECT queueorder.mediatype AS mediaType, song.id AS songId, song.title AS songTitle, artist.name AS songArtistName, album.name AS songAlbumName, album.id AS songAlbumId, song.time AS songTime, podcastepisode.id as podcastEpisodeId, podcastepisode.podcastid as podcastId, podcastepisode.title as podcastTitle, podcast.name as podcastName, podcastepisode.time as podcastTime " +
+        "SELECT queueorder.mediatype AS mediaType, song.id AS songId, song.title AS songTitle, artist.name AS songArtistName, album.name AS songAlbumName, album.id AS songAlbumId, song.time AS songTime, podcastepisode.id as podcastEpisodeId, podcastepisode.podcastid as podcastId, podcastepisode.title as podcastTitle, podcast.name as podcastName, podcastepisode.time as podcastTime, podcastEpisode.description as podcastDescription " +
                 "FROM QueueOrder " +
                 "LEFT JOIN song ON song.id = queueorder.id LEFT JOIN artist ON song.artistId = artist.id LEFT JOIN album ON song.albumId = album.id " +
                 "LEFT JOIN podcastepisode on podcastepisode.id = queueorder.id LEFT JOIN podcast on podcastepisode.podcastId = podcast.id " +

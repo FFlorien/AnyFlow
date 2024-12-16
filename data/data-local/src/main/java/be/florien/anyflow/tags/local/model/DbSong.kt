@@ -84,7 +84,8 @@ data class DbQueueItemDisplay(
     val podcastTitle: String?,
     val podcastName: String?,
     val podcastTime: Int?,
-    val podcastId: Long?
+    val podcastId: Long?,
+    val podcastDescription: String?
 )
 
 data class DbSongId(

@@ -13,39 +13,46 @@
             type="be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay" />
     </data>
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/container"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/podcastActions"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:background="@color/accentBackground"
-            android:gravity="end|center_vertical"
-            android:orientation="horizontal">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/infoView"
-                android:layout_width="@dimen/minClickableSize"
-                android:layout_height="@dimen/minClickableSize"
-                android:layout_gravity="center_vertical"
-                android:padding="@dimen/smallDimen"
-                android:src="@drawable/ic_info" />
-
-            <View
-                android:id="@+id/actionsPadding"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/podcastActions"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_gravity="end"
+                android:background="@color/accentBackground"
+                android:gravity="end|center_vertical"
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/infoView"
+                    android:layout_width="@dimen/minClickableSize"
+                    android:layout_height="@dimen/minClickableSize"
+                    android:layout_gravity="center_vertical"
+                    android:padding="@dimen/smallDimen"
+                    android:src="@drawable/ic_info" />
 
-        <include
-            android:id="@+id/podcastLayout"
-            layout="@layout/layout_podcast"
-            app:podcast="@{podcast}"
-            app:art="@{art}"/>
-    </FrameLayout>
+                <View
+                    android:id="@+id/actionsPadding"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <include
+                android:id="@+id/podcastLayout"
+                layout="@layout/layout_podcast"
+                app:art="@{art}"
+                app:podcast="@{podcast}" />
+        </FrameLayout>
+    </LinearLayout>
 </layout>

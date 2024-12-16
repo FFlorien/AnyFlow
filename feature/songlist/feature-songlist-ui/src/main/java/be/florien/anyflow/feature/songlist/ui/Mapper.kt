@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.songlist.ui
 
+import androidx.core.text.HtmlCompat
 import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
@@ -34,5 +35,9 @@ fun DbPodcastEpisodeDisplay.toViewPodcastEpisodeDisplay() = PodcastEpisodeDispla
     title = title,
     time = time,
     podcast = podcastName,
-    podcastId = podcastId
+    podcastId = podcastId,
+    description = HtmlCompat.fromHtml(
+        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_COMPACT).toString(),
+        HtmlCompat.FROM_HTML_MODE_COMPACT
+    ).toString()
 )

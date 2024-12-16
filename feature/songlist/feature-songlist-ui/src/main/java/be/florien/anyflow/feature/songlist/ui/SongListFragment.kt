@@ -30,6 +30,7 @@ import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
+import be.florien.anyflow.component.viewholder.PodcastViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.feature.player.service.PlayerService
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
  */
 @ActivityScope
 class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
-    QueueItemViewHolderListener, QueueItemViewHolderProvider {
+    QueueItemViewHolderListener, QueueItemViewHolderProvider, PodcastViewHolderListener {
     override fun getTitle(): String = getString(R.string.player_playing_now)
 
     lateinit var viewModel: SongListViewModel
@@ -145,7 +146,14 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             SongViewHolder(binding.root as ViewGroup, this, this, binding.currentSongDisplay)
         currentSongViewHolder.isCurrent = true
         currentPodcastViewHolder =
-            PodcastViewHolder(binding.root as ViewGroup, this, this, binding.currentPodcastDisplay)
+            PodcastViewHolder(
+                binding.root as ViewGroup,
+                this,
+                this,
+                this,
+                binding.currentPodcastDisplay,
+                false
+            )
         currentPodcastViewHolder.isCurrent = true
 
 
@@ -156,7 +164,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.adapter = QueueItemAdapter(this, this)
+        binding.songList.adapter = QueueItemAdapter(this, this, this)
 
         lifecycleScope.launch {
             (queueItemAdapter).loadStateFlow.collectLatest {
@@ -477,5 +485,9 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             holder.setShortcuts()
         }
         currentSongViewHolder.setShortcuts()
+    }
+
+    override fun onTimeStampClicked(time: Long) { //todo viewmodel this ?
+        viewModel.player?.seekTo(time * 1000)
     }
 }

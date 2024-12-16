@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.text.HtmlCompat
 import androidx.core.text.parseAsHtml
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.GridLayoutManager
@@ -48,4 +49,9 @@ fun RecyclerView.refreshVisibleViewHolders(updateVH: (RecyclerView.ViewHolder) -
 @BindingAdapter("textConfig")
 fun TextView.seTextConfigBinding(textConfig: TextConfig?) {
     text = textConfig?.getText(context.resources)?.parseAsHtml() ?: ""
+}
+
+@BindingAdapter(value = ["htmlText"])
+fun TextView.setHtmlText(string: String?) {
+    text = HtmlCompat.fromHtml(string ?: "", HtmlCompat.FROM_HTML_MODE_COMPACT)
 }

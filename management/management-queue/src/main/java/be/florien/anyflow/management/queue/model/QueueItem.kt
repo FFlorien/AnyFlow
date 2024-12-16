@@ -22,9 +22,16 @@ data class PodcastEpisodeDisplay(
     val title: String,
     val podcast: String,
     val podcastId: Long,
-    val time: Int
+    val description: String,
+    val time: Int,
+    val timeStamps: List<TimeStamp> = emptyList()
 ) : QueueItemDisplay {
 
     val timeText: String
         get() = TimeOperations.toMediaDuration(time)
 }
+
+data class TimeStamp(
+    val time: Long,
+    val text: String
+)

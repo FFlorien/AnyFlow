@@ -1,5 +1,6 @@
 package be.florien.anyflow.management.queue
 
+import androidx.core.text.HtmlCompat
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterGroup
 import be.florien.anyflow.management.queue.model.Ordering
@@ -16,6 +17,7 @@ import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_YEAR
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
+import be.florien.anyflow.management.queue.model.TimeStamp
 import be.florien.anyflow.tags.local.model.DbFilter
 import be.florien.anyflow.tags.local.model.DbFilterGroup
 import be.florien.anyflow.tags.local.model.DbOrdering
@@ -154,6 +156,7 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {
     val podcastTimeNS = podcastTime
     val podcastIdNS = podcastId
     val podcastNameNS = podcastName
+    val podcastDescriptionNS = podcastDescription
     return if (
         mediaType == SONG_MEDIA_TYPE &&
         songIdNS != null &&
@@ -177,14 +180,35 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {
         podcastTitleNS != null &&
         podcastTimeNS != null &&
         podcastNameNS != null &&
-        podcastIdNS != null
+        podcastIdNS != null &&
+        podcastDescriptionNS != null
     ) {
+        val podcastDescriptionHtmlEscaped = HtmlCompat.fromHtml(
+            podcastDescriptionNS,
+            HtmlCompat.FROM_HTML_MODE_COMPACT
+        ).toString()
+        val timestampRegex = Regex("(<[a-zA-Z]+>)*\\(?\\{?\\[?([0-5]?\\d:)?[0-5]?\\d:[0-5]\\d\\)?\\}?]?")
+        val digitsRegex = Regex("([0-5]?\\d)")
+        val timeStampsTimes = timestampRegex.findAll(podcastDescriptionHtmlEscaped)
+        val timeStamps = mutableListOf<TimeStamp>()
+        timeStampsTimes.forEach { timeStamp ->
+            val next = timeStamp.next()
+            val end = next?.range?.start ?: podcastDescriptionHtmlEscaped.length
+            var time = 0L
+            digitsRegex.findAll(timeStamp.value).forEach {
+                time = (time * 60) + it.value.toLong()
+            }
+            val text = podcastDescriptionHtmlEscaped.substring(timeStamp.range.first, end)
+            timeStamps += TimeStamp(time, text)
+        }
         PodcastEpisodeDisplay(
             id = podcastEpisodeIdNS,
             title = podcastTitleNS,
             time = podcastTimeNS,
             podcast = podcastNameNS,
-            podcastId = podcastIdNS
+            podcastId = podcastIdNS,
+            description = podcastDescriptionHtmlEscaped,
+            timeStamps = timeStamps
         )
     } else {
         throw IllegalArgumentException("DbQueueItemDisplay is not a valid SongDisplay or PodcastEpisodeDisplay\n$this")
