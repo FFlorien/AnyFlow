@@ -1,9 +1,15 @@
 package be.florien.anyflow.feature.sync.service
 
+import android.content.Context
 import android.content.SharedPreferences
+import android.text.format.DateFormat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.iLog
+import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.common.utils.applyPutLong
 import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
 import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
 import be.florien.anyflow.data.server.model.AmpacheAlbum
@@ -11,18 +17,17 @@ import be.florien.anyflow.data.server.model.AmpacheApiListResponse
 import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheNameId
 import be.florien.anyflow.data.server.model.AmpachePlayList
+import be.florien.anyflow.data.server.model.AmpachePlaylistObject
 import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
-import be.florien.anyflow.common.logging.eLog
-import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.tags.local.LibraryDatabase
-import be.florien.anyflow.common.utils.TimeOperations
-import be.florien.anyflow.common.utils.applyPutLong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.OutputStreamWriter
 import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -35,7 +40,8 @@ class SyncRepository
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
     private val ampachePodcastSource: AmpachePodcastSource,
-    @Named("preferences") private val sharedPreferences: SharedPreferences
+    @Named("preferences") private val sharedPreferences: SharedPreferences,
+    private val context: Context
 ) {
     val songsPercentageUpdater = MutableLiveData(-1)
     val genresPercentageUpdater = MutableLiveData(-1)
@@ -89,10 +95,11 @@ class SyncRepository
         newAlbums()
         notifyUpdate(CHANGE_GENRES)
         newSongs()
-        val initialDeletedCount = (ampacheDataSource.getDeletedSongs(0, 0) as? be.florien.anyflow.data.server.NetSuccess)
-            ?.data
-            ?.total_count
-            ?: 0
+        val initialDeletedCount =
+            (ampacheDataSource.getDeletedSongs(0, 0) as? be.florien.anyflow.data.server.NetSuccess)
+                ?.data
+                ?.total_count
+                ?: 0
         val currentMillis = TimeOperations.getCurrentDate().timeInMillis
         sharedPreferences.edit().apply {
             putLong(LAST_UPDATE_QUERY, currentMillis)
@@ -168,7 +175,7 @@ class SyncRepository
             libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
-    suspend fun playlists() {
+    private suspend fun playlists() {
         notifyUpdate(CHANGE_PLAYLISTS)
         val playlists = ampacheDataSource.getPlaylists()
         val playlistSongs = ampacheDataSource.getPlaylistsWithSongs()
@@ -194,9 +201,33 @@ class SyncRepository
             libraryDatabase.getPlaylistDao()
                 .upsert(renamedPlaylists.map(AmpachePlayList::toDbPlaylist))
 
+            writePlaylistToFile(playlistSongs.data.playlistList.playlists, playlists.data.list)
+
             val playlistSongsDb = playlistSongs.data.playlistList.toDbPlaylistSongs()
             libraryDatabase.getPlaylistSongsDao().upsert(playlistSongsDb)
         }
+    }
+
+    private suspend fun writePlaylistToFile(
+        playlistSongs: Map<String, List<AmpachePlaylistObject>>,
+        playlist: List<AmpachePlayList>
+    ) = withContext(Dispatchers.IO) {
+        val dateFormatted = DateFormat.format("yyyyMMdd-HH:mm:ss", Date())
+        val name = "Playlist-$dateFormatted.json"
+        val content = playlistSongs
+            .entries
+            .sortedBy { it.key }
+            .joinToString(separator = ",", prefix = "{", postfix = "}") { entry ->
+                val playlistName = playlist.firstOrNull { it.id.toString() == entry.key }?.name
+                    ?: "entry.key"
+                val values = entry.value
+                    .sortedBy { it.id }
+                    .joinToString(separator = ",") { it.id.toString() }
+                "\"$playlistName\" : [$values]"
+            }
+        val writer = OutputStreamWriter(context.openFileOutput(name, Context.MODE_PRIVATE))
+        writer.write(content)
+        writer.close()
     }
 
     private suspend fun podcasts() {
@@ -450,12 +481,6 @@ class SyncRepository
         private const val ITEM_LIMIT: Int = 250
 
         private const val LAST_UPDATE_QUERY = "LAST_UPDATE_QUERY"
-
-        const val ART_TYPE_SONG = "song"
-        const val ART_TYPE_ALBUM = "album"
-        const val ART_TYPE_ARTIST = "artist"
-        const val ART_TYPE_PLAYLIST = "playlist"
-        const val ART_TYPE_PODCAST = "podcast"
 
         private const val OFFSET_SONG = "OFFSET_SONG"
         private const val OFFSET_GENRE = "OFFSET_GENRE"
