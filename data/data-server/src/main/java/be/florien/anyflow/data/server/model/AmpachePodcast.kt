@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
-/**
- * Server-side data structures that relates to podcasts
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpachePodcastsResponse: AmpacheApiListResponse<AmpachePodcast>() {
+    @JsonProperty(value = "podcast")
+    override var list: List<AmpachePodcast> = mutableListOf()
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -43,8 +45,3 @@ class AmpachePodcastEpisode {
     var played: String = ""
 }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class AmpachePodcastsResponse: AmpacheApiListResponse<AmpachePodcast>() {
-    @JsonProperty(value = "podcast")
-    override var list: List<AmpachePodcast> = mutableListOf()
-}

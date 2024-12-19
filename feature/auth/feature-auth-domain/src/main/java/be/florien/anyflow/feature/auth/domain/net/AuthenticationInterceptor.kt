@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.auth.domain.net
 
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.data.server.model.AmpacheErrorObject
+import be.florien.anyflow.data.server.model.AmpacheErrorResponse
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.common.utils.TimeOperations
@@ -76,8 +76,8 @@ class AuthenticationInterceptor @Inject constructor(
     private fun checkError(response: Response) {
         try {
             val peekBody = response.peekBody(1000).byteStream()
-            val error = ObjectMapper().readValue(peekBody, AmpacheErrorObject::class.java)
-            if (error.error.errorCode == 4701) {
+            val error = ObjectMapper().readValue(peekBody, AmpacheErrorResponse::class.java)
+            if (error.error?.errorCode == 4701) {
                 authPersistence.revokeAuthToken()
             }
         } catch (exception: Exception) {

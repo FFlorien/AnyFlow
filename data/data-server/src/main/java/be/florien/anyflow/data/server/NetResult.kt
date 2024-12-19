@@ -1,26 +1,46 @@
 package be.florien.anyflow.data.server
 
+import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.data.server.model.AmpacheApiListResponse
-import be.florien.anyflow.data.server.model.AmpacheApiResponse
 import be.florien.anyflow.data.server.model.AmpacheError
-import kotlin.Throwable
+import be.florien.anyflow.data.server.model.AmpacheErrorResponse
 
 sealed interface NetResult<T>
 
-class NetSuccess<T>(val data: T): be.florien.anyflow.data.server.NetResult<T>
-class NetApiError<T>(val error: AmpacheError): be.florien.anyflow.data.server.NetResult<T>
-class NetThrowable<T>(val throwable: Throwable): be.florien.anyflow.data.server.NetResult<T>
+class NetSuccess<T>(val data: T): NetResult<T>
+class NetApiError<T>(val error: AmpacheError): NetResult<T>
+class NetThrowable<T>(val throwable: Throwable): NetResult<T>
 
-fun <T: AmpacheApiResponse> T.toNetResult(): be.florien.anyflow.data.server.NetResult<T> =
-    if (error == null) {
-        be.florien.anyflow.data.server.NetSuccess(this)
+fun <T: AmpacheErrorResponse> T.toNetResult(): NetResult<T> {
+    val ampacheError = error
+    return if (ampacheError == null) {
+        NetSuccess(this)
     } else {
-        be.florien.anyflow.data.server.NetApiError(error)
+        NetApiError(ampacheError)
     }
+}
 
-fun <T> AmpacheApiListResponse<T>.toNetResult(): be.florien.anyflow.data.server.NetResult<List<T>> =
-    if (error == null) {
-        be.florien.anyflow.data.server.NetSuccess(this.list)
+fun <T> AmpacheApiListResponse<T>.toNetResult(): NetResult<List<T>> {
+    val ampacheError = error
+    return if (ampacheError == null) {
+        NetSuccess(list)
     } else {
-        be.florien.anyflow.data.server.NetApiError(error)
+        NetApiError(ampacheError)
     }
+}
+
+fun NetResult<*>.logError(method: String) {
+    when (this) {
+        is NetThrowable -> logThrowable(method, throwable)
+        is NetApiError -> logApiError(error)
+        else -> Unit
+    }
+}
+
+private fun NetResult<*>.logThrowable(method: String, throwable: Throwable) {
+    eLog("$method received Throwable $throwable")
+}
+
+private fun NetResult<*>.logApiError(error: AmpacheError) {
+    eLog("Action ${error.errorAction} received API error ${error.errorCode}: ${error.errorMessage}")
+}

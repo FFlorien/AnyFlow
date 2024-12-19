@@ -31,7 +31,7 @@ import javax.inject.Inject
 @ServerScope
 class PlaylistRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
-    private val ampacheEditSource: AmpachePlaylistSource,
+    private val ampachePlaylistSource: AmpachePlaylistSource,
     private val urlRepository: UrlRepository,
     private val workManager: WorkManager
 ) {
@@ -90,12 +90,12 @@ class PlaylistRepository @Inject constructor(
      */
 
     suspend fun createPlaylist(name: String) {
-        ampacheEditSource.createPlaylist(name)
+        ampachePlaylistSource.createPlaylist(name)
 //        syncRepository.playlists()todo
     }
 
     suspend fun deletePlaylist(id: Long) {
-        ampacheEditSource.deletePlaylist(id)
+        ampachePlaylistSource.deletePlaylist(id)
         libraryDatabase.getPlaylistDao().delete(DbPlaylist(id, "", ""))
     }
 

@@ -3,9 +3,6 @@ package be.florien.anyflow.data.server.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
-/**
- * Server-side data structures that relate to authentication
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpacheAuthentication: AmpacheAuthenticatedStatus() {

@@ -127,5 +127,5 @@ interface AmpacheDataApi {
         @Query("action") action: String = "stream",
         @Query("type") type: String = "song",
         @Query("id") songId: Long
-    ): AmpacheErrorObject
+    ): AmpacheErrorResponse
 }

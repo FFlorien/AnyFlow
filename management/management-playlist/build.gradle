@@ -23,13 +23,15 @@ android {
 
 dependencies {
     implementation project(":common-di")
+    implementation project(':common-logging')
     implementation project(':common-management')
+    implementation project(":common-resources")
     implementation project(':common-ui-domain')
+    implementation project(':common-utils')
     implementation project(":data-local")
     implementation project(":data-server")
     implementation project(":management-tags")//todo remove when urlrepo is in its own module
     implementation project(":management-filters")
-    implementation project(":common-resources")
     //Room
     //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies
     implementation "androidx.room:room-runtime:$room_version"
@@ -41,6 +43,5 @@ dependencies {
 
     //Workmanager
     implementation "androidx.work:work-runtime-ktx:2.9.1"
-    implementation project(':common-utils')
 }
 apply plugin: 'kotlin-parcelize'

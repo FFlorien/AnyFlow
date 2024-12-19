@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
-/**
- * Server-side data structures that relates to artists
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheArtistResponse: AmpacheApiListResponse<AmpacheArtist>() {
+    @JsonProperty("artist")
+    override var list: List<AmpacheArtist> = mutableListOf()
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpacheArtist {
@@ -15,10 +18,4 @@ class AmpacheArtist {
     var prefix: String? = null
     var basename: String = ""
     var summary: String? = null
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheArtistResponse: AmpacheApiListResponse<AmpacheArtist>() {
-    @JsonProperty("artist")
-    override var list: List<AmpacheArtist> = mutableListOf()
 }

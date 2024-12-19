@@ -7,7 +7,6 @@ import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.NetThrowable
 import be.florien.anyflow.data.server.model.AmpacheAlbumResponse
 import be.florien.anyflow.data.server.model.AmpacheApiListResponse
-import be.florien.anyflow.data.server.model.AmpacheApiResponse
 import be.florien.anyflow.data.server.model.AmpacheArtistResponse
 import be.florien.anyflow.data.server.model.AmpacheDeletedSongIdResponse
 import be.florien.anyflow.data.server.model.AmpacheGenreResponse
@@ -17,6 +16,7 @@ import be.florien.anyflow.data.server.model.AmpacheSongResponse
 import be.florien.anyflow.data.server.toNetResult
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.data.server.model.AmpacheErrorResponse
 import retrofit2.Retrofit
 import java.util.Calendar
 import javax.inject.Inject
@@ -117,7 +117,7 @@ open class AmpacheDataSource
     suspend fun getDeletedSongs(offset: Int, limit: Int): NetResult<AmpacheDeletedSongIdResponse> =
         getNetResult(AmpacheDataApi::getDeletedSongs, offset, limit)
 
-    private suspend fun <T : AmpacheApiResponse> getNetResult(
+    private suspend fun <T : AmpacheErrorResponse> getNetResult(
         apiMethod: suspend AmpacheDataApi.(Int, Int) -> T,
         offset: Int,
         limit: Int
@@ -128,7 +128,7 @@ open class AmpacheDataSource
         NetThrowable(ex)
     }
 
-    private suspend fun <T : AmpacheApiResponse> getNetResult(
+    private suspend fun <T : AmpacheErrorResponse> getNetResult(
         apiMethod: suspend AmpacheDataApi.() -> T
     ): NetResult<T> = try {
         ampacheDataApi.apiMethod().toNetResult()
@@ -146,10 +146,11 @@ open class AmpacheDataSource
         ampacheDataApi
             .apiMethod(limit, offset, TimeOperations.getAmpacheCompleteFormatted(from))
             .let {
-                if (it.error == null) {
+                val error = it.error
+                if (error == null) {
                     NetSuccess(it)
                 } else {
-                    NetApiError(it.error)
+                    NetApiError(error)
                 }
             }
     } catch (ex: Exception) {

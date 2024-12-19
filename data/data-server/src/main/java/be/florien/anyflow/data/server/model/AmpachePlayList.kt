@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
-/**
- * Server-side data structures that relates to playlist
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpachePlaylistResponse: AmpacheApiListResponse<AmpachePlayList>() {
+    @JsonProperty("playlist")
+    override var list: List<AmpachePlayList> = mutableListOf()
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpachePlayList {
@@ -16,13 +19,7 @@ class AmpachePlayList {
     var owner: String = ""
 }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class AmpachePlaylistResponse: AmpacheApiListResponse<AmpachePlayList>() {
-    @JsonProperty("playlist")
-    override var list: List<AmpachePlayList> = mutableListOf()
-}
-
-class AmpachePlaylistsWithSongsResponse: AmpacheApiResponse() {
+class AmpachePlaylistsWithSongsResponse: AmpacheErrorResponse() {
     @JsonProperty("playlist")
     var playlistList: AmpachePlaylistsWithSongs = AmpachePlaylistsWithSongs()
 }

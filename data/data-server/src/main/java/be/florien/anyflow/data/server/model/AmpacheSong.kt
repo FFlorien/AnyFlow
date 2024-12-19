@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
-/**
- * Server-side data structures that relates to accounts
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheSongResponse: AmpacheApiListResponse<AmpacheSong>() {
+    @JsonProperty(value = "song")
+    override var list: List<AmpacheSong> = mutableListOf()
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,18 +27,12 @@ class AmpacheSong {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheSongId {
-    var id: Long = 0
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-class AmpacheSongResponse: AmpacheApiListResponse<AmpacheSong>() {
-    @JsonProperty(value = "song")
-    override var list: List<AmpacheSong> = mutableListOf()
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 class AmpacheDeletedSongIdResponse: AmpacheApiListResponse<AmpacheSongId>() {
     @JsonProperty("deleted_song")
     override var list: List<AmpacheSongId> = mutableListOf()
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AmpacheSongId {
+    var id: Long = 0
 }
