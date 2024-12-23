@@ -23,6 +23,7 @@ import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.queue.PlayingQueue
+import be.florien.anyflow.management.queue.model.Chapter
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -35,6 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ActivityScope
@@ -50,7 +52,10 @@ class SongListViewModel
 ) : BaseViewModel() {
     // region fields
 
+    val currentChapter: LiveData<Chapter?>
+        get() = chapterMutable
     var player: MediaController? = null
+    private val chapterMutable = MutableLiveData<Chapter?>(null)
 
     // list
     val pagedAudioQueue: LiveData<PagingData<QueueItemDisplay>> =
@@ -129,6 +134,19 @@ class SongListViewModel
         isSearching.observeForever {
             if (!it) {
                 resetSearch()
+            }
+        }
+        viewModelScope.launch(Dispatchers.Default) {
+            while (true) {
+                delay(200)//todo magic number
+                val podcastEpisode = currentPodcastDisplay.value
+                withContext(Dispatchers.Main) {
+                    val currentPosition = player?.currentPosition?.div(1000) ?: Long.MAX_VALUE
+                    chapterMutable.mutable.value = podcastEpisode
+                        ?.chapters
+                        ?.findLast { currentPosition >= it.time }
+                }
+
             }
         }
     }

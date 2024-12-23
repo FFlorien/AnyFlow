@@ -16,6 +16,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
@@ -31,6 +32,7 @@ import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolderListener
+import be.florien.anyflow.component.viewholder.PodcastViewHolderProvider
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.feature.player.service.PlayerService
@@ -38,6 +40,7 @@ import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
+import be.florien.anyflow.management.queue.model.Chapter
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -53,7 +56,8 @@ import kotlinx.coroutines.launch
  */
 @ActivityScope
 class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
-    QueueItemViewHolderListener, QueueItemViewHolderProvider, PodcastViewHolderListener {
+    QueueItemViewHolderListener, QueueItemViewHolderProvider, PodcastViewHolderListener,
+    PodcastViewHolderProvider {
     override fun getTitle(): String = getString(R.string.player_playing_now)
 
     lateinit var viewModel: SongListViewModel
@@ -151,6 +155,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                 this,
                 this,
                 this,
+                this,
                 binding.currentPodcastDisplay,
                 false
             )
@@ -164,7 +169,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.songList.adapter = QueueItemAdapter(this, this, this)
+        binding.songList.adapter = QueueItemAdapter(this, this, this, this)
 
         lifecycleScope.launch {
             (queueItemAdapter).loadStateFlow.collectLatest {
@@ -351,7 +356,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             for (i in start..stop) {
                 val songInfoViewHolder =
                     binding.songList.findViewHolderForAdapterPosition(i) as SongViewHolder
-                if (i != position && songInfoViewHolder != null && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
+                if (i != position && songInfoViewHolder.binding.songLayout.songInfo.translationX != 0F) {
                     songInfoViewHolder.resetSwipePosition()
                 }
             }
@@ -487,7 +492,10 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         currentSongViewHolder.setShortcuts()
     }
 
-    override fun onTimeStampClicked(time: Long) { //todo viewmodel this ?
+    override fun onChapterClicked(time: Long) { //todo viewmodel this ?
         viewModel.player?.seekTo(time * 1000)
     }
+
+    override val chapterObservable: LiveData<Chapter?>
+        get() = viewModel.currentChapter
 }

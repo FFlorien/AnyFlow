@@ -8,6 +8,7 @@ import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.component.viewholder.ItemInfoTouchAdapter
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolderListener
+import be.florien.anyflow.component.viewholder.PodcastViewHolderProvider
 import be.florien.anyflow.component.viewholder.QueueItemViewHolder
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
@@ -41,7 +42,8 @@ val diffCallback = object :
 class QueueItemAdapter(
     private val queueItemListener: QueueItemViewHolderListener,
     private val queueItemProvider: QueueItemViewHolderProvider,
-    private val podcastListener: PodcastViewHolderListener
+    private val podcastListener: PodcastViewHolderListener,
+    private val podcastViewHolderProvider: PodcastViewHolderProvider
 ) : PagingDataAdapter<QueueItemDisplay, QueueItemViewHolder<*>>(diffCallback),
     FastScrollRecyclerView.SectionedAdapter {
 
@@ -56,7 +58,7 @@ class QueueItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         when (viewType) {
             ITEM_TYPE_SONG -> SongViewHolder(parent, queueItemListener, queueItemProvider)
-            else -> PodcastViewHolder(parent, queueItemListener, queueItemProvider, podcastListener, shouldShowTimeStamps = true)
+            else -> PodcastViewHolder(parent, queueItemListener, queueItemProvider, podcastListener, podcastViewHolderProvider, shouldShowTimeStamps = true)
         }
 
     override fun onBindViewHolder(holder: QueueItemViewHolder<*>, position: Int) {

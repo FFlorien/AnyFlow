@@ -37,7 +37,7 @@ fun DbPodcastEpisodeDisplay.toViewPodcastEpisodeDisplay() = PodcastEpisodeDispla
     podcast = podcastName,
     podcastId = podcastId,
     description = HtmlCompat.fromHtml(
-        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_COMPACT).toString(),
+        description,
         HtmlCompat.FROM_HTML_MODE_COMPACT
     ).toString()
 )

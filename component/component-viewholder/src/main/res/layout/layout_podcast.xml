@@ -17,10 +17,6 @@
             name="current"
             type="boolean" />
 
-        <variable
-            name="selected"
-            type="boolean" />
-
     </data>
 
     <be.florien.anyflow.common.widget.CheckableConstraintLayout
@@ -28,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_blue_selectable_ripple"
-        android:checked="@{selected || current}"
+        android:checked="@{current}"
         android:orientation="horizontal"
         android:padding="@dimen/listItemPadding">
 
@@ -42,17 +38,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/cover_placeholder" />
-
-        <ImageView
-            android:id="@+id/selectImage"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:src="@drawable/ic_select"
-            app:isVisiblePresent="@{selected}"
-            app:layout_constraintBottom_toBottomOf="@+id/cover"
-            app:layout_constraintEnd_toEndOf="@+id/cover"
-            app:layout_constraintStart_toStartOf="@id/cover"
-            app:layout_constraintTop_toTopOf="@id/cover" />
 
         <TextView
             android:id="@+id/podcastTitle"
