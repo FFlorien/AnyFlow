@@ -7,7 +7,7 @@ android {
     configurations.configureEach {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
-    compileSdk 34
+    compileSdk 35
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17

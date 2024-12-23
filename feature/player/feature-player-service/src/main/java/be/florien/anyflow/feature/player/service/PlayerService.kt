@@ -7,17 +7,19 @@ import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.CallSuper
+import androidx.annotation.OptIn
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
-import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.CacheDataSource
@@ -25,8 +27,13 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaSession.ConnectionResult
+import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder
 import androidx.media3.session.MediaSessionService
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.management.waveform.WaveFormRepository
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
@@ -37,6 +44,7 @@ import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -192,6 +200,8 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         val exoPlayer = ExoPlayer
             .Builder(this, DefaultRenderersFactory(this))
             .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
+            .setSeekForwardIncrementMs(15000L)
+            .setSeekBackIncrementMs(15000L)
             .setHandleAudioBecomingNoisy(true)
             .setAudioAttributes(
                 AudioAttributes
@@ -205,29 +215,14 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
             .apply {
                 addListener(this@PlayerService)
             }
-        val forwardPlayer = object : ForwardingPlayer(exoPlayer) {
-            override fun seekToNext() {
-                if (player?.currentMediaItem?.mediaMetadata?.mediaType == MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE) {
-                    super.seekForward()
-                } else {
-                    super.seekToNext()
-                }
-            }
 
-            override fun seekToPrevious() {
-                if (player?.currentMediaItem?.mediaMetadata?.mediaType == MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE) {
-                    super.seekBack()
-                } else {
-                    super.seekToPrevious()
-                }
-            }
-        }
-
-        val pendingIntent = PendingIntent.getActivity(this, 0, playerIntent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent =
+            PendingIntent.getActivity(this, 0, playerIntent, PendingIntent.FLAG_IMMUTABLE)
 
         mediaSession =
             MediaSession
-                .Builder(this, forwardPlayer)
+                .Builder(this, exoPlayer)
+                .setCallback(AnyFlowMediaSessionCallback())
                 .setSessionActivity(pendingIntent)
                 .build()
 
@@ -334,6 +329,54 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
     //endregion
 }
 
+class AnyFlowMediaSessionCallback : MediaSession.Callback {
+    private val seekBackCommand = SessionCommand(CUSTOM_COMMAND_REWIND_ACTION_ID, Bundle.EMPTY)
+    private val seekForwardCommand = SessionCommand(CUSTOM_COMMAND_FORWARD_ACTION_ID, Bundle.EMPTY)
+
+    @OptIn(UnstableApi::class)
+    override fun onConnect(
+        session: MediaSession,
+        controller: MediaSession.ControllerInfo
+    ): ConnectionResult {
+        return AcceptedResultBuilder(session)
+            .setAvailableSessionCommands(
+                ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon()
+                    .add(seekBackCommand)
+                    .add(seekForwardCommand)
+                    .build()
+
+            )
+            .setCustomLayout(
+                listOf(
+                    CommandButton.Builder(CommandButton.ICON_SKIP_BACK)
+                        .setSessionCommand(seekBackCommand)
+                        .setSlots(CommandButton.SLOT_BACK_SECONDARY)
+                        .setDisplayName("Rewind")
+                        .build(),
+                    CommandButton.Builder(CommandButton.ICON_SKIP_FORWARD)
+                        .setSessionCommand(seekForwardCommand)
+                        .setSlots(CommandButton.SLOT_FORWARD_SECONDARY)
+                        .setDisplayName("forward")
+                        .build()
+                )
+            )
+            .build()
+    }
+
+    override fun onCustomCommand(
+        session: MediaSession,
+        controller: MediaSession.ControllerInfo,
+        customCommand: SessionCommand,
+        args: Bundle
+    ): ListenableFuture<SessionResult> {
+        when (customCommand) {
+            seekBackCommand -> session.player.seekBack()
+            seekForwardCommand -> session.player.seekForward()
+        }
+        return super.onCustomCommand(session, controller, customCommand, args)
+    }
+}
+
 private data class StateAndSongs(
     val playlistState: PlayerPlaylistState,
     val songList: List<MediaItem>
@@ -419,6 +462,9 @@ private sealed interface PlaylistModification {
             }
     }
 }
+
+private const val CUSTOM_COMMAND_REWIND_ACTION_ID = "REWIND_15"
+private const val CUSTOM_COMMAND_FORWARD_ACTION_ID = "FAST_FWD_15"
 
 /*
 
