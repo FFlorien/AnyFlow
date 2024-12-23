@@ -24,17 +24,18 @@ import androidx.media3.session.SessionToken
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.base.BaseFragment
+import be.florien.anyflow.common.image.isVisiblePresent
 import be.florien.anyflow.common.logging.iLog
-import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolderListener
 import be.florien.anyflow.component.viewholder.PodcastViewHolderProvider
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
+import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment
@@ -188,7 +189,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         binding.songList.layoutManager = linearLayoutManager
         binding.songList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                updateCurrentSongDisplay()
+                updateCurrentItemDisplay()
             }
         })
         binding.songList.addOnItemTouchListener(object : SongListTouchAdapter(),
@@ -256,7 +257,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         }
         viewModel.listPosition.observe(viewLifecycleOwner) {
             queueItemAdapter.setSelectedPosition(it)
-            updateCurrentSongDisplay()
+            updateCurrentItemDisplay()
         }
         viewModel.isSearching.observe(viewLifecycleOwner) {
             searchMenuHolder.changeState(!it)
@@ -282,7 +283,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                     )?.toInt() ?: it, 0
                 )
             }
-            updateCurrentSongDisplay()
+            updateCurrentItemDisplay()
         }
         viewModel.playlistListDisplayedFor.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -408,35 +409,37 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
      * Private methods
      */
 
-    private fun updateCurrentSongDisplay() {
-        val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-        val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
+    private fun updateCurrentItemDisplay() {
+        val isSong = viewModel.currentQueueItemDisplay.value is SongDisplay
 
+        val firstVisibleItemPosition = if (isSong) {
+            linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+        } else {
+            linearLayoutManager.findFirstVisibleItemPosition()
+        }
+        val lastVisibleItemPosition = if (isSong) {
+            linearLayoutManager.findLastCompletelyVisibleItemPosition()
+        } else {
+            linearLayoutManager.findLastVisibleItemPosition()
+        }
+
+        val listPosition = viewModel.listPosition.value ?: 0
         if (
-            viewModel.listPosition.value in firstVisibleItemPosition..lastVisibleItemPosition
+            listPosition in firstVisibleItemPosition..lastVisibleItemPosition
             || (viewModel.searchProgression.value ?: -1) >= 0
         ) {
-            binding.currentQueueItemDisplay.visibility = View.GONE
-            binding.currentSongDisplayTouch.visibility = View.GONE
+            binding.currentQueueItemDisplay.isVisiblePresent(false)
+            binding.currentSongDisplayTouch.isVisiblePresent(false)
         } else {
-            val currentQueueItemVisible: View
-            val currentQueueItemHidden: View
-            if (viewModel.currentQueueItemDisplay.value is SongDisplay) {
-                currentQueueItemVisible = binding.currentSongDisplay.root
-                currentQueueItemHidden = binding.currentPodcastDisplay.root
-            } else {
-                currentQueueItemVisible = binding.currentPodcastDisplay.root
-                currentQueueItemHidden = binding.currentSongDisplay.root
-            }
+            binding.currentSongDisplay.root.isVisiblePresent(isSong)
+            binding.currentPodcastDisplay.root.isVisiblePresent(!isSong)
 
-            currentQueueItemVisible.visibility = View.VISIBLE
-            binding.currentQueueItemDisplay.visibility = View.VISIBLE
-            binding.currentSongDisplayTouch.visibility = View.VISIBLE
-            currentQueueItemHidden.visibility = View.INVISIBLE
+            binding.currentQueueItemDisplay.isVisiblePresent(true)
+            binding.currentSongDisplayTouch.isVisiblePresent(true)
 
-            if ((viewModel.listPosition.value ?: 0) < firstVisibleItemPosition) {
+            if (listPosition <= firstVisibleItemPosition) {
                 topSet.applyTo(binding.root as ConstraintLayout?)
-            } else if ((viewModel.listPosition.value ?: 0) > lastVisibleItemPosition) {
+            } else {
                 bottomSet.applyTo(binding.root as ConstraintLayout?)
             }
         }
@@ -456,14 +459,13 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
                     addListener(object : Animator.AnimatorListener {
 
                         override fun onAnimationStart(animation: Animator) {
-                            binding.loadingText.visibility = View.VISIBLE
+                            binding.loadingText.isVisiblePresent(true)
                         }
 
                         override fun onAnimationRepeat(animation: Animator) {}
 
                         override fun onAnimationEnd(animation: Animator) {
-                            binding.loadingText.visibility =
-                                if (shouldLoadingBeVisible) View.VISIBLE else View.GONE
+                            binding.loadingText.isVisiblePresent(shouldLoadingBeVisible)
                         }
 
                         override fun onAnimationCancel(animation: Animator) {}
