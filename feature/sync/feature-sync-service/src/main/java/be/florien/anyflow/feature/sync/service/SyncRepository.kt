@@ -25,11 +25,15 @@ import be.florien.anyflow.tags.local.LibraryDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.OutputStreamWriter
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
+
+private const val PLAYLIST_DUMP_FOLDER = "playlistDump"
+private const val MAX_PLAYLIST_DUMP_FILES = 20
 
 /**
  * Update the local data with the one from the server
@@ -202,6 +206,7 @@ class SyncRepository
                 .upsert(renamedPlaylists.map(AmpachePlayList::toDbPlaylist))
 
             writePlaylistToFile(playlistSongs.data.playlistList.playlists, playlists.data.list)
+            cleanPlaylistFiles()
 
             val playlistSongsDb = playlistSongs.data.playlistList.toDbPlaylistSongs()
             libraryDatabase.getPlaylistSongsDao().upsert(playlistSongsDb)
@@ -218,16 +223,31 @@ class SyncRepository
             .entries
             .sortedBy { it.key }
             .joinToString(separator = ",", prefix = "{", postfix = "}") { entry ->
-                val playlistName = playlist.firstOrNull { it.id.toString() == entry.key }?.name
+                val playlistName = playlist
+                    .firstOrNull { it.id.toString() == entry.key }
+                    ?.name
                     ?: "entry.key"
                 val values = entry.value
                     .sortedBy { it.id }
                     .joinToString(separator = ",") { it.id.toString() }
                 "\"$playlistName\" : [$values]"
             }
-        val writer = OutputStreamWriter(context.openFileOutput(name, Context.MODE_PRIVATE))
+        val file = File(context.filesDir, "$PLAYLIST_DUMP_FOLDER/$name")
+        file.createNewFile()
+        val writer = OutputStreamWriter(file.outputStream())
         writer.write(content)
         writer.close()
+    }
+
+    private fun cleanPlaylistFiles() {
+        val folder = File(context.filesDir, PLAYLIST_DUMP_FOLDER)
+        var files = folder.list() ?: return
+
+        while (files.size > MAX_PLAYLIST_DUMP_FILES) {
+            val firstFileName = files.minOf { it }
+            File(folder, firstFileName).delete()
+            files = folder.list() ?: break
+        }
     }
 
     private suspend fun podcasts() {
