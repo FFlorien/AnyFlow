@@ -1,21 +1,19 @@
 package be.florien.anyflow.tags
 
+import be.florien.anyflow.management.filters.model.FilterTagsCount
 import be.florien.anyflow.tags.local.model.DbAlbumDisplay
 import be.florien.anyflow.tags.local.model.DbArtist
+import be.florien.anyflow.tags.local.model.DbDownloadedCount
 import be.florien.anyflow.tags.local.model.DbGenre
 import be.florien.anyflow.tags.local.model.DbSongDisplay
-import be.florien.anyflow.tags.local.model.DbTagsFilterCount
 import be.florien.anyflow.tags.local.model.DbSongInfo
-import be.florien.anyflow.tags.local.query.QueryFilter
+import be.florien.anyflow.tags.local.model.DbTagsFilterCount
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
+import be.florien.anyflow.tags.model.DownloadedCount
 import be.florien.anyflow.tags.model.Genre
 import be.florien.anyflow.tags.model.SongDisplayDomain
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterTagsCount
-import be.florien.anyflow.tags.local.model.DbDownloadedCount
-import be.florien.anyflow.tags.model.DownloadedCount
 
 
 fun DbSongInfo.toViewSongInfo() = SongInfo(
@@ -81,31 +79,3 @@ fun DbTagsFilterCount.toViewFilterCount() = FilterTagsCount(
     playlists = playlists,
     downloaded = downloaded
 )
-
-
-// region view to utilities
-
-fun Filter<*>.toQueryFilter(level: Int = 0): QueryFilter {
-    val argument = argument
-    return QueryFilter(
-        type = when (type) {
-            Filter.FilterType.GENRE_IS -> QueryFilter.FilterType.GENRE_IS
-            Filter.FilterType.SONG_IS -> QueryFilter.FilterType.SONG_IS
-            Filter.FilterType.ARTIST_IS -> QueryFilter.FilterType.ARTIST_IS
-            Filter.FilterType.ALBUM_ARTIST_IS -> QueryFilter.FilterType.ALBUM_ARTIST_IS
-            Filter.FilterType.ALBUM_IS -> QueryFilter.FilterType.ALBUM_IS
-            Filter.FilterType.DISK_IS -> QueryFilter.FilterType.DISK_IS
-            Filter.FilterType.PLAYLIST_IS -> QueryFilter.FilterType.PLAYLIST_IS
-            Filter.FilterType.DOWNLOADED_STATUS_IS -> QueryFilter.FilterType.DOWNLOADED_STATUS_IS
-            Filter.FilterType.PODCAST_EPISODE_IS -> QueryFilter.FilterType.PODCAST_EPISODE_IS
-        },
-        argument = when (argument) {
-            is Boolean -> if (argument) "NOT NULL" else "NULL"
-            else -> argument.toString()
-        },
-        level = level,
-        children = children.map { it.toQueryFilter(level + 1) }
-    )
-}
-
-fun List<Filter<*>>.toQueryFilters() = map { it.toQueryFilter() }

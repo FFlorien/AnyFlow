@@ -12,11 +12,13 @@ import be.florien.anyflow.tags.local.model.DbFilterGroup
 import be.florien.anyflow.tags.local.model.DbQueueOrder
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.tags.toQueryFilters
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.management.filters.FiltersRepository
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterGroup
+import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.toQueryFilters
 import be.florien.anyflow.management.queue.model.Ordering
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,7 +26,8 @@ import java.util.Date
 import javax.inject.Inject
 
 @ServerScope
-class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDatabase): FiltersRepository {
+class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDatabase) :
+    FiltersRepository {
 
     private val queryComposer = QueryComposer()
 
@@ -110,8 +113,9 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
             }
         }
 
-    override fun getSavedGroups(): LiveData<List<FilterGroup>> = libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
-        .map { groupList -> groupList.map { it.toViewFilterGroup() } }
+    override fun getSavedGroups(): LiveData<List<FilterGroup>> =
+        libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
+            .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
     override suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) {
         withContext(Dispatchers.IO) {
@@ -169,18 +173,25 @@ class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDa
         orderingList: List<Ordering>
     ): List<QueueItem> =
         withContext(Dispatchers.IO) {
-            val songs = libraryDatabase.getSongDao().forCurrentFiltersList(
-                queryComposer.getQueryForSongs(
-                    filterList.toQueryFilters(),
-                    orderingList.toQueryOrderings()
-                )
-            ).map {
-                QueueItem(SONG_MEDIA_TYPE, it)
+            val songs = if (filterList.none { it.type is TagFilterType }) {
+                emptyList()
+            } else {
+                libraryDatabase.getSongDao().forCurrentFiltersList(
+                    queryComposer.getQueryForSongIds(
+                        filterList.toQueryFilters(),
+                        orderingList.toQueryOrderings()
+                    )
+                ).map {
+                    QueueItem(SONG_MEDIA_TYPE, it)
+                }
             }
-            val podcastEpisodes = libraryDatabase.getPodcastEpisodeDao().rawQueryIdList(
-                queryComposer.getQueryForPodcastEpisodes(filterList.toQueryFilters())
-            ).map {
-                QueueItem(PODCAST_MEDIA_TYPE, it)
+            val podcastEpisodes = if (filterList.none { it.type is PodcastFilterType }) {
+                emptyList()
+            } else {
+                libraryDatabase
+                    .getPodcastEpisodeDao()
+                    .rawQueryIdList(queryComposer.getQueryForPodcastEpisodeIds(filterList.toQueryFilters()))
+                    .map { QueueItem(PODCAST_MEDIA_TYPE, it) }
             }
             podcastEpisodes + songs
         }

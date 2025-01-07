@@ -3,11 +3,12 @@ package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
+import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -23,7 +24,7 @@ class LibrarySongListViewModel @Inject constructor(
     ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getSongFiltersPaging(filter, search)
 
     override fun isThisTypeOfFilter(filter: Filter<*>): Boolean =
-        filter.type == Filter.FilterType.SONG_IS
+        filter.type == TagFilterType.SONG_IS
 
     override suspend fun getFoundFilters(
         filter: Filter<*>?,
@@ -36,7 +37,7 @@ class LibrarySongListViewModel @Inject constructor(
     override fun getFilter(filterValue: FilterItem) =
         getFilterInParent(
             Filter(
-                Filter.FilterType.SONG_IS,
+                TagFilterType.SONG_IS,
                 filterValue.id,
                 filterValue.title.getText()
             )

@@ -3,6 +3,9 @@ package be.florien.anyflow.management.queue
 import androidx.core.text.HtmlCompat
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterGroup
+import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM_ARTIST
@@ -84,16 +87,17 @@ fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> =
     Filter(
         argument = if (type == DbFilter.TYPE_DOWNLOADED) argument.toBoolean() else argument.toLong(),
         type = when (type) {
-            DbFilter.TYPE_GENRE -> Filter.FilterType.GENRE_IS
-            DbFilter.TYPE_SONG -> Filter.FilterType.SONG_IS
-            DbFilter.TYPE_ARTIST -> Filter.FilterType.ARTIST_IS
-            DbFilter.TYPE_ALBUM_ARTIST -> Filter.FilterType.ALBUM_ARTIST_IS
-            DbFilter.TYPE_ALBUM -> Filter.FilterType.ALBUM_IS
-            DbFilter.TYPE_DISK -> Filter.FilterType.DISK_IS
-            DbFilter.TYPE_PLAYLIST -> Filter.FilterType.PLAYLIST_IS
-            DbFilter.TYPE_DOWNLOADED -> Filter.FilterType.DOWNLOADED_STATUS_IS
-            DbFilter.TYPE_PODCAST_EPISODE -> Filter.FilterType.PODCAST_EPISODE_IS
-            else -> Filter.FilterType.SONG_IS
+            DbFilter.TYPE_GENRE -> TagFilterType.GENRE_IS
+            DbFilter.TYPE_SONG -> TagFilterType.SONG_IS
+            DbFilter.TYPE_ARTIST -> TagFilterType.ARTIST_IS
+            DbFilter.TYPE_ALBUM_ARTIST -> TagFilterType.ALBUM_ARTIST_IS
+            DbFilter.TYPE_ALBUM -> TagFilterType.ALBUM_IS
+            DbFilter.TYPE_DISK -> TagFilterType.DISK_IS
+            DbFilter.TYPE_PLAYLIST -> TagFilterType.PLAYLIST_IS
+            DbFilter.TYPE_DOWNLOADED -> TagFilterType.DOWNLOADED_STATUS_IS
+            DbFilter.TYPE_PODCAST_EPISODE -> PodcastFilterType.PODCAST_EPISODE_IS
+            DbFilter.TYPE_PODCAST -> PodcastFilterType.PODCAST_IS
+            else -> TagFilterType.SONG_IS
         },
         displayText = displayText,
         children = getChildrenFilters(this, filterList)
@@ -131,16 +135,17 @@ fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     parentFilter = parentId
 )
 
-fun Filter.FilterType.toDbFilterType() = when (this) {
-    Filter.FilterType.GENRE_IS -> DbFilter.TYPE_GENRE
-    Filter.FilterType.SONG_IS -> DbFilter.TYPE_SONG
-    Filter.FilterType.ARTIST_IS -> DbFilter.TYPE_ARTIST
-    Filter.FilterType.ALBUM_ARTIST_IS -> DbFilter.TYPE_ALBUM_ARTIST
-    Filter.FilterType.ALBUM_IS -> DbFilter.TYPE_ALBUM
-    Filter.FilterType.DISK_IS -> DbFilter.TYPE_DISK
-    Filter.FilterType.PLAYLIST_IS -> DbFilter.TYPE_PLAYLIST
-    Filter.FilterType.DOWNLOADED_STATUS_IS -> DbFilter.TYPE_DOWNLOADED
-    Filter.FilterType.PODCAST_EPISODE_IS -> DbFilter.TYPE_PODCAST_EPISODE
+fun FilterType.toDbFilterType() = when (this) {
+    TagFilterType.GENRE_IS -> DbFilter.TYPE_GENRE
+    TagFilterType.SONG_IS -> DbFilter.TYPE_SONG
+    TagFilterType.ARTIST_IS -> DbFilter.TYPE_ARTIST
+    TagFilterType.ALBUM_ARTIST_IS -> DbFilter.TYPE_ALBUM_ARTIST
+    TagFilterType.ALBUM_IS -> DbFilter.TYPE_ALBUM
+    TagFilterType.DISK_IS -> DbFilter.TYPE_DISK
+    TagFilterType.PLAYLIST_IS -> DbFilter.TYPE_PLAYLIST
+    TagFilterType.DOWNLOADED_STATUS_IS -> DbFilter.TYPE_DOWNLOADED
+    PodcastFilterType.PODCAST_EPISODE_IS -> DbFilter.TYPE_PODCAST_EPISODE
+    PodcastFilterType.PODCAST_IS -> DbFilter.TYPE_PODCAST
 }
 
 fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {

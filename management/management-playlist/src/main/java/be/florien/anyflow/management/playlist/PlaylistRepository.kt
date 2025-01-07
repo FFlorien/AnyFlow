@@ -13,6 +13,8 @@ import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.toQueryFilter
+import be.florien.anyflow.management.filters.toQueryFilters
 import be.florien.anyflow.management.playlist.model.Playlist
 import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
@@ -23,8 +25,6 @@ import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPlaylist
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs
 import be.florien.anyflow.tags.local.query.QueryComposer
-import be.florien.anyflow.tags.toQueryFilter
-import be.florien.anyflow.tags.toQueryFilters
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -43,14 +43,14 @@ class PlaylistRepository @Inject constructor(
         search: String?
     ): DataSource.Factory<Int, Playlist> =
         libraryDatabase.getPlaylistDao().rawQueryPaging(
-            queryComposer.getQueryForPlaylistFiltered(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForPlaylist(filters?.toQueryFilters(), search)
         ).map {
             it.toViewPlaylist(urlRepository)
         }
 
     fun getAllPlaylistsWithCount(): LiveData<PagingData<PlaylistWithCount>> =
         libraryDatabase.getPlaylistDao().rawQueryWithCountPaging(
-            queryComposer.getQueryForPlaylistWithCountFiltered(null, null)
+            queryComposer.getQueryForPlaylistWithCount(null, null)
         ).map { it.toViewPlaylist(urlRepository) }.convertToPagingLiveData()
 
     fun getPlaylistsWithPresence(
@@ -76,7 +76,7 @@ class PlaylistRepository @Inject constructor(
         search: String
     ): List<PlaylistWithCount> =
         libraryDatabase.getPlaylistDao().rawQueryWithCountList(
-            queryComposer.getQueryForPlaylistFiltered(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForPlaylist(filters?.toQueryFilters(), search)
         ).map { it.toViewPlaylist(urlRepository) }
 
     suspend fun getSongCountForFilter(filter: Filter<*>) = libraryDatabase
@@ -103,7 +103,7 @@ class PlaylistRepository @Inject constructor(
         val newSongsList = libraryDatabase
             .getSongDao()
             .forCurrentFiltersList(
-                queryComposer.getQueryForSongs(
+                queryComposer.getQueryForSongIds(
                     listOf(filter).toQueryFilters(),
                     emptyList()
                 )
@@ -127,7 +127,7 @@ class PlaylistRepository @Inject constructor(
         val songList = libraryDatabase
             .getSongDao()
             .forCurrentFiltersList(
-                queryComposer.getQueryForSongs(
+                queryComposer.getQueryForSongIds(
                     listOf(filter).toQueryFilters(),
                     emptyList()
                 )

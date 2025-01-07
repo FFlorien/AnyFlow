@@ -3,13 +3,15 @@ package be.florien.anyflow.management.download
 import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.toQueryFilters
 import be.florien.anyflow.tags.local.LibraryDatabase
-import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.local.model.DbDownload
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.tags.toQueryFilters
 import be.florien.anyflow.tags.toViewSongInfo
 import javax.inject.Inject
 
@@ -21,10 +23,10 @@ class DownloadRepository @Inject constructor(
     suspend fun getSongSync(id: Long): SongInfo =
         libraryDatabase.getSongDao().songById(id).toViewSongInfo()
 
-    suspend fun queueDownload(id: Long, type: Filter.FilterType, secondId: Int?) {
-        val filter = if (type == Filter.FilterType.DISK_IS) {
+    suspend fun queueDownload(id: Long, type: FilterType, secondId: Int?) {
+        val filter = if (type == TagFilterType.DISK_IS) {
             Filter(
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 id,
                 "",
                 listOf(Filter(type, secondId, " "))
@@ -46,12 +48,12 @@ class DownloadRepository @Inject constructor(
 
     fun getProgressForDownloadCandidate(
         id: Long,
-        type: Filter.FilterType,
+        type: FilterType,
         secondId: Int? = null
     ): LiveData<DownloadProgressState> {
-        val filter = if (type == Filter.FilterType.DISK_IS) {
+        val filter = if (type == TagFilterType.DISK_IS) {
             Filter(
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 id,
                 "",
                 listOf(Filter(type, secondId, ""))

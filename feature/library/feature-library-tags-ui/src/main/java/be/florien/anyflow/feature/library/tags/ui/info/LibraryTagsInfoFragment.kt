@@ -14,12 +14,13 @@ import be.florien.anyflow.feature.library.tags.ui.list.LibraryTagsListFragment
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import kotlin.random.Random
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
-    LibraryInfoFragment<LibraryInfoRow>(parentFilter) {
+    LibraryInfoFragment<LibraryInfoRow, TagFilterType>(parentFilter) {
     override fun getTitle(): String = getString(R.string.library_title_main)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
     override fun getLibraryInfoViewModel() = ViewModelProvider(
@@ -29,16 +30,16 @@ class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
 
     private fun getField(
         filterType: LibraryTagsFieldType
-    ): Filter.FilterType {
+    ): TagFilterType {
         return when (filterType) {
-            LibraryTagsFieldType.Song -> Filter.FilterType.SONG_IS
-            LibraryTagsFieldType.Artist -> Filter.FilterType.ARTIST_IS
-            LibraryTagsFieldType.AlbumArtist -> Filter.FilterType.ALBUM_ARTIST_IS
-            LibraryTagsFieldType.Album -> Filter.FilterType.ALBUM_IS
-            LibraryTagsFieldType.Playlist -> Filter.FilterType.PLAYLIST_IS
-            LibraryTagsFieldType.Downloaded -> Filter.FilterType.DOWNLOADED_STATUS_IS
-            LibraryTagsFieldType.Duration -> Filter.FilterType.SONG_IS
-            LibraryTagsFieldType.Genre -> Filter.FilterType.SONG_IS
+            LibraryTagsFieldType.Song -> TagFilterType.SONG_IS
+            LibraryTagsFieldType.Artist -> TagFilterType.ARTIST_IS
+            LibraryTagsFieldType.AlbumArtist -> TagFilterType.ALBUM_ARTIST_IS
+            LibraryTagsFieldType.Album -> TagFilterType.ALBUM_IS
+            LibraryTagsFieldType.Playlist -> TagFilterType.PLAYLIST_IS
+            LibraryTagsFieldType.Downloaded -> TagFilterType.DOWNLOADED_STATUS_IS
+            LibraryTagsFieldType.Duration -> TagFilterType.SONG_IS
+            LibraryTagsFieldType.Genre -> TagFilterType.SONG_IS
         }
     }
 

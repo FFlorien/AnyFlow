@@ -7,6 +7,7 @@ import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.tags.model.SongInfo
 import javax.inject.Inject
@@ -30,30 +31,30 @@ class SongInfoActions @Inject constructor(
     suspend fun filterOn(songInfo: SongInfo, row: BaseSongInfoRow) {
         val filter = when (row.fieldType) {
             SongFieldType.Title -> Filter(
-                Filter.FilterType.SONG_IS,
+                TagFilterType.SONG_IS,
                 songInfo.id,
                 songInfo.title
             )
 
             SongFieldType.Artist -> Filter(
-                Filter.FilterType.ARTIST_IS,
+                TagFilterType.ARTIST_IS,
                 songInfo.artistId,
                 songInfo.artistName
             )
 
             SongFieldType.Album -> Filter(
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName
             )
 
             SongFieldType.Disk -> Filter(
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName,
                 listOf(
                     Filter(
-                        Filter.FilterType.DISK_IS,
+                        TagFilterType.DISK_IS,
                         songInfo.disk,
                         songInfo.disk.toString()
                     )
@@ -61,7 +62,7 @@ class SongInfoActions @Inject constructor(
             )
 
             SongFieldType.AlbumArtist -> Filter(
-                Filter.FilterType.ALBUM_ARTIST_IS,
+                TagFilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
             )
@@ -69,7 +70,7 @@ class SongInfoActions @Inject constructor(
             SongFieldType.Genre -> {
                 val index = (row as BaseSongInfoRow.SongMultipleInfoRow).index
                 Filter(
-                    Filter.FilterType.GENRE_IS,
+                    TagFilterType.GENRE_IS,
                     songInfo.genreIds[index],
                     songInfo.genreNames[index]
                 )
@@ -78,7 +79,7 @@ class SongInfoActions @Inject constructor(
             SongFieldType.Playlist -> {
                 val index = (row as BaseSongInfoRow.SongMultipleInfoRow).index
                 Filter(
-                    Filter.FilterType.PLAYLIST_IS,
+                    TagFilterType.PLAYLIST_IS,
                     songInfo.playlistIds[index],
                     songInfo.playlistNames[index]
                 )
@@ -106,31 +107,31 @@ class SongInfoActions @Inject constructor(
         val data = when (fieldType) {
             SongFieldType.Title -> Triple(
                 songInfo.id,
-                Filter.FilterType.SONG_IS,
+                TagFilterType.SONG_IS,
                 -1
             )
 
             SongFieldType.Artist -> Triple(
                 songInfo.artistId,
-                Filter.FilterType.ARTIST_IS,
+                TagFilterType.ARTIST_IS,
                 -1
             )
 
             SongFieldType.Album -> Triple(
                 songInfo.albumId,
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 -1
             )
 
             SongFieldType.Disk -> Triple(
                 songInfo.albumId,
-                Filter.FilterType.DISK_IS,
+                TagFilterType.DISK_IS,
                 songInfo.disk
             )
 
             SongFieldType.AlbumArtist -> Triple(
                 songInfo.albumArtistId,
-                Filter.FilterType.ALBUM_ARTIST_IS,
+                TagFilterType.ALBUM_ARTIST_IS,
                 -1
             )
 
@@ -138,7 +139,7 @@ class SongInfoActions @Inject constructor(
                 val trueIndex = index ?: return
                 Triple(
                     songInfo.genreIds[trueIndex],
-                    Filter.FilterType.GENRE_IS,
+                    TagFilterType.GENRE_IS,
                     -1
                 )
             }
@@ -147,7 +148,7 @@ class SongInfoActions @Inject constructor(
                 val trueIndex = index ?: return
                 Triple(
                     songInfo.playlistIds[trueIndex],
-                    Filter.FilterType.PLAYLIST_IS,
+                    TagFilterType.PLAYLIST_IS,
                     -1
                 )
             }

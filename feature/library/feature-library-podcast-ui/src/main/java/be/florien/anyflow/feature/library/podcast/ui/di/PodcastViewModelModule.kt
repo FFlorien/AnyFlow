@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import be.florien.anyflow.common.di.ViewModelKey
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoViewModel
 import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
+import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodcastListViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -20,4 +21,9 @@ abstract class PodcastViewModelModule {
     @IntoMap
     @ViewModelKey(LibraryPodcastEpisodeListViewModel::class)
     abstract fun bindsSelectFilterFragmentPodcastEpisodeVM(viewModel: LibraryPodcastEpisodeListViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LibraryPodcastListViewModel::class)
+    abstract fun bindsSelectFilterFragmentPodcastVM(viewModel: LibraryPodcastListViewModel): ViewModel
 }

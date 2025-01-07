@@ -5,7 +5,8 @@ import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.Filter.FilterType
+import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.management.queue.model.Ordering.Companion.RANDOM_MULTIPLIER
 import be.florien.anyflow.tags.model.SongInfo
@@ -146,7 +147,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
         queueRepository.setOrderings(dbOrders)
     }
 
-    private fun saveQueue(filterList: List<be.florien.anyflow.management.filters.model.Filter<*>>, orderingList: List<Ordering>) {
+    private fun saveQueue(filterList: List<Filter<*>>, orderingList: List<Ordering>) {
         iLog("Order for saving queue order: ${orderingList.joinToString { it.orderingSubject.name }}")
         coroutineScope.launch {
             val queue = queueRepository.getOrderlessQueue(filterList, orderingList)
@@ -181,18 +182,19 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
 
 suspend fun Filter<*>.contains(song: SongInfo, filterRepository: QueueRepository): Boolean { //todo move elsewhere
     return when (this.type) {
-        FilterType.ALBUM_ARTIST_IS -> song.albumArtistId == argument
-        FilterType.ALBUM_IS -> song.albumId == argument
-        FilterType.DISK_IS -> song.disk == argument
-        FilterType.ARTIST_IS -> song.artistId == argument
-        FilterType.GENRE_IS -> song.genreIds.any { it == argument }
-        FilterType.SONG_IS -> song.id == argument
-        FilterType.PLAYLIST_IS -> filterRepository.isPlaylistContainingSong(
+        TagFilterType.ALBUM_ARTIST_IS -> song.albumArtistId == argument
+        TagFilterType.ALBUM_IS -> song.albumId == argument
+        TagFilterType.DISK_IS -> song.disk == argument
+        TagFilterType.ARTIST_IS -> song.artistId == argument
+        TagFilterType.GENRE_IS -> song.genreIds.any { it == argument }
+        TagFilterType.SONG_IS -> song.id == argument
+        TagFilterType.PLAYLIST_IS -> filterRepository.isPlaylistContainingSong(
             argument as Long,
             song.id
         )
 
-        FilterType.DOWNLOADED_STATUS_IS -> !song.local.isNullOrBlank()
-        FilterType.PODCAST_EPISODE_IS -> false
+        TagFilterType.DOWNLOADED_STATUS_IS -> !song.local.isNullOrBlank()
+        PodcastFilterType.PODCAST_EPISODE_IS,
+        PodcastFilterType.PODCAST_IS -> false
     }
 }

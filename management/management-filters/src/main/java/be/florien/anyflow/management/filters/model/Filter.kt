@@ -6,7 +6,7 @@ import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class Filter<T>(
-    val type: FilterType,
+    val type: @RawValue FilterType,
     val argument: @RawValue T,
     val displayText: String,
     var children: List<Filter<*>> = emptyList()
@@ -51,18 +51,6 @@ data class Filter<T>(
         children.forEach { it.traversal(action) }
     }
 
-    enum class FilterType(val artType: String?) {
-        SONG_IS(ART_TYPE_SONG),
-        ARTIST_IS(ART_TYPE_ARTIST),
-        ALBUM_ARTIST_IS(ART_TYPE_ARTIST),
-        ALBUM_IS(ART_TYPE_ALBUM),
-        GENRE_IS(null),
-        PLAYLIST_IS(ART_TYPE_PLAYLIST),
-        DOWNLOADED_STATUS_IS(null),
-        PODCAST_EPISODE_IS(ART_TYPE_PODCAST),
-        DISK_IS(ART_TYPE_ALBUM)
-    }
-
     companion object { //todo put in common with SyncRepository
         const val ART_TYPE_SONG = "song"
         const val ART_TYPE_ALBUM = "album"
@@ -85,5 +73,6 @@ data class FilterTagsCount( //todo move ?
 
 
 data class FilterPodcastCount(
+    val podcasts: Int,
     val podcastEpisodes: Int
 )

@@ -8,8 +8,9 @@ import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
 
-abstract class LibraryInfoViewModel<T>(
+abstract class LibraryInfoViewModel<T, FT: FilterType>(
     override val filtersManager: FiltersManager,
     override val navigator: Navigator
 ) : InfoViewModel<T>(), LibraryViewModel {
@@ -26,5 +27,5 @@ abstract class LibraryInfoViewModel<T>(
 
     abstract fun getArtUrl(artType: String, id: Long): String?
 
-    abstract suspend fun getFilteredInfo(filterType: Filter.FilterType, filter: Filter<*>?): IdText?
+    abstract suspend fun getFilteredInfo(filterType: FT, filter: Filter<*>?): IdText?
 }

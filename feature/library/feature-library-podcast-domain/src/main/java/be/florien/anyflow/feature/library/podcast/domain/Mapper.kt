@@ -7,8 +7,30 @@ import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
 import be.florien.anyflow.tags.UrlRepository
+
+internal fun PodcastDisplay.toFilterItem(
+    parentFilter: Filter<*>?,
+    urlRepository: UrlRepository,
+    filtersManager: FiltersManager
+): FilterItem {
+    val filter = Filter(
+        PodcastFilterType.PODCAST_IS,
+        id,
+        name
+    )
+    val filterInHierarchy = parentFilter.withChild(filter)
+
+    return FilterItem(
+        id,
+        TextConfig(name),
+        filtersManager.isFilterInEdition(filterInHierarchy),
+        urlRepository.getArtUrl("podcast", id),
+    )
+}
 
 internal fun PodcastEpisodeDisplay.toFilterItem(
     parentFilter: Filter<*>?,
@@ -16,8 +38,9 @@ internal fun PodcastEpisodeDisplay.toFilterItem(
     filtersManager: FiltersManager
 ): FilterItem {
     val filter = Filter(
-        Filter.FilterType.PODCAST_EPISODE_IS,
-        id, title
+        PodcastFilterType.PODCAST_EPISODE_IS,
+        id,
+        title
     )
     val filterInHierarchy = parentFilter.withChild(filter)
     return (FilterItem(
@@ -29,6 +52,8 @@ internal fun PodcastEpisodeDisplay.toFilterItem(
         TextConfig(R.string.library_by, nextTextConfig = TextConfig(podcast, TextConfigStyle.BOLD))
     ))
 }
+
+internal fun PodcastDisplay.toIdText() = IdText(id, name)
 
 internal fun PodcastEpisodeDisplay.toIdText() = IdText(id, title)
 

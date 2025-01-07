@@ -16,17 +16,18 @@ import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.cancelChanges
 import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterTypeBinding
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class LibraryInfoFragment<T>(var parentFilter: Filter<*>? = null) :
+abstract class LibraryInfoFragment<T, FT: FilterType>(var parentFilter: Filter<*>? = null) :
     BaseFilteringFragment() {
 
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
     override val navigator: Navigator
         get() = viewModel.navigator
-    lateinit var viewModel: LibraryInfoViewModel<T>
+    lateinit var viewModel: LibraryInfoViewModel<T, FT>
     private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
 
     override fun onAttach(context: Context) {
@@ -35,7 +36,7 @@ abstract class LibraryInfoFragment<T>(var parentFilter: Filter<*>? = null) :
         viewModel.filterNavigation = parentFilter
     }
 
-    abstract fun getLibraryInfoViewModel(): LibraryInfoViewModel<T>
+    abstract fun getLibraryInfoViewModel(): LibraryInfoViewModel<T, FT>
 
     override fun onCreateView(
         inflater: LayoutInflater,

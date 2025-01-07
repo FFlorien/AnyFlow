@@ -37,8 +37,9 @@ data class DbFilter(
         const val TYPE_PLAYLIST = 6
         // Podcasts
         const val TYPE_PODCAST_EPISODE = 7
+        const val TYPE_PODCAST = 8
         // Common
-        const val TYPE_DOWNLOADED = 8
+        const val TYPE_DOWNLOADED = 9
     }
 }
 
@@ -54,5 +55,6 @@ data class DbTagsFilterCount(
 )
 
 data class DbPodcastFilterCount(
+    val podcasts: Int,
     val podcastEpisodes: Int
 )

@@ -9,6 +9,7 @@ import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class LibraryTagsInfoViewModel @Inject constructor(
     val libraryTagsRepository: LibraryTagsRepository, //todo this doesn't get injected
     filtersManager: FiltersManager,
     navigator: Navigator
-) : LibraryInfoViewModel<LibraryInfoRow>(filtersManager, navigator), LibraryViewModel {
+) : LibraryInfoViewModel<LibraryInfoRow, TagFilterType>(filtersManager, navigator), LibraryViewModel {
     override fun getArtUrl(artType: String, id: Long): String? =
         libraryTagsRepository.getArtUrl(artType, id)
 
@@ -35,7 +36,7 @@ class LibraryTagsInfoViewModel @Inject constructor(
                 getAction(filteredInfo.genres.minus(filterNavigation?.let { source ->
                     val genreFilters = mutableSetOf<Long>()
                     source.traversal { filter ->
-                        if (filter.type == Filter.FilterType.GENRE_IS) {
+                        if (filter.type == TagFilterType.GENRE_IS) {
                             genreFilters.add(filter.argument as Long)
                         }
                     }
@@ -73,7 +74,7 @@ class LibraryTagsInfoViewModel @Inject constructor(
                 getAction(filteredInfo.playlists.minus(filterNavigation?.let { source ->
                     val playlistFilters = mutableSetOf<Long>()
                     source.traversal { filter ->
-                        if (filter.type == Filter.FilterType.PLAYLIST_IS) {
+                        if (filter.type == TagFilterType.PLAYLIST_IS) {
                             playlistFilters.add(filter.argument as Long)
                         }
                     }
@@ -89,21 +90,20 @@ class LibraryTagsInfoViewModel @Inject constructor(
     }
 
     override suspend fun getFilteredInfo(
-        filterType: Filter.FilterType,
+        filterType: TagFilterType,
         filter: Filter<*>?
-    ) = when (filterType) { //todo separate podcast & tags
-        Filter.FilterType.SONG_IS -> libraryTagsRepository.getSongFiltered(filter)
-        Filter.FilterType.ARTIST_IS -> libraryTagsRepository.getArtistFiltered(filter)
-        Filter.FilterType.ALBUM_ARTIST_IS -> libraryTagsRepository.getAlbumArtistFiltered(
+    ) = when (filterType) {
+        TagFilterType.SONG_IS -> libraryTagsRepository.getSongFiltered(filter)
+        TagFilterType.ARTIST_IS -> libraryTagsRepository.getArtistFiltered(filter)
+        TagFilterType.ALBUM_ARTIST_IS -> libraryTagsRepository.getAlbumArtistFiltered(
             filter
         )
 
-        Filter.FilterType.ALBUM_IS -> libraryTagsRepository.getAlbumFiltered(filter)
-        Filter.FilterType.GENRE_IS -> libraryTagsRepository.getGenreFiltered(filter)
-        Filter.FilterType.PLAYLIST_IS -> libraryTagsRepository.getPlaylistFiltered(filter)
-        Filter.FilterType.PODCAST_EPISODE_IS,
-        Filter.FilterType.DOWNLOADED_STATUS_IS,
-        Filter.FilterType.DISK_IS -> listOf(null)
+        TagFilterType.ALBUM_IS -> libraryTagsRepository.getAlbumFiltered(filter)
+        TagFilterType.GENRE_IS -> libraryTagsRepository.getGenreFiltered(filter)
+        TagFilterType.PLAYLIST_IS -> libraryTagsRepository.getPlaylistFiltered(filter)
+        TagFilterType.DOWNLOADED_STATUS_IS,
+        TagFilterType.DISK_IS -> listOf(null)
 
     }.firstOrNull()
 

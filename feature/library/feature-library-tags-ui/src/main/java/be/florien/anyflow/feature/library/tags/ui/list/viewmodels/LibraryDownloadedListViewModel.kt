@@ -10,6 +10,7 @@ import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import javax.inject.Inject
 
 class LibraryDownloadedListViewModel @Inject constructor(
@@ -31,7 +32,7 @@ class LibraryDownloadedListViewModel @Inject constructor(
     )
 
     override fun isThisTypeOfFilter(filter: Filter<*>) =
-        filter.type == Filter.FilterType.DOWNLOADED_STATUS_IS
+        filter.type == TagFilterType.DOWNLOADED_STATUS_IS
 
     override suspend fun getFoundFilters(
         filter: Filter<*>?,
@@ -40,6 +41,6 @@ class LibraryDownloadedListViewModel @Inject constructor(
         libraryTagsRepository.getDownloadedFiltersList(filter, downloadedName, notDownloadedName)
 
     override fun getFilter(filterValue: FilterItem) =
-        getFilterInParent(Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, filterValue.id == 1L, ""))
+        getFilterInParent(Filter(TagFilterType.DOWNLOADED_STATUS_IS, filterValue.id == 1L, ""))
 
 }

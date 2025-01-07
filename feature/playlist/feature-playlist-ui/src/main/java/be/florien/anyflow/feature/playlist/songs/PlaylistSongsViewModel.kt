@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistSong
@@ -63,8 +65,8 @@ class PlaylistSongsViewModel : BaseViewModel(), RemoveSongsViewModel { //todo ma
     fun filterOnPlaylist() {
         filtersManager.clearFilters()
         filtersManager.addFilter(
-            be.florien.anyflow.management.filters.model.Filter(
-                be.florien.anyflow.management.filters.model.Filter.FilterType.PLAYLIST_IS,
+            Filter(
+                TagFilterType.PLAYLIST_IS,
                 playlist.id,
                 playlist.name
             )

@@ -7,15 +7,17 @@ import be.florien.anyflow.common.ui.data.TextConfig
 import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.library.podcast.domain.LibraryInfoRow
 import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastActionType
+import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastFieldType
 import be.florien.anyflow.feature.library.podcast.ui.list.LibraryPodcastListFragment
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.PodcastFilterType
 import kotlin.random.Random
 
 class LibraryPodcastInfoFragment(parentFilter: Filter<*>? = null) :
-    LibraryInfoFragment<LibraryInfoRow>(parentFilter) {
+    LibraryInfoFragment<LibraryInfoRow, PodcastFilterType>(parentFilter) {
     override fun getTitle(): String = getString(R.string.menu_podcast)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
     override fun getLibraryInfoViewModel() = ViewModelProvider(
@@ -27,7 +29,11 @@ class LibraryPodcastInfoFragment(parentFilter: Filter<*>? = null) :
         val action = row.actionType
         when (action) {
             LibraryPodcastActionType.SubFilter -> {
-                val value = LibraryPodcastInfoViewModel.PODCAST_EPISODE_ID
+                val value = when (row.fieldType) {
+                    LibraryPodcastFieldType.Podcast -> LibraryPodcastInfoViewModel.PODCAST_ID
+                    LibraryPodcastFieldType.PodcastEpisode -> LibraryPodcastInfoViewModel.PODCAST_EPISODE_ID
+                }
+
                 viewModel.navigator.displayFragmentOnMain(
                     requireContext(),
                     LibraryPodcastListFragment(value, viewModel.filterNavigation),
@@ -66,9 +72,12 @@ class LibraryPodcastInfoFragment(parentFilter: Filter<*>? = null) :
         }
     }
 
-    private suspend fun getIdText(): IdText {
+    private suspend fun LibraryInfoRow.getIdText(): IdText {
         val filter = viewModel.filterNavigation
-        val filterType = Filter.FilterType.PODCAST_EPISODE_IS
+        val filterType = when (fieldType) {
+            LibraryPodcastFieldType.Podcast -> PodcastFilterType.PODCAST_IS
+            LibraryPodcastFieldType.PodcastEpisode -> PodcastFilterType.PODCAST_EPISODE_IS
+        }
         val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
         val filterData: IdText? = filterIfTypePresent?.takeIf { it.argument is Long }
             ?.let { IdText(it.argument as Long, it.displayText) }

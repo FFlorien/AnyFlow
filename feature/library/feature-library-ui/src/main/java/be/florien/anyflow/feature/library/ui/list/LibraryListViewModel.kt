@@ -120,8 +120,7 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
     }
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
-        val liveData: LiveData<PagingData<FilterItem>> =
-            getPagingList(navigationFilter, search).cachedIn(viewModelScope)
+        val liveData = getPagingList(navigationFilter, search).cachedIn(viewModelScope)
         if (!liveData.hasActiveObservers()) {
             (values as MediatorLiveData).addSource(liveData) {
                 (values as MediatorLiveData).value = it

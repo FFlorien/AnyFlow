@@ -36,6 +36,8 @@ import be.florien.anyflow.feature.library.ui.currentFiltersForDisplay
 import be.florien.anyflow.feature.library.ui.menu.SaveFilterGroupMenuHolder
 import be.florien.anyflow.feature.library.ui.saveFilterGroup
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
@@ -198,50 +200,51 @@ class CurrentFilterFragment : BaseFilteringFragment() {
         }
 
         private fun getFilterText(filter: Filter<*>) = when (filter.type) {
-            Filter.FilterType.GENRE_IS -> getString(
+            TagFilterType.GENRE_IS -> getString(
                 R.string.filter_display_genre_is,
                 filter.displayText
             )
 
-            Filter.FilterType.SONG_IS -> getString(
+            TagFilterType.SONG_IS -> getString(
                 R.string.filter_display_song_is,
                 filter.displayText
             )
 
-            Filter.FilterType.ARTIST_IS -> getString(
+            TagFilterType.ARTIST_IS -> getString(
                 R.string.filter_display_artist_is,
                 filter.displayText
             )
 
-            Filter.FilterType.ALBUM_ARTIST_IS -> getString(
+            TagFilterType.ALBUM_ARTIST_IS -> getString(
                 R.string.filter_display_album_artist_is,
                 filter.displayText
             )
 
-            Filter.FilterType.ALBUM_IS -> getString(
+            TagFilterType.ALBUM_IS -> getString(
                 R.string.filter_display_album_is,
                 filter.displayText
             )
 
-            Filter.FilterType.DISK_IS -> getString( //todo is not displayed correctly for now because it is a subfilter
+            TagFilterType.DISK_IS -> getString( //todo is not displayed correctly for now because it is a subfilter
                 R.string.filter_display_disk_is,
                 filter.displayText
             )
 
-            Filter.FilterType.PLAYLIST_IS -> getString(
+            TagFilterType.PLAYLIST_IS -> getString(
                 R.string.filter_display_playlist_is,
                 filter.displayText
             )
 
-            Filter.FilterType.DOWNLOADED_STATUS_IS -> getString(
+            TagFilterType.DOWNLOADED_STATUS_IS -> getString(
                 if (filter.argument as Boolean) R.string.filter_display_is_downloaded
                 else R.string.filter_display_is_not_downloaded
             )
 
-            Filter.FilterType.PODCAST_EPISODE_IS -> getString(
+            PodcastFilterType.PODCAST_EPISODE_IS -> getString(
                 R.string.filter_display_podcast_episode_is,
                 filter.displayText
             )
+            PodcastFilterType.PODCAST_IS -> getString(R.string.filter_display_podcast_is, filter.displayText)
         }
 
         private fun setImage(
@@ -278,44 +281,49 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                 )
             } else {
                 when (filter.type) {
-                    Filter.FilterType.ALBUM_ARTIST_IS,
-                    Filter.FilterType.ARTIST_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.ALBUM_ARTIST_IS,
+                    TagFilterType.ARTIST_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_artist,
                         leftIconSize
                     )
 
-                    Filter.FilterType.GENRE_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.GENRE_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_genre,
                         leftIconSize
                     )
 
-                    Filter.FilterType.ALBUM_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.ALBUM_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_album,
                         leftIconSize
                     )
 
-                    Filter.FilterType.DISK_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.DISK_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_disk,
                         leftIconSize
                     )
 
-                    Filter.FilterType.PLAYLIST_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.PLAYLIST_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_playlist,
                         leftIconSize
                     )
 
-                    Filter.FilterType.DOWNLOADED_STATUS_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.DOWNLOADED_STATUS_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_download,
                         leftIconSize
                     )
 
-                    Filter.FilterType.SONG_IS -> setCompoundDrawableFromResources(
+                    TagFilterType.SONG_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_song,
                         leftIconSize
                     )
 
-                    Filter.FilterType.PODCAST_EPISODE_IS -> setCompoundDrawableFromResources(
+                    PodcastFilterType.PODCAST_EPISODE_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_podcast_episode,
+                        leftIconSize
+                    )
+
+                    PodcastFilterType.PODCAST_IS -> setCompoundDrawableFromResources(
+                        R.drawable.ic_podcast,
                         leftIconSize
                     )
                 }

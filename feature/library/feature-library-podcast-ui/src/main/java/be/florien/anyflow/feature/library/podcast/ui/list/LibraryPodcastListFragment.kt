@@ -9,6 +9,7 @@ import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoViewModel
 import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodcastEpisodeListViewModel
+import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodcastListViewModel
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.DetailViewHolderListener
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
@@ -24,11 +25,16 @@ class LibraryPodcastListFragment @SuppressLint("ValidFragment") constructor(
 
     override fun getViewModel(filterName: String) =
         ViewModelProvider(this, requireActivity().viewModelFactory)[
-            LibraryPodcastEpisodeListViewModel::class.java]
+            when(filterName){
+                LibraryPodcastInfoViewModel.PODCAST_ID -> LibraryPodcastListViewModel::class.java
+                LibraryPodcastInfoViewModel.PODCAST_EPISODE_ID ->LibraryPodcastEpisodeListViewModel::class.java
+                else -> LibraryPodcastListViewModel::class.java
+            }]
 
     override fun getTitle(): String = getString(R.string.menu_podcast)
 
     override fun getSubtitle(): String? = when (filterType) {
+        LibraryPodcastInfoViewModel.PODCAST_ID -> getString(R.string.library_type_podcast)
         LibraryPodcastInfoViewModel.PODCAST_EPISODE_ID -> getString(R.string.library_type_podcast_episode)
         else -> null
     }

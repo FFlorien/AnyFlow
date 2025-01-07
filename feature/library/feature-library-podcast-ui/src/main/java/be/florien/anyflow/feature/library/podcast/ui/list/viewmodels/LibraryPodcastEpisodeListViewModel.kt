@@ -8,6 +8,7 @@ import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastRepositor
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.PodcastFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -23,7 +24,7 @@ class LibraryPodcastEpisodeListViewModel @Inject constructor(
     ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getPodcastEpisodeFiltersPaging(filter, search) //todo handle filters & search
 
     override fun isThisTypeOfFilter(filter: Filter<*>): Boolean =
-        filter.type == Filter.FilterType.PODCAST_EPISODE_IS
+        filter.type == PodcastFilterType.PODCAST_EPISODE_IS
 
     override suspend fun getFoundFilters(
         filter: Filter<*>?,
@@ -36,7 +37,7 @@ class LibraryPodcastEpisodeListViewModel @Inject constructor(
     override fun getFilter(filterValue: FilterItem) =
         getFilterInParent(
             Filter(
-                Filter.FilterType.PODCAST_EPISODE_IS,
+                PodcastFilterType.PODCAST_EPISODE_IS,
                 filterValue.id,
                 filterValue.title.getText()
             )

@@ -2,11 +2,13 @@ package be.florien.anyflow.management.podcast
 
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterPodcastCount
+import be.florien.anyflow.management.filters.toQueryFilters
 import be.florien.anyflow.tags.local.LibraryDatabase
+import be.florien.anyflow.tags.local.model.DbPodcast
+import be.florien.anyflow.tags.local.model.DbPodcastDisplay
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbPodcastEpisodeDisplay
 import be.florien.anyflow.tags.local.query.QueryComposer
-import be.florien.anyflow.tags.toQueryFilters
 import javax.inject.Inject
 
 class PodcastRepository @Inject constructor(
@@ -14,11 +16,27 @@ class PodcastRepository @Inject constructor(
 ) {
     private val queryComposer: QueryComposer = QueryComposer()
 
-    fun getAllPodcastsEpisodes() =
-        libraryDatabase
+    fun getPodcasts(
+        filters: List<Filter<*>>?,
+        search: String?
+    ) = libraryDatabase
+        .getPodcastDao()
+        .rawQueryPaging(queryComposer.getQueryForPodcasts(filters?.toQueryFilters() ?: emptyList()))
+        .map(DbPodcastDisplay::toViewPodcast)
+
+    fun getPodcastsEpisodes(
+        filters: List<Filter<*>>?,
+        search: String?
+    ) = libraryDatabase
             .getPodcastEpisodeDao()
-            .getPodcastEpisodesPaging()
+            .rawQueryPaging(queryComposer.getQueryForPodcastEpisodes(filters?.toQueryFilters() ?: emptyList()))
             .map(DbPodcastEpisodeDisplay::toViewPodcastEpisode)
+
+    suspend fun getAllPodcastsList() =
+        libraryDatabase
+            .getPodcastDao()
+            .getPodcastList()
+            .map(DbPodcast::toViewPodcast)
 
     suspend fun getAllPodcastsEpisodesList() =
         libraryDatabase

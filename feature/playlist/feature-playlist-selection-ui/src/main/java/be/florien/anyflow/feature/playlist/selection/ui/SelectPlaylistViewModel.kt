@@ -9,6 +9,8 @@ import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.component.dialog.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.selection.domain.toViewFilterType
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
 import kotlinx.coroutines.Dispatchers
@@ -35,12 +37,12 @@ class SelectPlaylistViewModel @Inject constructor(
         MutableLiveData(null)
 
     private var id: Long = 0L
-    private var filterType: Filter.FilterType = Filter.FilterType.SONG_IS
+    private var filterType: FilterType = TagFilterType.SONG_IS
     private var secondId: Int = -1
     private val filter by lazy {
-        if (filterType == Filter.FilterType.DISK_IS) {
+        if (filterType == TagFilterType.DISK_IS) {
             Filter(
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 id,
                 "",
                 listOf(

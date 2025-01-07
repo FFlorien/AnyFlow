@@ -59,7 +59,7 @@ constructor(
         navigator.displayFragmentOnMain(
             requireContext(),
             LibraryTagsInfoFragment(filter),
-            "PODCAST",
+            "TAGS",
             LibraryTagsInfoFragment::class.java.simpleName
         )
     }

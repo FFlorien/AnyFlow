@@ -9,6 +9,7 @@ enum class LibraryPodcastFieldType(
     @StringRes val titleRes: Int,
     val artType: String
 ) {
+    Podcast(R.drawable.ic_podcast, R.string.library_type_podcast, "podcast"),
     PodcastEpisode(R.drawable.ic_podcast_episode, R.string.library_type_podcast_episode, "podcast");
 }
 

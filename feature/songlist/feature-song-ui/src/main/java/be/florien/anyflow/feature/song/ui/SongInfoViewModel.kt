@@ -12,7 +12,7 @@ import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
 import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
 import be.florien.anyflow.tags.DataRepository
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.model.SongInfo
@@ -104,7 +104,7 @@ class SongInfoViewModel @Inject constructor(
 
     override fun getDownloadState(
         id: Long,
-        type: Filter.FilterType,
+        type: FilterType,
         additionalInfo: Int?
     ) = downloadManager.getDownloadState(id, type, additionalInfo)
 

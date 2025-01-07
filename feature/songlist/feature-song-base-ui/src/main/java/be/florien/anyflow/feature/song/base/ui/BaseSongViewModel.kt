@@ -8,7 +8,8 @@ import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
 
@@ -295,7 +296,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.id,
-                        Filter.FilterType.SONG_IS
+                        TagFilterType.SONG_IS
                     )
                 )
 
@@ -305,7 +306,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.albumId,
-                        Filter.FilterType.ALBUM_IS
+                        TagFilterType.ALBUM_IS
                     )
                 )
 
@@ -315,7 +316,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.albumId,
-                        Filter.FilterType.DISK_IS,
+                        TagFilterType.DISK_IS,
                         songInfo.disk
                     )
                 )
@@ -326,7 +327,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.albumArtistId,
-                        Filter.FilterType.ALBUM_ARTIST_IS
+                        TagFilterType.ALBUM_ARTIST_IS
                     )
                 )
 
@@ -336,7 +337,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.artistId,
-                        Filter.FilterType.ARTIST_IS
+                        TagFilterType.ARTIST_IS
                     )
                 )
 
@@ -346,7 +347,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.genreIds[index],
-                        Filter.FilterType.GENRE_IS
+                        TagFilterType.GENRE_IS
                     ),
                     index = index
                 )
@@ -357,7 +358,7 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
                     order = order,
                     progress = getDownloadState(
                         songInfo.playlistIds[index],
-                        Filter.FilterType.PLAYLIST_IS
+                        TagFilterType.PLAYLIST_IS
                     ),
                     index = index
                 )
@@ -397,6 +398,6 @@ abstract class BaseSongViewModel : InfoViewModel<BaseSongInfoRow>() {
         BaseSongInfoRow.SongInfoRow(fieldType, actionType)
     }
 
-    abstract fun getDownloadState(id: Long, type: Filter.FilterType, additionalInfo: Int? = null) : LiveData<DownloadProgressState>
+    abstract fun getDownloadState(id: Long, type: FilterType, additionalInfo: Int? = null) : LiveData<DownloadProgressState>
 
 }

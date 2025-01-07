@@ -24,9 +24,10 @@ android {
 
 dependencies {
     implementation project(":common-di")
+    implementation project(":common-management")
+    implementation project(':common-utils')
     implementation project(":data-local")
     implementation project(":management-filters")
-    implementation project(":common-management")
 
     implementation 'androidx.core:core-ktx:1.13.1'
     //Paging
@@ -36,6 +37,5 @@ dependencies {
     //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-    implementation project(':common-utils')
 }
 apply plugin: 'kotlin-parcelize'

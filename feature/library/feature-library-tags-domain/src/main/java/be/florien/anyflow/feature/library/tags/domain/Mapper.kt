@@ -6,6 +6,7 @@ import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.playlist.model.Playlist
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.tags.UrlRepository
@@ -22,7 +23,7 @@ internal fun SongDisplayDomain.toFilterItem(
     filtersManager: FiltersManager
 ): FilterItem {
     val artUrl = urlRepository.getAlbumArtUrl(albumId)
-    val filter = Filter(Filter.FilterType.SONG_IS, id, title)
+    val filter = Filter(TagFilterType.SONG_IS, id, title)
     val filterWithHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
@@ -41,7 +42,7 @@ internal fun Artist.toFilterItem(
 ): FilterItem {
     val artUrl = urlRepository.getArtistArtUrl(id)
     val filter =
-        Filter(Filter.FilterType.ALBUM_ARTIST_IS, id, name)
+        Filter(TagFilterType.ALBUM_ARTIST_IS, id, name)
     val filterWithHierarchy = parentFilter.withChild(filter)
 
     return FilterItem(
@@ -60,7 +61,7 @@ internal fun Album.toFilterItem(
     val artUrl = urlRepository.getAlbumArtUrl(id)
     val filter =
         Filter(
-            Filter.FilterType.ALBUM_IS,
+            TagFilterType.ALBUM_IS,
             id,
             name,
             emptyList()
@@ -79,7 +80,7 @@ internal fun Genre.toFilterItem(
     parentFilter: Filter<*>?,
     filtersManager: FiltersManager
 ): FilterItem {
-    val filter = Filter(Filter.FilterType.GENRE_IS, id, name)
+    val filter = Filter(TagFilterType.GENRE_IS, id, name)
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
@@ -94,7 +95,7 @@ internal fun Playlist.toFilterItem(
     filtersManager: FiltersManager
 ): FilterItem {
     val artUrl = urlRepository.getPlaylistArtUrl(id)
-    val filter = Filter(Filter.FilterType.PLAYLIST_IS, id, name)
+    val filter = Filter(TagFilterType.PLAYLIST_IS, id, name)
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
@@ -110,7 +111,7 @@ internal fun PlaylistWithCount.toFilterItem(
     filtersManager: FiltersManager
 ): FilterItem {
     val artUrl = urlRepository.getPlaylistArtUrl(id)
-    val filter = Filter(Filter.FilterType.PLAYLIST_IS, id, name)
+    val filter = Filter(TagFilterType.PLAYLIST_IS, id, name)
     val filterInHierarchy = parentFilter.withChild(filter)
     return FilterItem(
         id,
@@ -131,7 +132,7 @@ internal fun DownloadedCount.toFilterItem(
     } else {
         isNotDownloadedName
     } + count
-    val filter = Filter(Filter.FilterType.DOWNLOADED_STATUS_IS, isDownloaded, name)
+    val filter = Filter(TagFilterType.DOWNLOADED_STATUS_IS, isDownloaded, name)
     val filterInHierarchy = parentFilter.withChild(filter)
     val id = if (isDownloaded) 1L else 0L
     return FilterItem(

@@ -6,6 +6,7 @@ import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.TagFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -18,7 +19,7 @@ class LibraryAlbumListViewModel @Inject constructor(
     override fun getPagingList(filter: Filter<*>?, search: String?) =
         libraryTagsRepository.getAlbumFiltersPaging(filter, search)
 
-    override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == Filter.FilterType.ALBUM_IS
+    override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == TagFilterType.ALBUM_IS
 
     override suspend fun getFoundFilters(
         filter: Filter<*>?,
@@ -31,7 +32,7 @@ class LibraryAlbumListViewModel @Inject constructor(
     override fun getFilter(filterValue: FilterItem) =
         getFilterInParent(
             Filter(
-                Filter.FilterType.ALBUM_IS,
+                TagFilterType.ALBUM_IS,
                 filterValue.id,
                 filterValue.title.getText(),
                 emptyList()

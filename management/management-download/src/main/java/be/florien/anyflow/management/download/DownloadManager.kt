@@ -8,7 +8,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.logging.eLog
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.tags.UrlRepository
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
@@ -43,15 +44,15 @@ class DownloadManager @Inject constructor(
         nextDownload()
     }
 
-    fun queueDownload(typeId: Long, filterType: Filter.FilterType, secondId: Int? = null) {
+    fun queueDownload(typeId: Long, filterType: FilterType, secondId: Int? = null) {
         downloadScope.launch(Dispatchers.IO) {
             downloadRepository.queueDownload(typeId, filterType, secondId)
             nextDownload()
         }
     }
 
-    fun getDownloadState(id: Long, filterType: Filter.FilterType, secondId: Int? = null): LiveData<DownloadProgressState> =
-        if (filterType == Filter.FilterType.SONG_IS) {
+    fun getDownloadState(id: Long, filterType: FilterType, secondId: Int? = null): LiveData<DownloadProgressState> =
+        if (filterType == TagFilterType.SONG_IS) {
             val livedata = downloadProgressMap[id] ?: MutableLiveData()
             downloadProgressMap[id] = livedata
             if (currentDownloads.contains(id) && currentDownload != id) {
