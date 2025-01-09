@@ -212,6 +212,7 @@ class QueryComposer {
         val podcastFilters = filters.onlyPodcast()
 
         return ("SELECT DISTINCT podcastEpisode.id FROM podcastEpisode " +
+                constructJoinStatement(podcastFilters) +
                 constructWhereStatement(podcastFilters, "") +
                 " ORDER BY podcastEpisode.publicationDate DESC")
             .toSQLiteQuery()
@@ -320,10 +321,10 @@ class QueryComposer {
 
                 whereStatement += filter.getCondition()
                 if (filter.children.isNotEmpty()) {
-                    whereStatement += " AND" + constructWhereSubStatement(
+                    whereStatement += " AND (" + constructWhereSubStatement(
                         filter.children
                     )
-                    whereStatement += ")"
+                    whereStatement += "))"
                 }
                 if (index < filterList.size - 1) {
                     whereStatement += " OR"

@@ -255,7 +255,11 @@ class SyncRepository
         val podcasts = ampachePodcastSource.getPodcasts()
         if (podcasts is be.florien.anyflow.data.server.NetSuccess) {
             podcasts.data.forEach {
-                ampachePodcastSource.updatePodcast(it.id)
+                try {
+                    ampachePodcastSource.updatePodcast(it.id)
+                } catch (exception: Throwable) {
+                    //we shouldn't care and continue
+                }
             }
             val podcastsWithEpisodes = ampachePodcastSource.getPodcastsWithEpisodes()
             if (podcastsWithEpisodes is be.florien.anyflow.data.server.NetSuccess) {

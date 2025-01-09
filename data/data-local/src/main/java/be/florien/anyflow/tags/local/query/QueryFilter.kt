@@ -30,7 +30,7 @@ data class QueryFilter(
             QueryJoin.JoinType.PLAYLIST_SONG_COUNT
         ),
         DOWNLOADED_STATUS_IS("song.local IS"),
-        PODCAST_IS("podcast.id ="),
+        PODCAST_IS("podcastEpisode.podcastId ="),
         PODCAST_EPISODE_IS("podcastEpisode.id ="),
         DISK_IS("song.disk =")
     }
