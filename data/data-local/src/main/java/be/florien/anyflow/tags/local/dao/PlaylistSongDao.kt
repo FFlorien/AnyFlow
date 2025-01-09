@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs
+import be.florien.anyflow.tags.local.model.DbPlaylistWithSongs
 import be.florien.anyflow.tags.local.model.DbSongDisplay
 
 @Dao
@@ -25,6 +26,10 @@ abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
                 "ORDER BY playlistsongs.`order`"
     )
     abstract fun songsFromPlaylistPaging(playlistId: Long): DataSource.Factory<Int, DbSongDisplay>
+
+    @Transaction
+    @Query("SELECT * FROM playlist")
+    abstract suspend fun getPlaylistWithSongs(): List<DbPlaylistWithSongs>
     //endregion
 
     // region DELETE

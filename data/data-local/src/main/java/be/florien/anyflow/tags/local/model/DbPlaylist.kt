@@ -26,6 +26,16 @@ data class DbPlaylistSongs(
     val playlistId: Long
 )
 
+data class DbPlaylistWithSongs(
+    @Embedded val playlist: DbPlaylist,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(DbPlaylistSongs::class, parentColumn = "playlistId", entityColumn = "songId")
+    )
+    val songs: List<DbSong>
+)
+
 data class DbPlaylistWithCount(
     val id: Long,
     val name: String,

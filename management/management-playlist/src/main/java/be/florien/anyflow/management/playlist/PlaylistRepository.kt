@@ -38,6 +38,7 @@ class PlaylistRepository @Inject constructor(
 
     private val queryComposer = QueryComposer()
 
+    //region Get Playlists
     fun getPlaylists(
         filters: List<Filter<*>>?,
         search: String?
@@ -84,11 +85,9 @@ class PlaylistRepository @Inject constructor(
         .rawQueryForCountFiltered(
             queryComposer.getQueryForSongCount(filter.toQueryFilter())
         )
+    //endregion
 
-    /**
-     * Playlists modification
-     */
-
+    //region Playlists modification
     suspend fun createPlaylist(name: String) {
         ampachePlaylistSource.createPlaylist(name)
 //        syncRepository.playlists()todo
@@ -150,4 +149,5 @@ class PlaylistRepository @Inject constructor(
             libraryDatabase.getPlaylistSongsDao().deleteSongFromPlaylist(playlistId, it)
         }
     }
+    //endregion
 }

@@ -10,6 +10,7 @@ import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.common.utils.applyPutLong
+import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
 import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
 import be.florien.anyflow.data.server.model.AmpacheAlbum
@@ -17,7 +18,6 @@ import be.florien.anyflow.data.server.model.AmpacheApiListResponse
 import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheNameId
 import be.florien.anyflow.data.server.model.AmpachePlayList
-import be.florien.anyflow.data.server.model.AmpachePlaylistObject
 import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
@@ -55,9 +55,7 @@ class SyncRepository
 
     private val changeUpdater: LiveData<Int?> = MutableLiveData()
 
-    /**
-     * Getter with server updates
-     */
+    //region Getter with server updates
 
     /*
         todo: The following todo was done before a refactoring, see if it is still relevant
@@ -100,7 +98,7 @@ class SyncRepository
         notifyUpdate(CHANGE_GENRES)
         newSongs()
         val initialDeletedCount =
-            (ampacheDataSource.getDeletedSongs(0, 0) as? be.florien.anyflow.data.server.NetSuccess)
+            (ampacheDataSource.getDeletedSongs(0, 0) as? NetSuccess)
                 ?.data
                 ?.total_count
                 ?: 0
@@ -137,9 +135,9 @@ class SyncRepository
             sharedPreferences.applyPutLong(LAST_UPDATE_QUERY, nowDate.timeInMillis)
         }
 
-    /**
-     * Private Method : New data
-     */
+    //endregion
+
+    //region Private Method : New data
 
     private suspend fun newGenres() =
         getNewData(
@@ -183,7 +181,9 @@ class SyncRepository
         notifyUpdate(CHANGE_PLAYLISTS)
         val playlists = ampacheDataSource.getPlaylists()
         val playlistSongs = ampacheDataSource.getPlaylistsWithSongs()
-        if (playlists is be.florien.anyflow.data.server.NetSuccess && playlistSongs is be.florien.anyflow.data.server.NetSuccess) {
+        if (playlists is NetSuccess && playlistSongs is NetSuccess) {
+            val beforeUpdateJson = getPlaylistJson()
+
             val currentLocalPlaylists = libraryDatabase.getPlaylistDao().getPlaylistsList()
             libraryDatabase.getPlaylistSongsDao().deleteAllPlaylistSongs()
 
@@ -205,34 +205,42 @@ class SyncRepository
             libraryDatabase.getPlaylistDao()
                 .upsert(renamedPlaylists.map(AmpachePlayList::toDbPlaylist))
 
-            writePlaylistToFile(playlistSongs.data.playlistList.playlists, playlists.data.list)
-            cleanPlaylistFiles()
-
             val playlistSongsDb = playlistSongs.data.playlistList.toDbPlaylistSongs()
             libraryDatabase.getPlaylistSongsDao().upsert(playlistSongsDb)
+
+            val postUpdateJson = getPlaylistJson()
+            if (beforeUpdateJson != postUpdateJson) {
+                val dateFormatted = DateFormat.format("yyyyMMdd-HH:mm:ss", Date())
+                val beforeUpdateFileName = "Playlist-$dateFormatted-beforeUpdate.json"
+                val postUpdateFileName = "Playlist-$dateFormatted-postUpdate.json"
+                writeDbPlaylistToFile(beforeUpdateFileName, beforeUpdateJson)
+                writeDbPlaylistToFile(postUpdateFileName, postUpdateJson)
+                eLog(PlaylistMismatchException())
+                cleanPlaylistFiles()
+            }
         }
     }
 
-    private suspend fun writePlaylistToFile(
-        playlistSongs: Map<String, List<AmpachePlaylistObject>>,
-        playlist: List<AmpachePlayList>
-    ) = withContext(Dispatchers.IO) {
-        val dateFormatted = DateFormat.format("yyyyMMdd-HH:mm:ss", Date())
-        val name = "Playlist-$dateFormatted.json"
+    private suspend fun getPlaylistJson(): String {
+        val playlistSongs = libraryDatabase.getPlaylistSongsDao().getPlaylistWithSongs()
         val content = playlistSongs
-            .entries
-            .sortedBy { it.key }
+            .sortedBy { it.playlist.id }
             .joinToString(separator = ",", prefix = "{", postfix = "}") { entry ->
-                val playlistName = playlist
-                    .firstOrNull { it.id.toString() == entry.key }
-                    ?.name
-                    ?: "entry.key"
-                val values = entry.value
+                val playlistName = entry.playlist.name
+                val values = entry.songs
                     .sortedBy { it.id }
-                    .joinToString(separator = ",") { it.id.toString() }
-                "\"$playlistName\" : [$values]"
+                    .joinToString(separator = ",") {
+                        "\"${it.id}-${
+                            it.title.filter { it.isLetterOrDigit() }.take(20)
+                        }\""
+                    }
+                "\"$playlistName\":[$values]"
             }
-        val file = File(context.filesDir, "$PLAYLIST_DUMP_FOLDER/$name")
+        return content
+    }
+
+    private fun writeDbPlaylistToFile(fileName: String, content: String) {
+        val file = File(context.filesDir, "$PLAYLIST_DUMP_FOLDER/$fileName")
         file.createNewFile()
         val writer = OutputStreamWriter(file.outputStream())
         writer.write(content)
@@ -253,7 +261,7 @@ class SyncRepository
     private suspend fun podcasts() {
         notifyUpdate(CHANGE_PLAYLISTS)
         val podcasts = ampachePodcastSource.getPodcasts()
-        if (podcasts is be.florien.anyflow.data.server.NetSuccess) {
+        if (podcasts is NetSuccess) {
             podcasts.data.forEach {
                 try {
                     ampachePodcastSource.updatePodcast(it.id)
@@ -262,7 +270,7 @@ class SyncRepository
                 }
             }
             val podcastsWithEpisodes = ampachePodcastSource.getPodcastsWithEpisodes()
-            if (podcastsWithEpisodes is be.florien.anyflow.data.server.NetSuccess) {
+            if (podcastsWithEpisodes is NetSuccess) {
                 val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastList()
                 libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
 
@@ -296,9 +304,9 @@ class SyncRepository
         }
     }
 
-    /**
-     * Private Method : added data
-     */
+    //endregion
+
+    //region Private Method : added data
 
     private suspend fun addGenres(from: Calendar) =
         getUpdatedData(
@@ -342,9 +350,9 @@ class SyncRepository
             libraryDatabase.getSongGenreDao().upsert(songGenres)
         }
 
-    /**
-     * Private Method : Updated data
-     */
+    //endregion
+
+    //region Private Method : Updated data
 
     private suspend fun updateGenres(from: Calendar) =
         getUpdatedData(
@@ -403,12 +411,14 @@ class SyncRepository
             libraryDatabase.getSongDao()
                 .deleteWithId(success.data.list.map(AmpacheSongId::toDbSongId))
         }
+    //endregion
 
+    //region Private method : Utilities
     private suspend fun <V, T : AmpacheApiListResponse<V>> getNewData(
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         getFromApi: suspend AmpacheDataSource.(Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
-        updateDb: suspend (be.florien.anyflow.data.server.NetSuccess<T>) -> Unit
+        updateDb: suspend (NetSuccess<T>) -> Unit
     ) {
         getData(
             offsetKey,
@@ -428,7 +438,7 @@ class SyncRepository
         percentageUpdater: MutableLiveData<Int>,
         calendar: Calendar,
         getFromApi: suspend AmpacheDataSource.(Int, Int, Calendar) -> be.florien.anyflow.data.server.NetResult<T>,
-        updateDb: suspend (be.florien.anyflow.data.server.NetSuccess<T>) -> Unit
+        updateDb: suspend (NetSuccess<T>) -> Unit
     ) {
         getData(
             offsetKey,
@@ -447,7 +457,7 @@ class SyncRepository
         offsetKey: String,
         percentageUpdater: MutableLiveData<Int>,
         getFromApi: suspend (Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
-        updateLocalData: suspend (be.florien.anyflow.data.server.NetSuccess<T>, Int) -> Unit
+        updateLocalData: suspend (NetSuccess<T>, Int) -> Unit
     ) {
         var offset = sharedPreferences.getInt(offsetKey, 0)
         var count = Int.MAX_VALUE
@@ -455,7 +465,7 @@ class SyncRepository
         var result = getFromApi(offset, limit)
         while (offset < count) {
             when (result) {
-                is be.florien.anyflow.data.server.NetSuccess -> {
+                is NetSuccess -> {
                     count = result.data.total_count
                     offset += result.data.list.size
                     updateLocalData(result, offset)
@@ -494,6 +504,7 @@ class SyncRepository
         songsPercentageUpdater.postValue(-1)
         playlistsPercentageUpdater.postValue(-1)
     }
+    //endregion
 
     companion object {
         const val CHANGE_SONGS = 0
