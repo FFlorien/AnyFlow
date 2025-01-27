@@ -19,7 +19,7 @@ import be.florien.anyflow.feature.song.ui.di.SongInfoViewModelModule
 import be.florien.anyflow.feature.songlist.ui.di.SongListViewModelModule
 import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
 import be.florien.anyflow.feature.sync.service.di.SyncServiceModule
-import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerModule
+import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponent
 import be.florien.anyflow.management.queue.di.QueueModule
 import dagger.BindsInstance
 import dagger.Subcomponent
@@ -45,8 +45,7 @@ import javax.inject.Named
         // ProvideModules from gradle modules
         SyncServiceModule::class,
         QueueModule::class,
-        AuthModule::class,
-        PlaylistModificationWorkerModule::class
+        AuthModule::class
     ]
 )
 interface ServerComponent : GlideModuleInjector {
@@ -59,6 +58,8 @@ interface ServerComponent : GlideModuleInjector {
     fun alarmComponentBuilder(): AlarmActivityComponent.Builder
     fun playlistComponentBuilder(): PlaylistActivityComponent.Builder
     fun shortcutsComponentBuilder(): ShortcutActivityComponent.Builder
+    // Workers
+    fun playlistModificationWorkerComponentBuilder(): PlaylistModificationWorkerComponent.Builder
 
     @Subcomponent.Builder
     interface Builder {

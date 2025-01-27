@@ -22,16 +22,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import androidx.work.Configuration
-import androidx.work.WorkManager
+import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
+import be.florien.anyflow.common.image.isVisiblePresent
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
-import be.florien.anyflow.common.base.BaseFragment
-import be.florien.anyflow.common.image.isVisiblePresent
 import be.florien.anyflow.component.menu.MenuCoordinator
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
@@ -40,7 +38,6 @@ import be.florien.anyflow.feature.player.ui.databinding.ActivityPlayerBinding
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponentCreator
 import be.florien.anyflow.feature.sync.service.SyncService
-import be.florien.anyflow.management.playlist.di.PlaylistWorkerFactory
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,9 +59,6 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
 
     @Inject
     override lateinit var viewModelFactory: AnyFlowViewModelFactory
-
-    @Inject
-    lateinit var workerFactory: PlaylistWorkerFactory
 
     @Inject
     lateinit var navigator: Navigator
@@ -104,14 +98,6 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
             return
         }
         activityComponent.inject(this)
-        if (!WorkManager.isInitialized()) {
-            WorkManager.initialize(//todo this will maybe cause problem, find a way to initialize in AnyFlowApp
-                this,
-                Configuration.Builder()
-                    .setWorkerFactory(workerFactory)
-                    .build()
-            )
-        }
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this

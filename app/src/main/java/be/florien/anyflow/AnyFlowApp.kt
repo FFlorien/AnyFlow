@@ -35,6 +35,8 @@ import be.florien.anyflow.injection.ServerComponent
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.plantTimber
 import be.florien.anyflow.common.utils.startActivity
+import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponent
+import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponentCreator
 import javax.inject.Inject
 
 
@@ -48,6 +50,7 @@ open class AnyFlowApp : MultiDexApplication(),
     PlayerServiceComponentCreator,
     PlayerActivityComponentCreator,
     PlaylistActivityComponentCreator,
+    PlaylistModificationWorkerComponentCreator,
     ShortcutActivityComponentCreator,
     AlarmActivityComponentCreator,
     SyncServiceComponentCreator {
@@ -115,6 +118,9 @@ open class AnyFlowApp : MultiDexApplication(),
 
     override fun createPlaylistComponent(): PlaylistActivityComponent? =
         serverComponent?.playlistComponentBuilder()?.build()
+
+    override fun createPlaylistModificationWorkerComponent(): PlaylistModificationWorkerComponent? =
+        serverComponent?.playlistModificationWorkerComponentBuilder()?.build()
 
     override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
         serverComponent?.shortcutsComponentBuilder()?.build()

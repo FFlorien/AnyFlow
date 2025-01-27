@@ -7,12 +7,12 @@ import androidx.work.WorkerParameters
 import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.data.server.logError
+import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponentCreator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class PlaylistModificationWorker(
-    private val ampachePlaylistSource: AmpachePlaylistSource,
     appContext: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(appContext, workerParameters) {
@@ -20,18 +20,28 @@ class PlaylistModificationWorker(
     private val songs: LongArray? = inputData.getLongArray(SONGS_IDS)
     private val playlist: Long = inputData.getLong(PLAYLIST_ID, -1)
     private val position = inputData.getInt(POSITION, 0)
+    @Inject
+    @JvmField
+    var ampachePlaylistSource: AmpachePlaylistSource? = null
 
     //region overridden methods
     override suspend fun doWork(): Result {
-        return withContext(Dispatchers.IO) {
-            try {
-                when (action) {
-                    ACTION_ADD -> addToPlaylist()
-                    ACTION_REMOVE -> removeFromPlaylist()
-                    else -> Result.failure()
+        val component = (applicationContext as PlaylistModificationWorkerComponentCreator)
+            .createPlaylistModificationWorkerComponent()
+        return if (component == null) {
+            Result.retry()
+        } else {
+            component.inject(this)
+            return withContext(Dispatchers.IO) {
+                try {
+                    when (action) {
+                        ACTION_ADD -> addToPlaylist()
+                        ACTION_REMOVE -> removeFromPlaylist()
+                        else -> Result.failure()
+                    }
+                } catch (exception: Exception) {
+                    Result.retry()
                 }
-            } catch (exception: Exception) {
-                Result.retry()
             }
         }
     }
@@ -39,11 +49,12 @@ class PlaylistModificationWorker(
 
     //region api calls
     private suspend fun addToPlaylist(): Result {
+        val source = ampachePlaylistSource ?: return Result.retry()
         val idList = songs?.toList()
         return when {
             idList.isNullOrEmpty() -> Result.failure()
             idList.size == 1 -> {
-                val netResult = ampachePlaylistSource.addToPlaylist(playlist, idList.first())
+                val netResult = source.addToPlaylist(playlist, idList.first())
                 when (netResult) {
                     is NetSuccess -> Result.success()
                     else -> {
@@ -54,31 +65,22 @@ class PlaylistModificationWorker(
             }
 
             else -> {
-                ampachePlaylistSource.addToPlaylist(playlist, idList, position)
+                source.addToPlaylist(playlist, idList, position)
                 Result.success()
             }
         }
     }
 
     private suspend fun removeFromPlaylist(): Result {
+        val source = ampachePlaylistSource ?: return Result.retry()
         val netResults = songs?.map { songId ->
-            ampachePlaylistSource.removeSongFromPlaylist(playlist, songId)
+            source.removeSongFromPlaylist(playlist, songId)
         }
         netResults?.forEach { it.logError("Remove from playlist") }
         val areAllSuccess = netResults?.all { it is NetSuccess } ?: return Result.failure()
         return if (areAllSuccess) Result.success() else Result.retry()
     }
     //endregion
-
-    //region DI & utilities
-    class Factory @Inject constructor(
-        private val ampachePlaylistSource: AmpachePlaylistSource
-    ) : PlaylistModificationWorkerFactory {
-
-        override fun create(appContext: Context, params: WorkerParameters): CoroutineWorker {
-            return PlaylistModificationWorker(ampachePlaylistSource, appContext, params)
-        }
-    }
 
     companion object {
         private const val PLAYLIST_ID = "PLAYLIST_ID"
@@ -103,8 +105,4 @@ class PlaylistModificationWorker(
             .build()
     }
     //endregion
-}
-
-interface PlaylistModificationWorkerFactory {
-    fun create(appContext: Context, params: WorkerParameters): CoroutineWorker
 }
