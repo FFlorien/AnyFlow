@@ -274,20 +274,20 @@ class QueryComposer {
         }
         val orderingJoins = orderingList.mapNotNull { it.getJoin() }.toSet()
         val filterJoin = filterList?.flatMap { it.getJoins() }?.toSet() ?: emptySet()
-        val playlistJoinSong =
-            if (shouldJoinSong) setOf(
-                QueryJoin(
-                    QueryJoin.JoinType.PLAYLIST_SONG,
-                    0
-                )
-            ) else emptySet()
+        val playlistJoinSong = if (shouldJoinSong) {
+            setOf(QueryJoin(QueryJoin.JoinType.PLAYLIST_SONG, 0))
+        } else {
+            emptySet()
+        }
         val joinsUnfiltered = orderingJoins + filterJoin + playlistJoinSong
         val joins = if (joinsUnfiltered.any { it.type == QueryJoin.JoinType.ALBUM_ARTIST }) {
             joinsUnfiltered.filterNot { it.type == QueryJoin.JoinType.ALBUM }
         } else {
             joinsUnfiltered
         }
-        return joins.joinToString(separator = " ", prefix = " ") { it.getJoinClause() }
+        return joins.joinToString(separator = " ", prefix = " ") {
+            it.getJoinClause(shouldJoinSong)
+        }
     }
 
     private fun constructWhereStatement(

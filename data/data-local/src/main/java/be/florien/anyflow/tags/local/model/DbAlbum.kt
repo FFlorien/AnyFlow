@@ -16,11 +16,11 @@ import androidx.room.*
 data class DbAlbum(
     @PrimaryKey
     val id: Long,
-    @ColumnInfo(index = true)
     val name: String,
     @ColumnInfo(index = true)
     val artistId: Long,
     var prefix: String?,
+    @ColumnInfo(index = true)
     var basename: String,
     val year: Int,
     val diskcount: Int

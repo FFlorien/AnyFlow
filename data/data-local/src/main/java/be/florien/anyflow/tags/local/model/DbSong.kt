@@ -9,14 +9,18 @@ data class DbSong(
     @PrimaryKey
     val id: Long,
     val title: String,
+    @ColumnInfo(index = true)
     val titleForSort: String,
     @ColumnInfo(index = true)
     val artistId: Long,
     @ColumnInfo(index = true)
     val albumId: Long,
+    @ColumnInfo(index = true)
     val track: Int,
+    @ColumnInfo(index = true)
     val disk: Int,
     val time: Int,
+    @ColumnInfo(index = true)
     val year: Int,
     val composer: String,
     val size: Int,

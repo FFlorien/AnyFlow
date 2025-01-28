@@ -1,5 +1,6 @@
 package be.florien.anyflow.tags.local.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -12,5 +13,6 @@ data class DbArtist(
         val id: Long,
         val name: String,
         var prefix: String?,
+        @ColumnInfo(index = true)
         var basename: String,
         val summary: String?)
