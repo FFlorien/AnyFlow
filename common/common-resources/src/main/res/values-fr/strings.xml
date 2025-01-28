@@ -23,6 +23,7 @@
     <string name="filter_display_is_not_downloaded">La chanson n\'est pas téléchargée</string>
     <string name="filter_display_podcast_episode_is">L\'épisode de podcast est &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="filter_display_podcast_is">Le podcast est &lt;b&gt;%s&lt;/b&gt;</string>
+    <string name="filter_display_state_is">Le status est &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="library_title_main">Bibliothèque</string>
     <string name="library_type_genre">Genre</string>
     <string name="library_type_album_artist">Artiste de l’album</string>
@@ -81,6 +82,11 @@
     <string name="info_album_artist">Artiste de l\'album</string>
     <string name="info_genre">Genre</string>
     <string name="info_playlist">Liste de lecture</string>
+    <string name="info_podcast">Podcast</string>
+    <string name="info_description">Descrition</string>
+    <string name="info_publication">Date de publication</string>
+    <string name="info_website">Site web</string>
+    <string name="info_state">Statut</string>
     <string name="info_action_track_next">Ajouter la chanson à la suite</string>
     <string name="info_action_next_title">Jouer ensuite</string>
     <string name="info_action_select_playlist">Sélectionnez des listes de lecture</string>

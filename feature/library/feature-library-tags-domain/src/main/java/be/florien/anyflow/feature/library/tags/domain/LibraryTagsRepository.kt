@@ -10,7 +10,7 @@ import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.tags.DataRepository
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre

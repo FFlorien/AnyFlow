@@ -20,7 +20,7 @@ import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
 import be.florien.anyflow.management.playlist.work.PlaylistModificationWorker
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPlaylist
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs

@@ -5,7 +5,7 @@ import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.management.podcast.PodcastRepository
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.model.Filter

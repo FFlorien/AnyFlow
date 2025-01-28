@@ -28,7 +28,7 @@ import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.DataRepository
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +69,7 @@ class SongListViewModel
             } else if (queueItem.mediaType == SONG_MEDIA_TYPE) {
                 dataRepository.getSong(id).map { it.toViewDisplay() }
             } else {
-                podcastRepository.getPodcastEpisode(id).map {
+                podcastRepository.getPodcastEpisodeDisplay(id).map {
                     it?.toViewPodcastEpisodeDisplay()
                 }
             }

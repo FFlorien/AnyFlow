@@ -1,5 +1,6 @@
 package be.florien.anyflow.management.podcast
 
+import androidx.lifecycle.map
 import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.FilterPodcastCount
 import be.florien.anyflow.management.filters.toQueryFilters
@@ -8,6 +9,7 @@ import be.florien.anyflow.tags.local.model.DbPodcast
 import be.florien.anyflow.tags.local.model.DbPodcastDisplay
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbPodcastEpisodeDisplay
+import be.florien.anyflow.tags.local.model.DbPodcastEpisodeWithPodcast
 import be.florien.anyflow.tags.local.query.QueryComposer
 import javax.inject.Inject
 
@@ -47,7 +49,9 @@ class PodcastRepository @Inject constructor(
     suspend fun getPodcastDuration(id: Long) =
         libraryDatabase.getPodcastEpisodeDao().getPodcastDuration(id)
 
-    fun getPodcastEpisode(id: Long) = libraryDatabase.getPodcastEpisodeDao().getPodcastEpisode(id)
+    fun getPodcastEpisode(id: Long) = libraryDatabase.getPodcastEpisodeDao().getPodcastEpisode(id).map(DbPodcastEpisodeWithPodcast::toViewPodcastEpisode)
+
+    fun getPodcastEpisodeDisplay(id: Long) = libraryDatabase.getPodcastEpisodeDao().getPodcastEpisodeDisplay(id)
 
     suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterPodcastCount {
         val filterList = infoSource?.let { listOf(it) } ?: emptyList()

@@ -32,7 +32,8 @@ data class QueryFilter(
         DOWNLOADED_STATUS_IS("song.local IS"),
         PODCAST_IS("podcastEpisode.podcastId ="),
         PODCAST_EPISODE_IS("podcastEpisode.id ="),
-        DISK_IS("song.disk =")
+        DISK_IS("song.disk ="),
+        STATE_IS("podcastEpisode.state =")
     }
 
     companion object {

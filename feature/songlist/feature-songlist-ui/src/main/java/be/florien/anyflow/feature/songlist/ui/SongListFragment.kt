@@ -28,7 +28,6 @@ import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.image.isVisiblePresent
-import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.component.menu.MenuCoordinatorHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolderListener
@@ -36,7 +35,9 @@ import be.florien.anyflow.component.viewholder.PodcastViewHolderProvider
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.component.viewholder.SongViewHolder
+import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.feature.player.service.PlayerService
+import be.florien.anyflow.feature.podcast.ui.PodcastInfoFragment
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
@@ -201,7 +202,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             override fun onTouchEvent(rv: RecyclerView, event: MotionEvent) {
                 val childView = rv.findChildViewUnder(downTouchX, downTouchY) ?: return
                 val viewHolder =
-                    (rv.findContainingViewHolder(childView) as? SongViewHolder) ?: return
+                    (rv.findContainingViewHolder(childView) as? SwipeActionViewHolder) ?: return
                 onTouch(viewHolder, event)
             }
 
@@ -346,7 +347,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         when (item) {
             is SongDisplay -> SongInfoFragment(item.id).show(childFragmentManager, "info")
-            is PodcastEpisodeDisplay -> iLog("PodcastInfoFragment doesn't exist yet")
+            is PodcastEpisodeDisplay -> PodcastInfoFragment(item.id).show(childFragmentManager, "podcastInfo")
         }
     }
 

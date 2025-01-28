@@ -14,7 +14,7 @@ import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.model.FilterType
 import be.florien.anyflow.tags.DataRepository
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
 import javax.inject.Inject

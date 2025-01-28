@@ -1,7 +1,9 @@
 package be.florien.anyflow.tags.local.model
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 
 @Entity(tableName = "Podcast")
 data class DbPodcast(
@@ -47,4 +49,16 @@ class DbPodcastEpisodeDisplay(
     val podcastId: Long,
     val time: Int,
     val description: String
+)
+
+
+
+data class DbPodcastEpisodeWithPodcast(
+    @Embedded
+    val episode: DbPodcastEpisode,
+    @Relation(
+        parentColumn = "podcastId",
+        entityColumn = "id"
+    )
+    val podcast: DbPodcast
 )

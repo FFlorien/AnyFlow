@@ -38,8 +38,9 @@ data class DbFilter(
         // Podcasts
         const val TYPE_PODCAST_EPISODE = 7
         const val TYPE_PODCAST = 8
+        const val TYPE_STATE = 9
         // Common
-        const val TYPE_DOWNLOADED = 9
+        const val TYPE_DOWNLOADED = 10
     }
 }
 

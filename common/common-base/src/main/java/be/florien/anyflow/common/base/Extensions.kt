@@ -48,7 +48,7 @@ fun RecyclerView.refreshVisibleViewHolders(updateVH: (RecyclerView.ViewHolder) -
 
 @BindingAdapter("textConfig")
 fun TextView.seTextConfigBinding(textConfig: TextConfig?) {
-    text = textConfig?.getText(context.resources)?.parseAsHtml() ?: ""
+    text = textConfig?.textSpanned ?: (textConfig?.getText(context.resources)?.parseAsHtml() ?: "")
 }
 
 @BindingAdapter(value = ["htmlText"])

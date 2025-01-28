@@ -22,6 +22,7 @@ fun Filter<*>.toQueryFilter(level: Int = 0): QueryFilter {
             TagFilterType.DOWNLOADED_STATUS_IS -> QueryFilter.FilterType.DOWNLOADED_STATUS_IS
             PodcastFilterType.PODCAST_IS -> QueryFilter.FilterType.PODCAST_IS
             PodcastFilterType.PODCAST_EPISODE_IS -> QueryFilter.FilterType.PODCAST_EPISODE_IS
+            PodcastFilterType.STATE_IS -> QueryFilter.FilterType.STATE_IS
         },
         argument = when (argument) {
             is Boolean -> if (argument) "NOT NULL" else "NULL"

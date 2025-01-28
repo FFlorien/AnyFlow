@@ -13,7 +13,7 @@ import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistSong
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject

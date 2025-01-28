@@ -19,10 +19,8 @@ sealed class InfoViewHolder(
 ) : RecyclerView.ViewHolder(root) {
 
     fun bindNewData(row: InfoRow) { //todo bind only if different ?
-        val resources = parent.context.resources
         //variable
         binding.display = row
-        binding.descriptionText = row.text.getText(resources)
         //onClick
         itemView.setOnClickListener {
             executeAction(row)

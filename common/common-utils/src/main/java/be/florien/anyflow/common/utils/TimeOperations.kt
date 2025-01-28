@@ -9,10 +9,13 @@ object TimeOperations {
 
     private const val AMPACHE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZZ"
     private const val AMPACHE_REQUEST_DATE_FORMAT = "yyyy-MM-dd"
+    private const val DISPLAY_DATE_FORMAT = "dd/MM/yyyy"
     private val ampacheCompleteFormatter =
         SimpleDateFormat(AMPACHE_DATE_FORMAT, Locale.getDefault())
     private val ampacheRequestFormatter =
         SimpleDateFormat(AMPACHE_REQUEST_DATE_FORMAT, Locale.getDefault())
+    private val displayFormatter =
+        SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.getDefault())
     var currentTimeUpdater: CurrentTimeUpdater? = null
 
     fun getCurrentDate(): Calendar {
@@ -67,6 +70,8 @@ object TimeOperations {
             timeInSeconds % 60
         )
     }
+
+    fun toDisplayDate(date: Long): String = displayFormatter.format(Date(date))
 
     interface CurrentTimeUpdater {
         fun getCurrentTimeUpdated(current: Calendar): Calendar

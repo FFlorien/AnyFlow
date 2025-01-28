@@ -17,5 +17,6 @@ enum class TagFilterType(override val artType: String?): FilterType {
 
 enum class PodcastFilterType(override val artType: String?): FilterType {
     PODCAST_EPISODE_IS(Filter.ART_TYPE_PODCAST),
-    PODCAST_IS(Filter.ART_TYPE_PODCAST)
+    PODCAST_IS(Filter.ART_TYPE_PODCAST),
+    STATE_IS(null)
 }

@@ -30,20 +30,27 @@ dependencies {
     implementation project(':common-image')
     implementation project(":common-navigation")
     implementation project(":common-base")
+    implementation project(':common-logging')
     implementation project(':common-ui-domain')
     implementation project(':common-widget')
+    implementation project(':component-menu')
+    implementation project(':component-viewholder')
     implementation project(':data-local')
     implementation project(':feature-song-base-ui')
     implementation project(':feature-song-ui')
     implementation project(':feature-player-service')
     implementation project(':feature-podcast-base-domain')
     implementation project(':feature-songlist-base-domain')
+    implementation project(':feature-song-base-domain')
     implementation project(':feature-song-domain')
+    implementation project(':feature-podcast-ui')
+    implementation project(':feature-podcast-base-ui')
     implementation project(':management-download')
     implementation project(':management-filters')
     implementation project(':management-podcast')
     implementation project(':management-queue')
     implementation project(':management-tags')
+    implementation project(':management-urls')
 
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
@@ -55,10 +62,6 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation 'androidx.media3:media3-session:1.4.1'
     implementation 'androidx.navigation:navigation-common-ktx:2.8.2'
-    implementation project(':feature-song-base-domain')
-    implementation project(':component-menu')
-    implementation project(':component-viewholder')
-    implementation project(':common-logging')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 }

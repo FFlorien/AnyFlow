@@ -359,6 +359,7 @@ class QueryComposer {
     private fun List<QueryFilter>.onlyPodcast() = filter {
         it.type == QueryFilter.FilterType.PODCAST_IS
                 || it.type == QueryFilter.FilterType.PODCAST_EPISODE_IS
+                || it.type == QueryFilter.FilterType.STATE_IS
     }
 
     private fun List<QueryFilter>.onlyTag() = filter {

@@ -42,7 +42,7 @@ import be.florien.anyflow.management.filters.model.TagFilterType
 import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE

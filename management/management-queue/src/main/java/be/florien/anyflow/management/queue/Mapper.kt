@@ -146,6 +146,7 @@ fun FilterType.toDbFilterType() = when (this) {
     TagFilterType.DOWNLOADED_STATUS_IS -> DbFilter.TYPE_DOWNLOADED
     PodcastFilterType.PODCAST_EPISODE_IS -> DbFilter.TYPE_PODCAST_EPISODE
     PodcastFilterType.PODCAST_IS -> DbFilter.TYPE_PODCAST
+    PodcastFilterType.STATE_IS -> DbFilter.TYPE_STATE
 }
 
 fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {

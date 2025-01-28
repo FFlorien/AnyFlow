@@ -1,4 +1,4 @@
-package be.florien.anyflow.tags
+package be.florien.anyflow.urls
 
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_ALBUM

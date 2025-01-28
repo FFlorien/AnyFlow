@@ -10,7 +10,7 @@ import be.florien.anyflow.management.filters.model.Filter
 import be.florien.anyflow.management.filters.model.PodcastFilterType
 import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 
 internal fun PodcastDisplay.toFilterItem(
     parentFilter: Filter<*>?,

@@ -32,6 +32,7 @@ dependencies {
     implementation project(":management-filters")
     implementation project(':management-playlist')
     implementation project(":management-tags")
+    implementation project(':management-urls')
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'

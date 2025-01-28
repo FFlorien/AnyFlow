@@ -44,6 +44,7 @@ class LibraryPodcastInfoViewModel @Inject constructor(
     ) = when (filterType) {
         PodcastFilterType.PODCAST_IS -> libraryPodcastRepository.getPodcastList(filter)
         PodcastFilterType.PODCAST_EPISODE_IS -> libraryPodcastRepository.getPodcastEpisodeList(filter)
+        PodcastFilterType.STATE_IS -> emptyList()//todo
     }.firstOrNull()
 
     companion object {

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.tags.UrlRepository
+import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import javax.inject.Inject

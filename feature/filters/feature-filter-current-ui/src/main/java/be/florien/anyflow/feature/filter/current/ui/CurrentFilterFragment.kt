@@ -245,6 +245,10 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                 filter.displayText
             )
             PodcastFilterType.PODCAST_IS -> getString(R.string.filter_display_podcast_is, filter.displayText)
+            PodcastFilterType.STATE_IS -> getString(
+                R.string.filter_display_state_is,
+                filter.displayText
+            )
         }
 
         private fun setImage(
@@ -326,6 +330,11 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                         R.drawable.ic_podcast,
                         leftIconSize
                     )
+
+                    PodcastFilterType.STATE_IS ->setCompoundDrawableFromResources(
+                        R.drawable.ic_podcast,
+                        leftIconSize
+                    ) //TODO()
                 }
             }
         }

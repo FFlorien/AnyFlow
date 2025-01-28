@@ -35,5 +35,6 @@ abstract class BasePodcastInfoActions(
 
     companion object {
         const val SHORTCUTS_PREF_NAME = "PodcastShortcuts"
+        const val DUMMY_PODCAST_ID = -5L
     }
 }

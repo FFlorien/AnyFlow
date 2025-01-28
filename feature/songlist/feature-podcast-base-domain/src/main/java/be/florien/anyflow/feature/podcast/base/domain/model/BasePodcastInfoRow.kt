@@ -15,10 +15,12 @@ enum class PodcastFieldType(
     override val iconRes: Int,
     @StringRes val titleRes: Int
 ): QueueItemFieldType {
-    Title(R.drawable.ic_song, R.string.info_title),
-    Artist(R.drawable.ic_artist, R.string.info_artist),
-    Album(R.drawable.ic_album, R.string.info_album),
-    Year(R.drawable.ic_year, R.string.info_year),
+    Title(R.drawable.ic_podcast_episode, R.string.info_title),
+    Podcast(R.drawable.ic_podcast, R.string.info_podcast),
+    Description(R.drawable.ic_erase, R.string.info_description),//todo
+    Publication(R.drawable.ic_year, R.string.info_publication),
+    Website(R.drawable.ic_erase, R.string.info_website),//todo
+    State(R.drawable.ic_erase, R.string.info_state),//todo
     Duration(R.drawable.ic_duration, R.string.info_duration);
 }
 
@@ -40,49 +42,26 @@ sealed class BasePodcastInfoRow(
     override val fieldType: PodcastFieldType,
     override val actionType: PodcastActionType
 ): QueueItemInfoRow<PodcastFieldType, PodcastActionType> {
-
-    interface SongMultipleInfoRow {
-        val index: Int
-    }
-
-    interface SongDownload {
-        val progress: LiveData<DownloadProgressState>
-    }
-
     data class PodcastInfoRow(
         override val fieldType: PodcastFieldType,
         override val actionType: PodcastActionType,
     ) : BasePodcastInfoRow(fieldType, actionType)
 
-    data class PodcastActionMultipleInfoRow(
+    data class PodcastHtmlRow(
         override val fieldType: PodcastFieldType,
         override val actionType: PodcastActionType,
-        override val index: Int
-    ) : BasePodcastInfoRow(fieldType, actionType), SongMultipleInfoRow
+    ) : BasePodcastInfoRow(fieldType, actionType)
 
     data class PodcastInfoContainerRow(
         override val fieldType: PodcastFieldType,
         val subRows: List<BasePodcastInfoRow>
     ) : BasePodcastInfoRow(fieldType, PodcastActionType.ExpandableTitle)
 
-    data class PodcastInfoMultipleContainerRow(
-        override val fieldType: PodcastFieldType,
-        override val index: Int,
-        val subRows: List<BasePodcastInfoRow>
-    ) : BasePodcastInfoRow(fieldType, PodcastActionType.ExpandableTitle), SongMultipleInfoRow
-
-    data class PodcastDownloadMultipleInfoRow(
-        override val fieldType: PodcastFieldType,
-        override val actionType: PodcastActionType,
-        override val index: Int,
-        override val progress: LiveData<DownloadProgressState>
-    ) : BasePodcastInfoRow(fieldType, actionType), SongDownload, SongMultipleInfoRow
-
     data class PodcastDownloadInfoRow(
         override val fieldType: PodcastFieldType,
         override val actionType: PodcastActionType,
-        override val progress: LiveData<DownloadProgressState>
-    ) : BasePodcastInfoRow(fieldType, actionType), SongDownload
+        val progress: LiveData<DownloadProgressState>
+    ) : BasePodcastInfoRow(fieldType, actionType)
 
     data class ShortcutInfoRow(
         override val fieldType: PodcastFieldType,

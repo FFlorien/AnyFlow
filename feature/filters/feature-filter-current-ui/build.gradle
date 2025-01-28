@@ -28,18 +28,19 @@ android {
 dependencies {
     implementation project(':common-di')
     implementation project(":common-base")
+    implementation project(':common-navigation')
+    implementation project(':common-image')
     implementation project(':common-ui-domain')
+    implementation project(':component-menu')
+    implementation project(':feature-library-ui')
     implementation project(":management-filters")
+    implementation project(':management-tags')
+    implementation project(':management-urls')
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation project(':feature-library-ui')
-    implementation project(':management-tags')
-    implementation project(':common-navigation')
-    implementation project(':component-menu')
-    implementation project(':common-image')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

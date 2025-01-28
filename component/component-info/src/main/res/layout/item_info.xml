@@ -9,10 +9,6 @@
         <variable
             name="display"
             type="be.florien.anyflow.component.info.InfoRow" />
-
-        <variable
-            name="descriptionText"
-            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -57,10 +53,10 @@
 
         <TextView
             android:id="@+id/text"
-            isVisiblePresent="@{descriptionText != null}"
+            isVisiblePresent="@{display.text != null}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{descriptionText}"
+            app:textConfig="@{display.text}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/title"
             app:layout_constraintRight_toLeftOf="@+id/icon"

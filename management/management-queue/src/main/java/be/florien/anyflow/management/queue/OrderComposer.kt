@@ -195,6 +195,7 @@ suspend fun Filter<*>.contains(song: SongInfo, filterRepository: QueueRepository
 
         TagFilterType.DOWNLOADED_STATUS_IS -> !song.local.isNullOrBlank()
         PodcastFilterType.PODCAST_EPISODE_IS,
+        PodcastFilterType.STATE_IS,
         PodcastFilterType.PODCAST_IS -> false
     }
 }

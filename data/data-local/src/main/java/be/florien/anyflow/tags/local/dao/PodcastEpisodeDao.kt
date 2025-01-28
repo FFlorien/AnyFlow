@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbMediaWaveForm
 import be.florien.anyflow.tags.local.model.DbPodcastEpisodeDisplay
+import be.florien.anyflow.tags.local.model.DbPodcastEpisodeWithPodcast
 
 @Dao
 abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
@@ -33,8 +34,11 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
     @Query("SELECT * FROM PodcastEpisode WHERE podcastId = :podcastId")
     abstract fun getPodcastEpisodesUpdatable(podcastId: String): LiveData<List<DbPodcastEpisode>>
 
+    @Query("SELECT * FROM PodcastEpisode WHERE PodcastEpisode.id = :id")
+    abstract fun getPodcastEpisode(id: Long): LiveData<DbPodcastEpisodeWithPodcast>
+
     @Query("SELECT PodcastEpisode.id, PodcastEpisode.title, Podcast.name as podcastName, Podcast.id as podcastId, PodcastEpisode.time, PodcastEpisode.description FROM PodcastEpisode JOIN Podcast ON PodcastEpisode.podcastId = Podcast.id WHERE PodcastEpisode.id = :id")
-    abstract fun getPodcastEpisode(id: Long): LiveData<DbPodcastEpisodeDisplay?>
+    abstract fun getPodcastEpisodeDisplay(id: Long): LiveData<DbPodcastEpisodeDisplay?>
 
     @Query("UPDATE PodcastEpisode SET waveForm = :downSamples WHERE podcastepisode.id = :podcastEpisodeId")
     abstract suspend fun updateWithNewWaveForm(podcastEpisodeId: Long, downSamples: String?)
