@@ -142,7 +142,7 @@ class QueryComposer {
             "playlist.owner " +
             "FROM playlist " +
             "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
-            constructJoinStatement(filterList, shouldJoinSong = true) +
+            constructJoinStatement(filterList, needJoinSong = false, hasJoinSong = false) +
             constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
             " ORDER BY playlist.name COLLATE UNICODE")
         .toSQLiteQuery(search)
@@ -157,7 +157,7 @@ class QueryComposer {
             "(SELECT COUNT(songId) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
             "FROM playlist " +
             "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
-            constructJoinStatement(filterList, shouldJoinSong = true) +
+            constructJoinStatement(filterList, needJoinSong = true) +
             constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
             " ORDER BY playlist.name COLLATE UNICODE")
         .toSQLiteQuery(search)
@@ -267,14 +267,16 @@ class QueryComposer {
     private fun constructJoinStatement(
         filterList: List<QueryFilter>?,
         orderingList: List<QueryOrdering> = emptyList(),
-        shouldJoinSong: Boolean = false
+        needJoinSong: Boolean = false,
+        hasJoinSong: Boolean = true
     ): String {
         if (filterList.isNullOrEmpty() && orderingList.isEmpty()) {
             return " "
         }
+        val hasSongJoin = orderingList.isNotEmpty() || filterList?.onlyTag()?.any { it.getJoins().any { it.type.clauseWithoutSong == null } } == true || hasJoinSong
         val orderingJoins = orderingList.mapNotNull { it.getJoin() }.toSet()
         val filterJoin = filterList?.flatMap { it.getJoins() }?.toSet() ?: emptySet()
-        val playlistJoinSong = if (shouldJoinSong) {
+        val playlistJoinSong = if (needJoinSong) {
             setOf(QueryJoin(QueryJoin.JoinType.PLAYLIST_SONG, 0))
         } else {
             emptySet()
@@ -286,7 +288,7 @@ class QueryComposer {
             joinsUnfiltered
         }
         return joins.joinToString(separator = " ", prefix = " ") {
-            it.getJoinClause(shouldJoinSong)
+            it.getJoinClause(hasSongJoin)
         }
     }
 
