@@ -3,6 +3,7 @@ package be.florien.anyflow.data.server.datasource.podcast
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.model.AmpachePodcast
+import be.florien.anyflow.data.server.model.AmpachePodcastEpisode
 import be.florien.anyflow.data.server.toNetResult
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -18,6 +19,9 @@ class AmpachePodcastSource @Inject constructor(@Named("authenticated") retrofit:
 
     suspend fun getPodcastsWithEpisodes(): NetResult<List<AmpachePodcast>> =
         api.getPodcastsWithEpisode().toNetResult()
+
+    suspend fun getPodcastEpisodes(podcastId: String): NetResult<List<AmpachePodcastEpisode>> =
+        api.getPodcastEpisodes(podcastId).toNetResult()
 
     suspend fun updatePodcast(id: String) = api.updatePodcast(id = id)
 }

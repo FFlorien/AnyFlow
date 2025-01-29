@@ -11,6 +11,12 @@ class AmpachePodcastsResponse: AmpacheApiListResponse<AmpachePodcast>() {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+class AmpachePodcastEpisodesResponse: AmpacheApiListResponse<AmpachePodcastEpisode>() {
+    @JsonProperty(value = "podcast_episode")
+    override var list: List<AmpachePodcastEpisode> = mutableListOf()
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AmpachePodcast {
     var id: String = ""

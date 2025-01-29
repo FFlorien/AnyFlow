@@ -140,8 +140,8 @@ class QueryComposer {
             "DISTINCT playlist.id, " +
             "playlist.name, " +
             "playlist.owner " +
-            "FROM playlist " +
-            "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
+            "FROM playlistsongs " +
+            "LEFT JOIN playlist on playlistsongs.playlistid = playlist.id " +
             constructJoinStatement(filterList, needJoinSong = false, hasJoinSong = false) +
             constructWhereStatement(filterList, " playlist.name LIKE ?", search) +
             " ORDER BY playlist.name COLLATE UNICODE")
@@ -214,7 +214,7 @@ class QueryComposer {
         return ("SELECT DISTINCT podcastEpisode.id FROM podcastEpisode " +
                 constructJoinStatement(podcastFilters) +
                 constructWhereStatement(podcastFilters, "") +
-                " ORDER BY podcastEpisode.publicationDate DESC")
+                " ORDER BY podcastEpisode.publicationDate ASC")
             .toSQLiteQuery()
     }
 

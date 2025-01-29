@@ -10,6 +10,7 @@ import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.common.utils.applyPutLong
+import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
 import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
@@ -23,7 +24,9 @@ import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.tags.local.LibraryDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.OutputStreamWriter
@@ -262,46 +265,67 @@ class SyncRepository
         notifyUpdate(CHANGE_PLAYLISTS)
         val podcasts = ampachePodcastSource.getPodcasts()
         if (podcasts is NetSuccess) {
-            podcasts.data.forEach {
-                try {
-                    ampachePodcastSource.updatePodcast(it.id)
-                } catch (exception: Throwable) {
-                    //we shouldn't care and continue
-                }
+            val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastList()
+            libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
+
+            val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->
+                podcasts.data.none { localPodcast.id == it.id.toLong() }
             }
-            val podcastsWithEpisodes = ampachePodcastSource.getPodcastsWithEpisodes()
-            if (podcastsWithEpisodes is NetSuccess) {
-                val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastList()
-                libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
+            libraryDatabase.getPodcastDao().delete(*deletedPodcasts.toTypedArray())
 
-                val deletedPodcasts = currentLocalPodcasts.filter { localPodcast ->
-                    podcastsWithEpisodes.data.none { localPodcast.id == it.id.toLong() }
-                }
-                libraryDatabase.getPodcastDao().delete(*deletedPodcasts.toTypedArray())
+            val addedPodcasts = podcasts.data.filter { remotePodcast ->
+                currentLocalPodcasts.none { remotePodcast.id.toLong() == it.id }
+            }
+            libraryDatabase.getPodcastDao()
+                .upsert(addedPodcasts.map(AmpachePodcast::toDbPodcast))
 
-                val addedPodcasts = podcastsWithEpisodes.data.filter { remotePodcast ->
-                    currentLocalPodcasts.none { remotePodcast.id.toLong() == it.id }
-                }
-                libraryDatabase.getPodcastDao()
-                    .upsert(addedPodcasts.map(AmpachePodcast::toDbPodcast))
+            val renamedPodcasts = podcasts.data.filter { remotePodcast ->
+                val localPodcast =
+                    currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id.toLong() }
+                localPodcast?.name != remotePodcast.name
+            }
+            libraryDatabase.getPodcastDao()
+                .upsert(renamedPodcasts.map(AmpachePodcast::toDbPodcast))
 
-                val renamedPodcasts = podcastsWithEpisodes.data.filter { remotePodcast ->
-                    val localPodcast =
-                        currentLocalPodcasts.firstOrNull { it.id == remotePodcast.id.toLong() }
-                    localPodcast?.name != remotePodcast.name
-                }
-                libraryDatabase.getPodcastDao()
-                    .upsert(renamedPodcasts.map(AmpachePodcast::toDbPodcast))
+            val podcastEpisodes =
+                podcasts.data.flatMap { podcast ->
 
-                val podcastEpisodes =
-                    podcastsWithEpisodes.data.flatMap { podcast ->
-                        podcast.podcast_episode.map { episode ->
+                    val episodesResult =
+                        ampachePodcastSource.getPodcastEpisodes(podcast.id) as? NetSuccess
+                    val episodes = episodesResult?.data
+
+                    if (!episodes.isNullOrEmpty()) {
+                        episodes.map { episode ->
                             episode.toDbPodcastEpisode()
                         }
+                    } else {
+                        emptyList()
                     }
-                libraryDatabase.getPodcastEpisodeDao().upsert(podcastEpisodes)
+                }
+            libraryDatabase.getPodcastEpisodeDao().upsert(podcastEpisodes)
+            updatePodcasts(podcasts.data)
+        }
+    }
+
+    private suspend fun updatePodcasts(podcasts: List<AmpachePodcast>) {
+        coroutineScope {
+            podcasts.forEach {
+                if (it.shouldUpdate()) {
+                    launch {
+                        try {
+                            ampachePodcastSource.updatePodcast(it.id)
+                        } catch (exception: Throwable) {
+                            //we shouldn't care and continue
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private fun AmpachePodcast.shouldUpdate(): Boolean {
+        val nowEpoch = Date().time
+        return sync_date.toLong().plus(24 * 60 * 60 * 1000L) < nowEpoch
     }
 
     //endregion
@@ -471,7 +495,7 @@ class SyncRepository
                     updateLocalData(result, offset)
                 }
 
-                is be.florien.anyflow.data.server.NetApiError -> { //todo better handling of ALL error codes
+                is NetApiError -> { //todo better handling of ALL error codes
                     when (limit) {
                         ITEM_LIMIT -> limit = 10
                         10 -> limit = 1
@@ -524,5 +548,6 @@ class SyncRepository
 
         //Don't reset this value, deleted doesn't have a "from" parameter
         private const val OFFSET_DELETED = "OFFSET_DELETED"
+
     }
 }

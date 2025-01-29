@@ -20,6 +20,13 @@ interface AmpachePodcastApi {
     ): AmpachePodcastsResponse
 
     @GET("server/json.server.php")
+    suspend fun getPodcastEpisodes(
+        @Query("filter") podcastId: String,
+        @Query("action") action: String = "podcast_episodes",
+        @Query("include") auth: String = "episodes"
+    ): AmpachePodcastEpisodesResponse
+
+    @GET("server/json.server.php")
     suspend fun updatePodcast(
         @Query("action") action: String = "update_podcast",
         @Query("filter") id: String
