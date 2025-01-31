@@ -4,6 +4,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import be.florien.anyflow.component.viewholder.ErrorViewHolder
 import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.component.viewholder.ItemInfoTouchAdapter
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
@@ -13,6 +14,7 @@ import be.florien.anyflow.component.viewholder.QueueItemViewHolder
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.component.viewholder.SongViewHolder
+import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -25,6 +27,7 @@ val diffCallback = object :
         when (oldItem) {
             is SongDisplay -> newItem is SongDisplay && oldItem.id == newItem.id
             is PodcastEpisodeDisplay -> newItem is PodcastEpisodeDisplay && oldItem.id == newItem.id
+            ErrorDisplay -> true
         }
 
     override fun areContentsTheSame(oldItem: QueueItemDisplay, newItem: QueueItemDisplay): Boolean =
@@ -35,6 +38,7 @@ val diffCallback = object :
                     && oldItem.title == newItem.title
 
             is PodcastEpisodeDisplay -> newItem is PodcastEpisodeDisplay && oldItem.id == newItem.id
+            ErrorDisplay -> true
         }
 
 }
@@ -52,13 +56,15 @@ class QueueItemAdapter(
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is SongDisplay -> ITEM_TYPE_SONG
         is PodcastEpisodeDisplay -> ITEM_TYPE_PODCAST
+        ErrorDisplay -> ITEM_TYPE_ERROR
         null -> ITEM_TYPE_SONG
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         when (viewType) {
             ITEM_TYPE_SONG -> SongViewHolder(parent, queueItemListener, queueItemProvider)
-            else -> PodcastViewHolder(parent, queueItemListener, queueItemProvider, podcastListener, podcastViewHolderProvider, shouldShowTimeStamps = true)
+            ITEM_TYPE_PODCAST -> PodcastViewHolder(parent, queueItemListener, queueItemProvider, podcastListener, podcastViewHolderProvider, shouldShowTimeStamps = true)
+            else -> ErrorViewHolder(parent,queueItemListener, queueItemProvider )
         }
 
     override fun onBindViewHolder(holder: QueueItemViewHolder<*>, position: Int) {
@@ -85,6 +91,7 @@ class QueueItemAdapter(
     companion object {
         const val ITEM_TYPE_SONG = 0
         const val ITEM_TYPE_PODCAST = 1
+        const val ITEM_TYPE_ERROR = 1
     }
 }
 

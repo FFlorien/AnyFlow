@@ -43,6 +43,7 @@ import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
 import be.florien.anyflow.management.queue.model.Chapter
+import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -348,6 +349,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
         when (item) {
             is SongDisplay -> SongInfoFragment(item.id).show(childFragmentManager, "info")
             is PodcastEpisodeDisplay -> PodcastInfoFragment(item.id).show(childFragmentManager, "podcastInfo")
+            ErrorDisplay -> Unit
         }
     }
 
@@ -396,6 +398,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     override fun getArtUrl(item: QueueItemDisplay): String = when (item) {
         is SongDisplay -> viewModel.getSongArtUrl(item.albumId)
         is PodcastEpisodeDisplay -> viewModel.getPodcastArtUrl(item.podcastId)
+        ErrorDisplay -> ""
     }
 
     override fun getShortcuts(): List<BaseSongInfoRow> =

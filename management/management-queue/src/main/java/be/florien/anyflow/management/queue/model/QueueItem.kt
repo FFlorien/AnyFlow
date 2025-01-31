@@ -5,6 +5,8 @@ import be.florien.anyflow.common.utils.TimeOperations
 
 sealed interface QueueItemDisplay
 
+data object ErrorDisplay: QueueItemDisplay
+
 data class SongDisplay(
     val id: Long,
     val title: String,

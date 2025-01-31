@@ -6,6 +6,7 @@ import be.florien.anyflow.management.filters.model.FilterGroup
 import be.florien.anyflow.management.filters.model.FilterType
 import be.florien.anyflow.management.filters.model.PodcastFilterType
 import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM_ARTIST
@@ -201,7 +202,7 @@ fun DbQueueItemDisplay.toViewQueueItemDisplay(): QueueItemDisplay {
             description = podcastDescriptionHtmlEscaped
         )
     } else {
-        throw IllegalArgumentException("DbQueueItemDisplay is not a valid SongDisplay or PodcastEpisodeDisplay\n$this")
+        ErrorDisplay
     }
 
 }

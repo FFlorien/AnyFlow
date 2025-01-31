@@ -24,6 +24,7 @@ import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.queue.model.Chapter
+import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
@@ -208,6 +209,7 @@ class SongListViewModel
         when (queueItem) {
             is SongDisplay -> executeSongAction(queueItem, row as BaseSongInfoRow)
             is PodcastEpisodeDisplay -> executePodcastAction(queueItem, row as BasePodcastInfoRow)
+            ErrorDisplay -> Unit
         }
     }
 
