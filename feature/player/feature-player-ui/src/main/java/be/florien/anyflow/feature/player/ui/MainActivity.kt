@@ -37,6 +37,7 @@ import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.player.ui.databinding.ActivityPlayerBinding
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponentCreator
+import be.florien.anyflow.feature.sync.service.SyncRepository
 import be.florien.anyflow.feature.sync.service.SyncService
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Dispatchers
@@ -142,41 +143,22 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
                 }
             }
         }
-        viewModel.songsUpdatePercentage.observe(this) {
-            if (it in 0..100) {
-                binding.updatingText.text = getString(R.string.update_songs, it)
-                binding.updatingStateView.isVisiblePresent(true)
-            } else {
-                binding.updatingStateView.isVisiblePresent(false)
-            }
-        }
-        viewModel.genresUpdatePercentage.observe(this) {
-            if (it in 0..100) {
-                binding.updatingText.text = getString(R.string.update_genres, it)
-                binding.updatingStateView.isVisiblePresent(true)
-            } else {
-                binding.updatingStateView.isVisiblePresent(false)
-            }
-        }
-        viewModel.albumsUpdatePercentage.observe(this) {
-            if (it in 0..100) {
-                binding.updatingText.text = getString(R.string.update_albums, it)
-                binding.updatingStateView.isVisiblePresent(true)
-            } else {
-                binding.updatingStateView.isVisiblePresent(false)
-            }
-        }
-        viewModel.artistsUpdatePercentage.observe(this) {
-            if (it in 0..100) {
-                binding.updatingText.text = getString(R.string.update_artists, it)
-                binding.updatingStateView.isVisiblePresent(true)
-            } else {
-                binding.updatingStateView.isVisiblePresent(false)
-            }
-        }
-        viewModel.playlistsUpdatePercentage.observe(this) {
-            if (it in 0..100) {
-                binding.updatingText.text = getString(R.string.update_playlists, it)
+        viewModel.libraryUpdatePercentage.observe(this) {
+                val stringRes = when (it.subject) {
+                    SyncRepository.CHANGE_SONGS -> R.string.update_songs
+                    SyncRepository.CHANGE_ARTISTS -> R.string.update_artists
+                    SyncRepository.CHANGE_ALBUMS -> R.string.update_albums
+                    SyncRepository.CHANGE_GENRES -> R.string.update_genres
+                    SyncRepository.CHANGE_PLAYLISTS -> R.string.update_playlists
+                    SyncRepository.CHANGE_PODCASTS -> R.string.update_podcasts
+                    else -> null
+                }
+            if (stringRes != null) {
+                binding.updatingText.text = if (it.percent > 0) {
+                    getString(stringRes, it.percent)
+                } else {
+                    getString(stringRes)
+                }
                 binding.updatingStateView.isVisiblePresent(true)
             } else {
                 binding.updatingStateView.isVisiblePresent(false)

@@ -38,6 +38,11 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
 
+                <FrameLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
                 <LinearLayout
                     android:id="@+id/connectionStateView"
                     isVisiblePresent="@{viewModel.isConnecting()}"
@@ -90,11 +95,6 @@
                         android:gravity="center"
                         android:textColor="@color/onPrimaryText" />
                 </LinearLayout>
-
-                <FrameLayout
-                    android:id="@+id/container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
 
             </FrameLayout>
 

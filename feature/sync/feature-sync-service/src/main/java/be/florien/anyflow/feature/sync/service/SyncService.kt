@@ -37,26 +37,6 @@ class SyncService
 
     @Inject
     lateinit var syncRepository: SyncRepository
-
-    @Inject
-    @field:Named("Songs")
-    lateinit var songsPercentageUpdater: LiveData<Int>
-
-    @Inject
-    @field:Named("Genres")
-    lateinit var genresPercentageUpdater: LiveData<Int>
-
-    @Inject
-    @field:Named("Albums")
-    lateinit var albumsPercentageUpdater: LiveData<Int>
-
-    @Inject
-    @field:Named("Playlists")
-    lateinit var playlistsPercentageUpdater: LiveData<Int>
-
-    @Inject
-    @field:Named("Artists")
-    lateinit var artistsPercentageUpdater: LiveData<Int>
     private val pendingIntent: PendingIntent by lazy {
         val intent = packageManager?.getLaunchIntentForPackage(packageName)
         PendingIntent.getActivity(this@SyncService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
@@ -89,37 +69,22 @@ class SyncService
             }
             stopForeground()
         }
-        songsPercentageUpdater.observe(this) {
-            if (it in 0..100) {
-                notifyChange(getString(R.string.update_songs, it))
-            } else {
-                stopForeground()
+        syncRepository.libraryPercentageUpdater.observe(this) {
+            val stringRes = when (it.subject) {
+                SyncRepository.CHANGE_SONGS -> R.string.update_songs
+                SyncRepository.CHANGE_ARTISTS -> R.string.update_artists
+                SyncRepository.CHANGE_ALBUMS -> R.string.update_albums
+                SyncRepository.CHANGE_GENRES -> R.string.update_genres
+                SyncRepository.CHANGE_PLAYLISTS -> R.string.update_playlists
+                SyncRepository.CHANGE_PODCASTS -> R.string.update_podcasts
+                else -> null
             }
-        }
-        genresPercentageUpdater.observe(this) {
-            if (it in 0..100) {
-                notifyChange(getString(R.string.update_genres, it))
-            } else {
-                stopForeground()
-            }
-        }
-        artistsPercentageUpdater.observe(this) {
-            if (it in 0..100) {
-                notifyChange(getString(R.string.update_artists, it))
-            } else {
-                stopForeground()
-            }
-        }
-        albumsPercentageUpdater.observe(this) {
-            if (it in 0..100) {
-                notifyChange(getString(R.string.update_albums, it))
-            } else {
-                stopForeground()
-            }
-        }
-        playlistsPercentageUpdater.observe(this) {
-            if (it in 0..100) {
-                notifyChange(getString(R.string.update_playlists, it))
+            if (stringRes != null) {
+                notifyChange(if (it.percent > 0) {
+                    getString(stringRes, it.percent)
+                } else {
+                    getString(stringRes)
+                })
             } else {
                 stopForeground()
             }

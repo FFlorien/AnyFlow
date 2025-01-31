@@ -50,14 +50,7 @@ class SyncRepository
     @Named("preferences") private val sharedPreferences: SharedPreferences,
     private val context: Context
 ) {
-    val songsPercentageUpdater = MutableLiveData(-1)
-    val genresPercentageUpdater = MutableLiveData(-1)
-    val artistsPercentageUpdater = MutableLiveData(-1)
-    val albumsPercentageUpdater = MutableLiveData(-1)
-    val playlistsPercentageUpdater = MutableLiveData(-1)
-
-    private val changeUpdater: LiveData<Int?> = MutableLiveData()
-
+    val libraryPercentageUpdater = MutableLiveData(PercentageUpdate(CHANGE_NONE, 100))
     //region Getter with server updates
 
     /*
@@ -84,7 +77,7 @@ class SyncRepository
                 iLog("update")
                 update()
             }
-            delay(3000)
+            //delay(3000)
             playlists()
             podcasts()
             cancelPercentageUpdaters()
@@ -92,13 +85,9 @@ class SyncRepository
     }
 
     private suspend fun getFromScratch() = withContext(Dispatchers.IO) {
-        notifyUpdate(CHANGE_GENRES)
         newGenres()
-        notifyUpdate(CHANGE_GENRES)
         newArtists()
-        notifyUpdate(CHANGE_GENRES)
         newAlbums()
-        notifyUpdate(CHANGE_GENRES)
         newSongs()
         val initialDeletedCount =
             (ampacheDataSource.getDeletedSongs(0, 0) as? NetSuccess)
@@ -114,16 +103,12 @@ class SyncRepository
 
     private suspend fun update() =
         sync { lastUpdate ->
-            notifyUpdate(CHANGE_GENRES)
             addGenres(lastUpdate)
             updateGenres(lastUpdate)
-            notifyUpdate(CHANGE_ARTISTS)
             addArtists(lastUpdate)
             updateArtists(lastUpdate)
-            notifyUpdate(CHANGE_ALBUMS)
             addAlbums(lastUpdate)
             updateAlbums(lastUpdate)
-            notifyUpdate(CHANGE_SONGS)
             addSongs(lastUpdate)
             updateSongs(lastUpdate)
             updateDeletedSongs() //todo remove unused artists/albums/genres
@@ -145,7 +130,7 @@ class SyncRepository
     private suspend fun newGenres() =
         getNewData(
             OFFSET_GENRE,
-            genresPercentageUpdater,
+            CHANGE_GENRES,
             AmpacheDataSource::getNewGenres
         ) { success ->
             libraryDatabase.getGenreDao().upsert(success.data.list.map(AmpacheNameId::toDbGenre))
@@ -154,7 +139,7 @@ class SyncRepository
     private suspend fun newArtists() =
         getNewData(
             OFFSET_ARTIST,
-            artistsPercentageUpdater,
+            CHANGE_ARTISTS,
             AmpacheDataSource::getNewArtists
         ) { success ->
             libraryDatabase.getArtistDao().upsert(success.data.list.map(AmpacheArtist::toDbArtist))
@@ -163,7 +148,7 @@ class SyncRepository
     private suspend fun newAlbums() =
         getNewData(
             OFFSET_ALBUM,
-            albumsPercentageUpdater,
+            CHANGE_ALBUMS,
             AmpacheDataSource::getNewAlbums
         ) { success ->
             libraryDatabase.getAlbumDao().upsert(success.data.list.map(AmpacheAlbum::toDbAlbum))
@@ -172,7 +157,7 @@ class SyncRepository
     private suspend fun newSongs() =
         getNewData(
             OFFSET_SONG,
-            songsPercentageUpdater,
+            CHANGE_SONGS,
             AmpacheDataSource::getNewSongs
         ) { success ->
             libraryDatabase.getSongDao().upsert(success.data.list.map(AmpacheSong::toDbSong))
@@ -181,10 +166,10 @@ class SyncRepository
         }
 
     private suspend fun playlists() {
-        notifyUpdate(CHANGE_PLAYLISTS)
         val playlists = ampacheDataSource.getPlaylists()
         val playlistSongs = ampacheDataSource.getPlaylistsWithSongs()
         if (playlists is NetSuccess && playlistSongs is NetSuccess) {
+            libraryPercentageUpdater.postValue(PercentageUpdate(CHANGE_PLAYLISTS, -1))
             val beforeUpdateJson = getPlaylistJson()
 
             val currentLocalPlaylists = libraryDatabase.getPlaylistDao().getPlaylistsList()
@@ -262,9 +247,9 @@ class SyncRepository
     }
 
     private suspend fun podcasts() {
-        notifyUpdate(CHANGE_PLAYLISTS)
         val podcasts = ampachePodcastSource.getPodcasts()
         if (podcasts is NetSuccess) {
+            libraryPercentageUpdater.postValue(PercentageUpdate(CHANGE_PODCASTS, -1))
             val currentLocalPodcasts = libraryDatabase.getPodcastDao().getPodcastList()
             libraryDatabase.getPodcastEpisodeDao().deleteAllPlaylistSongs()
 
@@ -325,7 +310,7 @@ class SyncRepository
 
     private fun AmpachePodcast.shouldUpdate(): Boolean {
         val nowEpoch = Date().time
-        return sync_date.toLong().plus(24 * 60 * 60 * 1000L) < nowEpoch
+        return TimeOperations.getDateFromAmpacheComplete(sync_date).timeInMillis.plus(24 * 60 * 60 * 1000L) < nowEpoch
     }
 
     //endregion
@@ -335,7 +320,7 @@ class SyncRepository
     private suspend fun addGenres(from: Calendar) =
         getUpdatedData(
             OFFSET_GENRE,
-            genresPercentageUpdater,
+            CHANGE_GENRES,
             from,
             AmpacheDataSource::getAddedGenres
         ) { success ->
@@ -345,7 +330,7 @@ class SyncRepository
     private suspend fun addArtists(from: Calendar) =
         getUpdatedData(
             OFFSET_ARTIST,
-            artistsPercentageUpdater,
+            CHANGE_ARTISTS,
             from,
             AmpacheDataSource::getAddedArtists
         ) { success ->
@@ -355,7 +340,7 @@ class SyncRepository
     private suspend fun addAlbums(from: Calendar) =
         getUpdatedData(
             OFFSET_ALBUM,
-            albumsPercentageUpdater,
+            CHANGE_ALBUMS,
             from,
             AmpacheDataSource::getAddedAlbums
         ) { success ->
@@ -365,7 +350,7 @@ class SyncRepository
     private suspend fun addSongs(from: Calendar) =
         getUpdatedData(
             OFFSET_SONG,
-            songsPercentageUpdater,
+            CHANGE_SONGS,
             from,
             AmpacheDataSource::getAddedSongs
         ) { success ->
@@ -381,7 +366,7 @@ class SyncRepository
     private suspend fun updateGenres(from: Calendar) =
         getUpdatedData(
             OFFSET_GENRE,
-            genresPercentageUpdater,
+            CHANGE_GENRES,
             from,
             AmpacheDataSource::getUpdatedGenres
         ) { success ->
@@ -391,7 +376,7 @@ class SyncRepository
     private suspend fun updateArtists(from: Calendar) =
         getUpdatedData(
             OFFSET_ARTIST,
-            artistsPercentageUpdater,
+            CHANGE_ARTISTS,
             from,
             AmpacheDataSource::getUpdatedArtists
         ) { success ->
@@ -401,7 +386,7 @@ class SyncRepository
     private suspend fun updateAlbums(from: Calendar) =
         getUpdatedData(
             OFFSET_ALBUM,
-            albumsPercentageUpdater,
+            CHANGE_ALBUMS,
             from,
             AmpacheDataSource::getUpdatedAlbums
         ) { success ->
@@ -411,7 +396,7 @@ class SyncRepository
     private suspend fun updateSongs(from: Calendar) =
         getUpdatedData(
             OFFSET_SONG,
-            songsPercentageUpdater,
+            CHANGE_SONGS,
             from,
             AmpacheDataSource::getUpdatedSongs
         ) { success ->
@@ -429,7 +414,7 @@ class SyncRepository
     private suspend fun updateDeletedSongs() =
         getNewData(
             OFFSET_DELETED,
-            songsPercentageUpdater,
+            CHANGE_SONGS,
             AmpacheDataSource::getDeletedSongs
         ) { success ->
             libraryDatabase.getSongDao()
@@ -440,7 +425,7 @@ class SyncRepository
     //region Private method : Utilities
     private suspend fun <V, T : AmpacheApiListResponse<V>> getNewData(
         offsetKey: String,
-        percentageUpdater: MutableLiveData<Int>,
+        percentageUpdater: Int,
         getFromApi: suspend AmpacheDataSource.(Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
         updateDb: suspend (NetSuccess<T>) -> Unit
     ) {
@@ -459,7 +444,7 @@ class SyncRepository
 
     private suspend fun <V, T : AmpacheApiListResponse<V>> getUpdatedData(
         offsetKey: String,
-        percentageUpdater: MutableLiveData<Int>,
+        percentageUpdater: Int,
         calendar: Calendar,
         getFromApi: suspend AmpacheDataSource.(Int, Int, Calendar) -> be.florien.anyflow.data.server.NetResult<T>,
         updateDb: suspend (NetSuccess<T>) -> Unit
@@ -479,7 +464,7 @@ class SyncRepository
 
     private suspend fun <V, T : AmpacheApiListResponse<V>> getData(
         offsetKey: String,
-        percentageUpdater: MutableLiveData<Int>,
+        percentageUpdaterKey: Int,
         getFromApi: suspend (Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
         updateLocalData: suspend (NetSuccess<T>, Int) -> Unit
     ) {
@@ -512,30 +497,26 @@ class SyncRepository
                 }
             }
             val percentage = if (count == 0) 100 else (offset * 100) / count
-            percentageUpdater.postValue(percentage)
+            libraryPercentageUpdater.postValue(PercentageUpdate(percentageUpdaterKey, percentage))
             result = getFromApi(offset, limit)
         }
     }
 
-    private fun notifyUpdate(changeSubject: Int) {
-        (changeUpdater as MutableLiveData).postValue(changeSubject)
-    }
-
     private fun cancelPercentageUpdaters() {
-        genresPercentageUpdater.postValue(-1)
-        artistsPercentageUpdater.postValue(-1)
-        albumsPercentageUpdater.postValue(-1)
-        songsPercentageUpdater.postValue(-1)
-        playlistsPercentageUpdater.postValue(-1)
+        libraryPercentageUpdater.postValue(PercentageUpdate(CHANGE_NONE, 0))
     }
     //endregion
 
+    data class PercentageUpdate(val subject: Int, val percent: Int)
+
     companion object {
+        const val CHANGE_NONE = -1
         const val CHANGE_SONGS = 0
         const val CHANGE_ARTISTS = 1
         const val CHANGE_ALBUMS = 2
         const val CHANGE_GENRES = 3
         const val CHANGE_PLAYLISTS = 4
+        const val CHANGE_PODCASTS = 5
 
         private const val ITEM_LIMIT: Int = 250
 

@@ -21,6 +21,7 @@ import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.component.player.controls.PlayPauseIconAnimator
 import be.florien.anyflow.component.player.controls.PlayerControls
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
+import be.florien.anyflow.feature.sync.service.SyncRepository
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.podcast.PodcastRepository
@@ -37,7 +38,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 import kotlin.math.absoluteValue
 
 /**
@@ -53,16 +53,7 @@ constructor(
     private val podcastRepository: PodcastRepository,
     private val podcastPersistence: PodcastPersistence,
     val connectionStatus: LiveData<AuthRepository.ConnectionStatus>,
-    @Named("Songs")
-    val songsUpdatePercentage: LiveData<Int>,
-    @Named("Genres")
-    val genresUpdatePercentage: LiveData<Int>,
-    @Named("Albums")
-    val albumsUpdatePercentage: LiveData<Int>,
-    @Named("Artists")
-    val artistsUpdatePercentage: LiveData<Int>,
-    @Named("Playlists")
-    val playlistsUpdatePercentage: LiveData<Int>
+    val libraryUpdatePercentage: LiveData<SyncRepository.PercentageUpdate>
 ) : BaseViewModel(), PlayerControls.OnActionListener, Player.Listener {
     //region observable fields
     val hasInternet: LiveData<Boolean> = MutableLiveData()
