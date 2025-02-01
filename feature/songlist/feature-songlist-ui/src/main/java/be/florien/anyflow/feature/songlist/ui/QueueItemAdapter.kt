@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import be.florien.anyflow.component.viewholder.ErrorViewHolder
-import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.component.viewholder.ItemInfoTouchAdapter
 import be.florien.anyflow.component.viewholder.PodcastViewHolder
 import be.florien.anyflow.component.viewholder.PodcastViewHolderListener
@@ -14,6 +13,7 @@ import be.florien.anyflow.component.viewholder.QueueItemViewHolder
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.component.viewholder.SongViewHolder
+import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
 import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
@@ -63,8 +63,16 @@ class QueueItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         when (viewType) {
             ITEM_TYPE_SONG -> SongViewHolder(parent, queueItemListener, queueItemProvider)
-            ITEM_TYPE_PODCAST -> PodcastViewHolder(parent, queueItemListener, queueItemProvider, podcastListener, podcastViewHolderProvider, shouldShowTimeStamps = true)
-            else -> ErrorViewHolder(parent,queueItemListener, queueItemProvider )
+            ITEM_TYPE_PODCAST -> PodcastViewHolder(
+                parent,
+                queueItemListener,
+                queueItemProvider,
+                podcastListener,
+                podcastViewHolderProvider,
+                shouldShowTimeStamps = true
+            )
+
+            else -> ErrorViewHolder(parent)
         }
 
     override fun onBindViewHolder(holder: QueueItemViewHolder<*>, position: Int) {
