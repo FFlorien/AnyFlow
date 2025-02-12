@@ -5,6 +5,7 @@ import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.Transaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbMediaWaveForm
@@ -13,6 +14,22 @@ import be.florien.anyflow.tags.local.model.DbPodcastEpisodeWithPodcast
 
 @Dao
 abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
+
+    @Transaction
+    open suspend fun updatePodcastEpisodeList(podcastEpisodes: List<DbPodcastEpisode>) {
+        val currentLocalPodcastEpisodes = getPodcastEpisodesList()
+
+        val deletedPodcastEpisodes = currentLocalPodcastEpisodes.filter { localPodcast ->
+            podcastEpisodes.none { localPodcast.id == it.id }
+        }
+        delete(*deletedPodcastEpisodes.toTypedArray())
+
+        val addedPodcastEpisodes = podcastEpisodes.filter { remotePodcast ->
+            currentLocalPodcastEpisodes.none { remotePodcast.id == it.id }
+        }
+        upsert(addedPodcastEpisodes)
+    }
+
     @Query("SELECT time FROM PodcastEpisode WHERE id = :id")
     abstract suspend fun getPodcastDuration(id: Long): Int
 
@@ -44,7 +61,7 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
     abstract suspend fun updateWithNewWaveForm(podcastEpisodeId: Long, downSamples: String?)
 
     @Query("DELETE FROM PodcastEpisode")
-    abstract fun deleteAllPlaylistSongs()
+    abstract fun deleteAllPodcastEpisodes()
 
     @Query("SELECT waveForm FROM PodcastEpisode WHERE podcastepisode.id = :podcastEpisodeId")
     abstract fun getWaveFormUpdatable(podcastEpisodeId: Long): LiveData<DbMediaWaveForm?>
