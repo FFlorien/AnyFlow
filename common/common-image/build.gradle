@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp'
     id 'kotlin-kapt'
     id 'com.autonomousapps.dependency-analysis'
 }
@@ -16,11 +17,11 @@ android {
         dataBinding true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '21'
     }
 }
 
@@ -39,7 +40,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.14.1'
     implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
     //DI
-    api 'com.google.dagger:dagger:2.49'
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    api "com.google.dagger:dagger:$dagger_version"
+    ksp "com.google.dagger:dagger-compiler:$dagger_version"
 }
 apply plugin: 'kotlin-parcelize'
