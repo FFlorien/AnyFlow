@@ -26,12 +26,10 @@ import java.util.Date
 import javax.inject.Inject
 
 @ServerScope
-class QueueRepository @Inject constructor(private val libraryDatabase: LibraryDatabase) :
-    FiltersRepository {
-
-    private val queryComposer = QueryComposer()
-
-
+class QueueRepository @Inject constructor(
+    private val libraryDatabase: LibraryDatabase,
+    private val queryComposer: QueryComposer
+) : FiltersRepository {
     //region Filters
 
     suspend fun isPlaylistContainingSong(playlistId: Long, songId: Long): Boolean =

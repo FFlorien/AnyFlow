@@ -33,10 +33,9 @@ class PlaylistRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
     private val ampachePlaylistSource: AmpachePlaylistSource,
     private val urlRepository: UrlRepository,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val queryComposer: QueryComposer
 ) {
-
-    private val queryComposer = QueryComposer()
 
     //region Get Playlists
     fun getPlaylists(

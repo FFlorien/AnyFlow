@@ -14,10 +14,9 @@ import be.florien.anyflow.tags.local.query.QueryComposer
 import javax.inject.Inject
 
 class PodcastRepository @Inject constructor(
-    private val libraryDatabase: LibraryDatabase
+    private val libraryDatabase: LibraryDatabase,
+    private val queryComposer: QueryComposer
 ) {
-    private val queryComposer: QueryComposer = QueryComposer()
-
     fun getPodcasts(
         filters: List<Filter<*>>?,
         search: String?

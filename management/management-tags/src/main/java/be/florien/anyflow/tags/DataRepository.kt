@@ -24,10 +24,9 @@ import javax.inject.Inject
 
 @ServerScope
 class DataRepository @Inject constructor(
-    private val libraryDatabase: LibraryDatabase
+    private val libraryDatabase: LibraryDatabase,
+    private val queryComposer: QueryComposer
 ) {
-    private val queryComposer = QueryComposer()
-
     /**
      * Paging
      */

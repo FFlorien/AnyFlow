@@ -16,9 +16,9 @@ import be.florien.anyflow.tags.toViewSongInfo
 import javax.inject.Inject
 
 class DownloadRepository @Inject constructor(
-    private val libraryDatabase: LibraryDatabase
+    private val libraryDatabase: LibraryDatabase,
+    private val queryComposer: QueryComposer
 ) {
-    private val queryComposer = QueryComposer()
 
     suspend fun getSongSync(id: Long): SongInfo =
         libraryDatabase.getSongDao().songById(id).toViewSongInfo()

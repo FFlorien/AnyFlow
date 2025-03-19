@@ -16,7 +16,6 @@ sealed class QueryOrdering(val priority: Int, val subject: Subject, val argument
         ARTIST("artist.basename", QueryJoin.JoinType.ARTIST),
         ALBUM_ARTIST("albumArtist.basename", QueryJoin.JoinType.ALBUM_ARTIST),
         ALBUM("album.basename", QueryJoin.JoinType.ALBUM),
-        ALBUM_ID("song.albumId"),
         DISC("song.disk"),
         YEAR("song.year"),
         GENRE("song.genre", QueryJoin.JoinType.GENRE),

@@ -74,7 +74,6 @@ private fun Ordering.subject() = when (subject) {
     SUBJECT_ARTIST -> QueryOrdering.Subject.ARTIST
     SUBJECT_ALBUM_ARTIST -> QueryOrdering.Subject.ALBUM_ARTIST
     SUBJECT_ALBUM -> QueryOrdering.Subject.ALBUM
-    SUBJECT_ALBUM_ID -> QueryOrdering.Subject.ALBUM_ID
     SUBJECT_DISC -> QueryOrdering.Subject.DISC
     SUBJECT_YEAR -> QueryOrdering.Subject.YEAR
     SUBJECT_GENRE -> QueryOrdering.Subject.GENRE
