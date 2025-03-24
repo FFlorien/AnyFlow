@@ -1,16 +1,16 @@
 package be.florien.anyflow.management.queue
 
 import androidx.core.text.HtmlCompat
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterGroup
-import be.florien.anyflow.management.filters.model.FilterType
-import be.florien.anyflow.management.filters.model.PodcastFilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.FilterGroup
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM_ARTIST
-import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALBUM_ID
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ALL
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_ARTIST
 import be.florien.anyflow.management.queue.model.Ordering.Companion.SUBJECT_DISC
@@ -82,32 +82,43 @@ private fun Ordering.subject() = when (subject) {
     else -> QueryOrdering.Subject.TRACK
 }
 
+fun List<DbFilter>.toViewFilters() : List<Filter> {
+    val endFilters = filter { childFilter -> none { otherFilter -> otherFilter.parentFilter == childFilter.id } }
+    return endFilters.map { it.toViewFilter(this@toViewFilters) }
+}
 
-fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter<*> =
-    Filter(
-        argument = if (type == DbFilter.TYPE_DOWNLOADED) argument.toBoolean() else argument.toLong(),
-        type = when (type) {
-            DbFilter.TYPE_GENRE -> TagFilterType.GENRE_IS
-            DbFilter.TYPE_SONG -> TagFilterType.SONG_IS
-            DbFilter.TYPE_ARTIST -> TagFilterType.ARTIST_IS
-            DbFilter.TYPE_ALBUM_ARTIST -> TagFilterType.ALBUM_ARTIST_IS
-            DbFilter.TYPE_ALBUM -> TagFilterType.ALBUM_IS
-            DbFilter.TYPE_DISK -> TagFilterType.DISK_IS
-            DbFilter.TYPE_PLAYLIST -> TagFilterType.PLAYLIST_IS
-            DbFilter.TYPE_DOWNLOADED -> TagFilterType.DOWNLOADED_STATUS_IS
-            DbFilter.TYPE_PODCAST_EPISODE -> PodcastFilterType.PODCAST_EPISODE_IS
-            DbFilter.TYPE_PODCAST -> PodcastFilterType.PODCAST_IS
-            else -> TagFilterType.SONG_IS
-        },
-        displayText = displayText,
-        children = getChildrenFilters(this, filterList)
+fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter {
+    val filterParam = mutableListOf<FilterParam<*>>()
+    filterParam.add(
+        toViewFilter()
     )
+    var parent: DbFilter? = filterList.firstOrNull { it.id == parentFilter }
+    while (parent != null) {
+        filterParam.add(parent.toViewFilter())
+        parent = filterList.firstOrNull { it.id == parent?.parentFilter }
+    }
+    val returnValue = Filter()
+    returnValue.addAll(filterParam.reversed())
+    return returnValue
+}
 
-private fun getChildrenFilters( //warning: this hasn't been tested (yet)
-    filter: DbFilter,
-    filterList: List<DbFilter>
-): List<Filter<*>> = filterList.filter { dbFilter -> filter.id == dbFilter.parentFilter }
-    .map { dbFilter -> dbFilter.toViewFilter(filterList) }
+private fun DbFilter.toViewFilter(): FilterParam<*> = FilterParam(
+    argument = if (type == DbFilter.TYPE_DOWNLOADED) argument.toBoolean() else argument.toLong(),
+    type = when (type) {
+        DbFilter.TYPE_GENRE -> TagFilterType.GENRE_IS
+        DbFilter.TYPE_SONG -> TagFilterType.SONG_IS
+        DbFilter.TYPE_ARTIST -> TagFilterType.ARTIST_IS
+        DbFilter.TYPE_ALBUM_ARTIST -> TagFilterType.ALBUM_ARTIST_IS
+        DbFilter.TYPE_ALBUM -> TagFilterType.ALBUM_IS
+        DbFilter.TYPE_DISK -> TagFilterType.DISK_IS
+        DbFilter.TYPE_PLAYLIST -> TagFilterType.PLAYLIST_IS
+        DbFilter.TYPE_DOWNLOADED -> TagFilterType.DOWNLOADED_STATUS_IS
+        DbFilter.TYPE_PODCAST_EPISODE -> PodcastFilterType.PODCAST_EPISODE_IS
+        DbFilter.TYPE_PODCAST -> PodcastFilterType.PODCAST_IS
+        else -> TagFilterType.SONG_IS
+    },
+    displayText = displayText
+)
 
 fun DbFilterGroup.toViewFilterGroup(): FilterGroup {
     val dateAddedNS = dateAdded
@@ -126,7 +137,7 @@ fun DbFilterGroup.toViewFilterGroup(): FilterGroup {
     }
 }
 
-fun Filter<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
+fun FilterParam<*>.toDbFilter(groupId: Long, parentId: Long? = null) = DbFilter(
     id = null,
     type = this.type.toDbFilterType(),
     argument = argument.toString(),

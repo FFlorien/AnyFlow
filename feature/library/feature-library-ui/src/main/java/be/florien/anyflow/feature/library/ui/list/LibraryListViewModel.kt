@@ -13,7 +13,8 @@ import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.currentFilters
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -30,7 +31,7 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
     val searchedText = MutableLiveData("")
     val hasFilterOfThisType: LiveData<Boolean> = currentFilters.map { list ->
         list.any { filter ->
-            isThisTypeOfFilter(filter)
+            isThisTypeOfFilter(filter.mainParam)
         }
     }
     val errorMessage = MutableLiveData(-1)
@@ -48,20 +49,20 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
                 getCurrentPagingList(searchedText.value)
             }
         }
-    var navigationFilter: Filter<*>? = null
+    var navigationFilter: Filter? = null
 
     protected abstract fun getPagingList(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String?
     ): LiveData<PagingData<FilterItem>>
 
-    protected abstract fun isThisTypeOfFilter(filter: Filter<*>): Boolean
+    protected abstract fun isThisTypeOfFilter(filterParam: FilterParam<*>): Boolean
     protected abstract suspend fun getFoundFilters(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String
     ): List<FilterItem>
 
-    abstract fun getFilter(filterValue: FilterItem): Filter<*>
+    abstract fun getFilter(filterValue: FilterItem): Filter
 
     init {
         isSearching.observeForever {
@@ -87,7 +88,7 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
     fun selectAllInSelection() {
         val search = searchedText.value ?: return
         viewModelScope.launch(Dispatchers.Main) {
-            val changingList = getFoundFilters(navigationFilter, search)
+            val changingList = getFoundFilters(navigationFilter?.clone() as Filter?, search)
 
             run listToAdd@{
                 changingList.forEach {
@@ -108,7 +109,7 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
             val search = searchedText.value ?: ""
             val changingList = filtersManager.filtersInEdition.value?.toList()
             changingList?.forEach {
-                if (isThisTypeOfFilter(it) && it.displayText.contains(search)) {
+                if (isThisTypeOfFilter(it.mainParam) && it.mainParam.displayText.contains(search)) {
                     filtersManager.removeFilter(it)
                 }
             }
@@ -120,7 +121,7 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
     }
 
     private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
-        val liveData = getPagingList(navigationFilter, search).cachedIn(viewModelScope)
+        val liveData = getPagingList(navigationFilter?.clone() as Filter?, search).cachedIn(viewModelScope)
         if (!liveData.hasActiveObservers()) {
             (values as MediatorLiveData).addSource(liveData) {
                 (values as MediatorLiveData).value = it
@@ -132,14 +133,11 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
     fun hasFilter(filterItem: FilterItem) = filtersManager.isFilterInEdition(getFilter(filterItem))
 
     fun shouldFilterOut(item: FilterItem): Boolean {
-        var shouldFilterOut = false
-        navigationFilter?.traversal {
-            shouldFilterOut = shouldFilterOut || (isThisTypeOfFilter(it) && it.argument == item.id)
-        }
-        return shouldFilterOut
+        val filter = navigationFilter?.clone() as Filter?
+        return filter != null && (isThisTypeOfFilter(filter.mainParam) && filter.mainParam.argument == item.id)
     }
 
-    protected fun getFilterInParent(filter: Filter<*>): Filter<*> =
-        navigationFilter?.deepCopy()?.apply { addToDeepestChild(filter) } ?: filter
+    protected fun getFilterInParent(filterParam: FilterParam<*>): Filter =
+        Filter(*((navigationFilter?.clone() as Filter? ?: emptySet()) + filterParam).toTypedArray())
 
 }

@@ -13,13 +13,13 @@ import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.tags.ui.list.LibraryTagsListFragment
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlin.random.Random
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class LibraryTagsInfoFragment(parentFilter: Filter<*>? = null) :
+class LibraryTagsInfoFragment(parentFilter: Filter? = null) :
     LibraryInfoFragment<LibraryInfoRow, TagFilterType>(parentFilter) {
     override fun getTitle(): String = getString(R.string.library_title_main)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()

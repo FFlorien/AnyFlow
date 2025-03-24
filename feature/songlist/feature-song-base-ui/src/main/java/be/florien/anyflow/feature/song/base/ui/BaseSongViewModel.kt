@@ -8,8 +8,8 @@ import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.management.filters.model.FilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo
 

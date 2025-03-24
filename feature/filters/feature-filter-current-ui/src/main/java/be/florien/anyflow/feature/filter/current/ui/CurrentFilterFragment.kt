@@ -32,12 +32,13 @@ import be.florien.anyflow.feature.filter.current.ui.databinding.FragmentCurrentF
 import be.florien.anyflow.feature.filter.current.ui.databinding.ItemFilterActiveBinding
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
-import be.florien.anyflow.feature.library.ui.currentFiltersForDisplay
+import be.florien.anyflow.feature.library.ui.currentFilters
 import be.florien.anyflow.feature.library.ui.menu.SaveFilterGroupMenuHolder
 import be.florien.anyflow.feature.library.ui.saveFilterGroup
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.PodcastFilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
@@ -102,15 +103,15 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                     .filterList
                     .addItemDecoration(dividerItemDecoration)
             }
-        libraryViewModel.currentFiltersForDisplay.observe(viewLifecycleOwner) {
+        libraryViewModel.currentFilters.observe(viewLifecycleOwner) {
             filterListAdapter.notifyDataSetChanged()
             saveMenuHolder.isVisible = libraryViewModel
-                .currentFiltersForDisplay
+                .currentFilters
                 .value
                 ?.isNotEmpty() == true
         }
         saveMenuHolder.isVisible = libraryViewModel
-            .currentFiltersForDisplay
+            .currentFilters
             .value
             ?.isNotEmpty() == true
         ViewCompat.setTranslationZ(binding.root, 1f)
@@ -141,7 +142,7 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                 else -> {
                     val filter =
                         libraryViewModel
-                            .currentFiltersForDisplay
+                            .currentFilters
                             .value
                             ?.toList()
                             ?.getOrNull(position - 1)
@@ -153,7 +154,7 @@ class CurrentFilterFragment : BaseFilteringFragment() {
         }
 
         override fun getItemCount(): Int {
-            return viewModel.currentFiltersForDisplay.value?.size?.takeIf { it > 0 }?.plus(1) ?: 0
+            return viewModel.currentFilters.value?.size?.takeIf { it > 0 }?.plus(1) ?: 0
         }
     }
 
@@ -169,92 +170,80 @@ class CurrentFilterFragment : BaseFilteringFragment() {
         private val leftIconSize = resources.getDimensionPixelSize(R.dimen.xLargeDimen)
         private val leftActionSize = resources.getDimensionPixelSize(R.dimen.largeDimen)
 
-        fun bind(filter: Filter<*>) {
-            val deepestChild = getFiltersText(filter)
-            val artType = deepestChild.type.artType
-            val argument = deepestChild.argument
-            setImage(artType, argument, filter)
+        fun bind(filter: Filter) {
+            val mainParam = filter.mainParam
+            val artType = mainParam.type.artType
+            val argument = mainParam.argument
+            setImage(artType, argument, mainParam)
+
+            binding.filterName.text =
+                Html.fromHtml(filter.joinToString(separator = "<br>") { getFilterText(it) })
             binding.vm = viewModel
             binding.filter = filter
             binding.lifecycleOwner = viewLifecycleOwner
         }
 
-        private fun getFiltersText(filter: Filter<*>): Filter<*> {
-            var filterToTransform: Filter<*>? = filter
-            var charSequence = ""
-            var isFirstLine = true
-            var deepestChild = filter
-            while (filterToTransform != null) {
-                if (!isFirstLine) {
-                    charSequence += "<br>"
-                }
-                charSequence += getFilterText(filterToTransform)
-                filterToTransform = filterToTransform.children.firstOrNull()
-                if (filterToTransform != null) {
-                    deepestChild = filterToTransform
-                }
-                isFirstLine = false
-            }
-            binding.filterName.text = Html.fromHtml(charSequence)
-            return deepestChild
-        }
-
-        private fun getFilterText(filter: Filter<*>) = when (filter.type) {
+        private fun getFilterText(filterParam: FilterParam<*>) = when (filterParam.type) {
             TagFilterType.GENRE_IS -> getString(
                 R.string.filter_display_genre_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.SONG_IS -> getString(
                 R.string.filter_display_song_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.ARTIST_IS -> getString(
                 R.string.filter_display_artist_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.ALBUM_ARTIST_IS -> getString(
                 R.string.filter_display_album_artist_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.ALBUM_IS -> getString(
                 R.string.filter_display_album_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.DISK_IS -> getString( //todo is not displayed correctly for now because it is a subfilter
                 R.string.filter_display_disk_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.PLAYLIST_IS -> getString(
                 R.string.filter_display_playlist_is,
-                filter.displayText
+                filterParam.displayText
             )
 
             TagFilterType.DOWNLOADED_STATUS_IS -> getString(
-                if (filter.argument as Boolean) R.string.filter_display_is_downloaded
+                if (filterParam.argument as Boolean) R.string.filter_display_is_downloaded
                 else R.string.filter_display_is_not_downloaded
             )
 
             PodcastFilterType.PODCAST_EPISODE_IS -> getString(
                 R.string.filter_display_podcast_episode_is,
-                filter.displayText
+                filterParam.displayText
             )
-            PodcastFilterType.PODCAST_IS -> getString(R.string.filter_display_podcast_is, filter.displayText)
+
+            PodcastFilterType.PODCAST_IS -> getString(
+                R.string.filter_display_podcast_is,
+                filterParam.displayText
+            )
+
             PodcastFilterType.STATE_IS -> getString(
                 R.string.filter_display_state_is,
-                filter.displayText
+                filterParam.displayText
             )
         }
 
         private fun setImage(
             artType: String?,
             argument: Any?,
-            filter: Filter<*>
+            filterParam: FilterParam<*>
         ) {
             if (artType != null && argument is Long) {
                 targets.add(
@@ -284,7 +273,7 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                         })
                 )
             } else {
-                when (filter.type) {
+                when (filterParam.type) {
                     TagFilterType.ALBUM_ARTIST_IS,
                     TagFilterType.ARTIST_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_artist,
@@ -331,7 +320,7 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                         leftIconSize
                     )
 
-                    PodcastFilterType.STATE_IS ->setCompoundDrawableFromResources(
+                    PodcastFilterType.STATE_IS -> setCompoundDrawableFromResources(
                         R.drawable.ic_podcast,
                         leftIconSize
                     ) //TODO()

@@ -25,7 +25,7 @@ val diffCallback = object : DiffUtil.ItemCallback<FilterItem>() {
         oldItem.artUrl == newItem.artUrl && oldItem.title == newItem.title && oldItem.isSelected == newItem.isSelected
 }
 
-class FilterListAdapter(
+class LibraryListAdapter(
     override val isSelected: (FilterItem) -> Boolean,
     override val setSelected: (FilterItem) -> Unit,
     private val detailListener: DetailViewHolderListener<FilterItem>

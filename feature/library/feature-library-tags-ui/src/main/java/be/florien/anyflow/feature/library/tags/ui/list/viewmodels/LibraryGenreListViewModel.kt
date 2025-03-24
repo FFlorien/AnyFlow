@@ -7,8 +7,9 @@ import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -19,13 +20,13 @@ class LibraryGenreListViewModel @Inject constructor(
     filtersManager: FiltersManager
 ) : LibraryListViewModel(filtersManager) {
     override fun getPagingList(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String?
     ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getGenreFiltersPaging(filter, search)
 
-    override fun isThisTypeOfFilter(filter: Filter<*>) = filter.type == TagFilterType.GENRE_IS
+    override fun isThisTypeOfFilter(filterParam: FilterParam<*>) = filterParam.type == TagFilterType.GENRE_IS
     override suspend fun getFoundFilters(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String
     ): List<FilterItem> =
         withContext(Dispatchers.Default) {
@@ -34,7 +35,7 @@ class LibraryGenreListViewModel @Inject constructor(
 
     override fun getFilter(filterValue: FilterItem) =
         getFilterInParent(
-            Filter(
+            FilterParam(
                 TagFilterType.GENRE_IS,
                 filterValue.id,
                 filterValue.title.getText()

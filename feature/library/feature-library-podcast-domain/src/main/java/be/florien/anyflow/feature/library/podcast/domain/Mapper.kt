@@ -6,23 +6,24 @@ import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
 import be.florien.anyflow.urls.UrlRepository
 
 internal fun PodcastDisplay.toFilterItem(
-    parentFilter: Filter<*>?,
+    parentFilter: Filter?,
     urlRepository: UrlRepository,
     filtersManager: FiltersManager
 ): FilterItem {
-    val filter = Filter(
+    val filterParam = FilterParam(
         PodcastFilterType.PODCAST_IS,
         id,
         name
     )
-    val filterInHierarchy = parentFilter.withChild(filter)
+    val filterInHierarchy = parentFilter.withChild(filterParam)
 
     return FilterItem(
         id,
@@ -33,16 +34,16 @@ internal fun PodcastDisplay.toFilterItem(
 }
 
 internal fun PodcastEpisodeDisplay.toFilterItem(
-    parentFilter: Filter<*>?,
+    parentFilter: Filter?,
     urlRepository: UrlRepository,
     filtersManager: FiltersManager
 ): FilterItem {
-    val filter = Filter(
+    val filterParam = FilterParam(
         PodcastFilterType.PODCAST_EPISODE_IS,
         id,
         title
     )
-    val filterInHierarchy = parentFilter.withChild(filter)
+    val filterInHierarchy = parentFilter.withChild(filterParam)
     return (FilterItem(
         id,
         TextConfig(title),
@@ -57,11 +58,10 @@ internal fun PodcastDisplay.toIdText() = IdText(id, name)
 
 internal fun PodcastEpisodeDisplay.toIdText() = IdText(id, title)
 
-private fun Filter<*>?.withChild(filter: Filter<*>): Filter<*> {
+private fun Filter?.withChild(filterParam: FilterParam<*>): Filter {
     if (this == null) {
-        return filter
+        return Filter(filterParam)
     }
-    val copy = deepCopy()
-    copy.addToDeepestChild(filter)
-    return copy
+    add(filterParam)
+    return this
 }

@@ -34,6 +34,7 @@ dependencies {
     implementation project(':component-menu')
     implementation project(':feature-library-ui')
     implementation project(":management-filters")
+    implementation project(":management-filters-domain")
     implementation project(':management-tags')
     implementation project(':management-urls')
 

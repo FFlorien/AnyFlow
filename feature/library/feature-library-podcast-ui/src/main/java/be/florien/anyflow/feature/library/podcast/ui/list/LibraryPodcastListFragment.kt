@@ -13,13 +13,13 @@ import be.florien.anyflow.feature.library.podcast.ui.list.viewmodels.LibraryPodc
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.DetailViewHolderListener
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.domain.model.Filter
 
 @ActivityScope
 @ServerScope
 class LibraryPodcastListFragment @SuppressLint("ValidFragment") constructor(
     filterType: String = LibraryPodcastInfoViewModel.PODCAST_EPISODE_ID,
-    parentFilter: Filter<*>? = null
+    parentFilter: Filter? = null
 ) : LibraryListFragment(filterType, parentFilter),
     DetailViewHolderListener<FilterItem> {
 

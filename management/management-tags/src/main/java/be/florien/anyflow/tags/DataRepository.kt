@@ -4,22 +4,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.paging.DataSource
 import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterTagsCount
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbAlbumDisplay
 import be.florien.anyflow.tags.local.model.DbArtist
+import be.florien.anyflow.tags.local.model.DbDownloadedCount
 import be.florien.anyflow.tags.local.model.DbGenre
 import be.florien.anyflow.tags.local.model.DbSongDisplay
 import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.model.Album
 import be.florien.anyflow.tags.model.Artist
+import be.florien.anyflow.tags.model.DownloadedCount
 import be.florien.anyflow.tags.model.Genre
 import be.florien.anyflow.tags.model.SongDisplayDomain
 import be.florien.anyflow.tags.model.SongInfo
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterTagsCount
-import be.florien.anyflow.management.filters.toQueryFilters
-import be.florien.anyflow.tags.local.model.DbDownloadedCount
-import be.florien.anyflow.tags.model.DownloadedCount
 import javax.inject.Inject
 
 @ServerScope
@@ -32,50 +31,50 @@ class DataRepository @Inject constructor(
      */
 
     fun getSongs(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ): DataSource.Factory<Int, SongDisplayDomain> =
         libraryDatabase.getSongDao().rawQueryPaging(
-            queryComposer.getQueryForSong(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForSong(filter, search)
         ).map(DbSongDisplay::toDomainSongDisplay)
 
     fun getArtists(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ): DataSource.Factory<Int, Artist> =
         libraryDatabase.getArtistDao().rawQueryPaging(
-            queryComposer.getQueryForArtist(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForArtist(filter, search)
         ).map(DbArtist::toViewArtist)
 
     fun getAlbums(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ): DataSource.Factory<Int, Album> =
         libraryDatabase.getAlbumDao().rawQueryDisplayPaging(
-            queryComposer.getQueryForAlbum(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForAlbum(filter, search)
         ).map(DbAlbumDisplay::toViewAlbum)
 
     fun getAlbumArtists(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ): DataSource.Factory<Int, Artist> =
         libraryDatabase.getArtistDao().rawQueryPaging(
-            queryComposer.getQueryForAlbumArtist(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForAlbumArtist(filter, search)
         ).map(DbArtist::toViewArtist)
 
     fun getGenres(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ): DataSource.Factory<Int, Genre> =
         libraryDatabase.getGenreDao().rawQueryPaging(
-            queryComposer.getQueryForGenre(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForGenre(filter, search)
         ).map(DbGenre::toViewGenre)
 
     fun getDownloadedInfo(
-        filters: List<Filter<*>>?
+        filter: Filter?
     ): DataSource.Factory<Int, DownloadedCount> =
         libraryDatabase.getDownloadDao().rawQueryPaging(
-            queryComposer.getQueryForDownloadCount(filters?.toQueryFilters())
+            queryComposer.getQueryForDownloadCount(filter)
         ).map(DbDownloadedCount::toViewDownloadedCount)
 
     /**
@@ -83,50 +82,50 @@ class DataRepository @Inject constructor(
      */
 
     suspend fun getSongFiltered(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String
     ): List<SongDisplayDomain> =
         libraryDatabase.getSongDao().rawQueryListDisplay(
-            queryComposer.getQueryForSong(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForSong(filter, search)
         ).map(DbSongDisplay::toDomainSongDisplay)
 
     suspend fun getArtistFiltered(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String
     ): List<Artist> =
         libraryDatabase.getArtistDao().rawQueryList(
-            queryComposer.getQueryForArtist(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForArtist(filter, search)
         ).map(DbArtist::toViewArtist)
 
     suspend fun getAlbumFiltered(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String
     ): List<Album> =
         libraryDatabase.getAlbumDao().rawQueryDisplayList(
-            queryComposer.getQueryForAlbum(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForAlbum(filter, search)
         ).map(DbAlbumDisplay::toViewAlbum)
 
     suspend fun getAlbumArtistFiltered(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String
     ): List<Artist> =
         libraryDatabase.getArtistDao().rawQueryList(
-            queryComposer.getQueryForAlbumArtist(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForAlbumArtist(filter, search)
         ).map(DbArtist::toViewArtist)
 
     suspend fun getGenreFiltered(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String
     ): List<Genre> =
         libraryDatabase.getGenreDao().rawQueryList(
-            queryComposer.getQueryForGenre(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForGenre(filter, search)
         ).map(DbGenre::toViewGenre)
 
     suspend fun getDownloadedSearchedList(
-        filters: List<Filter<*>>?
+        filter: Filter?
     ): List<DownloadedCount> =
         libraryDatabase.getDownloadDao().rawQueryCountList(
-            queryComposer.getQueryForDownloadCount(filters?.toQueryFilters())
+            queryComposer.getQueryForDownloadCount(filter)
         ).map(DbDownloadedCount::toViewDownloadedCount)
 
     /**
@@ -146,10 +145,9 @@ class DataRepository @Inject constructor(
      * Infos
      */
 
-    suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterTagsCount {
-        val filterList = infoSource?.let { listOf(it) } ?: emptyList()
+    suspend fun getFilteredInfo(infoSource: Filter?): FilterTagsCount {
         return libraryDatabase.getFilterDao()
-            .getCount(queryComposer.getQueryForTagsCount(filterList.toQueryFilters()))
+            .getCount(queryComposer.getQueryForTagsCount(infoSource))
             .toViewFilterCount()
     }
 

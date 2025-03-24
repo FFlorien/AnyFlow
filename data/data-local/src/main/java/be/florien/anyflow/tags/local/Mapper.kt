@@ -1,14 +1,29 @@
-package be.florien.anyflow.management.filters
+package be.florien.anyflow.tags.local
 
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.PodcastFilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.tags.local.query.QueryFilter
 
 
 // region view to utilities
 
-fun Filter<*>.toQueryFilter(level: Int = 0): QueryFilter {
+fun Iterable<Filter>.toQueryFilters() = map { it.toQueryFilter() }
+
+fun Iterable<FilterParam<*>>.toQueryFilter(): QueryFilter {
+    val topQueryFilter: QueryFilter = first().toQueryFilter(0)
+    var previousQueryFilter: QueryFilter? = topQueryFilter
+    drop(1).forEachIndexed { index, filter ->
+        val queryFilter = filter.toQueryFilter(index + 1)
+        previousQueryFilter?.child = queryFilter
+        previousQueryFilter = queryFilter
+    }
+
+    return topQueryFilter
+}
+
+fun FilterParam<*>.toQueryFilter(level: Int = 0): QueryFilter {
     val argument = argument
     return QueryFilter(
         type = when (type) {
@@ -28,9 +43,6 @@ fun Filter<*>.toQueryFilter(level: Int = 0): QueryFilter {
             is Boolean -> if (argument) "NOT NULL" else "NULL"
             else -> argument.toString()
         },
-        level = level,
-        children = children.map { it.toQueryFilter(level + 1) }
+        level = level
     )
 }
-
-fun List<Filter<*>>.toQueryFilters() = map { it.toQueryFilter() }

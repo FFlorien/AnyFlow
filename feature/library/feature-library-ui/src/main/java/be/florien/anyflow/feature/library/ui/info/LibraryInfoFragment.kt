@@ -15,12 +15,12 @@ import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.cancelChanges
 import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterTypeBinding
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class LibraryInfoFragment<T, FT: FilterType>(var parentFilter: Filter<*>? = null) :
+abstract class LibraryInfoFragment<T, FT: FilterType>(var parentFilter: Filter? = null) :
     BaseFilteringFragment() {
 
     override val libraryViewModel: LibraryViewModel

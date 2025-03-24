@@ -29,8 +29,7 @@ dependencies {
     implementation project(':common-utils')
     implementation project(":data-local")
     implementation project(":data-server")
-    implementation project(":management-tags")//todo remove when urlrepo is in its own module
-    implementation project(":management-filters")
+    implementation project(':management-filters-domain')
     implementation project(':management-urls')
     //Room
     //todo add another layer of abstraction on top of libraryDatabase in data-local and remove these dependencies

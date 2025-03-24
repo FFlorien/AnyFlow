@@ -6,8 +6,9 @@ import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.tags.model.SongInfo
 import javax.inject.Inject
@@ -30,59 +31,58 @@ class SongInfoActions @Inject constructor(
 
     suspend fun filterOn(songInfo: SongInfo, row: BaseSongInfoRow) {
         val filter = when (row.fieldType) {
-            SongFieldType.Title -> Filter(
+            SongFieldType.Title -> Filter(FilterParam(
                 TagFilterType.SONG_IS,
                 songInfo.id,
                 songInfo.title
-            )
+            ))
 
-            SongFieldType.Artist -> Filter(
+            SongFieldType.Artist -> Filter(FilterParam(
                 TagFilterType.ARTIST_IS,
                 songInfo.artistId,
                 songInfo.artistName
-            )
+            ))
 
-            SongFieldType.Album -> Filter(
+            SongFieldType.Album -> Filter(FilterParam(
                 TagFilterType.ALBUM_IS,
                 songInfo.albumId,
                 songInfo.albumName
-            )
+            ))
 
-            SongFieldType.Disk -> Filter(
+            SongFieldType.Disk -> Filter(FilterParam(
                 TagFilterType.ALBUM_IS,
                 songInfo.albumId,
-                songInfo.albumName,
-                listOf(
-                    Filter(
+                songInfo.albumName),
+                    FilterParam(
                         TagFilterType.DISK_IS,
                         songInfo.disk,
                         songInfo.disk.toString()
                     )
-                )
+
             )
 
-            SongFieldType.AlbumArtist -> Filter(
+            SongFieldType.AlbumArtist -> Filter(FilterParam(
                 TagFilterType.ALBUM_ARTIST_IS,
                 songInfo.albumArtistId,
                 songInfo.albumArtistName
-            )
+            ))
 
             SongFieldType.Genre -> {
                 val index = (row as BaseSongInfoRow.SongMultipleInfoRow).index
-                Filter(
+                Filter(FilterParam(
                     TagFilterType.GENRE_IS,
                     songInfo.genreIds[index],
                     songInfo.genreNames[index]
-                )
+                ))
             }
 
             SongFieldType.Playlist -> {
                 val index = (row as BaseSongInfoRow.SongMultipleInfoRow).index
-                Filter(
+                Filter(FilterParam(
                     TagFilterType.PLAYLIST_IS,
                     songInfo.playlistIds[index],
                     songInfo.playlistNames[index]
-                )
+                ))
             }
 
             else -> throw IllegalArgumentException("This field can't be filtered on")

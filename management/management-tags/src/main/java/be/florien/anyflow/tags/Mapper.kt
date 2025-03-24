@@ -1,6 +1,6 @@
 package be.florien.anyflow.tags
 
-import be.florien.anyflow.management.filters.model.FilterTagsCount
+import be.florien.anyflow.management.filters.domain.model.FilterTagsCount
 import be.florien.anyflow.tags.local.model.DbAlbumDisplay
 import be.florien.anyflow.tags.local.model.DbArtist
 import be.florien.anyflow.tags.local.model.DbDownloadedCount

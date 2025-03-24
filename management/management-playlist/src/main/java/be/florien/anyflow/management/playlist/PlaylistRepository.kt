@@ -12,19 +12,17 @@ import androidx.work.WorkManager
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.toQueryFilter
-import be.florien.anyflow.management.filters.toQueryFilters
+import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.playlist.model.Playlist
 import be.florien.anyflow.management.playlist.model.PlaylistSong
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
 import be.florien.anyflow.management.playlist.work.PlaylistModificationWorker
-import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPlaylist
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs
 import be.florien.anyflow.tags.local.query.QueryComposer
+import be.florien.anyflow.urls.UrlRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -39,11 +37,11 @@ class PlaylistRepository @Inject constructor(
 
     //region Get Playlists
     fun getPlaylists(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ): DataSource.Factory<Int, Playlist> =
         libraryDatabase.getPlaylistDao().rawQueryPaging(
-            queryComposer.getQueryForPlaylist(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForPlaylist(filter, search)
         ).map {
             it.toViewPlaylist(urlRepository)
         }
@@ -54,12 +52,12 @@ class PlaylistRepository @Inject constructor(
         ).map { it.toViewPlaylist(urlRepository) }.convertToPagingLiveData()
 
     fun getPlaylistsWithPresence(
-        filter: Filter<*>
+        filter: Filter
     ): LiveData<List<PlaylistWithPresence>> =
         libraryDatabase
             .getPlaylistDao()
             .rawQueryPlaylistsWithPresenceUpdatable(
-                queryComposer.getQueryForPlaylistWithPresence(filter.toQueryFilter())
+                queryComposer.getQueryForPlaylistWithPresence(filter)
             )
             .map { list -> list.map { it.toViewPlaylist(urlRepository) } }
 
@@ -72,17 +70,17 @@ class PlaylistRepository @Inject constructor(
             .convertToPagingLiveData()
 
     suspend fun getPlaylistFiltered(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String
     ): List<PlaylistWithCount> =
         libraryDatabase.getPlaylistDao().rawQueryWithCountList(
-            queryComposer.getQueryForPlaylist(filters?.toQueryFilters(), search)
+            queryComposer.getQueryForPlaylist(filter, search)
         ).map { it.toViewPlaylist(urlRepository) }
 
-    suspend fun getSongCountForFilter(filter: Filter<*>) = libraryDatabase
+    suspend fun getSongCountForFilter(filter: Filter) = libraryDatabase
         .getSongDao()
         .rawQueryForCountFiltered(
-            queryComposer.getQueryForSongCount(filter.toQueryFilter())
+            queryComposer.getQueryForSongCount(filter)
         )
     //endregion
 
@@ -97,12 +95,12 @@ class PlaylistRepository @Inject constructor(
         libraryDatabase.getPlaylistDao().delete(DbPlaylist(id, "", ""))
     }
 
-    suspend fun addSongsToPlaylist(filter: Filter<*>, playlistId: Long) {
+    suspend fun addSongsToPlaylist(filter: Filter, playlistId: Long) {
         val newSongsList = libraryDatabase
             .getSongDao()
             .forCurrentFiltersList(
                 queryComposer.getQueryForSongIds(
-                    listOf(filter).toQueryFilters(),
+                    filter,
                     emptyList()
                 )
             )
@@ -121,12 +119,12 @@ class PlaylistRepository @Inject constructor(
         )
     }
 
-    suspend fun removeSongsFromPlaylist(filter: Filter<*>, playlistId: Long) {
+    suspend fun removeSongsFromPlaylist(filter: Filter, playlistId: Long) {
         val songList = libraryDatabase
             .getSongDao()
             .forCurrentFiltersList(
                 queryComposer.getQueryForSongIds(
-                    listOf(filter).toQueryFilters(),
+                    filter,
                     emptyList()
                 )
             )

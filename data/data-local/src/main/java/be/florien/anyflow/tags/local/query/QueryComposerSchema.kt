@@ -1,6 +1,5 @@
 package be.florien.anyflow.tags.local.query
 
-import androidx.sqlite.db.SimpleSQLiteQuery
 import be.florien.anyflow.tags.local.Album
 import be.florien.anyflow.tags.local.AlbumArtist
 import be.florien.anyflow.tags.local.Artist
@@ -32,8 +31,9 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
         val tableAliases = mutableMapOf<String, Int>()
 
         fun reduceWhereTable(it: QueryFilter): List<Join> {
-            val list = if (it.children.isNotEmpty()) {
-                it.children.flatMap(::reduceWhereTable)
+            val child = it.child
+            val list = if (child != null) {
+                reduceWhereTable(child)
             } else {
                 emptyList()
             }

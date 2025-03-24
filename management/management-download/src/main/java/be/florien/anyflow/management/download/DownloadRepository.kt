@@ -2,10 +2,10 @@ package be.florien.anyflow.management.download
 
 import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
-import be.florien.anyflow.management.filters.toQueryFilters
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbDownload
 import be.florien.anyflow.tags.local.model.DownloadProgressState
@@ -24,19 +24,10 @@ class DownloadRepository @Inject constructor(
         libraryDatabase.getSongDao().songById(id).toViewSongInfo()
 
     suspend fun queueDownload(id: Long, type: FilterType, secondId: Int?) {
-        val filter = if (type == TagFilterType.DISK_IS) {
-            Filter(
-                TagFilterType.ALBUM_IS,
-                id,
-                "",
-                listOf(Filter(type, secondId, " "))
-            )
-        } else {
-            Filter(type, id, "")
-        }
+        val filter = getFilter(type, id, secondId)
         libraryDatabase
             .getDownloadDao()
-            .rawQueryInsert(queryComposer.getQueryForDownload(listOfNotNull(filter).toQueryFilters()))
+            .rawQueryInsert(queryComposer.getQueryForDownload(filter))
     }
 
     suspend fun getDownloadList() = libraryDatabase
@@ -51,22 +42,26 @@ class DownloadRepository @Inject constructor(
         type: FilterType,
         secondId: Int? = null
     ): LiveData<DownloadProgressState> {
-        val filter = if (type == TagFilterType.DISK_IS) {
-            Filter(
-                TagFilterType.ALBUM_IS,
-                id,
-                "",
-                listOf(Filter(type, secondId, ""))
-            )
-        } else {
-            Filter(type, id, "")
-        }
+        val filter = getFilter(type, id, secondId)
         return libraryDatabase
             .getDownloadDao()
             .rawQueryProgress(
                 queryComposer
-                    .getQueryForDownloadProgress(listOfNotNull(filter).toQueryFilters())
+                    .getQueryForDownloadProgress(filter)
             )
+    }
+
+    private fun getFilter(
+        type: FilterType,
+        id: Long,
+        secondId: Int?
+    ) = if (type == TagFilterType.DISK_IS) {
+        Filter(
+            FilterParam(TagFilterType.ALBUM_IS, id, ""),
+            FilterParam(type, secondId, " ")
+        )
+    } else {
+        Filter(FilterParam(type, id, ""))
     }
 
     suspend fun concludeDownload(songId: Long, uri: String?) {

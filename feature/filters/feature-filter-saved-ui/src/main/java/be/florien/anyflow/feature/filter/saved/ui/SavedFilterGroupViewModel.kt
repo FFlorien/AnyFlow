@@ -7,7 +7,7 @@ import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.FilterGroup
+import be.florien.anyflow.management.filters.domain.model.FilterGroup
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

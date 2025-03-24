@@ -41,6 +41,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation project(':common-navigation')
     implementation project(':component-info')
+    implementation project(':management-filters-domain')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

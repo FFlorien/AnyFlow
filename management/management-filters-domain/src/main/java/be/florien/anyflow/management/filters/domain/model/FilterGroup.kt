@@ -1,4 +1,4 @@
-package be.florien.anyflow.management.filters.model
+package be.florien.anyflow.management.filters.domain.model
 
 import java.util.Calendar
 

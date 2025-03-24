@@ -18,14 +18,14 @@ import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibrarySongLis
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.list.DetailViewHolderListener
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.domain.model.Filter
 
 @ActivityScope
 @ServerScope
 class LibraryTagsListFragment @SuppressLint("ValidFragment") //todo abstract this, for onattach, title, subtitle
 constructor(
     filterType: String = LibraryTagsInfoViewModel.GENRE_ID,
-    parentFilter: Filter<*>? = null
+    parentFilter: Filter? = null
 ) : LibraryListFragment(filterType, parentFilter),
     DetailViewHolderListener<FilterItem> {
 

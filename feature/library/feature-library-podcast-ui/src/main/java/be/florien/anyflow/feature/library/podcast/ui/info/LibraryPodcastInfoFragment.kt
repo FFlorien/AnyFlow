@@ -12,12 +12,12 @@ import be.florien.anyflow.feature.library.podcast.ui.list.LibraryPodcastListFrag
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import kotlin.random.Random
 
-class LibraryPodcastInfoFragment(parentFilter: Filter<*>? = null) :
-    LibraryInfoFragment<LibraryInfoRow, PodcastFilterType>(parentFilter) {
+class LibraryPodcastInfoFragment(parentFilterParam: Filter? = null) :
+    LibraryInfoFragment<LibraryInfoRow, PodcastFilterType>(parentFilterParam) {
     override fun getTitle(): String = getString(R.string.menu_podcast)
     override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
     override fun getLibraryInfoViewModel() = ViewModelProvider(

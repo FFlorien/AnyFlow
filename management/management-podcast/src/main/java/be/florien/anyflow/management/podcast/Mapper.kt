@@ -1,6 +1,6 @@
 package be.florien.anyflow.management.podcast
 
-import be.florien.anyflow.management.filters.model.FilterPodcastCount
+import be.florien.anyflow.management.filters.domain.model.FilterPodcastCount
 import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay

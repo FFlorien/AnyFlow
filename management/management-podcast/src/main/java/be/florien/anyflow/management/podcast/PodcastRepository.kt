@@ -1,9 +1,8 @@
 package be.florien.anyflow.management.podcast
 
 import androidx.lifecycle.map
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterPodcastCount
-import be.florien.anyflow.management.filters.toQueryFilters
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterPodcastCount
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbPodcast
 import be.florien.anyflow.tags.local.model.DbPodcastDisplay
@@ -18,19 +17,19 @@ class PodcastRepository @Inject constructor(
     private val queryComposer: QueryComposer
 ) {
     fun getPodcasts(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ) = libraryDatabase
         .getPodcastDao()
-        .rawQueryPaging(queryComposer.getQueryForPodcasts(filters?.toQueryFilters() ?: emptyList()))
+        .rawQueryPaging(queryComposer.getQueryForPodcasts(filter))
         .map(DbPodcastDisplay::toViewPodcast)
 
     fun getPodcastsEpisodes(
-        filters: List<Filter<*>>?,
+        filter: Filter?,
         search: String?
     ) = libraryDatabase
             .getPodcastEpisodeDao()
-            .rawQueryPaging(queryComposer.getQueryForPodcastEpisodes(filters?.toQueryFilters() ?: emptyList()))
+            .rawQueryPaging(queryComposer.getQueryForPodcastEpisodes(filter))
             .map(DbPodcastEpisodeDisplay::toViewPodcastEpisode)
 
     suspend fun getAllPodcastsList() =
@@ -52,10 +51,9 @@ class PodcastRepository @Inject constructor(
 
     fun getPodcastEpisodeDisplay(id: Long) = libraryDatabase.getPodcastEpisodeDao().getPodcastEpisodeDisplay(id)
 
-    suspend fun getFilteredInfo(infoSource: Filter<*>?): FilterPodcastCount {
-        val filterList = infoSource?.let { listOf(it) } ?: emptyList()
+    suspend fun getFilteredInfo(infoSource: Filter?): FilterPodcastCount {
         return libraryDatabase.getPodcastDao()
-            .getCount(queryComposer.getQueryForPodcastCount(filterList.toQueryFilters()))
+            .getCount(queryComposer.getQueryForPodcastCount(infoSource))
             .toViewFilterCount()
     }
 }

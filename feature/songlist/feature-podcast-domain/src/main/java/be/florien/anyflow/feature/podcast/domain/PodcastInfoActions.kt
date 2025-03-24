@@ -6,8 +6,9 @@ import be.florien.anyflow.feature.podcast.base.domain.model.BasePodcastInfoRow
 import be.florien.anyflow.feature.podcast.base.domain.model.PodcastFieldType
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.OrderComposer
 import javax.inject.Inject
@@ -29,14 +30,14 @@ class PodcastInfoActions @Inject constructor(
     }
 
     suspend fun filterOn(podcastEpisode: PodcastEpisodeDisplay, row: BasePodcastInfoRow) {
-        val filter = when (row.fieldType) {
-            PodcastFieldType.Title -> Filter(
+        val filterParam = when (row.fieldType) {
+            PodcastFieldType.Title -> FilterParam(
                 PodcastFilterType.PODCAST_EPISODE_IS,
                 podcastEpisode.id,
                 podcastEpisode.title
             )
 
-            PodcastFieldType.Podcast -> Filter(
+            PodcastFieldType.Podcast -> FilterParam(
                 PodcastFilterType.PODCAST_IS,
                 podcastEpisode.podcastId,
                 podcastEpisode.podcast
@@ -51,7 +52,7 @@ class PodcastInfoActions @Inject constructor(
             else -> throw IllegalArgumentException("This field can't be filtered on")
         }
         filtersManager.clearFilters()
-        filtersManager.addFilter(filter)
+        filtersManager.addFilter(Filter(filterParam))
         filtersManager.commitChanges()
     }
 

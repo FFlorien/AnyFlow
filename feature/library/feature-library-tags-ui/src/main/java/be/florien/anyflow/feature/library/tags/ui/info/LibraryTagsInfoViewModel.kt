@@ -8,8 +8,8 @@ import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class LibraryTagsInfoViewModel @Inject constructor(
                 LibraryTagsFieldType.Genre,
                 getAction(filteredInfo.genres.minus(filterNavigation?.let { source ->
                     val genreFilters = mutableSetOf<Long>()
-                    source.traversal { filter ->
+                    source.forEach { filter ->
                         if (filter.type == TagFilterType.GENRE_IS) {
                             genreFilters.add(filter.argument as Long)
                         }
@@ -73,7 +73,7 @@ class LibraryTagsInfoViewModel @Inject constructor(
                 LibraryTagsFieldType.Playlist,
                 getAction(filteredInfo.playlists.minus(filterNavigation?.let { source ->
                     val playlistFilters = mutableSetOf<Long>()
-                    source.traversal { filter ->
+                    source.forEach { filter ->
                         if (filter.type == TagFilterType.PLAYLIST_IS) {
                             playlistFilters.add(filter.argument as Long)
                         }
@@ -91,7 +91,7 @@ class LibraryTagsInfoViewModel @Inject constructor(
 
     override suspend fun getFilteredInfo(
         filterType: TagFilterType,
-        filter: Filter<*>?
+        filter: Filter?
     ) = when (filterType) {
         TagFilterType.SONG_IS -> libraryTagsRepository.getSongFiltered(filter)
         TagFilterType.ARTIST_IS -> libraryTagsRepository.getArtistFiltered(filter)

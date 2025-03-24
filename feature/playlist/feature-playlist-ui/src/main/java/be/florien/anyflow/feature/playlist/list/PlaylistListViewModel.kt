@@ -12,8 +12,9 @@ import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.component.dialog.DeletePlaylistViewModel
 import be.florien.anyflow.component.dialog.NewPlaylistViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.playlist.model.PlaylistWithCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -81,9 +82,11 @@ class PlaylistListViewModel : BaseViewModel(), NewPlaylistViewModel, DeletePlayl
         selection.value?.forEach {
             filtersManager.addFilter(
                 Filter(
-                    TagFilterType.PLAYLIST_IS,
-                    it.id,
-                    it.name
+                    FilterParam(
+                        TagFilterType.PLAYLIST_IS,
+                        it.id,
+                        it.name
+                    )
                 )
             )
         }

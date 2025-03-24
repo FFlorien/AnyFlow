@@ -7,8 +7,8 @@ import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterType
 
 abstract class LibraryInfoViewModel<T, FT: FilterType>(
     override val filtersManager: FiltersManager,
@@ -17,7 +17,7 @@ abstract class LibraryInfoViewModel<T, FT: FilterType>(
 
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 
-    var filterNavigation: Filter<*>? = null
+    var filterNavigation: Filter? = null
         set(value) {
             field = value
             updateRows()
@@ -27,5 +27,5 @@ abstract class LibraryInfoViewModel<T, FT: FilterType>(
 
     abstract fun getArtUrl(artType: String, id: Long): String?
 
-    abstract suspend fun getFilteredInfo(filterType: FT, filter: Filter<*>?): IdText?
+    abstract suspend fun getFilteredInfo(filterType: FT, filter: Filter?): IdText?
 }

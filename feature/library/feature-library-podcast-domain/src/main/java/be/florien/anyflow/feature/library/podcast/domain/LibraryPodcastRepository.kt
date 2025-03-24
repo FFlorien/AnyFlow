@@ -4,13 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingLiveData
-import be.florien.anyflow.management.podcast.PodcastRepository
-import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
+import be.florien.anyflow.urls.UrlRepository
 import javax.inject.Inject
 
 @ServerScope
@@ -22,34 +22,34 @@ class LibraryPodcastRepository @Inject constructor(
     // region paging
 
     fun getPodcastFiltersPaging(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String?
     ): LiveData<PagingData<FilterItem>> =
         podcastRepository
-            .getPodcasts(filter?.let { listOf(it) }, search)
+            .getPodcasts(filter, search)
             .map { it.toFilterItem(filter, urlRepository, filtersManager) }
             .convertToPagingLiveData()
 
     fun getPodcastEpisodeFiltersPaging(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String?
     ): LiveData<PagingData<FilterItem>> =
         podcastRepository
-            .getPodcastsEpisodes(filter?.let { listOf(it) }, search)
+            .getPodcastsEpisodes(filter, search)
             .map { it.toFilterItem(filter, urlRepository, filtersManager) }
             .convertToPagingLiveData()
     //endregion
 
     //region Filter list
     suspend fun getPodcastFilterList(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String
     ) = podcastRepository
         .getAllPodcastsList()
         .map { it.toFilterItem(filter, urlRepository, filtersManager) }
 
     suspend fun getPodcastEpisodeFilterList(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String
     ) = podcastRepository
         .getAllPodcastsEpisodesList()
@@ -57,18 +57,18 @@ class LibraryPodcastRepository @Inject constructor(
     //endregion
 
     //region Display list
-    suspend fun getPodcastList(filter: Filter<*>?) =
+    suspend fun getPodcastList(filter: Filter?) =
         podcastRepository
             .getAllPodcastsList()
             .map(PodcastDisplay::toIdText)
 
-    suspend fun getPodcastEpisodeList(filter: Filter<*>?) =
+    suspend fun getPodcastEpisodeList(filter: Filter?) =
         podcastRepository
             .getAllPodcastsEpisodesList()
             .map(PodcastEpisodeDisplay::toIdText)
     //endregion
 
-    suspend fun getFilteredInfo(infoSource: Filter<*>?) = podcastRepository.getFilteredInfo(infoSource)
+    suspend fun getFilteredInfo(infoSource: Filter?) = podcastRepository.getFilteredInfo(infoSource)
 
     fun getArtUrl(artType: String?, argument: Long): String? =
         if (artType == null) {

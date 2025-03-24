@@ -1,72 +1,82 @@
 package be.florien.anyflow.tags.local.query
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import be.florien.anyflow.management.filters.domain.model.Filter
 
 interface QueryComposer {
     //region tags
     fun getQueryForSongIds(
-        filters: List<QueryFilter>,
+        filter: Filter,
+        orderingList: List<QueryOrdering>
+    ): SimpleSQLiteQuery
+
+    fun getQueryForSongIds(
+        filterList: List<Filter>,
         orderingList: List<QueryOrdering>
     ): SimpleSQLiteQuery
 
     fun getQueryForSong(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForAlbum(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForAlbumArtist(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForArtist(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForGenre(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
-    fun getQueryForSongCount(filter: QueryFilter): SimpleSQLiteQuery
-    fun getQueryForTagsCount(filterList: List<QueryFilter>): SimpleSQLiteQuery
+    fun getQueryForSongCount(filter: Filter): SimpleSQLiteQuery
+    fun getQueryForTagsCount(filter: Filter?): SimpleSQLiteQuery
 
     //region playlist
     fun getQueryForPlaylist(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForPlaylistWithCount(
-        filterList: List<QueryFilter>?,
+        filter: Filter?,
         search: String?
     ): SimpleSQLiteQuery
 
-    fun getQueryForPlaylistWithPresence(filter: QueryFilter): SimpleSQLiteQuery
+    fun getQueryForPlaylistWithPresence(filter: Filter): SimpleSQLiteQuery
 
     //region podcasts
     fun getQueryForPodcasts(
-        filters: List<QueryFilter>//todo: add ordering handling
+        filter: Filter?//todo: add ordering handling
     ): SimpleSQLiteQuery
 
     fun getQueryForPodcastEpisodes(
-        filters: List<QueryFilter>//todo: add ordering handling
+        filter: Filter?//todo: add ordering handling
     ): SimpleSQLiteQuery
 
     fun getQueryForPodcastEpisodeIds(
-        filters: List<QueryFilter>//todo: add ordering handling
+        filter: Filter?//todo: add ordering handling
     ): SimpleSQLiteQuery
 
-    fun getQueryForPodcastCount(filterList: List<QueryFilter>): SimpleSQLiteQuery
+    fun getQueryForPodcastEpisodeIds(
+        filterList: List<Filter>?//todo: add ordering handling
+    ): SimpleSQLiteQuery
+
+    fun getQueryForPodcastCount(filter: Filter?): SimpleSQLiteQuery
 
     //region download
-    fun getQueryForDownload(filterList: List<QueryFilter>?): SimpleSQLiteQuery
-    fun getQueryForDownloadCount(filterList: List<QueryFilter>?): SimpleSQLiteQuery
-    fun getQueryForDownloadProgress(filterList: List<QueryFilter>?): SimpleSQLiteQuery
+    fun getQueryForDownload(filter: Filter?): SimpleSQLiteQuery
+    fun getQueryForDownloadCount(filter: Filter?): SimpleSQLiteQuery
+    fun getQueryForDownloadProgress(filter: Filter?): SimpleSQLiteQuery
 }

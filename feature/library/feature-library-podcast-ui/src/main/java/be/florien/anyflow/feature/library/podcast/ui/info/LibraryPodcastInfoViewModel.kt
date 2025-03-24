@@ -8,8 +8,8 @@ import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastRepositor
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -40,7 +40,7 @@ class LibraryPodcastInfoViewModel @Inject constructor(
 
     override suspend fun getFilteredInfo(
         filterType: PodcastFilterType,
-        filter: Filter<*>?
+        filter: Filter?
     ) = when (filterType) {
         PodcastFilterType.PODCAST_IS -> libraryPodcastRepository.getPodcastList(filter)
         PodcastFilterType.PODCAST_EPISODE_IS -> libraryPodcastRepository.getPodcastEpisodeList(filter)

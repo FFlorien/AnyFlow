@@ -1,8 +1,8 @@
 package be.florien.anyflow.feature.playlist.selection.domain
 
 import be.florien.anyflow.common.ui.data.TagType
-import be.florien.anyflow.management.filters.model.FilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 
 
 fun TagType.toViewFilterType(): FilterType = when (this) {

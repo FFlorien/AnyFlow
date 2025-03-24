@@ -8,8 +8,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.logging.eLog
-import be.florien.anyflow.management.filters.model.FilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo

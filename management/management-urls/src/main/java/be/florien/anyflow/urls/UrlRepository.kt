@@ -1,11 +1,11 @@
 package be.florien.anyflow.urls
 
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_ALBUM
-import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_ARTIST
-import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_PLAYLIST
-import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_PODCAST
-import be.florien.anyflow.management.filters.model.Filter.Companion.ART_TYPE_SONG
+import be.florien.anyflow.management.filters.domain.model.FilterParam.Companion.ART_TYPE_ALBUM
+import be.florien.anyflow.management.filters.domain.model.FilterParam.Companion.ART_TYPE_ARTIST
+import be.florien.anyflow.management.filters.domain.model.FilterParam.Companion.ART_TYPE_PLAYLIST
+import be.florien.anyflow.management.filters.domain.model.FilterParam.Companion.ART_TYPE_PODCAST
+import be.florien.anyflow.management.filters.domain.model.FilterParam.Companion.ART_TYPE_SONG
 import javax.inject.Inject
 import javax.inject.Named
 

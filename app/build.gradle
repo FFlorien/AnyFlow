@@ -114,6 +114,7 @@ dependencies {
     implementation project(':management-tags')
     implementation project(':management-urls')
     implementation project(':management-filters')
+    implementation project(':management-filters-domain')
     implementation project(':management-playlist')
     implementation project(':management-podcast')
     //Android/Kotlin

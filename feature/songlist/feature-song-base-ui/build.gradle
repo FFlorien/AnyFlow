@@ -36,7 +36,7 @@ dependencies {
     implementation project(':feature-song-base-domain')
     implementation project(':data-local')
     implementation project(':management-download')
-    implementation project(':management-filters')
+    implementation project(':management-filters-domain')
     implementation project(':management-queue')
     implementation project(':management-tags')
 

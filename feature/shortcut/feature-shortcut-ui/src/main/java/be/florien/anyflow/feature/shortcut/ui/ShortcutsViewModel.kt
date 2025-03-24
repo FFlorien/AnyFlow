@@ -9,7 +9,7 @@ import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.feature.song.base.domain.BaseSongInfoActions.Companion.DUMMY_SONG_ID
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
-import be.florien.anyflow.management.filters.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.FilterType
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.local.model.DownloadProgressState
 import be.florien.anyflow.tags.model.SongInfo

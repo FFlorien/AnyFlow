@@ -33,7 +33,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     implementation project(':common-logging')
-    implementation project(':management-filters')
+    implementation project(':management-filters-domain')
     implementation project(':management-tags')
     implementation project(':common-management')
     implementation project(':common-utils')

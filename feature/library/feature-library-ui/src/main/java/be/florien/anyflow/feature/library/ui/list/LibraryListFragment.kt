@@ -24,13 +24,14 @@ import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterBin
 import be.florien.anyflow.feature.library.ui.menu.SearchMenuHolder
 import be.florien.anyflow.feature.library.ui.menu.SelectAllMenuHolder
 import be.florien.anyflow.feature.library.ui.menu.SelectNoneMenuHolder
-import be.florien.anyflow.management.filters.model.Filter
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
 import com.google.android.material.snackbar.Snackbar
 
 abstract class LibraryListFragment @SuppressLint("ValidFragment")
 constructor(
     var filterType: String,
-    private var parentFilter: Filter<*>? = null
+    private var parentFilterParam: Filter? = null
 ) : BaseFilteringFragment(),
     DetailViewHolderListener<FilterItem> {
 
@@ -67,12 +68,13 @@ constructor(
     init {
         arguments?.let {
             filterType = it.getString(FILTER_TYPE, "Error")
-            parentFilter = it.getParcelable(PARENT_FILTER)
+            parentFilterParam =
+                Filter(*(it.getParcelableArray(PARENT_FILTER) as Array<FilterParam<*>>))
         }
         if (arguments == null) {
             arguments = Bundle().apply {
                 putString(FILTER_TYPE, filterType)
-                putParcelable(PARENT_FILTER, parentFilter)
+                putParcelableArray(PARENT_FILTER, parentFilterParam?.toTypedArray())
             }
         }
     }
@@ -111,7 +113,7 @@ constructor(
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = getViewModel(filterType)
-        viewModel.navigationFilter = parentFilter
+        viewModel.navigationFilter = parentFilterParam
     }
 
     override fun onCreateView(
@@ -125,7 +127,7 @@ constructor(
         fragmentBinding.filterList.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        fragmentBinding.filterList.adapter = FilterListAdapter(
+        fragmentBinding.filterList.adapter = LibraryListAdapter(
             viewModel::hasFilter,
             viewModel::toggleFilterSelection,
             this
@@ -140,7 +142,7 @@ constructor(
             val pagingDataNew = pagingData.filter {
                 !viewModel.shouldFilterOut(it)
             }
-            (fragmentBinding.filterList.adapter as FilterListAdapter).submitData(
+            (fragmentBinding.filterList.adapter as LibraryListAdapter).submitData(
                 lifecycle,
                 pagingDataNew
             )

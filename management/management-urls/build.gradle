@@ -27,7 +27,7 @@ dependencies {
     implementation project(":common-management")
     implementation project(':common-utils')
     implementation project(":data-local")
-    implementation project(":management-filters")
+    implementation project(":management-filters-domain")
 
     implementation 'androidx.core:core-ktx:1.13.1'
     //Paging

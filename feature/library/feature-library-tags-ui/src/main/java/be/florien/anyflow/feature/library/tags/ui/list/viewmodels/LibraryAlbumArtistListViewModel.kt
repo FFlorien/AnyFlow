@@ -7,8 +7,9 @@ import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -19,24 +20,28 @@ class LibraryAlbumArtistListViewModel @Inject constructor(
     filtersManager: FiltersManager
 ) : LibraryListViewModel(filtersManager) {
     override fun getPagingList(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getAlbumArtistsPaging(filter, search)
+    ): LiveData<PagingData<FilterItem>> =
+        libraryTagsRepository.getAlbumArtistsPaging(filter, search)
 
-    override fun isThisTypeOfFilter(filter: Filter<*>) =
-        filter.type == TagFilterType.ALBUM_ARTIST_IS
+    override fun isThisTypeOfFilter(filterParam: FilterParam<*>) =
+        filterParam.type == TagFilterType.ALBUM_ARTIST_IS
 
     override suspend fun getFoundFilters(
-        filter: Filter<*>?,
+        filter: Filter?,
         search: String
     ): List<FilterItem> =
         withContext(Dispatchers.Default) {
             libraryTagsRepository.getAlbumArtistFilterList(filter, search)
         }
 
-    override fun getFilter(filterValue: FilterItem): Filter<*> {
-        val filter =
-            Filter(TagFilterType.ALBUM_ARTIST_IS, filterValue.id, filterValue.title.getText())
-        return getFilterInParent(filter)
+    override fun getFilter(filterValue: FilterItem): Filter {
+        val filterParam = FilterParam(
+            TagFilterType.ALBUM_ARTIST_IS,
+            filterValue.id,
+            filterValue.title.getText()
+        )
+        return getFilterInParent(filterParam)
     }
 }

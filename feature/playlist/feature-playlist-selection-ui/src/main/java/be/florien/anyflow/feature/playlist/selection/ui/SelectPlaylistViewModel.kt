@@ -8,9 +8,10 @@ import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.ui.data.TagType
 import be.florien.anyflow.component.dialog.NewPlaylistViewModel
 import be.florien.anyflow.feature.playlist.selection.domain.toViewFilterType
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.playlist.PlaylistRepository
 import be.florien.anyflow.management.playlist.model.PlaylistWithPresence
 import kotlinx.coroutines.Dispatchers
@@ -39,22 +40,15 @@ class SelectPlaylistViewModel @Inject constructor(
     private var id: Long = 0L
     private var filterType: FilterType = TagFilterType.SONG_IS
     private var secondId: Int = -1
-    private val filter by lazy {
+    private val filterParam by lazy {
         if (filterType == TagFilterType.DISK_IS) {
             Filter(
-                TagFilterType.ALBUM_IS,
-                id,
-                "",
-                listOf(
-                    Filter(
-                        filterType,
-                        secondId.toLong(),
-                        ""
-                    )
-                )
+                FilterParam(TagFilterType.ALBUM_IS, id, ""),
+                FilterParam(filterType, secondId.toLong(), "")
             )
+
         } else {
-            Filter(filterType, id, "")
+            Filter(FilterParam(filterType, id, ""))
         }
     }
 
@@ -63,8 +57,8 @@ class SelectPlaylistViewModel @Inject constructor(
         this.filterType = type.toViewFilterType()
         this.secondId = secondId
         withContext(Dispatchers.IO) {
-            filterCount.mutable.postValue(playlistRepository.getSongCountForFilter(filter))
-            playlists = playlistRepository.getPlaylistsWithPresence(filter)
+            filterCount.mutable.postValue(playlistRepository.getSongCountForFilter(filterParam))
+            playlists = playlistRepository.getPlaylistsWithPresence(filterParam)
             (values as MediatorLiveData).addSource(playlists) { _ ->
                 updateValues()
             }
@@ -114,11 +108,11 @@ class SelectPlaylistViewModel @Inject constructor(
             }
             updateProgress()
             for (playlistId in confirmedAction.filter { it.value == PlaylistAction.ADDITION }.keys) {
-                playlistRepository.addSongsToPlaylist(filter, playlistId)
+                playlistRepository.addSongsToPlaylist(filterParam, playlistId)
                 updateProgress()
             }
             for (playlistId in confirmedAction.filter { it.value == PlaylistAction.DELETION }.keys) {
-                playlistRepository.removeSongsFromPlaylist(filter, playlistId)
+                playlistRepository.removeSongsFromPlaylist(filterParam, playlistId)
                 updateProgress()
             }
             progressLiveData.mutable.value = ModificationProgress.Finished

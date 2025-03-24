@@ -37,8 +37,9 @@ import androidx.media3.session.SessionResult
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import be.florien.anyflow.management.filters.FiltersManager
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.TagFilterType
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
@@ -293,12 +294,11 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) != true) {
             filtersManager.clearFilters()
             filtersManager.addFilter(
-                Filter(
+                Filter(FilterParam(
                     TagFilterType.DOWNLOADED_STATUS_IS,
                     true,
-                    "",
-                    emptyList()
-                )
+                    ""
+                ))
             )
             MainScope().launch(Dispatchers.Default) {
                 filtersManager.commitChanges()

@@ -5,21 +5,20 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.room.withTransaction
 import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.common.management.convertToPagingLiveData
+import be.florien.anyflow.management.filters.domain.FiltersRepository
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterGroup
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
+import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.tags.local.LibraryDatabase
-import be.florien.anyflow.tags.local.query.QueryComposer
 import be.florien.anyflow.tags.local.model.DbFilter
 import be.florien.anyflow.tags.local.model.DbFilterGroup
 import be.florien.anyflow.tags.local.model.DbQueueOrder
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.common.management.convertToPagingLiveData
-import be.florien.anyflow.management.filters.FiltersRepository
-import be.florien.anyflow.management.filters.model.Filter
-import be.florien.anyflow.management.filters.model.FilterGroup
-import be.florien.anyflow.management.filters.model.PodcastFilterType
-import be.florien.anyflow.management.filters.model.TagFilterType
-import be.florien.anyflow.management.filters.toQueryFilters
-import be.florien.anyflow.management.queue.model.Ordering
+import be.florien.anyflow.tags.local.query.QueryComposer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -43,19 +42,13 @@ class QueueRepository @Inject constructor(
 
     //region Current filters
 
-    override fun getCurrentFilters(): LiveData<List<Filter<*>>> =
+    override fun getCurrentFilters(): LiveData<List<Filter>> =
         libraryDatabase.getFilterDao().currentFiltersUpdatable().distinctUntilChanged()
-            .map { filterList ->
-                filterList.mapNotNull { filter ->
-                    if (filter.parentFilter != null) {
-                        null
-                    } else {
-                        filter.toViewFilter(filterList)
-                    }
-                }
+            .map {
+                it.toViewFilters()
             }
 
-    override suspend fun setCurrentFilters(filters: List<Filter<*>>) {
+    override suspend fun setCurrentFilters(filters: List<Filter>) {
         withContext(Dispatchers.IO) {
             //todo verify if first sync not showing anything at install isn't originating from here
             libraryDatabase.apply {
@@ -64,7 +57,7 @@ class QueueRepository @Inject constructor(
                     val currentFilterGroup = getFilterGroupDao().currentGroup()
                     updateHistory(currentFilters, currentFilterGroup)
 
-                    insertCurrentFilterAndChildren(filters)
+                    insertFilters(filters, DbFilterGroup.CURRENT_FILTER_GROUP_ID)
                     getFilterGroupDao().updateItems(currentFilterGroup.copy(dateAdded = Date().time))
                 }
             }
@@ -85,31 +78,31 @@ class QueueRepository @Inject constructor(
         getFilterDao().updateList(newHistoryFilters)
     }
 
-    private suspend fun insertCurrentFilterAndChildren(
-        filters: List<Filter<*>>,
-        parentId: Long? = null
-    ) {
+    private suspend fun insertFilters(filters: List<Filter>, groupId: Long) {
         filters.forEach { filter ->
-            val id = libraryDatabase.getFilterDao()
-                .insertItem(filter.toDbFilter(DbFilterGroup.CURRENT_FILTER_GROUP_ID, parentId))
-            insertCurrentFilterAndChildren(filter.children, id)
+            var parentId: Long? = null
+            filter.forEach {
+                parentId = libraryDatabase
+                    .getFilterDao()
+                    .insertItem(it.toDbFilter(groupId, parentId))
+            }
         }
     }
     //endregion
 
     //region FilterGroups
 
-    override suspend fun saveFilterGroup(filters: List<Filter<*>>, name: String) =
+    override suspend fun saveFilterGroup(filters: List<Filter>, name: String) {
         withContext(Dispatchers.IO) {
             if (libraryDatabase.getFilterGroupDao().filterGroupWithNameList(name).isEmpty()) {
                 val filterGroup = DbFilterGroup(0, name, System.currentTimeMillis())
                 val newId = libraryDatabase.getFilterGroupDao().insertItem(filterGroup)
-                val filtersUpdated = filters.map { it.toDbFilter(newId) }
-                libraryDatabase.getFilterDao().insertList(filtersUpdated)
+                insertFilters(filters, newId)
             } else {
                 throw IllegalArgumentException("A filter group with this name already exists")
             }
         }
+    }
 
     override fun getSavedGroups(): LiveData<List<FilterGroup>> =
         libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
@@ -167,28 +160,28 @@ class QueueRepository @Inject constructor(
         }
 
     suspend fun getOrderlessQueue(
-        filterList: List<Filter<*>>,
+        filterParamList: List<Filter>,
         orderingList: List<Ordering>
     ): List<QueueItem> =
         withContext(Dispatchers.IO) {
-            val songs = if (filterList.none { it.type is TagFilterType }) {
+            val songs = if (filterParamList.flatten().none { it.type is TagFilterType }) {
                 emptyList()
             } else {
                 libraryDatabase.getSongDao().forCurrentFiltersList(
                     queryComposer.getQueryForSongIds(
-                        filterList.toQueryFilters(),
+                        filterParamList,
                         orderingList.toQueryOrderings()
                     )
                 ).map {
                     QueueItem(SONG_MEDIA_TYPE, it)
                 }
             }
-            val podcastEpisodes = if (filterList.none { it.type is PodcastFilterType }) {
+            val podcastEpisodes = if (filterParamList.flatten().none { it.type is PodcastFilterType }) {
                 emptyList()
             } else {
                 libraryDatabase
                     .getPodcastEpisodeDao()
-                    .rawQueryIdList(queryComposer.getQueryForPodcastEpisodeIds(filterList.toQueryFilters()))
+                    .rawQueryIdList(queryComposer.getQueryForPodcastEpisodeIds(filterParamList))
                     .map { QueueItem(PODCAST_MEDIA_TYPE, it) }
             }
             podcastEpisodes + songs

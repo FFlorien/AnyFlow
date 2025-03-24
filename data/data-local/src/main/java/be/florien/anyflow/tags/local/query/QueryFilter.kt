@@ -4,7 +4,7 @@ data class QueryFilter(
     val type: FilterType,
     val argument: String,
     val level: Int,
-    var children: List<QueryFilter> = emptyList()
+    var child: QueryFilter? = null
 ) {
     fun getCondition() = " ${type.clause} $argument".replace(
         TABLE_COUNT_FORMAT,
@@ -12,7 +12,7 @@ data class QueryFilter(
     )
 
     fun getJoins(): Set<QueryJoin> =
-        children.flatMap { it.getJoins() }.plus(getJoin()).filterNotNull().toSet()
+        setOfNotNull(getJoin(), *(child?.getJoins()?.toTypedArray() ?: emptyArray()))
 
     private fun getJoin() = type.joinType?.let { QueryJoin(it, level) }
 

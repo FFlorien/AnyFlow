@@ -20,7 +20,7 @@ import be.florien.anyflow.feature.filter.saved.ui.databinding.ItemFilterGroupBin
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R
-import be.florien.anyflow.management.filters.model.FilterGroup
+import be.florien.anyflow.management.filters.domain.model.FilterGroup
 
 class SavedFilterGroupFragment : BaseFilteringFragment() {
 
