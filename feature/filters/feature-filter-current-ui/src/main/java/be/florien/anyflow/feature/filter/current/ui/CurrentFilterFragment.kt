@@ -254,6 +254,10 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                             override fun onLoadCleared(placeholder: Drawable?) {
                             }
 
+                            override fun onLoadFailed(errorDrawable: Drawable?) {
+                                setDefaultDrawable(filterParam)
+                            }
+
                             override fun onResourceReady(
                                 resource: Bitmap,
                                 transition: Transition<in Bitmap>?
@@ -273,58 +277,62 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                         })
                 )
             } else {
-                when (filterParam.type) {
-                    TagFilterType.ALBUM_ARTIST_IS,
-                    TagFilterType.ARTIST_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_artist,
-                        leftIconSize
-                    )
+                setDefaultDrawable(filterParam)
+            }
+        }
 
-                    TagFilterType.GENRE_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_genre,
-                        leftIconSize
-                    )
+        private fun setDefaultDrawable(filterParam: FilterParam<*>) {
+            when (filterParam.type) {
+                TagFilterType.ALBUM_ARTIST_IS,
+                TagFilterType.ARTIST_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_artist,
+                    leftIconSize
+                )
 
-                    TagFilterType.ALBUM_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_album,
-                        leftIconSize
-                    )
+                TagFilterType.GENRE_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_genre,
+                    leftIconSize
+                )
 
-                    TagFilterType.DISK_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_disk,
-                        leftIconSize
-                    )
+                TagFilterType.ALBUM_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_album,
+                    leftIconSize
+                )
 
-                    TagFilterType.PLAYLIST_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_playlist,
-                        leftIconSize
-                    )
+                TagFilterType.DISK_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_disk,
+                    leftIconSize
+                )
 
-                    TagFilterType.DOWNLOADED_STATUS_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_download,
-                        leftIconSize
-                    )
+                TagFilterType.PLAYLIST_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_playlist,
+                    leftIconSize
+                )
 
-                    TagFilterType.SONG_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_song,
-                        leftIconSize
-                    )
+                TagFilterType.DOWNLOADED_STATUS_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_download,
+                    leftIconSize
+                )
 
-                    PodcastFilterType.PODCAST_EPISODE_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_podcast_episode,
-                        leftIconSize
-                    )
+                TagFilterType.SONG_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_song,
+                    leftIconSize
+                )
 
-                    PodcastFilterType.PODCAST_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_podcast,
-                        leftIconSize
-                    )
+                PodcastFilterType.PODCAST_EPISODE_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_podcast_episode,
+                    leftIconSize
+                )
 
-                    PodcastFilterType.STATE_IS -> setCompoundDrawableFromResources(
-                        R.drawable.ic_podcast,
-                        leftIconSize
-                    ) //TODO()
-                }
+                PodcastFilterType.PODCAST_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_podcast,
+                    leftIconSize
+                )
+
+                PodcastFilterType.STATE_IS -> setCompoundDrawableFromResources(
+                    R.drawable.ic_podcast,
+                    leftIconSize
+                ) //TODO()
             }
         }
 

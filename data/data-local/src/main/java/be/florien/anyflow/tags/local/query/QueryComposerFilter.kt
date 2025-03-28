@@ -149,6 +149,7 @@ class QueryComposerFilter : QueryComposer {
             "playlist.name, " +
             "playlist.owner " +
             "FROM playlistsongs " +
+            "LEFT JOIN Song on playlistSongs.songid = Song.id " +
             "LEFT JOIN playlist on playlistsongs.playlistid = playlist.id " +
             constructJoinStatement(filter, needJoinSong = false, hasJoinSong = false) +
             constructWhereStatement(filter, " playlist.name LIKE ?", search) +
@@ -298,7 +299,7 @@ class QueryComposerFilter : QueryComposer {
         filter: Filter?,
         orderingList: List<QueryOrdering> = emptyList(),
         needJoinSong: Boolean = false,
-        hasJoinSong: Boolean = true
+        hasJoinSong: Boolean = true,
     ): String =
         constructJoinStatement(listOfNotNull(filter), orderingList, needJoinSong, hasJoinSong)
 
@@ -311,7 +312,8 @@ class QueryComposerFilter : QueryComposer {
         if (filterList.isNullOrEmpty() && orderingList.isEmpty()) {
             return " "
         }
-        val hasSongJoin = orderingList.isNotEmpty() || filterList?.onlyTag()?.toQueryFilters()
+        val onlyTagFilters = filterList?.onlyTag()
+        val hasSongJoin = orderingList.isNotEmpty() || onlyTagFilters?.toQueryFilters()
             ?.any { it.getJoins().any { it.type.clauseWithoutSong == null } } == true || hasJoinSong
         val orderingJoins = orderingList.mapNotNull { it.getJoin() }.toSet()
         val filterJoin = filterList?.toQueryFilters()?.flatMap { it.getJoins() }?.toSet() ?: emptySet()

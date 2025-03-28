@@ -28,6 +28,7 @@ import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.image.isVisiblePresent
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.component.menu.MenuCoordinator
@@ -59,7 +60,8 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
     private lateinit var activityComponent: PlayerActivityComponent
 
     @Inject
-    override lateinit var viewModelFactory: AnyFlowViewModelFactory
+    @JvmField
+    var nullableViewModelFactory: AnyFlowViewModelFactory? = null
 
     @Inject
     lateinit var navigator: Navigator
@@ -68,10 +70,18 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
         override fun inject(mainActivity: MainActivity) {}
     }
 
-    override val menuCoordinator = MenuCoordinator()
-
     @Inject
     lateinit var mainScreenSections: List<@JvmSuppressWildcards MainScreenSection>
+
+    override val menuCoordinator = MenuCoordinator()
+
+    override val viewModelFactory: AnyFlowViewModelFactory
+        get() {
+            if (nullableViewModelFactory == null) {
+                injectInActivity()
+            }
+            return nullableViewModelFactory ?: throw IllegalStateException("Cannot inject VMFactory")
+        }
 
     /**
      * Private properties
@@ -89,16 +99,9 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val component =
-            (application as PlayerActivityComponentCreator).createPlayerActivityComponent()
-        activityComponent = if (component != null) {
-            component
-        } else {
-            (application as UnauthenticatedNavigation).goToAuthentication(this)
-            fakeComponent
+        if (!injectInActivity()) {
             return
         }
-        activityComponent.inject(this)
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this
@@ -230,6 +233,23 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
     /**
      * Private methods
      */
+
+    private fun injectInActivity(): Boolean {
+        val component =
+            (application as PlayerActivityComponentCreator).createPlayerActivityComponent()
+        activityComponent = if (component != null) {
+            iLog("ActivityComponent is not null: $component")
+            component
+        } else {
+            iLog("ActivityComponent is null, going to Authentication")
+            (application as UnauthenticatedNavigation).goToAuthentication(this)
+            fakeComponent
+        }
+
+        activityComponent.inject(this)
+
+        return activityComponent != fakeComponent
+    }
 
     private fun initToolbar() {
         setSupportActionBar(binding.toolbar)
