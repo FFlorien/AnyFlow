@@ -1,6 +1,7 @@
 package be.florien.anyflow.tags.local.query
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.management.filters.domain.model.Filter
 
 interface QueryComposer {
@@ -79,4 +80,22 @@ interface QueryComposer {
     fun getQueryForDownload(filter: Filter?): SimpleSQLiteQuery
     fun getQueryForDownloadCount(filter: Filter?): SimpleSQLiteQuery
     fun getQueryForDownloadProgress(filter: Filter?): SimpleSQLiteQuery
+
+    fun String.toSQLiteQuery(
+        methodName: String,
+        stacks: Array<StackTraceElement>,
+        search: String? = null
+    ): SimpleSQLiteQuery {
+        val caller = if (stacks.isEmpty()) {
+            ""
+        } else {
+            val stack = stacks[0]
+            String.format("(%s:%s)", "QueryComposerFilter.kt", stack.lineNumber)
+        }
+        iLog("Query $methodName $caller :\n$this")
+        search?.let {
+            iLog("Search: $it")
+        }
+        return SimpleSQLiteQuery(this, search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
+    }
 }

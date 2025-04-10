@@ -2,28 +2,23 @@ package be.florien.anyflow.tags.local
 
 enum class TableSchema(
     val tableName: String,
-    val tableWeight: Int, //todo reactive to real stats, initialized at startup in a table ?
+    val tableWeight: Int,
+    val isAtom: Boolean = false//todo react to real stats, initialized at startup in a table ?
 ) {
-    Song("Song",1000),
-    Artist("Artist",150),
-    Album("Album",85),
-    AlbumArtist("Artist",20),
-    Genre("Genre",1),
-    Playlist("Playlist",1),
+    Song("song",1000, true),
+    Artist("artist",150),
+    Album("album",85),
+    AlbumArtist("artist",20),
+    Genre("genre",4),
+    SongGenre("songGenre",3),
+    Playlist("playlist",2),
+    PlaylistSong("playlistSongs",1),
 }
 
 sealed interface DbSchema {
     val table: TableSchema
     val columnName: String
-    val equivalent: DbSchema?
-}
-
-interface DbJointSchema {
-    val jointTable: String
-    val centerNodeColumn: DbSchema
-    val centerNodeJointColumn: String
-    val externNodeJointColumn: String
-    val isExternNodeColumn: Boolean
+    val pathToAtom: DbSchema?
 }
 
 enum class Song(override val columnName: String) : DbSchema {
@@ -42,11 +37,11 @@ enum class Song(override val columnName: String) : DbSchema {
     WaveForm(columnName = "waveForm");
 
     override val table: TableSchema = TableSchema.Song
-    override val equivalent: DbSchema? = null
+    override val pathToAtom: DbSchema? = null
 }
 
-enum class Artist(override val columnName: String, override val equivalent: DbSchema? = null) : DbSchema {
-    Id(columnName = "id", equivalent = Song.ArtistId),
+enum class Artist(override val columnName: String, override val pathToAtom: DbSchema? = null) : DbSchema {
+    Id(columnName = "id", pathToAtom = Song.ArtistId),
     Name(columnName = "name"),
     Prefix(columnName = "prefix"),
     Basename(columnName = "basename"),
@@ -55,8 +50,8 @@ enum class Artist(override val columnName: String, override val equivalent: DbSc
     override val table: TableSchema = TableSchema.Artist
 }
 
-enum class Album(override val columnName: String, override val equivalent: DbSchema? = null) : DbSchema {
-    Id(columnName = "id", equivalent = Song.AlbumId),
+enum class Album(override val columnName: String, override val pathToAtom: DbSchema? = null) : DbSchema {
+    Id(columnName = "id", pathToAtom = Song.AlbumId),
     Name(columnName = "name"),
     ArtistId(columnName = "artistId"),
     Prefix(columnName = "prefix"),
@@ -69,10 +64,10 @@ enum class Album(override val columnName: String, override val equivalent: DbSch
 
 enum class AlbumArtist(
     override val columnName: String,
-    override val equivalent: DbSchema? = null
+    override val pathToAtom: DbSchema? = null
 ) : DbSchema {
 
-    Id(columnName = "id", equivalent = Album.ArtistId),
+    Id(columnName = "id", pathToAtom = Album.ArtistId),
     Name(columnName = "name"),
     Prefix(columnName = "prefix"),
     Basename(columnName = "basename"),
@@ -84,313 +79,75 @@ enum class AlbumArtist(
 
 enum class Genre(
     override val columnName: String,
-    override val isExternNodeColumn: Boolean = false
-) : DbSchema, DbJointSchema {
-    Id(columnName = "id", isExternNodeColumn = true),
+    override val pathToAtom: DbSchema? = null
+) : DbSchema {
+    Id(columnName = "id", pathToAtom = SongGenre.GenreId),
     Name(columnName = "name");
 
     override val table: TableSchema = TableSchema.Genre
-    override val equivalent: DbSchema? = null
-    override val jointTable: String = "SongGenre"
-    override val centerNodeColumn: DbSchema = Song.Id
-    override val centerNodeJointColumn: String = "songId"
-    override val externNodeJointColumn: String = "genreId"
+}
+
+enum class SongGenre(
+    override val columnName: String,
+    override val pathToAtom: DbSchema? = null
+): DbSchema {
+    SongId(columnName = "songId", pathToAtom = Song.Id),
+    GenreId(columnName = "genreId");
+
+    override val table: TableSchema = TableSchema.SongGenre
 }
 
 enum class Playlist(
     override val columnName: String,
-    override val isExternNodeColumn: Boolean = false
-) : DbSchema, DbJointSchema {
-    Id(columnName = "id", isExternNodeColumn = true),
+    override val pathToAtom: DbSchema? = null
+) : DbSchema {
+    Id(columnName = "id", pathToAtom = PlaylistSong.PlaylistId),
     Name(columnName = "name"),
     Owner(columnName = "owner");
 
     override val table: TableSchema = TableSchema.Playlist
-    override val equivalent: DbSchema? = null
-    override val jointTable: String = "PlaylistSongs"
-    override val centerNodeColumn: DbSchema = Song.Id
-    override val centerNodeJointColumn: String = "songId"
-    override val externNodeJointColumn: String = "playlistId"
 }
 
+enum class PlaylistSong(
+    override val columnName: String,
+    override val pathToAtom: DbSchema? = null
+): DbSchema {
+    SongId(columnName = "songId", pathToAtom = Song.Id),
+    PlaylistId(columnName = "playlistId"),
+    Order(columnName = "order");
 
-/*sealed interface Song : DbSchema {
-    override val tableName: String
-        get() = "Song"
-
-    data class Id(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "id"
-    }
-
-    data class Title(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "title"
-    }
-
-    data class TitleForSort(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "titleForSort"
-    }
-
-    data class ArtistId(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "artistId"
-    }
-
-    data class AlbumId(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "albumId"
-    }
-
-    data class Track(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "track"
-    }
-
-    data class Disk(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "disk"
-    }
-
-    data class Time(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "time"
-    }
-
-    data class Year(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "year"
-    }
-
-    data class Composer(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "composer"
-    }
-
-    data class Size(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "size"
-    }
-
-    data class Local(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "local"
-    }
-
-    data class WaveForm(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Song {
-        override val columnName: String = "waveForm"
-    }
+    override val table: TableSchema = TableSchema.PlaylistSong
 }
 
-sealed interface Artist : DbSchema {
-    override val tableName: String
-        get() = "Artist"
-
-    data class Id(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Artist {
-        override val columnName: String = "id"
-    }
-
-    data class Name(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Artist {
-        override val columnName: String = "name"
-    }
-
-    data class Prefix(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Artist {
-        override val columnName: String = "prefix"
-    }
-
-    data class Basename(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Artist {
-        override val columnName: String = "basename"
-    }
-
-    data class Summary(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Artist {
-        override val columnName: String = "summary"
-    }
+enum class Equivalent(val equivalents: Set<DbSchema>) {
+    SongId(setOf(Song.Id, SongGenre.SongId, PlaylistSong.SongId)),
+    ArtistId(setOf(Artist.Id, Song.ArtistId)),
+    AlbumId(setOf(Album.Id, Song.AlbumId)),
+    AlbumArtistId(setOf(AlbumArtist.Id, Album.ArtistId)),
+    GenreId(setOf(Genre.Id, SongGenre.GenreId)),
+    PlaylistId(setOf(Playlist.Id, PlaylistSong.PlaylistId))
 }
 
-sealed interface AlbumArtist : DbJointSchema {
-    override val tableName: String
-        get() = "Artist"
-    override val jointTable: String
-        get() = "Album"
+fun DbSchema.getEquivalent() = Equivalent.entries.firstOrNull { it.equivalents.contains(this) }
 
-    data class Id(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : AlbumArtist {
-        override val columnName: String = "id"
-    }
-
-    data class Name(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : AlbumArtist {
-        override val columnName: String = "name"
-    }
-
-    data class Prefix(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : AlbumArtist {
-        override val columnName: String = "prefix"
-    }
-
-    data class Basename(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : AlbumArtist {
-        override val columnName: String = "basename"
-    }
-
-    data class Summary(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : AlbumArtist {
-        override val columnName: String = "summary"
-    }
+fun TableSchema.getPathToAtom(): DbSchema = when (this) {
+    TableSchema.Song -> Song.Id
+    TableSchema.Artist -> Artist.Id
+    TableSchema.Album -> Album.Id
+    TableSchema.AlbumArtist -> AlbumArtist.Id
+    TableSchema.Genre -> Genre.Id
+    TableSchema.SongGenre -> SongGenre.SongId
+    TableSchema.Playlist -> Playlist.Id
+    TableSchema.PlaylistSong -> PlaylistSong.SongId
 }
 
-sealed interface Album : DbSchema {
-    override val tableName: String
-        get() = "Album"
-
-    data class Id(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "id"
-    }
-
-    data class Name(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "name"
-    }
-
-    data class ArtistId(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "artistId"
-    }
-
-    data class Prefix(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "prefix"
-    }
-
-    data class Basename(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "basename"
-    }
-
-    data class Year(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "year"
-    }
-
-    data class Diskcount(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Album {
-        override val columnName: String = "diskcount"
-    }
+fun TableSchema.getEquivalent() = when(this) {
+    TableSchema.Song -> listOf(Equivalent.SongId, Equivalent.AlbumId, Equivalent.ArtistId)
+    TableSchema.Artist -> listOf(Equivalent.ArtistId)
+    TableSchema.Album -> listOf(Equivalent.AlbumId, Equivalent.AlbumArtistId)
+    TableSchema.AlbumArtist -> listOf(Equivalent.AlbumArtistId)
+    TableSchema.Genre -> listOf(Equivalent.GenreId)
+    TableSchema.SongGenre -> listOf(Equivalent.SongId, Equivalent.GenreId)
+    TableSchema.Playlist -> listOf(Equivalent.PlaylistId)
+    TableSchema.PlaylistSong -> listOf(Equivalent.SongId, Equivalent.PlaylistId)
 }
-
-sealed interface Genre : DbJointSchema {
-    override val tableName: String
-        get() = "Genre"
-    override val jointTable: String
-        get() = "SongGenre"
-
-    data class Id(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Genre {
-        override val columnName: String = "id"
-    }
-
-    data class Name(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Genre {
-        override val columnName: String = "name"
-    }
-}
-
-sealed interface Playlist : DbJointSchema {
-    override val tableName: String
-        get() = "Playlist"
-    override val jointTable: String
-        get() = "PlaylistSongs"
-
-    data class Id(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Playlist {
-        override val columnName: String = "id"
-    }
-
-    data class Name(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Playlist {
-        override val columnName: String = "name"
-    }
-
-    data class Owner(
-        override val alias: String? = null,
-        override val tableAlias: String? = null
-    ) : Playlist {
-        override val columnName: String = "owner"
-    }
-}*/

@@ -277,23 +277,6 @@ class QueryComposerFilter : QueryComposer {
     //endregion
 
     //region private methods
-    private fun String.toSQLiteQuery(
-        methodName: String,
-        stacks: Array<StackTraceElement>,
-        search: String? = null
-    ): SimpleSQLiteQuery {
-        val caller = if (stacks.isEmpty()) {
-            ""
-        } else {
-            val stack = stacks[0]
-             String.format("(%s:%s)", "QueryComposerFilter.kt", stack.lineNumber)
-        }
-        iLog("Query $methodName $caller :\n$this")
-        search?.let {
-            iLog("Search: $it")
-        }
-        return SimpleSQLiteQuery(this, search?.takeIf { it.isNotBlank() }?.let { arrayOf("%$it%") })
-    }
 
     private fun constructJoinStatement(
         filter: Filter?,
@@ -310,7 +293,7 @@ class QueryComposerFilter : QueryComposer {
         hasJoinSong: Boolean = true
     ): String {
         if (filterList.isNullOrEmpty() && orderingList.isEmpty()) {
-            return " "
+            return ""
         }
         val onlyTagFilters = filterList?.onlyTag()
         val hasSongJoin = orderingList.isNotEmpty() || onlyTagFilters?.toQueryFilters()
@@ -328,7 +311,7 @@ class QueryComposerFilter : QueryComposer {
         } else {
             joinsUnfiltered
         }
-        return joins.joinToString(separator = " ", prefix = " ") {
+        return if (joins.isEmpty()) "" else joins.joinToString(separator = " ", prefix = " ") {
             it.getJoinClause(hasSongJoin)
         }
     }

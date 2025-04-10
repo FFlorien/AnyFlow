@@ -1,79 +1,156 @@
 package be.florien.anyflow.tags.local.query
 
+import androidx.sqlite.db.SimpleSQLiteQuery
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.tags.local.Album
 import be.florien.anyflow.tags.local.AlbumArtist
 import be.florien.anyflow.tags.local.Artist
-import be.florien.anyflow.tags.local.DbJointSchema
 import be.florien.anyflow.tags.local.DbSchema
 import be.florien.anyflow.tags.local.Genre
 import be.florien.anyflow.tags.local.Playlist
 import be.florien.anyflow.tags.local.Song
+import be.florien.anyflow.tags.local.getEquivalent
+import be.florien.anyflow.tags.local.getPathToAtom
 
 class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer by delegate {
-    //region tags
-//    override fun getQueryForSongIds(
-//        filters: List<QueryFilter>,
-//        orderingList: List<QueryOrdering>
-//    ): SimpleSQLiteQuery {
-//
-//        val selects = listOf(Select(Song.Id))
-//    }
 
-    private fun getQuery(
-        selects: List<Select>,
-        filters: List<QueryFilter>,
+    override fun getQueryForSongIds(
+        filterList: List<Filter>,
         orderingList: List<QueryOrdering>
-    ) {
+    ): SimpleSQLiteQuery = composeQuery(
+        QueryParameters(
+            listOf(
+                QueryParameters.Select(Song.Id)
+            ),
+            filterList.toWheres(),
+            orderingList.toDbSchema()
 
-        //get all relevant tables
-        val tableForSelect = selects.map { Join(it.schema.getActiveSchema().table.tableName) }
+        )
+    ).toSQLiteQuery("getQueryForSongIds", Throwable().stackTrace)
 
-        val tableAliases = mutableMapOf<String, Int>()
+    override fun getQueryForSong(filter: Filter?, search: String?): SimpleSQLiteQuery =
+        composeQuery(
+            QueryParameters(
+                listOf(
+                    QueryParameters.Select(Song.Id, "id"),
+                    QueryParameters.Select(Song.Title, "title"),
+                    QueryParameters.Select(Artist.Name, "artistName"),
+                    QueryParameters.Select(Album.Name, "albumName"),
+                    QueryParameters.Select(Album.Id, "albumId"),
+                    QueryParameters.Select(Song.Time, "time"),
+                ),
+                listOfNotNull(filter).toWheres(),
+                listOf(
+                    QueryParameters.Order(Song.TitleForSort)
+                )
+            )
+        ).toSQLiteQuery("getQueryForSong", Throwable().stackTrace)
 
-        fun reduceWhereTable(it: QueryFilter): List<Join> {
-            val child = it.child
-            val list = if (child != null) {
-                reduceWhereTable(child)
-            } else {
-                emptyList()
+    // region private methods
+
+    private fun List<Filter>.toWheres(): List<List<QueryParameters.Where>> =
+        map { filter ->
+            filter.map {
+                QueryParameters.Where(
+                    it.type.toDbSchema(),
+                    it.argument.toString()
+                )
             }
-
-            val activeSchema = it.toDbSchema().schema.getActiveSchema()
-            val tableName = activeSchema.table.tableName
-            val tableAlias = if (activeSchema is DbJointSchema) {
-                val index = tableAliases[tableName] ?: 0
-                tableAliases[tableName] = index + 1
-                tableName + index
-            } else {
-                null
-            }
-            return list + Join(tableName, tableAlias)
         }
 
-        val tableSet = (tableForSelect + filters.flatMap(::reduceWhereTable)).toSet()
+    private fun composeQuery(
+        queryParameters: QueryParameters,
+        distinct: Boolean = true
+    ): String {
+        val clauses = queryParameters.getClauses()
+        return composeSelect(clauses, distinct) +
+                composeFrom(clauses) +
+                composeWhere(clauses) +
+                composeOrder(clauses)
     }
 
-    private fun DbSchema.getActiveSchema(): DbSchema = equivalent ?: this
+    private fun composeSelect(
+        clauses: QueryParameters.Clauses,
+        distinct: Boolean
+    ) = "SELECT " +
+            (if (distinct) "DISTINCT " else "") +
+            clauses.selects.joinToString { select ->
+                select.schema.getTableColumnString(clauses.joins.first { it.schema.table == select.schema.table }) + (select.alias?.let { " AS $it" }
+                    ?: "")
+            } + " "
 
-    private fun QueryFilter.toDbSchema(): Where {
-        val schema = when (type) {
-            QueryFilter.FilterType.SONG_IS -> Song.Id
-            QueryFilter.FilterType.ARTIST_IS -> Album.Id
-            QueryFilter.FilterType.ALBUM_ARTIST_IS -> AlbumArtist.Id
-            QueryFilter.FilterType.ALBUM_IS -> Album.Id
-            QueryFilter.FilterType.GENRE_IS -> Genre.Id
-            QueryFilter.FilterType.PLAYLIST_IS -> Playlist.Id
-            QueryFilter.FilterType.DOWNLOADED_STATUS_IS -> Song.Local
-            QueryFilter.FilterType.DISK_IS -> Song.Disk
-            QueryFilter.FilterType.PODCAST_IS -> TODO()
-            QueryFilter.FilterType.PODCAST_EPISODE_IS -> TODO()
-            QueryFilter.FilterType.STATE_IS -> TODO()
+    private fun composeFrom(
+        clauses: QueryParameters.Clauses
+    ): String {
+        val joins = clauses.joins
+        return "FROM " +
+                joins.first().tableAndAlias() +
+                if (joins.size > 1) {
+                    joins.drop(1).joinToString(separator = "") { join ->
+                        val otherTableSchema =
+                            join.schema.getEquivalent()?.equivalents?.firstOrNull { schemaEquivalent -> joins.any { it != join && schemaEquivalent.table == it.schema.table } }
+                        val otherSchemaString = otherTableSchema?.getTableColumnString()
+                        val thisSchemaString = join.schema.getTableColumnString(join)
+                        " JOIN ${join.tableAndAlias()} ON $otherSchemaString = $thisSchemaString"
+                    }
+                } else {
+                    ""
+                }
+    }
+
+    private fun composeWhere(clauses: QueryParameters.Clauses) =
+        if (clauses.wheres.isNotEmpty()) {
+            " WHERE " + clauses.wheres.joinToString(separator = " OR ") { whereList ->
+                whereList.joinToString(
+                    prefix = "(".takeIf { whereList.size > 1 && clauses.wheres.size > 1 } ?: "",
+                    separator = " AND ",
+                    postfix = ")".takeIf { whereList.size > 1 && clauses.wheres.size > 1 } ?: ""
+                ) { where ->
+                    val index = whereList.filter { it.schema.table == where.schema.table }.indexOf(where)
+                    "${where.schema.getTableColumnString(clauses.joins.filter { it.schema.table == where.schema.table }[index])} = ${where.value}"
+                }
+
+            }
+        } else {
+            ""
         }
 
-        return Where(schema, argument)
+    private fun composeOrder(clauses: QueryParameters.Clauses) =
+        if (clauses.orders.isEmpty()) {
+            ""
+        } else {
+            clauses.orders.joinToString(prefix = " ORDER BY ") { order ->
+                order.schema.getTableColumnString(
+                    clauses.joins.first { it.schema.table == order.schema.table }) + " COLLATE UNICODE"
+            }
+        }
+
+    private fun DbSchema.getTableColumnString(join: QueryParameters.JoinParameter) =
+        (join.tableAlias ?: table.tableName) + ".${columnName}"
+
+    private fun DbSchema.getTableColumnString() = "${table.tableName }.${columnName}"
+
+    private fun QueryParameters.JoinParameter.tableAndAlias() =
+        schema.table.tableName + (if (tableAlias != null) " AS $tableAlias" else "")
+
+    private fun FilterType.toDbSchema(): DbSchema = when (this) {
+        TagFilterType.SONG_IS -> Song.Id
+        TagFilterType.ARTIST_IS -> Artist.Id
+        TagFilterType.ALBUM_ARTIST_IS -> AlbumArtist.Id
+        TagFilterType.ALBUM_IS -> Album.Id
+        TagFilterType.GENRE_IS -> Genre.Id
+        TagFilterType.PLAYLIST_IS -> Playlist.Id
+        TagFilterType.DISK_IS -> Song.Disk
+        TagFilterType.DOWNLOADED_STATUS_IS -> Song.Local
+        PodcastFilterType.PODCAST_EPISODE_IS -> TODO()
+        PodcastFilterType.PODCAST_IS -> TODO()
+        PodcastFilterType.STATE_IS -> TODO()
     }
 
-    private fun List<QueryOrdering>.toDbSchema(): List<Order> =
+    private fun List<QueryOrdering>.toDbSchema(): List<QueryParameters.Order> =
         map {
             val subject = when (it.subject) {
                 QueryOrdering.Subject.ALL -> Song.Id
@@ -86,25 +163,7 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                 QueryOrdering.Subject.TRACK -> Song.Track
                 QueryOrdering.Subject.TITLE -> Song.Title
             }
-            Order(subject)
+            QueryParameters.Order(subject)
         }
-
-    data class Select(
-        val schema: DbSchema,
-        val alias: String? = null,
-    )
-
-    data class Where(
-        val schema: DbSchema,
-        val value: String,
-    )
-
-    data class Order(
-        val schema: DbSchema,
-    )
-
-    data class Join(
-        val table: String,
-        val tableAlias: String? = null,
-    )
+    //endregion
 }
