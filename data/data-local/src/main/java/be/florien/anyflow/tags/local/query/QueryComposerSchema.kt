@@ -11,9 +11,11 @@ import be.florien.anyflow.tags.local.Artist
 import be.florien.anyflow.tags.local.DbSchema
 import be.florien.anyflow.tags.local.Genre
 import be.florien.anyflow.tags.local.Playlist
+import be.florien.anyflow.tags.local.Podcast
+import be.florien.anyflow.tags.local.PodcastEpisode
+import be.florien.anyflow.tags.local.SchemaDomain
 import be.florien.anyflow.tags.local.Song
-import be.florien.anyflow.tags.local.getEquivalent
-import be.florien.anyflow.tags.local.getPathToAtom
+import be.florien.anyflow.tags.local.getEquivalents
 
 class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer by delegate {
 
@@ -25,7 +27,7 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
             listOf(
                 QueryParameters.Select(Song.Id)
             ),
-            filterList.toWheres(),
+            filterList.toWheres().filterSongs(),
             orderingList.toDbSchema()
 
         )
@@ -42,12 +44,91 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                     QueryParameters.Select(Album.Id, "albumId"),
                     QueryParameters.Select(Song.Time, "time"),
                 ),
-                listOfNotNull(filter).toWheres(),
+                listOfNotNull(filter).toWheres().filterSongs(),
                 listOf(
                     QueryParameters.Order(Song.TitleForSort)
                 )
             )
         ).toSQLiteQuery("getQueryForSong", Throwable().stackTrace)
+
+    override fun getQueryForAlbum(
+        filter: Filter?,
+        search: String?
+    ): SimpleSQLiteQuery =
+        composeQuery(
+            QueryParameters(
+                selects = listOf(
+                    QueryParameters.Select(Album.Id, "albumId"),
+                    QueryParameters.Select(Album.Name, "albumName"),
+                    QueryParameters.Select(Album.ArtistId, "albumArtistId"),
+                    QueryParameters.Select(Album.Year, "year"),
+                    QueryParameters.Select(Album.Diskcount, "diskcount"),
+                    QueryParameters.Select(AlbumArtist.Name, "albumArtistName"),
+                    QueryParameters.Select(AlbumArtist.Summary, "summary"),
+                ),
+                wheres = listOfNotNull(filter).toWheres().filterSongs(),
+                orders = listOf(
+                    QueryParameters.Order(Album.Basename)
+                ),
+            )
+        ).toSQLiteQuery("getQueryForAlbum", Throwable().stackTrace)
+
+    /*
+    override fun getQueryForAlbumArtist(
+        filter: Filter?,
+        search: String?
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForArtist(
+        filter: Filter?,
+        search: String?
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForGenre(
+        filter: Filter?,
+        search: String?
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForSongCount(filter: Filter): SimpleSQLiteQuery
+    override fun getQueryForTagsCount(filter: Filter?): SimpleSQLiteQuery
+
+    //region playlist
+    override fun getQueryForPlaylist(
+        filter: Filter?,
+        search: String?
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForPlaylistWithCount(
+        filter: Filter?,
+        search: String?
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForPlaylistWithPresence(filter: Filter): SimpleSQLiteQuery
+
+    //region podcasts
+    override fun getQueryForPodcasts(
+        filter: Filter?//todo: add ordering handling
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForPodcastEpisodes(
+        filter: Filter?//todo: add ordering handling
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForPodcastEpisodeIds(
+        filter: Filter?//todo: add ordering handling
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForPodcastEpisodeIds(
+        filterList: List<Filter>?//todo: add ordering handling
+    ): SimpleSQLiteQuery
+
+    override fun getQueryForPodcastCount(filter: Filter?): SimpleSQLiteQuery
+
+    //region download
+    override fun getQueryForDownload(filter: Filter?): SimpleSQLiteQuery
+    override fun getQueryForDownloadCount(filter: Filter?): SimpleSQLiteQuery
+    override fun getQueryForDownloadProgress(filter: Filter?): SimpleSQLiteQuery
+    */
 
     // region private methods
 
@@ -60,6 +141,14 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                 )
             }
         }
+
+    private fun List<List<QueryParameters.Where>>.filterSongs() = map { whereList ->
+        whereList.filter { it.schema.table.domain == SchemaDomain.Songs }
+    }
+
+    private fun List<List<QueryParameters.Where>>.filterPodcasts() = map { whereList ->
+        whereList.filter { it.schema.table.domain == SchemaDomain.Podcast }
+    }
 
     private fun composeQuery(
         queryParameters: QueryParameters,
@@ -90,8 +179,13 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                 joins.first().tableAndAlias() +
                 if (joins.size > 1) {
                     joins.drop(1).joinToString(separator = "") { join ->
+                        val joinEquivalent = join.schema.getEquivalents()
                         val otherTableSchema =
-                            join.schema.getEquivalent()?.equivalents?.firstOrNull { schemaEquivalent -> joins.any { it != join && schemaEquivalent.table == it.schema.table } }
+                            joinEquivalent.firstOrNull { schemaEquivalent ->
+                                joins.any {
+                                    it != join && schemaEquivalent.table == it.schema.table
+                                }
+                            }
                         val otherSchemaString = otherTableSchema?.getTableColumnString()
                         val thisSchemaString = join.schema.getTableColumnString(join)
                         " JOIN ${join.tableAndAlias()} ON $otherSchemaString = $thisSchemaString"
@@ -109,7 +203,8 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                     separator = " AND ",
                     postfix = ")".takeIf { whereList.size > 1 && clauses.wheres.size > 1 } ?: ""
                 ) { where ->
-                    val index = whereList.filter { it.schema.table == where.schema.table }.indexOf(where)
+                    val index =
+                        whereList.filter { it.schema.table == where.schema.table }.indexOf(where)
                     "${where.schema.getTableColumnString(clauses.joins.filter { it.schema.table == where.schema.table }[index])} = ${where.value}"
                 }
 
@@ -131,7 +226,7 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
     private fun DbSchema.getTableColumnString(join: QueryParameters.JoinParameter) =
         (join.tableAlias ?: table.tableName) + ".${columnName}"
 
-    private fun DbSchema.getTableColumnString() = "${table.tableName }.${columnName}"
+    private fun DbSchema.getTableColumnString() = "${table.tableName}.${columnName}"
 
     private fun QueryParameters.JoinParameter.tableAndAlias() =
         schema.table.tableName + (if (tableAlias != null) " AS $tableAlias" else "")
@@ -145,9 +240,9 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
         TagFilterType.PLAYLIST_IS -> Playlist.Id
         TagFilterType.DISK_IS -> Song.Disk
         TagFilterType.DOWNLOADED_STATUS_IS -> Song.Local
-        PodcastFilterType.PODCAST_EPISODE_IS -> TODO()
-        PodcastFilterType.PODCAST_IS -> TODO()
-        PodcastFilterType.STATE_IS -> TODO()
+        PodcastFilterType.PODCAST_EPISODE_IS -> PodcastEpisode.Id
+        PodcastFilterType.PODCAST_IS -> Podcast.Id
+        PodcastFilterType.STATE_IS -> PodcastEpisode.State
     }
 
     private fun List<QueryOrdering>.toDbSchema(): List<QueryParameters.Order> =

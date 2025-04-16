@@ -90,7 +90,7 @@ interface QueryComposer {
             ""
         } else {
             val stack = stacks[0]
-            String.format("(%s:%s)", "QueryComposerFilter.kt", stack.lineNumber)
+            String.format("(%s:%s)", stack.fileName, stack.lineNumber)
         }
         iLog("Query $methodName $caller :\n$this")
         search?.let {

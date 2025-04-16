@@ -1,9 +1,8 @@
 package be.florien.anyflow.tags.local.query
 
 import be.florien.anyflow.tags.local.DbSchema
-import be.florien.anyflow.tags.local.Equivalent
 import be.florien.anyflow.tags.local.TableSchema
-import be.florien.anyflow.tags.local.getEquivalent
+import be.florien.anyflow.tags.local.getEquivalents
 import be.florien.anyflow.tags.local.getPathToAtom
 
 data class QueryParameters(
@@ -14,14 +13,33 @@ data class QueryParameters(
     // region Public
 
     fun getClauses(): Clauses {
+//2 things:
+        //use more the distanceFromAtom
+        //direct mapping, not mapping in independant and adding afterward
+
+        val mandatoryTables = getMandatoryTables()
+        val schemaWithEquivalent = getEquivalents()
+        val schemaWithNonMandatoryEquivalent = schemaWithEquivalent.filter {
+            it.getEquivalents().map { it.table }.intersect(mandatoryTables.toSet()).isEmpty()
+        }
+        val maxDistance =
+            schemaWithNonMandatoryEquivalent.maxBy { it.table.distanceFromAtom }.table.distanceFromAtom
+        val reducedSchemaWithNonMandatoryEquivalent = schemaWithNonMandatoryEquivalent.map {
+            if (it.table.distanceFromAtom == maxDistance) {
+                it.getEquivalents().firstOrNull { it.table.distanceFromAtom == (maxDistance - 1) } ?: it
+            } else {
+                it
+            }
+        }
+
         // 3 kind of situations:
         // the schemas don't have any equivalent (just take it);
         val schemasFromMandatory = getMandatorySchemas()
         // the schemas have an equivalent with a table that correspond to a schema's table with no equivalent;
-        val mandatoryTables = schemasFromMandatory.getTables()
-        val equivalentSchemasFromMandatory = getEquivalentFromTables(mandatoryTables)
+        val mandatoryTablesOld = schemasFromMandatory.getTables()
+        val equivalentSchemasFromMandatory = getEquivalentFromTables(mandatoryTablesOld)
         // the rest that could freely be chosen, but we want to select the minimal amount of tables.
-        val equivalentSchemasFromMinimal = getEquivalentSchemasFromMinimal(mandatoryTables)
+        val equivalentSchemasFromMinimal = getEquivalentSchemasFromMinimal(mandatoryTablesOld)
 
         val finalSchemaSet = QueryParameters(
             selects = schemasFromMandatory.selects + equivalentSchemasFromMandatory.selects + equivalentSchemasFromMinimal.selects,
@@ -33,22 +51,23 @@ data class QueryParameters(
                 whereList
                     .map { it.schema }
                     .groupBy { it.table }
-                    .filter { it.value.size > 1 && !it.key.isAtom }
+                    .filter { it.value.size > 1 && it.key.distanceFromAtom == 1 } //todo verify this logic
                     .flatMap { it.value }
             }
             .groupBy { it.table }
             .mapValues { 0 }
             .toMutableMap()
 
-        val selectComputed = finalSchemaSet.selects.map {
-            val selectedSchema = it.schema.pathToAtom
-            val mandatorySchema =
-                if (selectedSchema != null && mandatoryTables.contains(selectedSchema.table)) {
-                    selectedSchema
-                } else {
-                    it.schema
-                }
-            Select(mandatorySchema, it.alias)
+        val selectComputed = finalSchemaSet.selects.map { select ->
+            val equivalents = select.schema.getEquivalents()
+            val equivalentFromMandatory =
+                equivalents.filter { mandatoryTablesOld.contains(it.table) }
+            val mandatorySchema = if (equivalentFromMandatory.isNotEmpty()) {
+                equivalentFromMandatory.first() //todo better
+            } else {
+                select.schema
+            }
+            Select(mandatorySchema, select.alias)
         }
         val whereComputed = finalSchemaSet.wheres
             .mapNotNull { whereList ->
@@ -57,7 +76,7 @@ data class QueryParameters(
                 val whereMapped = whereList.takeIf { it.isNotEmpty() }
                     ?.map {
                         val currentAliasCount = whereTablesAliasesCountCopy[it.schema.table]
-                        val activeSchema = it.schema.getActiveSchema()
+                        val activeSchema = it.schema
                         if (currentAliasCount != null) {
                             whereTablesAliasesCountCopy[it.schema.table] = currentAliasCount + 1
                         }
@@ -109,9 +128,21 @@ data class QueryParameters(
 
     //region Private returns QueryParameters
 
+    private fun getMandatoryTables(): List<TableSchema> =
+        (selects.noEquivalents().map { it.schema.table } +
+                wheres.flatten().noEquivalents().map { it.schema.table } +
+                orders.noEquivalents().map { it.schema.table }
+                ).distinct()
+
+    private fun getEquivalents() =
+        (selects.withEquivalents() +
+                wheres.flatten().withEquivalents() +
+                orders.withEquivalents()
+                ).map { it.schema }.distinct()
+
     private fun getMandatorySchemas() = QueryParameters(
         selects = selects.noEquivalents(),
-        wheres = wheres.mapNotNull {where -> where.noEquivalents().takeIf { it.isNotEmpty() } },
+        wheres = wheres.mapNotNull { where -> where.noEquivalents().takeIf { it.isNotEmpty() } },
         orders = orders.noEquivalents()
     )
 
@@ -169,8 +200,7 @@ data class QueryParameters(
     ) = map { select ->
         val selectedSchema = select
             .schema
-            .getEquivalent()!!
-            .equivalents
+            .getEquivalents()
             .first { minimalSchemaSubset.contains(it) }
         select to selectedSchema
     }
@@ -187,39 +217,41 @@ data class QueryParameters(
 
     //region Private returns Equivalent
 
-    private fun getAllEquivalents(): List<Equivalent> =
-        selects.mapNotNull { it.schema.getEquivalent() } +
-                wheres.flatten().mapNotNull { it.schema.getEquivalent() } +
-                orders.mapNotNull { it.schema.getEquivalent() }
+    private fun getAllEquivalents(): List<Set<DbSchema>> =
+        selects.map { it.schema.getEquivalents() } +
+                wheres.flatten().map { it.schema.getEquivalents() } +
+                orders.map { it.schema.getEquivalents() }
     //endregion
 
     //region Private returns Schema
 
-    private fun DbSchema.getActiveSchema(): DbSchema = pathToAtom ?: this
+    private fun DbSchema.getActiveSchema(): DbSchema =
+        getEquivalents().firstOrNull { it != this } ?: this
 
     private fun <T : DbSchemaContainer> List<T>.getEquivalentFromTables(
         mandatoryTables: List<TableSchema>
     ): List<Pair<T, DbSchema>> =
         filter { schemaContainer ->
-            val equivalent = schemaContainer.schema.getEquivalent()
-            equivalent != null && mandatoryTables.intersect(equivalent.equivalents.map { it.table }
-                .toSet()).isNotEmpty()
+            val equivalent = schemaContainer.schema.getEquivalents()
+            mandatoryTables
+                .intersect(equivalent.map { it.table }.toSet())
+                .isNotEmpty()
         }.map { schemaContainer ->
-            val equivalent = schemaContainer.schema.getEquivalent() ?: throw IllegalStateException()
-            val schema = equivalent.equivalents.first { mandatoryTables.contains(it.table) }
+            val equivalent = schemaContainer.schema.getEquivalents()
+            val schema = equivalent.first { mandatoryTables.contains(it.table) }
             schemaContainer to schema
         }
 
-    private fun List<Equivalent>.takeMinimalSchemaSubset(): List<DbSchema> = map { equivalent ->
-        equivalent.equivalents.firstOrNull { schema ->
+    private fun List<Set<DbSchema>>.takeMinimalSchemaSubset(): List<DbSchema> = map { equivalent ->
+        equivalent.firstOrNull { schema ->
             all { equivalentFromAll ->
-                val tableSchemaList = equivalentFromAll.equivalents.map { it.table }
+                val tableSchemaList = equivalentFromAll.map { it.table }
                 tableSchemaList.contains(schema.table)
             }
         }
-            ?: equivalent.equivalents.maxBy { schema ->
+            ?: equivalent.maxBy { schema ->
                 count { equivalentFromCount ->
-                    val tableSchemaList = equivalentFromCount.equivalents.map { it.table }
+                    val tableSchemaList = equivalentFromCount.map { it.table }
                     tableSchemaList.contains(schema.table)
                 }
             }
@@ -229,12 +261,15 @@ data class QueryParameters(
     //region Private filters
 
     private fun <T : DbSchemaContainer> List<T>.noEquivalents() =
-        filter { it.schema.getEquivalent() == null }
+        filter { it.schema.idEquivalent == null }
+
+    private fun <T : DbSchemaContainer> List<T>.withEquivalents() =
+        filter { it.schema.idEquivalent != null }
 
     private fun <T : DbSchemaContainer> List<T>.notFromTables(tables: List<TableSchema>) =
         filter {
-            val equivalent = it.schema.getEquivalent()
-            equivalent != null && tables.intersect(equivalent.equivalents.map { it.table }
+            val equivalent = it.schema.getEquivalents()
+            equivalent.isNotEmpty() && tables.intersect(equivalent.map { it.table }
                 .toSet()).isEmpty()
         }
     //endregion

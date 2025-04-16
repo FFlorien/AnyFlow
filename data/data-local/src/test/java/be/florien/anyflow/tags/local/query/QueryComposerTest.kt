@@ -337,4 +337,18 @@ class QueryComposerTest {
         //Then
         assertEquals(expected, queryForSongIds.sql)
     }
+
+    @Test
+    fun `16 - Album - no filters`() {
+        val expected = "SELECT DISTINCT album.name AS albumName, album.year AS year, album.diskcount AS diskcount, artist.name AS albumArtistName, artist.summary AS summary, album.id AS albumId, album.artistId AS albumArtistId " +
+                "FROM album " +
+                "JOIN artist ON album.artistId = artist.id " +
+                "ORDER BY album.basename COLLATE UNICODE"
+
+        //When
+        val queryForSongIds = queryComposer.getQueryForAlbum(null, null)
+
+        //Then
+        assertEquals(expected, queryForSongIds.sql)
+    }
 }

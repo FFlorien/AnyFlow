@@ -17,5 +17,5 @@ class DataLocalModule {
     fun provideLibrary(context: Context): LibraryDatabase = LibraryDatabase.getInstance(context)
 
     @Provides
-    fun provideQueryComposer(): QueryComposer = QueryComposerSchema(QueryComposerFilter())
+    fun provideQueryComposer(): QueryComposer = QueryComposerFilter()
 }
