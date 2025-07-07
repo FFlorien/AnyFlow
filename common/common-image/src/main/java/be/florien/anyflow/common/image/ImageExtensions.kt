@@ -1,24 +1,10 @@
 package be.florien.anyflow.common.image
 
 import android.graphics.PorterDuff
-import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import be.florien.anyflow.common.ui.data.ImageConfig
-import com.bumptech.glide.load.model.GlideUrl
-
-
-internal class ChangingTokenUrl(val url: String) : GlideUrl(url) {
-    override fun getCacheKey(): String {
-        val uri = Uri.parse(url)
-        return (uri.host
-            ?.plus(uri.getQueryParameter("type"))
-            ?.plus("_")
-            ?.plus(uri.getQueryParameter("id")))
-            ?: url
-    }
-}
 
 @BindingAdapter("imageSource")
 fun ImageView.setImageSource(config: ImageConfig?) {

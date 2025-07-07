@@ -1,64 +1,29 @@
 package be.florien.anyflow.component.image.display
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.DialogFragment
+import android.content.Context
+import be.florien.anyflow.common.image.ChangingTokenUrl
+import be.florien.anyflow.common.image.GlideApp
 import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.component.image.display.databinding.FragmentImageDisplayBinding
+import com.stfalcon.imageviewer.StfalconImageViewer
 
-class ImageDisplayFragment(private var url: String) : DialogFragment() {
-    private var binding: FragmentImageDisplayBinding? = null
-
-    init {
-        val args = arguments
-        if (args != null) {
-            url = args.getString(ARG_URL, "")
-        } else {
-            arguments = Bundle().apply {
-                putString(ARG_URL, url)
+fun displayImageFullScreen(context: Context, config: ImageConfig){
+    val url = config.url ?: ""
+    val resource = config.resource
+    StfalconImageViewer.Builder(context, listOf(url)) { view, image ->
+        GlideApp.with(view.rootView)
+            .load(ChangingTokenUrl(image))
+            .let {
+                if (resource != null) {
+                    it
+                        .placeholder(resource)
+                        .error(be.florien.anyflow.common.image.R.drawable.cover_placeholder)
+                } else {
+                    it
+                }
             }
-        }
+            .fitCenter()
+            .into(view)
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val inflate = FragmentImageDisplayBinding.inflate(inflater, container, false)
-        binding = inflate
-        inflate.url = ImageConfig(url, null)
-        return inflate.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding?.root?.setOnClickListener { dismiss() }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        dialog?.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        dialog?.window?.setBackgroundDrawable(
-            ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.bg_transparent_ripple,
-                null
-            )
-        )
-        isCancelable = false
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
-    }
+        .withBackgroundColorResource(R.color.cardview_shadow_start_color)
+        .show()
 }
-
-private const val ARG_URL = "url"
