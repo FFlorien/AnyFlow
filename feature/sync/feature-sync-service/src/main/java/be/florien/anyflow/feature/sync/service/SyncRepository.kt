@@ -437,6 +437,7 @@ class SyncRepository
                 sharedPreferences.edit().putInt(offsetKey, newOffset).apply()
             }
         )
+        sharedPreferences.edit().remove(offsetKey).apply()
     }
 
     private suspend fun <V, T : AmpacheApiListResponse<V>> getData(
