@@ -241,9 +241,9 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
             playingQueue
                 .mediaIdsListUpdater
                 .distinctUntilChanged()
-                .map { songList -> songList.map { it.toMediaItem() } }
+                .map { mediaList -> mediaList.map { it.toMediaItem() } }
                 .flowOn(Dispatchers.Default)
-                .map { songList ->
+                .map { mediaList ->
                     player?.run {
                         val currentItem = currentMediaItem
                         val state = if (playbackState == Player.STATE_IDLE || currentItem == null) {
@@ -257,14 +257,14 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
 
                             )
                         }
-                        StateAndSongs(state, songList)
+                        StateAndSongs(state, mediaList)
                     }
                 }
                 .filterNotNull()
                 .flowOn(Dispatchers.Main)
                 .map {
                     PlaylistModification.Factory.getImplementation(
-                        it.songList,
+                        it.mediaList,
                         it.playlistState,
                         playingQueue.listPosition
                     )
@@ -294,11 +294,13 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) != true) {
             filtersManager.clearFilters()
             filtersManager.addFilter(
-                Filter(FilterParam(
-                    TagFilterType.DOWNLOADED_STATUS_IS,
-                    true,
-                    ""
-                ))
+                Filter(
+                    FilterParam(
+                        TagFilterType.DOWNLOADED_STATUS_IS,
+                        true,
+                        ""
+                    )
+                )
             )
             MainScope().launch(Dispatchers.Default) {
                 filtersManager.commitChanges()
@@ -318,15 +320,19 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         } else {
             "podcast_episode"
         }
-        val songUrl = urlRepository.getMediaUrl(id, mediaType)
+        val mediaUrl = urlRepository.getMediaUrl(id, mediaType)
         val mediaTypeMetaData =
             if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
-        return MediaItem.Builder().setMediaMetadata(
-            MediaMetadata
-                .Builder()
-                .setMediaType(mediaTypeMetaData)
-                .build()
-        ).setUri(Uri.parse(songUrl)).setMediaId(this.id.toString()).build()
+        return MediaItem.Builder()
+            .setMediaMetadata(
+                MediaMetadata
+                    .Builder()
+                    .setMediaType(mediaTypeMetaData)
+                    .build()
+            )
+            .setUri(Uri.parse(mediaUrl))
+            .setMediaId(this.id.toString())
+            .build()
     }
     //endregion
 }
@@ -335,6 +341,7 @@ class AnyFlowMediaSessionCallback : MediaSession.Callback {
     private val seekBackCommand = SessionCommand(CUSTOM_COMMAND_REWIND_ACTION_ID, Bundle.EMPTY)
     private val seekForwardCommand = SessionCommand(CUSTOM_COMMAND_FORWARD_ACTION_ID, Bundle.EMPTY)
 
+    @SuppressLint("WrongConstant")
     @OptIn(UnstableApi::class)
     override fun onConnect(
         session: MediaSession,
@@ -381,7 +388,7 @@ class AnyFlowMediaSessionCallback : MediaSession.Callback {
 
 private data class StateAndSongs(
     val playlistState: PlayerPlaylistState,
-    val songList: List<MediaItem>
+    val mediaList: List<MediaItem>
 )
 
 private sealed interface PlayerPlaylistState {
@@ -408,13 +415,13 @@ private sealed interface PlaylistModification {
         }
     }
 
-    data class SongNotPresent(val songList: List<MediaItem>) : PlaylistModification {
+    data class MediaNotPresent(val songList: List<MediaItem>) : PlaylistModification {
         override suspend fun applyModification(player: Player) {
             player.setMediaItems(songList)
         }
     }
 
-    data class SongPresent(
+    data class MediaPresent(
         val futurePosition: Int,
         val previousSongs: List<MediaItem>,
         val nextSongs: List<MediaItem>
@@ -443,24 +450,24 @@ private sealed interface PlaylistModification {
 
     object Factory {
         fun getImplementation(
-            songList: List<MediaItem>,
+            mediaList: List<MediaItem>,
             playlistState: PlayerPlaylistState,
             savedPosition: Int
         ): PlaylistModification =
             if (playlistState is PlayerPlaylistState.Prepared) {
-                val nextPosition = songList.indexOf(playlistState.currentMediaItem)
+                val nextPosition = mediaList.indexOf(playlistState.currentMediaItem)
                 if (nextPosition == -1) {
-                    SongNotPresent(songList)
+                    MediaNotPresent(mediaList)
                 } else {
                     val previousSongs =
-                        songList.takeIf { nextPosition > 0 }?.subList(0, nextPosition)
+                        mediaList.takeIf { nextPosition > 0 }?.subList(0, nextPosition)
                             ?: emptyList()
-                    val nextSongs = songList.takeIf { nextPosition < songList.size - 1 }
-                        ?.subList(nextPosition + 1, songList.size) ?: emptyList()
-                    SongPresent(nextPosition, previousSongs, nextSongs)
+                    val nextSongs = mediaList.takeIf { nextPosition < mediaList.size - 1 }
+                        ?.subList(nextPosition + 1, mediaList.size) ?: emptyList()
+                    MediaPresent(nextPosition, previousSongs, nextSongs)
                 }
             } else {
-                InitialSetup(songList, savedPosition)
+                InitialSetup(mediaList, savedPosition)
             }
     }
 }
