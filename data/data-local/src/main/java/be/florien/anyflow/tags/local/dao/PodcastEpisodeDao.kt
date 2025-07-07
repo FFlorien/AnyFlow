@@ -23,11 +23,7 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
             podcastEpisodes.none { localPodcast.id == it.id }
         }
         delete(*deletedPodcastEpisodes.toTypedArray())
-
-        val addedPodcastEpisodes = podcastEpisodes.filter { remotePodcast ->
-            currentLocalPodcastEpisodes.none { remotePodcast.id == it.id }
-        }
-        upsert(addedPodcastEpisodes)
+        upsert(podcastEpisodes)
     }
 
     @Query("SELECT time FROM PodcastEpisode WHERE id = :id")
