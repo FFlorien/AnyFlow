@@ -188,6 +188,7 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
             }
         }
         linearLayoutManager = LinearLayoutManager(activity)
+        linearLayoutManager.stackFromEnd = true
         binding.songList.layoutManager = linearLayoutManager
         binding.songList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -348,7 +349,11 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
         when (item) {
             is SongDisplay -> SongInfoFragment(item.id).show(childFragmentManager, "info")
-            is PodcastEpisodeDisplay -> PodcastInfoFragment(item.id).show(childFragmentManager, "podcastInfo")
+            is PodcastEpisodeDisplay -> PodcastInfoFragment(item.id).show(
+                childFragmentManager,
+                "podcastInfo"
+            )
+
             ErrorDisplay -> Unit
         }
     }

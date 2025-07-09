@@ -80,7 +80,8 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
             if (nullableViewModelFactory == null) {
                 injectInActivity()
             }
-            return nullableViewModelFactory ?: throw IllegalStateException("Cannot inject VMFactory")
+            return nullableViewModelFactory
+                ?: throw IllegalStateException("Cannot inject VMFactory")
         }
 
     /**
@@ -147,15 +148,15 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
             }
         }
         viewModel.libraryUpdatePercentage.observe(this) {
-                val stringRes = when (it.subject) {
-                    SyncRepository.CHANGE_SONGS -> R.string.update_songs
-                    SyncRepository.CHANGE_ARTISTS -> R.string.update_artists
-                    SyncRepository.CHANGE_ALBUMS -> R.string.update_albums
-                    SyncRepository.CHANGE_GENRES -> R.string.update_genres
-                    SyncRepository.CHANGE_PLAYLISTS -> R.string.update_playlists
-                    SyncRepository.CHANGE_PODCASTS -> R.string.update_podcasts
-                    else -> null
-                }
+            val stringRes = when (it.subject) {
+                SyncRepository.CHANGE_SONGS -> R.string.update_songs
+                SyncRepository.CHANGE_ARTISTS -> R.string.update_artists
+                SyncRepository.CHANGE_ALBUMS -> R.string.update_albums
+                SyncRepository.CHANGE_GENRES -> R.string.update_genres
+                SyncRepository.CHANGE_PLAYLISTS -> R.string.update_playlists
+                SyncRepository.CHANGE_PODCASTS -> R.string.update_podcasts
+                else -> null
+            }
             if (stringRes != null) {
                 binding.updatingText.text = if (it.percent > 0) {
                     getString(stringRes, it.percent)

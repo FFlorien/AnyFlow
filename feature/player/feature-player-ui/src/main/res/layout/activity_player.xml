@@ -33,71 +33,64 @@
                 app:subtitleTextAppearance="@style/Toolbar.SubTitleText"
                 app:titleTextAppearance="@style/Toolbar.TitleText" />
 
-            <FrameLayout
+            <LinearLayout
+                android:id="@+id/connectionStateView"
+                isVisiblePresent="@{viewModel.isConnecting()}"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_height="wrap_content"
+                android:background="@color/error"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
 
-                <FrameLayout
-                    android:id="@+id/container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <LinearLayout
-                    android:id="@+id/connectionStateView"
-                    isVisiblePresent="@{viewModel.isConnecting()}"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/error"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <ProgressBar
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/largeDimen" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/display_reconnecting"
-                        android:textColor="@color/onPrimaryText" />
-                </LinearLayout>
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/largeDimen" />
 
                 <TextView
-                    android:id="@+id/internetStateView"
-                    isVisiblePresent="@{!viewModel.hasInternet}"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/accent"
                     android:gravity="center"
-                    android:text="@string/no_internet"
-                    android:visibility="gone" />
+                    android:text="@string/display_reconnecting"
+                    android:textColor="@color/onPrimaryText" />
+            </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/updatingStateView"
-                    android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/internetStateView"
+                isVisiblePresent="@{!viewModel.hasInternet}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/accent"
+                android:gravity="center"
+                android:text="@string/no_internet"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/updatingStateView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/primaryDark"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/largeDimen" />
+
+                <TextView
+                    android:id="@+id/updatingText"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/primaryDark"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:textColor="@color/onPrimaryText" />
+            </LinearLayout>
 
-                    <ProgressBar
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/largeDimen" />
-
-                    <TextView
-                        android:id="@+id/updatingText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="@color/onPrimaryText" />
-                </LinearLayout>
-
-            </FrameLayout>
-
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <be.florien.anyflow.component.player.controls.PlayerControls
                 android:id="@+id/playerControls"
