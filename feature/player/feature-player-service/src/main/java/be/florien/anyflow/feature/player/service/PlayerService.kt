@@ -14,6 +14,7 @@ import androidx.annotation.OptIn
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -34,6 +35,7 @@ import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuild
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
+import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import be.florien.anyflow.management.filters.FiltersManager
@@ -48,10 +50,12 @@ import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -141,19 +145,9 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    // The user dismissed the app from the recent tasks
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        if (player?.playWhenReady == false || player?.mediaItemCount == 0) {
-            // Stop the service if not playing, continue playing in the background
-            // otherwise.
-            stopSelf()
-        }
-    }
-
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
         mediaSession
 
-    // Remember to release the player and media session in onDestroy
     override fun onDestroy() {
         dispatcher.onServicePreSuperOnDestroy()
         mediaSession?.run {
@@ -209,8 +203,8 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
             .setAudioAttributes(
                 AudioAttributes
                     .Builder()
-                    .setUsage(C.USAGE_MEDIA)
-                    .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
+                    .setUsage(C.USAGE_MEDIA)//todo change usage between podcast and music ? (There's music podcast, also 🤡 )
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
                     .build(),
                 true
             )
@@ -227,6 +221,29 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
                 .Builder(this, exoPlayer)
                 .setCallback(AnyFlowMediaSessionCallback())
                 .setSessionActivity(pendingIntent)
+                .setCallback(
+                    object : MediaSession.Callback {
+                        override fun onPlaybackResumption(
+                            mediaSession: MediaSession,
+                            controller: MediaSession.ControllerInfo
+                        ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> {
+                            val settable = SettableFuture
+                                .create<MediaSession.MediaItemsWithStartPosition>()
+                            lifecycleScope.launch {
+                                val resumptionPlaylist = MediaSession.MediaItemsWithStartPosition(
+                                    playingQueue
+                                        .mediaIdsListUpdater
+                                        .first()
+                                        .map { it.toMediaItem() },
+                                    playingQueue.listPosition,
+                                    0L
+                                )
+                                settable.set(resumptionPlaylist)
+                            }
+                            return settable
+                        }
+                    }
+                )
                 .build()
 
         playingQueue.currentMedia.observe(this) { mediaItem ->
@@ -321,6 +338,7 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
             "podcast_episode"
         }
         val mediaUrl = urlRepository.getMediaUrl(id, mediaType)
+        iLog("media url is $mediaUrl")
         val mediaTypeMetaData =
             if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
         return MediaItem.Builder()
