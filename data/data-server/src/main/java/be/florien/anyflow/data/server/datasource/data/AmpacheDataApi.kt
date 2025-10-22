@@ -116,6 +116,12 @@ interface AmpacheDataApi {
     ): AmpacheAlbumResponse
 
     @GET("server/json.server.php")
+    suspend fun getArtistByName(
+        @Query("filter") name: String,
+        @Query("action") action: String = "artists"
+    ): AmpacheArtistResponse
+
+    @GET("server/json.server.php")
     suspend fun getDeletedSongs(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,

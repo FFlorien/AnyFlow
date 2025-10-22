@@ -41,6 +41,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation project(':management-filters-domain')
+    implementation project(':common-logging')
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     //Paging
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

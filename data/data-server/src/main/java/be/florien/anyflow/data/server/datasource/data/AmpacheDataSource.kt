@@ -16,6 +16,7 @@ import be.florien.anyflow.data.server.model.AmpacheSongResponse
 import be.florien.anyflow.data.server.toNetResult
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.data.server.model.AmpacheArtist
 import be.florien.anyflow.data.server.model.AmpacheErrorResponse
 import retrofit2.Retrofit
 import java.util.Calendar
@@ -114,8 +115,21 @@ open class AmpacheDataSource
     ): NetResult<AmpacheAlbumResponse> =
         getUpdatedNetResult(AmpacheDataApi::getUpdatedAlbums, offset, limit, from)
 
+    //region other methods
+
     suspend fun getDeletedSongs(offset: Int, limit: Int): NetResult<AmpacheDeletedSongIdResponse> =
         getNetResult(AmpacheDataApi::getDeletedSongs, offset, limit)
+
+    suspend fun getArtistByName(name: String): NetResult<List<AmpacheArtist>> = try {
+        ampacheDataApi.getArtistByName(name).toNetResult()
+    } catch (ex: Exception) {
+        eLog(ex)
+        NetThrowable(ex)
+    }
+
+    //endregion
+
+    //region private methods
 
     private suspend fun <T : AmpacheErrorResponse> getNetResult(
         apiMethod: suspend AmpacheDataApi.(Int, Int) -> T,

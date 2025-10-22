@@ -3,6 +3,7 @@ package be.florien.anyflow.feature.sync.service
 import android.content.Context
 import android.content.SharedPreferences
 import android.text.format.DateFormat
+import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.logging.eLog
@@ -10,7 +11,9 @@ import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.common.utils.applyPutLong
 import be.florien.anyflow.data.server.NetApiError
+import be.florien.anyflow.data.server.NetResult
 import be.florien.anyflow.data.server.NetSuccess
+import be.florien.anyflow.data.server.NetThrowable
 import be.florien.anyflow.data.server.datasource.data.AmpacheDataSource
 import be.florien.anyflow.data.server.datasource.podcast.AmpachePodcastSource
 import be.florien.anyflow.data.server.model.AmpacheAlbum
@@ -93,10 +96,10 @@ class SyncRepository
                 ?.total_count
                 ?: 0
         val currentMillis = TimeOperations.getCurrentDate().timeInMillis
-        sharedPreferences.edit().apply {
+        sharedPreferences.edit {
             putLong(LAST_UPDATE_QUERY, currentMillis)
             putInt(OFFSET_DELETED, initialDeletedCount)
-        }.apply()
+        }
     }
 
     private suspend fun update() =
@@ -215,9 +218,9 @@ class SyncRepository
                 val playlistName = entry.playlist.name
                 val values = entry.songs
                     .sortedBy { it.id }
-                    .joinToString(separator = ",") {
-                        "\"${it.id}-${
-                            it.title.filter { it.isLetterOrDigit() }.take(20)
+                    .joinToString(separator = ",") { song ->
+                        "\"${song.id}-${
+                            song.title.filter { it.isLetterOrDigit() }.take(20)
                         }\""
                     }
                 "\"$playlistName\":[$values]"
@@ -276,7 +279,7 @@ class SyncRepository
                     launch {
                         try {
                             ampachePodcastSource.updatePodcast(it.id)
-                        } catch (exception: Throwable) {
+                        } catch (_: Throwable) {
                             //we shouldn't care and continue
                         }
                     }
@@ -319,7 +322,15 @@ class SyncRepository
             OFFSET_ALBUM,
             CHANGE_ALBUMS,
             from,
-            AmpacheDataSource::getAddedAlbums
+            AmpacheDataSource::getAddedAlbums,
+            onDbError = { success ->
+                success.data.list.forEach { album ->
+                    val artistByName = ampacheDataSource.getArtistByName(album.artist.name)
+                    if (artistByName is NetSuccess) {
+                        libraryDatabase.getArtistDao().upsert(artistByName.data.map { it.toDbArtist() })
+                    }
+                }
+            }
         ) { success ->
             libraryDatabase.getAlbumDao().upsert(success.data.list.map(AmpacheAlbum::toDbAlbum))
         }
@@ -403,7 +414,7 @@ class SyncRepository
     private suspend fun <V, T : AmpacheApiListResponse<V>> getNewData(
         offsetKey: String,
         percentageUpdater: Int,
-        getFromApi: suspend AmpacheDataSource.(Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
+        getFromApi: suspend AmpacheDataSource.(Int, Int) -> NetResult<T>,
         updateDb: suspend (NetSuccess<T>) -> Unit
     ) {
         getData(
@@ -414,7 +425,7 @@ class SyncRepository
             },
             { netResult, newOffset ->
                 updateDb(netResult)
-                sharedPreferences.edit().putInt(offsetKey, newOffset).apply()
+                sharedPreferences.edit { putInt(offsetKey, newOffset) }
             }
         )
     }
@@ -423,7 +434,8 @@ class SyncRepository
         offsetKey: String,
         percentageUpdater: Int,
         calendar: Calendar,
-        getFromApi: suspend AmpacheDataSource.(Int, Int, Calendar) -> be.florien.anyflow.data.server.NetResult<T>,
+        getFromApi: suspend AmpacheDataSource.(Int, Int, Calendar) -> NetResult<T>,
+        onDbError: (suspend (NetSuccess<T>) -> Unit)? = null,
         updateDb: suspend (NetSuccess<T>) -> Unit
     ) {
         getData(
@@ -433,17 +445,23 @@ class SyncRepository
                 ampacheDataSource.getFromApi(offset, limit, calendar)
             },
             { netResult, newOffset ->
+                try {
+                    updateDb(netResult)
+                } catch (_: Exception) {
+                    onDbError?.invoke(netResult)
+                    updateDb(netResult)
+                }
                 updateDb(netResult)
-                sharedPreferences.edit().putInt(offsetKey, newOffset).apply()
+                sharedPreferences.edit { putInt(offsetKey, newOffset) }
             }
         )
-        sharedPreferences.edit().remove(offsetKey).apply()
+        sharedPreferences.edit { remove(offsetKey) }
     }
 
     private suspend fun <V, T : AmpacheApiListResponse<V>> getData(
         offsetKey: String,
         percentageUpdaterKey: Int,
-        getFromApi: suspend (Int, Int) -> be.florien.anyflow.data.server.NetResult<T>,
+        getFromApi: suspend (Int, Int) -> NetResult<T>,
         updateLocalData: suspend (NetSuccess<T>, Int) -> Unit
     ) {
         var offset = sharedPreferences.getInt(offsetKey, 0)
@@ -469,7 +487,7 @@ class SyncRepository
                     }
                 }
 
-                is be.florien.anyflow.data.server.NetThrowable -> {
+                is NetThrowable -> {
                     eLog(result.throwable, "Encountered exception during syncing for $offsetKey")
                     break
                 }
