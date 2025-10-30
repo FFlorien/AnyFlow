@@ -2,15 +2,15 @@ package be.florien.anyflow.component.image.display
 
 import android.content.Context
 import be.florien.anyflow.common.image.ChangingTokenUrl
-import be.florien.anyflow.common.image.GlideApp
 import be.florien.anyflow.common.ui.data.ImageConfig
+import com.bumptech.glide.Glide
 import com.stfalcon.imageviewer.StfalconImageViewer
 
 fun displayImageFullScreen(context: Context, config: ImageConfig){
     val url = config.url ?: ""
     val resource = config.resource
     StfalconImageViewer.Builder(context, listOf(url)) { view, image ->
-        GlideApp.with(view.rootView)
+        Glide.with(view.rootView)
             .load(ChangingTokenUrl(image))
             .let {
                 if (resource != null) {

@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.autonomousapps.dependency-analysis'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.autonomousapps.dependency-analysis"
 }
 
 android {
-    namespace 'be.florien.anyflow.common.navigation'
-    compileSdk 34
+    namespace "be.florien.anyflow.common.navigation"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -18,11 +18,11 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    api 'androidx.fragment:fragment:1.3.6'
-    api project(':common-ui-domain')
+    api(libs.androidx.fragment)
+    api(project(":common-ui-domain"))
 }

@@ -2,21 +2,22 @@ package be.florien.anyflow.feature.auth.ui.user
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.feature.auth.ui.R
 import be.florien.anyflow.feature.auth.ui.databinding.ActivityConnectBinding
-import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponentCreator
+import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponentCreator
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-/**
- * Simple activity for connection
- */
 @SuppressLint("Registered")
-open class UserConnectActivityBase : AppCompatActivity() {
+open class AuthenticationActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelProvider: AnyFlowViewModelFactory
@@ -28,7 +29,7 @@ open class UserConnectActivityBase : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val userConnectActivityComponent =
-            (application as UserConnectActivityComponentCreator).createUserConnectComponent()
+            (application as AuthenticationActivityComponentCreator).createUserConnectComponent()
                 ?: throw IllegalStateException()
         userConnectActivityComponent.inject(this)
 
@@ -37,6 +38,18 @@ open class UserConnectActivityBase : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_connect)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view: View, windowInsets: WindowInsetsCompat ->
+            val insets =
+                windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.updatePadding(
+                bottom = insets.bottom,
+                left = insets.left,
+                right = insets.right,
+                top = insets.top
+            )
+            windowInsets
+        }
 
         viewModel.isConnected.observe(this) {
             if (it) {

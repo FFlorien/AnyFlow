@@ -11,9 +11,9 @@ import be.florien.anyflow.tags.local.model.DownloadProgressState
 
 
 enum class SongFieldType(
-    @DrawableRes
+    @param:DrawableRes
     override val iconRes: Int,
-    @StringRes val titleRes: Int
+    @param:StringRes val titleRes: Int
 ): QueueItemFieldType {
     Title(R.drawable.ic_song, R.string.info_title),
     Track(R.drawable.ic_track, R.string.info_track),
@@ -28,9 +28,9 @@ enum class SongFieldType(
 }
 
 enum class SongActionType(
-    @DrawableRes
+    @param:DrawableRes
     override val iconRes: Int,
-    @StringRes val titleRes: Int
+    @param:StringRes val titleRes: Int
 ): QueueItemActionType {
     None(0, 0),
     InfoTitle(0, 0),

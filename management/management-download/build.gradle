@@ -1,11 +1,11 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
 }
 
 android {
-    namespace 'be.florien.anyflow.management.download'
-    compileSdk 34
+    namespace "be.florien.anyflow.management.download"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -17,25 +17,25 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    implementation project(":common-di")
-    implementation project(':common-logging')
-    implementation project(":data-local")
-    implementation project(':management-filters')
-    implementation project(':management-filters-domain')
-    implementation project(':management-tags')
-    implementation project(':management-urls')
+    implementation(project(":common-di"))
+    implementation(project(":common-logging"))
+    implementation(project(":data-local"))
+    implementation(project(":management-filters"))
+    implementation(project(":management-filters-domain"))
+    implementation(project(":management-tags"))
+    implementation(project(":management-urls"))
 
-    implementation "androidx.room:room-runtime:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.dagger)
+    implementation(libs.retrofit)
 }
-apply plugin: 'kotlin-parcelize'
+apply plugin: "kotlin-parcelize"

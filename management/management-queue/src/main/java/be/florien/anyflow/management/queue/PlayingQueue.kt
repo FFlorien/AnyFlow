@@ -34,7 +34,7 @@ class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
     private val dataRepository: DataRepository,
-    @Named("preferences") private val sharedPreferences: SharedPreferences,
+    @param:Named("preferences") private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {
     companion object {

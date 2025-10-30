@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "kotlin-kapt"
 }
 
 android {
-    namespace 'be.florien.anyflow.component.dialog'
-    compileSdk 34
+    namespace "be.florien.anyflow.component.dialog"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -19,16 +19,16 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
     //Modules
-    implementation project(':common-image')
-    implementation project(':common-resources')
-    implementation project(":common-base")
+    implementation(project(":common-image"))
+    implementation(project(":common-resources"))
+    implementation(project(":common-base"))
     //Android
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.material)
 }

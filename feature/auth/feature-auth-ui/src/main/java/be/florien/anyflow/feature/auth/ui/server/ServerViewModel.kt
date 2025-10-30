@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.auth.ui.server
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.base.BaseViewModel
@@ -12,7 +13,7 @@ import javax.inject.Inject
 /**
  * ViewModel for the main activity
  */
-open class ServerViewModel : BaseViewModel() {
+class ServerViewModel : BaseViewModel() {
     @Inject
     lateinit var authPersistence: AuthPersistence
 
@@ -23,22 +24,22 @@ open class ServerViewModel : BaseViewModel() {
     /**
      * Fields
      */
-
-    val server = MutableLiveData("")
-    val validatedServerUrl = MutableLiveData("")
+    val urlStatus: LiveData<ServerValidator.ServerStatus?> = MutableLiveData<ServerValidator.ServerStatus?>(null)
 
     /**
      * Buttons calls
      */
-    fun connect() {
-        val serverUrl = server.value ?: return
+    fun connect(serverUrl: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (serverValidator.isServerValid(serverUrl)) {
-                authPersistence.saveServerInfo(serverUrl)
-                validatedServerUrl.mutable.postValue(serverUrl)
-            } else {
-                //todo warn user (see ServerValidator)
+            val serverValid = serverValidator.isServerValid(serverUrl)
+            if (serverValid is ServerValidator.ServerStatus.Success) {
+                authPersistence.saveServerInfo(serverValid.url)
             }
+            urlStatus.mutable.postValue(serverValid)
         }
+    }
+
+    fun messageRead() {
+        urlStatus.mutable.postValue(null)
     }
 }

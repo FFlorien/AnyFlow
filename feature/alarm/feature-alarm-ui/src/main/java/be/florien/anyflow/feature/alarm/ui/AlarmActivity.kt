@@ -3,8 +3,12 @@ package be.florien.anyflow.feature.alarm.ui
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
@@ -38,6 +42,21 @@ class AlarmActivity : AppCompatActivity(), ViewModelFactoryProvider {
         viewModel = ViewModelProvider(this, viewModelFactory)[AlarmViewModel::class.java]
         setContentView(R.layout.activity_alarms)
         toolbar = findViewById(R.id.toolbar)
+
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view: View, windowInsets: WindowInsetsCompat ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.updatePadding(
+                top = insets.top,
+                left = insets.left,
+                right = insets.right
+            )
+            findViewById<View>(R.id.container).updatePadding(
+                bottom = insets.bottom,
+                left = insets.left,
+                right = insets.right
+            )
+            windowInsets
+        }
 
         initToolbar()
         initMenus()

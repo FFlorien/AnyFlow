@@ -23,7 +23,7 @@ import javax.inject.Named
 class DownloadManager @Inject constructor(
     private val downloadRepository: DownloadRepository,
     private val urlRepository: UrlRepository,
-    @Named("authenticated")
+    @param:Named("authenticated")
     private val okHttpClient: OkHttpClient,
     context: Context
 ) {
@@ -94,7 +94,7 @@ class DownloadManager @Inject constructor(
             okHttpClient
                 .newCall(Request.Builder().get().url(songUrl).build())
                 .execute()
-                .body()
+                .body
                 ?.byteStream()
                 ?.use { iStream ->
                     contentResolver.openOutputStream(newSongUri)?.use { oStream ->

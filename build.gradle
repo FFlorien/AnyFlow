@@ -5,30 +5,24 @@ buildscript {
         google()
         mavenCentral()
     }
-    ext.kotlin_version = '2.1.10'
-    ext.lifecycle_version = '2.7.0'
-    ext.dagger_version = '2.55'
-    ext.retrofit_version = '2.9.0'
-    ext.stetho_version = '1.5.1'
-    ext.exoplayer_version = '2.19.1'
-    ext.room_version = '2.6.1'
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.8.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.4.2'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.3'
+        classpath libs.gradle
+        classpath libs.kotlin.gradle.plugin
+        classpath libs.google.services
+        classpath libs.firebase.crashlytics.gradle
     }
 }
 
 plugins {
-    id("com.google.devtools.ksp") version "2.1.10-1.0.30" apply false
-    id("com.autonomousapps.dependency-analysis") version "2.4.2"
+    id("com.google.devtools.ksp") version "2.2.21-RC2-2.0.4" apply false
+    id("com.autonomousapps.dependency-analysis") version "3.3.0"
+    alias(libs.plugins.compose.compiler) apply false
 }
 
 allprojects {
     repositories {
         maven {
-            url 'https://maven.google.com/'
+            url "https://maven.google.com/"
         }
         maven {
             url "https://jitpack.io"

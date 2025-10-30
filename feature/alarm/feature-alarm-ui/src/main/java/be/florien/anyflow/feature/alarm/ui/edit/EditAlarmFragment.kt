@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.BundleCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.florien.anyflow.common.di.viewModelFactory
@@ -17,14 +18,15 @@ import be.florien.anyflow.feature.alarm.ui.databinding.FragmentEditAlarmBinding
 import be.florien.anyflow.management.alarm.model.Alarm
 import kotlinx.coroutines.launch
 
-class EditAlarmFragment(var alarm: Alarm = Alarm(
-    0L,
-    0,
-    0,
-    false,
-    listOf(),
-    false
-)
+class EditAlarmFragment(
+    var alarm: Alarm = Alarm(
+        0L,
+        0,
+        0,
+        false,
+        listOf(),
+        false
+    )
 ) : BaseFragment() {
     companion object {
         const val ALARM_TO_EDIT = "alarmToEdit"
@@ -39,7 +41,7 @@ class EditAlarmFragment(var alarm: Alarm = Alarm(
 
     init {
         arguments?.let {
-            alarm = it.getParcelable(ALARM_TO_EDIT) ?: Alarm(
+            alarm = BundleCompat.getParcelable(it, ALARM_TO_EDIT, Alarm::class.java) ?: Alarm(
                 0L,
                 0,
                 0,
@@ -57,7 +59,10 @@ class EditAlarmFragment(var alarm: Alarm = Alarm(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, requireActivity().viewModelFactory)[EditAlarmViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            requireActivity().viewModelFactory
+        )[EditAlarmViewModel::class.java]
         viewModel.alarm = alarm
         confirmMenuHolder = ConfirmAlarmMenuHolder {
             viewLifecycleOwner.lifecycleScope.launch {
@@ -78,7 +83,11 @@ class EditAlarmFragment(var alarm: Alarm = Alarm(
         deleteMenuHolder.isVisible = true
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentEditAlarmBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel

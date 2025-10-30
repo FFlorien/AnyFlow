@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.autonomousapps.dependency-analysis'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.autonomousapps.dependency-analysis"
 }
 
 android {
-    namespace 'be.florien.anyflow.common.management'
-    compileSdk 34
+    namespace "be.florien.anyflow.common.management"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -18,11 +18,11 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
     //Paging
-    implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
+    implementation(libs.androidx.paging.runtime.ktx)
 }

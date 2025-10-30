@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import be.florien.anyflow.common.resources.R
 
 enum class LibraryPodcastFieldType(
-    @DrawableRes val iconRes: Int,
-    @StringRes val titleRes: Int,
+    @param:DrawableRes val iconRes: Int,
+    @param:StringRes val titleRes: Int,
     val artType: String
 ) {
     Podcast(R.drawable.ic_podcast, R.string.library_type_podcast, "podcast"),

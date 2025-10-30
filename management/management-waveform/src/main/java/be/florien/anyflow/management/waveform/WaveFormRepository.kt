@@ -8,8 +8,8 @@ import androidx.media3.common.MediaMetadata
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.iLog
-import be.florien.anyflow.common.image.GlideApp
 import be.florien.anyflow.tags.local.LibraryDatabase
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -24,7 +24,7 @@ import javax.inject.Named
 @ServerScope
 class WaveFormRepository @Inject constructor(
     private val libraryDatabase: LibraryDatabase,
-    @Named("serverUrl") private val serverUrl: String,
+    @param:Named("serverUrl") private val serverUrl: String,
     private val context: Context
 ) {
 
@@ -83,14 +83,14 @@ class WaveFormRepository @Inject constructor(
 // todo               "$serverUrl/waveform.php?podcast_episode=$mediaId"
             }
             iLog("url for waveform is $url")
-            val futureTarget: FutureTarget<Bitmap> = GlideApp.with(context)
+            val futureTarget: FutureTarget<Bitmap> = Glide.with(context)
                 .asBitmap()
                 .load(url)
                 .submit()
 
             try {
                 val bitmap: Bitmap = futureTarget.get()
-                GlideApp.with(context).clear(futureTarget)
+                Glide.with(context).clear(futureTarget)
                 bitmap
             } catch (exception: GlideException) {
                 exception.logRootCauses("WaveFormRepository")

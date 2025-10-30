@@ -1,11 +1,11 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
 }
 
 android {
-    namespace 'be.florien.anyflow.feature.songlist.base.domain'
-    compileSdk 34
+    namespace "be.florien.anyflow.feature.songlist.base.domain"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -17,10 +17,10 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation-jvm:1.9.1'
+    implementation(libs.androidx.annotation.jvm)
 }

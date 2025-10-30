@@ -11,8 +11,8 @@ import javax.inject.Named
 class AlarmsSynchronizer @Inject constructor(
     private val alarmManager: AlarmManager,
     private val alarmRepository: AlarmRepository,
-    @Named("player") private val playerIntent: PendingIntent,
-    @Named("alarm") private val alarmIntent: PendingIntent
+    @param:Named("player") private val playerIntent: PendingIntent,
+    @param:Named("alarm") private val alarmIntent: PendingIntent
 ) {
     fun canScheduleExactAlarms() =
         true // Build.VERSION.SDK_INT >= 31 && alarmManager.canScheduleExactAlarms()

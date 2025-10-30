@@ -1,12 +1,17 @@
 <resources>
     <string name="app_name" translatable="false">AnyFlow</string>
-    <string name="connect_server_hint">Server</string>
+    <string name="connect_server_hint">Server URL</string>
     <string name="connect_username_hint">Username</string>
     <string name="connect_password_hint">Password</string>
     <string name="connect_api_token_hint">API token</string>
     <string name="connect_connect_action">Connect</string>
     <string name="connect_wait_label">Connection, please wait…</string>
     <string name="connect_error_extends">Cannot extend the session</string>
+    <string name="connect_error_connectivity">Cannot connect to the server URL</string>
+    <string name="connect_error_end_slash">The server URL should end with /</string>
+    <string name="connect_error_http">The server URL should start with http or https</string>
+    <string name="connect_error_unknown">Unknown error with the server URL</string>
+    <string name="connect_icon_content_description">Icon of the app</string>
     <string name="filter_display_title_is">Song title is &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="filter_display_genre_is">Genre is &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="filter_display_search">Anything contain &lt;b&gt;%s&lt;/b&gt;</string>

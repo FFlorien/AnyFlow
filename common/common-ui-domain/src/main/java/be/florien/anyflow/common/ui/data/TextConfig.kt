@@ -6,7 +6,7 @@ import androidx.annotation.StringRes
 
 data class TextConfig(
     private val text: String?,
-    @StringRes private val textRes: Int?,
+    @param:StringRes private val textRes: Int?,
     val textSpanned: Spanned? = null,
     private val style: TextConfigStyle = TextConfigStyle.NORMAL,
     private val nextTextConfig: TextConfig? = null

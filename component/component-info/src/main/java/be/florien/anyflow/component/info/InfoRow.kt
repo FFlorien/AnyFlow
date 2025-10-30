@@ -7,10 +7,10 @@ import be.florien.anyflow.common.ui.data.ImageConfig
 import be.florien.anyflow.common.ui.data.TextConfig
 
 sealed class InfoRow(
-    @StringRes open val title: Int,
+    @param:StringRes open val title: Int,
     open val text: TextConfig,
     open val image: ImageConfig,
-    @DrawableRes open val icon: Int?,
+    @param:DrawableRes open val icon: Int?,
     open val tag: Any?
 ) {
 

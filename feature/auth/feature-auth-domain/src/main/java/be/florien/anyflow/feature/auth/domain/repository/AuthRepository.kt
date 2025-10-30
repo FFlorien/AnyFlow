@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.auth.domain.repository
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.utils.TimeOperations
@@ -25,7 +26,7 @@ open class AuthRepository
 @Inject constructor(
     private val ampacheAuthSource: AmpacheAuthSource,
     private val authPersistence: AuthPersistence,
-    @Named("preferences") private val sharedPreferences: SharedPreferences
+    @param:Named("preferences") private val sharedPreferences: SharedPreferences
 ) {
     companion object {
         private const val COUNT_SONGS = "COUNT_SONGS"
@@ -90,7 +91,7 @@ open class AuthRepository
             }
             connectionStatusUpdater.postValue(ConnectionStatus.CONNECTED)
             return authentication
-        } catch (exception: HttpException) {
+        } catch (_: HttpException) {
             connectionStatusUpdater.postValue(ConnectionStatus.WRONG_SERVER_URL)
             throw NotAnAmpacheUrlException("The ampache server couldn't be found at provided url")
         } catch (exception: Exception) {
@@ -159,30 +160,30 @@ open class AuthRepository
     }
 
     private fun saveDbCount(ampacheStatus: AmpacheStatus) {
-        val edit = sharedPreferences.edit()
-        edit.putInt(COUNT_SONGS, ampacheStatus.songs)
-        edit.putInt(COUNT_ALBUMS, ampacheStatus.albums)
-        edit.putInt(COUNT_ARTIST, ampacheStatus.artists)
-        edit.putInt(COUNT_PLAYLIST, ampacheStatus.playlists)
-        edit.putInt(COUNT_GENRES, ampacheStatus.playlists)
-        edit.apply()
+        sharedPreferences.edit {
+            putInt(COUNT_SONGS, ampacheStatus.songs)
+            putInt(COUNT_ALBUMS, ampacheStatus.albums)
+            putInt(COUNT_ARTIST, ampacheStatus.artists)
+            putInt(COUNT_PLAYLIST, ampacheStatus.playlists)
+            putInt(COUNT_GENRES, ampacheStatus.playlists)
+        }
     }
 
     private fun saveServerDates(ampacheStatus: AmpacheStatus) {
-        val edit = sharedPreferences.edit()
-        edit.putLong(
-            SERVER_ADD,
-            TimeOperations.getDateFromAmpacheComplete(ampacheStatus.add).timeInMillis
-        )
-        edit.putLong(
-            SERVER_UPDATE,
-            TimeOperations.getDateFromAmpacheComplete(ampacheStatus.update).timeInMillis
-        )
-        edit.putLong(
-            SERVER_CLEAN,
-            TimeOperations.getDateFromAmpacheComplete(ampacheStatus.clean).timeInMillis
-        )
-        edit.apply()
+        sharedPreferences.edit {
+            putLong(
+                SERVER_ADD,
+                TimeOperations.getDateFromAmpacheComplete(ampacheStatus.add).timeInMillis
+            )
+            putLong(
+                SERVER_UPDATE,
+                TimeOperations.getDateFromAmpacheComplete(ampacheStatus.update).timeInMillis
+            )
+            putLong(
+                SERVER_CLEAN,
+                TimeOperations.getDateFromAmpacheComplete(ampacheStatus.clean).timeInMillis
+            )
+        }
     }
 
     enum class ConnectionStatus {

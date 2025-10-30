@@ -29,7 +29,7 @@ import javax.inject.Named
 @ServerScope
 open class AmpacheDataSource
 @Inject constructor(
-    @Named("authenticated") private val retrofit: Retrofit
+    @param:Named("authenticated") private val retrofit: Retrofit
 ) {
     private val ampacheDataApi = retrofit.create(AmpacheDataApi::class.java)
 

@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.autonomousapps.dependency-analysis'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.autonomousapps.dependency-analysis"
 }
 
 android {
-    namespace 'be.florien.anyflow.common.widget'
-    compileSdk 34
+    namespace "be.florien.anyflow.common.widget"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -16,11 +16,11 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    api 'androidx.constraintlayout:constraintlayout:2.0.1'
+    api(libs.androidx.constraintlayout)
 }
-apply plugin: 'kotlin-parcelize'
+apply plugin: "kotlin-parcelize"

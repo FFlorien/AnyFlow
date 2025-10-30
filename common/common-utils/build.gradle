@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.autonomousapps.dependency-analysis'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.autonomousapps.dependency-analysis"
 }
 
 android {
-    namespace 'be.florien.anyflow.common.utils'
-    compileSdk 34
+    namespace "be.florien.anyflow.common.utils"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -16,6 +16,6 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }

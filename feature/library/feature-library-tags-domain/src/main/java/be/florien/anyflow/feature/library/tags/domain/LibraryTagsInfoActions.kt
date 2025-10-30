@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import be.florien.anyflow.common.resources.R
 
 enum class LibraryTagsFieldType(
-    @DrawableRes val iconRes: Int,
-    @StringRes val titleRes: Int,
+    @param:DrawableRes val iconRes: Int,
+    @param:StringRes val titleRes: Int,
     val artType: String?
 ) {
     Duration(R.drawable.ic_duration, R.string.filter_info_duration, null),

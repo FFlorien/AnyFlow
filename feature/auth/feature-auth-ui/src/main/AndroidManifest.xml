@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
-        <activity android:name="be.florien.anyflow.feature.auth.ui.server.ServerActivity" />
+        <activity
+            android:name="be.florien.anyflow.feature.auth.ui.server.ServerActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name="be.florien.anyflow.feature.auth.ui.user.AuthenticationActivity" />
     </application>
 </manifest>

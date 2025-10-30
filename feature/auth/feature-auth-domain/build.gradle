@@ -1,12 +1,13 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "kotlin-kapt"
+    id "com.google.devtools.ksp"
 }
 
 android {
-    namespace 'be.florien.anyflow.feature.auth.domain'
-    compileSdk 34
+    namespace "be.florien.anyflow.feature.auth.domain"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -16,23 +17,23 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    implementation project(':common-di')
-    implementation project(':data-server')
-    implementation project(':common-logging')
-    implementation project(':common-utils')
+    implementation(project(":common-di"))
+    implementation(project(":data-server"))
+    implementation(project(":common-logging"))
+    implementation(project(":common-utils"))
 
-
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.3'
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.livedata.core.ktx)
     // DI
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation(libs.dagger)
+    ksp(libs.dagger.compiler)
     // Internet
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0' //todo use standalone jackson library
+    implementation(libs.okhttp)
+    implementation(libs.retrofit.converter.jackson )//todo use standalone jackson library
 }

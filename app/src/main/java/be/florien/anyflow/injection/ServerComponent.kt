@@ -5,7 +5,7 @@ import be.florien.anyflow.common.image.di.GlideModuleInjector
 import be.florien.anyflow.data.server.di.ServerModule
 import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
 import be.florien.anyflow.feature.auth.domain.di.AuthModule
-import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponent
+import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponent
 import be.florien.anyflow.feature.filter.current.ui.di.CurrentFilterViewModelModule
 import be.florien.anyflow.feature.filter.saved.ui.di.SavedFilterGroupViewModelModule
 import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
@@ -55,7 +55,7 @@ interface ServerComponent : GlideModuleInjector {
     fun playerServiceComponentBuilder(): PlayerServiceComponent.Builder
     fun syncServiceComponentBuilder(): SyncServiceComponent.Builder
     // Activities
-    fun userConnectComponentBuilder(): UserConnectActivityComponent.Builder
+    fun userConnectComponentBuilder(): AuthenticationActivityComponent.Builder
     fun playerComponentBuilder(): PlayerActivityComponent.Builder
     fun alarmComponentBuilder(): AlarmActivityComponent.Builder
     fun playlistComponentBuilder(): PlaylistActivityComponent.Builder

@@ -1,4 +1,13 @@
-include ':app'
+pluginManagement {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url("https://maven.fabric.io/public") }
+    }
+}
+
+includeBuild("build-scripts")
+include ":app"
 includeDirectory("common")
 includeDirectory("component")
 includeDirectory("data")
@@ -7,7 +16,7 @@ includeDirectory("management")
 
 private void includeDirectory(File directory) {
     directory.eachDir { subDirectory ->
-        if (new File(subDirectory, 'build.gradle').exists()) {
+        if (new File(subDirectory, "build.gradle").exists() || new File(subDirectory, "build.gradle.kts").exists()) {
             def moduleName = subDirectory.name
             include moduleName
             project(":${moduleName}").projectDir = subDirectory

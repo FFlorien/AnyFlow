@@ -47,6 +47,7 @@ abstract class PodcastEpisodeDao : BaseDao<DbPodcastEpisode>() {
     @Query("SELECT * FROM PodcastEpisode WHERE podcastId = :podcastId")
     abstract fun getPodcastEpisodesUpdatable(podcastId: String): LiveData<List<DbPodcastEpisode>>
 
+    @Transaction
     @Query("SELECT * FROM PodcastEpisode WHERE PodcastEpisode.id = :id")
     abstract fun getPodcastEpisode(id: Long): LiveData<DbPodcastEpisodeWithPodcast>
 

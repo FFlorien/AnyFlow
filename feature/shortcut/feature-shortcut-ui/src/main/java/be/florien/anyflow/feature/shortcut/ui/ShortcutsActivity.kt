@@ -1,8 +1,12 @@
 package be.florien.anyflow.feature.shortcut.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
@@ -49,6 +53,24 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
         binding.viewModel = viewModel
         initToolbar()
         initSongExample()
+
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view: View, windowInsets: WindowInsetsCompat ->
+            val insets =
+                windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            binding.toolbar.updatePadding(
+                top = insets.top,
+                left = insets.left,
+                right = insets.right
+            )
+            view.updatePadding(
+                bottom = insets.bottom,
+                left = insets.left,
+                right = insets.right
+            )
+            windowInsets
+        }
+
         viewModel.currentActionsCountDisplay.observe(this) {
             shortcutExample.setShortcuts()
         }
@@ -75,7 +97,7 @@ class ShortcutsActivity : AppCompatActivity(), ViewModelFactoryProvider {
         }
         val listener = object : QueueItemViewHolderListener {
             override fun onItemClick(position: Int) {}
-            override fun onShortcut(item: QueueItemDisplay, row: QueueItemInfoRow<*,*>) {}
+            override fun onShortcut(item: QueueItemDisplay, row: QueueItemInfoRow<*, *>) {}
             override fun onCurrentShortcutsClosed() {}
             override fun onInfoDisplayAsked(item: QueueItemDisplay) {}
             override fun onShortcutOpened(position: Int?) {}

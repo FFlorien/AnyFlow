@@ -48,7 +48,7 @@ class SyncRepository
     private val libraryDatabase: LibraryDatabase,
     private val ampacheDataSource: AmpacheDataSource,
     private val ampachePodcastSource: AmpachePodcastSource,
-    @Named("preferences") private val sharedPreferences: SharedPreferences,
+    @param:Named("preferences") private val sharedPreferences: SharedPreferences,
     private val context: Context
 ) {
     val libraryPercentageUpdater = MutableLiveData(PercentageUpdate(CHANGE_NONE, 100))

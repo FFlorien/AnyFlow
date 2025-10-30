@@ -5,13 +5,14 @@ import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import be.florien.anyflow.common.ui.data.ImageConfig
+import com.bumptech.glide.Glide
 
 @BindingAdapter("imageSource")
 fun ImageView.setImageSource(config: ImageConfig?) {
     val url = config?.url
     val resource = config?.resource
     if (url != null) {
-        GlideApp.with(this.rootView)
+        Glide.with(this.rootView)
             .load(ChangingTokenUrl(url))
             .let {
                 if (resource != null) {

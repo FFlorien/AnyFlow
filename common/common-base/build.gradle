@@ -1,13 +1,13 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.autonomousapps.dependency-analysis'
-    id 'kotlin-kapt'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.autonomousapps.dependency-analysis"
+    id "kotlin-kapt"
 }
 
 android {
-    namespace 'be.florien.anyflow.common.base'
-    compileSdk 34
+    namespace "be.florien.anyflow.common.base"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -20,19 +20,20 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    api project(':common-ui-domain')
+    api(project(":common-ui-domain"))
 
-    api 'androidx.fragment:fragment:1.5.4'
-    api 'androidx.lifecycle:lifecycle-livedata-core:2.7.0'
-    api 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
-    api 'androidx.recyclerview:recyclerview:1.2.1'
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
-    implementation 'androidx.annotation:annotation:1.8.0'
-    implementation 'androidx.databinding:databinding-common:8.7.2'
-    implementation 'androidx.core:core:1.13.1'
+    api(libs.androidx.fragment)
+    api(libs.androidx.lifecycle.livedata.core)
+    api(libs.androidx.lifecycle.viewmodel)
+    api(libs.androidx.recyclerview)
+    api(libs.kotlinx.coroutines.core)
+
+    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.databinding.common)
 }

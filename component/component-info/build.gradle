@@ -1,12 +1,13 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "kotlin-kapt"
+    id "com.google.devtools.ksp"
 }
 
 android {
-    namespace 'be.florien.anyflow.component.info'
-    compileSdk 34
+    namespace "be.florien.anyflow.component.info"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -19,23 +20,23 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
     //Modules
-    implementation project(':common-image')
-    implementation project(":common-base")
-    implementation project(':common-ui-domain')
-    implementation project(':common-resources')
+    implementation(project(":common-image"))
+    implementation(project(":common-base"))
+    implementation(project(":common-ui-domain"))
+    implementation(project(":common-resources"))
     //Android
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.material)
     //DI
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation(libs.dagger)
+    ksp(libs.dagger.compiler)
     //Lifecycle
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 }
-apply plugin: 'kotlin-parcelize'
+apply plugin: "kotlin-parcelize"

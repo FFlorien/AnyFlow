@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 
 
 @Parcelize
-data class ImageConfig(val url: String?, @DrawableRes val resource: Int?, val stateIfNone: Int = View.GONE):
+data class ImageConfig(val url: String?, @param:DrawableRes val resource: Int?, val stateIfNone: Int = View.GONE):
     Parcelable

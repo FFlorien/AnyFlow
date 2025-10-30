@@ -11,10 +11,14 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -107,6 +111,16 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view: View, windowInsets: WindowInsetsCompat ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.updatePadding(
+                top = insets.top,
+                left = insets.left,
+                right = insets.right
+            )
+            windowInsets
+        }
 
         initToolbar()
         initDrawer()

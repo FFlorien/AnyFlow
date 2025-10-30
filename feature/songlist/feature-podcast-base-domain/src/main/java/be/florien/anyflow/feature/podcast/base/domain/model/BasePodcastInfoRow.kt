@@ -11,9 +11,9 @@ import be.florien.anyflow.tags.local.model.DownloadProgressState
 
 
 enum class PodcastFieldType(
-    @DrawableRes
+    @param:DrawableRes
     override val iconRes: Int,
-    @StringRes val titleRes: Int
+    @param:StringRes val titleRes: Int
 ): QueueItemFieldType {
     Title(R.drawable.ic_podcast_episode, R.string.info_title),
     Podcast(R.drawable.ic_podcast, R.string.info_podcast),
@@ -25,9 +25,9 @@ enum class PodcastFieldType(
 }
 
 enum class PodcastActionType(
-    @DrawableRes
+    @param:DrawableRes
     override val iconRes: Int,
-    @StringRes val titleRes: Int
+    @param:StringRes val titleRes: Int
 ): QueueItemActionType {
     None(0, 0),
     InfoTitle(0, 0),

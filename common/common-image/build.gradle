@@ -1,14 +1,14 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.google.devtools.ksp'
-    id 'kotlin-kapt'
-    id 'com.autonomousapps.dependency-analysis'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.google.devtools.ksp"
+    id "kotlin-kapt"
+    id "com.autonomousapps.dependency-analysis"
 }
 
 android {
-    namespace 'be.florien.anyflow.common.image'
-    compileSdk 34
+    namespace "be.florien.anyflow.common.image"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -21,26 +21,26 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
     //Modules
-    api project(':common-ui-domain')
-    implementation project(':common-resources')
+    api(project(":common-ui-domain"))
+    implementation(project(":common-resources"))
     //Android
-    api 'androidx.fragment:fragment:1.5.4'
-    api 'com.squareup.okhttp3:okhttp:3.10.0'
-    api 'javax.inject:javax.inject:1'
-    implementation 'androidx.annotation:annotation:1.6.0'
-    implementation 'com.github.bumptech.glide:annotations:4.14.1'
+    api(libs.androidx.fragment)
+    api(libs.okhttp)
+    api(libs.javax.inject)
+    implementation(libs.androidx.annotation)
+    implementation(libs.glide.annotations)
     //glide
-    api 'com.github.bumptech.glide:glide:4.14.1'
-    kapt 'com.github.bumptech.glide:compiler:4.14.1'
-    implementation "com.github.bumptech.glide:okhttp3-integration:4.14.1"
+    api(libs.glide)
+    ksp(libs.glide.ksp)
+    implementation(libs.glide.okhttp3.integration)
     //DI
-    api "com.google.dagger:dagger:$dagger_version"
-    ksp "com.google.dagger:dagger-compiler:$dagger_version"
+    api(libs.dagger)
+    ksp(libs.dagger.compiler)
 }
-apply plugin: 'kotlin-parcelize'
+apply plugin: "kotlin-parcelize"

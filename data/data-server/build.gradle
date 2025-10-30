@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.google.devtools.ksp'
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.google.devtools.ksp"
 }
 
 android {
-    namespace 'be.florien.anyflow.data.server'
-    compileSdk 34
+    namespace "be.florien.anyflow.data.server"
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -16,21 +16,21 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = "21"
     }
 }
 
 dependencies {
-    implementation project(':common-di')
-    implementation project(':common-logging')
-    implementation project(':common-utils')
+    implementation(project(":common-di"))
+    implementation(project(":common-logging"))
+    implementation(project(":common-utils"))
 
-    implementation "com.google.dagger:dagger:$dagger_version"
-    ksp "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation(libs.dagger)
+    ksp(libs.dagger.compiler)
 
     //internet
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.jackson)
     //WorkManager
-    implementation 'androidx.work:work-runtime-ktx:2.9.1'
+    implementation(libs.androidx.work.runtime.ktx)
 }

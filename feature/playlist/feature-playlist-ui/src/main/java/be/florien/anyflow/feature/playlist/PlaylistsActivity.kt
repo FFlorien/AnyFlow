@@ -3,8 +3,12 @@ package be.florien.anyflow.feature.playlist
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.feature.playlist.ui.R as ModuleR
 import be.florien.anyflow.common.base.BaseFragment
@@ -27,6 +31,21 @@ class PlaylistsActivity : AppCompatActivity() {
         setContentView(ModuleR.layout.activity_playlists)
         toolbar = findViewById(ModuleR.id.toolbar)
         initToolbar()
+
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view: View, windowInsets: WindowInsetsCompat ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.updatePadding(
+                top = insets.top,
+                left = insets.left,
+                right = insets.right
+            )
+            findViewById<View>(ModuleR.id.container).updatePadding(
+                bottom = insets.bottom,
+                left = insets.left,
+                right = insets.right
+            )
+            windowInsets
+        }
 
         if (supportFragmentManager.findFragmentById(R.id.container) == null) {
             val fragment = PlaylistListFragment()

@@ -14,8 +14,8 @@ import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
 import be.florien.anyflow.feature.auth.ui.di.ServerViewModelInjector
-import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponent
-import be.florien.anyflow.feature.auth.ui.di.UserConnectActivityComponentCreator
+import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponent
+import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponentCreator
 import be.florien.anyflow.feature.auth.ui.server.ServerActivity
 import be.florien.anyflow.feature.auth.ui.server.ServerViewModel
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
@@ -46,7 +46,7 @@ open class AnyFlowApp : MultiDexApplication(),
     UnauthenticatedNavigation,
     ServerViewModelInjector,
     ServerUrlSetter,
-    UserConnectActivityComponentCreator,
+    AuthenticationActivityComponentCreator,
     PlayerServiceComponentCreator,
     PlayerActivityComponentCreator,
     PlaylistActivityComponentCreator,
@@ -89,7 +89,7 @@ open class AnyFlowApp : MultiDexApplication(),
 
     private fun initServerComponentIfReady() {
         val serverUrl = authPersistence.serverUrl
-        if (serverUrl.hasSecret()) {
+        if (serverUrl.hasSecret() && serverUrl.secret.isNotEmpty()) {
             setServerUrl(serverUrl.secret)
         }
     }
@@ -104,7 +104,7 @@ open class AnyFlowApp : MultiDexApplication(),
             .ampacheUrl(serverUrl)
             .build()
     }
-    override fun createUserConnectComponent(): UserConnectActivityComponent? =
+    override fun createUserConnectComponent(): AuthenticationActivityComponent? =
         serverComponent?.userConnectComponentBuilder()?.build()
 
     override fun createPlayerServiceComponent(): PlayerServiceComponent? =

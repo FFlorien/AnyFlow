@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @ServerScope
-class UrlRepository @Inject constructor(@Named("serverUrl") private val serverUrl: String) {
+class UrlRepository @Inject constructor(@param:Named("serverUrl") private val serverUrl: String) {
 
     fun getSongUrl(id: Long) = getMediaUrl(id, "song")
     fun getSongArtUrl(id: Long) = getArtUrl(ART_TYPE_SONG, id)

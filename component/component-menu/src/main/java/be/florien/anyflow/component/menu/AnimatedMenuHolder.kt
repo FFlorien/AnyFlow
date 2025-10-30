@@ -15,9 +15,9 @@ abstract class AnimatedMenuHolder(
     menuResource: Int,
     @IdRes
     menuId: Int,
-    @DrawableRes
+    @param:DrawableRes
     val firstStateDrawableResource: Int,
-    @DrawableRes
+    @param:DrawableRes
     val secondStateDrawableResource: Int,
     var isIconInFirstState: Boolean,
     val context: Context,

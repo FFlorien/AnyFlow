@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.BundleCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.paging.PagingDataAdapter
@@ -48,7 +49,7 @@ class PlaylistSongsFragment(private var playlist: PlaylistWithCount? = null) : B
 
     init {
         arguments?.let { args ->
-            (args.getParcelable(PLAYLIST_SONGS_PLAYLIST) as PlaylistWithCount?)?.let { playlist = it }
+            BundleCompat.getParcelable<PlaylistWithCount?>(args, PLAYLIST_SONGS_PLAYLIST, PlaylistWithCount::class.java)?.let { playlist = it }
         }
         if (arguments == null) {
             arguments = Bundle().apply {

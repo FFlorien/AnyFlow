@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.di.viewModelFactory
-import be.florien.anyflow.common.image.GlideApp
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.feature.filter.current.ui.databinding.FragmentCurrentFilterBinding
 import be.florien.anyflow.feature.filter.current.ui.databinding.ItemFilterActiveBinding
@@ -39,6 +38,7 @@ import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
+import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
@@ -247,7 +247,7 @@ class CurrentFilterFragment : BaseFilteringFragment() {
         ) {
             if (artType != null && argument is Long) {
                 targets.add(
-                    GlideApp.with(requireActivity())
+                    Glide.with(requireActivity())
                         .asBitmap()
                         .load(viewModel.getUrlForImage(artType, argument))
                         .into(object : CustomTarget<Bitmap>() {
