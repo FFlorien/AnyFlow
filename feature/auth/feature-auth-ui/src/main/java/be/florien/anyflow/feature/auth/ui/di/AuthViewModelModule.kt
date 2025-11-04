@@ -2,7 +2,7 @@ package be.florien.anyflow.feature.auth.ui.di
 
 import androidx.lifecycle.ViewModel
 import be.florien.anyflow.common.di.ViewModelKey
-import be.florien.anyflow.feature.auth.ui.user.UserConnectViewModel
+import be.florien.anyflow.feature.auth.ui.user.AuthenticationViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -12,7 +12,7 @@ abstract class AuthViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(UserConnectViewModel::class)
-    abstract fun bindsUserConnectViewModel(viewModel: UserConnectViewModel): ViewModel
+    @ViewModelKey(AuthenticationViewModel::class)
+    abstract fun bindsUserConnectViewModel(viewModel: AuthenticationViewModel): ViewModel
 
 }

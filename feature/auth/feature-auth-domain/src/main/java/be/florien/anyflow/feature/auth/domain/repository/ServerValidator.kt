@@ -19,7 +19,8 @@ class ServerValidator @Inject constructor(
 ) {
 
     suspend fun isServerValid(serverUrl: String): ServerStatus {
-        val url = if (serverUrl.endsWith("/")) serverUrl else "$serverUrl/"
+        val serverUrlTrimmed = serverUrl.trim()
+        val url = if (serverUrlTrimmed.endsWith("/")) serverUrlTrimmed else "$serverUrlTrimmed/"
         try {
             val retrofit = Retrofit
                 .Builder()

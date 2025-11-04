@@ -10,8 +10,10 @@
     <string name="connect_error_connectivity">Cannot connect to the server URL</string>
     <string name="connect_error_end_slash">The server URL should end with /</string>
     <string name="connect_error_http">The server URL should start with http or https</string>
-    <string name="connect_error_unknown">Unknown error with the server URL</string>
+    <string name="connect_server_error_unknown">Unknown error with the server URL</string>
+    <string name="connect_auth_error_unknown">Unknown error for the authentification</string>
     <string name="connect_icon_content_description">Icon of the app</string>
+    <string name="connect_pwd_eye_content_description">Show/hide password</string>
     <string name="filter_display_title_is">Song title is &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="filter_display_genre_is">Genre is &lt;b&gt;%s&lt;/b&gt;</string>
     <string name="filter_display_search">Anything contain &lt;b&gt;%s&lt;/b&gt;</string>
@@ -64,6 +66,7 @@
     <string name="display_reconnecting">Reconnecting</string>
     <string name="confirm">Confirm</string>
     <string name="connect_error_credentials">Cannot log in with provided credentials</string>
+    <string name="connect_error_empty">Please enter Username/Password or an API token</string>
     <string name="connect_error_timeout">Cannot connect to the server, please try again later</string>
     <string name="player_controls_unknown">Unknown</string>
     <string name="player_playing_now">Now playing</string>

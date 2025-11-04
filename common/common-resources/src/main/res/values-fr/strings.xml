@@ -10,8 +10,10 @@
     <string name="connect_error_connectivity">Impossible de se connecter au serveur</string>
     <string name="connect_error_end_slash">L\'URL du serveur doit finir par /</string>
     <string name="connect_error_http">L\'URL du serveur doit commencer par http ou https</string>
-    <string name="connect_error_unknown">Erreur inconnue pour l\'URL du serveur</string>
+    <string name="connect_server_error_unknown">Erreur inconnue pour l\'URL du serveur</string>
+    <string name="connect_auth_error_unknown">Erreur inconnue pour l\'authentification</string>
     <string name="connect_icon_content_description">Icon de l\'application</string>
+    <string name="connect_pwd_eye_content_description">Montrer/cacher le mot de passe</string>
     <string name="player_playing_now">En cours</string>
     <string name="player_controls_unknown">Inconnu</string>
     <string name="filter_display_title_is">Le titre de la chanson est &lt;b&gt;%s&lt;/b&gt;</string>
@@ -64,6 +66,7 @@
     <string name="display_reconnecting">Reconnexion</string>
     <string name="confirm">Confirmer</string>
     <string name="connect_error_credentials">Impossible de se connecter avec ces informations de connexion</string>
+    <string name="connect_error_empty">Veuillez remplir votre nom d\'utilisateur/mot de passe ou votre jeton API</string>
     <string name="connect_error_timeout">Impossible de se connecter au serveur, veuillez réessayer plus tard</string>
     <string name="ok">OK</string>
     <string name="update_songs">Mise à jour des chansons: %02d %%</string>

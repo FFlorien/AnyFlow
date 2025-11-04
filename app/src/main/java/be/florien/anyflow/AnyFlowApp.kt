@@ -110,8 +110,11 @@ open class AnyFlowApp : MultiDexApplication(),
     override fun createPlayerServiceComponent(): PlayerServiceComponent? =
         serverComponent?.playerServiceComponentBuilder()?.build()
 
-    override fun createPlayerActivityComponent(): PlayerActivityComponent? =
+    override fun createPlayerActivityComponent(): PlayerActivityComponent? = if (authPersistence.hasConnectionInfo()) {
         serverComponent?.playerComponentBuilder()?.build()
+    } else {
+        null
+    }
 
     override fun createSyncServiceComponent(): SyncServiceComponent? =
         serverComponent?.syncServiceComponentBuilder()?.build()

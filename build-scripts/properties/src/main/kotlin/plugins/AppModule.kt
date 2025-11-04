@@ -21,6 +21,7 @@ class AppLevelPlugin : Plugin<Project> {
         extensions.configure<BaseAppModuleExtension> {
             addSdkAndVersion(libs)
             addCompileOptions()
+            addDataBinding()
             addSourceSets()
             addUseLibrary()
         }
@@ -54,6 +55,12 @@ class AppLevelPlugin : Plugin<Project> {
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_21
             targetCompatibility = JavaVersion.VERSION_21
+        }
+    }
+
+    private fun BaseAppModuleExtension.addDataBinding() {
+        buildFeatures {
+            dataBinding = true
         }
     }
 

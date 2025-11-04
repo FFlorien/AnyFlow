@@ -1,24 +1,10 @@
 plugins {
-    id "com.android.library"
-    id "org.jetbrains.kotlin.android"
-    id "kotlin-kapt"
-    id "com.google.devtools.ksp"
+    alias(libs.plugins.library.plugin)
+    alias(libs.plugins.library.ksp.plugin)
 }
 
 android {
-    namespace "be.florien.anyflow.feature.auth.domain"
-    compileSdk 36
-
-    defaultConfig {
-        minSdk 23
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
-    }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+    namespace = "be.florien.anyflow.feature.auth.domain"
 }
 
 dependencies {
