@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.library.plugin)
     alias(libs.plugins.library.compose.plugin)
-    alias(libs.plugins.library.databinding.plugin)
 }
 
 android {

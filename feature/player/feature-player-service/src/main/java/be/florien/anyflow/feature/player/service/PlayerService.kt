@@ -6,11 +6,11 @@ import android.content.Intent
 import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.CallSuper
 import androidx.annotation.OptIn
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
@@ -45,10 +45,10 @@ import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
-import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
+import be.florien.anyflow.urls.UrlRepository
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.Dispatchers
@@ -341,14 +341,20 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         iLog("media url is $mediaUrl")
         val mediaTypeMetaData =
             if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
-        return MediaItem.Builder()
+        val mediaMetadata = MediaItem.Builder()
             .setMediaMetadata(
                 MediaMetadata
                     .Builder()
                     .setMediaType(mediaTypeMetaData)
                     .build()
             )
-            .setUri(Uri.parse(mediaUrl))
+        val localUriString = local
+        val builder = if (!localUriString.isNullOrBlank()) {
+            mediaMetadata.setUri(localUriString.toUri())
+        } else {
+            mediaMetadata.setUri(mediaUrl.toUri())
+        }
+        return builder
             .setMediaId(this.id.toString())
             .build()
     }
