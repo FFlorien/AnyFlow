@@ -38,6 +38,7 @@ material = "1.13.0"
 media3 = "1.9.2"
 multidex = "2.0.1"
 navigationCompose = "2.9.7"
+navigation3Core = "1.0.1"
 okhttp = "5.3.2"
 pagingRuntimeKtx = "3.4.1"
 recyclerview = "1.4.0"
@@ -104,6 +105,8 @@ androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "medi
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-navigation-common-ktx = { module = "androidx.navigation:navigation-common-ktx", version.ref = "navigationCompose" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3Core" }
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
