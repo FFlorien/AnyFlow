@@ -65,7 +65,8 @@ class SyncRepository
             - See the number of Songs, artists, albums by genre
             - check with database
             - if there's any difference
-                - either the difference between DB and Server is below a defined treshold, then get the filtered data immediately (E.G: 125 songs in db and 145 on server)
+                - either the difference between DB and Server is below a defined treshold, then get the filtered data immediately
+                 (E.G: 125 songs in db and 145 on server)
                 - or it's above the threshold (2467 in db, 3367 on server) and we browse down
      */
 
@@ -112,7 +113,7 @@ class SyncRepository
             updateAlbums(lastUpdate)
             addSongs(lastUpdate)
             updateSongs(lastUpdate)
-            updateDeletedSongs() //todo remove unused artists/albums/genres
+//            updateDeletedSongs() //todo remove unused artists/albums/genres
         }
 
     private suspend fun sync(sync: suspend (Calendar) -> Unit) =

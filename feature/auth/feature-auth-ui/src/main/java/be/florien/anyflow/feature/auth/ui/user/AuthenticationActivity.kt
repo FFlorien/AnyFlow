@@ -87,7 +87,7 @@ open class AuthenticationActivity : AppCompatActivity() {
             }
         }
 
-        AppTheme(dynamicColor = false) {
+        AppTheme(content = {
             val userFieldState = remember { TextFieldState() }
             val passwordFieldState = remember { TextFieldState() }
             val apiKeyFieldState = remember { TextFieldState() }
@@ -187,6 +187,6 @@ open class AuthenticationActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+        })
     }
 }

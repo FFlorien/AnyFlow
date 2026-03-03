@@ -152,6 +152,7 @@
     <string name="dummy_genre">Classical</string>
     <string name="dummy_playlist">Road trip</string>
     <string name="or">Or</string>
+    <string name="content_description_up">Navigate up</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">1 song</item>
         <item quantity="other">%d songs</item>

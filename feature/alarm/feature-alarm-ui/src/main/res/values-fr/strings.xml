@@ -2,4 +2,16 @@
 <resources>
     <string name="alarm_is_repeating">Se répète</string>
     <string name="alarm_is_not_repeating">Un seule fois</string>
+    <string name="monday">Lundi</string>
+    <string name="tuesday">Mardi</string>
+    <string name="wednesday">Mercredi</string>
+    <string name="thursday">Jeudi</string>
+    <string name="friday">Vendredi</string>
+    <string name="saturday">Samedi</string>
+    <string name="sunday">Dimanche</string>
+    <string name="alarm_once">Ce réveil sonnera une fois</string>
+    <string name="alarm_every_day">Ce réveil sonnera chaque jour</string>
+    <string name="alarm_selected_days">Ce réveil sonnera %1$s</string>
+    <string name="alarm_empty">Aucune alarme configurée, appuyez sur le + pour en ajouter</string>
+    <string name="content_description_delete_alarm">Supprimer l\'alarme</string>
 </resources>

@@ -151,6 +151,7 @@
     <string name="dummy_genre">Classique</string>
     <string name="dummy_playlist">Pour la route</string>
     <string name="or">Ou</string>
+    <string name="content_description_up">Revenir en arrière</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">%d chanson</item>
         <item quantity="many">%d chansons</item>

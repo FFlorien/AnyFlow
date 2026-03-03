@@ -1,45 +1,4 @@
 [versions]
-activityCompose = "1.11.0"
-annotation = "1.9.1"
-appcompat = "1.7.1"
-composeBom = "2025.10.01"
-constraintlayout = "2.2.1"
-core = "1.17.0"
-dagger = "2.57.2"
-databindingCommon = "8.13.0"
-dependencyAnalysis = "3.3.0"
-firebaseCore = "21.1.1"
-firebaseCrashlytics = "20.0.3"
-firebaseCrashlyticsGradle = "3.0.6"
-fragment = "1.8.9"
-glide = "5.0.5"
-googleServices = "4.4.4"
-gradle = "8.13.0"
-javaxAnnotation = "10.0-b28"
-javaxInject = "1"
-junit = "4.13.2"
-kotlin = "2.2.21"
-kotlinKsp = "2.2.21-RC2-2.0.4"
-kotlinGradlePlugin = "2.2.0"
-kotlinReflect = "2.2.0"
-kotlinxCoroutines = "1.10.2"
-lifecycle = "2.9.4"
-material = "1.13.0"
-material3 = "1.4.0"
-media3 = "1.8.0"
-multidex = "2.0.1"
-navigationCommonKtx = "2.9.5"
-okhttp = "5.2.1"
-pagingRuntimeKtx = "3.3.6"
-recyclerview = "1.4.0"
-recyclerviewFastscroll = "2.0.1"
-retrofit = "3.0.0"
-room = "2.8.3"
-stfalconimageviewer = "1.0.1"
-timber = "5.0.1"
-treessence = "1.1.2"
-uiGraphics = "1.9.4"
-workRuntimeKtx = "2.11.0"
 
 #App configuration. Not unused, but used by scripts, see build-scripts module.
 android-compileSdk = "36"
@@ -48,18 +7,52 @@ android-targetSdk = "36"
 app-version-code = "11"
 app-version-name = "0.4.1"
 
+#lib/plugins versions
+activityCompose = "1.12.4"
+annotation = "1.9.1"
+appcompat = "1.7.1"
+collectionImmutable = "0.4.0"
+composeBom = "2025.10.01"
+constraintlayout = "2.2.1"
+core = "1.17.0"
+dagger = "2.59.2"
+databindingCommon = "8.13.0"
+dependencyAnalysis = "3.6.1"
+firebaseCore = "21.1.1"
+firebaseCrashlytics = "20.0.4"
+firebaseCrashlyticsGradle = "3.0.6"
+fragment = "1.8.9"
+glide = "5.0.5"
+googleServices = "4.4.4"
+gradle = "8.13.2"
+javaxAnnotation = "10.0-b28"
+javaxInject = "1"
+junit = "4.13.2"
+kotlin = "2.3.10"
+kotlinKsp = "2.2.21-RC2-2.0.4"
+kotlinGradlePlugin = "2.2.0"
+kotlinReflect = "2.3.0"
+kotlinxCoroutines = "1.10.2"
+lifecycle = "2.10.0"
+material = "1.13.0"
+media3 = "1.9.2"
+multidex = "2.0.1"
+navigationCompose = "2.9.7"
+okhttp = "5.3.2"
+pagingRuntimeKtx = "3.4.1"
+recyclerview = "1.4.0"
+recyclerviewFastscroll = "2.0.1"
+retrofit = "3.0.0"
+room = "2.8.4"
+stfalconimageviewer = "1.0.1"
+timber = "5.0.1"
+treessence = "1.1.2"
+workRuntimeKtx = "2.11.1"
+
 [plugins]
 #Not unused, but used by scripts, see build-scripts module.
 android-application = { id = "com.android.application", version.ref = "gradle" }
 android-library = { id = "com.android.library", version.ref = "gradle" }
-crashlytics = { id = "com.google.firebase.crashlytics" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
-google-services = { id = "com.google.gms.google-services" }
-kapt = { id = "kotlin-kapt", version.ref = "kotlin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinKsp" }
 
 #Module configuration
 app-plugin = { id = "plugins.app"}
@@ -68,6 +61,18 @@ library-compose-plugin = { id = "plugins.compose"}
 library-databinding-plugin = { id = "plugins.databinding"}
 library-ksp-plugin = { id = "plugins.ksp"}
 
+
+#Other plugins
+crashlytics = { id = "com.google.firebase.crashlytics" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
+google-services = { id = "com.google.gms.google-services" }
+kapt = { id = "kotlin-kapt" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinKsp" }
+
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
@@ -75,6 +80,8 @@ androidx-annotation-jvm = { module = "androidx.annotation:annotation-jvm", versi
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
@@ -95,13 +102,15 @@ androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", versi
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
-androidx-navigation-common-ktx = { module = "androidx.navigation:navigation-common-ktx", version.ref = "navigationCommonKtx" }
+androidx-navigation-common-ktx = { module = "androidx.navigation:navigation-common-ktx", version.ref = "navigationCompose" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+collection-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "collectionImmutable" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
@@ -129,6 +138,3 @@ retrofit-converter-jackson = { module = "com.squareup.retrofit2:converter-jackso
 stfalconimageviewer = { module = "com.github.stfalcon-studio:StfalconImageViewer", version.ref = "stfalconimageviewer" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 treessence = { module = "com.github.bastienpaulfr:Treessence", version.ref = "treessence" }
-androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
-androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiGraphics" }

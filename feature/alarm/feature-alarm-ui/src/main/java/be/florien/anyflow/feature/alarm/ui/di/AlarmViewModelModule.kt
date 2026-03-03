@@ -2,8 +2,6 @@ package be.florien.anyflow.feature.alarm.ui.di
 
 import androidx.lifecycle.ViewModel
 import be.florien.anyflow.common.di.ViewModelKey
-import be.florien.anyflow.feature.alarm.ui.AlarmViewModel
-import be.florien.anyflow.feature.alarm.ui.add.AddAlarmViewModel
 import be.florien.anyflow.feature.alarm.ui.edit.EditAlarmViewModel
 import be.florien.anyflow.feature.alarm.ui.list.AlarmListViewModel
 import dagger.Binds
@@ -12,16 +10,6 @@ import dagger.multibindings.IntoMap
 
 @Module
 abstract class AlarmViewModelModule {
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(AlarmViewModel::class)
-    abstract fun bindsAlarmViewModel(viewModel: AlarmViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(AddAlarmViewModel::class)
-    abstract fun bindsAddAlarmViewModel(viewModel: AddAlarmViewModel): ViewModel
 
     @Binds
     @IntoMap

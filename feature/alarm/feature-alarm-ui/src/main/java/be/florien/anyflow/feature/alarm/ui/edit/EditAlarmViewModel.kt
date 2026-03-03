@@ -1,66 +1,124 @@
 package be.florien.anyflow.feature.alarm.ui.edit
 
-import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.management.alarm.model.Alarm
+import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.base.BaseViewModel
+import be.florien.anyflow.feature.alarm.ui.ImmutableAlarm
+import be.florien.anyflow.feature.alarm.ui.toViewAlarm
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
+import be.florien.anyflow.management.alarm.model.Alarm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class EditAlarmViewModel @Inject constructor() : BaseViewModel() {
-    val isRepeating: MutableLiveData<Boolean> = MutableLiveData(false)
-    val time: MutableLiveData<Int> = MutableLiveData()
-    val monday: MutableLiveData<Boolean> = MutableLiveData()
-    val tuesday: MutableLiveData<Boolean> = MutableLiveData()
-    val wednesday: MutableLiveData<Boolean> = MutableLiveData()
-    val thursday: MutableLiveData<Boolean> = MutableLiveData()
-    val friday: MutableLiveData<Boolean> = MutableLiveData()
-    val saturday: MutableLiveData<Boolean> = MutableLiveData()
-    val sunday: MutableLiveData<Boolean> = MutableLiveData()
+class EditAlarmViewModel @Inject constructor(val alarmsSynchronizer: AlarmsSynchronizer) :
+    BaseViewModel() {
 
-    @Inject
-    lateinit var alarmsSynchronizer: AlarmsSynchronizer
+    private val mutableState =
+        MutableStateFlow(
+            ImmutableAlarm(
+                id = 0L,
+                hour = 0,
+                minute = 0,
+                monday = false,
+                tuesday = false,
+                wednesday = false,
+                thursday = false,
+                friday = false,
+                saturday = false,
+                sunday = false,
+                active = true
+            )
+        )
 
-    var alarm: Alarm? = null
-        set(value) {
-            if (value != null) {
-                field = value
-                isRepeating.value = value.isRepeating
-                time.value = value.minute + (value.hour * 60)
-                monday.value = value.daysToTrigger[0]
-                tuesday.value = value.daysToTrigger[1]
-                wednesday.value = value.daysToTrigger[2]
-                thursday.value = value.daysToTrigger[3]
-                friday.value = value.daysToTrigger[4]
-                saturday.value = value.daysToTrigger[5]
-                sunday.value = value.daysToTrigger[6]
+    val state: StateFlow<ImmutableAlarm> = mutableState
+
+    fun setAlarm(id: Long) = viewModelScope.launch(Dispatchers.IO) {
+        val newAlarm = alarmsSynchronizer.getAlarms(id)
+        mutableState.update { newAlarm.toViewAlarm() }
+    }
+
+    fun addAlarm(
+        hour: Int,
+        minute: Int,
+        monday: Boolean,
+        tuesday: Boolean,
+        wednesday: Boolean,
+        thursday: Boolean,
+        friday: Boolean,
+        saturday: Boolean,
+        sunday: Boolean
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val isRepeating =
+                monday || tuesday || wednesday || thursday || friday || saturday || sunday
+            val isEveryday =
+                monday && tuesday && wednesday && thursday && friday && saturday && sunday
+            when {
+                !isRepeating -> alarmsSynchronizer.addSingleAlarm(
+                    hour,
+                    minute
+                )
+
+                isEveryday -> alarmsSynchronizer.addRepeatingAlarm(
+                    hour,
+                    minute
+                )
+
+                else -> alarmsSynchronizer.addRepeatingAlarmForWeekDays(
+                    hour = hour,
+                    minute = minute,
+                    monday = monday,
+                    tuesday = tuesday,
+                    wednesday = wednesday,
+                    thursday = thursday,
+                    friday = friday,
+                    saturday = saturday,
+                    sunday = sunday
+                )
             }
         }
+    }
 
-    suspend fun editAlarm() {
-        val newAlarm = Alarm(
-            alarm?.id ?: 0L,
-            (time.value ?: 0) / 60,
-            (time.value ?: 0) % 60,
-            isRepeating.value ?: false,
-            listOf(
-                monday.value ?: false && isRepeating.value ?: false,
-                tuesday.value ?: false && isRepeating.value ?: false,
-                wednesday.value ?: false && isRepeating.value ?: false,
-                thursday.value ?: false && isRepeating.value ?: false,
-                friday.value ?: false && isRepeating.value ?: false,
-                saturday.value ?: false && isRepeating.value ?: false,
-                sunday.value ?: false && isRepeating.value ?: false,
-            ),
-            alarm?.active ?: false
-        )
-        if (newAlarm != alarm) {
+    fun editAlarm(
+        id: Long,
+        isActive: Boolean,
+        hours: Int,
+        minutes: Int,
+        monday: Boolean,
+        tuesday: Boolean,
+        wednesday: Boolean,
+        thursday: Boolean,
+        friday: Boolean,
+        saturday: Boolean,
+        sunday: Boolean
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newAlarm = Alarm(
+                id,
+                hours,
+                minutes,
+                monday || tuesday || wednesday || thursday || friday || saturday || sunday,
+                listOf(
+                    monday,
+                    tuesday,
+                    wednesday,
+                    thursday,
+                    friday,
+                    saturday,
+                    sunday
+                ),
+                isActive
+            )
             alarmsSynchronizer.updateAlarm(newAlarm)
         }
     }
 
-    suspend fun deleteAlarm() {
-        val alarmNullSafe = alarm
-        if (alarmNullSafe != null)
-            alarmsSynchronizer.deleteAlarm(alarmNullSafe)
+    fun deleteAlarm(alarm: Alarm) {
+        viewModelScope.launch(Dispatchers.IO) {
+            alarmsSynchronizer.deleteAlarm(alarm)
+        }
     }
 }

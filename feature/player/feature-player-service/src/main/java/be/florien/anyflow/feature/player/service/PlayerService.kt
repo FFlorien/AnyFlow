@@ -35,7 +35,6 @@ import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuild
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
-import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
 import be.florien.anyflow.management.filters.FiltersManager
@@ -132,8 +131,8 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
 
     //region MediaSessionService
     override fun onCreate() {
-        super.onCreate()
         dispatcher.onServicePreSuperOnCreate()
+        super.onCreate()
         initPlayer()
         listenToQueueChanges()
     }
@@ -338,7 +337,6 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
             "podcast_episode"
         }
         val mediaUrl = urlRepository.getMediaUrl(id, mediaType)
-        iLog("media url is $mediaUrl")
         val mediaTypeMetaData =
             if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
         val mediaMetadata = MediaItem.Builder()

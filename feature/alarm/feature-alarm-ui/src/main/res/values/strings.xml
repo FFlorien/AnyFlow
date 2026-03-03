@@ -1,4 +1,16 @@
 <resources>
     <string name="alarm_is_repeating">Is repeating</string>
     <string name="alarm_is_not_repeating">One time</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="alarm_once">This alarm will set off once</string>
+    <string name="alarm_every_day">This alarm will set off every day</string>
+    <string name="alarm_selected_days">This alarm will set off %1$s</string>
+    <string name="alarm_empty">You have no alarm configured yet, to add one, tap on the +</string>
+    <string name="content_description_delete_alarm">Delete the alarm</string>
 </resources>

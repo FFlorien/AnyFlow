@@ -1,44 +1,55 @@
 package be.florien.anyflow.feature.alarm.ui.list
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.base.BaseViewModel
-import be.florien.anyflow.feature.alarm.ui.R
+import be.florien.anyflow.feature.alarm.ui.ImmutableAlarm
+import be.florien.anyflow.feature.alarm.ui.toViewAlarm
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
-import be.florien.anyflow.management.alarm.model.Alarm
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class AlarmListViewModel @Inject constructor(val alarmsSynchronizer: AlarmsSynchronizer) : BaseViewModel() {
+@Immutable
+data class AlarmListState(
+    val hasPermission: Boolean,
+    val alarms: PersistentList<ImmutableAlarm>
+)
 
-    val alarmList by lazy {
-        alarmsSynchronizer.getAlarms()
-    }
+class AlarmListViewModel @Inject constructor(val alarmsSynchronizer: AlarmsSynchronizer) :
+    BaseViewModel() {
 
-    fun repetitionText(alarm: Alarm): List<Int> {
-        return when {
-            !alarm.isRepeating -> listOf()
-            alarm.daysToTrigger.all { it } -> listOf(R.string.weekday_everyday)
-            else -> {
-                val dayList = mutableListOf<Int>()
-                if (alarm.daysToTrigger[0]) dayList.add(R.string.weekday_monday)
-                if (alarm.daysToTrigger[1]) dayList.add(R.string.weekday_tuesday)
-                if (alarm.daysToTrigger[2]) dayList.add(R.string.weekday_wednesday)
-                if (alarm.daysToTrigger[3]) dayList.add(R.string.weekday_thursday)
-                if (alarm.daysToTrigger[4]) dayList.add(R.string.weekday_friday)
-                if (alarm.daysToTrigger[5]) dayList.add(R.string.weekday_saturday)
-                if (alarm.daysToTrigger[6]) dayList.add(R.string.weekday_sunday)
-                dayList
-            }
-        }
-    }
-
-    fun setAlarmActive(alarm: Alarm, isActive: Boolean) {
-        if (alarm.active != isActive) {
+    private val mutableState = MutableStateFlow(AlarmListState(hasPermission(), persistentListOf()))
+        .apply {
             viewModelScope.launch {
-                alarmsSynchronizer.toggleAlarm(alarm)
+                alarmsSynchronizer.getAlarms().collect { newAlarms ->
+                    update { oldState ->
+                        AlarmListState(
+                            oldState.hasPermission,
+                            newAlarms.map { it.toViewAlarm() }.toPersistentList()
+                        )
+                    }
+                }
             }
+        }
+    val state = mutableState
+
+    fun setAlarmActive(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            alarmsSynchronizer.toggleAlarm(id)
         }
     }
 
-    fun timeText(alarm: Alarm): String = String.format("%d:%02d", alarm.hour, alarm.minute)
+    fun refreshPermission() {
+        viewModelScope.launch(Dispatchers.IO) {
+            mutableState.update { AlarmListState(hasPermission(), it.alarms) }
+        }
+    }
+
+    private fun hasPermission() = alarmsSynchronizer.canScheduleExactAlarms()
 }

@@ -1,9 +1,9 @@
 package be.florien.anyflow.management.alarm
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import be.florien.anyflow.management.alarm.model.Alarm
 import be.florien.anyflow.tags.local.LibraryDatabase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AlarmRepository @Inject constructor(private val libraryDatabase: LibraryDatabase) {
@@ -11,20 +11,19 @@ class AlarmRepository @Inject constructor(private val libraryDatabase: LibraryDa
     suspend fun addAlarm(alarm: Alarm) =
         libraryDatabase.getAlarmDao().insertItem(alarm.toDbAlarm())
 
-    fun getAlarms(): LiveData<List<Alarm>> =
+    suspend fun getAlarm(id: Long): Alarm =
+        libraryDatabase.getAlarmDao().getAlarm(id).toViewAlarm()
+
+    fun getAlarms(): Flow<List<Alarm>> =
         libraryDatabase.getAlarmDao().allAlarmsUpdatable().map { list -> list.map { it.toViewAlarm() } }
 
     suspend fun getAlarmList(): List<Alarm> =
         libraryDatabase.getAlarmDao().allList().map { it.toViewAlarm() }
 
-    suspend fun activateAlarm(alarm: Alarm) {
-        val newAlarm = alarm.copy(active = true)
-        libraryDatabase.getAlarmDao().updateItems(newAlarm.toDbAlarm())
-    }
-
-    suspend fun deactivateAlarm(alarm: Alarm) {
-        val newAlarm = alarm.copy(active = false)
-        libraryDatabase.getAlarmDao().updateItems(newAlarm.toDbAlarm())
+    suspend fun toggleAlarm(id: Long) {
+        val alarm = libraryDatabase.getAlarmDao().getAlarm(id)
+        val newAlarm = alarm.copy(active = !alarm.active)
+        libraryDatabase.getAlarmDao().updateItems(newAlarm)
     }
 
     suspend fun editAlarm(alarm: Alarm) {

@@ -14,10 +14,11 @@ class AlarmsSynchronizer @Inject constructor(
     @param:Named("player") private val playerIntent: PendingIntent,
     @param:Named("alarm") private val alarmIntent: PendingIntent
 ) {
-    fun canScheduleExactAlarms() =
-        true // Build.VERSION.SDK_INT >= 31 && alarmManager.canScheduleExactAlarms()
+    fun canScheduleExactAlarms() = Build.VERSION.SDK_INT >= 31 && alarmManager.canScheduleExactAlarms()
 
     fun getAlarms() = alarmRepository.getAlarms()
+
+    suspend fun getAlarms(id: Long) = alarmRepository.getAlarm(id)
 
     suspend fun addSingleAlarm(hour: Int, minute: Int) {
         val recurrence = false
@@ -69,12 +70,8 @@ class AlarmsSynchronizer @Inject constructor(
         syncAlarms()
     }
 
-    suspend fun toggleAlarm(alarm: Alarm) {
-        if (!alarm.active) {
-            alarmRepository.activateAlarm(alarm)
-        } else {
-            alarmRepository.deactivateAlarm(alarm)
-        }
+    suspend fun toggleAlarm(id: Long) {
+        alarmRepository.toggleAlarm(id)
         syncAlarms()
     }
 

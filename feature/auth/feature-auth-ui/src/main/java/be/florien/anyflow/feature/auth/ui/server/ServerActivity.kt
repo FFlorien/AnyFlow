@@ -77,7 +77,7 @@ class ServerActivity : AppCompatActivity() {
                 viewModel.messageRead()
             }
         }
-        AppTheme(dynamicColor = false) {
+        AppTheme(content = {
             val textFieldState = remember { TextFieldState() }
             Scaffold(
                 snackbarHost = { TopSnackbarHost(snackbarHostState) }
@@ -119,6 +119,6 @@ class ServerActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+        })
     }
 }
