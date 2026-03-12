@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="filter_empty_text">Aucun filtre sélectionné, la liste de lecture est vide</string>
+    <string name="filter_navigate_library">Choisir des chansons dans la bibliothèque</string>
+    <string name="filter_navigate_podcasts">Choisir des épisodes de podcast</string>
+    <string name="filter_delete_content_description">Enlever le filtre</string>
+    <string name="filter_image_content_description">Image du filtre</string>
+</resources>

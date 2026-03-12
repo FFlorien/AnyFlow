@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="filter_empty_text">No filter selected, your queue is empty</string>
+    <string name="filter_navigate_library">Select songs in library</string>
+    <string name="filter_navigate_podcasts">Select podcast episodes</string>
+    <string name="filter_delete_content_description">Remove the filter</string>
+    <string name="filter_image_content_description">Image for the filter</string>
+</resources>

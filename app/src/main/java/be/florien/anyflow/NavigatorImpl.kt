@@ -39,6 +39,16 @@ class NavigatorImpl @Inject constructor() : Navigator {
         context.startActivity(Intent(context, ShortcutsActivity::class.java))
     }
 
+    override fun navigateToLibrary(context: Context) {
+        (context as? MainActivity)
+            ?.displayLibrary()
+    }
+
+    override fun navigateToPodcast(context: Context) {
+        (context as? MainActivity)
+            ?.displayPodcasts()
+    }
+
     override fun displayFragmentOnMain(
         context: Context,
         fragment: Fragment,

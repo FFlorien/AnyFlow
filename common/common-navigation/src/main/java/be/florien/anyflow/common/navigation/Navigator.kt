@@ -11,6 +11,8 @@ interface Navigator {
     fun navigateToAlarm(context: Context)
     fun navigateToPlaylist(context: Context)
     fun navigateToShortcut(context: Context)
+    fun navigateToLibrary(context: Context)
+    fun navigateToPodcast(context: Context)
 
     fun displayFragmentOnMain(
         context: Context,

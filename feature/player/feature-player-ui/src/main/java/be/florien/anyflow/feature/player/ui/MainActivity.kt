@@ -2,7 +2,6 @@ package be.florien.anyflow.feature.player.ui
 
 import android.app.job.JobScheduler
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -156,7 +155,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
                     bindService(
                         Intent(this, SyncService::class.java), //todo navigator?
                         viewModel.updateConnection,
-                        Context.BIND_AUTO_CREATE
+                        BIND_AUTO_CREATE
                     )
                 }
             }
@@ -230,7 +229,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
             return
         }
 
-        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancelAll()
     }
 
@@ -243,6 +242,14 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider, MenuCoordina
             LIBRARY_STACK_NAME,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
+    }
+
+    fun displayLibrary() {
+        displayFragment(mainScreenSections.first { it.menuId == R.id.menu_library })
+    }
+
+    fun displayPodcasts() {
+        displayFragment(mainScreenSections.first { it.menuId == R.id.menu_podcast })
     }
 
     /**

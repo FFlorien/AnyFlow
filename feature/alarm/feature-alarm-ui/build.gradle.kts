@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.library.plugin)
     alias(libs.plugins.library.compose.plugin)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kapt)
 }
 
 android {
