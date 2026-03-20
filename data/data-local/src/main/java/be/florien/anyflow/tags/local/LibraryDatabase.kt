@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.tags.local.dao.AlarmDao
 import be.florien.anyflow.tags.local.dao.AlbumDao
 import be.florien.anyflow.tags.local.dao.ArtistDao
@@ -36,7 +37,6 @@ import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbQueueOrder
 import be.florien.anyflow.tags.local.model.DbSong
 import be.florien.anyflow.tags.local.model.DbSongGenre
-import java.util.Date
 
 
 @Database(
@@ -98,12 +98,7 @@ abstract class LibraryDatabase : RoomDatabase() {
             return databaseBuilder
                 .addCallback(object : Callback() { //todo set order the first time
                     override fun onCreate(db: SupportSQLiteDatabase) {
-                        val currentFilterGroup = DbFilterGroup(
-                            DbFilterGroup.CURRENT_FILTER_GROUP_ID,
-                            null,
-                            Date().time //todo reuse TimeOperation as soon as it's available outside of app
-                        )
-                        db.execSQL("INSERT INTO FilterGroup VALUES (${currentFilterGroup.id}, \"${currentFilterGroup.name}\", ${currentFilterGroup.dateAdded})")
+                        db.execSQL("INSERT INTO FilterGroup VALUES (${DbFilterGroup.CURRENT_FILTER_GROUP_ID}, NULL, ${TimeOperations.getCurrentMillis()})")
                     }
                 })
                 .addMigrations(

@@ -26,4 +26,10 @@
         android:icon="@drawable/ic_filter"
         android:title="@string/menu_filters"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_saved_filters"
+        android:icon="@drawable/ic_filter_saved"
+        android:title="@string/filter_title_saved"
+        app:showAsAction="always" />
 </menu>

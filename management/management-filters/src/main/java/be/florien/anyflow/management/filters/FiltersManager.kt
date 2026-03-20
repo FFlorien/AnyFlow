@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.management.filters.domain.FiltersRepository
-import be.florien.anyflow.management.filters.domain.model.FilterGroup
 import be.florien.anyflow.management.filters.domain.model.Filter
 import javax.inject.Inject
 
@@ -15,7 +14,7 @@ class FiltersManager
     private val unCommittedFilters = mutableSetOf<Filter>()
     private var areFiltersChanged = false
     val filtersInEdition: LiveData<Set<Filter>> = MutableLiveData(setOf())
-    val filterGroups = queueRepository.getSavedGroups()
+    val filterGroups = queueRepository.getHistoryAndFilterGroups()
 
     init {
         queueRepository.getCurrentFilters().observeForever { filters ->
@@ -60,8 +59,8 @@ class FiltersManager
     suspend fun saveCurrentFilterGroup(name: String) =
         queueRepository.saveFilterGroup(unCommittedFilters.toList(), name)
 
-    suspend fun loadSavedGroup(filterGroup: FilterGroup) =
-        queueRepository.setSavedGroupAsCurrentFilters(filterGroup)
+    suspend fun loadSavedGroup(filterGroupId: Long) =
+        queueRepository.setSavedGroupAsCurrentFilters(filterGroupId)
 
     private fun isFiltersTheSame() =
         unCommittedFilters.containsAll(currentFilters) && currentFilters.containsAll(

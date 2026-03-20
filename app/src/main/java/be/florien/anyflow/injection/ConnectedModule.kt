@@ -8,6 +8,7 @@ import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.feature.player.ui.MainScreenSection
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
+import be.florien.anyflow.feature.filter.saved.ui.SavedFilterGroupFragment
 import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.player.ui.MainActivity
@@ -84,6 +85,13 @@ class ConnectedModule {
             override val tag: String = CurrentFilterFragment::class.java.simpleName
 
             override fun createFragment(): Fragment = CurrentFilterFragment()
+        },
+        object: MainScreenSection {
+            override val isFirstSection: Boolean = false
+            override val menuId: Int = R.id.menu_saved_filters
+            override val tag: String = SavedFilterGroupFragment::class.java.simpleName
+
+            override fun createFragment(): Fragment = SavedFilterGroupFragment()
         },
     )
 }

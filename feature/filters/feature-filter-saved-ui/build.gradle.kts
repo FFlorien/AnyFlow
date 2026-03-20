@@ -1,35 +1,19 @@
 plugins {
-    id "com.android.library"
-    id "org.jetbrains.kotlin.android"
-    id "kotlin-kapt"
-    id "com.google.devtools.ksp"
+    alias(libs.plugins.library.plugin)
+    alias(libs.plugins.library.compose.plugin)
+    alias(libs.plugins.library.ksp.plugin)
 }
 
 android {
-    namespace "be.florien.anyflow.feature.filter.saved.ui"
-    compileSdk 36
-
-    defaultConfig {
-        minSdk 23
-
-        consumerProguardFiles "consumer-rules.pro"
-    }
-    buildFeatures {
-        dataBinding = true
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
-    }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+    namespace = "be.florien.anyflow.feature.filter.saved.ui"
 }
 
 dependencies {
     implementation(project(":common-di"))
     implementation(project(":common-base"))
+    implementation(project(":common-resources"))
     implementation(project(":common-ui-domain"))
+    implementation(project(":common-utils"))
     implementation(project(":management-filters"))
     implementation(project(":management-filters-domain"))
 
@@ -40,10 +24,11 @@ dependencies {
     implementation(project(":feature-library-ui"))
     implementation(project(":management-tags"))
     implementation(project(":common-navigation"))
+    implementation(libs.androidx.compose.material3)
     ksp(libs.dagger.compiler)
     //Paging
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.recyclerview.fastscroll)
     implementation(libs.glide)
-
+    implementation(libs.collection.immutable)
 }

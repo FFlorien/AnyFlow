@@ -22,7 +22,7 @@ import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.local.model.DbFilter
-import be.florien.anyflow.tags.local.model.DbFilterGroup
+import be.florien.anyflow.tags.local.model.DbFilterGroupWithFilters
 import be.florien.anyflow.tags.local.model.DbOrdering
 import be.florien.anyflow.tags.local.model.DbQueueItemDisplay
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
@@ -82,8 +82,9 @@ private fun Ordering.subject() = when (subject) {
     else -> QueryOrdering.Subject.TRACK
 }
 
-fun List<DbFilter>.toViewFilters() : List<Filter> {
-    val endFilters = filter { childFilter -> none { otherFilter -> otherFilter.parentFilter == childFilter.id } }
+fun List<DbFilter>.toViewFilters(): List<Filter> {
+    val endFilters =
+        filter { childFilter -> none { otherFilter -> otherFilter.parentFilter == childFilter.id } }
     return endFilters.map { it.toViewFilter(this@toViewFilters) }
 }
 
@@ -120,17 +121,19 @@ private fun DbFilter.toViewFilter(): FilterParam<*> = FilterParam(
     displayText = displayText
 )
 
-fun DbFilterGroup.toViewFilterGroup(): FilterGroup {
-    val dateAddedNS = dateAdded
-    val nameNS = name
+fun DbFilterGroupWithFilters.toViewFilterGroup(): FilterGroup {
+    val dateAddedNS = group.dateAdded
+    val nameNS = group.name
     return when {
-        dateAddedNS == null -> FilterGroup.CurrentFilterGroup(id)
+        dateAddedNS == null -> FilterGroup.CurrentFilterGroup(group.id, filters.toViewFilters())
         nameNS == null -> FilterGroup.HistoryFilterGroup(
-            id,
+            group.id,
+            filters.toViewFilters(),
             Calendar.getInstance().apply { timeInMillis = dateAddedNS })
 
         else -> FilterGroup.SavedFilterGroup(
-            id,
+            group.id,
+            filters.toViewFilters(),
             Calendar.getInstance().apply { timeInMillis = dateAddedNS },
             nameNS
         )

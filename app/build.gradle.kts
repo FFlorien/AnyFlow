@@ -81,6 +81,7 @@ dependencies {
     //Android/Kotlin
     implementation(fileTree(mapOf("include" to "*.jar", "dir" to "libs")))
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.multidex)
     implementation(libs.material)
@@ -90,6 +91,7 @@ dependencies {
     ksp(libs.dagger.compiler)
     implementation(libs.javax.annotation)
     //Internet
+    implementation(libs.okhttp)
     implementation(libs.retrofit.converter.jackson)
     //Glide
     implementation(libs.glide)

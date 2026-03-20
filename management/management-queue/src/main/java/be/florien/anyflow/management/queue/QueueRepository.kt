@@ -20,6 +20,9 @@ import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.tags.local.query.QueryComposer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
@@ -58,7 +61,6 @@ class QueueRepository @Inject constructor(
                     updateHistory(currentFilters, currentFilterGroup)
 
                     insertFilters(filters, DbFilterGroup.CURRENT_FILTER_GROUP_ID)
-                    getFilterGroupDao().updateItems(currentFilterGroup.copy(dateAdded = Date().time))
                 }
             }
         }
@@ -76,6 +78,7 @@ class QueueRepository @Inject constructor(
         val newId = getFilterGroupDao().insertItem(newHistoryItem)
         val newHistoryFilters = currentFilters.map { it.copy(filterGroup = newId) }
         getFilterDao().updateList(newHistoryFilters)
+        getFilterGroupDao().updateItems(currentFilterGroup.copy(dateAdded = Date().time))
     }
 
     private suspend fun insertFilters(filters: List<Filter>, groupId: Long) {
@@ -104,15 +107,18 @@ class QueueRepository @Inject constructor(
         }
     }
 
-    override fun getSavedGroups(): LiveData<List<FilterGroup>> =
+    override fun getHistoryAndFilterGroups(): Flow<List<FilterGroup>> =
         libraryDatabase.getFilterGroupDao().savedGroupUpdatable()
+            .zip(libraryDatabase.getFilterGroupDao().historyGroupsUpdatable()) { saved, history ->
+                listOf(*(saved.toTypedArray()), *(history.toTypedArray()))
+            }
             .map { groupList -> groupList.map { it.toViewFilterGroup() } }
 
-    override suspend fun setSavedGroupAsCurrentFilters(filterGroup: FilterGroup) {
+    override suspend fun setSavedGroupAsCurrentFilters(filterGroupId: Long) {
         withContext(Dispatchers.IO) {
             libraryDatabase.apply {
                 withTransaction {
-                    val filterForGroup = getFilterDao().filtersForGroupList(filterGroup.id)
+                    val filterForGroup = getFilterDao().filtersForGroupList(filterGroupId)
                     val currentFilters = getFilterDao().currentFilterList()
                     val currentFilterGroup = getFilterGroupDao().currentGroup()
                     updateHistory(currentFilters, currentFilterGroup)
@@ -176,14 +182,15 @@ class QueueRepository @Inject constructor(
                     QueueItem(SONG_MEDIA_TYPE, it)
                 }
             }
-            val podcastEpisodes = if (filterParamList.flatten().none { it.type is PodcastFilterType }) {
-                emptyList()
-            } else {
-                libraryDatabase
-                    .getPodcastEpisodeDao()
-                    .rawQueryIdList(queryComposer.getQueryForPodcastEpisodeIds(filterParamList))
-                    .map { QueueItem(PODCAST_MEDIA_TYPE, it) }
-            }
+            val podcastEpisodes =
+                if (filterParamList.flatten().none { it.type is PodcastFilterType }) {
+                    emptyList()
+                } else {
+                    libraryDatabase
+                        .getPodcastEpisodeDao()
+                        .rawQueryIdList(queryComposer.getQueryForPodcastEpisodeIds(filterParamList))
+                        .map { QueueItem(PODCAST_MEDIA_TYPE, it) }
+                }
             podcastEpisodes + songs
         }
     //endregion

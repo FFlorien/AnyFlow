@@ -3,56 +3,25 @@ package be.florien.anyflow.feature.filter.saved.ui
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
+import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.feature.filter.saved.ui.databinding.FragmentSavedFilterGroupBinding
-import be.florien.anyflow.feature.filter.saved.ui.databinding.ItemFilterGroupBinding
+import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R
-import be.florien.anyflow.management.filters.domain.model.FilterGroup
 
 class SavedFilterGroupFragment : BaseFilteringFragment() {
 
-    private var singleActionMode: ActionMode? = null
     private lateinit var viewModel: SavedFilterGroupViewModel
     override val libraryViewModel: LibraryViewModel
         get() = viewModel
     override val navigator: Navigator
         get() = viewModel.navigator
-
-    private lateinit var binding: FragmentSavedFilterGroupBinding
-    private var selectedList = mutableListOf<Int>() //todo selection in vm ?
-
-    private val actionModeCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val inflater: MenuInflater = mode.menuInflater
-            inflater.inflate(R.menu.menu_filter_display, menu)
-            return true
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                else -> false
-            }
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
-
-        override fun onDestroyActionMode(mode: ActionMode) {
-            singleActionMode = null
-        }
-    }
 
     override fun getTitle(): String = getString(R.string.filter_title_saved)
 
@@ -68,73 +37,12 @@ class SavedFilterGroupFragment : BaseFilteringFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentSavedFilterGroupBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.savedList.layoutManager =
-            GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
-        binding.savedList.adapter = FilterGroupAdapter()
-        viewModel.filterGroups.observe(viewLifecycleOwner) {
-            binding.savedList.adapter?.notifyDataSetChanged()
-        }
-        return binding.root
-    }
-
-    inner class FilterGroupAdapter : RecyclerView.Adapter<FilterGroupViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterGroupViewHolder =
-            FilterGroupViewHolder(parent)
-
-        override fun getItemCount(): Int = viewModel.filterGroups.value?.size ?: 0
-
-        override fun onBindViewHolder(holder: FilterGroupViewHolder, position: Int) {
-            val group = viewModel.filterGroups.value ?: return
-            holder.bind(
-                group[position] as FilterGroup.SavedFilterGroup,
-                selectedList.contains(position)
-            ) // todo don't change images, only selection
-        }
-    }
-
-    inner class FilterGroupViewHolder(
-        container: ViewGroup,
-        private val itemBinding: ItemFilterGroupBinding = ItemFilterGroupBinding.inflate(
-            LayoutInflater.from(container.context),
-            container,
-            false
-        )
-    ) : RecyclerView.ViewHolder(itemBinding.root) {
-
-        init {
-            itemBinding.lifecycleOwner = viewLifecycleOwner
-            itemBinding.root.setOnClickListener {
-                if (selectedList.isEmpty()) {
-                    viewModel.changeForSavedGroup(bindingAdapterPosition)
-                } else toggleSelection()
+    ): View = ComposeView(requireContext()).apply {
+        setContent {
+            val state = viewModel.state.collectAsStateWithLifecycle().value
+            AppTheme {
+                SavedFilterGroupScreen(state, viewModel::changeForSavedGroup)
             }
-            itemBinding.root.setOnLongClickListener {
-                if (singleActionMode != null) {
-                    toggleSelection()
-                } else {
-                    singleActionMode =
-                        (requireActivity() as AppCompatActivity).startSupportActionMode(
-                            actionModeCallback
-                        )
-                    toggleSelection()
-                }
-                true
-            }
-        }
-
-        private fun toggleSelection() {
-            if (!selectedList.remove(bindingAdapterPosition)) {
-                selectedList.add(bindingAdapterPosition)
-            }
-            binding.savedList.adapter?.notifyItemChanged(bindingAdapterPosition)
-        }
-
-        fun bind(filterGroup: FilterGroup.SavedFilterGroup, isSelected: Boolean) {
-            itemBinding.filterGroup = filterGroup
-            itemBinding.isSelected = isSelected
         }
     }
 }
