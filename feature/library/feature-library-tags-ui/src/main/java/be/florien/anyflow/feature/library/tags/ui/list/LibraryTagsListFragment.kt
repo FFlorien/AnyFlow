@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.di.viewModelFactory
-import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
 import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryAlbumArtistListViewModel
@@ -16,8 +15,9 @@ import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryGenreLi
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibraryPlaylistListViewModel
 import be.florien.anyflow.feature.library.tags.ui.list.viewmodels.LibrarySongListViewModel
 import be.florien.anyflow.feature.library.ui.R
-import be.florien.anyflow.feature.library.ui.list.DetailViewHolderListener
+import be.florien.anyflow.feature.library.ui.list.FilterDisplay
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
+import be.florien.anyflow.feature.library.ui.toItem
 import be.florien.anyflow.management.filters.domain.model.Filter
 
 @ActivityScope
@@ -26,8 +26,7 @@ class LibraryTagsListFragment @SuppressLint("ValidFragment") //todo abstract thi
 constructor(
     filterType: String = LibraryTagsInfoViewModel.GENRE_ID,
     parentFilter: Filter? = null
-) : LibraryListFragment(filterType, parentFilter),
-    DetailViewHolderListener<FilterItem> {
+) : LibraryListFragment(filterType, parentFilter) {
 
     override fun getViewModel(filterName: String) =
         ViewModelProvider(this, requireActivity().viewModelFactory)[
@@ -54,8 +53,8 @@ constructor(
         else -> null
     }
 
-    override fun onInfoDisplayAsked(item: FilterItem) {
-        val filter = viewModel.getFilter(item)
+    override fun onInfoDisplayAsked(item: FilterDisplay) {
+        val filter = viewModel.getFilter(item.toItem())
         navigator.displayFragmentOnMain(
             requireContext(),
             LibraryTagsInfoFragment(filter),

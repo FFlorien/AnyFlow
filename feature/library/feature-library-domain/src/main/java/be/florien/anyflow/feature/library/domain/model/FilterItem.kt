@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.library.domain.model
 import be.florien.anyflow.common.ui.data.TextConfig
 
 
-class FilterItem(
+data class FilterItem(
     val id: Long,
     val title: TextConfig,
     val isSelected: Boolean,

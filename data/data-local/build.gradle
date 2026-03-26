@@ -21,7 +21,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":common-logging"))//DI
+    implementation(project(":common-logging"))
+    implementation(project(":common-utils"))
     implementation(project(":management-filters-domain"))
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)

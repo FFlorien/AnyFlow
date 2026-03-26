@@ -1,6 +1,7 @@
 package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
 
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
@@ -15,8 +16,9 @@ import javax.inject.Inject
 class LibraryAlbumListViewModel @Inject constructor(
     private val libraryTagsRepository: LibraryTagsRepository,
     override val navigator: Navigator,
-    filtersManager: FiltersManager
-) : LibraryListViewModel(filtersManager) {
+    filtersManager: FiltersManager,
+    authenticationInterceptor: AuthenticationInterceptor
+) : LibraryListViewModel(filtersManager,authenticationInterceptor) {
     override fun getPagingList(filter: Filter?, search: String?) =
         libraryTagsRepository.getAlbumFiltersPaging(filter, search)
 

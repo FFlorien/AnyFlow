@@ -1,9 +1,9 @@
 package be.florien.anyflow.feature.library.tags.ui.list.viewmodels
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
 import be.florien.anyflow.feature.library.ui.R
@@ -12,14 +12,16 @@ import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LibraryDownloadedListViewModel @Inject constructor(
     private val libraryTagsRepository: LibraryTagsRepository,//todo get stats from libraryRepository
     override val navigator: Navigator,
     filtersManager: FiltersManager,
-    context: Context
-) : LibraryListViewModel(filtersManager) {
+    context: Context,
+    authenticationInterceptor: AuthenticationInterceptor
+) : LibraryListViewModel(filtersManager,authenticationInterceptor) {
 
     private val downloadedName = context.getString(R.string.filter_is_downloaded)
     private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
@@ -28,7 +30,7 @@ class LibraryDownloadedListViewModel @Inject constructor(
     override fun getPagingList(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getDownloadedFiltersPaging(
+    ): Flow<PagingData<FilterItem>> = libraryTagsRepository.getDownloadedFiltersPaging(
         filter, downloadedName, notDownloadedName
     )
 

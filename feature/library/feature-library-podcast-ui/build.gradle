@@ -32,6 +32,7 @@ dependencies {
     implementation(project(":common-navigation"))
     implementation(project(":common-ui-domain"))
     implementation(project(":component-info"))
+    implementation(project(":feature-auth-domain"))
     implementation(project(":feature-library-domain"))
     implementation(project(":feature-library-ui"))
     implementation(project(":feature-library-podcast-domain"))

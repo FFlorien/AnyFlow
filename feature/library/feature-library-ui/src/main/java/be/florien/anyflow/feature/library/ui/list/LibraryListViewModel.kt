@@ -1,60 +1,81 @@
 package be.florien.anyflow.feature.library.ui.list
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.map
 import be.florien.anyflow.common.base.BaseViewModel
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.R
-import be.florien.anyflow.feature.library.ui.currentFilters
+import be.florien.anyflow.feature.library.ui.toDisplay
+import be.florien.anyflow.feature.library.ui.toItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.launch
 
-abstract class LibraryListViewModel(override val filtersManager: FiltersManager) :
-    BaseViewModel(), LibraryViewModel {
+data class LibraryListState(
+    val searchedText: String?,
+    val errorMessage: Int?
+)
+
+abstract class LibraryListViewModel(
+    override val filtersManager: FiltersManager,
+    val authenticationInterceptor: AuthenticationInterceptor
+) : BaseViewModel(), LibraryViewModel {
 
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
-    private var searchJob: Job? = null
     open val hasSearch = true
 
-    val isSearching = MutableLiveData(false)
-    val searchedText = MutableLiveData("")
-    val hasFilterOfThisType: LiveData<Boolean> = currentFilters.map { list ->
-        list.any { filter ->
-            isThisTypeOfFilter(filter.mainParam)
-        }
-    }
-    val errorMessage = MutableLiveData(-1)
-    var values: LiveData<PagingData<FilterItem>> =
-        MediatorLiveData<PagingData<FilterItem>>().apply {
-            addSource(searchedText) {
-                searchJob?.cancel()
-                searchJob = viewModelScope.launch {
-                    delay(300)
-                    getCurrentPagingList(it)
-                }
-            }
+    private val isSearching = MutableStateFlow(false)
+    private val searchedText = MutableStateFlow("")
+    private val errorMessage = MutableStateFlow(-1)
 
-            addSource(filtersManager.filtersInEdition) {
-                getCurrentPagingList(searchedText.value)
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val values: Flow<PagingData<FilterDisplay>> =
+        searchedText
+            .debounce(300).distinctUntilChanged()
+            .flatMapConcat {
+                getPagingList(navigationFilter?.clone() as Filter?, it).cachedIn(viewModelScope)
             }
-        }
+            .combine(filtersManager.filtersInEdition.asFlow()) { paging, edited ->
+                paging
+                    .filter { !shouldFilterOut(it) }
+                    .map {
+                        it.toDisplay(hasFilter(it))
+                    }
+            }
+    val state = combine(
+        searchedText,
+        isSearching,
+        errorMessage
+    ) { searchedText, isSearching, errorMessage ->
+        LibraryListState(
+            searchedText = searchedText.takeIf { isSearching },
+            errorMessage = errorMessage.takeIf { it > 0 }
+        )
+    }
     var navigationFilter: Filter? = null
 
     protected abstract fun getPagingList(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>>
+    ): Flow<PagingData<FilterItem>>
 
     protected abstract fun isThisTypeOfFilter(filterParam: FilterParam<*>): Boolean
     protected abstract suspend fun getFoundFilters(
@@ -64,29 +85,21 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
 
     abstract fun getFilter(filterValue: FilterItem): Filter
 
-    init {
-        isSearching.observeForever {
-            if (!it) {
-                deleteSearch()
-            }
-        }
-    }
-
-    fun toggleFilterSelection(filterValue: FilterItem) {
-        val filter = getFilter(filterValue)
+    fun toggleFilterSelection(filterValue: FilterDisplay) {
+        val filter = getFilter(filterValue.toItem())
         if (filtersManager.isFilterInEdition(filter)) {
             filtersManager.removeFilter(filter)
         } else {
             try {
                 filtersManager.addFilter(filter)
-            } catch (exception: FiltersManager.MaxFiltersNumberExceededException) {
+            } catch (_: FiltersManager.MaxFiltersNumberExceededException) {
                 errorMessage.value = R.string.filter_add_error
             }
         }
     }
 
     fun selectAllInSelection() {
-        val search = searchedText.value ?: return
+        val search = searchedText.value.takeUnless { it.isEmpty() } ?: return
         viewModelScope.launch(Dispatchers.Main) {
             val changingList = getFoundFilters(navigationFilter?.clone() as Filter?, search)
 
@@ -95,7 +108,7 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
                     val filter = getFilter(it)
                     try {
                         filtersManager.addFilter(filter)
-                    } catch (exception: FiltersManager.MaxFiltersNumberExceededException) {
+                    } catch (_: FiltersManager.MaxFiltersNumberExceededException) {
                         errorMessage.value = R.string.filter_add_error
                         return@listToAdd
                     }
@@ -105,8 +118,8 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
     }
 
     fun selectNoneInSelection() {
+        val search = searchedText.value.takeUnless { it.isEmpty() } ?: return
         viewModelScope.launch {
-            val search = searchedText.value ?: ""
             val changingList = filtersManager.filtersInEdition.value?.toList()
             changingList?.forEach {
                 if (isThisTypeOfFilter(it.mainParam) && it.mainParam.displayText.contains(search)) {
@@ -118,16 +131,6 @@ abstract class LibraryListViewModel(override val filtersManager: FiltersManager)
 
     fun deleteSearch() {
         searchedText.value = ""
-    }
-
-    private fun getCurrentPagingList(search: String?): LiveData<PagingData<FilterItem>> {
-        val liveData = getPagingList(navigationFilter?.clone() as Filter?, search).cachedIn(viewModelScope)
-        if (!liveData.hasActiveObservers()) {
-            (values as MediatorLiveData).addSource(liveData) {
-                (values as MediatorLiveData).value = it
-            }
-        }
-        return liveData
     }
 
     fun hasFilter(filterItem: FilterItem) = filtersManager.isFilterInEdition(getFilter(filterItem))

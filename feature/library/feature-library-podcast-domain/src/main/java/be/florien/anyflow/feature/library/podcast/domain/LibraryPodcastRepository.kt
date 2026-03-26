@@ -1,9 +1,8 @@
 package be.florien.anyflow.feature.library.podcast.domain
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.common.management.convertToPagingLiveData
+import be.florien.anyflow.common.management.convertToPagingFlow
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
@@ -11,6 +10,7 @@ import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.management.podcast.model.PodcastEpisodeDisplay
 import be.florien.anyflow.urls.UrlRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @ServerScope
@@ -24,20 +24,20 @@ class LibraryPodcastRepository @Inject constructor(
     fun getPodcastFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         podcastRepository
             .getPodcasts(filter, search)
             .map { it.toFilterItem(filter, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getPodcastEpisodeFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         podcastRepository
             .getPodcastsEpisodes(filter, search)
             .map { it.toFilterItem(filter, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
     //endregion
 
     //region Filter list

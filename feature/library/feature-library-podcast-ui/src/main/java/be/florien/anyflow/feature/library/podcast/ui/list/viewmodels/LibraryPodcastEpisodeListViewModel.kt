@@ -1,8 +1,8 @@
 package be.florien.anyflow.feature.library.podcast.ui.list.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.podcast.domain.LibraryPodcastRepository
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
@@ -11,18 +11,23 @@ import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LibraryPodcastEpisodeListViewModel @Inject constructor(
-    private val libraryTagsRepository: LibraryPodcastRepository,
+    private val libraryPodcastRepository: LibraryPodcastRepository,
     override val navigator: Navigator,
-    filtersManager: FiltersManager
-) : LibraryListViewModel(filtersManager) {
+    filtersManager: FiltersManager,
+    authenticationInterceptor: AuthenticationInterceptor
+) : LibraryListViewModel(filtersManager,authenticationInterceptor) {
     override fun getPagingList(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> = libraryTagsRepository.getPodcastEpisodeFiltersPaging(filter, search) //todo handle filters & search
+    ): Flow<PagingData<FilterItem>> = libraryPodcastRepository.getPodcastEpisodeFiltersPaging(
+        filter,
+        search
+    ) //todo handle filters & search
 
     override fun isThisTypeOfFilter(filterParam: FilterParam<*>): Boolean =
         filterParam.type == PodcastFilterType.PODCAST_EPISODE_IS
@@ -32,7 +37,7 @@ class LibraryPodcastEpisodeListViewModel @Inject constructor(
         search: String
     ): List<FilterItem> =
         withContext(Dispatchers.Default) {
-            libraryTagsRepository.getPodcastEpisodeFilterList(filter, search)
+            libraryPodcastRepository.getPodcastEpisodeFilterList(filter, search)
         }
 
     override fun getFilter(filterValue: FilterItem) =

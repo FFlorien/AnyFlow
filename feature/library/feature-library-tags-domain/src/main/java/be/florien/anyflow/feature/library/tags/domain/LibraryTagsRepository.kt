@@ -1,9 +1,8 @@
 package be.florien.anyflow.feature.library.tags.domain
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.common.management.convertToPagingLiveData
+import be.florien.anyflow.common.management.convertToPagingFlow
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
@@ -15,6 +14,7 @@ import be.florien.anyflow.tags.model.Artist
 import be.florien.anyflow.tags.model.Genre
 import be.florien.anyflow.tags.model.SongDisplayDomain
 import be.florien.anyflow.urls.UrlRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @ServerScope
@@ -28,66 +28,66 @@ class LibraryTagsRepository @Inject constructor(
     fun getSongFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         dataRepository
             .getSongs(filter, search)
             .map { it.toFilterItem(filter?.clone() as Filter?, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getArtistFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         dataRepository
             .getArtists(filter, search)
             .map { it.toFilterItem(filter?.clone() as Filter?, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getAlbumFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         dataRepository
             .getAlbums(filter, search)
             .map { it.toFilterItem(filter?.clone() as Filter?, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getAlbumArtistsPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         dataRepository
             .getAlbumArtists(filter, search)
             .map { it.toFilterItem(filter?.clone() as Filter?, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getGenreFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         dataRepository
             .getGenres(filter, search)
             .map { it.toFilterItem(filter?.clone() as Filter?, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getPlaylistFiltersPaging(
         filter: Filter?,
         search: String?
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         playlistRepository
             .getPlaylists(filter, search)
             .map { it.toFilterItem(filter?.clone() as Filter?, urlRepository, filtersManager) }
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
 
     fun getDownloadedFiltersPaging(
         filter: Filter?,
         isDownloadedName: String,
         isNotDownloadedName: String
-    ): LiveData<PagingData<FilterItem>> =
+    ): Flow<PagingData<FilterItem>> =
         dataRepository
             .getDownloadedInfo(filter)
             .map { it.toFilterItem(filter?.clone() as Filter?, filtersManager, isDownloadedName, isNotDownloadedName)}
-            .convertToPagingLiveData()
+            .convertToPagingFlow()
     //endregion
 
     //region Filter list
