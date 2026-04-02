@@ -1,7 +1,5 @@
 package be.florien.anyflow.feature.library.podcast.domain
 
-import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.common.ui.data.TextConfigStyle
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.feature.library.domain.model.FilterItem
 import be.florien.anyflow.feature.library.tags.domain.model.IdText
@@ -26,10 +24,11 @@ internal fun PodcastDisplay.toFilterItem(
     val filterInHierarchy = parentFilter.withChild(filterParam)
 
     return FilterItem(
-        id,
-        TextConfig(name),
-        filtersManager.isFilterInEdition(filterInHierarchy),
-        urlRepository.getArtUrl("podcast", id),
+        id = id,
+        title = name,
+        isSelected = filtersManager.isFilterInEdition(filterInHierarchy),
+        section = name.first().uppercase(),
+        artUrl = urlRepository.getArtUrl("podcast", id),
     )
 }
 
@@ -45,12 +44,13 @@ internal fun PodcastEpisodeDisplay.toFilterItem(
     )
     val filterInHierarchy = parentFilter.withChild(filterParam)
     return (FilterItem(
-        id,
-        TextConfig(title),
-        filtersManager.isFilterInEdition(filterInHierarchy),
-        urlRepository.getArtUrl("podcast", podcastId),
-        TimeOperations.toMediaDuration(time),
-        TextConfig(R.string.library_by, nextTextConfig = TextConfig(podcast, TextConfigStyle.BOLD))
+        id = id,
+        title = title,
+        isSelected = filtersManager.isFilterInEdition(filterInHierarchy),
+        section = TimeOperations.toDisplayMonthDate(publicationDate),
+        artUrl = urlRepository.getArtUrl("podcast", podcastId),
+        duration = TimeOperations.toMediaDuration(time),
+        subtitle = podcast
     ))
 }
 

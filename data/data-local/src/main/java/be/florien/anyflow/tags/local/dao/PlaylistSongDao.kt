@@ -20,7 +20,7 @@ abstract class PlaylistSongDao : BaseDao<DbPlaylistSongs>() {
 
     @Transaction
     @Query(
-        "SELECT song.id AS id, song.title AS title, artist.name AS artistName, album.name AS albumName, album.id AS albumId, song.time AS time " +
+        "SELECT song.id AS id, song.title AS title, artist.name AS artistName, album.name AS albumName, album.id AS albumId, song.time AS time, song.titleForSort AS titleForSort " +
                 "FROM song JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN playlistsongs ON song.id = playlistsongs.songId " +
                 "WHERE playlistsongs.playlistId = :playlistId " +
                 "ORDER BY playlistsongs.`order`"

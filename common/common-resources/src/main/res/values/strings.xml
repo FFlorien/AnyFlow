@@ -153,6 +153,8 @@
     <string name="dummy_playlist">Road trip</string>
     <string name="or">Or</string>
     <string name="content_description_up">Navigate up</string>
+    <string name="cover_content_description">Cover for %1$s</string>
+    <string name="information_content_description">Information icon</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">1 song</item>
         <item quantity="other">%d songs</item>

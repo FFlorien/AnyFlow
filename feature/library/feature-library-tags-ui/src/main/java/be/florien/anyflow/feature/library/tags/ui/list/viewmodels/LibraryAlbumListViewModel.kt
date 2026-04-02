@@ -37,7 +37,7 @@ class LibraryAlbumListViewModel @Inject constructor(
             FilterParam(
                 TagFilterType.ALBUM_IS,
                 filterValue.id,
-                filterValue.title.getText()
+                filterValue.title
             )
         )
 }

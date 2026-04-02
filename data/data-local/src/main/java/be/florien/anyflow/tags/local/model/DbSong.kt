@@ -70,7 +70,8 @@ data class DbSongDisplay(
     val artistName: String,
     val albumName: String,
     val albumId: Long,
-    val time: Int
+    val time: Int,
+    val titleForSort: String
 )
 
 data class DbQueueItemDisplay(

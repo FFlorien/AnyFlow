@@ -3,12 +3,14 @@ package be.florien.anyflow.feature.library.ui.list
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,16 +19,24 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import be.florien.anyflow.common.resources.R
+import be.florien.anyflow.common.resources.component.ScrollBar
 import be.florien.anyflow.common.resources.component.SlideRightToAction
+import be.florien.anyflow.common.resources.component.handlerWidth
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.Flow
 
 @Immutable
 data class FilterDisplay(
     val id: Long,
     val title: String,
     val isSelected: Boolean,
+    val section: String,
     val artUrl: String? = null,
     val duration: String? = null,
     val subtitle: String? = null,
@@ -35,22 +45,44 @@ data class FilterDisplay(
 
 @Composable
 fun LibraryListScreen(
-    itemCount: Int,
-    getItem: (Int) -> FilterDisplay?,
+    itemsPager: Flow<PagingData<FilterDisplay>>,
     onClick: (FilterDisplay) -> Unit,
     onNavigation: (FilterDisplay) -> Unit
 ) {
-    LazyColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
-        items(
-            count = itemCount,
-            key = { getItem(it)?.id ?: -1L }
-        ) { position ->
-            val item = getItem(position)
-            if (item == null) {
-                return@items
+    val items = itemsPager.collectAsLazyPagingItems()
+    val lazyListState = rememberLazyListState()
+    val loadingLabel = stringResource(R.string.general_loading_label)
+    Box {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(end = handlerWidth),
+        ) {
+            items(
+                count = items.itemCount,
+                key = items.itemKey { it.id }
+            ) { position ->
+                val item = items[position]
+                if (item == null) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        text = loadingLabel
+                    )
+                } else {
+                    FilterItem(item, onNavigation, onClick)
+                }
             }
-            FilterItem(item, onNavigation, onClick)
         }
+        ScrollBar(
+            items = items,
+            lazyListState = lazyListState,
+            getSection = {
+                this?.section ?: loadingLabel
+            }
+        )
     }
 }
 
@@ -70,10 +102,10 @@ private fun FilterItem(
         background = {
             Icon(
                 painter = painterResource(R.drawable.ic_info),
-                contentDescription = "todo",
+                contentDescription = stringResource(R.string.information_content_description),
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(12.dp),
+                    .padding(16.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
         },
@@ -97,9 +129,14 @@ private fun ForeGround(
         val artUrl = item.artUrl
         if (artUrl != null) {
             AsyncImage(
-                modifier = Modifier.size(75.dp),
+                modifier = Modifier
+                    .size(75.dp)
+                    .align(Alignment.CenterVertically),
                 model = artUrl,
-                contentDescription = "todo"
+                contentDescription = stringResource(
+                    R.string.cover_content_description,
+                    item.title
+                )
             )
         }
         Column(
@@ -113,21 +150,25 @@ private fun ForeGround(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            item.subtitle?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
             Row(modifier = Modifier.align(Alignment.End)) {
-                item.subSubtitle?.let {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    item.subtitle?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    item.subSubtitle?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
                 }
                 item.duration?.let {
                     Text(

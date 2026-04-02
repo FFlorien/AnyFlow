@@ -45,7 +45,7 @@ class LibraryPodcastEpisodeListViewModel @Inject constructor(
             FilterParam(
                 PodcastFilterType.PODCAST_EPISODE_IS,
                 filterValue.id,
-                filterValue.title.getText()
+                filterValue.title
             )
         )
 }

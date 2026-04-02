@@ -42,7 +42,7 @@ class LibraryAlbumArtistListViewModel @Inject constructor(
         val filterParam = FilterParam(
             TagFilterType.ALBUM_ARTIST_IS,
             filterValue.id,
-            filterValue.title.getText()
+            filterValue.title
         )
         return getFilterInParent(filterParam)
     }

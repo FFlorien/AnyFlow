@@ -40,7 +40,7 @@ class LibraryGenreListViewModel @Inject constructor(
             FilterParam(
                 TagFilterType.GENRE_IS,
                 filterValue.id,
-                filterValue.title.getText()
+                filterValue.title
             )
         )
 }

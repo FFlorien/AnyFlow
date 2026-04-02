@@ -43,6 +43,7 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                     QueryParameters.Select(Album.Name, "albumName"),
                     QueryParameters.Select(Album.Id, "albumId"),
                     QueryParameters.Select(Song.Time, "time"),
+                    QueryParameters.Select(Song.TitleForSort, "titleForSort"),
                 ),
                 listOfNotNull(filter).toWheres().filterSongs(),
                 listOf(
@@ -65,6 +66,7 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
                     QueryParameters.Select(Album.Diskcount, "diskcount"),
                     QueryParameters.Select(AlbumArtist.Name, "albumArtistName"),
                     QueryParameters.Select(AlbumArtist.Summary, "summary"),
+                    QueryParameters.Select(Album.Basename, "basename"),
                 ),
                 wheres = listOfNotNull(filter).toWheres().filterSongs(),
                 orders = listOf(

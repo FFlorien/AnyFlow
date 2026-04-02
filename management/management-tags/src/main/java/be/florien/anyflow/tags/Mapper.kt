@@ -43,7 +43,8 @@ fun DbSongDisplay.toDomainSongDisplay() = SongDisplayDomain(
     artistName = artistName,
     albumName = albumName,
     albumId = albumId,
-    time = time
+    time = time,
+    section = titleForSort.first().uppercase()
 )
 
 fun DbArtist.toViewArtist() = Artist(
@@ -56,7 +57,8 @@ fun DbAlbumDisplay.toViewAlbum() = Album(
     id = albumId,
     name = albumName,
     albumArtistName = albumArtistName,
-    year = year
+    year = year,
+    section = basename.first().uppercase()
 )
 
 fun DbGenre.toViewGenre() = Genre(

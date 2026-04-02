@@ -1,7 +1,6 @@
 package be.florien.anyflow.tags.local.query
 
 import androidx.sqlite.db.SimpleSQLiteQuery
-import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
@@ -39,7 +38,8 @@ class QueryComposerFilter : QueryComposer {
             "artist.name AS artistName," +
             "album.name AS albumName," +
             "album.id AS albumId," +
-            "song.time AS time " +
+            "song.time AS time," +
+            "song.titleForSort AS titleForSort " +
             "FROM song " +
             "JOIN artist ON song.artistId = artist.id " +
             "JOIN album ON song.albumId = album.id" +
@@ -57,7 +57,8 @@ class QueryComposerFilter : QueryComposer {
             "album.artistId AS albumArtistId, " +
             "album.year,album.diskcount, " +
             "artist.name AS albumArtistName, " +
-            "artist.summary " +
+            "artist.summary ," +
+            "album.basename " +
             "FROM album " +
             "JOIN artist ON album.artistid = artist.id " +
             "JOIN song ON song.albumId = album.id" +
@@ -207,7 +208,7 @@ class QueryComposerFilter : QueryComposer {
     ): SimpleSQLiteQuery {
         val podcastFilters = filter.onlyPodcast()
 
-        return ("SELECT DISTINCT podcastEpisode.id AS id, podcastEpisode.title AS title, podcast.name AS podcastName, podcastEpisode.podcastId AS podcastId, podcastEpisode.time AS time, podcastEpisode.description AS description " +
+        return ("SELECT DISTINCT podcastEpisode.id AS id, podcastEpisode.title AS title, podcast.name AS podcastName, podcastEpisode.podcastId AS podcastId, podcastEpisode.time AS time, podcastEpisode.description AS description, podcastEpisode.publicationDate AS publicationDate " +
                 "FROM podcastEpisode " +
                 "JOIN podcast ON podcastEpisode.podcastId = podcast.id" +
                 constructWhereStatement(podcastFilters, "") +

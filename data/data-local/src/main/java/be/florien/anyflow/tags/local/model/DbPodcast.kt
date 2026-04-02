@@ -48,7 +48,8 @@ class DbPodcastEpisodeDisplay(
     val podcastName: String,
     val podcastId: Long,
     val time: Int,
-    val description: String
+    val description: String,
+    val publicationDate: Long
 )
 
 data class DbPodcastEpisodeWithPodcast(

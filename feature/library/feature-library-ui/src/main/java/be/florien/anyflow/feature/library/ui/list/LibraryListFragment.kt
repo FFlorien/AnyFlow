@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
-import androidx.paging.compose.collectAsLazyPagingItems
 import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
@@ -66,7 +65,6 @@ constructor(
         return ComposeView(requireContext()).apply {
             setContent {
 
-                val items = viewModel.values.collectAsLazyPagingItems()
                 AppTheme {
                     setSingletonImageLoaderFactory { context -> //todo move to the top of content once in SingleActivity
                         ImageLoader.Builder(context)
@@ -84,8 +82,7 @@ constructor(
                             .build()
                     }
                     LibraryListScreen(
-                        itemCount = items.itemCount,
-                        getItem = items::get,
+                        itemsPager = viewModel.values,
                         onClick = viewModel::toggleFilterSelection,
                         onNavigation = ::onInfoDisplayAsked
                     )

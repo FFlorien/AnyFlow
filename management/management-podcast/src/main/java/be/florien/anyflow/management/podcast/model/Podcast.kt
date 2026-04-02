@@ -53,5 +53,6 @@ data class PodcastEpisodeDisplay(
     val title: String,
     val podcast: String,
     val podcastId: Long,
-    val time: Int
+    val time: Int,
+    val publicationDate: Long
 )

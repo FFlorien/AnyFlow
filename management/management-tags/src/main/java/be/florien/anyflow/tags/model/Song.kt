@@ -60,5 +60,6 @@ data class SongDisplayDomain(
     val artistName: String,
     val albumName: String,
     val albumId: Long,
-    val time: Int
+    val time: Int,
+    val section: String
 )

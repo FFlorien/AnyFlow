@@ -29,6 +29,7 @@ fun DbPodcastEpisode.toViewPodcastEpisode() = PodcastEpisodeDisplay(
     podcast = "",
     podcastId = podcastId,
     time = time,
+    publicationDate = publicationDate
 )
 
 fun DbPodcastEpisodeDisplay.toViewPodcastEpisode() = PodcastEpisodeDisplay(
@@ -36,7 +37,8 @@ fun DbPodcastEpisodeDisplay.toViewPodcastEpisode() = PodcastEpisodeDisplay(
     title = title,
     podcast = podcastName,
     podcastId = podcastId,
-    time = time
+    time = time,
+    publicationDate = publicationDate
 )
 
 fun DbPodcastFilterCount.toViewFilterCount() = FilterPodcastCount(

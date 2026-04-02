@@ -43,5 +43,6 @@ data class DbAlbumDisplay(
     val year: Int,
     val diskcount: Int,
     val albumArtistName: String,
-    val summary: String?
+    val summary: String?,
+    val basename: String
 )

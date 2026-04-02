@@ -152,6 +152,8 @@
     <string name="dummy_playlist">Pour la route</string>
     <string name="or">Ou</string>
     <string name="content_description_up">Revenir en arrière</string>
+    <string name="cover_content_description">Illustration pour %1$s</string>
+    <string name="information_content_description">Icône d’information</string>
     <plurals name="playlist_songs_count">
         <item quantity="one">%d chanson</item>
         <item quantity="many">%d chansons</item>
