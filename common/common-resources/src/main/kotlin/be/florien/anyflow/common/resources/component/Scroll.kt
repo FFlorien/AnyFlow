@@ -65,7 +65,7 @@ fun <T : Any> BoxScope.ScrollBar(
                     val ratio = lazyListState.firstVisibleItemIndex.toFloat() / itemCount
                     verticalOffset = scrollableHeight * ratio
                 } else {
-                    sectionName = items[lazyListState.firstVisibleItemIndex]?.getSection()
+                    sectionName = items[lazyListState.firstVisibleItemIndex].getSection()
                 }
             }
     }
@@ -107,7 +107,7 @@ fun <T : Any> BoxScope.ScrollBar(
                 orientation = Orientation.Vertical,
                 onDragStarted = {
                     isUserFastScroll = true
-                    sectionName = items[lazyListState.firstVisibleItemIndex]?.getSection()
+                    sectionName = items[lazyListState.firstVisibleItemIndex].getSection()
                 },
                 onDragStopped = {
                     isUserFastScroll = false

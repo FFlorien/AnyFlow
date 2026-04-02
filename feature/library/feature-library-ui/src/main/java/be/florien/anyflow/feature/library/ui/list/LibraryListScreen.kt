@@ -52,6 +52,7 @@ fun LibraryListScreen(
     val items = itemsPager.collectAsLazyPagingItems()
     val lazyListState = rememberLazyListState()
     val loadingLabel = stringResource(R.string.general_loading_label)
+    val loadingLabelShort = stringResource(R.string.general_loading_label_short)
     Box {
         LazyColumn(
             state = lazyListState,
@@ -80,7 +81,7 @@ fun LibraryListScreen(
             items = items,
             lazyListState = lazyListState,
             getSection = {
-                this?.section ?: loadingLabel
+                this?.section ?: loadingLabelShort
             }
         )
     }
