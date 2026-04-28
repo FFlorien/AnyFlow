@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,6 +58,7 @@ fun LibraryListScreen(
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(end = handlerWidth),
         ) {
@@ -176,11 +178,11 @@ private fun ForeGround(
                         modifier = Modifier
                             .align(Alignment.Bottom)
                             .background(
-                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.primaryContainer,
                                 shape = MaterialTheme.shapes.medium
                             )
                             .padding(4.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         style = MaterialTheme.typography.labelMedium,
                         text = it
                     )

@@ -75,8 +75,7 @@ class PodcastInfoFragment(podcastId: Long) :
                     actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                     TextConfig(
                         viewModel.podcastEpisodeInfo.getTextFromField(fieldType),
-                        actionType.getText(),
-                        null
+                        actionType.getText()
                     ),
                     ImageConfig(null, actionType.iconRes),
                     this
@@ -88,12 +87,10 @@ class PodcastInfoFragment(podcastId: Long) :
             is BasePodcastInfoRow.PodcastHtmlRow -> InfoRow.BasicInfoRow(
                 actionType.titleRes.takeIf { it != 0 } ?: fieldType.titleRes,
                 TextConfig(
-                    HtmlCompat.fromHtml(
                         HtmlCompat.fromHtml(
                             viewModel.podcastEpisodeInfo.description,
                             HtmlCompat.FROM_HTML_MODE_COMPACT
-                        ).toString(), HtmlCompat.FROM_HTML_MODE_COMPACT
-                    )
+                        ).toString()
                 ),
                 ImageConfig(null, fieldType.iconRes),
                 this

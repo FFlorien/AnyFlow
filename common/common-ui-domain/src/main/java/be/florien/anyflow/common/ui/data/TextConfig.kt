@@ -1,13 +1,13 @@
 package be.florien.anyflow.common.ui.data
 
 import android.content.res.Resources
-import android.text.Spanned
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 
+@Immutable
 data class TextConfig(
     private val text: String?,
     @param:StringRes private val textRes: Int?,
-    val textSpanned: Spanned? = null,
     private val style: TextConfigStyle = TextConfigStyle.NORMAL,
     private val nextTextConfig: TextConfig? = null
 ) {
@@ -16,17 +16,13 @@ data class TextConfig(
         text: String?,
         style: TextConfigStyle = TextConfigStyle.NORMAL,
         nextTextConfig: TextConfig? = null
-    ) : this(text, null, null, style, nextTextConfig)
+    ) : this(text, null, style, nextTextConfig)
 
     constructor(
         textRes: Int?,
         style: TextConfigStyle = TextConfigStyle.NORMAL,
         nextTextConfig: TextConfig? = null
-    ) : this(null, textRes, null, style, nextTextConfig)
-
-    constructor(
-        textSpanned: Spanned?
-    ) : this(null, null, textSpanned, TextConfigStyle.NORMAL, null)
+    ) : this(null, textRes, style, nextTextConfig)
 
     fun getText(resources: Resources): String {
         return style.startTag +

@@ -25,5 +25,7 @@ android {
 dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.kotlin.parcelize.runtime)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.material3)
 }
 apply plugin: "kotlin-parcelize"

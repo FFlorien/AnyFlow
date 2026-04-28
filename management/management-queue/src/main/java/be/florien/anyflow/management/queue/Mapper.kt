@@ -96,7 +96,7 @@ fun DbFilter.toViewFilter(filterList: List<DbFilter>): Filter {
     var parent: DbFilter? = filterList.firstOrNull { it.id == parentFilter }
     while (parent != null) {
         filterParam.add(parent.toViewFilter())
-        parent = filterList.firstOrNull { it.id == parent?.parentFilter }
+        parent = filterList.firstOrNull { it.id == parent.parentFilter }
     }
     val returnValue = Filter()
     returnValue.addAll(filterParam.reversed())

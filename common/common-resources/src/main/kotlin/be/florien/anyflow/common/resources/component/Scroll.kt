@@ -36,8 +36,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-
-
 val handlerHeight = 80.dp
 val handlerWidth = 16.dp
 

@@ -10,7 +10,7 @@ sealed class InfoRow(
     @param:StringRes open val title: Int,
     open val text: TextConfig,
     open val image: ImageConfig,
-    @param:DrawableRes open val icon: Int?,
+    @param:DrawableRes open val actionIcon: Int?,
     open val tag: Any?
 ) {
 

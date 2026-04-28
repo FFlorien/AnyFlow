@@ -21,7 +21,7 @@ class ShortcutsViewModel @Inject constructor(
     @Named("preferences") sharedPreferences: SharedPreferences
 ) : BaseSongViewModel() {
 
-     private val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
+    private val infoActions: ShortcutSongInfoActions = ShortcutSongInfoActions(sharedPreferences)
 
     override var songId: Long = DUMMY_SONG_ID
     var maxItems = 3
