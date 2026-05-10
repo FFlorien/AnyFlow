@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.florien.anyflow.common.base.BaseFragment
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.common.widget.BaseSelectableAdapter
 import be.florien.anyflow.common.base.refreshVisibleViewHolders
 import be.florien.anyflow.component.menu.MenuCoordinator

@@ -3,7 +3,7 @@ package be.florien.anyflow.common.navigation
 import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import be.florien.anyflow.common.ui.data.TagType
+import be.florien.anyflow.common.ui.domain.TagType
 
 interface Navigator {
     fun navigateToMain(context: Context, clearTop: Boolean = false)

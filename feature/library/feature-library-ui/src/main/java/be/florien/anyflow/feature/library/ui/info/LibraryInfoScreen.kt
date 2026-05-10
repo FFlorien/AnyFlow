@@ -1,4 +1,4 @@
-package be.florien.anyflow.feature.library.tags.ui.info
+package be.florien.anyflow.feature.library.ui.info
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +25,7 @@ import coil3.compose.AsyncImage
 import kotlinx.collections.immutable.PersistentList
 
 @Composable
-fun LibraryTagsInfoScreen(
+fun LibraryInfoScreen(
     list: PersistentList<InfoRowDisplay>,
     executeAction: (Int) -> Unit
 ) {

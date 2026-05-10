@@ -52,19 +52,24 @@ object TimeOperations {
     fun getAmpacheCompleteFormatted(time: Calendar): String =
         ampacheRequestFormatter.format(time.time)
 
-    fun toMediaDuration(duration: Duration, resources: Resources) =
-        duration.toComponents { days, hours, minutes, seconds, _ ->
-            fun Int?.getDurationString(resource: Int) =
-                this?.let { resources.getQuantityString(resource, it, it) } ?: ""
+    data class MediaDuration(
+        val days: Int?,
+        val hours: Int?,
+        val minutes: Int?,
+        val seconds: Int?
+    )
 
-            val d = days.toInt().takeIf { it > 0 }
-            val h = hours.takeIf { it > 0 || days > 0 }
-            val m = minutes.takeIf { it > 0 || days > 0 || hours > 0 }
-            val s = seconds.takeIf { it > 0 || days > 0 || hours > 0 || minutes > 0 }
-            d.getDurationString(R.plurals.days_component) +
-                    h.getDurationString(R.plurals.hours_component) +
-                    m.getDurationString(R.plurals.minutes_component) +
-                    s.getDurationString(R.plurals.seconds_component)
+    fun Int?.getDurationString(resources: Resources, resourceInt: Int) =
+        this?.let { resources.getQuantityString(resourceInt, it, it) } ?: ""
+
+    fun toMediaDuration(duration: Duration) =
+        duration.toComponents { days, hours, minutes, seconds, _ ->
+
+            MediaDuration(
+                days.toInt().takeIf { it > 0 },
+                hours.takeIf { it > 0 || days > 0 },
+                minutes.takeIf { it > 0 || days > 0 || hours > 0 },
+                seconds.takeIf { it > 0 || days > 0 || hours > 0 || minutes > 0 })
         }
 
     fun toMediaDuration(timeInSeconds: Int) = if (timeInSeconds < (60 * 60)) {

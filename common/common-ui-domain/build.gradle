@@ -27,5 +27,7 @@ dependencies {
     implementation(libs.kotlin.parcelize.runtime)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
+
+    implementation(project(":common-utils"))
 }
 apply plugin: "kotlin-parcelize"

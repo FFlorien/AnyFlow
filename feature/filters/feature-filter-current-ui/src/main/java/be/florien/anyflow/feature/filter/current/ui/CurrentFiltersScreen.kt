@@ -56,6 +56,7 @@ fun CurrentFiltersScreen(
 @Composable
 private fun EmptyScreen(navigateToLibrary: () -> Unit, navigateToPodcast: () -> Unit) {
     Column(
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
     ) {

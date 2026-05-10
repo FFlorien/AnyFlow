@@ -1,21 +1,21 @@
 package be.florien.anyflow.feature.library.tags.ui.info
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.data.TextConfig
-import be.florien.anyflow.component.info.InfoRow
-import be.florien.anyflow.feature.library.tags.domain.LibraryInfoRow
-import be.florien.anyflow.feature.library.tags.domain.LibraryTagsActionType
-import be.florien.anyflow.feature.library.tags.domain.LibraryTagsFieldType
+import be.florien.anyflow.common.ui.domain.ImageConfig
+import be.florien.anyflow.common.ui.domain.TextConfig
+import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.component.info.R
 import be.florien.anyflow.feature.library.tags.domain.LibraryTagsRepository
+import be.florien.anyflow.feature.library.tags.domain.model.IdText
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
+import be.florien.anyflow.feature.library.ui.info.InfoRowDisplay
+import be.florien.anyflow.feature.library.ui.info.LibraryActionType
+import be.florien.anyflow.feature.library.ui.info.LibraryFieldType
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoRow
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
@@ -29,40 +29,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
-@Immutable
-data class InfoRowDisplay(
-    val imageConfig: ImageConfig,
-    @StringRes
-    val title: Int,
-    val info: TextConfig,
-    @DrawableRes
-    val actionIcon: Int?
-)
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class LibraryTagsInfoViewModel @Inject constructor(
-    val libraryTagsRepository: LibraryTagsRepository, //todo this doesn't get injected
+    val libraryTagsRepository: LibraryTagsRepository,
     override val filtersManager: FiltersManager,
     override val navigator: Navigator
 ) : ViewModel(), LibraryViewModel {
     private val mutableLibraryInfoRows: MutableStateFlow<List<LibraryInfoRow>> =
         MutableStateFlow(listOf())
-    val libraryInfoRows: StateFlow<List<LibraryInfoRow>> = mutableLibraryInfoRows
-    private val mutableInfoRows: MutableStateFlow<List<InfoRow>> = MutableStateFlow(listOf())
-    val infoRows: Flow<List<InfoRow>> = mutableInfoRows
-
-    val state: Flow<PersistentList<InfoRowDisplay>> = infoRows.map { list ->
-        list
-            .map { infoRow ->
-                InfoRowDisplay(
-                    infoRow.image,
-                    infoRow.title,
-                    infoRow.text,
-                    infoRow.actionIcon
-                )
-            }
-            .toPersistentList()
-    }
+    private val libraryInfoRows: StateFlow<List<LibraryInfoRow>> = mutableLibraryInfoRows
 
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
 
@@ -72,30 +49,37 @@ class LibraryTagsInfoViewModel @Inject constructor(
             updateRows()
         }
 
-    /**
-     * Public methods
-     */
+    val state: Flow<PersistentList<InfoRowDisplay>> = libraryInfoRows.map { list ->
+        list
+            .map {
+                it.toInfoRow()
+            }
+            .toPersistentList()
+    }
 
-    fun updateRows() {
+    fun executeAction(row: LibraryInfoRow): Boolean {
+        return false
+    }
+
+    fun getInfoRow(position: Int): LibraryInfoRow = libraryInfoRows.value[position]
+
+    private fun updateRows() {
         viewModelScope.launch {
             mutableLibraryInfoRows.value = getInfoRowList()
         }
     }
 
-    fun getArtUrl(artType: String, id: Long): String? =
-        libraryTagsRepository.getArtUrl(artType, id)
-
-    suspend fun getInfoRowList(): MutableList<LibraryInfoRow> {
+    private suspend fun getInfoRowList(): MutableList<LibraryInfoRow> {
         val filteredInfo =
             withContext(Dispatchers.IO) { libraryTagsRepository.getFilteredInfo(filterNavigation) }
         return mutableListOf(
             LibraryInfoRow(
-                LibraryTagsFieldType.Duration,
-                LibraryTagsActionType.InfoTitle,
+                LibraryFieldType.Tags.Duration,
+                LibraryActionType.InfoTitle,
                 filteredInfo.duration
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.Genre,
+                LibraryFieldType.Tags.Genre,
                 getAction(filteredInfo.genres.minus(filterNavigation?.let { source ->
                     val genreFilters = mutableSetOf<Long>()
                     source.forEach { filter ->
@@ -108,32 +92,32 @@ class LibraryTagsInfoViewModel @Inject constructor(
                 filteredInfo.genres
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.AlbumArtist,
+                LibraryFieldType.Tags.AlbumArtist,
                 getAction(filteredInfo.albumArtists),
                 filteredInfo.albumArtists
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.Album,
+                LibraryFieldType.Tags.Album,
                 getAction(filteredInfo.albums),
                 filteredInfo.albums
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.Artist,
+                LibraryFieldType.Tags.Artist,
                 getAction(filteredInfo.artists),
                 filteredInfo.artists
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.Song,
+                LibraryFieldType.Tags.Song,
                 getAction(filteredInfo.songs),
                 filteredInfo.songs
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.Downloaded,
-                LibraryTagsActionType.SubFilter,
+                LibraryFieldType.Tags.Downloaded,
+                LibraryActionType.SubFilter,
                 filteredInfo.downloaded
             ),
             LibraryInfoRow(
-                LibraryTagsFieldType.Playlist,
+                LibraryFieldType.Tags.Playlist,
                 getAction(filteredInfo.playlists.minus(filterNavigation?.let { source ->
                     val playlistFilters = mutableSetOf<Long>()
                     source.forEach { filter ->
@@ -148,16 +132,76 @@ class LibraryTagsInfoViewModel @Inject constructor(
         )
     }
 
-    fun executeAction(row: LibraryInfoRow): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    private fun getAction(count: Int): LibraryTagsActionType {
-        return if (count > 1) LibraryTagsActionType.SubFilter else LibraryTagsActionType.InfoTitle
+    private fun getAction(count: Int): LibraryActionType {
+        return if (count > 1) LibraryActionType.SubFilter else LibraryActionType.InfoTitle
         TODO("More Actions")
     }
 
-    suspend fun getFilteredInfo(
+    private suspend fun LibraryInfoRow.toInfoRow(): InfoRowDisplay {
+        return when (this.actionType) {
+            LibraryActionType.InfoTitle -> {
+                val idText = getIdText()
+
+                val text = if (fieldType == LibraryFieldType.Tags.Duration) {
+                    TextConfig(
+                        TimeOperations.toMediaDuration(
+                            count.toDuration(DurationUnit.SECONDS)
+                        )
+                    )
+                } else {
+                    TextConfig(idText.text, null)
+                }
+                val imageUrl = this.fieldType.artType?.let { artType ->
+                    libraryTagsRepository.getArtUrl(artType, idText.id)
+                }
+                InfoRowDisplay(
+                    ImageConfig(imageUrl, fieldType.iconRes),
+                    this.fieldType.titleRes,
+                    text,
+                    null
+                )
+            }
+
+            LibraryActionType.SubFilter -> InfoRowDisplay(
+                ImageConfig(null, fieldType.iconRes),
+                this.fieldType.titleRes,
+                TextConfig(count.toString(), null),
+                R.drawable.ic_go
+            )
+        }
+    }
+
+    private suspend fun LibraryInfoRow.getIdText(): IdText {
+        if (fieldType !is LibraryFieldType.Tags) {
+            IdText(0, "")
+        }
+        val filter = filterNavigation
+        val filterType = getField(this.fieldType as LibraryFieldType.Tags)
+        val filterIfTypePresent = filter?.getFilterIfTypePresent(filterType)
+        val filterData: IdText? = filterIfTypePresent?.takeIf { it.argument is Long }
+            ?.let { IdText(it.argument as Long, it.displayText) }
+        return filterData ?: getFilteredInfo(
+            filterType,
+            filter
+        ) ?: IdText(0, "")
+    }
+
+    private fun getField(
+        filterType: LibraryFieldType.Tags
+    ): TagFilterType {
+        return when (filterType) {
+            LibraryFieldType.Tags.Song -> TagFilterType.SONG_IS
+            LibraryFieldType.Tags.Artist -> TagFilterType.ARTIST_IS
+            LibraryFieldType.Tags.AlbumArtist -> TagFilterType.ALBUM_ARTIST_IS
+            LibraryFieldType.Tags.Album -> TagFilterType.ALBUM_IS
+            LibraryFieldType.Tags.Playlist -> TagFilterType.PLAYLIST_IS
+            LibraryFieldType.Tags.Downloaded -> TagFilterType.DOWNLOADED_STATUS_IS
+            LibraryFieldType.Tags.Duration -> TagFilterType.SONG_IS
+            LibraryFieldType.Tags.Genre -> TagFilterType.SONG_IS
+        }
+    }
+
+    private suspend fun getFilteredInfo(
         filterType: TagFilterType,
         filter: Filter?
     ) = when (filterType) {
@@ -174,10 +218,6 @@ class LibraryTagsInfoViewModel @Inject constructor(
         TagFilterType.DISK_IS -> listOf(null)
 
     }.firstOrNull()
-
-    fun setInfoRows(infoRow: List<InfoRow>) {
-        mutableInfoRows.value = infoRow
-    }
 
     companion object {
         const val GENRE_ID = "Genre"

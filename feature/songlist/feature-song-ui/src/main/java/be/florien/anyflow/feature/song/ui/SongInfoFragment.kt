@@ -5,9 +5,9 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.map
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.data.TagType
-import be.florien.anyflow.common.ui.data.TextConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
+import be.florien.anyflow.common.ui.domain.TagType
+import be.florien.anyflow.common.ui.domain.TextConfig
 import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType

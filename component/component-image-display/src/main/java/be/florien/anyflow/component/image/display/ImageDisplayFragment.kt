@@ -2,7 +2,7 @@ package be.florien.anyflow.component.image.display
 
 import android.content.Context
 import be.florien.anyflow.common.image.ChangingTokenUrl
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import com.bumptech.glide.Glide
 import com.stfalcon.imageviewer.StfalconImageViewer
 

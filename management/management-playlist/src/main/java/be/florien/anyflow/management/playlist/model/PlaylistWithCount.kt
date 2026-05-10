@@ -1,7 +1,7 @@
 package be.florien.anyflow.management.playlist.model
 
 import android.os.Parcelable
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import kotlinx.parcelize.Parcelize
 
 

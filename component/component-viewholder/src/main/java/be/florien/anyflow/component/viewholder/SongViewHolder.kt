@@ -2,7 +2,7 @@ package be.florien.anyflow.component.viewholder
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.component.viewholder.databinding.ItemSongBinding
 import be.florien.anyflow.management.queue.model.SongDisplay
 

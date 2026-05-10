@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.podcast.ui
 
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.feature.podcast.base.domain.BasePodcastInfoActions.Companion.DUMMY_PODCAST_ID
 import be.florien.anyflow.feature.podcast.base.ui.BasePodcastViewModel
 import be.florien.anyflow.feature.podcast.base.domain.model.BasePodcastInfoRow

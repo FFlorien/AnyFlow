@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.core.view.size
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.component.viewholder.databinding.ItemPodcastBinding
 import be.florien.anyflow.component.viewholder.databinding.ItemPodcastChapterBinding
 import be.florien.anyflow.management.queue.model.Chapter

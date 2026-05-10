@@ -1,7 +1,7 @@
 package be.florien.anyflow.feature.songlist.ui
 
 import androidx.core.text.HtmlCompat
-import be.florien.anyflow.common.ui.data.TagType
+import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay

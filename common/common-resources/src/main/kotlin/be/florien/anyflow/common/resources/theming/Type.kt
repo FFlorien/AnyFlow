@@ -15,16 +15,9 @@ val provider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-val bodyFontFamily = FontFamily(
+val fontFamily = FontFamily(
     Font(
         googleFont = GoogleFont("Nunito"),
-        fontProvider = provider,
-    )
-)
-
-val displayFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Montserrat"),
         fontProvider = provider,
     )
 )
@@ -33,20 +26,20 @@ val displayFontFamily = FontFamily(
 val baseline = Typography()
 
 val AppTypography = Typography(
-    displayLarge = baseline.displayLarge.copy(fontFamily = displayFontFamily),
-    displayMedium = baseline.displayMedium.copy(fontFamily = displayFontFamily),
-    displaySmall = baseline.displaySmall.copy(fontFamily = displayFontFamily),
-    headlineLarge = baseline.headlineLarge.copy(fontFamily = displayFontFamily),
-    headlineMedium = baseline.headlineMedium.copy(fontFamily = displayFontFamily),
-    headlineSmall = baseline.headlineSmall.copy(fontFamily = displayFontFamily),
-    titleLarge = baseline.titleLarge.copy(fontFamily = displayFontFamily),
-    titleMedium = baseline.titleMedium.copy(fontFamily = displayFontFamily),
-    titleSmall = baseline.titleSmall.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.Black),
-    bodyLarge = baseline.bodyLarge.copy(fontFamily = bodyFontFamily),
-    bodyMedium = baseline.bodyMedium.copy(fontFamily = bodyFontFamily),
-    bodySmall = baseline.bodySmall.copy(fontFamily = bodyFontFamily),
-    labelLarge = baseline.labelLarge.copy(fontFamily = bodyFontFamily),
-    labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
-    labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
+    displayLarge = baseline.displayLarge.copy(fontFamily = fontFamily),
+    displayMedium = baseline.displayMedium.copy(fontFamily = fontFamily),
+    displaySmall = baseline.displaySmall.copy(fontFamily = fontFamily),
+    headlineLarge = baseline.headlineLarge.copy(fontFamily = fontFamily),
+    headlineMedium = baseline.headlineMedium.copy(fontFamily = fontFamily),
+    headlineSmall = baseline.headlineSmall.copy(fontFamily = fontFamily),
+    titleLarge = baseline.titleLarge.copy(fontFamily = fontFamily),
+    titleMedium = baseline.titleMedium.copy(fontFamily = fontFamily, fontWeight = FontWeight.Black),
+    titleSmall = baseline.titleSmall.copy(fontFamily = fontFamily, fontWeight = FontWeight.Black),
+    bodyLarge = baseline.bodyLarge.copy(fontFamily = fontFamily),
+    bodyMedium = baseline.bodyMedium.copy(fontFamily = fontFamily),
+    bodySmall = baseline.bodySmall.copy(fontFamily = fontFamily),
+    labelLarge = baseline.labelLarge.copy(fontFamily = fontFamily),
+    labelMedium = baseline.labelMedium.copy(fontFamily = fontFamily),
+    labelSmall = baseline.labelSmall.copy(fontFamily = fontFamily),
 )
 

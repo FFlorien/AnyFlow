@@ -5,8 +5,8 @@ import androidx.core.text.HtmlCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.map
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
-import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.data.TextConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
+import be.florien.anyflow.common.ui.domain.TextConfig
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.component.info.InfoRow
 import be.florien.anyflow.feature.podcast.base.domain.model.BasePodcastInfoRow

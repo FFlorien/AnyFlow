@@ -1,4 +1,4 @@
-package be.florien.anyflow.common.ui.data
+package be.florien.anyflow.common.ui.domain
 
 import android.os.Parcelable
 import android.view.View

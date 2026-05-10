@@ -3,7 +3,7 @@ package be.florien.anyflow.feature.podcast.base.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.component.info.InfoViewModel
 import be.florien.anyflow.feature.podcast.base.domain.model.BasePodcastInfoRow
 import be.florien.anyflow.feature.podcast.base.domain.model.PodcastActionType

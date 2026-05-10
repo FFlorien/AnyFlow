@@ -19,7 +19,7 @@ import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.resources.R
-import be.florien.anyflow.common.ui.data.TagType
+import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.component.dialog.ProgressDialog
 import be.florien.anyflow.component.dialog.newPlaylist
 import be.florien.anyflow.feature.playlist.selection.ui.databinding.FragmentSelectPlaylistBinding

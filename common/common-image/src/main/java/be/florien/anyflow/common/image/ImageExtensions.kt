@@ -4,7 +4,7 @@ import android.graphics.PorterDuff
 import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import be.florien.anyflow.common.ui.data.ImageConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
 import com.bumptech.glide.Glide
 
 @BindingAdapter("imageSource")

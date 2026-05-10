@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.common.ui.data.TagType
+import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.player.ui.MainActivity

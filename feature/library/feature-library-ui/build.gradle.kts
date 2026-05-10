@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":feature-auth-domain"))
     implementation(project(":management-filters"))
 
+    implementation(libs.collection.immutable)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

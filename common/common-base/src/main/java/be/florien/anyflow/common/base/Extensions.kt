@@ -11,7 +11,7 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.ui.data.TextConfig
+import be.florien.anyflow.common.ui.domain.TextConfig
 
 fun Activity.getDisplayWidth(): Int {
     return if (Build.VERSION.SDK_INT >= 30) {

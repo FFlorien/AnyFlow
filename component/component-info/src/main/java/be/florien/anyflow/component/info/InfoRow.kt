@@ -3,8 +3,8 @@ package be.florien.anyflow.component.info
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
-import be.florien.anyflow.common.ui.data.ImageConfig
-import be.florien.anyflow.common.ui.data.TextConfig
+import be.florien.anyflow.common.ui.domain.ImageConfig
+import be.florien.anyflow.common.ui.domain.TextConfig
 
 sealed class InfoRow(
     @param:StringRes open val title: Int,
