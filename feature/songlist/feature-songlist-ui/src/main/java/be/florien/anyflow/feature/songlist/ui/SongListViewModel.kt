@@ -28,7 +28,7 @@ import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
-import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.CoroutineScope
@@ -47,7 +47,7 @@ class SongListViewModel
     private val songInfoActions: SongInfoActions,
     private val urlRepository: UrlRepository,
     private val orderComposer: OrderComposer,
-    private val dataRepository: DataRepository,
+    private val tagsRepository: TagsRepository,
     private val podcastRepository: PodcastRepository,
     internal val navigator: Navigator
 ) : BaseViewModel() {
@@ -68,7 +68,7 @@ class SongListViewModel
             if (id == null) {
                 null
             } else if (queueItem.mediaType == SONG_MEDIA_TYPE) {
-                dataRepository.getSong(id).map { it.toViewDisplay() }
+                tagsRepository.getSong(id).map { it.toViewDisplay() }
             } else {
                 podcastRepository.getPodcastEpisodeDisplay(id).map {
                     it?.toViewPodcastEpisodeDisplay()
@@ -104,7 +104,7 @@ class SongListViewModel
                 if (s.isBlank()) {
                     resetSearch()
                 } else {
-                    searchResults.value = dataRepository.searchSongs(s.toString())
+                    searchResults.value = tagsRepository.searchSongs(s.toString())
                 }
             }
         }
@@ -217,7 +217,7 @@ class SongListViewModel
         val fieldType = row.fieldType
         viewModelScope.launch {
             val songInfo = runBlocking(Dispatchers.IO) {
-                dataRepository.getSongSync(songDisplay.id)
+                tagsRepository.getSongSync(songDisplay.id)
             }
             when (row.actionType) {
                 SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)

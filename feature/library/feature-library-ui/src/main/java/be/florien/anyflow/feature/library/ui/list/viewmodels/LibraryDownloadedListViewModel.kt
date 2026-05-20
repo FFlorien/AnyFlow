@@ -1,0 +1,49 @@
+package be.florien.anyflow.feature.library.ui.list.viewmodels
+
+import android.content.Context
+import androidx.paging.PagingData
+import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
+import be.florien.anyflow.feature.library.domain.model.FilterItem
+import be.florien.anyflow.feature.library.tags.domain.LibraryListTagsRepository
+import be.florien.anyflow.feature.library.ui.R
+import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
+import be.florien.anyflow.management.filters.FiltersManager
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+
+class LibraryDownloadedListViewModel @Inject constructor(
+    private val libraryListTagsRepository: LibraryListTagsRepository,//todo get stats from libraryRepository
+    override val navigator: Navigator,
+    filtersManager: FiltersManager,
+    context: Context,
+    authenticationInterceptor: AuthenticationInterceptor
+) : LibraryListViewModel(filtersManager,authenticationInterceptor) {
+
+    private val downloadedName = context.getString(R.string.filter_is_downloaded)
+    private val notDownloadedName = context.getString(R.string.filter_is_not_downloaded)
+    override val hasSearch = false
+
+    override fun getPagingList(
+        filter: Filter?,
+        search: String?
+    ): Flow<PagingData<FilterItem>> = libraryListTagsRepository.getDownloadedFiltersPaging(
+        filter, downloadedName, notDownloadedName
+    )
+
+    override fun isThisTypeOfFilter(filterParam: FilterParam<*>) =
+        filterParam.type == TagFilterType.DOWNLOADED_STATUS_IS
+
+    override suspend fun getFoundFilters(
+        filter: Filter?,
+        search: String
+    ): List<FilterItem> =
+        libraryListTagsRepository.getDownloadedFiltersList(filter, downloadedName, notDownloadedName)
+
+    override fun getFilter(filterValue: FilterItem) =
+        getFilterInParent(FilterParam(TagFilterType.DOWNLOADED_STATUS_IS, filterValue.id == 1L, ""))
+
+}

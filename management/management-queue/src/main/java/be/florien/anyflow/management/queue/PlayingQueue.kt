@@ -11,7 +11,7 @@ import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.management.queue.model.QueueItemDisplay
-import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.DbQueueItem
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
@@ -33,7 +33,7 @@ import javax.inject.Named
 class PlayingQueue
 @Inject constructor(
     private val queueRepository: QueueRepository,
-    private val dataRepository: DataRepository,
+    private val tagsRepository: TagsRepository,
     @param:Named("preferences") private val sharedPreferences: SharedPreferences,
     private val orderComposer: OrderComposer
 ) {
@@ -59,7 +59,7 @@ class PlayingQueue
                     withContext(Dispatchers.IO) {
                         if (mediaAtPosition?.mediaType == SONG_MEDIA_TYPE) {
                             orderComposer.currentSong = mediaAtPosition.let {
-                                dataRepository.getSongSync(it.id)
+                                tagsRepository.getSongSync(it.id)
                             }
                         }
                     }

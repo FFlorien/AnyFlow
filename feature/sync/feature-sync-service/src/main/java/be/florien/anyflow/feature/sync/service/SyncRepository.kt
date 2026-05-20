@@ -231,6 +231,7 @@ class SyncRepository
 
     private fun writeDbPlaylistToFile(fileName: String, content: String) {
         val file = File(context.filesDir, "$PLAYLIST_DUMP_FOLDER/$fileName")
+        file.parentFile?.mkdirs()
         file.createNewFile()
         val writer = OutputStreamWriter(file.outputStream())
         writer.write(content)

@@ -13,15 +13,15 @@ import be.florien.anyflow.feature.song.base.ui.BaseSongViewModel
 import be.florien.anyflow.feature.song.domain.SongInfoActions
 import be.florien.anyflow.management.download.DownloadManager
 import be.florien.anyflow.management.filters.domain.model.FilterType
-import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.urls.UrlRepository
 import be.florien.anyflow.tags.model.SongInfo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SongInfoViewModel @Inject constructor(
-     val infoActions: SongInfoActions,
-    private val dataRepository: DataRepository,
+    val infoActions: SongInfoActions,
+    private val tagsRepository: TagsRepository,
     private val downloadManager: DownloadManager,
     private val urlRepository: UrlRepository,
     val navigator: Navigator
@@ -35,7 +35,7 @@ class SongInfoViewModel @Inject constructor(
         set(value) {
             viewModelScope.launch {
                 if (value != DUMMY_SONG_ID) {
-                    songInfoMediator.addSource(dataRepository.getSong(value)) {
+                    songInfoMediator.addSource(tagsRepository.getSong(value)) {
                         songInfoMediator.mutable.value = it
 
                         coverConfig.mutable.value = ImageConfig(

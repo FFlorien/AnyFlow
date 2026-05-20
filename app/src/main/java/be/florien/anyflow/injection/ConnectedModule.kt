@@ -5,13 +5,13 @@ import android.content.Intent
 import androidx.fragment.app.Fragment
 import be.florien.anyflow.R
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.feature.player.ui.MainScreenSection
 import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.filter.current.ui.CurrentFilterFragment
 import be.florien.anyflow.feature.filter.saved.ui.SavedFilterGroupFragment
-import be.florien.anyflow.feature.library.podcast.ui.info.LibraryPodcastInfoFragment
-import be.florien.anyflow.feature.library.tags.ui.info.LibraryTagsInfoFragment
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.player.ui.MainActivity
+import be.florien.anyflow.feature.player.ui.MainScreenSection
 import be.florien.anyflow.feature.songlist.ui.SongListFragment
 import dagger.Module
 import dagger.Provides
@@ -61,16 +61,16 @@ class ConnectedModule {
         object: MainScreenSection {
             override val isFirstSection: Boolean = false
             override val menuId: Int = R.id.menu_library
-            override val tag: String = LibraryTagsInfoFragment::class.java.simpleName
+            override val tag: String = LibraryInfoViewModel.TAGS_TYPE
 
-            override fun createFragment(): Fragment = LibraryTagsInfoFragment()
+            override fun createFragment(): Fragment = LibraryInfoFragment(LibraryInfoViewModel.TAGS_TYPE)
         },
         object: MainScreenSection {
             override val isFirstSection: Boolean = false
             override val menuId: Int = R.id.menu_podcast
-            override val tag: String = LibraryPodcastInfoFragment::class.java.simpleName
+            override val tag: String = LibraryInfoViewModel.PODCAST_TYPE
 
-            override fun createFragment(): Fragment = LibraryPodcastInfoFragment()
+            override fun createFragment(): Fragment = LibraryInfoFragment(LibraryInfoViewModel.PODCAST_TYPE)
         },
         object: MainScreenSection {
             override val isFirstSection: Boolean = true

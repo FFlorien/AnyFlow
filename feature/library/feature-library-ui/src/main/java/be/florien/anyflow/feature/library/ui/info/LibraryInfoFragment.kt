@@ -3,76 +3,76 @@ package be.florien.anyflow.feature.library.ui.info
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.component.info.InfoAdapter
-import be.florien.anyflow.component.info.InfoRow
-import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
-import be.florien.anyflow.feature.library.ui.LibraryViewModel
-import be.florien.anyflow.feature.library.ui.cancelChanges
-import be.florien.anyflow.feature.library.ui.databinding.FragmentSelectFilterTypeBinding
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import be.florien.anyflow.common.base.BaseFragment
+import be.florien.anyflow.common.di.viewModelFactory
+import be.florien.anyflow.common.resources.theming.AppTheme
+import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.management.filters.domain.model.Filter
-import be.florien.anyflow.management.filters.domain.model.FilterType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import kotlinx.collections.immutable.persistentListOf
+import kotlin.random.Random
 
-abstract class LibraryInfoFragment<T, FT: FilterType>(var parentFilter: Filter? = null) :
-    BaseFilteringFragment() {
+class LibraryInfoFragment(
+    var type: String = LibraryInfoViewModel.TAGS_TYPE,
+    var parentFilter: Filter? = null
+) : BaseFragment() {
 
-    override val libraryViewModel: LibraryViewModel
-        get() = viewModel
-    override val navigator: Navigator
-        get() = viewModel.navigator
-    lateinit var viewModel: LibraryInfoViewModel<T, FT>
-    private lateinit var fragmentBinding: FragmentSelectFilterTypeBinding
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val args = arguments
+        if (args == null) {
+            arguments = Bundle().apply {
+                putString("type", type)
+                parentFilter?.toTypedArray()?.let { putParcelableArray("parentFilter", it) }
+            }
+        } else {
+            type = args.getString("type", LibraryInfoViewModel.TAGS_TYPE)
+            parentFilter = (args.getParcelableArray("parentFilter") as? Array<FilterParam<*>>)
+                ?.let { Filter(*it) }
+        }
+        super.onCreate(savedInstanceState)
+    }
+
+
+    override fun getTitle(): String =
+        if (type == LibraryInfoViewModel.TAGS_TYPE) getString(R.string.library_title_main) else getString(
+            R.string.menu_podcast
+        )
+
+    override fun getSubtitle(): String? = parentFilter?.getFullDisplay()
+
+    lateinit var viewModel: LibraryInfoViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = getLibraryInfoViewModel() //todo handle this gracefully !
+        viewModel = ViewModelProvider(
+            this,
+            requireActivity().viewModelFactory
+        )[type + Random(23).toString(), LibraryInfoViewModel::class.java]
+        viewModel.setType(type)
         viewModel.filterNavigation = parentFilter
     }
-
-    abstract fun getLibraryInfoViewModel(): LibraryInfoViewModel<T, FT>
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        fragmentBinding = FragmentSelectFilterTypeBinding.inflate(inflater, container, false)
-        fragmentBinding.lifecycleOwner = viewLifecycleOwner
-        fragmentBinding.filterList.layoutManager =
-            LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        val infoAdapter = InfoAdapter{
-            val row = it.tag as? T
-            if (row != null) {
-                executeAction(row)
+    ) = ComposeView(requireActivity()).apply {
+        setContent {
+            val state = viewModel.state.collectAsStateWithLifecycle(persistentListOf())
+            val context = LocalContext.current
+            AppTheme {
+                LibraryInfoScreen(
+                    state.value,
+                    {
+                        viewModel.executeAction(context, it, type)
+                    }
+                )
             }
         }
-        fragmentBinding.filterList.adapter = infoAdapter
-        viewModel.infoRows.observe(viewLifecycleOwner) { infoRowList ->
-            lifecycleScope.launch(Dispatchers.IO) {
-                val list = infoRowList.map { it.toInfoRow() }
-                launch(Dispatchers.Main) {
-                    infoAdapter.submitList(list)
-                }
-            }
-        }
-        return fragmentBinding.root
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (viewModel.filterNavigation == null) {
-            viewModel.cancelChanges()
-        }
-    }
-
-    abstract fun executeAction(row: T)
-
-    abstract suspend fun T.toInfoRow(): InfoRow
 }

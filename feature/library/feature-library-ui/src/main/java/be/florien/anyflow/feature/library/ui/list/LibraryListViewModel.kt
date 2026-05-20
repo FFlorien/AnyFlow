@@ -29,11 +29,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.launch
 
-data class LibraryListState(
-    val searchedText: String?,
-    val errorMessage: Int?
-)
-
 abstract class LibraryListViewModel(
     override val filtersManager: FiltersManager,
     val authenticationInterceptor: AuthenticationInterceptor
@@ -42,7 +37,6 @@ abstract class LibraryListViewModel(
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
     open val hasSearch = true
 
-    private val isSearching = MutableStateFlow(false)
     private val searchedText = MutableStateFlow("")
     private val errorMessage = MutableStateFlow(-1)
 
@@ -60,16 +54,6 @@ abstract class LibraryListViewModel(
                         it.toDisplay(hasFilter(it))
                     }
             }
-    val state = combine(
-        searchedText,
-        isSearching,
-        errorMessage
-    ) { searchedText, isSearching, errorMessage ->
-        LibraryListState(
-            searchedText = searchedText.takeIf { isSearching },
-            errorMessage = errorMessage.takeIf { it > 0 }
-        )
-    }
     var navigationFilter: Filter? = null
 
     protected abstract fun getPagingList(

@@ -8,8 +8,9 @@ import be.florien.anyflow.feature.auth.domain.di.AuthModule
 import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponent
 import be.florien.anyflow.feature.filter.current.ui.di.CurrentFilterViewModelModule
 import be.florien.anyflow.feature.filter.saved.ui.di.SavedFilterGroupViewModelModule
-import be.florien.anyflow.feature.library.podcast.ui.di.PodcastViewModelModule
-import be.florien.anyflow.feature.library.tags.ui.di.LibraryViewModelModule
+import be.florien.anyflow.feature.library.ui.di.PodcastViewModelModule
+import be.florien.anyflow.feature.library.ui.di.LibraryTagsViewModelModule
+import be.florien.anyflow.feature.library.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
@@ -36,6 +37,7 @@ import javax.inject.Named
         SongListViewModelModule::class,
         SongInfoViewModelModule::class,
         PodcastInfoViewModelModule::class,
+        LibraryTagsViewModelModule::class,
         LibraryViewModelModule::class,
         PodcastViewModelModule::class,
         CurrentFilterViewModelModule::class,

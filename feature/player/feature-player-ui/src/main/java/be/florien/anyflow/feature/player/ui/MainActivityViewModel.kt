@@ -27,7 +27,7 @@ import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.podcast.PodcastRepository
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
-import be.florien.anyflow.tags.DataRepository
+import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +49,7 @@ constructor(
     playingQueue: PlayingQueue,
     private val alarmsSynchronizer: AlarmsSynchronizer,
     private val waveFormRepository: WaveFormRepository,
-    private val dataRepository: DataRepository,
+    private val tagsRepository: TagsRepository,
     private val podcastRepository: PodcastRepository,
     private val podcastPersistence: PodcastPersistence,
     val connectionStatus: LiveData<AuthRepository.ConnectionStatus>,
@@ -71,7 +71,7 @@ constructor(
             } else if (queueItem.mediaType == PODCAST_MEDIA_TYPE) {
                 queueItem.id.let { podcastRepository.getPodcastDuration(it) } * 1000
             } else {
-                queueItem.id.let { dataRepository.getSongDuration(it) } * 1000
+                queueItem.id.let { tagsRepository.getSongDuration(it) } * 1000
             }
         }
         .asLiveData()

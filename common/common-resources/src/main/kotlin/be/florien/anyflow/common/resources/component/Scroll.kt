@@ -105,7 +105,12 @@ fun <T : Any> BoxScope.ScrollBar(
                 orientation = Orientation.Vertical,
                 onDragStarted = {
                     isUserFastScroll = true
-                    sectionName = items[lazyListState.firstVisibleItemIndex].getSection()
+
+                    sectionName = if (lazyListState.firstVisibleItemIndex < items.itemCount) {
+                        items[lazyListState.firstVisibleItemIndex].getSection()
+                    } else {
+                        null
+                    }
                 },
                 onDragStopped = {
                     isUserFastScroll = false
