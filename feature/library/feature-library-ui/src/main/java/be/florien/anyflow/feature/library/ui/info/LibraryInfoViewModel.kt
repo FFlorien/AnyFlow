@@ -8,11 +8,9 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.common.ui.domain.TextConfig
-import be.florien.anyflow.common.utils.TimeOperations
-import be.florien.anyflow.component.info.R
 import be.florien.anyflow.feature.library.domain.LibraryInfoRepository
 import be.florien.anyflow.feature.library.domain.model.IdText
-import be.florien.anyflow.feature.library.domain.model.LibraryActionType
+import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
 import be.florien.anyflow.feature.library.podcast.domain.LibraryInfoPodcastRepository
@@ -26,6 +24,7 @@ import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,8 +32,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 class LibraryInfoViewModel @Inject constructor(
     private val libraryPodcastRepositoryProvider: Provider<LibraryInfoPodcastRepository>,
@@ -76,7 +73,7 @@ class LibraryInfoViewModel @Inject constructor(
         val row = libraryInfoRows.value[rowPosition]
         val action = row.actionType
         when (action) {
-            LibraryActionType.SubFilter -> {
+            LibraryRowType.SubFilter -> {
                 val value = when (row.fieldType) {
                     LibraryFieldType.Tags.Playlist -> PLAYLIST_ID
                     LibraryFieldType.Tags.Album -> ALBUM_ID
@@ -98,7 +95,32 @@ class LibraryInfoViewModel @Inject constructor(
                 )
             }
 
-            LibraryActionType.InfoTitle -> Unit
+            LibraryRowType.InfoTitle -> Unit
+            LibraryRowType.ExpandableTitle -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    mutableLibraryInfoRows.value =
+                        mutableLibraryInfoRows.value.toMutableList().apply {
+                            val index = indexOf(row)
+                            remove(row)
+                            add(index, row.copy(actionType = LibraryRowType.ExpandedTitle))
+                            addAll(index + 1, libraryInfoRepository.getActionList(row.fieldType))
+                        }
+                }
+            }
+
+            LibraryRowType.ExpandedTitle -> {
+                mutableLibraryInfoRows.value = mutableLibraryInfoRows.value.toMutableList().apply {
+                    val index = indexOf(row)
+                    removeIf { it.fieldType == row.fieldType }
+                    add(index, row.copy(actionType = LibraryRowType.ExpandableTitle))
+                }
+            }
+
+            LibraryRowType.AddToFilter -> Unit//todo
+            LibraryRowType.AddToPlaylist -> Unit//todo
+            LibraryRowType.AddNext -> Unit//todo
+            LibraryRowType.Search -> Unit//todo
+            LibraryRowType.Download -> Unit//todo
         }
     }
 
@@ -109,36 +131,17 @@ class LibraryInfoViewModel @Inject constructor(
     }
 
     private suspend fun LibraryInfoRow.toInfoRow(): InfoRowDisplay {
-        return when (this.actionType) {
-            LibraryActionType.InfoTitle -> {
-                val idText = getIdText()
-
-                val text = if (fieldType == LibraryFieldType.Tags.Duration) {
-                    TextConfig(
-                        TimeOperations.toMediaDuration(
-                            count.toDuration(DurationUnit.SECONDS)
-                        )
-                    )
-                } else {
-                    TextConfig(idText.text, null)
-                }
-                val imageUrl = libraryInfoRepository.getArtUrl(fieldType.artType, idText.id)
-
-                InfoRowDisplay(
-                    ImageConfig(imageUrl, fieldType.iconRes),
-                    this.fieldType.titleRes,
-                    text,
-                    null
-                )
-            }
-
-            LibraryActionType.SubFilter -> InfoRowDisplay(
-                ImageConfig(null, fieldType.iconRes),
-                this.fieldType.titleRes,
-                TextConfig(count.toString(), null),
-                R.drawable.ic_go
-            )
-        }
+        val idText = if (actionType.isSingleDbRow) getIdText() else null
+        val imageUrl = if (actionType.isUsingArt && idText != null) libraryInfoRepository.getArtUrl(fieldType.artType, idText.id) else null
+        val leftImage = if (actionType.hasLeftIcon) ImageConfig(imageUrl, fieldType.iconRes) else null
+        val title = actionType.titleRes ?: fieldType.titleRes
+        return InfoRowDisplay(
+            leftImage = leftImage,
+            title = title,
+            info = idText?.let { TextConfig(text = it.text, textRes = actionType.descriptionRes) } ?: infoText,
+            actionIcon = actionType.iconRes,
+            backgroundColor = null
+        )
     }
 
     private suspend fun LibraryInfoRow.getIdText(): IdText {

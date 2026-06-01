@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,7 +31,7 @@ fun LibraryInfoScreen(
     executeAction: (Int) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
     ) {
         itemsIndexed(items = list) { index, item ->
             Row(
@@ -42,8 +43,8 @@ fun LibraryInfoScreen(
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (item.imageConfig.url == null) {
-                    item.imageConfig.resource?.let {
+                if (item.leftImage?.url == null) {
+                    item.leftImage?.resource?.let {
                         Image(
                             modifier = Modifier.size(30.dp),
                             painter = painterResource(it),
@@ -52,12 +53,15 @@ fun LibraryInfoScreen(
                         )
                     }
                 }
-                item.imageConfig.url?.let {
+                item.leftImage?.url?.let {
                     AsyncImage(
                         modifier = Modifier.size(30.dp),
                         model = it,
                         contentDescription = null
                     )
+                }
+                if (item.leftImage == null) {
+                    Spacer(modifier = Modifier.size(30.dp))
                 }
                 Column(modifier = Modifier
                     .weight(1f)

@@ -1,8 +1,9 @@
 package be.florien.anyflow.feature.library.podcast.domain
 
+import be.florien.anyflow.common.ui.domain.TextConfig
 import be.florien.anyflow.feature.library.domain.LibraryInfoRepository
 import be.florien.anyflow.feature.library.domain.model.IdText
-import be.florien.anyflow.feature.library.domain.model.LibraryActionType
+import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
 import be.florien.anyflow.management.filters.domain.model.Filter
@@ -54,22 +55,33 @@ class LibraryInfoPodcastRepository @Inject constructor(
         TagFilterType.DISK_IS -> emptyList()//todo
     }.firstOrNull()
 
-    override suspend fun getInfoRowList(filter: Filter?): MutableList<LibraryInfoRow> {
+    override suspend fun getInfoRowList(filter: Filter?): List<LibraryInfoRow> {
         val count =
             withContext(Dispatchers.IO) { podcastRepository.getFilteredInfo(filter) }
-        return mutableListOf(
+        return listOf(
             LibraryInfoRow(
                 LibraryFieldType.Podcast.Podcast,
                 getAction(count.podcasts),
-                count.podcasts
+                TextConfig(text = count.podcasts.toString())
             ),
             LibraryInfoRow(
                 LibraryFieldType.Podcast.PodcastEpisode,
                 getAction(count.podcastEpisodes),
-                count.podcastEpisodes
+                TextConfig(text = count.podcastEpisodes.toString())
             )
         )
     }
 
-    private fun getAction(count: Int) = if (count > 1) LibraryActionType.SubFilter else LibraryActionType.InfoTitle
+    override suspend fun getActionList(fieldType: LibraryFieldType): List<LibraryInfoRow> {
+        if (fieldType !is LibraryFieldType.Podcast) {
+            return emptyList()
+        }
+        return when (fieldType) {
+            LibraryFieldType.Podcast.Podcast -> listOf()
+            LibraryFieldType.Podcast.PodcastEpisode -> listOf()
+        }
+    }
+
+    private fun getAction(count: Int) =
+        if (count > 1) LibraryRowType.SubFilter else LibraryRowType.InfoTitle
 }
