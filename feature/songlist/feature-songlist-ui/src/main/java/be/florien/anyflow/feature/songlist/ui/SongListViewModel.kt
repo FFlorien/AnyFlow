@@ -14,7 +14,6 @@ import androidx.paging.PagingData
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.base.BaseViewModel
-import be.florien.anyflow.feature.podcast.base.domain.model.BasePodcastInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
@@ -208,7 +207,7 @@ class SongListViewModel
     fun executeAction(queueItem: QueueItemDisplay, row: QueueItemInfoRow<*, *>) {
         when (queueItem) {
             is SongDisplay -> executeSongAction(queueItem, row as BaseSongInfoRow)
-            is PodcastEpisodeDisplay -> executePodcastAction(queueItem, row as BasePodcastInfoRow)
+            is PodcastEpisodeDisplay,
             ErrorDisplay -> Unit
         }
     }
@@ -248,13 +247,6 @@ class SongListViewModel
                 else -> return@launch
             }
         }
-    }
-
-    private fun executePodcastAction(
-        podcastDisplay: PodcastEpisodeDisplay,
-        row: BasePodcastInfoRow
-    ) {
-
     }
 
     fun refreshShortcuts() {
