@@ -10,6 +10,7 @@ import be.florien.anyflow.common.ui.domain.TextConfig
 
 @Immutable
 data class InfoRowDisplay(
+    val key: String,
     val leftImage: ImageConfig?,
     @StringRes
     val title: Int,

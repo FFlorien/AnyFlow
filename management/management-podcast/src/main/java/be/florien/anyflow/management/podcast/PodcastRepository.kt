@@ -3,7 +3,9 @@ package be.florien.anyflow.management.podcast
 import androidx.lifecycle.map
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterPodcastCount
+import be.florien.anyflow.management.podcast.model.PodcastDisplay
 import be.florien.anyflow.tags.local.LibraryDatabase
+import be.florien.anyflow.tags.local.Podcast
 import be.florien.anyflow.tags.local.model.DbPodcast
 import be.florien.anyflow.tags.local.model.DbPodcastDisplay
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
@@ -31,6 +33,15 @@ class PodcastRepository @Inject constructor(
             .getPodcastEpisodeDao()
             .rawQueryPaging(queryComposer.getQueryForPodcastEpisodes(filter))
             .map(DbPodcastEpisodeDisplay::toViewPodcastEpisode)
+
+    suspend fun getPodcastsFiltered(
+        filter: Filter?,
+        search: String
+    ): List<PodcastDisplay> =
+        libraryDatabase
+            .getPodcastDao()
+            .rawQueryList(queryComposer.getQueryForPodcasts(filter))
+            .map(DbPodcast::toViewPodcast)
 
     suspend fun getAllPodcastsList() =
         libraryDatabase

@@ -2,11 +2,12 @@ package be.florien.anyflow.tags.local.query
 
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class QueryComposerTest {
+class QueryComposerFilterTest {
 
     private val queryComposer: QueryComposer = QueryComposerFilter()
 
@@ -90,8 +91,8 @@ class QueryComposerTest {
         val expected =
             "SELECT DISTINCT song.id " +
                     "FROM song " +
-                    "JOIN album ON song.albumId = album.id " +
-                    "WHERE album.artistId = 1 OR album.artistId = 2"
+                    "JOIN album AS album0 ON album0.id = song.albumid " +
+                    "WHERE album0.artistId = 1 OR album0.artistId = 2"
         val filters = listOf(
             Filter(FilterParam(TagFilterType.ALBUM_ARTIST_IS, 1, "One")),
             Filter(FilterParam(TagFilterType.ALBUM_ARTIST_IS, 2, "Two")),
@@ -108,9 +109,10 @@ class QueryComposerTest {
     fun `06 - Song ID - 2 genres selected`() {
         //With
         val expected =
-            "SELECT DISTINCT songGenre.songId " +
-                    "FROM songGenre " +
-                    "WHERE songGenre.genreId = 1 OR songGenre.genreId = 2"
+            "SELECT DISTINCT song.id " +
+                    "FROM song " +
+                    "JOIN songgenre AS songgenre0 ON songgenre0.songId = song.id " +
+                    "WHERE songgenre0.genreId = 1 OR songgenre0.genreId = 2"
         val filters = listOf(
             Filter(FilterParam(TagFilterType.GENRE_IS, 1, "One")),
             Filter(FilterParam(TagFilterType.GENRE_IS, 2, "Two")),
@@ -127,9 +129,10 @@ class QueryComposerTest {
     fun `07 - Song ID - 2 playlists selected`() {
         //With
         val expected =
-            "SELECT DISTINCT playlistSongs.songId " +
-                    "FROM playlistSongs " +
-                    "WHERE playlistSongs.playlistId = 1 OR playlistSongs.playlistId = 2"
+            "SELECT DISTINCT song.id " +
+                    "FROM song " +
+                    "LEFT JOIN playlistsongs AS playlistsongs0 ON playlistsongs0.songId = song.id " +
+                    "WHERE playlistSongs0.playlistId = 1 OR playlistSongs0.playlistId = 2"
         val filters = listOf(
             Filter(FilterParam(TagFilterType.PLAYLIST_IS, 1, "One")),
             Filter(FilterParam(TagFilterType.PLAYLIST_IS, 2, "Two")),
@@ -148,8 +151,8 @@ class QueryComposerTest {
         val expected =
             "SELECT DISTINCT song.id " +
                     "FROM song " +
-                    "JOIN playlistSongs ON song.id = playlistSongs.songId " +
-                    "WHERE song.artistId = 1 AND playlistSongs.playlistId = 2"
+                    "LEFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "WHERE ( song.artistId = 1 AND ( playlistSongs1.playlistId = 2))"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.ARTIST_IS, 1, "One"),
@@ -168,10 +171,11 @@ class QueryComposerTest {
     fun `09 - Song ID - 1 genre from 1 playlist selected`() {
         //With
         val expected =
-            "SELECT DISTINCT songGenre.songId " +
-                    "FROM songGenre " +
-                    "JOIN playlistSongs ON songGenre.songId = playlistSongs.songId " +
-                    "WHERE songGenre.genreId = 1 AND playlistSongs.playlistId = 2"
+            "SELECT DISTINCT song.id " +
+                    "FROM song " +
+                    "JOIN songgenre AS songgenre0 ON songgenre0.songId = song.id " +
+                    "LEFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "WHERE ( songgenre0.genreId = 1 AND ( playlistSongs1.playlistId = 2))"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.GENRE_IS, 1, "One"),
@@ -190,10 +194,11 @@ class QueryComposerTest {
     fun `10 - Song ID - 1 playlist from 1 playlist selected`() {
         //With
         val expected =
-            "SELECT DISTINCT playlistSongs.songId " +
-                    "FROM playlistSongs " +
-                    "JOIN playlistSongs AS playlistSongs0 ON playlistSongs.songId = playlistSongs0.songId " +
-                    "WHERE playlistSongs.playlistId = 1 AND playlistSongs0.playlistId = 2"
+            "SELECT DISTINCT song.id " +
+                    "FROM song " +
+                    "LEFT JOIN playlistsongs AS playlistsongs0 ON playlistsongs0.songId = song.id L" +
+                    "EFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "WHERE ( playlistSongs0.playlistId = 1 AND ( playlistSongs1.playlistId = 2))"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.PLAYLIST_IS, 1, "One"),
@@ -214,10 +219,9 @@ class QueryComposerTest {
         val expected =
             "SELECT DISTINCT song.id " +
                     "FROM song " +
-                    "JOIN songGenre ON song.id = songGenre.songId " +
-                    "JOIN playlistSongs ON song.id = playlistSongs.songId " +
-                    "WHERE (songGenre.genreId = 1 AND playlistSongs.playlistId = 2) " +
-                    "OR song.artistId = 3"
+                    "JOIN songgenre AS songgenre0 ON songgenre0.songId = song.id " +
+                    "LEFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "WHERE ( songgenre0.genreId = 1 AND ( playlistSongs1.playlistId = 2)) OR song.artistId = 3"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.GENRE_IS, 1, "One"),
@@ -241,11 +245,10 @@ class QueryComposerTest {
         val expected =
             "SELECT DISTINCT song.id " +
                     "FROM song " +
-                    "JOIN album ON song.albumId = album.id " +
-                    "JOIN songGenre ON song.id = songGenre.songId " +
-                    "JOIN playlistSongs ON song.id = playlistSongs.songId " +
-                    "WHERE (songGenre.genreId = 1 AND playlistSongs.playlistId = 2) " +
-                    "OR (song.artistId = 3 AND album.artistId = 4)"
+                    "JOIN songgenre AS songgenre0 ON songgenre0.songId = song.id " +
+                    "LEFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "JOIN album AS album1 ON album1.id = song.albumid " +
+                    "WHERE ( songgenre0.genreId = 1 AND ( playlistSongs1.playlistId = 2)) OR ( song.artistId = 3 AND ( album1.artistId = 4))"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.GENRE_IS, 1, "One"),
@@ -270,12 +273,11 @@ class QueryComposerTest {
     fun `13 - Song ID - 1 genre and 1 artist from the same playlist selected`() {
         //With
         val expected =
-            "SELECT DISTINCT playlistSongs.songId " +
+            "SELECT DISTINCT song.id " +
                     "FROM song " +
-                    "JOIN songGenre ON song.id = songGenre.songId " +
-                    "JOIN playlistSongs ON song.id = playlistSongs.songId " +
-                    "WHERE (song.artistId = 1 AND playlistSongs.playlistId = 2) " +
-                    "OR (songGenre.genreId = 3 AND playlistSongs.playlistId = 2)"
+                    "LEFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "JOIN songgenre AS songgenre0 ON songgenre0.songId = song.id " +
+                    "WHERE ( song.artistId = 1 AND ( playlistSongs1.playlistId = 2)) OR ( songgenre0.genreId = 3 AND ( playlistSongs1.playlistId = 2))"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.ARTIST_IS, 1, "One"),
@@ -298,11 +300,10 @@ class QueryComposerTest {
     fun `14 - Song ID - 1 playlist and 1 playlist from the same playlist selected`() {
         //With
         val expected =
-            "SELECT DISTINCT playlistSongs.songId " +
-                    "FROM playlistSongs " +
-                    "JOIN playlistSongs AS playlistSongs0 ON playlistSongs.songId = playlistSongs0.songId " +
-                    "WHERE (playlistSongs.playlistId = 1 AND playlistSongs0.playlistId = 2) " +
-                    "OR (playlistSongs.playlistId = 3 AND playlistSongs0.playlistId = 2)"
+            "SELECT DISTINCT song.id " +
+                    "FROM song LEFT JOIN playlistsongs AS playlistsongs0 ON playlistsongs0.songId = song.id " +
+                    "LEFT JOIN playlistsongs AS playlistsongs1 ON playlistsongs1.songId = song.id " +
+                    "WHERE ( playlistSongs0.playlistId = 1 AND ( playlistSongs1.playlistId = 2)) OR ( playlistSongs0.playlistId = 3 AND ( playlistSongs1.playlistId = 2))"
         val filters = listOf(
             Filter(
                 FilterParam(TagFilterType.PLAYLIST_IS, 1, "One"),
@@ -325,7 +326,7 @@ class QueryComposerTest {
     fun `15 - Song - no filters`() {
         //With
         val expected =
-            "SELECT DISTINCT song.title AS title, artist.name AS artistName, album.name AS albumName, song.time AS time, song.id AS id, song.albumId AS albumId " +
+            "SELECT DISTINCT song.id AS id,song.title AS title,artist.name AS artistName,album.name AS albumName,album.id AS albumId,song.time AS time,song.titleForSort AS titleForSort " +
                     "FROM song " +
                     "JOIN artist ON song.artistId = artist.id " +
                     "JOIN album ON song.albumId = album.id " +
@@ -340,13 +341,42 @@ class QueryComposerTest {
 
     @Test
     fun `16 - Album - no filters`() {
-        val expected = "SELECT DISTINCT album.name AS albumName, album.year AS year, album.diskcount AS diskcount, artist.name AS albumArtistName, artist.summary AS summary, album.id AS albumId, album.artistId AS albumArtistId " +
-                "FROM album " +
-                "JOIN artist ON album.artistId = artist.id " +
+        val expected = "SELECT DISTINCT album.id AS albumId, album.name AS albumName, album.artistId AS albumArtistId, album.year,album.diskcount, artist.name AS albumArtistName, artist.summary ,album.basename " +
+                "FROM album JOIN artist ON album.artistid = artist.id " +
+                "JOIN song ON song.albumId = album.id " +
                 "ORDER BY album.basename COLLATE UNICODE"
 
         //When
         val queryForSongIds = queryComposer.getQueryForAlbum(null, null)
+
+        //Then
+        assertEquals(expected, queryForSongIds.sql)
+    }
+
+    @Test
+    fun `17 - Podcast - no filters`() {
+        val expected = "SELECT DISTINCT podcast.id, podcast.name, podcast.syncDate " +
+                "FROM Podcast "
+
+        //When
+        val queryForSongIds = queryComposer.getQueryForPodcasts(null)
+
+        //Then
+        assertEquals(expected, queryForSongIds.sql)
+    }
+
+    @Test
+    fun `18 - Podcast - 1 podcast episode`() {
+        val expected = "SELECT DISTINCT podcast.id, podcast.name, podcast.syncDate " +
+                "FROM Podcast " +
+                "JOIN podcastEpisode ON podcastEpisode.podcastId = podcast.id " +
+                "WHERE podcastEpisode.id = 1"
+        val filters = Filter(
+                FilterParam(PodcastFilterType.PODCAST_EPISODE_IS, 1, "One")
+            )
+
+        //When
+        val queryForSongIds = queryComposer.getQueryForPodcasts(filters)
 
         //Then
         assertEquals(expected, queryForSongIds.sql)

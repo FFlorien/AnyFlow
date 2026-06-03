@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import be.florien.anyflow.common.base.BaseFragment
@@ -64,12 +63,11 @@ class LibraryInfoFragment(
     ) = ComposeView(requireActivity()).apply {
         setContent {
             val state = viewModel.state.collectAsStateWithLifecycle(persistentListOf())
-            val context = LocalContext.current
             AppTheme {
                 LibraryInfoScreen(
                     state.value,
                     {
-                        viewModel.executeAction(context, it, type)
+                        viewModel.executeAction(this@LibraryInfoFragment, it, type)
                     }
                 )
             }

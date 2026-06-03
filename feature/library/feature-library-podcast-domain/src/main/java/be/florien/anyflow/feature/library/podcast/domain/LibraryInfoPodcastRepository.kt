@@ -1,11 +1,10 @@
 package be.florien.anyflow.feature.library.podcast.domain
 
-import be.florien.anyflow.common.ui.domain.TextConfig
 import be.florien.anyflow.feature.library.domain.LibraryInfoRepository
 import be.florien.anyflow.feature.library.domain.model.IdText
-import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
+import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterType
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
@@ -24,11 +23,7 @@ class LibraryInfoPodcastRepository @Inject constructor(
 ) : LibraryInfoRepository {
 
     override fun getArtUrl(artType: String?, id: Long): String? =
-        if (artType == null) {
-            null
-        } else {
-            urlRepository.getArtUrl(artType, id)
-        }
+        artType?.let { urlRepository.getArtUrl(it, id) }
 
     override suspend fun getFilteredInfo(
         filterType: FilterType,
@@ -36,7 +31,7 @@ class LibraryInfoPodcastRepository @Inject constructor(
     ): IdText? = when (filterType) {
         PodcastFilterType.PODCAST_IS ->
             podcastRepository
-                .getAllPodcastsList()
+                .getPodcastsFiltered(filter, "")
                 .map(PodcastDisplay::toIdText)
 
         PodcastFilterType.PODCAST_EPISODE_IS ->
@@ -45,14 +40,7 @@ class LibraryInfoPodcastRepository @Inject constructor(
                 .map(PodcastEpisodeDisplay::toIdText)
 
         PodcastFilterType.STATE_IS,
-        TagFilterType.SONG_IS,
-        TagFilterType.ARTIST_IS,
-        TagFilterType.ALBUM_ARTIST_IS,
-        TagFilterType.ALBUM_IS,
-        TagFilterType.GENRE_IS,
-        TagFilterType.PLAYLIST_IS,
-        TagFilterType.DOWNLOADED_STATUS_IS,
-        TagFilterType.DISK_IS -> emptyList()//todo
+        is TagFilterType -> emptyList()//todo
     }.firstOrNull()
 
     override suspend fun getInfoRowList(filter: Filter?): List<LibraryInfoRow> {
@@ -62,26 +50,27 @@ class LibraryInfoPodcastRepository @Inject constructor(
             LibraryInfoRow(
                 LibraryFieldType.Podcast.Podcast,
                 getAction(count.podcasts),
-                TextConfig(text = count.podcasts.toString())
+                count.podcasts
             ),
             LibraryInfoRow(
                 LibraryFieldType.Podcast.PodcastEpisode,
                 getAction(count.podcastEpisodes),
-                TextConfig(text = count.podcastEpisodes.toString())
+                count.podcastEpisodes
             )
         )
     }
 
-    override suspend fun getActionList(fieldType: LibraryFieldType): List<LibraryInfoRow> {
-        if (fieldType !is LibraryFieldType.Podcast) {
-            return emptyList()
-        }
-        return when (fieldType) {
-            LibraryFieldType.Podcast.Podcast -> listOf()
-            LibraryFieldType.Podcast.PodcastEpisode -> listOf()
+    override suspend fun getActionList(fieldType: LibraryFieldType) = when (fieldType) {
+        !is LibraryFieldType.Podcast -> emptyList()
+        is LibraryFieldType.Podcast -> LibraryRowType.Action.entries.map {
+            LibraryInfoRow(
+                fieldType = fieldType,
+                rowType = it,
+                count = 1
+            )
         }
     }
 
-    private fun getAction(count: Int) =
-        if (count > 1) LibraryRowType.SubFilter else LibraryRowType.InfoTitle
+    private fun getAction(count: Int): LibraryRowType =
+        if (count > 1) LibraryRowType.MultiRow.SubFilter else LibraryRowType.SingleRow.ExpandableTitle
 }

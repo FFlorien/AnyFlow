@@ -42,6 +42,9 @@ abstract class PodcastDao : BaseDao<DbPodcast>() {
     abstract suspend fun getPodcastList(): List<DbPodcast>
 
     @Query("SELECT * FROM podcast")
+    abstract suspend fun getPodcastListFiltered(): List<DbPodcast>
+
+    @Query("SELECT * FROM podcast")
     abstract fun getPodcastsUpdatable(): LiveData<List<DbPodcast>>
 
     @RawQuery

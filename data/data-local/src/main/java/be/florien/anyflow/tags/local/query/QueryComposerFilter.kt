@@ -23,7 +23,7 @@ class QueryComposerFilter : QueryComposer {
     ): SimpleSQLiteQuery {
         val filterTagList = filterList.onlyTag()
         return ("SELECT DISTINCT song.id FROM song" +
-                constructJoinStatement(filterTagList, orderingList) +
+                constructTagJoinStatement(filterTagList, orderingList) +
                 constructWhereStatement(filterTagList, "") +
                 constructOrderStatement(orderingList))
             .toSQLiteQuery("getQueryForSongIds", Throwable().stackTrace)
@@ -43,7 +43,7 @@ class QueryComposerFilter : QueryComposer {
             "FROM song " +
             "JOIN artist ON song.artistId = artist.id " +
             "JOIN album ON song.albumId = album.id" +
-            constructJoinStatement(filter) +
+            constructTagJoinStatement(filter) +
             constructWhereStatement(filter, " song.title LIKE ?", search) +
             " ORDER BY song.titleForSort COLLATE UNICODE")
         .toSQLiteQuery("getQueryForSong", Throwable().stackTrace, search)
@@ -62,7 +62,7 @@ class QueryComposerFilter : QueryComposer {
             "FROM album " +
             "JOIN artist ON album.artistid = artist.id " +
             "JOIN song ON song.albumId = album.id" +
-            constructJoinStatement(filter) +
+            constructTagJoinStatement(filter) +
             constructWhereStatement(filter, " album.name LIKE ?", search) +
             " ORDER BY album.basename COLLATE UNICODE")
         .toSQLiteQuery("getQueryForAlbum", Throwable().stackTrace, search)
@@ -79,7 +79,7 @@ class QueryComposerFilter : QueryComposer {
             "FROM artist " +
             "JOIN album ON album.artistId = artist.id " +
             "JOIN song ON song.albumId = album.id" +
-            constructJoinStatement(filter) +
+            constructTagJoinStatement(filter) +
             constructWhereStatement(filter, " artist.name LIKE ?", search) +
             " ORDER BY artist.basename COLLATE UNICODE")
         .toSQLiteQuery("getQueryForAlbumArtist", Throwable().stackTrace, search)
@@ -95,7 +95,7 @@ class QueryComposerFilter : QueryComposer {
             "artist.summary " +
             "FROM artist " +
             "JOIN song ON song.artistId = artist.id" +
-            constructJoinStatement(filter) +
+            constructTagJoinStatement(filter) +
             constructWhereStatement(filter, " artist.name LIKE ?", search) +
             " ORDER BY artist.basename COLLATE UNICODE")
         .toSQLiteQuery("getQueryForArtist", Throwable().stackTrace, search)
@@ -109,7 +109,7 @@ class QueryComposerFilter : QueryComposer {
             "FROM genre " +
             "JOIN songgenre ON genre.id = songgenre.genreid " +
             "JOIN song ON song.id = songgenre.songid " +
-            constructJoinStatement(filter) +
+            constructTagJoinStatement(filter) +
             constructWhereStatement(filter, " genre.name LIKE ?", search) +
             " ORDER BY genre.name COLLATE UNICODE")
         .toSQLiteQuery("getQueryForGenre", Throwable().stackTrace, search)
@@ -118,7 +118,7 @@ class QueryComposerFilter : QueryComposer {
         return ("SELECT " +
                 "COUNT(DISTINCT Song.id) " +
                 "FROM Song " +
-                constructJoinStatement(filter) +
+                constructTagJoinStatement(filter) +
                 constructWhereStatement(filter, ""))
             .toSQLiteQuery("getQueryForSongCount", Throwable().stackTrace)
     }
@@ -136,7 +136,7 @@ class QueryComposerFilter : QueryComposer {
             "LEFT JOIN SongGenre ON Song.id = SongGenre.songId " +
             "JOIN Album ON Song.albumId = Album.id " +
             "LEFT JOIN PlaylistSongs ON Song.id = PlaylistSongs.songId" +
-            constructJoinStatement(filter) +
+            constructTagJoinStatement(filter) +
             constructWhereStatement(filter, ""))
         .toSQLiteQuery("getQueryForTagsCount", Throwable().stackTrace)
     //endregion
@@ -152,7 +152,7 @@ class QueryComposerFilter : QueryComposer {
             "FROM playlistsongs " +
             "LEFT JOIN Song on playlistSongs.songid = Song.id " +
             "LEFT JOIN playlist on playlistsongs.playlistid = playlist.id " +
-            constructJoinStatement(filter, needJoinSong = false, hasJoinSong = false) +
+            constructTagJoinStatement(filter, needJoinSong = false, hasJoinSong = false) +
             constructWhereStatement(filter, " playlist.name LIKE ?", search) +
             " ORDER BY playlist.name COLLATE UNICODE")
         .toSQLiteQuery("getQueryForPlaylist", Throwable().stackTrace, search)
@@ -167,7 +167,7 @@ class QueryComposerFilter : QueryComposer {
             "(SELECT COUNT(songId) FROM playlistSongs WHERE playlistsongs.playlistId = playlist.id) as songCount " +
             "FROM playlist " +
             "LEFT JOIN playlistsongs on playlistsongs.playlistid = playlist.id " +
-            constructJoinStatement(filter, needJoinSong = true) +
+            constructTagJoinStatement(filter, needJoinSong = true) +
             constructWhereStatement(filter, " playlist.name LIKE ?", search) +
             " ORDER BY playlist.name COLLATE UNICODE")
         .toSQLiteQuery("getQueryForPlaylistWithCount", Throwable().stackTrace, search)
@@ -178,7 +178,7 @@ class QueryComposerFilter : QueryComposer {
                 "COUNT(*) " +
                 "FROM playlistSongs " +
                 "JOIN song ON PlaylistSongs.songId = song.id" +
-                constructJoinStatement(filterList) +
+                constructTagJoinStatement(filterList) +
                 constructWhereStatement(filterList, "") +
                 " AND playlistsongs.playlistId = playlist.id"
         return ("SELECT " +
@@ -198,7 +198,8 @@ class QueryComposerFilter : QueryComposer {
     ): SimpleSQLiteQuery {
         val podcastFilters = filter.onlyPodcast()
 
-        return ("SELECT DISTINCT podcast.id, podcast.name, podcast.syncDate FROM Podcast " +
+        return ("SELECT DISTINCT podcast.id, podcast.name, podcast.description, podcast.language, podcast.feedUrl, podcast.website, podcast.buildDate, podcast.syncDate FROM podcast" +
+                constructPodcastJoinStatement(podcastFilters) +
                 constructWhereStatement(podcastFilters, ""))
             .toSQLiteQuery("getQueryForPodcasts", Throwable().stackTrace)
     }
@@ -222,7 +223,7 @@ class QueryComposerFilter : QueryComposer {
         val podcastFilters = filter.onlyPodcast()
 
         return ("SELECT DISTINCT podcastEpisode.id FROM podcastEpisode " +
-                constructJoinStatement(podcastFilters) +
+                constructTagJoinStatement(podcastFilters) +
                 constructWhereStatement(podcastFilters, "") +
                 " ORDER BY podcastEpisode.publicationDate ASC")
             .toSQLiteQuery("getQueryForPodcastEpisodeIds", Throwable().stackTrace)
@@ -234,7 +235,7 @@ class QueryComposerFilter : QueryComposer {
         val podcastFilters = filterList?.onlyPodcast()
 
         return ("SELECT DISTINCT podcastEpisode.id FROM podcastEpisode " +
-                constructJoinStatement(podcastFilters) +
+                constructPodcastJoinStatement(podcastFilters) +
                 constructWhereStatement(podcastFilters, "") +
                 " ORDER BY podcastEpisode.publicationDate ASC")
             .toSQLiteQuery("getQueryForPodcastEpisodeIds", Throwable().stackTrace)
@@ -245,7 +246,7 @@ class QueryComposerFilter : QueryComposer {
             "COUNT(DISTINCT PodcastEpisode.id) AS podcastEpisodes " +
             "FROM Podcast " +
             "JOIN PodcastEpisode on PodcastEpisode.podcastId = Podcast.id" +
-            constructJoinStatement(filter) +
+            constructPodcastJoinStatement(filter?.takeIf { it.mainParam.type != PodcastFilterType.PODCAST_EPISODE_IS }) +
             constructWhereStatement(filter, ""))
         .toSQLiteQuery("getQueryForPodcastCount", Throwable().stackTrace)
     //endregion
@@ -253,7 +254,7 @@ class QueryComposerFilter : QueryComposer {
     //region download
     override fun getQueryForDownload(filter: Filter?) =
         ("INSERT INTO Download (mediaId, mediaType) SELECT Song.id, $SONG_MEDIA_TYPE FROM Song"
-                + constructJoinStatement(filter)
+                + constructTagJoinStatement(filter)
                 + constructWhereStatement(filter, "")
                 + " AND Song.local IS NULL "
                 + "AND Song.id NOT IN (SELECT Download.mediaId FROM Download)")
@@ -261,7 +262,7 @@ class QueryComposerFilter : QueryComposer {
 
     override fun getQueryForDownloadCount(filter: Filter?) =
         ("SELECT Song.local IS NOT NULL AS downloaded, COUNT(Song.id) AS count FROM Song"
-                + constructJoinStatement(filter)
+                + constructTagJoinStatement(filter)
                 + constructWhereStatement(filter, "")
                 + " GROUP BY song.local IS NOT NULL")
             .toSQLiteQuery("getQueryForDownloadCount", Throwable().stackTrace)
@@ -272,22 +273,22 @@ class QueryComposerFilter : QueryComposer {
             "COUNT(DISTINCT song.local) AS downloaded " +
             "FROM song " +
             "LEFT JOIN download ON song.id = download.mediaId"
-            + constructJoinStatement(filter)
+            + constructTagJoinStatement(filter)
             + constructWhereStatement(filter, ""))
         .toSQLiteQuery("getQueryForDownloadProgress", Throwable().stackTrace)
     //endregion
 
     //region private methods
 
-    private fun constructJoinStatement(
+    private fun constructTagJoinStatement(
         filter: Filter?,
         orderingList: List<QueryOrdering> = emptyList(),
         needJoinSong: Boolean = false,
         hasJoinSong: Boolean = true,
     ): String =
-        constructJoinStatement(listOfNotNull(filter), orderingList, needJoinSong, hasJoinSong)
+        constructTagJoinStatement(listOfNotNull(filter), orderingList, needJoinSong, hasJoinSong)
 
-    private fun constructJoinStatement(
+    private fun constructTagJoinStatement(
         filterList: List<Filter>?,
         orderingList: List<QueryOrdering> = emptyList(),
         needJoinSong: Boolean = false,
@@ -314,6 +315,28 @@ class QueryComposerFilter : QueryComposer {
         }
         return if (joins.isEmpty()) "" else joins.joinToString(separator = " ", prefix = " ") {
             it.getJoinClause(hasSongJoin)
+        }
+    }
+
+    private fun constructPodcastJoinStatement(
+        filter: Filter?,
+        orderingList: List<QueryOrdering> = emptyList(),
+    ): String =
+        constructPodcastJoinStatement(listOfNotNull(filter), orderingList)
+
+    private fun constructPodcastJoinStatement(
+        filterList: List<Filter>?,
+        orderingList: List<QueryOrdering> = emptyList()
+    ): String {
+        if (filterList.isNullOrEmpty() && orderingList.isEmpty()) {
+            return ""
+        }
+        val onlyPodcastFilters = filterList?.onlyPodcast()
+        val orderingJoins = orderingList.mapNotNull { it.getJoin() }.toSet()
+        val filterJoin = onlyPodcastFilters?.toQueryFilters()?.flatMap { it.getJoins() }?.toSet() ?: emptySet()
+        val joins = orderingJoins + filterJoin
+        return if (joins.isEmpty()) "" else joins.joinToString(separator = " ", prefix = " ") {
+            it.getJoinClause(false)
         }
     }
 

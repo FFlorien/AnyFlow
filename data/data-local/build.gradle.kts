@@ -1,23 +1,11 @@
 plugins {
-    id "com.android.library"
-    id "org.jetbrains.kotlin.android"
-    id "com.google.devtools.ksp"
+    alias(libs.plugins.library.plugin)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace "be.florien.anyflow.data.local"
-    compileSdk 36 //todo common version
-
-    defaultConfig {
-        minSdk 23
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
-    }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+    namespace = "be.florien.anyflow.data.local"
 }
 
 dependencies {
@@ -35,6 +23,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
-    // Required -- JUnit 4 framework
-    testImplementation(libs.junit)
+    // Required -- JUnit 5 framework
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.jupiter.junit.jupiter.api)
+    testRuntimeOnly(libs.jupiter.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }

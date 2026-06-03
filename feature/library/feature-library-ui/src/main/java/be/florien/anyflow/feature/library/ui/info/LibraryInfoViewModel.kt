@@ -1,24 +1,28 @@
 package be.florien.anyflow.feature.library.ui.info
 
-import android.content.Context
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.domain.ImageConfig
+import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.common.ui.domain.TextConfig
+import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.feature.library.domain.LibraryInfoRepository
 import be.florien.anyflow.feature.library.domain.model.IdText
-import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
+import be.florien.anyflow.feature.library.domain.model.LibraryRowType
+import be.florien.anyflow.feature.library.domain.model.getKey
 import be.florien.anyflow.feature.library.podcast.domain.LibraryInfoPodcastRepository
 import be.florien.anyflow.feature.library.tags.domain.LibraryInfoTagsRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.FilterType
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
@@ -30,8 +34,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class LibraryInfoViewModel @Inject constructor(
     private val libraryPodcastRepositoryProvider: Provider<LibraryInfoPodcastRepository>,
@@ -69,11 +76,11 @@ class LibraryInfoViewModel @Inject constructor(
         }
     }
 
-    fun executeAction(context: Context, rowPosition: Int, backStackName: String) {
+    fun executeAction(fragment: Fragment, rowPosition: Int, backStackName: String) {
         val row = libraryInfoRows.value[rowPosition]
-        val action = row.actionType
+        val action = row.rowType
         when (action) {
-            LibraryRowType.SubFilter -> {
+            LibraryRowType.MultiRow.SubFilter -> {
                 val value = when (row.fieldType) {
                     LibraryFieldType.Tags.Playlist -> PLAYLIST_ID
                     LibraryFieldType.Tags.Album -> ALBUM_ID
@@ -88,41 +95,81 @@ class LibraryInfoViewModel @Inject constructor(
                 }
 
                 navigator.displayFragmentOnMain(
-                    context,
+                    fragment.requireActivity(),
                     LibraryListFragment(value, filterNavigation),
                     backStackName,
                     LibraryListFragment::class.java.simpleName
                 )
             }
 
-            LibraryRowType.InfoTitle -> Unit
-            LibraryRowType.ExpandableTitle -> {
+            LibraryRowType.MultiRow.InfoTitle -> Unit
+            LibraryRowType.SingleRow.ExpandableTitle -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     mutableLibraryInfoRows.value =
                         mutableLibraryInfoRows.value.toMutableList().apply {
                             val index = indexOf(row)
                             remove(row)
-                            add(index, row.copy(actionType = LibraryRowType.ExpandedTitle))
+                            add(index, row.copy(rowType = LibraryRowType.SingleRow.ExpandedTitle))
                             addAll(index + 1, libraryInfoRepository.getActionList(row.fieldType))
                         }
                 }
             }
 
-            LibraryRowType.ExpandedTitle -> {
+            LibraryRowType.SingleRow.ExpandedTitle -> {
                 mutableLibraryInfoRows.value = mutableLibraryInfoRows.value.toMutableList().apply {
                     val index = indexOf(row)
-                    removeIf { it.fieldType == row.fieldType }
-                    add(index, row.copy(actionType = LibraryRowType.ExpandableTitle))
+                    removeAll { it.fieldType == row.fieldType }
+                    add(index, row.copy(rowType = LibraryRowType.SingleRow.ExpandableTitle))
                 }
             }
 
-            LibraryRowType.AddToFilter -> Unit//todo
-            LibraryRowType.AddToPlaylist -> Unit//todo
-            LibraryRowType.AddNext -> Unit//todo
-            LibraryRowType.Search -> Unit//todo
-            LibraryRowType.Download -> Unit//todo
+            LibraryRowType.Action.SeeInLibrary -> {
+                viewModelScope.launch {
+                    val parentFilter = getFilterForRow(row)
+                    withContext(Dispatchers.Main) {
+                        val type = when (row.fieldType) {
+                            is LibraryFieldType.Tags -> TAGS_TYPE
+                            is LibraryFieldType.Podcast -> PODCAST_TYPE
+                        }
+                        navigator.displayFragmentOnMain(
+                            fragment.requireContext(),
+                            LibraryInfoFragment(
+                                type = type,
+                                parentFilter
+                            ),
+                            type,
+                            LibraryInfoFragment::class.java.simpleName
+                        )
+                    }
+                }
+            }
+            LibraryRowType.Action.AddToFilter -> viewModelScope.launch { filterOn(row) }
+            LibraryRowType.Action.AddToPlaylist -> {
+                viewModelScope.launch {
+                    val type = row.fieldType.toTagType() ?: return@launch
+                    val idText = row.getIdText()
+                    navigator.displayPlaylistSelection(fragment.childFragmentManager, idText.id, type, -1)
+                }
+            }
+            LibraryRowType.Action.AddNext -> Unit//todo
+            LibraryRowType.Action.Search -> Unit//todo
+            LibraryRowType.Action.Download -> Unit//todo
         }
     }
+
+    private fun LibraryFieldType.toTagType() =
+        when (this) {//todo copy paste from feature-songlist-ui, make it common
+            LibraryFieldType.Podcast.Podcast -> TODO()
+            LibraryFieldType.Podcast.PodcastEpisode -> TODO()
+            LibraryFieldType.Tags.Duration -> TODO()
+            LibraryFieldType.Tags.Genre -> TagType.Genre
+            LibraryFieldType.Tags.AlbumArtist -> TagType.AlbumArtist
+            LibraryFieldType.Tags.Album -> TagType.Album
+            LibraryFieldType.Tags.Artist -> TagType.Artist
+            LibraryFieldType.Tags.Song -> TagType.Title
+            LibraryFieldType.Tags.Playlist -> TagType.Playlist
+            else -> null
+        }
 
     private fun updateRows() {
         viewModelScope.launch {
@@ -131,15 +178,39 @@ class LibraryInfoViewModel @Inject constructor(
     }
 
     private suspend fun LibraryInfoRow.toInfoRow(): InfoRowDisplay {
-        val idText = if (actionType.isSingleDbRow) getIdText() else null
-        val imageUrl = if (actionType.isUsingArt && idText != null) libraryInfoRepository.getArtUrl(fieldType.artType, idText.id) else null
-        val leftImage = if (actionType.hasLeftIcon) ImageConfig(imageUrl, fieldType.iconRes) else null
-        val title = actionType.titleRes ?: fieldType.titleRes
+        val idText = if (rowType !is LibraryRowType.MultiRow) {
+            getIdText()
+        } else {
+            IdText(0, text = count.toString())
+        }
+        val imageUrl = if (rowType is LibraryRowType.SingleRow) {
+            libraryInfoRepository.getArtUrl(fieldType.artType, idText.id)
+        } else {
+            null
+        }
+        val leftImage = if (rowType !is LibraryRowType.Action) {
+            ImageConfig(imageUrl, fieldType.iconRes)
+        } else {
+            null
+        }
+        val title = rowType.titleRes ?: fieldType.titleRes
+        val info =
+            if (rowType is LibraryRowType.MultiRow && fieldType == LibraryFieldType.Tags.Duration) {
+                TextConfig(
+                    mediaDuration = TimeOperations.toMediaDuration(
+                        count.toDuration(DurationUnit.SECONDS)
+                    )
+                )
+            } else {
+                TextConfig(text = idText.text, textRes = rowType.descriptionRes)
+            }
+
         return InfoRowDisplay(
+            key = "$fieldType${rowType.getKey()}",
             leftImage = leftImage,
             title = title,
-            info = idText?.let { TextConfig(text = it.text, textRes = actionType.descriptionRes) } ?: infoText,
-            actionIcon = actionType.iconRes,
+            info = info,
+            actionIcon = rowType.iconRes,
             backgroundColor = null
         )
     }
@@ -172,6 +243,85 @@ class LibraryInfoViewModel @Inject constructor(
             LibraryFieldType.Tags.Genre -> TagFilterType.GENRE_IS
         }
     }
+
+    suspend fun filterOn(row: LibraryInfoRow) {
+        val filter = getFilterForRow(row)
+        filtersManager.clearFilters()
+        filtersManager.addFilter(filter)
+        filtersManager.commitChanges()
+    }
+
+    private suspend fun getFilterForRow(row: LibraryInfoRow): Filter {
+        val idText = row.getIdText()
+        val filter = Filter(
+            FilterParam(
+                getField(row.fieldType),
+                idText.id,
+                idText.text
+            )
+        )
+        return filter
+    }
+
+    suspend fun getSearchTerms(row: LibraryInfoRow) = row.getIdText().text
+    fun getRowAtPosition(position: Int): LibraryInfoRow {
+        return libraryInfoRows.value[position]
+    }
+
+//    fun queueDownload(songInfo: SongInfo, fieldType: SongFieldType, index: Int?) {
+//        val data = when (fieldType) {
+//            SongFieldType.Title -> Triple(
+//                songInfo.id,
+//                TagFilterType.SONG_IS,
+//                -1
+//            )
+//
+//            SongFieldType.Artist -> Triple(
+//                songInfo.artistId,
+//                TagFilterType.ARTIST_IS,
+//                -1
+//            )
+//
+//            SongFieldType.Album -> Triple(
+//                songInfo.albumId,
+//                TagFilterType.ALBUM_IS,
+//                -1
+//            )
+//
+//            SongFieldType.Disk -> Triple(
+//                songInfo.albumId,
+//                TagFilterType.DISK_IS,
+//                songInfo.disk
+//            )
+//
+//            SongFieldType.AlbumArtist -> Triple(
+//                songInfo.albumArtistId,
+//                TagFilterType.ALBUM_ARTIST_IS,
+//                -1
+//            )
+//
+//            SongFieldType.Genre -> {
+//                val trueIndex = index ?: return
+//                Triple(
+//                    songInfo.genreIds[trueIndex],
+//                    TagFilterType.GENRE_IS,
+//                    -1
+//                )
+//            }
+//
+//            SongFieldType.Playlist -> {
+//                val trueIndex = index ?: return
+//                Triple(
+//                    songInfo.playlistIds[trueIndex],
+//                    TagFilterType.PLAYLIST_IS,
+//                    -1
+//                )
+//            }
+//
+//            else -> return
+//        }
+//        downloadManager.queueDownload(data.first, data.second, data.third)
+//    }
 
     companion object {
 

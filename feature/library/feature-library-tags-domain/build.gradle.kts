@@ -1,26 +1,11 @@
 plugins {
-    id "com.android.library"
-    id "org.jetbrains.kotlin.android"
-    id "kotlin-kapt"
-    id "com.google.devtools.ksp"
+    alias(libs.plugins.library.plugin)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace "be.florien.anyflow.feature.library.tags.domain"
-    compileSdk 36
-
-    defaultConfig {
-        minSdk 23
-        consumerProguardFiles "consumer-rules.pro"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
-    }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+    namespace = "be.florien.anyflow.feature.library.tags.domain"
 }
 
 dependencies {

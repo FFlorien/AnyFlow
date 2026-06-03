@@ -11,7 +11,7 @@
     <item
         android:id="@+id/menu_search_songs"
         android:checkable="true"
-        android:icon="@drawable/ic_search"
+        android:icon="@drawable/ic_search_animated"
         android:title="@string/info_action_search_title"
         app:showAsAction="ifRoom" />
 </menu>

@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":feature-library-tags-domain"))
     implementation(project(":feature-auth-domain"))
     implementation(project(":management-filters"))
+    implementation(project(":management-queue"))
 
     implementation(libs.collection.immutable)
     implementation(libs.androidx.core.ktx)

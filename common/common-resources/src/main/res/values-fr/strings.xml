@@ -97,6 +97,8 @@
     <string name="info_publication">Date de publication</string>
     <string name="info_website">Site web</string>
     <string name="info_state">Statut</string>
+    <string name="info_action_see_in_library">Voir dans la bibliothèque</string>
+    <string name="info_action_see_in_library_detail">Ouvrir la page de %1$s\'s dans la bibliothèque</string>
     <string name="info_action_track_next">Ajouter la chanson à la suite</string>
     <string name="info_action_next_title">Jouer ensuite</string>
     <string name="info_action_select_playlist">Sélectionnez des listes de lecture</string>

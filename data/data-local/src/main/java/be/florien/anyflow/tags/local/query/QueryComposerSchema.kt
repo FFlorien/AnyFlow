@@ -75,6 +75,28 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
             )
         ).toSQLiteQuery("getQueryForAlbum", Throwable().stackTrace)
 
+    //region podcasts
+    override fun getQueryForPodcasts(
+        filter: Filter?//todo: add ordering handling
+    ): SimpleSQLiteQuery = composeQuery(
+        QueryParameters(
+            selects = listOf(
+                QueryParameters.Select(Podcast.Id, "id"),
+                QueryParameters.Select(Podcast.Name, "name"),
+                QueryParameters.Select(Podcast.Description, "description"),
+                QueryParameters.Select(Podcast.Language, "language"),
+                QueryParameters.Select(Podcast.FeedUrl, "feedUrl"),
+                QueryParameters.Select(Podcast.Website, "website"),
+                QueryParameters.Select(Podcast.BuildDate, "buildDate"),
+                QueryParameters.Select(Podcast.SyncDate, "syncDate")
+            ),
+            wheres = listOfNotNull(filter).toWheres().filterPodcasts(),
+            orders = listOf(
+                QueryParameters.Order(Podcast.Name)
+            )
+        )
+    ).toSQLiteQuery("getQueryForPodcasts", Throwable().stackTrace)
+
     /*
     override fun getQueryForAlbumArtist(
         filter: Filter?,

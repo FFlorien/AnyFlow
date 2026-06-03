@@ -36,12 +36,19 @@ import be.florien.anyflow.component.viewholder.QueueItemViewHolderListener
 import be.florien.anyflow.component.viewholder.QueueItemViewHolderProvider
 import be.florien.anyflow.component.viewholder.SongViewHolder
 import be.florien.anyflow.component.viewholder.SwipeActionViewHolder
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.player.service.PlayerService
 import be.florien.anyflow.feature.podcast.ui.PodcastInfoFragment
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.ui.SongInfoFragment
 import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.feature.songlist.ui.databinding.FragmentSongListBinding
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.FilterType
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import be.florien.anyflow.management.queue.model.Chapter
 import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
@@ -347,15 +354,34 @@ class SongListFragment : BaseFragment(), DialogInterface.OnDismissListener,
     }
 
     override fun onInfoDisplayAsked(item: QueueItemDisplay) {
-        when (item) {
-            is SongDisplay -> SongInfoFragment(item.id).show(childFragmentManager, "info")
-            is PodcastEpisodeDisplay -> PodcastInfoFragment(item.id).show(
-                childFragmentManager,
-                "podcastInfo"
-            )
+        val fragment = when (item) {
+            is SongDisplay -> {
+                val filter = Filter(
+                    FilterParam(
+                        TagFilterType.SONG_IS,
+                        item.id,
+                        item.title
+                    )
+                )
+                LibraryInfoFragment(type = LibraryInfoViewModel.TAGS_TYPE, filter)
+            }
 
-            ErrorDisplay -> Unit
+            is PodcastEpisodeDisplay -> {
+                val filter = Filter(
+                    FilterParam(
+                        PodcastFilterType.PODCAST_EPISODE_IS,
+                        item.id,
+                        item.title
+                    )
+                )
+                LibraryInfoFragment(type = LibraryInfoViewModel.PODCAST_TYPE, filter)
+            }
+
+            ErrorDisplay -> {
+                null
+            }
         }
+        fragment?.let { viewModel.navigator.displayFragmentOnMain(requireContext(), it, "tutu", "tata") }
     }
 
     override fun onShortcutOpened(position: Int?) {

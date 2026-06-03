@@ -33,14 +33,17 @@ fun LibraryInfoScreen(
     LazyColumn(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
     ) {
-        itemsIndexed(items = list) { index, item ->
+        itemsIndexed(items = list, key = { _, item ->
+            item.key
+        }) { index, item ->
             Row(
                 modifier = Modifier
+                    .animateItem()
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .clickable {
                         executeAction(index)
-                    },
+                    }
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (item.leftImage?.url == null) {
@@ -63,9 +66,11 @@ fun LibraryInfoScreen(
                 if (item.leftImage == null) {
                     Spacer(modifier = Modifier.size(30.dp))
                 }
-                Column(modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                ) {
                     Text(
                         text = stringResource(item.title),
                         color = MaterialTheme.colorScheme.onSurface,

@@ -29,6 +29,7 @@ gradle = "8.13.2"
 javaxAnnotation = "10.0-b28"
 javaxInject = "1"
 junit = "4.13.2"
+junitBom = "6.1.0"
 kotlin = "2.3.10"
 kotlinKsp = "2.2.21-RC2-2.0.4"
 kotlinGradlePlugin = "2.2.0"
@@ -132,6 +133,10 @@ gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 javax-annotation = { module = "org.glassfish:javax.annotation", version.ref = "javaxAnnotation" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 junit = { module = "junit:junit", version.ref = "junit" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junitBom" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+jupiter-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+jupiter-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinGradlePlugin" }
 kotlin-parcelize-runtime = { module = "org.jetbrains.kotlin:kotlin-parcelize-runtime", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
