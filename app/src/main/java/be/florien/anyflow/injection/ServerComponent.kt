@@ -16,7 +16,7 @@ import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
-import be.florien.anyflow.feature.songlist.ui.di.SongListViewModelModule
+import be.florien.anyflow.feature.mediaList.ui.di.MediaListViewModelModule
 import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
 import be.florien.anyflow.feature.sync.service.di.SyncServiceModule
 import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponent
@@ -32,7 +32,7 @@ import javax.inject.Named
 @Subcomponent(
     modules = [
         // ViewModelModules
-        SongListViewModelModule::class,
+        MediaListViewModelModule::class,
         LibraryTagsViewModelModule::class,
         LibraryViewModelModule::class,
         PodcastViewModelModule::class,

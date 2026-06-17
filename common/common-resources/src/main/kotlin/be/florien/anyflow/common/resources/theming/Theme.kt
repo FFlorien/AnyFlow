@@ -9,7 +9,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.google.android.material.color.ColorContrast.isContrastAvailable
+import okhttp3.OkHttpClient
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -243,16 +248,22 @@ enum class Contrast {
     Standard, Medium, High
 }
 
+object DeleteMeWhenAllIsInCompose {
+    var shouldInitCoil = true
+}
+
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    authenticationInterceptor: AuthenticationInterceptor? = null,
     content: @Composable() () -> Unit
 ) {
     val contrast = if (!LocalInspectionMode.current && isContrastAvailable()) {
-        val uiModeManager = LocalContext.current.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+        val uiModeManager =
+            LocalContext.current.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         when (uiModeManager.contrast) {
-            in 0.33f ..0.66f -> Contrast.Medium
-            in 0.66f ..1f -> Contrast.High
+            in 0.33f..0.66f -> Contrast.Medium
+            in 0.66f..1f -> Contrast.High
             else -> Contrast.Standard
         }
     } else {
@@ -267,6 +278,25 @@ fun AppTheme(
         darkTheme && contrast == Contrast.Medium -> mediumContrastDarkColorScheme
         darkTheme -> highContrastDarkColorScheme
         else -> lightScheme
+    }
+
+    if (DeleteMeWhenAllIsInCompose.shouldInitCoil && authenticationInterceptor != null) {
+        setSingletonImageLoaderFactory { context -> //todo move to the top of content once in SingleActivity
+            ImageLoader.Builder(context)
+                .components {
+                    add(
+                        OkHttpNetworkFetcherFactory(
+                            callFactory = {
+                                OkHttpClient.Builder()
+                                    .addInterceptor(authenticationInterceptor)
+                                    .build()
+                            }
+                        )
+                    )
+                }
+                .build()
+        }
+        DeleteMeWhenAllIsInCompose.shouldInitCoil = false
     }
 
     MaterialTheme(

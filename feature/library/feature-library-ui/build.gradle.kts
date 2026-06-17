@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.library.plugin)
-    alias(libs.plugins.library.databinding.plugin)
     alias(libs.plugins.library.compose.plugin)
     alias(libs.plugins.library.ksp.plugin)
 }
@@ -26,6 +25,7 @@ dependencies {
     implementation(project(":feature-library-tags-domain"))
     implementation(project(":feature-auth-domain"))
     implementation(project(":management-filters"))
+    implementation(project(":management-filters-domain"))
     implementation(project(":management-queue"))
 
     implementation(libs.collection.immutable)
@@ -33,7 +33,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.dagger)
-    implementation(project(":management-filters-domain"))
     ksp(libs.dagger.compiler)
     implementation(libs.coil)
     implementation(libs.coil.okhttp)

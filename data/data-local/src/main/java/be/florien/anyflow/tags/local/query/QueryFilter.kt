@@ -31,7 +31,7 @@ data class QueryFilter(
         ),
         DOWNLOADED_STATUS_IS("song.local IS"),
         PODCAST_IS("podcastEpisode.podcastId ="),
-        PODCAST_EPISODE_IS("podcastEpisode.id =", QueryJoin.JoinType.PODCAST),
+        PODCAST_EPISODE_IS("podcastEpisode.id =", QueryJoin.JoinType.PODCAST_EPISODE),
         DISK_IS("song.disk ="),
         STATE_IS("podcastEpisode.state =")
     }

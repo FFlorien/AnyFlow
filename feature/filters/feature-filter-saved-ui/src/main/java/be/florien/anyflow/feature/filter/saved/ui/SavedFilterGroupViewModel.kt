@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.FilterGroup
@@ -25,7 +26,8 @@ data class FilterGroupItem(
 
 class SavedFilterGroupViewModel @Inject constructor(
     override val filtersManager: FiltersManager,
-    override val navigator: Navigator
+    override val navigator: Navigator,
+    val authenticationInterceptor: AuthenticationInterceptor
 ) : BaseViewModel(), LibraryViewModel {
     val state = filtersManager.filterGroups.map { groups ->
         groups

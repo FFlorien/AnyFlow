@@ -76,6 +76,7 @@ data class DbSongDisplay(
 
 data class DbQueueItemDisplay(
     // Common
+    val position: Int,
     val mediaType: Int,
     // Song
     val songId: Long?,

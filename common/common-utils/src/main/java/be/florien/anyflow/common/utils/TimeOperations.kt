@@ -72,7 +72,7 @@ object TimeOperations {
                 seconds.takeIf { it > 0 || days > 0 || hours > 0 || minutes > 0 })
         }
 
-    fun toMediaDuration(timeInSeconds: Int) = if (timeInSeconds < (60 * 60)) {
+    fun toShortDuration(timeInSeconds: Int) = if (timeInSeconds < (60 * 60)) {
         String.format(Locale.getDefault(), "%d:%02d", timeInSeconds / 60, timeInSeconds % 60)
     } else {
         String.format(

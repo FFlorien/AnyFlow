@@ -76,7 +76,7 @@ constructor(
         }
         .asLiveData()
 
-    val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }
+    val isPreviousPossible: LiveData<Boolean> = playingQueue.positionUpdater.map { it != 0 }.asLiveData()
     val waveForm: LiveData<DoubleArray> =
         playingQueue.currentMedia.switchMap {
             if (it?.mediaType == SONG_MEDIA_TYPE) {

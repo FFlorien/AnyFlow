@@ -12,7 +12,7 @@ import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.player.ui.MainActivity
 import be.florien.anyflow.feature.player.ui.MainScreenSection
-import be.florien.anyflow.feature.songlist.ui.SongListFragment
+import be.florien.anyflow.feature.mediaList.ui.MediaListFragment
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -75,9 +75,9 @@ class ConnectedModule {
         object: MainScreenSection {
             override val isFirstSection: Boolean = true
             override val menuId: Int = R.id.menu_song_list
-            override val tag: String = SongListFragment::class.java.simpleName
+            override val tag: String = MediaListFragment::class.java.simpleName
 
-            override fun createFragment(): Fragment = SongListFragment()
+            override fun createFragment(): Fragment = MediaListFragment()
         },
         object: MainScreenSection {
             override val isFirstSection: Boolean = false

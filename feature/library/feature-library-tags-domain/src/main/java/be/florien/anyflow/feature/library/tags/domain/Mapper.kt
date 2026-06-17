@@ -33,7 +33,7 @@ internal fun SongDisplayDomain.toFilterItem(
         artUrl = artUrl,
         subtitle = artistName,
         subsubtitle = albumName,
-        duration = TimeOperations.toMediaDuration(time)
+        duration = TimeOperations.toShortDuration(time)
     )
 }
 

@@ -10,6 +10,7 @@ import be.florien.anyflow.common.ui.domain.ImageConfig
 import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.common.ui.domain.TextConfig
 import be.florien.anyflow.common.utils.TimeOperations
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.library.domain.LibraryInfoRepository
 import be.florien.anyflow.feature.library.domain.model.IdText
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
@@ -44,7 +45,8 @@ class LibraryInfoViewModel @Inject constructor(
     private val libraryPodcastRepositoryProvider: Provider<LibraryInfoPodcastRepository>,
     private val libraryTagsRepositoryProvider: Provider<LibraryInfoTagsRepository>,
     override val filtersManager: FiltersManager,
-    override val navigator: Navigator
+    override val navigator: Navigator,
+    val authenticationInterceptor: AuthenticationInterceptor
 ) : ViewModel(), LibraryViewModel {
     private val mutableLibraryInfoRows: MutableStateFlow<List<LibraryInfoRow>> =
         MutableStateFlow(listOf())

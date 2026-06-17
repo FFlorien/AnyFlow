@@ -63,7 +63,7 @@ class LibraryInfoFragment(
     ) = ComposeView(requireActivity()).apply {
         setContent {
             val state = viewModel.state.collectAsStateWithLifecycle(persistentListOf())
-            AppTheme {
+            AppTheme(authenticationInterceptor = viewModel.authenticationInterceptor) {
                 LibraryInfoScreen(
                     state.value,
                     {

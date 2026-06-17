@@ -2,13 +2,13 @@ package be.florien.anyflow.tags.local.query
 
 data class QueryJoin(val type: JoinType, val level: Int) {
 
-    fun getJoinClause(hasSongJoin: Boolean = true) = if (hasSongJoin || type.clauseWithoutSong == null) {
-        type.clauseWithSong.replace(TABLE_COUNT_FORMAT, level.toString())
+    fun getJoinClause(hasAtomJoin: Boolean = true) = if (hasAtomJoin || type.clauseWithoutAtom == null) {
+        type.clauseWithAtom.replace(TABLE_COUNT_FORMAT, level.toString())
     } else {
-        type.clauseWithoutSong.replace(TABLE_COUNT_FORMAT, level.toString())
+        type.clauseWithoutAtom.replace(TABLE_COUNT_FORMAT, level.toString())
     }
 
-    enum class JoinType(val clauseWithSong: String, val clauseWithoutSong: String? = null) {
+    enum class JoinType(val clauseWithAtom: String, val clauseWithoutAtom: String? = null) {
         ARTIST("JOIN artist ON song.artistId = artist.id"),
         ALBUM("JOIN album ON song.albumId = album.id"),
         ALBUM_ARTIST("JOIN album ON song.albumId = album.id JOIN artist AS albumArtist ON album.artistId = albumArtist.id"),
@@ -23,7 +23,7 @@ data class QueryJoin(val type: JoinType, val level: Int) {
             "LEFT JOIN playlistsongs AS playlistsongs$TABLE_COUNT_FORMAT ON playlistsongs$TABLE_COUNT_FORMAT.songId = song.id",
             "LEFT JOIN playlistsongs AS playlistsongs$TABLE_COUNT_FORMAT ON playlistsongs$TABLE_COUNT_FORMAT.songId = playlistsongs.songId"
         ),
-        PODCAST("JOIN podcastEpisode ON podcastEpisode.podcastId = podcast.id")
+        PODCAST_EPISODE("", "JOIN podcastEpisode ON podcastEpisode.podcastId = podcast.id")
     }
 
     companion object {

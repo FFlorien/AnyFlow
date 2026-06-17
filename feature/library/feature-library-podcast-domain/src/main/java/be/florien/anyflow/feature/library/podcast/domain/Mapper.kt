@@ -49,7 +49,7 @@ internal fun PodcastEpisodeDisplay.toFilterItem(
         isSelected = filtersManager.isFilterInEdition(filterInHierarchy),
         section = TimeOperations.toDisplayMonthDate(publicationDate),
         artUrl = urlRepository.getArtUrl("podcast", podcastId),
-        duration = TimeOperations.toMediaDuration(time),
+        duration = TimeOperations.toShortDuration(time),
         subtitle = podcast
     ))
 }

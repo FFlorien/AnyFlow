@@ -10,16 +10,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import be.florien.anyflow.common.di.viewModelFactory
 import be.florien.anyflow.common.navigation.Navigator
+import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.feature.library.ui.BaseFilteringFragment
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
-import coil3.ImageLoader
-import coil3.compose.setSingletonImageLoaderFactory
-import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import kotlinx.collections.immutable.toPersistentList
-import okhttp3.OkHttpClient
 
 class CurrentFilterFragment : BaseFilteringFragment() {
     override fun getTitle(): String = getString(R.string.menu_filters)
@@ -47,21 +44,6 @@ class CurrentFilterFragment : BaseFilteringFragment() {
     ): View {
         return ComposeView(requireActivity()).apply {
             setContent {
-                setSingletonImageLoaderFactory { context -> //todo move to the top of content once in SingleActivity
-                    ImageLoader.Builder(context)
-                        .components {
-                            add(
-                                OkHttpNetworkFetcherFactory(
-                                    callFactory = {
-                                        OkHttpClient.Builder()
-                                            .addInterceptor(viewModel.authenticationInterceptor)
-                                            .build()
-                                    }
-                                )
-                            )
-                        }
-                        .build()
-                }
                 val state = viewModel.stateFlow.collectAsStateWithLifecycle().value
                 val filters = state.map {
                     val mainParam = it.filter.mainParam
@@ -78,13 +60,15 @@ class CurrentFilterFragment : BaseFilteringFragment() {
                         fallbackRes = getDefaultDrawable(it.filter.mainParam)
                     )
                 }.toPersistentList()
-                CurrentFiltersScreen(
-                    filters,
-                    { filterId -> viewModel.deleteFilter(state.first { it.id == filterId }.filter) },
-                    viewModel::clearFilters,
-                    { navigator.navigateToLibrary(requireActivity()) },
-                    { navigator.navigateToPodcast(requireActivity()) }
-                )
+                AppTheme(authenticationInterceptor = viewModel.authenticationInterceptor) {
+                    CurrentFiltersScreen(
+                        filters,
+                        { filterId -> viewModel.deleteFilter(state.first { it.id == filterId }.filter) },
+                        viewModel::clearFilters,
+                        { navigator.navigateToLibrary(requireActivity()) },
+                        { navigator.navigateToPodcast(requireActivity()) }
+                    )
+                }
             }
         }
     }

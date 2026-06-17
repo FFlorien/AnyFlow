@@ -16,7 +16,7 @@ data class SongDisplay(
     val time: Int
 ) : QueueItemDisplay {
     val timeText: String
-        get() = TimeOperations.toMediaDuration(time)
+        get() = TimeOperations.toShortDuration(time)
 }
 
 data class PodcastEpisodeDisplay(
@@ -29,7 +29,7 @@ data class PodcastEpisodeDisplay(
 ) : QueueItemDisplay {
 
     val timeText: String
-        get() = TimeOperations.toMediaDuration(time)
+        get() = TimeOperations.toShortDuration(time)
 
     val chapters: List<Chapter> by lazy {
             val timestampRegex = Regex("(<[a-zA-Z]+>)*\\(?\\{?\\[?([0-5]?\\d:)?[0-5]?\\d:[0-5]\\d\\)?\\}?]?")

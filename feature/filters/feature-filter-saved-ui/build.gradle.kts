@@ -11,19 +11,20 @@ android {
 dependencies {
     implementation(project(":common-di"))
     implementation(project(":common-base"))
+    implementation(project(":common-navigation"))
     implementation(project(":common-resources"))
     implementation(project(":common-ui-domain"))
     implementation(project(":common-utils"))
+    implementation(project(":feature-library-ui"))
+    implementation(project(":feature-auth-domain"))
     implementation(project(":management-filters"))
     implementation(project(":management-filters-domain"))
+    implementation(project(":management-tags"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.dagger)
-    implementation(project(":feature-library-ui"))
-    implementation(project(":management-tags"))
-    implementation(project(":common-navigation"))
     implementation(libs.androidx.compose.material3)
     ksp(libs.dagger.compiler)
     //Paging

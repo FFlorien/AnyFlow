@@ -12,5 +12,5 @@ data class PlaylistSong(
 ) {
 
     val timeText: String
-        get() = TimeOperations.toMediaDuration(time)
+        get() = TimeOperations.toShortDuration(time)
 }

@@ -382,7 +382,7 @@ internal abstract class PlayerPainter(
 
     private fun computeElapsedDurationText() {
         val playBackTimeInSeconds = duration / 1000
-        elapsedDurationText = TimeOperations.toMediaDuration(playBackTimeInSeconds)
+        elapsedDurationText = TimeOperations.toShortDuration(playBackTimeInSeconds)
     }
 
     private fun computeRemainingDurationText() {
@@ -390,7 +390,7 @@ internal abstract class PlayerPainter(
             context.getString(R.string.player_controls_unknown)
         } else {
             val playBackTimeInSeconds = (totalDuration - duration) / 1000
-            val duration = TimeOperations.toMediaDuration(playBackTimeInSeconds)
+            val duration = TimeOperations.toShortDuration(playBackTimeInSeconds)
             "-$duration"
         }
     }

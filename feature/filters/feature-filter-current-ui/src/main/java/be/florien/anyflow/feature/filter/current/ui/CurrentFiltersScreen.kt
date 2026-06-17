@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.unit.dp
-import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.common.resources.utils.forwardingPainter
 import coil3.compose.AsyncImage
 import kotlinx.collections.immutable.PersistentList
@@ -44,12 +43,10 @@ fun CurrentFiltersScreen(
     navigateToLibrary: () -> Unit,
     navigateToPodcast: () -> Unit
 ) {
-    AppTheme {
-        if (state.isEmpty()) {
-            EmptyScreen(navigateToLibrary, navigateToPodcast)
-        } else {
-            FilterList(state, onDeleteAll, onDelete)
-        }
+    if (state.isEmpty()) {
+        EmptyScreen(navigateToLibrary, navigateToPodcast)
+    } else {
+        FilterList(state, onDeleteAll, onDelete)
     }
 }
 

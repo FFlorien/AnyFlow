@@ -27,7 +27,7 @@ data class SongInfo(
     val local: String?
 ) : Parcelable {
     val timeText: String
-        get() = TimeOperations.toMediaDuration(time)
+        get() = TimeOperations.toShortDuration(time)
 
     companion object {
         fun dummySongInfo(id: Long = 0L) = SongInfo(

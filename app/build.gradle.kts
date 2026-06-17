@@ -59,7 +59,7 @@ dependencies {
     implementation(project(":feature-song-base-domain"))
     implementation(project(":feature-song-base-ui"))
     implementation(project(":feature-song-domain"))
-    implementation(project(":feature-songlist-ui"))
+    implementation(project(":feature-medialist-ui"))
     implementation(project(":feature-sync-service"))
     implementation(project(":common-logging"))
     implementation(project(":management-alarm"))

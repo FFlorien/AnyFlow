@@ -6,21 +6,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.utils.applyPutInt
 import be.florien.anyflow.management.queue.model.Ordering
-import be.florien.anyflow.management.queue.model.QueueItemDisplay
 import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
 import be.florien.anyflow.tags.local.model.DbQueueItem
+import be.florien.anyflow.tags.local.model.DbQueueItemDisplay
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
-import be.florien.anyflow.common.utils.applyPutInt
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -50,7 +51,7 @@ class PlayingQueue
         set(value) {
             sharedPreferences.applyPutInt(POSITION_PREF, value)
             MainScope().launch {
-                (positionUpdater as MutableLiveData).value = value
+                (positionUpdater as MutableStateFlow).value = value
                 orderComposer.currentPosition = value
                 sharedPreferences.applyPutInt(POSITION_PREF, value)
                 val mediaAtPosition = queueRepository.getMediaItemAtPosition(value)
@@ -67,11 +68,10 @@ class PlayingQueue
             }
         }
 
-    val positionUpdater: LiveData<Int> = MutableLiveData(listPosition)
+    val positionUpdater: StateFlow<Int> = MutableStateFlow(listPosition)
     val currentMedia: LiveData<DbQueueItem?> = MutableLiveData(null)
 
-    val queueItemDisplayListUpdater: LiveData<PagingData<QueueItemDisplay>> =
-        queueRepository.getQueueItems().cachedIn(coroutineScope)
+    private var queueItemDisplayListUpdater: Flow<out PagingData<out Any>>? = null
     val mediaIdsListUpdater: Flow<List<DbMediaToPlay>> = queueRepository.getMediaIdsInQueueOrder().asFlow()
     val isOrderedUpdater: LiveData<Boolean> = queueRepository.getOrderings()
         .map { orderList ->
@@ -82,5 +82,11 @@ class PlayingQueue
         coroutineScope.launch {
             (currentMedia as MutableLiveData).postValue(queueRepository.getMediaItemAtPosition(listPosition))
         }
+    }
+
+    fun <T: Any> getQueueItemDisplayUpdater(mapping: (DbQueueItemDisplay) -> T): Flow<PagingData<T>> {
+        val updater = queueItemDisplayListUpdater ?: queueRepository.getQueueItems(mapping)
+        queueItemDisplayListUpdater = updater
+        return updater as Flow<PagingData<T>>
     }
 }

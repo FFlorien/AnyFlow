@@ -3,8 +3,10 @@ package be.florien.anyflow.management.queue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
+import androidx.paging.PagingData
 import androidx.room.withTransaction
 import be.florien.anyflow.common.di.ServerScope
+import be.florien.anyflow.common.management.convertToPagingFlow
 import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.management.filters.domain.FiltersRepository
 import be.florien.anyflow.management.filters.domain.model.Filter
@@ -15,6 +17,7 @@ import be.florien.anyflow.management.queue.model.Ordering
 import be.florien.anyflow.tags.local.LibraryDatabase
 import be.florien.anyflow.tags.local.model.DbFilter
 import be.florien.anyflow.tags.local.model.DbFilterGroup
+import be.florien.anyflow.tags.local.model.DbQueueItemDisplay
 import be.florien.anyflow.tags.local.model.DbQueueOrder
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
@@ -152,10 +155,10 @@ class QueueRepository @Inject constructor(
 
     //region Queue
 
-    fun getQueueItems() =
+    fun <T : Any> getQueueItems(mapping: (DbQueueItemDisplay) -> T): Flow<PagingData<T>> =
         libraryDatabase.getQueueOrderDao().displayInQueueOrderPaging()
-            .map { it.toViewQueueItemDisplay() }
-            .convertToPagingLiveData()
+            .map(mapping)
+            .convertToPagingFlow()
 
     fun getMediaIdsInQueueOrder() =
         libraryDatabase.getQueueOrderDao().mediaItemsInQueueOrderUpdatable()

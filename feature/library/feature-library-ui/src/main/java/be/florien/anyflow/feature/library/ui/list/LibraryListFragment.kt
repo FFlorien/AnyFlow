@@ -28,10 +28,6 @@ import be.florien.anyflow.feature.library.ui.toItem
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
-import coil3.ImageLoader
-import coil3.compose.setSingletonImageLoaderFactory
-import coil3.network.okhttp.OkHttpNetworkFetcherFactory
-import okhttp3.OkHttpClient
 
 class LibraryListFragment @SuppressLint("ValidFragment") constructor(
     var filterType: String,
@@ -113,23 +109,7 @@ class LibraryListFragment @SuppressLint("ValidFragment") constructor(
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-
                 AppTheme {
-                    setSingletonImageLoaderFactory { context -> //todo move to the top of content once in SingleActivity
-                        ImageLoader.Builder(context)
-                            .components {
-                                add(
-                                    OkHttpNetworkFetcherFactory(
-                                        callFactory = {
-                                            OkHttpClient.Builder()
-                                                .addInterceptor(viewModel.authenticationInterceptor)
-                                                .build()
-                                        }
-                                    )
-                                )
-                            }
-                            .build()
-                    }
                     LibraryListScreen(
                         itemsPager = viewModel.values,
                         onClick = viewModel::toggleFilterSelection,
