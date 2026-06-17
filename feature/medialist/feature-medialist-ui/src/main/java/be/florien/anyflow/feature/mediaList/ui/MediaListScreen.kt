@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -111,6 +110,7 @@ fun MediaList(
         return
     }
     val lazyListState = rememberLazyListState()
+    val loadingLabel = stringResource(R.string.general_loading_label)
     var displayCurrentMedia by remember { mutableStateOf(MediaPosition.None) }
 
     LaunchedEffect(selectedPosition) {
@@ -149,7 +149,13 @@ fun MediaList(
             items = items,
             lazyListState = lazyListState,
             getSection = {
-                lazyListState.firstVisibleItemIndex.plus(1).toString()
+                when (val itemData = items.itemSnapshotList[lazyListState.firstVisibleItemIndex]) {
+                    is MediaItemData.Full -> itemData.position.plus(1).toString()
+                    is MediaItemData.PodcastChapter -> itemData.podcastPosition.plus(1).toString()
+                    null -> {
+                        loadingLabel
+                    }
+                }
             }
         )
     }
