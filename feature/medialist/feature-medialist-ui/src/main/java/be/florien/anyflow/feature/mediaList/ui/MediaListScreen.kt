@@ -3,6 +3,7 @@ package be.florien.anyflow.feature.mediaList.ui
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.text.Html
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,15 +34,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.currentStateAsState
+import androidx.lifecycle.compose.rememberLifecycleOwner
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import be.florien.anyflow.common.resources.component.ScrollBar
+import be.florien.anyflow.common.resources.component.SlideRightToAction
 import be.florien.anyflow.common.resources.component.handlerWidth
 import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.management.queue.model.Chapter
@@ -54,7 +60,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 sealed interface MediaItemData {
-    val id: String
+    val id: Long
 
     sealed interface Full : MediaItemData {
         val position: Int
@@ -64,7 +70,7 @@ sealed interface MediaItemData {
         val duration: String
 
         data class Song(
-            override val id: String,
+            override val id: Long,
             override val position: Int,
             override val artUrl: String,
             override val title: String,
@@ -74,7 +80,7 @@ sealed interface MediaItemData {
         ) : Full
 
         data class PodcastEpisode(
-            override val id: String,
+            override val id: Long,
             override val position: Int,
             override val artUrl: String,
             override val title: String,
@@ -85,7 +91,7 @@ sealed interface MediaItemData {
     }
 
     data class PodcastChapter(
-        override val id: String,
+        override val id: Long,
         val podcastPosition: Int,
         val time: Long,
         val title: String
@@ -103,15 +109,29 @@ fun MediaList(
     selectedPosition: Int,
     selectedChapterTime: Long,
     onMediaItemClick: (Int) -> Unit,
-    onChapterItemClick: (Int, Long) -> Unit
+    onChapterItemClick: (Int, Long) -> Unit,
+    onItemNavigation: (MediaItemData.Full) -> Unit
 ) {
     if (items == null) {
-        Text(stringResource(R.string.general_loading_label))
+        Text(
+            modifier = Modifier.fillMaxSize(),
+            text = stringResource(R.string.general_loading_label)
+        )
         return
     }
+    val lifecycleOwner = rememberLifecycleOwner()
+    val lifecycleState = lifecycleOwner.lifecycle.currentStateAsState()
     val lazyListState = rememberLazyListState()
     val loadingLabel = stringResource(R.string.general_loading_label)
     var displayCurrentMedia by remember { mutableStateOf(MediaPosition.None) }
+    val currentItemPosition = remember(selectedPosition, items.itemSnapshotList) {
+        items
+            .itemSnapshotList
+            .indexOfFirst { (it as? MediaItemData.Full)?.position == selectedPosition }
+    }
+    val currentItem = remember(currentItemPosition) {
+        if (currentItemPosition >= 0) items.itemSnapshotList[currentItemPosition] as MediaItemData.Full else null
+    }
 
     LaunchedEffect(selectedPosition) {
         snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.map { it.index } }
@@ -120,8 +140,9 @@ fun MediaList(
                 if (itemData.isEmpty()) {
                     return@collect
                 }
-                val selectedItem =
-                    items.itemSnapshotList.indexOfFirst { (it as? MediaItemData.Full)?.position == selectedPosition }
+                val selectedItem = items
+                    .itemSnapshotList
+                    .indexOfFirst { (it as? MediaItemData.Full)?.position == selectedPosition }
                 displayCurrentMedia = if (itemData.min() >= selectedItem) {
                     MediaPosition.Top
                 } else if (itemData.max() <= selectedItem) {
@@ -131,19 +152,33 @@ fun MediaList(
                 }
             }
     }
+
+
+    LaunchedEffect(lifecycleState.value == Lifecycle.State.RESUMED, currentItemPosition >= 0) {
+        if (lifecycleState.value == Lifecycle.State.RESUMED && currentItemPosition >= 0) {
+            lazyListState.scrollToItem(currentItemPosition)
+        }
+    }
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         ItemList(
-            items,
-            lazyListState,
-            selectedPosition,
-            selectedChapterTime,
-            onChapterItemClick,
-            onMediaItemClick
+            items = items,
+            lazyListState = lazyListState,
+            currentFullMedia = currentItem,
+            selectedChapterTime = selectedChapterTime,
+            onChapterItemClick = onChapterItemClick,
+            onItemNavigation = onItemNavigation,
+            onMediaItemClick = onMediaItemClick,
         )
         if (displayCurrentMedia != MediaPosition.None) {
-            StickyItem(items, lazyListState, selectedPosition, displayCurrentMedia)
+            StickyItem(
+                items = items,
+                lazyListState = lazyListState,
+                currentFullMedia = currentItem,
+                currentMediaPosition = displayCurrentMedia,
+                onItemNavigation = onItemNavigation
+            )
         }
         ScrollBar(
             items = items,
@@ -152,9 +187,7 @@ fun MediaList(
                 when (val itemData = items.itemSnapshotList[lazyListState.firstVisibleItemIndex]) {
                     is MediaItemData.Full -> itemData.position.plus(1).toString()
                     is MediaItemData.PodcastChapter -> itemData.podcastPosition.plus(1).toString()
-                    null -> {
-                        loadingLabel
-                    }
+                    null -> loadingLabel
                 }
             }
         )
@@ -165,9 +198,10 @@ fun MediaList(
 private fun ItemList(
     items: LazyPagingItems<MediaItemData>,
     lazyListState: LazyListState,
-    selectedPosition: Int,
+    currentFullMedia: MediaItemData.Full?,
     selectedChapterTime: Long,
     onChapterItemClick: (Int, Long) -> Unit,
+    onItemNavigation: (MediaItemData.Full) -> Unit,
     onMediaItemClick: (Int) -> Unit
 ) {
     LazyColumn(
@@ -193,14 +227,15 @@ private fun ItemList(
                     is MediaItemData.PodcastChapter -> {
                         ChapterItem(
                             media = it,
-                            isSelected = it.podcastPosition == selectedPosition && it.time == selectedChapterTime,
+                            isSelected = it.podcastPosition == currentFullMedia?.position && it.time == selectedChapterTime,
                             onItemClick = onChapterItemClick
                         )
                     }
 
                     is MediaItemData.Full -> MediaItem(
                         it,
-                        it.position == selectedPosition
+                        it == currentFullMedia,
+                        onItemNavigation = onItemNavigation
                     ) {
                         onMediaItemClick(it.position)
                     }
@@ -218,40 +253,29 @@ private fun ItemList(
 private fun BoxScope.StickyItem(
     items: LazyPagingItems<MediaItemData>,
     lazyListState: LazyListState,
-    selectedPosition: Int,
-    currentMediaPosition: MediaPosition
+    currentFullMedia: MediaItemData.Full?,
+    currentMediaPosition: MediaPosition,
+    onItemNavigation: (MediaItemData.Full) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val alignment = if (currentMediaPosition == MediaPosition.Top) {
-        Alignment.TopCenter
-    } else {
-        Alignment.BottomCenter
-    }
-    val modifier = Modifier
-        .align(alignment)
-        .padding(end = handlerWidth)
-    if (selectedPosition < items.itemCount) {
-        val itemData = items.itemSnapshotList.items.first {
-            when (it) {
-                is MediaItemData.Full -> it.position == selectedPosition
-                is MediaItemData.PodcastChapter -> it.podcastPosition == selectedPosition
-            }
+    currentFullMedia?.let { media ->
+        val coroutineScope = rememberCoroutineScope()
+        val alignment = if (currentMediaPosition == MediaPosition.Top) {
+            Alignment.TopCenter
+        } else {
+            Alignment.BottomCenter
         }
-        val itemFull = itemData as? MediaItemData.Full
-            ?: (itemData as? MediaItemData.PodcastChapter)
-                ?.podcastPosition
-                ?.let { items[it] as? MediaItemData.Full }
-        itemFull?.let {
-            MediaItem(
-                modifier = modifier,
-                media = it,
-                isSelected = true
-            ) {
-                coroutineScope.launch {
-                    lazyListState.scrollToItem(selectedPosition)
-                }
+        val indexOfItemFull = items.itemSnapshotList.indexOf(currentFullMedia).takeIf { it >= 0 }
+        MediaItem(
+            modifier = Modifier
+                .align(alignment)
+                .padding(end = handlerWidth),
+            media = media,
+            isSelected = true,
+            onItemNavigation = onItemNavigation
+        ) {
+            coroutineScope.launch {
+                indexOfItemFull?.let { index -> lazyListState.scrollToItem(index) }
             }
-
         }
     }
 }
@@ -261,64 +285,90 @@ fun MediaItem(
     media: MediaItemData.Full,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
+    onItemNavigation: (MediaItemData.Full) -> Unit,
     onItemClick: () -> Unit
 ) {
     val background =
         if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
     val textColor =
         if (isSelected) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 116.dp)
-            .background(background)
-            .clickable(onClick = onItemClick)
-    ) {
-        AsyncImage(
+
+    SlideRightToAction(
+        modifier = modifier,
+        background = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = 116.dp)
+                    .background(background)
+                    .padding(8.dp)
+                    .align(Alignment.CenterStart)
+            ) {
+                Image(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .align(Alignment.CenterVertically),
+                    painter = painterResource(R.drawable.ic_info),
+                    contentDescription = null
+                )
+            }
+        },
+        onSlideComplete = {
+            onItemNavigation(media)
+        }) {
+        Row(
             modifier = Modifier
-                .padding(8.dp)
-                .size(100.dp)
-                .align(Alignment.CenterVertically),
-            model = media.artUrl,
-            contentDescription = null
-        )
-        Column(
-            modifier = Modifier.fillMaxWidth()
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 116.dp)
+                .background(background)
+                .clickable(onClick = onItemClick)
         ) {
-            Text(
-                modifier = Modifier.padding(top = 8.dp, end = 8.dp),
-                text = Html.fromHtml(Html.fromHtml(media.title).toString()).toString()
-                    .trim(),
-                color = textColor
+            AsyncImage(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(100.dp)
+                    .align(Alignment.CenterVertically),
+                model = media.artUrl,
+                contentDescription = null
             )
-            Text(
-                modifier = Modifier.padding(top = 8.dp, end = 8.dp),
-                text = media.author,
-                color = textColor,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            (media as? MediaItemData.Full.Song)?.album?.let {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     modifier = Modifier.padding(top = 8.dp, end = 8.dp),
-                    text = it,
+                    text = Html.fromHtml(Html.fromHtml(media.title).toString()).toString()
+                        .trim(),
+                    color = textColor
+                )
+                Text(
+                    modifier = Modifier.padding(top = 8.dp, end = 8.dp),
+                    text = media.author,
                     color = textColor,
                     style = MaterialTheme.typography.bodyMedium
                 )
-            }
-            Text(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(bottom = 8.dp, end = 8.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        shape = MaterialTheme.shapes.large
+                (media as? MediaItemData.Full.Song)?.album?.let {
+                    Text(
+                        modifier = Modifier.padding(top = 8.dp, end = 8.dp),
+                        text = it,
+                        color = textColor,
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    .padding(horizontal = 4.dp),
-                text = media.duration,
-                textAlign = TextAlign.End,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.bodyMedium
-            )
+                }
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(bottom = 8.dp, end = 8.dp)
+                        .background(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        .padding(horizontal = 4.dp),
+                    text = media.duration,
+                    textAlign = TextAlign.End,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
@@ -355,7 +405,7 @@ fun SongItemPreview() {
         PreviewAsyncImage(R.drawable.cover_placeholder) {
             MediaItem(
                 media = MediaItemData.Full.Song(
-                    id = "0",
+                    id = 0L,
                     position = 0,
                     artUrl = "http://tutu.com",
                     title = "Song's title",
@@ -363,10 +413,10 @@ fun SongItemPreview() {
                     album = "Eponymous",
                     duration = "3:13"
                 ),
-                isSelected = false
+                isSelected = false,
+                onItemNavigation = {}
             ) {}
         }
-
     }
 }
 
@@ -377,7 +427,7 @@ fun PodcastItemPreview() {
         PreviewAsyncImage(R.drawable.cover_placeholder) {
             MediaItem(
                 media = MediaItemData.Full.PodcastEpisode(
-                    id = "0",
+                    id = 0L,
                     position = 0,
                     artUrl = "http://tutu.com",
                     title = "Song's title",
@@ -385,7 +435,8 @@ fun PodcastItemPreview() {
                     duration = "3:13",
                     chapters = emptyList()
                 ),
-                isSelected = false
+                isSelected = false,
+                onItemNavigation = {}
             ) {}
         }
 

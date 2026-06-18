@@ -70,7 +70,7 @@ fun DbQueueItemDisplay.toMediaItemData(getSongArtUrl: (Long) -> String, getPodca
                 songTimeNS != null
             -> {
             MediaItemData.Full.Song(
-                id = songIdNS.toString(),
+                id = songIdNS,
                 position = position - 1,
                 artUrl = getSongArtUrl(songAlbumIdNS),
                 title = songTitleNS,
@@ -88,7 +88,7 @@ fun DbQueueItemDisplay.toMediaItemData(getSongArtUrl: (Long) -> String, getPodca
                 podcastDescriptionNS != null
             -> {
             MediaItemData.Full.PodcastEpisode(
-                id = podcastEpisodeIdNS.toString(),
+                id = podcastEpisodeIdNS,
                 position = position - 1,
                 artUrl = getPodcastArtUrl(podcastIdNS),
                 title = podcastTitleNS,

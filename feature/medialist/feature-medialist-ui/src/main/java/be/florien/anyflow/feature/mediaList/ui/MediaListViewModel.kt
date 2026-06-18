@@ -71,7 +71,7 @@ class MediaListViewModel
                 if (mediaItemData is MediaItemData.Full.PodcastEpisode) {
                     val chapters = mediaItemData.chapters.mapIndexed { index, chapter ->
                         MediaItemData.PodcastChapter(
-                            id = mediaItemData.id + index,
+                            id = (mediaItemData.id * 100) + index,
                             title = chapter.title,
                             podcastPosition = mediaItemData.position,
                             time = chapter.time
@@ -124,14 +124,13 @@ class MediaListViewModel
                     val currentPosition = player?.currentPosition?.div(1000) ?: Long.MAX_VALUE
                     val chapterTime = currentPodcastDisplay
                         ?.chapters
-                        ?.last { currentPosition >= it.time }
+                        ?.lastOrNull { currentPosition >= it.time }
                         ?.time
                         ?: 0L
                     stateFlow.mutable.update {
                         it.copy(chapterTime = chapterTime)
                     }
                 }
-
             }
         }
     }

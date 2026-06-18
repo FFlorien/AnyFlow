@@ -3,7 +3,7 @@ package be.florien.anyflow.data.server.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-abstract class AmpacheErrorResponse {
+open class AmpacheErrorResponse {
     var error: AmpacheError? = null
 }
 

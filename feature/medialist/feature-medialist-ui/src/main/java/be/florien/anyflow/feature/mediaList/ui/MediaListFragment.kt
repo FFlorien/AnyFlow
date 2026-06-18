@@ -15,9 +15,14 @@ import be.florien.anyflow.common.base.BaseFragment
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.di.ViewModelFactoryProvider
 import be.florien.anyflow.common.resources.theming.AppTheme
-import be.florien.anyflow.feature.mediaList.ui.R
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoFragment
+import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.mediaList.ui.databinding.FragmentMediaListBinding
 import be.florien.anyflow.feature.player.service.PlayerService
+import be.florien.anyflow.management.filters.domain.model.Filter
+import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
+import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import com.google.common.util.concurrent.MoreExecutors
 
 
@@ -69,11 +74,29 @@ class MediaListFragment : BaseFragment(), DialogInterface.OnDismissListener {
                     viewModel.stateFlow.collectAsState(MediaListViewModel.State(null, 0, 0)).value
                 val pagingList = state.mediaList?.collectAsLazyPagingItems()
                 MediaList(
-                    pagingList,
-                    state.mediaPosition,
-                    state.chapterTime,
-                    viewModel::goToMedia,
-                    viewModel::goToTime
+                    items = pagingList,
+                    selectedPosition = state.mediaPosition,
+                    selectedChapterTime = state.chapterTime,
+                    onMediaItemClick = viewModel::goToMedia,
+                    onChapterItemClick = viewModel::goToTime,
+                    onItemNavigation = {
+                        val filter = when (it) {
+                            is MediaItemData.Full.Song -> Filter(FilterParam(TagFilterType.SONG_IS, it.id, it.title))
+                            is MediaItemData.Full.PodcastEpisode -> Filter(FilterParam(
+                                PodcastFilterType.PODCAST_EPISODE_IS, it.id, it.title))
+                        }
+                        val type = if (filter.mainParam.type is TagFilterType) {
+                            LibraryInfoViewModel.TAGS_TYPE
+                        } else {
+                            LibraryInfoViewModel.PODCAST_TYPE
+                        }
+                        viewModel.navigator.displayFragmentOnMain(
+                            requireContext(),
+                            LibraryInfoFragment(type, filter),
+                            type,
+                            LibraryInfoFragment::class.java.simpleName
+                        )
+                    }
                 )
             }
         }
