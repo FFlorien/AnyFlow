@@ -16,6 +16,19 @@ class PlayerControls
 @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     View(context, attrs, defStyleAttr) {
 
+    data class LayoutProperties(
+        val smallestButtonWidth: Float,
+        val iconColor: Int,
+        val outlineColor: Int,
+        val readBarsColor: Int,
+        val comingBarsColor: Int,
+        val previousBackgroundColor: Int,
+        val nextBackgroundColor: Int,
+        val progressBackgroundColor: Int,
+        val disabledColor: Int,
+        val minimumDurationForSeek: Int
+    )
+
     /**
      * Attributes
      */
@@ -71,7 +84,7 @@ class PlayerControls
             scrollPlayerPainter.totalDuration = field
             playPlayerPainter.totalDuration = field
         }
-    var waveForm: DoubleArray?
+    var waveForm: List<Double>?
         set(value) {
             if (value != null) {
                 playPlayerPainter.waveForm = value
@@ -104,6 +117,10 @@ class PlayerControls
         currentPlayerPainter = playPlayerPainter
     }
 
+    fun setLayoutProperties(properties: LayoutProperties) {
+        playPlayerPainter.setLayoutProperties(properties)
+        scrollPlayerPainter.setLayoutProperties(properties)
+    }
 
     /**
      * Overridden methods

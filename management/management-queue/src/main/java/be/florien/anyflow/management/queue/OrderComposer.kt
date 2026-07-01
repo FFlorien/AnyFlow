@@ -117,6 +117,9 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
 
     }
 
+    suspend fun isOrdered() =
+        queueRepository.getOrderingsSuspend()?.none { it is Ordering.Random } ?: false
+
     suspend fun randomize() {
         val orderings = mutableListOf<Ordering>(
             Ordering.Random(
@@ -181,7 +184,10 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
     }
 }
 
-suspend fun Filter.contains(song: SongInfo, queueRepository: QueueRepository): Boolean { //todo move elsewhere
+suspend fun Filter.contains(
+    song: SongInfo,
+    queueRepository: QueueRepository
+): Boolean { //todo move elsewhere
     return any { it.contains(song, queueRepository) }
 }
 

@@ -27,10 +27,12 @@ dependencies {
     implementation(project(":management-filters"))
     implementation(project(":management-filters-domain"))
     implementation(project(":management-queue"))
+    implementation(libs.androidx.navigation3.runtime)
 
     implementation(libs.collection.immutable)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.material)
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)

@@ -8,7 +8,6 @@ import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.feature.alarm.ui.AlarmActivity
 import be.florien.anyflow.feature.library.ui.R
-import be.florien.anyflow.feature.player.ui.MainActivity
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
 import be.florien.anyflow.feature.shortcut.ui.ShortcutsActivity
@@ -24,7 +23,7 @@ class NavigatorImpl @Inject constructor() : Navigator {
     }
 
     override fun navigateToCurrentlyPlaying(context: Context) {
-        (context as? MainActivity)?.displaySongList()
+//        (context as? MainActivity)?.displaySongList()
     }
 
     override fun navigateToAlarm(context: Context) {
@@ -40,13 +39,13 @@ class NavigatorImpl @Inject constructor() : Navigator {
     }
 
     override fun navigateToLibrary(context: Context) {
-        (context as? MainActivity)
-            ?.displayLibrary()
+//        (context as? MainActivity)
+//            ?.displayLibrary()
     }
 
     override fun navigateToPodcast(context: Context) {
-        (context as? MainActivity)
-            ?.displayPodcasts()
+//        (context as? MainActivity)
+//            ?.displayPodcasts()
     }
 
     override fun displayFragmentOnMain(

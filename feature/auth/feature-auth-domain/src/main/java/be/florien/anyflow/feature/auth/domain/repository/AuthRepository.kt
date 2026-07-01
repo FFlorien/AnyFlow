@@ -103,6 +103,9 @@ open class AuthRepository
     suspend fun authenticatedPing(): AmpacheAuthenticatedStatus {
         val authToken: String = authPersistence.authToken.secret
         try {
+            if (authToken.isBlank()) {
+                throw IllegalArgumentException("Secret saved is blank")
+            }
             val ping = ampacheAuthSource.authenticatedPing(authToken)
 
             if (ping.session_expire.isNotEmpty()) {

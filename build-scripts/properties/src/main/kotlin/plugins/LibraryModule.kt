@@ -13,7 +13,6 @@ class BaseLibraryModule : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         val libs = getLibsFromVersionCatalog()
         plugins.apply(libs.findPlugin("android-library").get().get().pluginId)
-        plugins.apply(libs.findPlugin("kotlin-android").get().get().pluginId)
         plugins.apply(libs.findPlugin("dependency-analysis").get().get().pluginId)
 
         extensions.configure<LibraryExtension> {

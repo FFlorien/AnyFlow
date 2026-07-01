@@ -21,11 +21,14 @@ dependencies {
     implementation(project(":management-filters-domain"))
     implementation(project(":management-tags"))
 
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.navigation3.runtime)
     implementation(libs.material)
     implementation(libs.dagger)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     ksp(libs.dagger.compiler)
     //Paging
     implementation(libs.androidx.paging.runtime.ktx)

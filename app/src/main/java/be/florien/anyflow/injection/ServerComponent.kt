@@ -12,7 +12,6 @@ import be.florien.anyflow.feature.library.ui.di.PodcastViewModelModule
 import be.florien.anyflow.feature.library.ui.di.LibraryTagsViewModelModule
 import be.florien.anyflow.feature.library.ui.di.LibraryViewModelModule
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
-import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.selection.ui.di.SelectPlaylistViewModelModule
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent

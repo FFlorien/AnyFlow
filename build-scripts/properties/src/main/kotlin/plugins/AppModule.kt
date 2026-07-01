@@ -1,6 +1,6 @@
 package plugins
 
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import com.android.build.api.dsl.ApplicationExtension
 import extension.getLibsFromVersionCatalog
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
@@ -18,7 +18,7 @@ class AppLevelPlugin : Plugin<Project> {
             resolutionStrategy.force("com.google.code.findbugs:jsr305:3.0.2")
         }
 
-        extensions.configure<BaseAppModuleExtension> {
+        extensions.configure<ApplicationExtension> {
             addSdkAndVersion(libs)
             addCompileOptions()
             addDataBinding()
@@ -32,12 +32,11 @@ class AppLevelPlugin : Plugin<Project> {
         plugins.apply(libs.findPlugin("crashlytics").get().get().pluginId)
         plugins.apply(libs.findPlugin("dependency-analysis").get().get().pluginId)
         plugins.apply(libs.findPlugin("google-services").get().get().pluginId)
-        plugins.apply(libs.findPlugin("kotlin-android").get().get().pluginId)
         plugins.apply(libs.findPlugin("kotlin-parcelize").get().get().pluginId)
         plugins.apply(libs.findPlugin("ksp").get().get().pluginId)
     }
 
-    private fun BaseAppModuleExtension.addSdkAndVersion(libs: VersionCatalog) {
+    private fun ApplicationExtension.addSdkAndVersion(libs: VersionCatalog) {
         compileSdk = libs.findVersion("android.compileSdk").get().requiredVersion.toInt()
         defaultConfig {
             multiDexEnabled = true
@@ -51,20 +50,20 @@ class AppLevelPlugin : Plugin<Project> {
         }
     }
 
-    private fun BaseAppModuleExtension.addCompileOptions() {
+    private fun ApplicationExtension.addCompileOptions() {
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_21
             targetCompatibility = JavaVersion.VERSION_21
         }
     }
 
-    private fun BaseAppModuleExtension.addDataBinding() {
+    private fun ApplicationExtension.addDataBinding() {
         buildFeatures {
             dataBinding = true
         }
     }
 
-    private fun BaseAppModuleExtension.addSourceSets() {
+    private fun ApplicationExtension.addSourceSets() {
         sourceSets {
             getByName("main").java.srcDirs("src/main/kotlin")
             getByName("androidTest").java.srcDirs("src/sharedTest/java")
@@ -72,7 +71,7 @@ class AppLevelPlugin : Plugin<Project> {
         }
     }
 
-    private fun BaseAppModuleExtension.addUseLibrary() {
+    private fun ApplicationExtension.addUseLibrary() {
         useLibrary("android.test.runner")
         useLibrary("android.test.base")
         useLibrary("android.test.mock")

@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.management.filters.domain.FiltersRepository
 import be.florien.anyflow.management.filters.domain.model.Filter
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @ServerScope
@@ -12,7 +14,7 @@ class FiltersManager
 @Inject constructor(private val queueRepository: FiltersRepository) {
     private var currentFilters: List<Filter> = listOf()
     private val unCommittedFilters = mutableSetOf<Filter>()
-    private var areFiltersChanged = false
+    val areFiltersChanged: StateFlow<Boolean> = MutableStateFlow(false)
     val filtersInEdition: LiveData<Set<Filter>> = MutableLiveData(setOf())
     val filterGroups = queueRepository.getHistoryAndFilterGroups()
 
@@ -20,7 +22,7 @@ class FiltersManager
         queueRepository.getCurrentFilters().observeForever { filters ->
             currentFilters = filters
 
-            if (!areFiltersChanged) {
+            if (!areFiltersChanged.value) {
                 unCommittedFilters.clear()
                 unCommittedFilters.addAll(filters)
                 (filtersInEdition as MutableLiveData).value = unCommittedFilters
@@ -34,25 +36,25 @@ class FiltersManager
         }
         unCommittedFilters.add(filter)
         (filtersInEdition as MutableLiveData).value = unCommittedFilters
-        areFiltersChanged = true
+        (areFiltersChanged as MutableStateFlow).value = true
     }
 
     fun removeFilter(filter: Filter) {
         unCommittedFilters.remove(filter)
         (filtersInEdition as MutableLiveData).value = unCommittedFilters
-        areFiltersChanged = true
+        (areFiltersChanged as MutableStateFlow).value = true
     }
 
     fun clearFilters() {
         unCommittedFilters.clear()
         (filtersInEdition as MutableLiveData).value = unCommittedFilters
-        areFiltersChanged = true
+        (areFiltersChanged as MutableStateFlow).value = true
     }
 
     suspend fun commitChanges() {
         if (!isFiltersTheSame()) {
             queueRepository.setCurrentFilters(unCommittedFilters.toList())
-            areFiltersChanged = false
+            (areFiltersChanged as MutableStateFlow).value = false
         }
     }
 
@@ -70,7 +72,7 @@ class FiltersManager
     fun abandonChanges() {
         clearFilters()
         unCommittedFilters.addAll(currentFilters)
-        areFiltersChanged = false
+        (areFiltersChanged as MutableStateFlow).value = false
     }
 
     fun isFilterInEdition(filter: Filter): Boolean {

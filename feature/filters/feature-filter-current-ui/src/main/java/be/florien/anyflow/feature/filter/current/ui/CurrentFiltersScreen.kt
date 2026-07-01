@@ -28,7 +28,7 @@ import be.florien.anyflow.common.resources.utils.forwardingPainter
 import coil3.compose.AsyncImage
 import kotlinx.collections.immutable.PersistentList
 
-data class Filter(
+data class FilterUiData(
     val id: Int,
     val imageUrl: String?,
     val displayText: String,
@@ -37,7 +37,7 @@ data class Filter(
 
 @Composable
 fun CurrentFiltersScreen(
-    state: PersistentList<Filter>,
+    state: PersistentList<FilterUiData>,
     onDelete: (Int) -> Unit,
     onDeleteAll: () -> Unit,
     navigateToLibrary: () -> Unit,
@@ -65,7 +65,7 @@ private fun EmptyScreen(navigateToLibrary: () -> Unit, navigateToPodcast: () -> 
 
 @Composable
 private fun FilterList(
-    state: PersistentList<Filter>,
+    state: PersistentList<FilterUiData>,
     onDeleteAll: () -> Unit,
     onDelete: (Int) -> Unit
 ) {

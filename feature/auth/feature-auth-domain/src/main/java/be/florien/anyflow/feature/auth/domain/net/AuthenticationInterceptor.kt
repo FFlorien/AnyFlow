@@ -49,7 +49,7 @@ class AuthenticationInterceptor @Inject constructor(
         return try {
             val status = runBlocking { authRepository.get().authenticatedPing() }
             TimeOperations.getDateFromAmpacheComplete(status.session_expire) > TimeOperations.getCurrentDate()
-        } catch (throwable: Throwable) {
+        } catch (_: Throwable) {
             false
         }
     }
@@ -80,7 +80,7 @@ class AuthenticationInterceptor @Inject constructor(
             if (error.error?.errorCode == 4701) {
                 authPersistence.revokeAuthToken()
             }
-        } catch (exception: Exception) {
+        } catch (_: Exception) {
             // ignore
         }
     }

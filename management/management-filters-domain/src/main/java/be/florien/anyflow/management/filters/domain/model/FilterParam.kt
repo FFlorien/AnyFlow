@@ -3,7 +3,9 @@ package be.florien.anyflow.management.filters.domain.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Parcelize
 data class FilterParam<T>(
     val type: @RawValue FilterType,

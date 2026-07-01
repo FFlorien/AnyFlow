@@ -1,6 +1,5 @@
 package be.florien.anyflow.feature.library.ui.info
 
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,7 +19,6 @@ import be.florien.anyflow.feature.library.domain.model.getKey
 import be.florien.anyflow.feature.library.podcast.domain.LibraryInfoPodcastRepository
 import be.florien.anyflow.feature.library.tags.domain.LibraryInfoTagsRepository
 import be.florien.anyflow.feature.library.ui.LibraryViewModel
-import be.florien.anyflow.feature.library.ui.list.LibraryListFragment
 import be.florien.anyflow.management.filters.FiltersManager
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
@@ -35,7 +33,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.time.DurationUnit
@@ -50,7 +47,7 @@ class LibraryInfoViewModel @Inject constructor(
 ) : ViewModel(), LibraryViewModel {
     private val mutableLibraryInfoRows: MutableStateFlow<List<LibraryInfoRow>> =
         MutableStateFlow(listOf())
-    private val libraryInfoRows: StateFlow<List<LibraryInfoRow>> = mutableLibraryInfoRows
+    val libraryInfoRows: StateFlow<List<LibraryInfoRow>> = mutableLibraryInfoRows
 
     private lateinit var libraryInfoRepository: LibraryInfoRepository
 
@@ -58,6 +55,9 @@ class LibraryInfoViewModel @Inject constructor(
 
     var filterNavigation: Filter? = null
         set(value) {
+            if (value == field && value != null) {
+                return
+            }
             field = value
             updateRows()
         }
@@ -78,31 +78,11 @@ class LibraryInfoViewModel @Inject constructor(
         }
     }
 
-    fun executeAction(fragment: Fragment, rowPosition: Int, backStackName: String) {
+    fun executeAction(rowPosition: Int) {
         val row = libraryInfoRows.value[rowPosition]
         val action = row.rowType
         when (action) {
-            LibraryRowType.MultiRow.SubFilter -> {
-                val value = when (row.fieldType) {
-                    LibraryFieldType.Tags.Playlist -> PLAYLIST_ID
-                    LibraryFieldType.Tags.Album -> ALBUM_ID
-                    LibraryFieldType.Tags.AlbumArtist -> ALBUM_ARTIST_ID
-                    LibraryFieldType.Tags.Artist -> ARTIST_ID
-                    LibraryFieldType.Tags.Genre -> GENRE_ID
-                    LibraryFieldType.Tags.Song -> SONG_ID
-                    LibraryFieldType.Tags.Downloaded -> DOWNLOAD_ID
-                    LibraryFieldType.Podcast.Podcast -> PODCAST_ID
-                    LibraryFieldType.Podcast.PodcastEpisode -> PODCAST_EPISODE_ID
-                    LibraryFieldType.Tags.Duration -> GENRE_ID //Shouldn't happen
-                }
-
-                navigator.displayFragmentOnMain(
-                    fragment.requireActivity(),
-                    LibraryListFragment(value, filterNavigation),
-                    backStackName,
-                    LibraryListFragment::class.java.simpleName
-                )
-            }
+            LibraryRowType.MultiRow.SubFilter -> Unit
 
             LibraryRowType.MultiRow.InfoTitle -> Unit
             LibraryRowType.SingleRow.ExpandableTitle -> {
@@ -125,32 +105,13 @@ class LibraryInfoViewModel @Inject constructor(
                 }
             }
 
-            LibraryRowType.Action.SeeInLibrary -> {
-                viewModelScope.launch {
-                    val parentFilter = getFilterForRow(row)
-                    withContext(Dispatchers.Main) {
-                        val type = when (row.fieldType) {
-                            is LibraryFieldType.Tags -> TAGS_TYPE
-                            is LibraryFieldType.Podcast -> PODCAST_TYPE
-                        }
-                        navigator.displayFragmentOnMain(
-                            fragment.requireContext(),
-                            LibraryInfoFragment(
-                                type = type,
-                                parentFilter
-                            ),
-                            type,
-                            LibraryInfoFragment::class.java.simpleName
-                        )
-                    }
-                }
-            }
+            LibraryRowType.Action.SeeInLibrary -> Unit
             LibraryRowType.Action.AddToFilter -> viewModelScope.launch { filterOn(row) }
             LibraryRowType.Action.AddToPlaylist -> {
                 viewModelScope.launch {
                     val type = row.fieldType.toTagType() ?: return@launch
                     val idText = row.getIdText()
-                    navigator.displayPlaylistSelection(fragment.childFragmentManager, idText.id, type, -1)
+//                    navigator.displayPlaylistSelection(fragment.childFragmentManager, idText.id, type, -1)
                 }
             }
             LibraryRowType.Action.AddNext -> Unit//todo

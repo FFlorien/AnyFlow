@@ -1,9 +1,9 @@
 [versions]
 
 #App configuration. Not unused, but used by scripts, see build-scripts module.
-android-compileSdk = "36"
+android-compileSdk = "37"
 android-minSdk = "23"
-android-targetSdk = "36"
+android-targetSdk = "37"
 app-version-code = "11"
 app-version-name = "0.4.1"
 
@@ -18,29 +18,31 @@ constraintlayout = "2.2.1"
 core = "1.17.0"
 dagger = "2.59.2"
 databindingCommon = "8.13.0"
-dependencyAnalysis = "3.6.1"
+dependencyAnalysis = "3.16.0"
 firebaseCore = "21.1.1"
 firebaseCrashlytics = "20.0.4"
 firebaseCrashlyticsGradle = "3.0.6"
 fragment = "1.8.9"
 glide = "5.0.5"
 googleServices = "4.4.4"
-gradle = "8.13.2"
+gradle = "9.2.1"
 javaxAnnotation = "10.0-b28"
 javaxInject = "1"
 junit = "4.13.2"
 junitBom = "6.1.0"
-kotlin = "2.3.10"
-kotlinKsp = "2.2.21-RC2-2.0.4"
-kotlinGradlePlugin = "2.2.0"
+kotlin = "2.4.0"
+kotlinKsp = "2.3.9"
+kotlinGradlePlugin = "2.2.10"
 kotlinReflect = "2.3.0"
-kotlinxCoroutines = "1.10.2"
-lifecycle = "2.10.0"
-material = "1.13.0"
+kotlinxCoroutines = "1.11.0"
+lifecycle = "2.11.0"
+lifecycleViewmodelNav3 = "2.11.0"
+material = "1.14.0"
+material3AdaptiveNav3 = "1.3.0-rc01"
 media3 = "1.9.2"
 multidex = "2.0.1"
-navigationCompose = "2.9.7"
-navigation3Core = "1.0.1"
+navigation3Core = "1.1.3"
+navigationCompose = "2.9.8"
 okhttp = "5.3.2"
 pagingRuntimeKtx = "3.4.1"
 pagingCompose = "3.5.0-alpha01"
@@ -52,11 +54,12 @@ stfalconimageviewer = "1.0.1"
 timber = "5.0.1"
 treessence = "1.1.2"
 workRuntimeKtx = "2.11.1"
+runtimeSaveable = "1.11.3"
 
 [plugins]
 #Not unused, but used by scripts, see build-scripts module.
-android-application = { id = "com.android.application", version.ref = "gradle" }
-android-library = { id = "com.android.library", version.ref = "gradle" }
+android-application = { id = "com.android.application" }
+android-library = { id = "com.android.library" }
 
 #Module configuration
 app-plugin = { id = "plugins.app"}
@@ -71,8 +74,7 @@ crashlytics = { id = "com.google.firebase.crashlytics" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 google-services = { id = "com.google.gms.google-services" }
-kapt = { id = "kotlin-kapt" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kapt = { id = "com.android.legacy-kapt", version.ref = "gradle" }
 kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinKsp" }
@@ -98,7 +100,8 @@ androidx-lifecycle-livedata-core-ktx = { module = "androidx.lifecycle:lifecycle-
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "material3AdaptiveNav3" }
 androidx-media3-common-ktx = { module = "androidx.media3:media3-common-ktx", version.ref = "media3" }
 androidx-media3-datasource = { module = "androidx.media3:media3-datasource", version.ref = "media3" }
 androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "media3" }
@@ -106,9 +109,9 @@ androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", versi
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
-androidx-navigation-common-ktx = { module = "androidx.navigation:navigation-common-ktx", version.ref = "navigationCompose" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3Core" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3Core" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
@@ -150,3 +153,4 @@ retrofit-converter-jackson = { module = "com.squareup.retrofit2:converter-jackso
 stfalconimageviewer = { module = "com.github.stfalcon-studio:StfalconImageViewer", version.ref = "stfalconimageviewer" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 treessence = { module = "com.github.bastienpaulfr:Treessence", version.ref = "treessence" }
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }

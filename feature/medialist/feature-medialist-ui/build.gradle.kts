@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.library.databinding.plugin)
     alias(libs.plugins.library.compose.plugin)
     alias(libs.plugins.library.ksp.plugin)
-    id("kotlin-kapt")
 }
 
 android {
@@ -46,20 +45,21 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.navigation3.runtime)
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.coil)
     implementation(libs.coil.okhttp)
     implementation(libs.collection.immutable)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.recyclerview.fastscroll)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.material)
     implementation(libs.dagger)
     implementation(libs.androidx.media3.session)
-    implementation(libs.androidx.navigation.common.ktx)
     ksp(libs.dagger.compiler)
 
 }

@@ -35,7 +35,7 @@ internal abstract class PlayerPainter(
             computeTicks()
             onValuesComputed?.invoke()
         }
-    var waveForm = DoubleArray(0)
+    var waveForm = emptyList<Double>()
         set(value) {
             field = value
             computeWaveForm()
@@ -210,6 +210,22 @@ internal abstract class PlayerPainter(
             .takeIf { it != PlayerControls.NO_VALUE }?.let {
                 disabledColor = it
             }
+        computePlayPauseIcon()
+        computePreviousIcon()
+        nextIcon = getNextIcon(nextIconPosition)
+    }
+
+    open fun setLayoutProperties(layoutProperties: PlayerControls.LayoutProperties) {
+        measuredSmallestButtonWidth = layoutProperties.smallestButtonWidth
+        iconColor = layoutProperties.iconColor
+        textAndOutlineColor.color = layoutProperties.outlineColor
+        timelineOutlineColor.color = layoutProperties.outlineColor
+        readWaveFormBarsColor.color = layoutProperties.readBarsColor
+        comingWaveFormBarsColor.color = layoutProperties.comingBarsColor
+        previousBackgroundColor.color = layoutProperties.previousBackgroundColor
+        nextBackgroundColor.color = layoutProperties.nextBackgroundColor
+        backgroundColor.color = layoutProperties.progressBackgroundColor
+        disabledColor = layoutProperties.disabledColor
         computePlayPauseIcon()
         computePreviousIcon()
         nextIcon = getNextIcon(nextIconPosition)

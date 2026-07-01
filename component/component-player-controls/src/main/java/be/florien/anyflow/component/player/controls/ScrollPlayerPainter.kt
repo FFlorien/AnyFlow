@@ -31,6 +31,11 @@ internal class ScrollPlayerPainter(
             values.getInt(R.styleable.PlayerControls_minimumDurationForSeek, minimumDurationOffset)
     }
 
+    override fun setLayoutProperties(layoutProperties: PlayerControls.LayoutProperties) {
+        super.setLayoutProperties(layoutProperties)
+        minimumDurationOffset = layoutProperties.minimumDurationForSeek
+    }
+
     override fun getButtonClicked(lastDownEventX: Int, downEventX: Int): Int =
         if (durationOffset.absoluteValue > minimumDurationOffset) {
             CLICK_SCROLL

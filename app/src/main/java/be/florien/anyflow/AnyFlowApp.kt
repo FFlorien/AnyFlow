@@ -20,8 +20,8 @@ import be.florien.anyflow.feature.auth.ui.server.ServerActivity
 import be.florien.anyflow.feature.auth.ui.server.ServerViewModel
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
-import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponent
-import be.florien.anyflow.feature.player.ui.di.PlayerActivityComponentCreator
+import be.florien.anyflow.injection.PlayerActivityComponent
+import be.florien.anyflow.injection.PlayerActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent

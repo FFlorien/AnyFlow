@@ -1,13 +1,16 @@
 package be.florien.anyflow.management.filters.domain.model
 
-class Filter(vararg items: FilterParam<*>) : LinkedHashSet<FilterParam<*>>() {
+import kotlinx.serialization.Serializable
+
+@Serializable
+class Filter() : LinkedHashSet<FilterParam<*>>() {
+
+    constructor(vararg items: FilterParam<*>) : this() {
+        addAll(items)
+    }
 
     val mainParam: FilterParam<*>
         get() = last()
-
-    init {
-        addAll(items)
-    }
 
     fun getFullDisplay(): String = joinToString(separator = " > ") { it.displayText }
 

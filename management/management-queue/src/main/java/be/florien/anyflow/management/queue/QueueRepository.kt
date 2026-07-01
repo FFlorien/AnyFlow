@@ -7,7 +7,6 @@ import androidx.paging.PagingData
 import androidx.room.withTransaction
 import be.florien.anyflow.common.di.ServerScope
 import be.florien.anyflow.common.management.convertToPagingFlow
-import be.florien.anyflow.common.management.convertToPagingLiveData
 import be.florien.anyflow.management.filters.domain.FiltersRepository
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterGroup
@@ -139,6 +138,9 @@ class QueueRepository @Inject constructor(
     fun getOrderings() =
         libraryDatabase.getOrderingDao().allUpdatable().distinctUntilChanged()
             .map { list -> list.map { item -> item.toViewOrdering() } }
+
+    suspend fun getOrderingsSuspend() =
+        libraryDatabase.getOrderingDao().allList().map { item -> item.toViewOrdering() }
 
     suspend fun setOrderings(orderings: List<Ordering>) =
         withContext(Dispatchers.IO) {

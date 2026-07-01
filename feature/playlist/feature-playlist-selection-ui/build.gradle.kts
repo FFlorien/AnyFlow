@@ -1,0 +1,32 @@
+plugins {
+    alias(libs.plugins.library.plugin)
+    alias(libs.plugins.library.databinding.plugin)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace = "be.florien.anyflow.feature.playlist.selection.ui"
+}
+
+dependencies {
+    implementation(project(":common-di"))
+    implementation(project(":common-image"))
+    implementation(project(":common-base"))
+    implementation(project(":common-resources"))
+    implementation(project(":common-ui-domain"))
+    implementation(project(":component-dialog"))
+    implementation(project(":feature-playlist-selection-domain"))
+    implementation(project(":management-filters-domain"))
+    implementation(project(":management-playlist"))//todo implement repo for here
+    implementation(project(":management-tags"))
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.dagger)
+    ksp(libs.dagger.compiler)
+    //Paging
+    implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.recyclerview.fastscroll)
+
+}

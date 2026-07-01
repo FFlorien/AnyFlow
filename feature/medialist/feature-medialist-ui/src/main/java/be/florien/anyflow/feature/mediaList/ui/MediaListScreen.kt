@@ -104,7 +104,7 @@ enum class MediaPosition {
 }
 
 @Composable
-fun MediaList(
+fun MediaListScreen(
     items: LazyPagingItems<MediaItemData>?,
     selectedPosition: Int,
     selectedChapterTime: Long,
