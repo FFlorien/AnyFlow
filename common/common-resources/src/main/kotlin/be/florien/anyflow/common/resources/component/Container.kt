@@ -1,7 +1,9 @@
 package be.florien.anyflow.common.resources.component
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
@@ -27,20 +29,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import be.florien.anyflow.common.resources.R
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
@@ -140,48 +149,74 @@ fun SlideRightToActionLeftToShortCut(
     onSingleShortcut: () -> Unit = {},
     foreground: @Composable BoxScope.() -> Unit
 ) {
-    val density: Density = LocalDensity.current
-    val dpValue = with(density) { SLIDE_TOTAL_WIDTH.toDp() }
-    Box(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surfaceContainer),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Box(modifier = Modifier.width(dpValue)) {
-                actionBackground()
-            }
-            Spacer(modifier = Modifier.weight(1F))
-            shortcuts()
+    val originalViewConfiguration = LocalViewConfiguration.current
+    val viewConfiguration = object : ViewConfiguration {
+        override val doubleTapMinTimeMillis: Long
+            get() = originalViewConfiguration.doubleTapMinTimeMillis
+        override val doubleTapTimeoutMillis: Long
+            get() = originalViewConfiguration.doubleTapTimeoutMillis
+        override val longPressTimeoutMillis: Long
+            get() = originalViewConfiguration.longPressTimeoutMillis
+        override val touchSlop: Float
+            get() = 40f // set this to any value you want
+
+    }
+    CompositionLocalProvider(LocalViewConfiguration provides viewConfiguration) {
+        val density: Density = LocalDensity.current
+        val dpValue = with(density) { SLIDE_TOTAL_WIDTH.toDp() }
+        var contextMenuWidth by remember {
+            mutableFloatStateOf(0f)
         }
-        var offsetX by remember { mutableFloatStateOf(0f) }
+        val scope = rememberCoroutineScope()
+        val offsetX = remember {
+            Animatable(initialValue = 0f)
+        }
         Box(
-            modifier = Modifier
-                .offset { IntOffset(offsetX.roundToInt(), 0) }
-                .draggable(
-                    orientation = Orientation.Horizontal,
-                    state = rememberDraggableState {
-                        offsetX = (offsetX + it).coerceIn(
-                            -SLIDE_TOTAL_WIDTH,
-                            SLIDE_TOTAL_WIDTH
-                        ) //todo compute shortcut size
-                    },
-                    onDragStopped = {
-                        if (offsetX >= SLIDE_COMPLETE_WIDTH) {
-                            onSlideComplete()
-                        }
-                        if (isSingleShortcut && offsetX <= -SLIDE_COMPLETE_WIDTH) {
-                            onSingleShortcut()
-                        }
-                        if (offsetX > 0 || isSingleShortcut) {
-                            offsetX = 0f
-                        }
-                    }
-                )
+            modifier = modifier.fillMaxWidth()
         ) {
-            foreground()
+            Row(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Box(modifier = Modifier.width(dpValue)) {
+                    actionBackground()
+                }
+                Spacer(modifier = Modifier.weight(1F))
+                Row(Modifier.onSizeChanged {
+                    contextMenuWidth = it.width.toFloat()
+                }) { shortcuts() }
+            }
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                    .pointerInput(contextMenuWidth) {
+                        detectHorizontalDragGestures(
+                            onHorizontalDrag = { _, dragAmount ->
+                                scope.launch {
+                                    val newOffset = (offsetX.value + dragAmount)
+                                        .coerceIn(-contextMenuWidth, SLIDE_TOTAL_WIDTH)
+                                    offsetX.snapTo(newOffset)
+                                }
+                            },
+                            onDragEnd = {
+                                if (offsetX.value >= SLIDE_COMPLETE_WIDTH) {
+                                    onSlideComplete()
+                                }
+                                if (isSingleShortcut && offsetX.value <= -contextMenuWidth) {
+                                    onSingleShortcut()
+                                }
+                                if (offsetX.value > 0 || isSingleShortcut) {
+                                    scope.launch {
+                                        offsetX.animateTo(0f)
+                                    }
+                                }
+                            }
+                        )
+                    }
+            ) {
+                foreground()
+            }
         }
     }
 }

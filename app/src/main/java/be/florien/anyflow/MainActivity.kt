@@ -335,6 +335,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
             viewModel.setInternetPresence(hasInternet && (isWifi || isCellular))
         }
         ModalNavigationDrawer(
+            gesturesEnabled = false,
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet(
