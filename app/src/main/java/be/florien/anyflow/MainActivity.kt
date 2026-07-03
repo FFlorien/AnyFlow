@@ -9,6 +9,7 @@ import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ContentTransform
@@ -77,6 +78,7 @@ import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.common.navigation.AlarmList
 import be.florien.anyflow.common.navigation.BottomNavDestination
 import be.florien.anyflow.common.navigation.ComposeNavigator
+import be.florien.anyflow.common.navigation.ConnectedDestination
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.Server
 import be.florien.anyflow.common.navigation.rememberNavigationState
@@ -163,8 +165,26 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
             val navigator = remember { ComposeNavigator(navigationState) }
             val drawerState = rememberDrawerState(initialValue = Closed)
 
+            BackHandler(enabled = drawerState.isOpen) {
+                scope.launch {
+                    drawerState.close()
+                }
+            }
+
             AppTheme {
                 val topLevelRoute = navigationState.topLevelRoute
+                val entryProvider = if (topLevelRoute is ConnectedDestination) entryProvider {
+                    authenticationEntry(navigator)
+                    libraryEntries(viewModelFactory, navigator)
+                    nowPlayingEntry(viewModelFactory, navigator)
+                    currentFilterEntry(viewModelFactory, navigator)
+                    savedFiltersEntry(viewModelFactory)
+                    alarmEntry(viewModelFactory, navigator)
+                } else {
+                    entryProvider {
+                        authenticationEntry(navigator)
+                    }
+                }
                 if (topLevelRoute is BottomNavDestination) {
                     MainContentFrame(
                         scope = scope,
@@ -183,25 +203,12 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                             )
                         }) {
                         NavigationContent(
-                            drawerState,
-                            scope,
-                            navigationState.toEntries(entryProvider {
-                                authenticationEntry(navigator)
-                                libraryEntries(viewModelFactory, navigator)
-                                nowPlayingEntry(viewModelFactory, navigator)
-                                currentFilterEntry(viewModelFactory, navigator)
-                                savedFiltersEntry(viewModelFactory)
-                                alarmEntry(viewModelFactory, navigator)
-                            })
+                            navigationState.toEntries(entryProvider)
                         ) { navigator.goBack() }
                     }
                 } else {
                     NavigationContent(
-                        drawerState,
-                        scope,
-                        navigationState.toEntries(entryProvider {
-                            authenticationEntry(navigator)
-                        })
+                        navigationState.toEntries(entryProvider)
                     ) { navigator.goBack() }
                 }
 
@@ -330,11 +337,17 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                ModalDrawerSheet {
+                ModalDrawerSheet(
+                    drawerContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    drawerContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
                     Column {
                         NavigationDrawerItem(
                             label = {
-                                Text(stringResource(R.string.menu_alarms))
+                                Text(
+                                    stringResource(R.string.menu_alarms),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             },
                             selected = false,
                             onClick = {
@@ -345,7 +358,10 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                             })
                         NavigationDrawerItem(
                             label = {
-                                Text(stringResource(R.string.menu_playlist))
+                                Text(
+                                    stringResource(R.string.menu_playlist),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             },
                             selected = false,
                             onClick = {
@@ -356,7 +372,10 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                             })
                         NavigationDrawerItem(
                             label = {
-                                Text(stringResource(R.string.menu_shortcuts))
+                                Text(
+                                    stringResource(R.string.menu_shortcuts),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             },
                             selected = false,
                             onClick = {
@@ -456,8 +475,6 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
 @Composable
 private fun NavigationContent(
-    drawerState: DrawerState,
-    scope: CoroutineScope,
     entries: SnapshotStateList<NavEntry<NavKey>>,
     goBack: () -> Unit
 ) {
@@ -465,15 +482,7 @@ private fun NavigationContent(
         modifier = Modifier
             .fillMaxSize(),
         entries = entries,
-        onBack = {
-            if (drawerState.isOpen) {
-                scope.launch {
-                    drawerState.close()
-                }
-            } else {
-                goBack()
-            }
-        },
+        onBack = goBack,
         transitionSpec = {
             ContentTransform(
                 targetContentEnter = fadeIn(tween(300)),

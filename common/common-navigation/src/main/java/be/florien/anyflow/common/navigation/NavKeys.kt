@@ -8,7 +8,10 @@ import kotlinx.serialization.Serializable
 import be.florien.anyflow.management.filters.domain.model.FilterType
 
 @Serializable
-sealed interface BottomNavDestination : NavKey {
+sealed interface ConnectedDestination: NavKey
+
+@Serializable
+sealed interface BottomNavDestination : ConnectedDestination {
     @get:StringRes
     val label: Int
 
@@ -57,20 +60,19 @@ sealed interface BottomNavDestination : NavKey {
 }
 
 @Serializable
-object AlarmList : NavKey
+object AlarmList : ConnectedDestination
 
 @Serializable
-object AddAlarm : NavKey
+object AddAlarm : ConnectedDestination
 
 @Serializable
-data class EditAlarm(val alarmId: Long) : NavKey
-
-
-@Serializable
-data object Playlist : NavKey
+data class EditAlarm(val alarmId: Long) : ConnectedDestination
 
 @Serializable
-data object Shortcut : NavKey
+data object Playlist : ConnectedDestination
+
+@Serializable
+data object Shortcut : ConnectedDestination
 
 @Serializable
 data object Server : NavKey
@@ -79,13 +81,13 @@ data object Server : NavKey
 data object Authentication : NavKey
 
 @Serializable
-data class TagInfo(val id: Long, val type: FilterType, val title: String) : NavKey
+data class TagInfo(val id: Long, val type: FilterType, val title: String) : ConnectedDestination
 
 @Serializable
-data class PodcastInfo(val id: Long, val type: FilterType, val title: String) : NavKey
+data class PodcastInfo(val id: Long, val type: FilterType, val title: String) : ConnectedDestination
 
 @Serializable
-data class TagList(val type: String, val filterParent: Filter?) : NavKey
+data class TagList(val type: String, val filterParent: Filter?) : ConnectedDestination
 
 @Serializable
-data class PodcastList(val type: String, val filterParent: Filter?) : NavKey
+data class PodcastList(val type: String, val filterParent: Filter?) : ConnectedDestination
