@@ -103,14 +103,20 @@ private fun FilterItem(
                 onClick(item)
             },
         background = {
-            Icon(
-                painter = painterResource(R.drawable.ic_info),
-                contentDescription = stringResource(R.string.information_content_description),
+            Box(
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(16.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_info),
+                    contentDescription = stringResource(R.string.information_content_description),
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         },
         onSlideComplete = { onNavigation(item) }
     ) {

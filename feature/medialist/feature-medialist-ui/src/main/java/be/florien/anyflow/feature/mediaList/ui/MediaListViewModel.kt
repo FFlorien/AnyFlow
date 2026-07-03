@@ -10,20 +10,14 @@ import androidx.paging.flatMap
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.navigation.Navigator
-import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.song.base.domain.model.BaseSongInfoRow
 import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import be.florien.anyflow.feature.song.domain.SongInfoActions
-import be.florien.anyflow.feature.songlist.base.domain.model.QueueItemInfoRow
 import be.florien.anyflow.management.podcast.PodcastRepository
-import be.florien.anyflow.management.queue.OrderComposer
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.queue.QueueRepository
-import be.florien.anyflow.management.queue.model.ErrorDisplay
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
-import be.florien.anyflow.management.queue.model.QueueItemDisplay
-import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.urls.UrlRepository
@@ -44,19 +38,25 @@ class MediaListViewModel
     playingQueue: PlayingQueue,
     private val songInfoActions: SongInfoActions,
     private val urlRepository: UrlRepository,
-    private val orderComposer: OrderComposer,
     private val tagsRepository: TagsRepository,
     private val podcastRepository: PodcastRepository,
     private val queueRepository: QueueRepository,
-    internal val navigator: Navigator,
-    val authenticationInterceptor: AuthenticationInterceptor
+    internal val navigator: Navigator
 ) : BaseViewModel() {
+
+    @Immutable
+    data class ShortcutData(
+        val action: SongActionType,
+        val field: SongFieldType,
+        val position: Int
+    )
 
     @Immutable
     data class State(
         val mediaList: Flow<PagingData<MediaItemData>>?,
         val mediaPosition: Int,
-        val chapterTime: Long
+        val chapterTime: Long,
+        val shortcuts: List<ShortcutData>
     )
     // region fields
 
@@ -86,19 +86,13 @@ class MediaListViewModel
     private var currentPodcastDisplay: PodcastEpisodeDisplay? = null
     private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
 
-
-    // song actions
-    val playlistListDisplayedFor: LiveData<Triple<Long, SongFieldType, Int>> =
-        MutableLiveData(null)
-    val shortcuts: LiveData<List<BaseSongInfoRow>> =
-        MutableLiveData(songInfoActions.getShortcuts())
-
     // endregion
     val stateFlow: StateFlow<State> = MutableStateFlow(
         State(
             pagedAudioQueue,
             0,
-            0L
+            0L,
+            emptyList()
         )
     )
 
@@ -110,8 +104,9 @@ class MediaListViewModel
                     val item = queueRepository
                         .getMediaItemAtPosition(newPosition)
                         ?.takeIf { it.mediaType == PODCAST_MEDIA_TYPE }
-                    currentPodcastDisplay = item?.let { val podcastEpisodeDisplay =
-                        podcastRepository.getPodcastEpisodeDisplay(it.id)
+                    currentPodcastDisplay = item?.let {
+                        val podcastEpisodeDisplay =
+                            podcastRepository.getPodcastEpisodeDisplay(it.id)
                         podcastEpisodeDisplay?.toViewPodcastEpisodeDisplay()
                     }
                 }
@@ -151,33 +146,19 @@ class MediaListViewModel
         player?.seekTo(position, time * 1000)
     }
 
-    fun clearPlaylistDisplay() {
-        playlistListDisplayedFor.mutable.value = null
-    }
-
     //todo extract some of these actions elsewhere because it's the fragment responsibility
-    fun executeAction(queueItem: QueueItemDisplay, row: QueueItemInfoRow<*, *>) {
-        when (queueItem) {
-            is SongDisplay -> executeSongAction(queueItem, row as BaseSongInfoRow)
-            is PodcastEpisodeDisplay,
-            ErrorDisplay -> Unit
-        }
+    fun executeAction(queueItem: MediaItemData.Full, row: ShortcutData) {
+        executeSongAction(queueItem.id, songInfoActions.getShortcuts()[row.position])
     }
 
-    private fun executeSongAction(songDisplay: SongDisplay, row: BaseSongInfoRow) {
+    private fun executeSongAction(id: Long, row: BaseSongInfoRow) {
         val fieldType = row.fieldType
         viewModelScope.launch {
             val songInfo = withContext(Dispatchers.IO) {
-                tagsRepository.getSongSync(songDisplay.id)
+                tagsRepository.getSongSync(id)
             }
             when (row.actionType) {
-                SongActionType.AddNext -> songInfoActions.playNext(songDisplay.id)
-                //todo get correct id depending on the fieldType
-                SongActionType.AddToPlaylist -> displayPlaylistList(
-                    songDisplay.id,
-                    fieldType,
-                    songInfo.disk
-                )
+                SongActionType.AddNext -> songInfoActions.playNext(id)
                 // todo selector for multiple values (genre && playlists)
                 SongActionType.AddToFilter -> songInfoActions.filterOn(
                     songInfo,
@@ -202,13 +183,20 @@ class MediaListViewModel
     }
 
     fun refreshShortcuts() {
-        val oldValue = shortcuts.value
-        val newValue = songInfoActions.getShortcuts()
-        if (!newValue.containsAll(
-                oldValue ?: listOf()
-            ) || oldValue?.containsAll(newValue) == false
-        ) {
-            shortcuts.mutable.value = songInfoActions.getShortcuts()
+        val oldValue = stateFlow.value.shortcuts
+        val newValue = songInfoActions.getShortcuts().mapIndexed { index, row ->
+            ShortcutData(
+                row.actionType,
+                row.fieldType,
+                index
+            )
+        }
+        if (!newValue.containsAll(oldValue) || !oldValue.containsAll(newValue)) {
+            stateFlow.mutable.update {
+                it.copy(
+                    shortcuts = newValue
+                )
+            }
         }
     }
 
@@ -228,6 +216,6 @@ class MediaListViewModel
         fieldType: SongFieldType,
         secondId: Int
     ) {
-        playlistListDisplayedFor.mutable.value = Triple(songId, fieldType, secondId)
+        //playlistListDisplayedFor.mutable.value = Triple(songId, fieldType, secondId)
     }
 }

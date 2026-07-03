@@ -1,16 +1,21 @@
 package be.florien.anyflow.common.resources.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,8 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import be.florien.anyflow.common.resources.R
@@ -115,6 +122,62 @@ fun SlideRightToAction(
                             onSlideComplete()
                         }
                         offsetX = 0f
+                    }
+                )
+        ) {
+            foreground()
+        }
+    }
+}
+
+@Composable
+fun SlideRightToActionLeftToShortCut(
+    isSingleShortcut: Boolean,
+    actionBackground: @Composable BoxScope.() -> Unit,
+    shortcuts: @Composable RowScope.() -> Unit,
+    onSlideComplete: () -> Unit,
+    modifier: Modifier = Modifier,
+    onSingleShortcut: () -> Unit = {},
+    foreground: @Composable BoxScope.() -> Unit
+) {
+    val density: Density = LocalDensity.current
+    val dpValue = with(density) { SLIDE_TOTAL_WIDTH.toDp() }
+    Box(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Box(modifier = Modifier.width(dpValue)) {
+                actionBackground()
+            }
+            Spacer(modifier = Modifier.weight(1F))
+            shortcuts()
+        }
+        var offsetX by remember { mutableFloatStateOf(0f) }
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(offsetX.roundToInt(), 0) }
+                .draggable(
+                    orientation = Orientation.Horizontal,
+                    state = rememberDraggableState {
+                        offsetX = (offsetX + it).coerceIn(
+                            -SLIDE_TOTAL_WIDTH,
+                            SLIDE_TOTAL_WIDTH
+                        ) //todo compute shortcut size
+                    },
+                    onDragStopped = {
+                        if (offsetX >= SLIDE_COMPLETE_WIDTH) {
+                            onSlideComplete()
+                        }
+                        if (isSingleShortcut && offsetX <= -SLIDE_COMPLETE_WIDTH) {
+                            onSingleShortcut()
+                        }
+                        if (offsetX > 0 || isSingleShortcut) {
+                            offsetX = 0f
+                        }
                     }
                 )
         ) {

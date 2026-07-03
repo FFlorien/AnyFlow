@@ -1,8 +1,5 @@
 package be.florien.anyflow.feature.library.ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
@@ -17,6 +14,7 @@ import be.florien.anyflow.common.navigation.PodcastInfo
 import be.florien.anyflow.common.navigation.PodcastList
 import be.florien.anyflow.common.navigation.TagInfo
 import be.florien.anyflow.common.navigation.TagList
+import be.florien.anyflow.common.navigation.findActivity
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
 import be.florien.anyflow.feature.library.domain.model.LibraryRowType
@@ -50,12 +48,6 @@ import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.collections.immutable.persistentListOf
-
-private tailrec fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
 
 fun EntryProviderScope<NavKey>.libraryEntries(
     viewModelFactory: AnyFlowViewModelFactory,

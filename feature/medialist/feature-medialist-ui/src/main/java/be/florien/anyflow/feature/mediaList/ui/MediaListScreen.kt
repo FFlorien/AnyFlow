@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +48,7 @@ import androidx.lifecycle.compose.rememberLifecycleOwner
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import be.florien.anyflow.common.resources.component.ScrollBar
-import be.florien.anyflow.common.resources.component.SlideRightToAction
+import be.florien.anyflow.common.resources.component.SlideRightToActionLeftToShortCut
 import be.florien.anyflow.common.resources.component.handlerWidth
 import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.management.queue.model.Chapter
@@ -56,6 +57,8 @@ import coil3.asImage
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -108,9 +111,12 @@ fun MediaListScreen(
     items: LazyPagingItems<MediaItemData>?,
     selectedPosition: Int,
     selectedChapterTime: Long,
+    shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
     onMediaItemClick: (Int) -> Unit,
     onChapterItemClick: (Int, Long) -> Unit,
-    onItemNavigation: (MediaItemData.Full) -> Unit
+    onItemNavigation: (MediaItemData.Full) -> Unit,
+    onShortcut: (MediaListViewModel.ShortcutData, MediaItemData.Full) -> Unit,
+    refreshShortcuts: () -> Unit
 ) {
     if (items == null) {
         Text(
@@ -131,6 +137,10 @@ fun MediaListScreen(
     }
     val currentItem = remember(currentItemPosition) {
         if (currentItemPosition >= 0) items.itemSnapshotList[currentItemPosition] as MediaItemData.Full else null
+    }
+
+    LaunchedEffect(lifecycleState.value == Lifecycle.State.RESUMED) {
+        refreshShortcuts()
     }
 
     LaunchedEffect(selectedPosition) {
@@ -166,9 +176,11 @@ fun MediaListScreen(
             items = items,
             lazyListState = lazyListState,
             currentFullMedia = currentItem,
+            shortcuts = shortcuts,
             selectedChapterTime = selectedChapterTime,
             onChapterItemClick = onChapterItemClick,
             onItemNavigation = onItemNavigation,
+            onShortcut = onShortcut,
             onMediaItemClick = onMediaItemClick,
         )
         if (displayCurrentMedia != MediaPosition.None) {
@@ -176,8 +188,10 @@ fun MediaListScreen(
                 items = items,
                 lazyListState = lazyListState,
                 currentFullMedia = currentItem,
+                shortcuts = shortcuts,
                 currentMediaPosition = displayCurrentMedia,
-                onItemNavigation = onItemNavigation
+                onItemNavigation = onItemNavigation,
+                onShortcut = onShortcut
             )
         }
         ScrollBar(
@@ -199,9 +213,11 @@ private fun ItemList(
     items: LazyPagingItems<MediaItemData>,
     lazyListState: LazyListState,
     currentFullMedia: MediaItemData.Full?,
+    shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
     selectedChapterTime: Long,
     onChapterItemClick: (Int, Long) -> Unit,
     onItemNavigation: (MediaItemData.Full) -> Unit,
+    onShortcut: (MediaListViewModel.ShortcutData, MediaItemData.Full) -> Unit,
     onMediaItemClick: (Int) -> Unit
 ) {
     LazyColumn(
@@ -222,22 +238,24 @@ private fun ItemList(
                 "${type}_${it.id}"
             }
         ) { position ->
-            items[position]?.let {
-                when (it) {
+            items[position]?.let { mediaItemData ->
+                when (mediaItemData) {
                     is MediaItemData.PodcastChapter -> {
                         ChapterItem(
-                            media = it,
-                            isSelected = it.podcastPosition == currentFullMedia?.position && it.time == selectedChapterTime,
+                            media = mediaItemData,
+                            isSelected = mediaItemData.podcastPosition == currentFullMedia?.position && mediaItemData.time == selectedChapterTime,
                             onItemClick = onChapterItemClick
                         )
                     }
 
                     is MediaItemData.Full -> MediaItem(
-                        it,
-                        it == currentFullMedia,
-                        onItemNavigation = onItemNavigation
+                        media = mediaItemData,
+                        shortcuts = shortcuts,
+                        isSelected = mediaItemData == currentFullMedia,
+                        onItemNavigation = onItemNavigation,
+                        onShortcut = { onShortcut(it, mediaItemData) }
                     ) {
-                        onMediaItemClick(it.position)
+                        onMediaItemClick(mediaItemData.position)
                     }
                 }
 
@@ -254,7 +272,9 @@ private fun BoxScope.StickyItem(
     items: LazyPagingItems<MediaItemData>,
     lazyListState: LazyListState,
     currentFullMedia: MediaItemData.Full?,
+    shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
     currentMediaPosition: MediaPosition,
+    onShortcut: (MediaListViewModel.ShortcutData, MediaItemData.Full) -> Unit,
     onItemNavigation: (MediaItemData.Full) -> Unit
 ) {
     currentFullMedia?.let { media ->
@@ -266,12 +286,14 @@ private fun BoxScope.StickyItem(
         }
         val indexOfItemFull = items.itemSnapshotList.indexOf(currentFullMedia).takeIf { it >= 0 }
         MediaItem(
+            media = media,
+            shortcuts = shortcuts,
+            isSelected = true,
             modifier = Modifier
                 .align(alignment)
                 .padding(end = handlerWidth),
-            media = media,
-            isSelected = true,
-            onItemNavigation = onItemNavigation
+            onItemNavigation = onItemNavigation,
+            onShortcut = { onShortcut(it, media)}
         ) {
             coroutineScope.launch {
                 indexOfItemFull?.let { index -> lazyListState.scrollToItem(index) }
@@ -283,9 +305,11 @@ private fun BoxScope.StickyItem(
 @Composable
 fun MediaItem(
     media: MediaItemData.Full,
+    shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
     onItemNavigation: (MediaItemData.Full) -> Unit,
+    onShortcut: (MediaListViewModel.ShortcutData) -> Unit,
     onItemClick: () -> Unit
 ) {
     val background =
@@ -293,14 +317,14 @@ fun MediaItem(
     val textColor =
         if (isSelected) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
 
-    SlideRightToAction(
+    SlideRightToActionLeftToShortCut(
         modifier = modifier,
-        background = {
+        isSingleShortcut = shortcuts.size == 1,
+        actionBackground = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(height = 116.dp)
-                    .background(background)
                     .padding(8.dp)
                     .align(Alignment.CenterStart)
             ) {
@@ -312,6 +336,47 @@ fun MediaItem(
                     contentDescription = null
                 )
             }
+        },
+        shortcuts = {
+            for (shortcut in shortcuts.reversed()) {
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(64.dp)
+                        .clickable {
+                            onShortcut(shortcut)
+                        }
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = MaterialTheme.shapes.medium
+                        )
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        painter = painterResource(shortcut.action.iconRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                    Icon(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.BottomEnd)
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .padding(4.dp),
+                        painter = painterResource(shortcut.field.iconRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            }
+        },
+        onSingleShortcut = {
+            onShortcut(shortcuts[0])
         },
         onSlideComplete = {
             onItemNavigation(media)
@@ -413,7 +478,9 @@ fun SongItemPreview() {
                     album = "Eponymous",
                     duration = "3:13"
                 ),
+                persistentListOf(),
                 isSelected = false,
+                onShortcut = {},
                 onItemNavigation = {}
             ) {}
         }
@@ -435,7 +502,9 @@ fun PodcastItemPreview() {
                     duration = "3:13",
                     chapters = emptyList()
                 ),
+                shortcuts = persistentListOf(),
                 isSelected = false,
+                onShortcut = {},
                 onItemNavigation = {}
             ) {}
         }

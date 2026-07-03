@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -19,12 +20,15 @@ import be.florien.anyflow.common.navigation.BottomNavDestination
 import be.florien.anyflow.common.navigation.ComposeNavigator
 import be.florien.anyflow.common.navigation.PodcastInfo
 import be.florien.anyflow.common.navigation.TagInfo
+import be.florien.anyflow.common.navigation.findActivity
 import be.florien.anyflow.feature.player.service.PlayerService
+import be.florien.anyflow.feature.song.base.domain.model.SongActionType
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import com.google.common.util.concurrent.MoreExecutors
+import kotlinx.collections.immutable.toPersistentList
 
 fun EntryProviderScope<NavKey>.nowPlayingEntry(
     viewModelFactory: AnyFlowViewModelFactory,
@@ -32,6 +36,7 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
 ) {
     entry<BottomNavDestination.NowPlaying> {
         val context = LocalContext.current
+        val activity = context.findActivity()
 
         val viewModel = viewModel<MediaListViewModel>(factory = viewModelFactory)
         var player: MediaController? by remember { mutableStateOf(null) }
@@ -54,7 +59,8 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
                 MediaListViewModel.State(
                     null,
                     0,
-                    0
+                    0,
+                    emptyList()
                 )
             ).value
         val pagingList = state.mediaList?.collectAsLazyPagingItems()
@@ -62,8 +68,18 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
             items = pagingList,
             selectedPosition = state.mediaPosition,
             selectedChapterTime = state.chapterTime,
+            shortcuts = state.shortcuts.toPersistentList(),
             onMediaItemClick = viewModel::goToMedia,
             onChapterItemClick = viewModel::goToTime,
+            refreshShortcuts = viewModel::refreshShortcuts,
+            onShortcut = { shortcut, media ->
+                if (shortcut.action == SongActionType.AddToPlaylist) {
+                    val type = shortcut.field.toTagType()
+                    viewModel.navigator.displayPlaylistSelection((activity as FragmentActivity).supportFragmentManager, media.id, type, -1)
+                } else {
+                    viewModel.executeAction(media, shortcut)
+                }
+            },
             onItemNavigation = {
                 val filter = when (it) {
                     is MediaItemData.Full.Song -> Filter(
