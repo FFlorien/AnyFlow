@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.ui.domain.TagType
-import be.florien.anyflow.feature.alarm.ui.AlarmActivity
 import be.florien.anyflow.feature.library.ui.R
 import be.florien.anyflow.feature.playlist.PlaylistsActivity
 import be.florien.anyflow.feature.playlist.selection.ui.SelectPlaylistFragment
@@ -24,10 +23,6 @@ class NavigatorImpl @Inject constructor() : Navigator {
 
     override fun navigateToCurrentlyPlaying(context: Context) {
 //        (context as? MainActivity)?.displaySongList()
-    }
-
-    override fun navigateToAlarm(context: Context) {
-        context.startActivity(Intent(context, AlarmActivity::class.java))
     }
 
     override fun navigateToPlaylist(context: Context) {

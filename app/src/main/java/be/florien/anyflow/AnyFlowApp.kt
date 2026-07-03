@@ -1,27 +1,22 @@
 package be.florien.anyflow
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.multidex.MultiDexApplication
-import be.florien.anyflow.common.navigation.UnauthenticatedNavigation
 import be.florien.anyflow.common.image.di.GlideModuleInjector
 import be.florien.anyflow.common.image.di.GlideModuleInjectorContainer
-import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponent
-import be.florien.anyflow.feature.alarm.ui.di.AlarmActivityComponentCreator
+import be.florien.anyflow.common.logging.eLog
+import be.florien.anyflow.common.logging.plantTimber
 import be.florien.anyflow.feature.auth.domain.persistence.AuthPersistence
 import be.florien.anyflow.feature.auth.ui.ServerUrlSetter
+import be.florien.anyflow.feature.auth.ui.di.AuthenticationViewModelComponent
+import be.florien.anyflow.feature.auth.ui.di.AuthenticationViewModelComponentCreator
 import be.florien.anyflow.feature.auth.ui.di.ServerViewModelInjector
-import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponent
-import be.florien.anyflow.feature.auth.ui.di.AuthenticationActivityComponentCreator
-import be.florien.anyflow.feature.auth.ui.server.ServerActivity
 import be.florien.anyflow.feature.auth.ui.server.ServerViewModel
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponent
 import be.florien.anyflow.feature.player.service.di.PlayerServiceComponentCreator
-import be.florien.anyflow.injection.PlayerActivityComponent
-import be.florien.anyflow.injection.PlayerActivityComponentCreator
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponent
 import be.florien.anyflow.feature.playlist.di.PlaylistActivityComponentCreator
 import be.florien.anyflow.feature.shortcut.ui.di.ShortcutActivityComponent
@@ -31,10 +26,9 @@ import be.florien.anyflow.feature.sync.service.di.SyncServiceComponent
 import be.florien.anyflow.feature.sync.service.di.SyncServiceComponentCreator
 import be.florien.anyflow.injection.ApplicationComponent
 import be.florien.anyflow.injection.DaggerApplicationComponent
+import be.florien.anyflow.injection.PlayerActivityComponent
+import be.florien.anyflow.injection.PlayerActivityComponentCreator
 import be.florien.anyflow.injection.ServerComponent
-import be.florien.anyflow.common.logging.eLog
-import be.florien.anyflow.common.logging.plantTimber
-import be.florien.anyflow.common.utils.startActivity
 import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponent
 import be.florien.anyflow.management.playlist.di.PlaylistModificationWorkerComponentCreator
 import javax.inject.Inject
@@ -43,16 +37,14 @@ import javax.inject.Inject
 @SuppressLint("Registered")
 open class AnyFlowApp : MultiDexApplication(),
     GlideModuleInjectorContainer,
-    UnauthenticatedNavigation,
     ServerViewModelInjector,
     ServerUrlSetter,
-    AuthenticationActivityComponentCreator,
+    AuthenticationViewModelComponentCreator,
     PlayerServiceComponentCreator,
     PlayerActivityComponentCreator,
     PlaylistActivityComponentCreator,
     PlaylistModificationWorkerComponentCreator,
     ShortcutActivityComponentCreator,
-    AlarmActivityComponentCreator,
     SyncServiceComponentCreator {
     //region fields
     private lateinit var applicationComponent: ApplicationComponent
@@ -104,7 +96,7 @@ open class AnyFlowApp : MultiDexApplication(),
             .ampacheUrl(serverUrl)
             .build()
     }
-    override fun createUserConnectComponent(): AuthenticationActivityComponent? =
+    override fun createUserConnectComponent(): AuthenticationViewModelComponent? =
         serverComponent?.userConnectComponentBuilder()?.build()
 
     override fun createPlayerServiceComponent(): PlayerServiceComponent? =
@@ -127,9 +119,6 @@ open class AnyFlowApp : MultiDexApplication(),
 
     override fun createShortcutActivityComponent(): ShortcutActivityComponent? =
         serverComponent?.shortcutsComponentBuilder()?.build()
-
-    override fun createAlarmActivityComponent(): AlarmActivityComponent? =
-        serverComponent?.alarmComponentBuilder()?.build()
     //endregion
 
     //region notification
@@ -157,10 +146,6 @@ open class AnyFlowApp : MultiDexApplication(),
     //endregion
 
     //region navigation
-    override fun goToAuthentication(activity: Activity) {
-        activity.startActivity(ServerActivity::class)
-        activity.finish()
-    }
 
     override fun isUserConnected(): Boolean = serverComponent != null
     //endregion

@@ -123,7 +123,13 @@ private fun ForeGround(
     item: FilterDisplay
 ) {
     val backgroundColor =
-        if (item.isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.surface
+        if (item.isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    val textColor =
+        if (item.isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+    val durationBackgroundColor =
+        if (item.isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primaryContainer
+    val durationTextColor =
+        if (item.isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimaryContainer
     Row(
         modifier = Modifier
             .background(backgroundColor)
@@ -151,7 +157,7 @@ private fun ForeGround(
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = textColor
             )
             Row(modifier = Modifier.align(Alignment.End)) {
                 Column(
@@ -161,14 +167,14 @@ private fun ForeGround(
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = textColor
                         )
                     }
                     item.subSubtitle?.let {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = textColor
                         )
                     }
 
@@ -178,11 +184,11 @@ private fun ForeGround(
                         modifier = Modifier
                             .align(Alignment.Bottom)
                             .background(
-                                MaterialTheme.colorScheme.primaryContainer,
+                                durationBackgroundColor,
                                 shape = MaterialTheme.shapes.medium
                             )
                             .padding(4.dp),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = durationTextColor,
                         style = MaterialTheme.typography.labelMedium,
                         text = it
                     )

@@ -110,6 +110,8 @@ dependencies {
     //Internet
     implementation(libs.okhttp)
     implementation(libs.retrofit.converter.jackson)
+    implementation(libs.coil)
+    implementation(libs.coil.okhttp)
     //Glide
     implementation(libs.glide)
     //ExoPlayer
@@ -117,6 +119,8 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     //WorkManager
     implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(libs.androidx.compose.material.icons.core)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

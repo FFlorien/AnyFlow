@@ -1,5 +1,7 @@
 package be.florien.anyflow.feature.library.ui.info
 
+import android.app.Activity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -78,7 +80,7 @@ class LibraryInfoViewModel @Inject constructor(
         }
     }
 
-    fun executeAction(rowPosition: Int) {
+    fun executeAction(rowPosition: Int, activity: FragmentActivity) {
         val row = libraryInfoRows.value[rowPosition]
         val action = row.rowType
         when (action) {
@@ -111,7 +113,7 @@ class LibraryInfoViewModel @Inject constructor(
                 viewModelScope.launch {
                     val type = row.fieldType.toTagType() ?: return@launch
                     val idText = row.getIdText()
-//                    navigator.displayPlaylistSelection(fragment.childFragmentManager, idText.id, type, -1)
+                    navigator.displayPlaylistSelection(activity.supportFragmentManager, idText.id, type, -1)
                 }
             }
             LibraryRowType.Action.AddNext -> Unit//todo

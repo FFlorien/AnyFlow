@@ -18,6 +18,7 @@ import androidx.media3.session.MediaController
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.component.player.controls.PlayPauseIconAnimator
 import be.florien.anyflow.component.player.controls.PlayerControls
+import be.florien.anyflow.feature.auth.domain.net.AuthenticationInterceptor
 import be.florien.anyflow.feature.auth.domain.repository.AuthRepository
 import be.florien.anyflow.feature.sync.service.SyncRepository
 import be.florien.anyflow.management.alarm.AlarmsSynchronizer
@@ -59,9 +60,11 @@ constructor(
     private val podcastPersistence: PodcastPersistence,
     private val filtersManager: FiltersManager,
     private val orderComposer: OrderComposer,
+    val authenticationInterceptor: AuthenticationInterceptor,
     connectionStatus: LiveData<AuthRepository.ConnectionStatus>,
     libraryUpdatePercentage: LiveData<SyncRepository.PercentageUpdate>
 ) : BaseViewModel(), PlayerControls.OnActionListener, Player.Listener {
+
 
     //region public fields
     val networkCallback = object : ConnectivityManager.NetworkCallback() {

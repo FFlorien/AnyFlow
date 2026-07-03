@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.auth.ui.user
 
 import androidx.lifecycle.viewModelScope
-import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.data.server.exception.WrongIdentificationPairException
 import be.florien.anyflow.common.logging.eLog
@@ -21,10 +20,9 @@ data class AuthenticationState(
     val errorMessage: Int = -1
 )
 
-class AuthenticationViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    val navigator: Navigator
-) : BaseViewModel() {
+class AuthenticationViewModel : BaseViewModel() {
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     val state: Flow<AuthenticationState> = MutableStateFlow(AuthenticationState())
 

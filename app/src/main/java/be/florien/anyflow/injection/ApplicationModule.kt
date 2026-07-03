@@ -12,7 +12,7 @@ import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.NoOpCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
-import be.florien.anyflow.feature.alarm.ui.AlarmActivity
+import be.florien.anyflow.MainActivity
 import be.florien.anyflow.feature.alarm.ui.AlarmReceiver
 import dagger.Module
 import dagger.Provides
@@ -74,8 +74,8 @@ class ApplicationModule {
 
     @Provides
     @Named("alarm")
-    fun provideAlarmPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, AlarmActivity::class.java)
+    fun provideAlarmPendingIntent(context: Context): PendingIntent {//todo args for set the destination
+        val intent = Intent(context, MainActivity::class.java)
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 

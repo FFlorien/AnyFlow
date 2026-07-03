@@ -85,6 +85,7 @@ androidx-annotation = { module = "androidx.annotation:annotation", version.ref =
 androidx-annotation-jvm = { module = "androidx.annotation:annotation-jvm", version.ref = "annotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core"}
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }

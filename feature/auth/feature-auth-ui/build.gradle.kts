@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":feature-auth-domain"))
 
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.navigation3.runtime)
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.compose.material3)

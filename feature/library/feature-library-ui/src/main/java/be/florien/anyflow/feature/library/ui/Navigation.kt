@@ -1,6 +1,11 @@
 package be.florien.anyflow.feature.library.ui
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -46,11 +51,18 @@ import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.collections.immutable.persistentListOf
 
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
 fun EntryProviderScope<NavKey>.libraryEntries(
     viewModelFactory: AnyFlowViewModelFactory,
     navigator: ComposeNavigator
 ) {
     entry<BottomNavDestination.TagLibrary> {
+        val activity = LocalContext.current.findActivity()
         val viewModel = viewModel<LibraryInfoViewModel>(factory = viewModelFactory)
         viewModel.setType(TAGS_TYPE)
         viewModel.filterNavigation = null
@@ -66,13 +78,14 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                         navigator,
                         filterParent
                     )
-                ) { //todo navigate to info when SeeInLibrary
-                    viewModel.executeAction(it)
+                ) { //todo navigate to info when SeeInLibrary and show playlist selection
+                    viewModel.executeAction(it, activity as FragmentActivity)
                 }
             }
         )
     }
     entry<TagInfo> { entry ->
+        val activity = LocalContext.current.findActivity()
         val viewModel = viewModel<LibraryInfoViewModel>(
             factory = viewModelFactory
         )
@@ -92,8 +105,8 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             executeAction = {
                 val row = viewModel.libraryInfoRows.value[it]
                 val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(row, navigator, filterParent)) {
-                    viewModel.executeAction(it)
+                if (!executeListNavigation(row, navigator,filterParent)) {
+                    viewModel.executeAction(it, activity as FragmentActivity)
                 }
             }
         )
@@ -113,6 +126,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
         )
     }
     entry<BottomNavDestination.PodcastLibrary> {
+        val activity = LocalContext.current.findActivity()
         val viewModel =
             viewModel<LibraryInfoViewModel>(factory = viewModelFactory)
         viewModel.setType(PODCAST_TYPE)
@@ -124,13 +138,14 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             executeAction = {
                 val row = viewModel.libraryInfoRows.value[it]
                 val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(row, navigator, filterParent)) {
-                    viewModel.executeAction(it)
+                if (!executeListNavigation(row, navigator,filterParent)) {
+                    viewModel.executeAction(it, activity as FragmentActivity)
                 }
             }
         )
     }
     entry<PodcastInfo> { entry ->
+        val activity = LocalContext.current.findActivity()
         val viewModel = viewModel<LibraryInfoViewModel>(
             factory = viewModelFactory
         )
@@ -150,8 +165,8 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             executeAction = {
                 val row = viewModel.libraryInfoRows.value[it]
                 val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(row, navigator, filterParent)) {
-                    viewModel.executeAction(it)
+                if (!executeListNavigation(row, navigator,filterParent)) {
+                    viewModel.executeAction(it, activity as FragmentActivity)
                 }
             }
         )
@@ -226,12 +241,12 @@ private fun executeListNavigation(
     filterParent: Filter?,
 ): Boolean =
     if (row.rowType == LibraryRowType.MultiRow.SubFilter || row.rowType == LibraryRowType.Action.SeeInLibrary) {
-        val value = getTypeString(row)
+        val type = getTypeString(row)
 
         val route = if (row.fieldType is LibraryFieldType.Tags) {
-            TagList(value, filterParent)
+            TagList(type, filterParent)
         } else {
-            PodcastList(value, filterParent)
+            PodcastList(type, filterParent)
         }
         navigator.navigate(route)
         true

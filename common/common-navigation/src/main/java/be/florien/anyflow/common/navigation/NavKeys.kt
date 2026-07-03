@@ -7,14 +7,8 @@ import be.florien.anyflow.management.filters.domain.model.Filter
 import kotlinx.serialization.Serializable
 import be.florien.anyflow.management.filters.domain.model.FilterType
 
-
 @Serializable
-sealed interface TopDestination : NavKey {
-    val isMainScreen: Boolean
-}
-
-@Serializable
-sealed interface BottomNavDestination : TopDestination {
+sealed interface BottomNavDestination : NavKey {
     @get:StringRes
     val label: Int
 
@@ -25,35 +19,30 @@ sealed interface BottomNavDestination : TopDestination {
     data object TagLibrary : BottomNavDestination {
         override val label: Int = R.string.menu_library
         override val icon: Int = R.drawable.ic_library
-        override val isMainScreen = true
     }
 
     @Serializable
     data object PodcastLibrary : BottomNavDestination {
         override val label: Int = R.string.menu_podcast
         override val icon: Int = R.drawable.ic_podcast_episode
-        override val isMainScreen = true
     }
 
     @Serializable
     data object NowPlaying : BottomNavDestination {
         override val label: Int = R.string.player_playing_now
         override val icon: Int = R.drawable.ic_play
-        override val isMainScreen = true
     }
 
     @Serializable
     data object Filters : BottomNavDestination {
         override val label: Int = R.string.menu_filters
         override val icon: Int = R.drawable.ic_filter
-        override val isMainScreen = true
     }
 
     @Serializable
     data object FilterHistory : BottomNavDestination {
         override val label: Int = R.string.filter_title_saved
         override val icon: Int = R.drawable.ic_filter_saved
-        override val isMainScreen = true
     }
 
     companion object {
@@ -68,19 +57,26 @@ sealed interface BottomNavDestination : TopDestination {
 }
 
 @Serializable
-data object Alarm : TopDestination {
-    override val isMainScreen: Boolean = false
-}
+object AlarmList : NavKey
 
 @Serializable
-data object Playlist : TopDestination {
-    override val isMainScreen: Boolean = false
-}
+object AddAlarm : NavKey
 
 @Serializable
-data object Server : TopDestination {
-    override val isMainScreen: Boolean = false
-}
+data class EditAlarm(val alarmId: Long) : NavKey
+
+
+@Serializable
+data object Playlist : NavKey
+
+@Serializable
+data object Shortcut : NavKey
+
+@Serializable
+data object Server : NavKey
+
+@Serializable
+data object Authentication : NavKey
 
 @Serializable
 data class TagInfo(val id: Long, val type: FilterType, val title: String) : NavKey

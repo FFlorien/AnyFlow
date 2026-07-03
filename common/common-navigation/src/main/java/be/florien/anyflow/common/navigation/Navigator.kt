@@ -8,7 +8,6 @@ import be.florien.anyflow.common.ui.domain.TagType
 interface Navigator {
     fun navigateToMain(context: Context, clearTop: Boolean = false)
     fun navigateToCurrentlyPlaying(context: Context)
-    fun navigateToAlarm(context: Context)
     fun navigateToPlaylist(context: Context)
     fun navigateToShortcut(context: Context)
     fun navigateToLibrary(context: Context)
