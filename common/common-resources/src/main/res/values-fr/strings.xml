@@ -6,8 +6,10 @@
     <string name="connect_api_token_hint">Clé API</string>
     <string name="connect_connect_action">Connexion</string>
     <string name="connect_wait_label">Connexion, veuillez patienter…</string>
+    <string name="connect_label">Connexion</string>
     <string name="connect_error_extends">Impossible de prolonger la session</string>
     <string name="connect_error_connectivity">Impossible de se connecter au serveur</string>
+    <string name="connect_error_auth_pair">Impossible de se connecter avec vos identifiants</string>
     <string name="connect_error_end_slash">L\'URL du serveur doit finir par /</string>
     <string name="connect_error_http">L\'URL du serveur doit commencer par http ou https</string>
     <string name="connect_server_error_unknown">Erreur inconnue pour l\'URL du serveur</string>
@@ -66,6 +68,7 @@
     <string name="notification_title_artist">%1$s par %2$s</string>
     <string name="display_reconnecting">Reconnexion</string>
     <string name="confirm">Confirmer</string>
+    <string name="search_no_result">Aucun résultat</string>
     <string name="connect_error_credentials">Impossible de se connecter avec ces informations de connexion</string>
     <string name="connect_error_empty">Veuillez remplir votre nom d\'utilisateur/mot de passe ou votre jeton API</string>
     <string name="connect_error_timeout">Impossible de se connecter au serveur, veuillez réessayer plus tard</string>

@@ -3,6 +3,7 @@ package be.florien.anyflow.feature.sync.service
 import android.content.Context
 import android.content.SharedPreferences
 import android.text.format.DateFormat
+import androidx.compose.runtime.Immutable
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import be.florien.anyflow.common.di.ServerScope
@@ -505,6 +506,7 @@ class SyncRepository
     }
     //endregion
 
+    @Immutable
     data class PercentageUpdate(val subject: Int, val percent: Int)
 
     companion object {

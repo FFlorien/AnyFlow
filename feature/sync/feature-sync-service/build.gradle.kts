@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":management-alarm"))
     implementation(project(":management-queue"))
     implementation(project(":management-waveform"))
+    implementation(libs.androidx.compose.runtime.annotation)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
 

@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +29,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -78,10 +80,10 @@ fun TopSnackbarHost(snackbarHostState: SnackbarHostState) {
 fun BlueTopAppBar(
     title: String,
     onClose: () -> Unit,
-    actions: @Composable (RowScope) -> Unit
+    actions: @Composable RowScope.() -> Unit,
 ) {
-    TopAppBar(
-        title = { Text(title) },
+    BlueTopAppBar(
+        title = title,
         navigationIcon = {
             IconButton(onClick = onClose) {
                 Icon(
@@ -91,8 +93,44 @@ fun BlueTopAppBar(
                 )
             }
         },
+        actions = actions
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BlueTopAppBarMain(
+    title: String,
+    onHamburgerMenuClicked: () -> Unit,
+    actions: @Composable RowScope.() -> Unit,
+) {
+    BlueTopAppBar(
+        title = title,
+        navigationIcon = {
+            IconButton(onClick = onHamburgerMenuClicked) {
+                Icon(
+                    Icons.Outlined.Menu,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    contentDescription = "Menu"
+                )
+            }
+        },
+        actions = actions
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BlueTopAppBar(
+    title: String,
+    navigationIcon: @Composable (() -> Unit),
+    actions: @Composable (RowScope.() -> Unit),
+) {
+    TopAppBar(
+        title = { Text(title) },
+        navigationIcon = navigationIcon,
         actions = actions,
-        colors = TopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
             navigationIconContentColor = MaterialTheme.colorScheme.secondary,

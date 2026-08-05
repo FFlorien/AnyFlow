@@ -6,8 +6,10 @@
     <string name="connect_api_token_hint">API token</string>
     <string name="connect_connect_action">Connect</string>
     <string name="connect_wait_label">Connection, please wait…</string>
+    <string name="connect_label">Connection</string>
     <string name="connect_error_extends">Cannot extend the session</string>
     <string name="connect_error_connectivity">Cannot connect to the server URL</string>
+    <string name="connect_error_auth_pair">Cannot connect with your credentials</string>
     <string name="connect_error_end_slash">The server URL should end with /</string>
     <string name="connect_error_http">The server URL should start with http or https</string>
     <string name="connect_server_error_unknown">Unknown error with the server URL</string>
@@ -66,6 +68,7 @@
     <string name="notification_title_artist">%1$s by %2$s</string>
     <string name="display_reconnecting">Reconnecting</string>
     <string name="confirm">Confirm</string>
+    <string name="search_no_result">No result</string>
     <string name="connect_error_credentials">Cannot log in with provided credentials</string>
     <string name="connect_error_empty">Please enter Username/Password or an API token</string>
     <string name="connect_error_timeout">Cannot connect to the server, please try again later</string>

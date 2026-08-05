@@ -1,7 +1,6 @@
 package be.florien.anyflow.feature.mediaList.ui
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
@@ -22,8 +21,10 @@ import be.florien.anyflow.tags.TagsRepository
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.urls.UrlRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @ActivityScope
 class MediaListViewModel
 @Inject constructor(
@@ -56,11 +58,15 @@ class MediaListViewModel
         val mediaList: Flow<PagingData<MediaItemData>>?,
         val mediaPosition: Int,
         val chapterTime: Long,
-        val shortcuts: List<ShortcutData>
+        val shortcuts: List<ShortcutData>,
+        val searchPosition: Int,
+        val searchItemPosition: Int,
+        val searchTotal: Int
     )
     // region fields
 
     var player: MediaController? = null
+    var searchPositionList: List<Int>? = null
 
     // list
     private val pagedAudioQueue: Flow<PagingData<MediaItemData>> =
@@ -84,7 +90,8 @@ class MediaListViewModel
             }
         }
     private var currentPodcastDisplay: PodcastEpisodeDisplay? = null
-    private val isLoadingAll: LiveData<Boolean> = MutableLiveData(false)
+    private val isLoadingAll = MutableLiveData(false)
+    private val searchTerm = MutableSharedFlow<String>()
 
     // endregion
     val stateFlow: StateFlow<State> = MutableStateFlow(
@@ -92,7 +99,10 @@ class MediaListViewModel
             pagedAudioQueue,
             0,
             0L,
-            emptyList()
+            emptyList(),
+            0,
+            0,
+            0
         )
     )
 
@@ -108,6 +118,27 @@ class MediaListViewModel
                         val podcastEpisodeDisplay =
                             podcastRepository.getPodcastEpisodeDisplay(it.id)
                         podcastEpisodeDisplay?.toViewPodcastEpisodeDisplay()
+                    }
+                }
+            }
+        }
+        viewModelScope.launch(Dispatchers.Default) {
+            searchTerm.collect { term ->
+                if (term.isBlank()) {
+                    stateFlow.mutable.update {
+                        it.copy(searchPosition = 0, searchItemPosition = 0, searchTotal = 0)
+                    }
+                } else {
+                    val positionList = tagsRepository.searchSongs(term)
+                    searchPositionList = positionList
+                    if (positionList.isNotEmpty()) {
+                        stateFlow.mutable.update {
+                            it.copy(searchItemPosition = positionList[0], searchPosition = 0, searchTotal = positionList.size)
+                        }
+                    } else {
+                        stateFlow.mutable.update {
+                            it.copy(searchItemPosition = 0, searchPosition = 0, searchTotal = 0)
+                        }
                     }
                 }
             }
@@ -165,7 +196,7 @@ class MediaListViewModel
                     row
                 )
 
-                SongActionType.Search -> searchText(
+                SongActionType.Search -> search(
                     songInfoActions.getSearchTerms(
                         songInfo,
                         fieldType
@@ -208,14 +239,18 @@ class MediaListViewModel
      * Private methods
      */
 
-    private fun searchText(text: String) {
+    fun search(text: String) {
+        viewModelScope.launch {
+            searchTerm.emit(text)
+        }
     }
 
-    private fun displayPlaylistList(
-        songId: Long,
-        fieldType: SongFieldType,
-        secondId: Int
-    ) {
-        //playlistListDisplayedFor.mutable.value = Triple(songId, fieldType, secondId)
+    fun setSearchPosition(searchPosition: Int) {
+        val position = searchPositionList?.getOrNull(searchPosition)
+        if (position != null) {
+            stateFlow.mutable.update {
+                it.copy(searchPosition = searchPosition, searchItemPosition = position)
+            }
+        }
     }
 }

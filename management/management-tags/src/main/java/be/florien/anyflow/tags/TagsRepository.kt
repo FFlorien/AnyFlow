@@ -132,7 +132,7 @@ class TagsRepository @Inject constructor(
      * Songs related methods
      */
 
-    fun searchSongs(filter: String) =
+    suspend fun searchSongs(filter: String) =
         libraryDatabase.getSongDao().searchPositionsWhereFilterPresentUpdatable("%$filter%")
 
     fun getSong(id: Long): LiveData<SongInfo> =

@@ -1,12 +1,14 @@
 package be.florien.anyflow.feature.mediaList.ui
 
 import android.content.ComponentName
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,10 +31,12 @@ import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.Flow
 
 fun EntryProviderScope<NavKey>.nowPlayingEntry(
     viewModelFactory: AnyFlowViewModelFactory,
-    navigator: ComposeNavigator
+    navigator: ComposeNavigator,
+    isSearching: Flow<Boolean>
 ) {
     entry<BottomNavDestination.NowPlaying> {
         val context = LocalContext.current
@@ -40,6 +44,8 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
 
         val viewModel = viewModel<MediaListViewModel>(factory = viewModelFactory)
         var player: MediaController? by remember { mutableStateOf(null) }
+        val searchState = rememberTextFieldState()
+        val isSearchingValue = isSearching.collectAsState(false).value
 
         LaunchedEffect(viewModel) { // todo regard to lifecycle
             val sessionToken = SessionToken(
@@ -48,9 +54,15 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
             )
             val mediaController =
                 MediaController.Builder(context, sessionToken).buildAsync()
-            mediaController.addListener({
-                player = mediaController.get()
-            }, MoreExecutors.directExecutor())
+            mediaController.addListener(
+                { player = mediaController.get() },
+                MoreExecutors.directExecutor()
+            )
+        }
+        LaunchedEffect(searchState) {
+            snapshotFlow { searchState.text.toString() }.collect {
+                viewModel.search(it)
+            }
         }
 
         viewModel.player = player
@@ -60,26 +72,24 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
                     null,
                     0,
                     0,
-                    emptyList()
+                    emptyList(),
+                    0,
+                    0,
+                    0
                 )
             ).value
         val pagingList = state.mediaList?.collectAsLazyPagingItems()
         MediaListScreen(
-            items = pagingList,
-            selectedPosition = state.mediaPosition,
-            selectedChapterTime = state.chapterTime,
+            mediaAndChapterItems = pagingList,
+            currentMediaPosition = state.mediaPosition,
+            currentPodcastTime = state.chapterTime,
+            isSearching = isSearchingValue,
+            searchPosition = state.searchPosition,
+            searchTotal = state.searchTotal,
+            searchedItemPosition = state.searchItemPosition,
             shortcuts = state.shortcuts.toPersistentList(),
             onMediaItemClick = viewModel::goToMedia,
             onChapterItemClick = viewModel::goToTime,
-            refreshShortcuts = viewModel::refreshShortcuts,
-            onShortcut = { shortcut, media ->
-                if (shortcut.action == SongActionType.AddToPlaylist) {
-                    val type = shortcut.field.toTagType()
-                    viewModel.navigator.displayPlaylistSelection((activity as FragmentActivity).supportFragmentManager, media.id, type, -1)
-                } else {
-                    viewModel.executeAction(media, shortcut)
-                }
-            },
             onItemNavigation = {
                 val filter = when (it) {
                     is MediaItemData.Full.Song -> Filter(
@@ -109,6 +119,23 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
                     BottomNavDestination.PodcastLibrary
                 }
                 navigator.navigate(type, parentType, true)
-            })
+            },
+            onSearchChange = viewModel::search,
+            onSearchPositionChange = viewModel::setSearchPosition,
+            onShortcut = { shortcut, media ->
+                if (shortcut.action == SongActionType.AddToPlaylist) {
+                    val type = shortcut.field.toTagType()
+                    viewModel.navigator.displayPlaylistSelection(
+                        (activity as FragmentActivity).supportFragmentManager,
+                        media.id,
+                        type,
+                        -1
+                    )
+                } else {
+                    viewModel.executeAction(media, shortcut)
+                }
+            },
+            refreshShortcuts = viewModel::refreshShortcuts
+        )
     }
 }

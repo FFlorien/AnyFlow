@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -129,13 +130,9 @@ private fun ForeGround(
     item: FilterDisplay
 ) {
     val backgroundColor =
-        if (item.isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+        if (item.isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
     val textColor =
-        if (item.isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-    val durationBackgroundColor =
-        if (item.isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primaryContainer
-    val durationTextColor =
-        if (item.isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimaryContainer
+        if (item.isSelected) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
     Row(
         modifier = Modifier
             .background(backgroundColor)
@@ -189,14 +186,16 @@ private fun ForeGround(
                     Text(
                         modifier = Modifier
                             .align(Alignment.Bottom)
+                            .padding(bottom = 8.dp, end = 8.dp)
                             .background(
-                                durationBackgroundColor,
-                                shape = MaterialTheme.shapes.medium
+                                MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.large
                             )
-                            .padding(4.dp),
-                        color = durationTextColor,
-                        style = MaterialTheme.typography.labelMedium,
-                        text = it
+                            .padding(horizontal = 4.dp),
+                        text = it,
+                        textAlign = TextAlign.End,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }

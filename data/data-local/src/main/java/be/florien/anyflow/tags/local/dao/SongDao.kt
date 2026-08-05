@@ -46,7 +46,7 @@ abstract class SongDao : BaseDao<DbSong>() {
             "FROM queueorder JOIN song ON queueorder.id = song.id JOIN artist ON song.artistId = artist.id JOIN album ON song.albumId = album.id JOIN artist AS albumArtist ON album.artistId = albumArtist.id " +
             "WHERE song.title LIKE :filter OR artist.name LIKE :filter OR albumArtist.name LIKE :filter OR album.name LIKE :filter " +
             "ORDER BY queueorder.`order` COLLATE UNICODE")
-    abstract fun searchPositionsWhereFilterPresentUpdatable(filter: String): LiveData<List<Long>>
+    abstract suspend fun searchPositionsWhereFilterPresentUpdatable(filter: String): List<Int>
 
     @Query("SELECT waveForm FROM Song WHERE song.id = :songId")
     abstract fun getWaveFormUpdatable(songId: Long): LiveData<DbMediaWaveForm>

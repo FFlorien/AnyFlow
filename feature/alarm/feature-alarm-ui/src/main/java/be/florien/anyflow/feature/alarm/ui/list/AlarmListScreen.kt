@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -25,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import be.florien.anyflow.common.resources.component.ActionIcon
 import be.florien.anyflow.common.resources.component.BlueTopAppBar
 import be.florien.anyflow.common.resources.theming.AppTheme
 import be.florien.anyflow.feature.alarm.ui.ImmutableAlarm
@@ -56,13 +54,11 @@ fun AlarmListScreen(
                 title = stringResource(R.string.alarm_list),
                 onClose = onClose,
                 actions = {
-                    IconButton(onClick = onAddAlarm) {
-                        Icon(
-                            painterResource(R.drawable.ic_add_yellow),
-                            contentDescription = stringResource(R.string.alarm_add),
-                            tint = Color.Unspecified
-                        )
-                    }
+                    ActionIcon(
+                        painter = { painterResource(R.drawable.ic_add_yellow) },
+                        contentDescription = stringResource(R.string.alarm_add),
+                        onClick = onAddAlarm
+                    )
                 }
             )
         }

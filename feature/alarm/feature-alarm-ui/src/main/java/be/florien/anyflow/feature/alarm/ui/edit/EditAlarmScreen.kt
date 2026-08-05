@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -28,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import be.florien.anyflow.common.resources.component.ActionIcon
 import be.florien.anyflow.common.resources.component.BlueTopAppBar
 import be.florien.anyflow.feature.alarm.ui.ImmutableAlarm
 import be.florien.anyflow.feature.alarm.ui.R
@@ -64,35 +63,28 @@ fun EditAlarmScreen(
                 title = title,
                 onClose = onClose,
                 actions = {
-                    IconButton(
-                        onClick = {
-                            editAlarm(
-                                timePickerState.hour,
-                                timePickerState.minute,
-                                monday,
-                                tuesday,
-                                wednesday,
-                                thursday,
-                                friday,
-                                saturday,
-                                sunday,
-                            )
-                        }
+                    ActionIcon(
+                        painter = { painterResource(R.drawable.ic_confirm) },
+                        contentDescription = stringResource(R.string.confirm)
                     ) {
-                        Icon(
-                            painterResource(R.drawable.ic_confirm),
-                            contentDescription = stringResource(R.string.confirm),
-                            tint = MaterialTheme.colorScheme.secondary
+                        editAlarm(
+                            timePickerState.hour,
+                            timePickerState.minute,
+                            monday,
+                            tuesday,
+                            wednesday,
+                            thursday,
+                            friday,
+                            saturday,
+                            sunday,
                         )
                     }
                     if (deleteAlarm != null) {
-                        IconButton(onClick = deleteAlarm) {
-                            Icon(
-                                painterResource(R.drawable.ic_delete),
-                                contentDescription = stringResource(R.string.content_description_delete_alarm),
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        }
+                        ActionIcon(
+                            painter = { painterResource(R.drawable.ic_delete) },
+                            contentDescription = stringResource(R.string.content_description_delete_alarm),
+                            onClick = deleteAlarm
+                        )
                     }
                 }
             )
