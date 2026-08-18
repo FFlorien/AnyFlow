@@ -138,11 +138,11 @@ class QueryComposerSchema(private val delegate: QueryComposer) : QueryComposer b
         filter: Filter?//todo: add ordering handling
     ): SimpleSQLiteQuery
 
-    override fun getQueryForPodcastEpisodeIds(
+    override fun getQueryForPodcastChapters(
         filter: Filter?//todo: add ordering handling
     ): SimpleSQLiteQuery
 
-    override fun getQueryForPodcastEpisodeIds(
+    override fun getQueryForPodcastChapters(
         filterList: List<Filter>?//todo: add ordering handling
     ): SimpleSQLiteQuery
 

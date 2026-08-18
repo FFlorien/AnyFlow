@@ -56,7 +56,6 @@ import be.florien.anyflow.common.resources.component.SearchBar
 import be.florien.anyflow.common.resources.component.SlideRightToActionLeftToShortCut
 import be.florien.anyflow.common.resources.component.handlerWidth
 import be.florien.anyflow.common.resources.theming.AppTheme
-import be.florien.anyflow.management.queue.model.Chapter
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImage
@@ -99,17 +98,15 @@ sealed interface MediaItemData {
             override val artUrl: String,
             override val title: String,
             override val author: String,
-            override val duration: String,
-            val chapters: List<Chapter>
+            override val duration: String
         ) : Full
     }
 
     @Immutable
     data class PodcastChapter(
         override val id: Long,
-        val podcastPosition: Int,
-        val time: Long,
-        val title: String
+        val title: String,
+        val podcastEpisodeId: Long
     ) : MediaItemData
 }
 
@@ -123,14 +120,12 @@ enum class MediaPosition {
 fun MediaListScreen(
     mediaAndChapterItems: LazyPagingItems<MediaItemData>?,
     currentMediaPosition: Int,
-    currentPodcastTime: Long,
     isSearching: Boolean,
     searchPosition: Int,
     searchTotal: Int,
     searchedItemPosition: Int,
     shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
     onMediaItemClick: (Int) -> Unit,
-    onChapterItemClick: (Int, Long) -> Unit,
     onItemNavigation: (MediaItemData.Full) -> Unit,
     onSearchChange: (String) -> Unit,
     onSearchPositionChange: (Int) -> Unit,
@@ -147,31 +142,31 @@ fun MediaListScreen(
     val lifecycleOwner = rememberLifecycleOwner()
     val lifecycleState = lifecycleOwner.lifecycle.currentStateAsState()
     val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = currentMediaPosition)
-    val loadingLabel = stringResource(R.string.general_loading_label)
     val isCurrentItemLoaded = remember(mediaAndChapterItems.itemSnapshotList) {
         derivedStateOf {
             currentMediaPosition in mediaAndChapterItems.itemSnapshotList.placeholdersBefore..mediaAndChapterItems.itemSnapshotList.items.size + mediaAndChapterItems.itemSnapshotList.placeholdersBefore
         }
     }
     var displayCurrentMedia by remember { mutableStateOf(MediaPosition.None) }
-    val currentMediaItemPosition = remember(
-        currentMediaPosition,
-        mediaAndChapterItems,
-        isCurrentItemLoaded
-    ) {
-        val indexOfFirst = mediaAndChapterItems
-            .itemSnapshotList
-            .indexOfFirst { (it as? MediaItemData.Full)?.position == currentMediaPosition }
-        if (indexOfFirst >= 0) {
-            indexOfFirst
-        } else {
-            currentMediaPosition
-        }
-    }
-    val currentMediaItem = remember(currentMediaItemPosition, isCurrentItemLoaded) {
-        if (currentMediaItemPosition < mediaAndChapterItems.itemCount) {
-            mediaAndChapterItems[currentMediaItemPosition] as? MediaItemData.Full
+
+    val currentMediaItem = remember(currentMediaPosition, isCurrentItemLoaded) {
+        if (currentMediaPosition < mediaAndChapterItems.itemCount) {
+            mediaAndChapterItems[currentMediaPosition]
         } else null
+    }
+    val currentFullMediaItem = remember(
+        (currentMediaItem as? MediaItemData.PodcastChapter)?.podcastEpisodeId,
+        currentMediaItem
+    ) {
+        if (currentMediaItem is MediaItemData.PodcastChapter) {
+            mediaAndChapterItems
+                .itemSnapshotList
+                .items
+                .firstOrNull {
+                    it is MediaItemData.Full.PodcastEpisode
+                            && it.id == currentMediaItem.podcastEpisodeId
+                } as MediaItemData.Full
+        } else currentMediaItem as? MediaItemData.Full
     }
 
     LaunchedEffect(lifecycleState.value == Lifecycle.State.RESUMED) {
@@ -185,12 +180,9 @@ fun MediaListScreen(
                 if (itemData.isEmpty()) {
                     return@collect
                 }
-                val selectedItem = mediaAndChapterItems
-                    .itemSnapshotList
-                    .indexOfFirst { (it as? MediaItemData.Full)?.position == currentMediaPosition }
-                displayCurrentMedia = if (itemData.min() >= selectedItem) {
+                displayCurrentMedia = if (itemData.min() >= currentMediaPosition) {
                     MediaPosition.Top
-                } else if (itemData.max() <= selectedItem) {
+                } else if (itemData.max() <= currentMediaPosition) {
                     MediaPosition.Bottom
                 } else {
                     MediaPosition.None
@@ -207,10 +199,10 @@ fun MediaListScreen(
     LaunchedEffect(
         lifecycleState.value == Lifecycle.State.RESUMED,
         isSearching,
-        currentMediaItemPosition >= 0
+        currentMediaPosition >= 0
     ) {
-        if (!isSearching && lifecycleState.value == Lifecycle.State.RESUMED && currentMediaItemPosition >= 0 && !lazyListState.isScrollInProgress) {
-            lazyListState.scrollToItem(currentMediaItemPosition)
+        if (!isSearching && lifecycleState.value == Lifecycle.State.RESUMED && currentMediaPosition >= 0 && !lazyListState.isScrollInProgress) {
+            lazyListState.scrollToItem(currentMediaPosition)
         }
     }
     Column {
@@ -228,10 +220,8 @@ fun MediaListScreen(
             ItemList(
                 items = mediaAndChapterItems,
                 lazyListState = lazyListState,
-                currentFullMedia = currentMediaItem,
+                currentMedia = currentMediaItem,
                 shortcuts = shortcuts,
-                selectedChapterTime = currentPodcastTime,
-                onChapterItemClick = onChapterItemClick,
                 onItemNavigation = onItemNavigation,
                 onShortcut = onShortcut,
                 onMediaItemClick = onMediaItemClick,
@@ -240,7 +230,8 @@ fun MediaListScreen(
                 StickyItem(
                     items = mediaAndChapterItems,
                     lazyListState = lazyListState,
-                    currentFullMedia = currentMediaItem,
+                    currentFullMedia = currentFullMediaItem,
+                    currentChapter = currentMediaItem as? MediaItemData.PodcastChapter?,
                     shortcuts = shortcuts,
                     currentMediaPosition = displayCurrentMedia,
                     onItemNavigation = onItemNavigation,
@@ -251,14 +242,7 @@ fun MediaListScreen(
                 items = mediaAndChapterItems,
                 lazyListState = lazyListState,
                 getSection = {
-                    when (val itemData =
-                        mediaAndChapterItems.itemSnapshotList[lazyListState.firstVisibleItemIndex]) {
-                        is MediaItemData.Full -> itemData.position.plus(1).toString()
-                        is MediaItemData.PodcastChapter -> itemData.podcastPosition.plus(1)
-                            .toString()
-
-                        null -> loadingLabel
-                    }
+                    lazyListState.firstVisibleItemIndex.plus(1).toString()
                 }
             )
         }
@@ -269,10 +253,8 @@ fun MediaListScreen(
 private fun ItemList(
     items: LazyPagingItems<MediaItemData>,
     lazyListState: LazyListState,
-    currentFullMedia: MediaItemData.Full?,
+    currentMedia: MediaItemData?,
     shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
-    selectedChapterTime: Long,
-    onChapterItemClick: (Int, Long) -> Unit,
     onItemNavigation: (MediaItemData.Full) -> Unit,
     onShortcut: (MediaListViewModel.ShortcutData, MediaItemData.Full) -> Unit,
     onMediaItemClick: (Int) -> Unit
@@ -286,13 +268,15 @@ private fun ItemList(
     ) {
         items(
             count = items.itemCount,
-            key = items.itemKey {
-                val type = when (it) {
-                    is MediaItemData.Full.Song -> "song"
-                    is MediaItemData.Full.PodcastEpisode -> "podcast"
-                    is MediaItemData.PodcastChapter -> "chapter_${it.time}"
-                }
-                "${type}_${it.id}"
+            key = { position ->
+                items.itemKey {
+                    val type = when (it) {
+                        is MediaItemData.Full.Song -> "song"
+                        is MediaItemData.Full.PodcastEpisode -> "podcast"
+                        is MediaItemData.PodcastChapter -> "chapter"
+                    }
+                    "${type}_${position}_${it.id}"
+                }(position)
             }
         ) { position ->
             items[position]?.let { mediaItemData ->
@@ -300,19 +284,23 @@ private fun ItemList(
                     is MediaItemData.PodcastChapter -> {
                         ChapterItem(
                             media = mediaItemData,
-                            isSelected = mediaItemData.podcastPosition == currentFullMedia?.position && mediaItemData.time == selectedChapterTime,
-                            onItemClick = onChapterItemClick
+                            isSelected = mediaItemData == currentMedia,
+                            onItemClick = { onMediaItemClick(position) }
                         )
                     }
 
-                    is MediaItemData.Full -> MediaItem(
-                        media = mediaItemData,
-                        shortcuts = shortcuts,
-                        isSelected = mediaItemData == currentFullMedia,
-                        onItemNavigation = onItemNavigation,
-                        onShortcut = { onShortcut(it, mediaItemData) }
-                    ) {
-                        onMediaItemClick(mediaItemData.position)
+                    is MediaItemData.Full -> {
+                        val selectedPodcastEpisode = currentMedia is MediaItemData.PodcastChapter &&
+                                (mediaItemData as? MediaItemData.Full.PodcastEpisode)?.id == currentMedia.podcastEpisodeId
+                        MediaItem(
+                            media = mediaItemData,
+                            shortcuts = shortcuts,
+                            isSelected = mediaItemData == currentMedia || selectedPodcastEpisode,
+                            onItemNavigation = onItemNavigation,
+                            onShortcut = { onShortcut(it, mediaItemData) }
+                        ) {
+                            onMediaItemClick(mediaItemData.position)
+                        }
                     }
                 }
 
@@ -329,6 +317,7 @@ private fun BoxScope.StickyItem(
     items: LazyPagingItems<MediaItemData>,
     lazyListState: LazyListState,
     currentFullMedia: MediaItemData.Full?,
+    currentChapter: MediaItemData.PodcastChapter?,
     shortcuts: PersistentList<MediaListViewModel.ShortcutData>,
     currentMediaPosition: MediaPosition,
     onShortcut: (MediaListViewModel.ShortcutData, MediaItemData.Full) -> Unit,
@@ -342,18 +331,28 @@ private fun BoxScope.StickyItem(
             Alignment.BottomCenter
         }
         val indexOfItemFull = items.itemSnapshotList.indexOf(currentFullMedia).takeIf { it >= 0 }
-        MediaItem(
-            media = media,
-            shortcuts = shortcuts,
-            isSelected = true,
+        Column(
             modifier = Modifier
                 .align(alignment)
-                .padding(end = handlerWidth),
-            onItemNavigation = onItemNavigation,
-            onShortcut = { onShortcut(it, media) }
+                .padding(end = handlerWidth)
         ) {
-            coroutineScope.launch {
-                indexOfItemFull?.let { index -> lazyListState.scrollToItem(index) }
+            MediaItem(
+                media = media,
+                shortcuts = shortcuts,
+                isSelected = true,
+                onItemNavigation = onItemNavigation,
+                onShortcut = { onShortcut(it, media) }
+            ) {
+                coroutineScope.launch {
+                    indexOfItemFull?.let { index -> lazyListState.scrollToItem(index) }
+                }
+            }
+            currentChapter?.let {
+                ChapterItem(it, true) {
+                    coroutineScope.launch {
+                        indexOfItemFull?.let { index -> lazyListState.scrollToItem(index) }
+                    }
+                }
             }
         }
     }
@@ -500,7 +499,7 @@ fun ChapterItem(
     media: MediaItemData.PodcastChapter,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
-    onItemClick: (Int, Long) -> Unit
+    onItemClick: () -> Unit
 ) {
     val background =
         if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
@@ -509,9 +508,7 @@ fun ChapterItem(
     Text(
         modifier = modifier
             .fillMaxWidth()
-            .clickable {
-                onItemClick(media.podcastPosition, media.time)
-            }
+            .clickable(onClick = onItemClick)
             .background(background)
             .padding(12.dp),
         text = Html.fromHtml(Html.fromHtml(media.title).toString()).toString()
@@ -556,8 +553,7 @@ fun PodcastItemPreview() {
                     artUrl = "http://tutu.com",
                     title = "Song's title",
                     author = "Best band ever",
-                    duration = "3:13",
-                    chapters = emptyList()
+                    duration = "3:13"
                 ),
                 shortcuts = persistentListOf(),
                 isSelected = false,
@@ -577,14 +573,12 @@ fun MediaListItemPreview() {
             MediaListScreen(
                 mediaAndChapterItems = getDummyLazyPagingItems(),
                 currentMediaPosition = 0,
-                currentPodcastTime = 400000,
                 isSearching = false,
                 searchPosition = 0,
                 searchTotal = 0,
                 searchedItemPosition = 0,
                 shortcuts = persistentListOf(),
                 onMediaItemClick = {},
-                onChapterItemClick = { _, _ -> },
                 onItemNavigation = {},
                 onSearchChange = {},
                 onSearchPositionChange = {},
@@ -604,32 +598,27 @@ private fun getDummyLazyPagingItems(): LazyPagingItems<MediaItemData> = flowOf(
                 artUrl = "http://tutu.com",
                 title = "Discussion topic #3",
                 author = "2 white guys",
-                duration = "2:15:25",
-                chapters = listOf()
+                duration = "2:15:25"
             ),
             MediaItemData.PodcastChapter(
                 id = 54L,
-                time = 0L,
                 title = "Hello and Welcome",
-                podcastPosition = 0
+                podcastEpisodeId = 10L
             ),
             MediaItemData.PodcastChapter(
                 id = 54L,
-                time = 1500,
                 title = "Thanks and sponsors",
-                podcastPosition = 0
+                podcastEpisodeId = 10L
             ),
             MediaItemData.PodcastChapter(
                 id = 54L,
-                time = 400000,
                 title = "Summary",
-                podcastPosition = 0
+                podcastEpisodeId = 10L
             ),
             MediaItemData.PodcastChapter(
                 id = 54L,
-                time = 600000,
                 title = "Let's get to it",
-                podcastPosition = 0
+                podcastEpisodeId = 10L
             ),
             MediaItemData.Full.Song(
                 id = 500L,

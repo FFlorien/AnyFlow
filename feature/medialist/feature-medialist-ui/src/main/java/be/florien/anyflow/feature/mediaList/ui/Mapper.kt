@@ -4,15 +4,14 @@ import androidx.core.text.HtmlCompat
 import be.florien.anyflow.common.ui.domain.TagType
 import be.florien.anyflow.common.utils.TimeOperations
 import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
-import be.florien.anyflow.management.queue.model.Chapter
 import be.florien.anyflow.management.queue.model.PodcastEpisodeDisplay
 import be.florien.anyflow.management.queue.model.SongDisplay
 import be.florien.anyflow.tags.local.model.DbPodcastEpisodeDisplay
 import be.florien.anyflow.tags.local.model.DbQueueItemDisplay
+import be.florien.anyflow.tags.local.model.PODCAST_CHAPTER_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.tags.model.SongInfo
-import kotlin.text.substring
 
 fun SongFieldType.toTagType() = when (this) {
     SongFieldType.Title -> TagType.Title
@@ -48,7 +47,10 @@ fun DbPodcastEpisodeDisplay.toViewPodcastEpisodeDisplay() = PodcastEpisodeDispla
     ).toString()
 )
 
-fun DbQueueItemDisplay.toMediaItemData(getSongArtUrl: (Long) -> String, getPodcastArtUrl: (Long) -> String): MediaItemData.Full {
+fun DbQueueItemDisplay.toMediaItemData(
+    getSongArtUrl: (Long) -> String,
+    getPodcastArtUrl: (Long) -> String
+): MediaItemData {
     val songIdNS = songId
     val songTitleNS = songTitle
     val songArtistNameNS = songArtistName
@@ -61,6 +63,9 @@ fun DbQueueItemDisplay.toMediaItemData(getSongArtUrl: (Long) -> String, getPodca
     val podcastIdNS = podcastId
     val podcastNameNS = podcastName
     val podcastDescriptionNS = podcastDescription
+    val podcastChapterIdNS = podcastChapterId
+    val podcastChapterTitleNS = podcastChapterTitle
+    val podcastChapterEpisodeIdNS = podcastChapterEpisodeId
     return when (mediaType) {
         SONG_MEDIA_TYPE if songIdNS != null &&
                 songTitleNS != null &&
@@ -93,25 +98,17 @@ fun DbQueueItemDisplay.toMediaItemData(getSongArtUrl: (Long) -> String, getPodca
                 artUrl = getPodcastArtUrl(podcastIdNS),
                 title = podcastTitleNS,
                 author = podcastNameNS,
-                duration = TimeOperations.toShortDuration(podcastTimeNS),
-                chapters = podcastDescriptionNS.let {
-                    val timestampRegex =
-                        Regex("(<[a-zA-Z]+>)*\\(?\\{?\\[?([0-5]?\\d:)?[0-5]?\\d:[0-5]\\d\\)?\\}?]?")
-                    val digitsRegex = Regex("([0-5]?\\d)")
-                    val timeStampsTimes = timestampRegex.findAll(it)
-                    val chapterList = mutableListOf<Chapter>()
-                    timeStampsTimes.forEach { timeStamp ->
-                        val next = timeStamp.next()
-                        val end = next?.range?.start ?: it.length
-                        var time = 0L
-                        digitsRegex.findAll(timeStamp.value).forEach {
-                            time = (time * 60) + it.value.toLong()
-                        }
-                        val text = it.substring(timeStamp.range.first, end)
-                        chapterList += Chapter(time, text)
-                    }
-                    chapterList
-                }
+                duration = TimeOperations.toShortDuration(podcastTimeNS)
+            )
+        }
+
+        PODCAST_CHAPTER_MEDIA_TYPE if podcastChapterIdNS != null
+                && podcastChapterTitleNS != null
+                && podcastChapterEpisodeIdNS != null -> {
+            MediaItemData.PodcastChapter(
+                podcastChapterIdNS,
+                podcastChapterTitleNS,
+                podcastChapterEpisodeIdNS
             )
         }
 

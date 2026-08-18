@@ -17,6 +17,7 @@ import be.florien.anyflow.tags.local.dao.GenreDao
 import be.florien.anyflow.tags.local.dao.OrderingDao
 import be.florien.anyflow.tags.local.dao.PlaylistDao
 import be.florien.anyflow.tags.local.dao.PlaylistSongDao
+import be.florien.anyflow.tags.local.dao.PodcastChapterDao
 import be.florien.anyflow.tags.local.dao.PodcastDao
 import be.florien.anyflow.tags.local.dao.PodcastEpisodeDao
 import be.florien.anyflow.tags.local.dao.QueueOrderDao
@@ -33,6 +34,7 @@ import be.florien.anyflow.tags.local.model.DbOrdering
 import be.florien.anyflow.tags.local.model.DbPlaylist
 import be.florien.anyflow.tags.local.model.DbPlaylistSongs
 import be.florien.anyflow.tags.local.model.DbPodcast
+import be.florien.anyflow.tags.local.model.DbPodcastChapter
 import be.florien.anyflow.tags.local.model.DbPodcastEpisode
 import be.florien.anyflow.tags.local.model.DbQueueOrder
 import be.florien.anyflow.tags.local.model.DbSong
@@ -56,7 +58,8 @@ import be.florien.anyflow.tags.local.model.DbSongGenre
         DbAlarm::class,
         DbDownload::class,
         DbPodcast::class,
-        DbPodcastEpisode::class
+        DbPodcastEpisode::class,
+        DbPodcastChapter::class
     ],
     exportSchema = false //todo ?
 )
@@ -77,6 +80,7 @@ abstract class LibraryDatabase : RoomDatabase() {
     abstract fun getDownloadDao(): DownloadDao
     abstract fun getPodcastDao(): PodcastDao
     abstract fun getPodcastEpisodeDao(): PodcastEpisodeDao
+    abstract fun getPodcastChapterDao(): PodcastChapterDao
 
     companion object {
 

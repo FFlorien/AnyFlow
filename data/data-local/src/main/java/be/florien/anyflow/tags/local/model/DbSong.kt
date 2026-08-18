@@ -91,7 +91,11 @@ data class DbQueueItemDisplay(
     val podcastName: String?,
     val podcastTime: Int?,
     val podcastId: Long?,
-    val podcastDescription: String?
+    val podcastDescription: String?,
+    // Podcast chapter
+    val podcastChapterId: Long?,
+    val podcastChapterTitle: String?,
+    val podcastChapterEpisodeId: Long?
 )
 
 data class DbSongId(

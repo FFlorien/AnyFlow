@@ -227,19 +227,34 @@ class QueryComposerFilter : QueryComposer {
                 constructTagJoinStatement(podcastFilters) +
                 constructWhereStatement(podcastFilters, "") +
                 " ORDER BY podcastEpisode.publicationDate ASC")
-            .toSQLiteQuery("getQueryForPodcastEpisodeIds", Throwable().stackTrace)
+            .toSQLiteQuery("getQueryForPodcastChapters", Throwable().stackTrace)
     }
 
-    override fun getQueryForPodcastEpisodeIds(
+    override fun getQueryForPodcastChapters(
         filterList: List<Filter>?//todo: add ordering handling
     ): SimpleSQLiteQuery {
         val podcastFilters = filterList?.onlyPodcast()
 
-        return ("SELECT DISTINCT podcastEpisode.id FROM podcastEpisode " +
+        return ("SELECT DISTINCT podcastChapter.id, podcastChapter.podcastEpisodeId, podcastChapter.startTime, podcastChapter.endTime, podcastChapter.title " +
+                "FROM podcastChapter " +
+                constructPodcastJoinStatement(podcastFilters, hasPodcastEpisode = false) +
+                constructWhereStatement(podcastFilters, "") +
+                " ORDER BY podcastChapter.podcastEpisodeId, podcastChapter.startTime ASC")
+            .toSQLiteQuery("getQueryForPodcastChapters", Throwable().stackTrace)
+    }
+
+    override fun getQueryForPodcastEpisodesWithChapters(
+        filterList: List<Filter>?//todo: add ordering handling
+    ): SimpleSQLiteQuery {
+        val podcastFilters = filterList?.onlyPodcast()
+
+        return ("SELECT podcastEpisode.id as podcastEpisodeId, podcastChapter.id as chapterId " +
+                "FROM podcastEpisode " +
+                "LEFT JOIN podcastChapter ON podcastEpisode.id = podcastChapter.podcastEpisodeId" +
                 constructPodcastJoinStatement(podcastFilters, hasPodcastEpisode = true) +
                 constructWhereStatement(podcastFilters, "") +
-                " ORDER BY podcastEpisode.publicationDate ASC")
-            .toSQLiteQuery("getQueryForPodcastEpisodeIds", Throwable().stackTrace)
+                " ORDER BY podcastEpisode.publicationDate, podcastChapter.startTime ASC")
+            .toSQLiteQuery("getQueryForPodcastEpisodesWithChapters", Throwable().stackTrace)
     }
 
     override fun getQueryForPodcastCount(filter: Filter?) = ("SELECT " +

@@ -23,7 +23,7 @@ data class QueryJoin(val type: JoinType, val level: Int) {
             "LEFT JOIN playlistsongs AS playlistsongs$TABLE_COUNT_FORMAT ON playlistsongs$TABLE_COUNT_FORMAT.songId = song.id",
             "LEFT JOIN playlistsongs AS playlistsongs$TABLE_COUNT_FORMAT ON playlistsongs$TABLE_COUNT_FORMAT.songId = playlistsongs.songId"
         ),
-        PODCAST_EPISODE("", "JOIN podcastEpisode ON podcastEpisode.podcastId = podcast.id")
+        PODCAST_EPISODE("", "JOIN podcastEpisode ON podcastEpisode.id = podcastChapter.podcastEpisodeId")
     }
 
     companion object {

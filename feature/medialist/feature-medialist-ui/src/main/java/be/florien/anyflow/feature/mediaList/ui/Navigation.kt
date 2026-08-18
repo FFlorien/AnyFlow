@@ -82,14 +82,12 @@ fun EntryProviderScope<NavKey>.nowPlayingEntry(
         MediaListScreen(
             mediaAndChapterItems = pagingList,
             currentMediaPosition = state.mediaPosition,
-            currentPodcastTime = state.chapterTime,
             isSearching = isSearchingValue,
             searchPosition = state.searchPosition,
             searchTotal = state.searchTotal,
             searchedItemPosition = state.searchItemPosition,
             shortcuts = state.shortcuts.toPersistentList(),
             onMediaItemClick = viewModel::goToMedia,
-            onChapterItemClick = viewModel::goToTime,
             onItemNavigation = {
                 val filter = when (it) {
                     is MediaItemData.Full.Song -> Filter(

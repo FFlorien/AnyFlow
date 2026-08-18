@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.media3.session.MediaController
 import androidx.paging.PagingData
-import androidx.paging.flatMap
 import be.florien.anyflow.common.base.BaseViewModel
 import be.florien.anyflow.common.di.ActivityScope
 import be.florien.anyflow.common.navigation.Navigator
@@ -22,12 +21,10 @@ import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.urls.UrlRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,22 +69,6 @@ class MediaListViewModel
     private val pagedAudioQueue: Flow<PagingData<MediaItemData>> =
         playingQueue.getQueueItemDisplayUpdater { dbItem ->
             dbItem.toMediaItemData(::getSongArtUrl, ::getPodcastArtUrl)
-        }.map { pagingData ->
-            pagingData.flatMap { mediaItemData ->
-                if (mediaItemData is MediaItemData.Full.PodcastEpisode) {
-                    val chapters = mediaItemData.chapters.mapIndexed { index, chapter ->
-                        MediaItemData.PodcastChapter(
-                            id = (mediaItemData.id * 100) + index,
-                            title = chapter.title,
-                            podcastPosition = mediaItemData.position,
-                            time = chapter.time
-                        )
-                    }
-                    listOf(mediaItemData) + chapters
-                } else {
-                    listOf(mediaItemData)
-                }
-            }
         }
     private var currentPodcastDisplay: PodcastEpisodeDisplay? = null
     private val isLoadingAll = MutableLiveData(false)
@@ -143,22 +124,6 @@ class MediaListViewModel
                 }
             }
         }
-        viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
-                delay(500)//todo magic number
-                withContext(Dispatchers.Main) {
-                    val currentPosition = player?.currentPosition?.div(1000) ?: Long.MAX_VALUE
-                    val chapterTime = currentPodcastDisplay
-                        ?.chapters
-                        ?.lastOrNull { currentPosition >= it.time }
-                        ?.time
-                        ?: 0L
-                    stateFlow.mutable.update {
-                        it.copy(chapterTime = chapterTime)
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -171,10 +136,6 @@ class MediaListViewModel
 
     fun goToMedia(position: Int) {
         player?.seekToDefaultPosition(position)
-    }
-
-    fun goToTime(position: Int, time: Long) {
-        player?.seekTo(position, time * 1000)
     }
 
     //todo extract some of these actions elsewhere because it's the fragment responsibility

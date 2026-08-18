@@ -70,7 +70,11 @@ interface QueryComposer {
         filter: Filter?//todo: add ordering handling
     ): SimpleSQLiteQuery
 
-    fun getQueryForPodcastEpisodeIds(
+    fun getQueryForPodcastChapters(
+        filterList: List<Filter>?//todo: add ordering handling
+    ): SimpleSQLiteQuery
+
+    fun getQueryForPodcastEpisodesWithChapters(
         filterList: List<Filter>?//todo: add ordering handling
     ): SimpleSQLiteQuery
 

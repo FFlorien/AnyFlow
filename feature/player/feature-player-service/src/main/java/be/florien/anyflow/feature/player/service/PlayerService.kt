@@ -45,6 +45,7 @@ import be.florien.anyflow.management.podcast.PodcastPersistence
 import be.florien.anyflow.management.queue.PlayingQueue
 import be.florien.anyflow.management.waveform.WaveFormRepository
 import be.florien.anyflow.tags.local.model.DbMediaToPlay
+import be.florien.anyflow.tags.local.model.PODCAST_CHAPTER_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.urls.UrlRepository
@@ -336,10 +337,17 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
         } else {
             "podcast_episode"
         }
-        val mediaUrl = urlRepository.getMediaUrl(id, mediaType)
-        val mediaTypeMetaData =
-            if (this.mediaType == SONG_MEDIA_TYPE) MediaMetadata.MEDIA_TYPE_MUSIC else MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
-        val mediaMetadata = MediaItem.Builder()
+        val mediaUrl = if (this.mediaType == PODCAST_CHAPTER_MEDIA_TYPE) {
+            urlRepository.getMediaUrl(this.podcastEpisodeId!!, mediaType)
+        } else {
+            urlRepository.getMediaUrl(id, mediaType)
+        }
+        val mediaTypeMetaData = if (this.mediaType == SONG_MEDIA_TYPE) {
+            MediaMetadata.MEDIA_TYPE_MUSIC
+        } else {
+            MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE
+        }
+        var builder = MediaItem.Builder()
             .setMediaMetadata(
                 MediaMetadata
                     .Builder()
@@ -347,10 +355,26 @@ class PlayerService : MediaSessionService(), Player.Listener, LifecycleOwner {
                     .build()
             )
         val localUriString = local
-        val builder = if (!localUriString.isNullOrBlank()) {
-            mediaMetadata.setUri(localUriString.toUri())
+        builder = if (!localUriString.isNullOrBlank()) {
+            builder.setUri(localUriString.toUri())
         } else {
-            mediaMetadata.setUri(mediaUrl.toUri())
+            builder.setUri(mediaUrl.toUri())
+        }
+        builder = if (this.mediaType == PODCAST_CHAPTER_MEDIA_TYPE) {
+            builder.setClippingConfiguration(
+                MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(startTime * 1000)
+                    .let {
+                        if (endTime >= 0) {
+                            it.setEndPositionMs(endTime * 1000)
+                        } else {
+                            it
+                        }
+                    }
+                    .build()
+            )
+        } else {
+            builder
         }
         return builder
             .setMediaId(this.id.toString())

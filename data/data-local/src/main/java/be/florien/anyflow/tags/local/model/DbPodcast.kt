@@ -17,6 +17,7 @@ data class DbPodcast(
     val buildDate: Long,
     val syncDate: Long
 )
+
 data class DbPodcastDisplay(
     val id: Long,
     val name: String,
@@ -60,4 +61,19 @@ data class DbPodcastEpisodeWithPodcast(
         entityColumn = "id"
     )
     val podcast: DbPodcast
+)
+
+@Entity(tableName = "PodcastChapter")
+data class DbPodcastChapter(
+    @PrimaryKey
+    val id: Long,
+    val podcastEpisodeId: Long,
+    val startTime: Long,
+    val endTime: Long,
+    val title: String
+)
+
+data class DbPodcastEpisodeWithChapters(
+    val podcastEpisodeId: Long,
+    val chapterId: Long?
 )

@@ -24,9 +24,13 @@ data class DbQueueItem(
 
 data class DbMediaToPlay(
         val id: Long,
+        val podcastEpisodeId: Long?,
         val local: String?,
-        val mediaType: Int
+        val mediaType: Int,
+        val startTime: Long,
+        val endTime: Long
 )
 
 const val SONG_MEDIA_TYPE = 0
 const val PODCAST_MEDIA_TYPE = 1
+const val PODCAST_CHAPTER_MEDIA_TYPE = 2

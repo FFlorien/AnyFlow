@@ -26,6 +26,7 @@ import be.florien.anyflow.data.server.model.AmpachePodcast
 import be.florien.anyflow.data.server.model.AmpacheSong
 import be.florien.anyflow.data.server.model.AmpacheSongId
 import be.florien.anyflow.tags.local.LibraryDatabase
+import be.florien.anyflow.tags.local.model.DbPodcastChapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -259,7 +260,8 @@ class SyncRepository
                 .updatePodcastList(podcasts.data.map(AmpachePodcast::toDbPodcast))
 
             val dbPodcastEpisodes = podcasts.data.flatMap { podcast ->
-                val episodesResult = ampachePodcastSource.getPodcastEpisodes(podcast.id) as? NetSuccess
+                val episodesResult =
+                    ampachePodcastSource.getPodcastEpisodes(podcast.id) as? NetSuccess
                 val episodes = episodesResult?.data
 
                 if (!episodes.isNullOrEmpty()) {
@@ -271,6 +273,36 @@ class SyncRepository
                 }
             }
             libraryDatabase.getPodcastEpisodeDao().updatePodcastEpisodeList(dbPodcastEpisodes)
+
+            val dbPodcastChapters = dbPodcastEpisodes.flatMap { episode ->
+                val timestampRegex =
+                    Regex("(<[a-zA-Z]+>)*\\(?\\{?\\[?([0-5]?\\d:)?[0-5]?\\d:[0-5]\\d\\)?\\}?]?")
+                val digitsRegex = Regex("([0-5]?\\d)")
+                val timeStampsTimes = timestampRegex.findAll(episode.description)
+                val chapterList = mutableListOf<DbPodcastChapter>()
+                timeStampsTimes.forEach { timeStamp ->
+                    val next = timeStamp.next()
+                    val end = next?.range?.start ?: episode.description.length
+                    var time = 0L
+                    digitsRegex.findAll(timeStamp.value).forEach {
+                        time = (time * 60) + it.value.toLong()
+                    }
+                    val text = episode.description.substring(timeStamp.range.first, end)
+                    chapterList += DbPodcastChapter(
+                        id = (episode.id * 10000) + time,
+                        podcastEpisodeId = episode.id,
+                        startTime = time,
+                        endTime = -1,
+                        title = text
+                    )
+                }
+                chapterList.mapIndexed { index, chapter ->
+                    chapterList.getOrNull(index + 1)?.let {
+                        chapter.copy(endTime = it.startTime)
+                    } ?: chapter
+                }
+            }
+            libraryDatabase.getPodcastChapterDao().updatePodcastChapterList(dbPodcastChapters)
             updatePodcasts(podcasts.data)
         }
     }
@@ -330,7 +362,8 @@ class SyncRepository
                 success.data.list.forEach { album ->
                     val artistByName = ampacheDataSource.getArtistByName(album.artist.name)
                     if (artistByName is NetSuccess) {
-                        libraryDatabase.getArtistDao().upsert(artistByName.data.map { it.toDbArtist() })
+                        libraryDatabase.getArtistDao()
+                            .upsert(artistByName.data.map { it.toDbArtist() })
                     }
                 }
             }

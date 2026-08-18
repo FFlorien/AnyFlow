@@ -1,7 +1,6 @@
 package be.florien.anyflow.management.queue
 
 import be.florien.anyflow.common.di.ServerScope
-import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.common.logging.eLog
 import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.management.filters.domain.model.Filter
@@ -117,8 +116,7 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
 
     }
 
-    suspend fun isOrdered() =
-        queueRepository.getOrderingsSuspend()?.none { it is Ordering.Random } ?: false
+    suspend fun isOrdered() = queueRepository.getOrderingsSuspend().none { it is Ordering.Random }
 
     suspend fun randomize() {
         val orderings = mutableListOf<Ordering>(
@@ -154,31 +152,31 @@ class OrderComposer @Inject constructor(private val queueRepository: QueueReposi
     private fun saveQueue(filterList: List<Filter>, orderingList: List<Ordering>) {
         iLog("Order for saving queue order: ${orderingList.joinToString { it.orderingSubject.name }}")
         coroutineScope.launch {
-            val queue = queueRepository.getOrderlessQueue(filterList, orderingList)
+            val songQueue = queueRepository.getOrderlessSongQueue(filterList, orderingList)
             val randomOrderingSeed = orderingList
                 .firstOrNull { it.orderingType == Ordering.OrderingType.RANDOM }
                 ?.argument
-            val listToSave = if (randomOrderingSeed != null) {
-                queue.shuffled(Random(randomOrderingSeed.toLong())).toMutableList()
+            val listToSave: MutableList<QueueRepository.QueueItem> = if (randomOrderingSeed != null) {
+                songQueue.shuffled(Random(randomOrderingSeed.toLong())).toMutableList()
             } else {
-                queue.toMutableList()
+                songQueue.toMutableList()
             }
             currentOrderings
                 .filter { it.orderingType == Ordering.OrderingType.PRECISE_POSITION }
                 .forEach { preciseOrder ->
                     if (listToSave.remove(
-                            QueueRepository.QueueItem(
-                                SONG_MEDIA_TYPE,
-                                preciseOrder.subject
-                            )
+                            QueueRepository.QueueItem.Song(preciseOrder.subject)
                         )
-                    ) { //todo change podcast position
+                    ) {
                         listToSave.add(
                             preciseOrder.argument,
-                            QueueRepository.QueueItem(SONG_MEDIA_TYPE, preciseOrder.subject)
+                            QueueRepository.QueueItem.Song(preciseOrder.subject)
                         )
                     } // todo else remove order from db
                 }
+            val orderlessPodcastEpisodeQueue = queueRepository
+                .getOrderlessPodcastEpisodeQueue(filterList)
+            listToSave.addAll(0, orderlessPodcastEpisodeQueue)
             queueRepository.saveQueueOrdering(listToSave)
         }
     }

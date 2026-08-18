@@ -31,7 +31,7 @@ abstract class SongDao : BaseDao<DbSong>() {
     @RawQuery(observedEntities = [DbSong::class])
     abstract suspend fun rawQueryListDisplay(query: SupportSQLiteQuery): List<DbSongDisplay>
 
-    @Query("SELECT song.id as id, song.local as local, $SONG_MEDIA_TYPE as mediaType FROM song WHERE song.id IN (:ids)")
+    @Query("SELECT song.id as id, NULL as podcastEpisodeId, song.local as local, $SONG_MEDIA_TYPE as mediaType, -1 as startTime, -1 as endTime FROM song WHERE song.id IN (:ids)")
     abstract suspend fun songsToUpdate(ids: List<Long>): List<DbMediaToPlay>
 
     @RawQuery(observedEntities = [DbSong::class])

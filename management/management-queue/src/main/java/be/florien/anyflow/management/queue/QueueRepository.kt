@@ -18,6 +18,7 @@ import be.florien.anyflow.tags.local.model.DbFilter
 import be.florien.anyflow.tags.local.model.DbFilterGroup
 import be.florien.anyflow.tags.local.model.DbQueueItemDisplay
 import be.florien.anyflow.tags.local.model.DbQueueOrder
+import be.florien.anyflow.tags.local.model.PODCAST_CHAPTER_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.PODCAST_MEDIA_TYPE
 import be.florien.anyflow.tags.local.model.SONG_MEDIA_TYPE
 import be.florien.anyflow.tags.local.query.QueryComposer
@@ -146,13 +147,6 @@ class QueueRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             libraryDatabase.getOrderingDao().replaceBy(orderings.map { it.toDbOrdering() })
         }
-
-    suspend fun saveQueueOrdering(listToSave: MutableList<QueueItem>) {
-        libraryDatabase.getQueueOrderDao()
-            .setOrder(listToSave.mapIndexed { index, id ->
-                DbQueueOrder(index, id.id, id.mediaType)
-            })
-    }
     //endregion
 
     //region Queue
@@ -170,12 +164,12 @@ class QueueRepository @Inject constructor(
             libraryDatabase.getQueueOrderDao().findPositionInQueue(songId)
         }
 
-    suspend fun getOrderlessQueue(
+    suspend fun getOrderlessSongQueue(
         filterParamList: List<Filter>,
         orderingList: List<Ordering>
-    ): List<QueueItem> =
+    ): List<QueueItem.Song> =
         withContext(Dispatchers.IO) {
-            val songs = if (filterParamList.flatten().none { it.type is TagFilterType }) {
+            if (filterParamList.flatten().none { it.type is TagFilterType }) {
                 emptyList()
             } else {
                 libraryDatabase.getSongDao().forCurrentFiltersList(
@@ -184,23 +178,74 @@ class QueueRepository @Inject constructor(
                         orderingList.toQueryOrderings()
                     )
                 ).map {
-                    QueueItem(SONG_MEDIA_TYPE, it)
+                    QueueItem.Song(it)
                 }
             }
-            val podcastEpisodes =
-                if (filterParamList.flatten().none { it.type is PodcastFilterType }) {
-                    emptyList()
-                } else {
-                    libraryDatabase
-                        .getPodcastEpisodeDao()
-                        .rawQueryIdList(queryComposer.getQueryForPodcastEpisodeIds(filterParamList))
-                        .map { QueueItem(PODCAST_MEDIA_TYPE, it) }
-                }
-            podcastEpisodes + songs
         }
+
+    suspend fun getOrderlessPodcastEpisodeQueue(
+        filterParamList: List<Filter>
+    ): List<QueueItem> =
+        withContext(Dispatchers.IO) {
+            if (filterParamList.flatten().none { it.type is PodcastFilterType }) {
+                emptyList()
+            } else {
+                val rawQueryIdList = libraryDatabase
+                    .getPodcastChapterDao()
+                    .rawQueryIdList(
+                        queryComposer.getQueryForPodcastEpisodesWithChapters(
+                            filterParamList
+                        )
+                    )
+                val handledEpisode = mutableListOf<Long>()
+                val chaptersAndEpisodeWithoutChapters = rawQueryIdList
+                    .flatMap {
+                        val chapterId = it.chapterId
+                        if (chapterId != null) {
+                            if (handledEpisode.contains(it.podcastEpisodeId)) {
+                                listOf(QueueItem.PodcastEpisodeChapter(chapterId))
+                            } else {
+                                handledEpisode.add(it.podcastEpisodeId)
+                                listOf(
+                                    QueueItem.PodcastEpisode(it.podcastEpisodeId),
+                                    QueueItem.PodcastEpisodeChapter(chapterId)
+                                )
+                            }
+                        } else {
+                            listOf(QueueItem.PodcastEpisode(it.podcastEpisodeId))
+                        }
+                    }
+                chaptersAndEpisodeWithoutChapters
+
+            }
+        }
+
+    suspend fun saveQueueOrdering(listToSave: MutableList<QueueItem>) {
+        libraryDatabase.getQueueOrderDao()
+            .setOrder(listToSave.mapIndexed { index, queueItem ->
+                DbQueueOrder(index, queueItem.id, queueItem.mediaType)
+            })
+    }
     //endregion
 
-    data class QueueItem(val mediaType: Int, val id: Long)
+    sealed interface QueueItem {
+        val mediaType: Int
+        val id: Long
+
+        data class Song(override val id: Long) : QueueItem {
+            override val mediaType: Int = SONG_MEDIA_TYPE
+        }
+
+        data class PodcastEpisode(
+            override val id: Long
+        ) : QueueItem {
+            override val mediaType: Int = PODCAST_MEDIA_TYPE
+        }
+
+        data class PodcastEpisodeChapter(override val id: Long) : QueueItem {
+            override val mediaType: Int = PODCAST_CHAPTER_MEDIA_TYPE
+        }
+    }
 
     companion object {
         private const val HISTORY_SIZE = 100

@@ -1,9 +1,13 @@
 package be.florien.anyflow.management.filters.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed interface FilterType {
     val artType: String?
 }
 
+@Serializable
 enum class TagFilterType(override val artType: String?): FilterType {
     SONG_IS(FilterParam.ART_TYPE_SONG),
     ARTIST_IS(FilterParam.ART_TYPE_ARTIST),
@@ -15,6 +19,7 @@ enum class TagFilterType(override val artType: String?): FilterType {
     DISK_IS(FilterParam.ART_TYPE_ALBUM)
 }
 
+@Serializable
 enum class PodcastFilterType(override val artType: String?): FilterType {
     PODCAST_EPISODE_IS(FilterParam.ART_TYPE_PODCAST),
     PODCAST_IS(FilterParam.ART_TYPE_PODCAST),
