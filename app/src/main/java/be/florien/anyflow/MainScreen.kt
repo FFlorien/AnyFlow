@@ -95,7 +95,10 @@ fun MainScreen(
                     },
                     toggleSearch = toggleSearch,
                     changeOrdering = changeOrdering,
-                    commitFilters = commitFilters
+                    commitFilters = {
+                        commitFilters()
+                        navigateTo(BottomNavDestination.NowPlaying)
+                    }
                 )
             },
             bottomBar = {
