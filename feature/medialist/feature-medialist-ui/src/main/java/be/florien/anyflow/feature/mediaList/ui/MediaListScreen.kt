@@ -56,6 +56,8 @@ import be.florien.anyflow.common.resources.component.SearchBar
 import be.florien.anyflow.common.resources.component.SlideRightToActionLeftToShortCut
 import be.florien.anyflow.common.resources.component.handlerWidth
 import be.florien.anyflow.common.resources.theming.AppTheme
+import be.florien.anyflow.feature.song.base.domain.model.SongActionType
+import be.florien.anyflow.feature.song.base.domain.model.SongFieldType
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImage
@@ -377,21 +379,13 @@ fun MediaItem(
         modifier = modifier,
         isSingleShortcut = shortcuts.size == 1,
         actionBackground = {
-            Row(
+            Image(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height = 116.dp)
-                    .padding(8.dp)
-                    .align(Alignment.CenterStart)
-            ) {
-                Image(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .align(Alignment.CenterVertically),
-                    painter = painterResource(R.drawable.ic_info),
-                    contentDescription = null
-                )
-            }
+                    .size(48.dp)
+                    .align(Alignment.CenterStart),
+                painter = painterResource(R.drawable.ic_info),
+                contentDescription = null
+            )
         },
         shortcuts = {
             for (shortcut in shortcuts.reversed()) {
@@ -551,11 +545,17 @@ fun PodcastItemPreview() {
                     id = 0L,
                     position = 0,
                     artUrl = "http://tutu.com",
-                    title = "Song's title",
-                    author = "Best band ever",
+                    title = "Discussion topic #3: How come the world is in such shape, what can we do about it, and why should you donate to us",
+                    author = "The Ultimate podcast",
                     duration = "3:13"
                 ),
-                shortcuts = persistentListOf(),
+                shortcuts = persistentListOf(
+                    MediaListViewModel.ShortcutData(
+                        SongActionType.AddToPlaylist,
+                        SongFieldType.Title,
+                        0
+                    )
+                ),
                 isSelected = false,
                 onShortcut = {},
                 onItemNavigation = {}
@@ -577,7 +577,13 @@ fun MediaListItemPreview() {
                 searchPosition = 0,
                 searchTotal = 0,
                 searchedItemPosition = 0,
-                shortcuts = persistentListOf(),
+                shortcuts = persistentListOf(
+                    MediaListViewModel.ShortcutData(
+                        SongActionType.AddToPlaylist,
+                        SongFieldType.Title,
+                        0
+                    )
+                ),
                 onMediaItemClick = {},
                 onItemNavigation = {},
                 onSearchChange = {},
@@ -596,7 +602,7 @@ private fun getDummyLazyPagingItems(): LazyPagingItems<MediaItemData> = flowOf(
                 id = 10L,
                 position = 0,
                 artUrl = "http://tutu.com",
-                title = "Discussion topic #3",
+                title = "Discussion topic #3: How come the world is in such shape, what can we do about it, and why should you donate to us",
                 author = "2 white guys",
                 duration = "2:15:25"
             ),

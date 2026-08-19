@@ -9,11 +9,14 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
@@ -197,7 +200,6 @@ fun SlideRightToActionLeftToShortCut(
             get() = originalViewConfiguration.longPressTimeoutMillis
         override val touchSlop: Float
             get() = 40f // set this to any value you want
-
     }
     CompositionLocalProvider(LocalViewConfiguration provides viewConfiguration) {
         val density: Density = LocalDensity.current
@@ -207,23 +209,35 @@ fun SlideRightToActionLeftToShortCut(
         }
         val scope = rememberCoroutineScope()
         val offsetX = remember {
-            Animatable(initialValue = 0f)
+            Animatable(initialValue = 0F)
         }
         Box(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
         ) {
             Row(
                 modifier = Modifier
+                    .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.surfaceContainer),
                 horizontalArrangement = Arrangement.End
             ) {
-                Box(modifier = Modifier.width(dpValue)) {
+                Box(
+                    modifier = Modifier
+                        .width(dpValue)
+                        .fillMaxHeight()
+                        .padding(8.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
                     actionBackground()
                 }
                 Spacer(modifier = Modifier.weight(1F))
-                Row(Modifier.onSizeChanged {
-                    contextMenuWidth = it.width.toFloat()
-                }) { shortcuts() }
+                Row(
+                    modifier = Modifier
+                        .onSizeChanged { contextMenuWidth = it.width.toFloat() }
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) { shortcuts() }
             }
             Box(
                 modifier = Modifier
