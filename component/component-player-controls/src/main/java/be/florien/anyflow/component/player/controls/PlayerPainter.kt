@@ -218,6 +218,9 @@ internal abstract class PlayerPainter(
     open fun setLayoutProperties(layoutProperties: PlayerControls.LayoutProperties) {
         measuredSmallestButtonWidth = layoutProperties.smallestButtonWidth
         iconColor = layoutProperties.iconColor
+        playPauseIconAnimator.iconColor = layoutProperties.iconColor
+        previousIconAnimator.iconColor = layoutProperties.iconColor
+        previousIconAnimator.enabledColor = layoutProperties.iconColor
         textAndOutlineColor.color = layoutProperties.outlineColor
         timelineOutlineColor.color = layoutProperties.outlineColor
         readWaveFormBarsColor.color = layoutProperties.readBarsColor

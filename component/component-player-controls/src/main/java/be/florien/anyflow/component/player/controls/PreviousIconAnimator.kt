@@ -7,7 +7,7 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 
 
 class PreviousIconAnimator(context: Context) : IconAnimator(context) {
-    private var enabledColor = ContextCompat.getColor(context, R.color.iconInApp)
+    var enabledColor = ContextCompat.getColor(context, R.color.iconInApp)
     private var disabledColor = ContextCompat.getColor(context, R.color.disabled)
 
     override fun getStartAnimation(newState: Int): AnimatedVectorDrawableCompat? = null

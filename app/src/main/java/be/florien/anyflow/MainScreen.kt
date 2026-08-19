@@ -222,7 +222,7 @@ private fun MainBottomBar(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        val primary = MaterialTheme.colorScheme.primaryContainer.toArgb()
+        val primary = MaterialTheme.colorScheme.primary.toArgb()
         val tertiary = MaterialTheme.colorScheme.tertiary.toArgb()
         val outline = MaterialTheme.colorScheme.onPrimary.toArgb()
         val read = MaterialTheme.colorScheme.primaryFixed.toArgb()
@@ -237,19 +237,6 @@ private fun MainBottomBar(
                         64f,
                         resources.displayMetrics
                     )
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        height.toInt(),
-                    )
-                    actionListener = getActionListener()
-
-                    currentDuration = mainState.currentDuration
-                    hasPrevious = mainState.hasPrevious
-                    isSeekable = mainState.isSeekable
-                    shouldShowBuffering = mainState.shouldShowBuffering
-                    state = mainState.playbackState
-                    totalDuration = mainState.totalDuration
-                    waveForm = mainState.waveForm
                     setLayoutProperties(
                         PlayerControls.LayoutProperties(
                             smallestButtonWidth = context.resources.getDimension(
@@ -266,6 +253,19 @@ private fun MainBottomBar(
                             minimumDurationForSeek = 3000
                         )
                     )
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        height.toInt(),
+                    )
+                    actionListener = getActionListener()
+
+                    currentDuration = mainState.currentDuration
+                    hasPrevious = mainState.hasPrevious
+                    isSeekable = mainState.isSeekable
+                    shouldShowBuffering = mainState.shouldShowBuffering
+                    state = mainState.playbackState
+                    totalDuration = mainState.totalDuration
+                    waveForm = mainState.waveForm
                 }
             },
             update = { view ->
@@ -282,8 +282,8 @@ private fun MainBottomBar(
         )
         NavigationBar(
             windowInsets = NavigationBarDefaults.windowInsets,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
             BottomNavDestination.items.forEach { destinationMain ->
                 NavigationBarItem(
@@ -300,7 +300,7 @@ private fun MainBottomBar(
                     label = {
                         Text(
                             text = stringResource(destinationMain.label),
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             textAlign = TextAlign.Center
                         )
                     }

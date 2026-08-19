@@ -15,7 +15,7 @@ abstract class IconAnimator(private val context: Context) {
     var icon: Drawable? = null
     var onIconChanged: (() -> Unit)? = null
     protected var oldState: Int = -1
-    protected var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
+    var iconColor = ContextCompat.getColor(context, R.color.iconInApp)
 
     open fun computeIcon(newState: Int, iconPosition: Rect) {
         if (newState == oldState) {

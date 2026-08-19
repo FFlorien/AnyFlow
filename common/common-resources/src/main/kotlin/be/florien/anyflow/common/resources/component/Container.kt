@@ -130,7 +130,7 @@ private fun BlueTopAppBar(
     actions: @Composable (RowScope.() -> Unit),
 ) {
     TopAppBar(
-        title = { Text(title) },
+        title = { Text(text = title, color = MaterialTheme.colorScheme.onPrimary) },
         navigationIcon = navigationIcon,
         actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(

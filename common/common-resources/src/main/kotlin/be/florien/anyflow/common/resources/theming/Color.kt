@@ -2,6 +2,7 @@ package be.florien.anyflow.common.resources.theming
 
 import androidx.compose.ui.graphics.Color
 
+//region light
 val primaryLight = Color(0xFF005AB3)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFF0072E0)
@@ -37,7 +38,9 @@ val surfaceContainerLowLight = Color(0xFFF5F3F3)
 val surfaceContainerLight = Color(0xFFEFEDEE)
 val surfaceContainerHighLight = Color(0xFFEAE8E8)
 val surfaceContainerHighestLight = Color(0xFFE4E2E2)
+//endregion
 
+//region medium contrast
 val primaryLightMediumContrast = Color(0xFF00356F)
 val onPrimaryLightMediumContrast = Color(0xFFFFFFFF)
 val primaryContainerLightMediumContrast = Color(0xFF006BD3)
@@ -73,7 +76,9 @@ val surfaceContainerLowLightMediumContrast = Color(0xFFF5F3F3)
 val surfaceContainerLightMediumContrast = Color(0xFFEAE8E8)
 val surfaceContainerHighLightMediumContrast = Color(0xFFDEDCDD)
 val surfaceContainerHighestLightMediumContrast = Color(0xFFD3D1D1)
+//endregion
 
+//region high contrast
 val primaryLightHighContrast = Color(0xFF002B5C)
 val onPrimaryLightHighContrast = Color(0xFFFFFFFF)
 val primaryContainerLightHighContrast = Color(0xFF004891)
@@ -109,9 +114,11 @@ val surfaceContainerLowLightHighContrast = Color(0xFFF2F0F0)
 val surfaceContainerLightHighContrast = Color(0xFFE4E2E2)
 val surfaceContainerHighLightHighContrast = Color(0xFFD6D4D4)
 val surfaceContainerHighestLightHighContrast = Color(0xFFC8C6C6)
+//endregion
 
+//region dark
 val primaryDark = Color(0xFF4D8CFF)
-val onPrimaryDark = Color(0xFF002F64)
+val onPrimaryDark = Color(0xFFFFFFFF)
 val primaryContainerDark = Color(0xFF0072E0)
 val onPrimaryContainerDark = Color(0xFFFCFBFF)
 val secondaryDark = Color(0xFFAAC7FF)
@@ -145,7 +152,9 @@ val surfaceContainerLowDark = Color(0xFF1B1C1C)
 val surfaceContainerDark = Color(0xFF1F2020)
 val surfaceContainerHighDark = Color(0xFF2A2A2B)
 val surfaceContainerHighestDark = Color(0xFF343535)
+//endregion
 
+//region dark medium contrast
 val primaryDarkMediumContrast = Color(0xFFCDDDFF)
 val onPrimaryDarkMediumContrast = Color(0xFF002550)
 val primaryContainerDarkMediumContrast = Color(0xFF3F90FF)
@@ -217,6 +226,7 @@ val surfaceContainerLowDarkHighContrast = Color(0xFF1F2020)
 val surfaceContainerDarkHighContrast = Color(0xFF303031)
 val surfaceContainerHighDarkHighContrast = Color(0xFF3B3B3C)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF474747)
+//endregion
 
 val completeLight = Color(0xFF006E1C)
 val onCompleteLight = Color(0xFFFFFFFF)
