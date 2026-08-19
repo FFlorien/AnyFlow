@@ -44,6 +44,7 @@ import be.florien.anyflow.common.logging.iLog
 import be.florien.anyflow.common.navigation.AlarmList
 import be.florien.anyflow.common.navigation.BottomNavDestination
 import be.florien.anyflow.common.navigation.ComposeNavigator
+import be.florien.anyflow.common.navigation.ConnectedDestination
 import be.florien.anyflow.common.navigation.Navigator
 import be.florien.anyflow.common.navigation.Server
 import be.florien.anyflow.common.navigation.rememberNavigationState
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
             AppTheme {
                 val topLevelRoute = navigationState.topLevelRoute
-                if (topLevelRoute is BottomNavDestination) {
+                if (topLevelRoute is ConnectedDestination) {
                     val viewModel = viewModel<MainActivityViewModel>(factory = viewModelFactory)
                     var isSearching by remember { mutableStateOf(false) }
                     val lifecycleOwner = rememberLifecycleOwner()
@@ -198,23 +199,42 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                             ?: false
                         viewModel.setInternetPresence(hasInternet && (isWifi || isCellular))
                     }
-                    MainScreen(
-                        topLevelNavKey = topLevelRoute,
-                        mainState = mainState,
-                        getActionListener = { viewModel },
-                        toggleSearch = { isSearching = !isSearching },
-                        changeOrdering = viewModel::changeOrdering,
-                        commitFilters = viewModel::commitFiltersChanges,
-                        navigateTo = { navigator.navigate(it) },
-                        navigateToPlaylist = {
-                            legacyNavigator.navigateToPlaylist(this)
-                        },
-                        navigateToShortcuts = {
-                            legacyNavigator.navigateToShortcut(this)
-                        }) {
+                    if (topLevelRoute is BottomNavDestination) {
+                        MainScreen(
+                            topLevelNavKey = topLevelRoute,
+                            mainState = mainState,
+                            getActionListener = { viewModel },
+                            toggleSearch = { isSearching = !isSearching },
+                            changeOrdering = viewModel::changeOrdering,
+                            commitFilters = viewModel::commitFiltersChanges,
+                            navigateTo = { navigator.navigate(it) },
+                            navigateToPlaylist = {
+                                legacyNavigator.navigateToPlaylist(this)
+                            },
+                            navigateToShortcuts = {
+                                legacyNavigator.navigateToShortcut(this)
+                            }) {
+                            NavigationContent(
+                                navigationState.toEntries(entryProvider {
+                                    authenticationEntry(navigator)
+                                    alarmEntry(viewModelFactory, navigator)
+                                    libraryEntries(viewModelFactory, navigator)
+                                    nowPlayingEntry(
+                                        viewModelFactory,
+                                        navigator,
+                                        snapshotFlow { isSearching }
+                                    )
+                                    currentFilterEntry(viewModelFactory, navigator)
+                                    savedFiltersEntry(viewModelFactory)
+                                })
+                            ) { navigator.goBack() }
+
+                        }
+                    } else {
                         NavigationContent(
                             navigationState.toEntries(entryProvider {
                                 authenticationEntry(navigator)
+                                alarmEntry(viewModelFactory, navigator)
                                 libraryEntries(viewModelFactory, navigator)
                                 nowPlayingEntry(
                                     viewModelFactory,
@@ -223,7 +243,6 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                                 )
                                 currentFilterEntry(viewModelFactory, navigator)
                                 savedFiltersEntry(viewModelFactory)
-                                alarmEntry(viewModelFactory, navigator)
                             })
                         ) { navigator.goBack() }
                     }
