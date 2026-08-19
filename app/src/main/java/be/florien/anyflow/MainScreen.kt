@@ -64,7 +64,7 @@ fun MainScreen(
         }
     }
     ModalNavigationDrawer(
-        gesturesEnabled = false,
+        gesturesEnabled = drawerState.isOpen,
         drawerState = drawerState,
         drawerContent = {
             LeftDrawerMenu(
@@ -181,7 +181,7 @@ private fun LeftDrawerMenu(
                 closeDrawer
             ) { navigateTo(AlarmList) }
             SubDrawerMenu(
-                stringResource(R.string.menu_alarms),
+                stringResource(R.string.menu_playlist),
                 closeDrawer
             ) { navigateToPlaylist() }
             SubDrawerMenu(
