@@ -258,9 +258,13 @@ fun SlideRightToActionLeftToShortCut(
                                 if (isSingleShortcut && offsetX.value <= -contextMenuWidth) {
                                     onSingleShortcut()
                                 }
-                                if (offsetX.value > 0 || isSingleShortcut) {
+                                if (offsetX.value > 0 || (!isSingleShortcut && offsetX.value > -((contextMenuWidth / 4) * 3)) || isSingleShortcut) {
                                     scope.launch {
                                         offsetX.animateTo(0f)
+                                    }
+                                } else if (offsetX.value < -((contextMenuWidth / 4) * 3)) {
+                                    scope.launch {
+                                        offsetX.animateTo(-contextMenuWidth)
                                     }
                                 }
                             }

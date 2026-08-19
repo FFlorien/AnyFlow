@@ -391,8 +391,8 @@ fun MediaItem(
             for (shortcut in shortcuts.reversed()) {
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .size(64.dp)
+                        .padding(4.dp)
+                        .size(48.dp)
                         .clickable {
                             onShortcut(shortcut)
                         }
@@ -412,7 +412,7 @@ fun MediaItem(
                     Icon(
                         modifier = Modifier
                             .size(20.dp)
-                            .align(Alignment.BottomEnd)
+                            .align(Alignment.BottomStart)
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = MaterialTheme.shapes.medium
