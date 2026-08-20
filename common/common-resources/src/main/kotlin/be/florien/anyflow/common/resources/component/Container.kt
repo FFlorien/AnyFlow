@@ -155,7 +155,9 @@ fun SlideRightToAction(
     foreground: @Composable BoxScope.() -> Unit
 ) {
     Box(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
         background()
         var offsetX by remember { mutableFloatStateOf(0f) }

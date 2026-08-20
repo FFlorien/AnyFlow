@@ -1,6 +1,5 @@
 package be.florien.anyflow.feature.library.ui.info
 
-import android.app.Activity
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -171,12 +170,14 @@ class LibraryInfoViewModel @Inject constructor(
             }
 
         return InfoRowDisplay(
+            id = idText.id,
             key = "$fieldType${rowType.getKey()}",
             leftImage = leftImage,
             title = title,
             info = info,
-            actionIcon = rowType.iconRes,
-            backgroundColor = null
+            backgroundColor = null,
+            rowType = rowType,
+            fieldType = fieldType
         )
     }
 

@@ -2,6 +2,7 @@ package be.florien.anyflow.feature.library.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,7 +32,6 @@ import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel.Companion
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel.Companion.PODCAST_TYPE
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel.Companion.SONG_ID
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel.Companion.TAGS_TYPE
-import be.florien.anyflow.feature.library.ui.list.FilterDisplay
 import be.florien.anyflow.feature.library.ui.list.LibraryListScreen
 import be.florien.anyflow.feature.library.ui.list.LibraryListViewModel
 import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryAlbumArtistListViewModel
@@ -45,6 +45,7 @@ import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryPodcastListV
 import be.florien.anyflow.feature.library.ui.list.viewmodels.LibraryTagsListViewModel
 import be.florien.anyflow.management.filters.domain.model.Filter
 import be.florien.anyflow.management.filters.domain.model.FilterParam
+import be.florien.anyflow.management.filters.domain.model.FilterType
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.collections.immutable.persistentListOf
@@ -65,7 +66,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             executeAction = {
                 val row = viewModel.libraryInfoRows.value[it]
                 val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(
+                if (!navigateToList(
                         row,
                         navigator,
                         filterParent
@@ -90,15 +91,27 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                     entry.title
                 )
             )
-        val state =
-            viewModel.state.collectAsStateWithLifecycle(persistentListOf())
+        val state = viewModel.state.collectAsStateWithLifecycle(persistentListOf())
+        val resources = LocalResources.current
         LibraryInfoScreen(
             list = state.value,
-            executeAction = {
-                val row = viewModel.libraryInfoRows.value[it]
-                val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(row, navigator,filterParent)) {
-                    viewModel.executeAction(it, activity as FragmentActivity)
+            executeAction = { position ->
+                val row = viewModel.libraryInfoRows.value[position]
+                val type = row.fieldType.toFilterType()
+
+                if (row.rowType == LibraryRowType.Action.SeeInLibrary && type != null) {
+                    val parentRowDisplay = state
+                        .value
+                        .first { it.fieldType == row.fieldType }
+                    val displayText = parentRowDisplay.info.getText(resources)
+                    navigateToInfo(
+                        Filter(
+                            FilterParam(type, parentRowDisplay.id, displayText)
+                        ),
+                        navigator
+                    )
+                } else if (!navigateToList(row, navigator, viewModel.filterNavigation)) {
+                    viewModel.executeAction(position, activity as FragmentActivity)
                 }
             }
         )
@@ -113,7 +126,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             onClick = viewModel::toggleFilterSelection,
             onNavigation = {
                 val filter = viewModel.getFilter(it.toItem())
-                navigateToInfo(filter, it, navigator)
+                navigateToInfo(filter, navigator)
             }
         )
     }
@@ -130,7 +143,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             executeAction = {
                 val row = viewModel.libraryInfoRows.value[it]
                 val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(row, navigator,filterParent)) {
+                if (!navigateToList(row, navigator, filterParent)) {
                     viewModel.executeAction(it, activity as FragmentActivity)
                 }
             }
@@ -157,7 +170,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             executeAction = {
                 val row = viewModel.libraryInfoRows.value[it]
                 val filterParent = viewModel.filterNavigation
-                if (!executeListNavigation(row, navigator,filterParent)) {
+                if (!navigateToList(row, navigator, filterParent)) {
                     viewModel.executeAction(it, activity as FragmentActivity)
                 }
             }
@@ -173,7 +186,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             onClick = viewModel::toggleFilterSelection,
             onNavigation = {
                 val filter = viewModel.getFilter(it.toItem())
-                navigateToInfo(filter, it, navigator)
+                navigateToInfo(filter, navigator)
             }
         )
     }
@@ -181,20 +194,19 @@ fun EntryProviderScope<NavKey>.libraryEntries(
 
 private fun navigateToInfo(
     filter: Filter,
-    display: FilterDisplay,
     navigator: ComposeNavigator
 ) {
     val type = when (filter.mainParam.type) {
         is TagFilterType -> TagInfo(
-            display.id,
+            filter.mainParam.argument as Long,
             filter.mainParam.type,
-            display.title
+            filter.mainParam.displayText
         )
 
         is PodcastFilterType -> PodcastInfo(
-            display.id,
+            filter.mainParam.argument as Long,
             filter.mainParam.type,
-            display.title
+            filter.mainParam.displayText
         )
     }
     val parentType = when (filter.mainParam.type) {
@@ -227,7 +239,7 @@ private fun getListViewModel(
     else -> viewModel<LibraryGenreListViewModel>(factory = viewModelFactory)
 }
 
-private fun executeListNavigation(
+private fun navigateToList(
     row: LibraryInfoRow,
     navigator: ComposeNavigator,
     filterParent: Filter?,
@@ -257,4 +269,15 @@ private fun getTypeString(row: LibraryInfoRow): String = when (row.fieldType) {
     LibraryFieldType.Podcast.Podcast -> PODCAST_ID
     LibraryFieldType.Podcast.PodcastEpisode -> PODCAST_EPISODE_ID
     LibraryFieldType.Tags.Duration -> GENRE_ID //Shouldn't happen
+}
+
+private fun LibraryFieldType.toFilterType(): FilterType? = when (this) {
+    LibraryFieldType.Tags.Genre -> TagFilterType.GENRE_IS
+    LibraryFieldType.Tags.AlbumArtist -> TagFilterType.ALBUM_ARTIST_IS
+    LibraryFieldType.Tags.Album -> TagFilterType.ALBUM_IS
+    LibraryFieldType.Tags.Artist -> TagFilterType.ARTIST_IS
+    LibraryFieldType.Tags.Song -> TagFilterType.SONG_IS
+    LibraryFieldType.Tags.Playlist -> TagFilterType.PLAYLIST_IS
+    else -> null
+
 }

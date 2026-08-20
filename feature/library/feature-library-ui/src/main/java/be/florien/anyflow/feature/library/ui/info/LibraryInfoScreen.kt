@@ -81,7 +81,7 @@ fun LibraryInfoScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                item.actionIcon?.let {
+                item.rowType.iconRes?.let {
                     Icon(
                         painter = painterResource(it),
                         contentDescription = "todo",
