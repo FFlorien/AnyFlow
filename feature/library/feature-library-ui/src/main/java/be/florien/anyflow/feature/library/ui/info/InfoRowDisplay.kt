@@ -14,7 +14,7 @@ data class InfoRowDisplay(
     val id: Long,
     val key: String,
     val leftImage: ImageConfig?,
-    @StringRes
+    @field:StringRes
     val title: Int,
     val info: TextConfig,
     @field:ColorRes

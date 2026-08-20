@@ -71,7 +71,7 @@ fun DbDownloadedCount.toViewDownloadedCount() = DownloadedCount(
     count = count
 )
 
-fun DbTagsFilterCount.toViewFilterCount() = FilterTagsCount(
+fun DbTagsFilterCount.toViewFilterCount(duration: Int) = FilterTagsCount(
     duration = duration,
     genres = genres,
     albumArtists = albumArtists,

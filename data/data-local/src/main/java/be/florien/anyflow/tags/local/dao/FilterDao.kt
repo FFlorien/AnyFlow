@@ -16,6 +16,9 @@ abstract class FilterDao : BaseDao<DbFilter>() {
     @RawQuery
     abstract suspend fun getCount(query: SupportSQLiteQuery): DbTagsFilterCount
 
+    @RawQuery
+    abstract suspend fun getDuration(query: SupportSQLiteQuery): Int
+
     @Query("SELECT filter.id, type, argument, displayText, filterGroup, parentFilter FROM filter JOIN filtergroup ON filter.filterGroup = filterGroup.id WHERE filterGroup.id = ${DbFilterGroup.CURRENT_FILTER_GROUP_ID}")
     abstract fun currentFilterList(): List<DbFilter>
 

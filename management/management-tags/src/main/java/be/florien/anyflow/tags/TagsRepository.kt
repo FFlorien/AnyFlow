@@ -146,9 +146,10 @@ class TagsRepository @Inject constructor(
      */
 
     suspend fun getFilteredInfo(infoSource: Filter?): FilterTagsCount {
+        val duration = libraryDatabase.getFilterDao().getDuration(queryComposer.getQueryForDuration(infoSource))
         return libraryDatabase.getFilterDao()
             .getCount(queryComposer.getQueryForTagsCount(infoSource))
-            .toViewFilterCount()
+            .toViewFilterCount(duration)
     }
 
     suspend fun getSongDuration(id: Long): Int = libraryDatabase.getSongDao().getSongDuration(id)

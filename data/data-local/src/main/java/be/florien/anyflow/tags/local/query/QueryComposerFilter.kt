@@ -124,8 +124,14 @@ class QueryComposerFilter : QueryComposer {
             .toSQLiteQuery("getQueryForSongCount", Throwable().stackTrace)
     }
 
+    override fun getQueryForDuration(filter: Filter?) = ("SELECT " +
+            "SUM(Song.time) " +
+            "FROM Song " +
+            constructTagJoinStatement(filter) +
+            constructWhereStatement(filter, ""))
+        .toSQLiteQuery("getQueryForDuration", Throwable().stackTrace)
+
     override fun getQueryForTagsCount(filter: Filter?) = ("SELECT " +
-            "SUM(Song.time) AS duration, " +
             "COUNT(DISTINCT SongGenre.genreId) AS genres, " +
             "COUNT(DISTINCT Album.artistid) AS albumArtists, " +
             "COUNT(DISTINCT Song.albumId) AS albums, " +

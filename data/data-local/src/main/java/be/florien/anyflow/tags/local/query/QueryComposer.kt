@@ -42,6 +42,7 @@ interface QueryComposer {
     ): SimpleSQLiteQuery
 
     fun getQueryForSongCount(filter: Filter): SimpleSQLiteQuery
+    fun getQueryForDuration(filter: Filter?): SimpleSQLiteQuery
     fun getQueryForTagsCount(filter: Filter?): SimpleSQLiteQuery
 
     //region playlist

@@ -45,7 +45,6 @@ data class DbFilter(
 }
 
 data class DbTagsFilterCount(
-    val duration: Int,
     val genres: Int,
     val albumArtists: Int,
     val albums: Int,
