@@ -19,6 +19,7 @@ import be.florien.anyflow.common.navigation.findActivity
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
 import be.florien.anyflow.feature.library.domain.model.LibraryRowType
+import be.florien.anyflow.feature.library.ui.info.InfoRowDisplay
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoScreen
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel.Companion.ALBUM_ARTIST_ID
@@ -102,6 +103,7 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                 if (row.rowType == LibraryRowType.Action.SeeInLibrary && type != null) {
                     val parentRowDisplay = state
                         .value
+                        .filterIsInstance<InfoRowDisplay.Item>()
                         .first { it.fieldType == row.fieldType }
                     val displayText = parentRowDisplay.info.getText(resources)
                     navigateToInfo(

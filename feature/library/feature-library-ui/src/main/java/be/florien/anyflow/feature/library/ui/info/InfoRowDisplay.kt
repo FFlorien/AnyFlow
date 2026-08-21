@@ -1,6 +1,6 @@
 package be.florien.anyflow.feature.library.ui.info
 
-import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import be.florien.anyflow.common.ui.domain.ImageConfig
@@ -10,15 +10,40 @@ import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 
 
 @Immutable
-data class InfoRowDisplay(
-    val id: Long,
-    val key: String,
-    val leftImage: ImageConfig?,
-    @field:StringRes
-    val title: Int,
-    val info: TextConfig,
-    @field:ColorRes
-    val backgroundColor: Int?,
-    val rowType: LibraryRowType,
-    val fieldType: LibraryFieldType
-)
+sealed interface InfoRowDisplay {
+    val key: String
+    @get:StringRes
+    val title: Int
+
+    @Immutable
+    data class List(
+        override val key: String,
+        @field:StringRes
+        override val title: Int,
+        @field:DrawableRes
+        val leftImage: Int,
+        val countText: TextConfig,
+    ) : InfoRowDisplay
+
+    @Immutable
+    data class Item(
+        override val key: String,
+        @field:StringRes
+        override val title: Int,
+        val id: Long,
+        val leftImage: ImageConfig,
+        val info: TextConfig,
+        val rowType: LibraryRowType,
+        val fieldType: LibraryFieldType
+    ) : InfoRowDisplay
+
+    @Immutable
+    data class Action(
+        override val key: String,
+        @field:StringRes
+        override val title: Int,
+        val actionDescription: TextConfig,
+        val rowType: LibraryRowType,
+        val fieldType: LibraryFieldType
+    ) : InfoRowDisplay
+}

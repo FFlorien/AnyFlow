@@ -112,9 +112,15 @@ class LibraryInfoViewModel @Inject constructor(
                 viewModelScope.launch {
                     val type = row.fieldType.toTagType() ?: return@launch
                     val idText = row.getIdText()
-                    navigator.displayPlaylistSelection(activity.supportFragmentManager, idText.id, type, -1)
+                    navigator.displayPlaylistSelection(
+                        activity.supportFragmentManager,
+                        idText.id,
+                        type,
+                        -1
+                    )
                 }
             }
+
             LibraryRowType.Action.AddNext -> Unit//todo
             LibraryRowType.Action.Search -> Unit//todo
             LibraryRowType.Action.Download -> Unit//todo
@@ -142,43 +148,51 @@ class LibraryInfoViewModel @Inject constructor(
     }
 
     private suspend fun LibraryInfoRow.toInfoRow(): InfoRowDisplay {
-        val idText = if (rowType !is LibraryRowType.MultiRow) {
-            getIdText()
-        } else {
-            IdText(0, text = count.toString())
-        }
-        val imageUrl = if (rowType is LibraryRowType.SingleRow) {
-            libraryInfoRepository.getArtUrl(fieldType.artType, idText.id)
-        } else {
-            null
-        }
-        val leftImage = if (rowType !is LibraryRowType.Action) {
-            ImageConfig(imageUrl, fieldType.iconRes)
-        } else {
-            null
-        }
+        val key = "$fieldType${rowType.getKey()}"
         val title = rowType.titleRes ?: fieldType.titleRes
-        val info =
-            if (rowType is LibraryRowType.MultiRow && fieldType == LibraryFieldType.Tags.Duration) {
-                TextConfig(
-                    mediaDuration = TimeOperations.toMediaDuration(
-                        count.toDuration(DurationUnit.SECONDS)
-                    )
-                )
-            } else {
-                TextConfig(text = idText.text, textRes = rowType.descriptionRes)
-            }
+        return when (rowType) {
+            is LibraryRowType.Action -> InfoRowDisplay.Action(
+                key = key,
+                title = title,
+                actionDescription = TextConfig(
+                    text = getIdText().text,
+                    textRes = rowType.descriptionRes
+                ),
+                rowType = rowType,
+                fieldType = fieldType
+            )
 
-        return InfoRowDisplay(
-            id = idText.id,
-            key = "$fieldType${rowType.getKey()}",
-            leftImage = leftImage,
-            title = title,
-            info = info,
-            backgroundColor = null,
-            rowType = rowType,
-            fieldType = fieldType
-        )
+            is LibraryRowType.MultiRow -> InfoRowDisplay.List(
+                key = key,
+                title = title,
+                leftImage = fieldType.iconRes,
+                countText = if (fieldType == LibraryFieldType.Tags.Duration) {
+                    TextConfig(
+                        mediaDuration = TimeOperations.toMediaDuration(
+                            count.toDuration(DurationUnit.SECONDS)
+                        )
+                    )
+                } else {
+                    TextConfig(text = count.toString())
+                }
+            )
+
+            is LibraryRowType.SingleRow -> {
+                val idText = getIdText()
+                InfoRowDisplay.Item(
+                    key = key,
+                    title = title,
+                    id = idText.id,
+                    leftImage = ImageConfig(
+                        url = libraryInfoRepository.getArtUrl(fieldType.artType, idText.id),
+                        resource = fieldType.iconRes
+                    ),
+                    info = TextConfig(text = idText.text, textRes = rowType.descriptionRes),
+                    rowType = rowType,
+                    fieldType = fieldType
+                )
+            }
+        }
     }
 
     private suspend fun LibraryInfoRow.getIdText(): IdText {
