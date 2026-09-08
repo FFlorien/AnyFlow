@@ -51,6 +51,7 @@ recyclerviewFastscroll = "2.0.1"
 retrofit = "3.0.0"
 room = "2.8.4"
 stfalconimageviewer = "1.0.1"
+telephoto = "0.19.0"
 timber = "5.0.1"
 treessence = "1.1.2"
 workRuntimeKtx = "2.11.1"
@@ -88,6 +89,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core"}
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }
+androidx-compose-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "runtimeAnnotation" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
@@ -153,7 +156,6 @@ recyclerview-fastscroll = { module = "com.simplecityapps:recyclerview-fastscroll
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
 stfalconimageviewer = { module = "com.github.stfalcon-studio:StfalconImageViewer", version.ref = "stfalconimageviewer" }
+telephoto = { module = "me.saket.telephoto:zoomable-image-coil3", version.ref = "telephoto" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 treessence = { module = "com.github.bastienpaulfr:Treessence", version.ref = "treessence" }
-androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }
-androidx-compose-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "runtimeAnnotation" }

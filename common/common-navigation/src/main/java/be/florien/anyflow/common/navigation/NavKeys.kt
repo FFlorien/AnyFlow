@@ -119,3 +119,8 @@ data class TagList(val type: String, val filterParent: Filter?) : ConnectedDesti
 data class PodcastList(val type: String, val filterParent: Filter?) : ConnectedDestination {
     override val isSearchable: Boolean = true
 }
+
+@Serializable
+data class Image(val model: String) : ConnectedDestination {
+    override val isSearchable: Boolean = false
+}

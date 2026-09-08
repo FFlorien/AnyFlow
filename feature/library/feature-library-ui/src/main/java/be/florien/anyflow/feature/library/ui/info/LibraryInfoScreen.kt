@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.library.ui.info
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -25,13 +27,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import be.florien.anyflow.common.resources.R
+import be.florien.anyflow.feature.library.domain.model.LibraryRowType
 import coil3.compose.AsyncImage
 import kotlinx.collections.immutable.PersistentList
 
 @Composable
 fun LibraryInfoScreen(
     list: PersistentList<InfoRowDisplay>,
-    executeAction: (Int) -> Unit
+    executeAction: (Int) -> Unit,
+    navigateToImage: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
@@ -41,7 +45,7 @@ fun LibraryInfoScreen(
         }) { index, item ->
             when (item) {
                 is InfoRowDisplay.Action -> Action(executeAction, index, item)
-                is InfoRowDisplay.Item -> Item(executeAction, index, item)
+                is InfoRowDisplay.Item -> Item(executeAction, navigateToImage, index, item)
                 is InfoRowDisplay.List -> List(executeAction, index, item)
             }
         }
@@ -93,12 +97,17 @@ private fun LazyItemScope.List(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun LazyItemScope.Item(
     executeAction: (Int) -> Unit,
+    navigateToImage: (String) -> Unit,
     index: Int,
     item: InfoRowDisplay.Item
 ) {
+    val imageSize = remember(item.rowType) {
+        if (item.rowType == LibraryRowType.SingleRow.ExpandedTitle) 100.dp else 30.dp
+    }
     Row(
         modifier = Modifier
             .animateItem()
@@ -121,9 +130,13 @@ private fun LazyItemScope.Item(
         }
         item.leftImage.url?.let {
             AsyncImage(
-                modifier = Modifier.size(100.dp),
+                modifier = Modifier
+                    .size(imageSize)
+                    .clickable(enabled = true, onClick = {
+                        navigateToImage(it)
+                    }),
                 model = it,
-                contentDescription = null
+                contentDescription = null,
             )
         }
         Column(

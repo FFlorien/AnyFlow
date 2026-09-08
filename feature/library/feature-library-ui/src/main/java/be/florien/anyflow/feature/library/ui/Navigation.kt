@@ -1,5 +1,11 @@
 package be.florien.anyflow.feature.library.ui
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -8,9 +14,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.metadata
+import androidx.navigation3.ui.NavDisplay
 import be.florien.anyflow.common.di.AnyFlowViewModelFactory
 import be.florien.anyflow.common.navigation.BottomNavDestination
 import be.florien.anyflow.common.navigation.ComposeNavigator
+import be.florien.anyflow.common.navigation.Image
 import be.florien.anyflow.common.navigation.PodcastInfo
 import be.florien.anyflow.common.navigation.PodcastList
 import be.florien.anyflow.common.navigation.TagInfo
@@ -19,6 +28,7 @@ import be.florien.anyflow.common.navigation.findActivity
 import be.florien.anyflow.feature.library.domain.model.LibraryFieldType
 import be.florien.anyflow.feature.library.domain.model.LibraryInfoRow
 import be.florien.anyflow.feature.library.domain.model.LibraryRowType
+import be.florien.anyflow.feature.library.ui.image.ImageDialog
 import be.florien.anyflow.feature.library.ui.info.InfoRowDisplay
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoScreen
 import be.florien.anyflow.feature.library.ui.info.LibraryInfoViewModel
@@ -75,6 +85,9 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                 ) { //todo navigate to info when SeeInLibrary and show playlist selection
                     viewModel.executeAction(it, activity as FragmentActivity)
                 }
+            },
+            navigateToImage = {
+                navigator.navigate(Image(it))
             }
         )
     }
@@ -115,6 +128,9 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                 } else if (!navigateToList(row, navigator, viewModel.filterNavigation)) {
                     viewModel.executeAction(position, activity as FragmentActivity)
                 }
+            },
+            navigateToImage = {
+                navigator.navigate(Image(it))
             }
         )
     }
@@ -148,6 +164,9 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                 if (!navigateToList(row, navigator, filterParent)) {
                     viewModel.executeAction(it, activity as FragmentActivity)
                 }
+            },
+            navigateToImage = {
+                navigator.navigate(Image(it))
             }
         )
     }
@@ -175,6 +194,9 @@ fun EntryProviderScope<NavKey>.libraryEntries(
                 if (!navigateToList(row, navigator, filterParent)) {
                     viewModel.executeAction(it, activity as FragmentActivity)
                 }
+            },
+            navigateToImage = {
+                navigator.navigate(Image(it))
             }
         )
     }
@@ -189,6 +211,28 @@ fun EntryProviderScope<NavKey>.libraryEntries(
             onNavigation = {
                 val filter = viewModel.getFilter(it.toItem())
                 navigateToInfo(filter, navigator)
+            }
+        )
+    }
+    entry<Image>(metadata = metadata {
+        put(NavDisplay.TransitionKey) {
+            slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(200)
+            ) togetherWith ExitTransition.KeepUntilTransitionsFinished
+        }
+        put(NavDisplay.PopTransitionKey) {
+            EnterTransition.None togetherWith
+                    slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(100)
+                    )
+        }
+    }) { entry ->
+        ImageDialog(
+            source = entry.model,
+            onDismiss = {
+                navigator.goBack()
             }
         )
     }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import be.florien.anyflow.data.server.NetApiError
 import be.florien.anyflow.data.server.NetSuccess
 import be.florien.anyflow.data.server.datasource.playlist.AmpachePlaylistSource
 import be.florien.anyflow.data.server.logError
@@ -32,7 +33,7 @@ class PlaylistModificationWorker(
             Result.retry()
         } else {
             component.inject(this)
-            return withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 try {
                     when (action) {
                         ACTION_ADD -> addToPlaylist()
@@ -77,7 +78,7 @@ class PlaylistModificationWorker(
             source.removeSongFromPlaylist(playlist, songId)
         }
         netResults?.forEach { it.logError("Remove from playlist") }
-        val areAllSuccess = netResults?.all { it is NetSuccess } ?: return Result.failure()
+        val areAllSuccess = netResults?.all { it is NetSuccess || (it is NetApiError && it.error.errorCode == API_ERROR_NOT_FOUND) } ?: return Result.failure()
         return if (areAllSuccess) Result.success() else Result.retry()
     }
     //endregion
@@ -89,6 +90,7 @@ class PlaylistModificationWorker(
         private const val ACTION = "ACTION"
         private const val ACTION_ADD = "ADD"
         private const val ACTION_REMOVE = "REMOVE"
+        private const val API_ERROR_NOT_FOUND = 4704
 
         fun getDataForAdding(playlistId: Long, songsIds: Collection<Long>, position: Int) =
             Data.Builder()

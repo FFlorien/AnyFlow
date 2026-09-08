@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":management-filters-domain"))
     implementation(project(":management-queue"))
     implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
 
     implementation(libs.collection.immutable)
     implementation(libs.androidx.core.ktx)
@@ -44,5 +45,6 @@ dependencies {
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.recyclerview.fastscroll)
+    implementation(libs.telephoto)
 
 }
