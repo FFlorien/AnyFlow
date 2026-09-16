@@ -8,6 +8,7 @@ import be.florien.anyflow.management.filters.domain.model.Filter
 import kotlinx.serialization.Serializable
 import be.florien.anyflow.management.filters.domain.model.FilterType
 
+@Immutable
 @Serializable
 sealed interface ConnectedDestination: NavKey {
 

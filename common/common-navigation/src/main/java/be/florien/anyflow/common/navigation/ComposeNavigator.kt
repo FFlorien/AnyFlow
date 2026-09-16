@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.NavKey
  * Handles navigation events (forward and back) by updating the navigation state.
  */
 class ComposeNavigator(val state: NavigationState) {
+
     fun navigate(route: NavKey, parentTopRoute: NavKey? = null, clearBackStack: Boolean = false) {
         val topRoute = parentTopRoute ?: state.topLevelRoute
         val currentStack = state.backStacks[topRoute]

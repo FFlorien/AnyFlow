@@ -34,9 +34,9 @@ import kotlinx.coroutines.flow.debounce
 @Composable
 fun SearchBar(
     isSearching: Boolean,
-    searchTotal: Int,
-    searchPosition: Int,
-    onSearchPositionChange: (Int) -> Unit,
+    searchTotal: Int?,
+    searchPosition: Int?,
+    onSearchPositionChange: ((Int) -> Unit)?,
     onSearchChange: (String) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -44,10 +44,12 @@ fun SearchBar(
 
     LaunchedEffect(isSearching) { if (isSearching) focusRequester.requestFocus() }
 
-    LaunchedEffect(searchState) {
-        snapshotFlow { searchState.text.toString() }
-            .debounce { 300L }
-            .collect { onSearchChange(it) }
+    LaunchedEffect(searchState, isSearching) {
+        if (isSearching) {
+            snapshotFlow { searchState.text.toString() }
+                .debounce { 300L }
+                .collect { onSearchChange(it) }
+        }
     }
     if (isSearching) {
         Row(
@@ -63,35 +65,39 @@ fun SearchBar(
                     .focusRequester(focusRequester),
                 state = searchState
             )
-            Text(
-                modifier = Modifier
-                    .width(80.dp)
-                    .padding(horizontal = 4.dp),
-                text = if (searchTotal > 0) {
-                    "${searchPosition + 1}/$searchTotal"
-                } else {
-                    stringResource(R.string.search_no_result)
-                },
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center
-            )
-            IconButton(onClick = {
-                onSearchPositionChange(searchPosition + 1)
-            }) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    contentDescription = null
+            if (searchTotal != null && searchPosition != null) {
+                Text(
+                    modifier = Modifier
+                        .width(80.dp)
+                        .padding(horizontal = 4.dp),
+                    text = if (searchTotal > 0) {
+                        "${searchPosition + 1}/$searchTotal"
+                    } else {
+                        stringResource(R.string.search_no_result)
+                    },
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    textAlign = TextAlign.Center
                 )
             }
-            IconButton(onClick = {
-                onSearchPositionChange(searchPosition - 1)
-            }) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowUp,
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    contentDescription = null
-                )
+            if (onSearchPositionChange != null && searchPosition != null) {
+                IconButton(onClick = {
+                    onSearchPositionChange(searchPosition + 1)
+                }) {
+                    Icon(
+                        Icons.Outlined.KeyboardArrowDown,
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        contentDescription = null
+                    )
+                }
+                IconButton(onClick = {
+                    onSearchPositionChange(searchPosition - 1)
+                }) {
+                    Icon(
+                        Icons.Outlined.KeyboardArrowUp,
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        contentDescription = null
+                    )
+                }
             }
         }
     }

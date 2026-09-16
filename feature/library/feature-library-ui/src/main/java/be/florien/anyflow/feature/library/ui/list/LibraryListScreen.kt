@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,6 +29,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import be.florien.anyflow.common.resources.R
 import be.florien.anyflow.common.resources.component.ScrollBar
+import be.florien.anyflow.common.resources.component.SearchBar
 import be.florien.anyflow.common.resources.component.SlideRightToAction
 import be.florien.anyflow.common.resources.component.handlerWidth
 import coil3.compose.AsyncImage
@@ -48,45 +50,63 @@ data class FilterDisplay(
 @Composable
 fun LibraryListScreen(
     itemsPager: Flow<PagingData<FilterDisplay>>,
+    onSearch: (String) -> Unit,
     onClick: (FilterDisplay) -> Unit,
-    onNavigation: (FilterDisplay) -> Unit
+    onNavigation: (FilterDisplay) -> Unit,
+    isSearching: Boolean
 ) {
     val items = itemsPager.collectAsLazyPagingItems()
     val lazyListState = rememberLazyListState()
     val loadingLabel = stringResource(R.string.general_loading_label)
     val loadingLabelShort = stringResource(R.string.general_loading_label_short)
-    Box {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(end = handlerWidth),
-        ) {
-            items(
-                count = items.itemCount,
-                key = items.itemKey { it.id }
-            ) { position ->
-                val item = items[position]
-                if (item == null) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        text = loadingLabel
-                    )
-                } else {
-                    FilterItem(item, onNavigation, onClick)
+
+    LaunchedEffect(isSearching) {
+        if (!isSearching) {
+            onSearch("")
+        }
+    }
+
+    Column {
+        SearchBar(
+            isSearching,
+            null,
+            null,
+            null,
+            onSearch
+        )
+        Box {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(end = handlerWidth),
+            ) {
+                items(
+                    count = items.itemCount,
+                    key = items.itemKey { it.id }
+                ) { position ->
+                    val item = items[position]
+                    if (item == null) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            text = loadingLabel
+                        )
+                    } else {
+                        FilterItem(item, onNavigation, onClick)
+                    }
                 }
             }
+            ScrollBar(
+                items = items,
+                lazyListState = lazyListState,
+                getSection = {
+                    this?.section ?: loadingLabelShort
+                }
+            )
         }
-        ScrollBar(
-            items = items,
-            lazyListState = lazyListState,
-            getSection = {
-                this?.section ?: loadingLabelShort
-            }
-        )
     }
 }
 

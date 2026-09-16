@@ -35,6 +35,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation3.runtime.NavKey
 import be.florien.anyflow.common.navigation.AlarmList
 import be.florien.anyflow.common.navigation.BottomNavDestination
+import be.florien.anyflow.common.navigation.ConnectedDestination
 import be.florien.anyflow.common.resources.component.ActionIcon
 import be.florien.anyflow.common.resources.component.BlueTopAppBarMain
 import be.florien.anyflow.component.player.controls.PlayerControls
@@ -45,6 +46,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
+    currentNavKey: ConnectedDestination,
     topLevelNavKey: BottomNavDestination,
     mainState: MainActivityViewModel.State,
     getActionListener: () -> PlayerControls.OnActionListener,
@@ -84,6 +86,7 @@ fun MainScreen(
             topBar = {
                 MainTopBar(
                     mainState = mainState,
+                    currentNavKey = currentNavKey,
                     topLevelNavKey = topLevelNavKey,
                     toggleDrawer = {
                         scope.launch {
@@ -126,6 +129,7 @@ fun MainScreen(
 @Composable
 private fun MainTopBar(
     mainState: MainActivityViewModel.State,
+    currentNavKey: ConnectedDestination,
     topLevelNavKey: BottomNavDestination,
     toggleDrawer: () -> Unit,
     toggleSearch: () -> Unit,
@@ -136,7 +140,7 @@ private fun MainTopBar(
         title = stringResource(topLevelNavKey.label),
         onHamburgerMenuClicked = toggleDrawer,
         actions = {
-            if (topLevelNavKey.isSearchable) {
+            if (currentNavKey.isSearchable) {
                 ActionIcon(
                     painter = { painterResource(R.drawable.ic_search) },
                     contentDescription = null,

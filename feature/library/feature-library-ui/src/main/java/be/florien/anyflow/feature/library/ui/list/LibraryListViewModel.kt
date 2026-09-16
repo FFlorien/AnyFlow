@@ -25,9 +25,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class LibraryListViewModel(
     override val filtersManager: FiltersManager,
@@ -37,22 +37,25 @@ abstract class LibraryListViewModel(
     override val areFiltersInEdition: LiveData<Boolean> = MutableLiveData(true)
     open val hasSearch = true
 
-    private val searchedText = MutableStateFlow("")
+    val searchedText = MutableStateFlow("")
     private val errorMessage = MutableStateFlow(-1)
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val values: Flow<PagingData<FilterDisplay>> =
+    val values: Flow<Flow<PagingData<FilterDisplay>>> =
         searchedText
-            .debounce(300).distinctUntilChanged()
-            .flatMapConcat {
+            .debounce(300.milliseconds)
+            .map {
                 getPagingList(navigationFilter?.clone() as Filter?, it).cachedIn(viewModelScope)
             }
-            .combine(filtersManager.filtersInEdition.asFlow()) { paging, edited ->
-                paging
-                    .filter { !shouldFilterOut(it) }
-                    .map {
-                        it.toDisplay(hasFilter(it))
+            .combine(filtersManager.filtersInEdition.asFlow()) { pagingFlow, _ ->
+                pagingFlow
+                    .map { pagingData ->
+                        pagingData.filter { !shouldFilterOut(it) }
+                            .map {
+                                it.toDisplay(hasFilter(it))
+                            }
                     }
+
             }
     var navigationFilter: Filter? = null
 

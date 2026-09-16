@@ -1,5 +1,6 @@
 package be.florien.anyflow.feature.library.ui
 
+import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -7,6 +8,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.fragment.app.FragmentActivity
@@ -60,18 +62,20 @@ import be.florien.anyflow.management.filters.domain.model.FilterType
 import be.florien.anyflow.management.filters.domain.model.PodcastFilterType
 import be.florien.anyflow.management.filters.domain.model.TagFilterType
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 fun EntryProviderScope<NavKey>.libraryEntries(
     viewModelFactory: AnyFlowViewModelFactory,
-    navigator: ComposeNavigator
+    navigator: ComposeNavigator,
+    isSearching: Flow<Boolean>
 ) {
     entry<BottomNavDestination.TagLibrary> {
         val activity = LocalContext.current.findActivity()
         val viewModel = viewModel<LibraryInfoViewModel>(factory = viewModelFactory)
         viewModel.setType(TAGS_TYPE)
         viewModel.filterNavigation = null
-        val state =
-            viewModel.state.collectAsStateWithLifecycle(persistentListOf())
+        val state = viewModel.state.collectAsStateWithLifecycle(persistentListOf())
         LibraryInfoScreen(
             list = state.value,
             executeAction = {
@@ -138,14 +142,20 @@ fun EntryProviderScope<NavKey>.libraryEntries(
         val listType = entry.type
         val viewModel = getListViewModel(listType, viewModelFactory)
         viewModel.navigationFilter = entry.filterParent
+        val isSearchingValue = isSearching.collectAsState(false).value
+        val values = viewModel.values.collectAsState(emptyFlow())
 
         LibraryListScreen(
-            itemsPager = viewModel.values,
+            itemsPager = values.value,
+            onSearch = {
+                viewModel.searchedText.value = it
+            },
             onClick = viewModel::toggleFilterSelection,
             onNavigation = {
                 val filter = viewModel.getFilter(it.toItem())
                 navigateToInfo(filter, navigator)
-            }
+            },
+            isSearching = isSearchingValue
         )
     }
     entry<BottomNavDestination.PodcastLibrary> {
@@ -204,14 +214,18 @@ fun EntryProviderScope<NavKey>.libraryEntries(
         val listType = entry.type
         val viewModel = getListViewModel(listType, viewModelFactory)
         viewModel.navigationFilter = entry.filterParent
+        val isSearchingValue = isSearching.collectAsState(false).value
+        val values = viewModel.values.collectAsState(emptyFlow())
 
         LibraryListScreen(
-            itemsPager = viewModel.values,
+            itemsPager = values.value,
+            onSearch = { viewModel.searchedText.value = it },
             onClick = viewModel::toggleFilterSelection,
             onNavigation = {
                 val filter = viewModel.getFilter(it.toItem())
                 navigateToInfo(filter, navigator)
-            }
+            },
+            isSearching = isSearchingValue
         )
     }
     entry<Image>(metadata = metadata {

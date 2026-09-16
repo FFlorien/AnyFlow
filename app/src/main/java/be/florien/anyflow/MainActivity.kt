@@ -119,6 +119,7 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
 
             AppTheme {
                 val topLevelRoute = navigationState.topLevelRoute
+                val currentRoute = navigationState.backStacks[topLevelRoute]?.last()
                 if (topLevelRoute is ConnectedDestination) {
                     val viewModel = viewModel<MainActivityViewModel>(factory = viewModelFactory)
                     var isSearching by remember { mutableStateOf(false) }
@@ -199,8 +200,12 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                             ?: false
                         viewModel.setInternetPresence(hasInternet && (isWifi || isCellular))
                     }
-                    if (topLevelRoute is BottomNavDestination) {
+                    LaunchedEffect(currentRoute) {
+                        isSearching = false
+                    }
+                    if (topLevelRoute is BottomNavDestination && currentRoute != null && currentRoute is ConnectedDestination) {
                         MainScreen(
+                            currentNavKey = currentRoute,
                             topLevelNavKey = topLevelRoute,
                             mainState = mainState,
                             getActionListener = { viewModel },
@@ -218,7 +223,11 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                                 navigationState.toEntries(entryProvider {
                                     authenticationEntry(navigator)
                                     alarmEntry(viewModelFactory, navigator)
-                                    libraryEntries(viewModelFactory, navigator)
+                                    libraryEntries(
+                                        viewModelFactory,
+                                        navigator,
+                                        snapshotFlow { isSearching }
+                                    )
                                     nowPlayingEntry(
                                         viewModelFactory,
                                         navigator,
@@ -235,7 +244,10 @@ class MainActivity : AppCompatActivity(), ViewModelFactoryProvider {
                             navigationState.toEntries(entryProvider {
                                 authenticationEntry(navigator)
                                 alarmEntry(viewModelFactory, navigator)
-                                libraryEntries(viewModelFactory, navigator)
+                                libraryEntries(
+                                    viewModelFactory,
+                                    navigator,
+                                    snapshotFlow { isSearching })
                                 nowPlayingEntry(
                                     viewModelFactory,
                                     navigator,
