@@ -162,7 +162,22 @@ class LibraryInfoViewModel @Inject constructor(
                 fieldType = fieldType
             )
 
-            is LibraryRowType.MultiRow -> InfoRowDisplay.List(
+            LibraryRowType.MultiRow.SubFilter -> InfoRowDisplay.List(
+                key = key,
+                title = title,
+                leftImage = fieldType.iconRes,
+                countText = if (fieldType == LibraryFieldType.Tags.Duration) {
+                    TextConfig(
+                        mediaDuration = TimeOperations.toMediaDuration(
+                            count.toDuration(DurationUnit.SECONDS)
+                        )
+                    )
+                } else {
+                    TextConfig(text = count.toString())
+                }
+            )
+
+            LibraryRowType.MultiRow.InfoTitle -> InfoRowDisplay.Info(
                 key = key,
                 title = title,
                 leftImage = fieldType.iconRes,

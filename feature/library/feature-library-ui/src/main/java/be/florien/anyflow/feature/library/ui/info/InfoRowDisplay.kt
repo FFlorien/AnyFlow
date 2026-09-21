@@ -16,6 +16,16 @@ sealed interface InfoRowDisplay {
     val title: Int
 
     @Immutable
+    data class Info(
+        override val key: String,
+        @field:StringRes
+        override val title: Int,
+        @field:DrawableRes
+        val leftImage: Int,
+        val countText: TextConfig,
+    ) : InfoRowDisplay
+
+    @Immutable
     data class List(
         override val key: String,
         @field:StringRes

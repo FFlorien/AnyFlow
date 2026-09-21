@@ -47,7 +47,43 @@ fun LibraryInfoScreen(
                 is InfoRowDisplay.Action -> Action(executeAction, index, item)
                 is InfoRowDisplay.Item -> Item(executeAction, navigateToImage, index, item)
                 is InfoRowDisplay.List -> List(executeAction, index, item)
+                is InfoRowDisplay.Info -> Info(item)
             }
+        }
+    }
+}
+
+@Composable
+private fun LazyItemScope.Info(
+    item: InfoRowDisplay.Info
+) {
+    Row(
+        modifier = Modifier
+            .animateItem()
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(30.dp),
+            painter = painterResource(item.leftImage),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+            contentDescription = null
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp)
+        ) {
+            Text(
+                text = stringResource(item.title),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                text = item.countText.getText(LocalResources.current),
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
