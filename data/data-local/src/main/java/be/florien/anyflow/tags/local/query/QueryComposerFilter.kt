@@ -201,27 +201,29 @@ class QueryComposerFilter : QueryComposer {
 
     //region podcasts
     override fun getQueryForPodcasts(
-        filter: Filter?//todo: add ordering handling
+        filter: Filter?,//todo: add ordering handling
+        search: String?
     ): SimpleSQLiteQuery {
         val podcastFilters = filter.onlyPodcast()
 
         return ("SELECT DISTINCT podcast.id, podcast.name, podcast.description, podcast.language, podcast.feedUrl, podcast.website, podcast.buildDate, podcast.syncDate FROM podcast" +
                 constructPodcastJoinStatement(podcastFilters, hasPodcastEpisode = false) +
-                constructWhereStatement(podcastFilters, ""))
-            .toSQLiteQuery("getQueryForPodcasts", Throwable().stackTrace)
+                constructWhereStatement(podcastFilters, " podcast.name LIKE ?", search))
+            .toSQLiteQuery("getQueryForPodcasts", Throwable().stackTrace, search)
     }
 
     override fun getQueryForPodcastEpisodes(
-        filter: Filter?//todo: add ordering handling
+        filter: Filter?,//todo: add ordering handling
+        search: String?
     ): SimpleSQLiteQuery {
         val podcastFilters = filter.onlyPodcast()
 
         return ("SELECT DISTINCT podcastEpisode.id AS id, podcastEpisode.title AS title, podcast.name AS podcastName, podcastEpisode.podcastId AS podcastId, podcastEpisode.time AS time, podcastEpisode.description AS description, podcastEpisode.publicationDate AS publicationDate " +
                 "FROM podcastEpisode " +
                 "JOIN podcast ON podcastEpisode.podcastId = podcast.id" +
-                constructWhereStatement(podcastFilters, "") +
+                constructWhereStatement(podcastFilters, " podcastEpisode.title LIKE ?", search) +
                 " ORDER BY podcastEpisode.publicationDate DESC")
-            .toSQLiteQuery("getQueryForPodcastEpisodes", Throwable().stackTrace)
+            .toSQLiteQuery("getQueryForPodcastEpisodes", Throwable().stackTrace, search)
     }
 
     override fun getQueryForPodcastEpisodeIds(
@@ -376,12 +378,18 @@ class QueryComposerFilter : QueryComposer {
         search: String? = null
     ): String {
         val queryFilters = filterList?.toQueryFilters()
-        return if (!queryFilters.isNullOrEmpty() || !search.isNullOrBlank()) {
+        val hasFilter = !queryFilters.isNullOrEmpty()
+        val hasSearch = !search.isNullOrBlank()
+        return if (hasFilter || hasSearch) {
             var where = " WHERE"
-            if (!search.isNullOrBlank()) {
+            if (hasSearch) {
                 where += searchCondition
+
+                if (hasFilter) {
+                    where += " AND"
+                }
             }
-            if (!queryFilters.isNullOrEmpty()) {
+            if (hasFilter) {
                 where += constructWhereSubStatement(queryFilters)
             }
             where

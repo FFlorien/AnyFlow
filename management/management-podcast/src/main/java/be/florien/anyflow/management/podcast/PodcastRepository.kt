@@ -23,7 +23,7 @@ class PodcastRepository @Inject constructor(
         search: String?
     ) = libraryDatabase
         .getPodcastDao()
-        .rawQueryPaging(queryComposer.getQueryForPodcasts(filter))
+        .rawQueryPaging(queryComposer.getQueryForPodcasts(filter, search))
         .map(DbPodcastDisplay::toViewPodcast)
 
     fun getPodcastsEpisodes(
@@ -31,7 +31,7 @@ class PodcastRepository @Inject constructor(
         search: String?
     ) = libraryDatabase
             .getPodcastEpisodeDao()
-            .rawQueryPaging(queryComposer.getQueryForPodcastEpisodes(filter))
+            .rawQueryPaging(queryComposer.getQueryForPodcastEpisodes(filter, search))
             .map(DbPodcastEpisodeDisplay::toViewPodcastEpisode)
 
     suspend fun getPodcastsFiltered(
@@ -40,7 +40,7 @@ class PodcastRepository @Inject constructor(
     ): List<PodcastDisplay> =
         libraryDatabase
             .getPodcastDao()
-            .rawQueryList(queryComposer.getQueryForPodcasts(filter))
+            .rawQueryList(queryComposer.getQueryForPodcasts(filter, search))
             .map(DbPodcast::toViewPodcast)
 
     suspend fun getAllPodcastsList() =

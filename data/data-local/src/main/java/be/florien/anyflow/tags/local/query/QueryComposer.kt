@@ -60,11 +60,13 @@ interface QueryComposer {
 
     //region podcasts
     fun getQueryForPodcasts(
-        filter: Filter?//todo: add ordering handling
+        filter: Filter?,//todo: add ordering handling
+        search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForPodcastEpisodes(
-        filter: Filter?//todo: add ordering handling
+        filter: Filter?,//todo: add ordering handling
+        search: String?
     ): SimpleSQLiteQuery
 
     fun getQueryForPodcastEpisodeIds(
